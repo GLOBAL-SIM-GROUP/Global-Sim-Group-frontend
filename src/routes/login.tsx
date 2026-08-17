@@ -93,8 +93,8 @@ export function LoginPage() {
 					{/* Logo servis depuis public/ (décoratif : le nom est le h1 juste
 					    en dessous → alt vide, lu comme décoratif par les lecteurs
 					    d'écran). */}
-					<img src="/logo.png" alt="" className="mx-auto h-10 w-auto" />
-					<h1 className="text-xl font-semibold tracking-tight text-primary">
+					<img src="/logo.png" alt="" className="mx-auto h-32 w-auto" />
+					<h1 className="text-xl font-semibold tracking-tight text-foreground">
 						{m.app_name()}
 					</h1>
 					<p className="text-sm text-muted-foreground">

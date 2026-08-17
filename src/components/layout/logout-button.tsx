@@ -7,8 +7,11 @@ import * as m from "#/paraglide/messages";
 /**
  * Déconnexion : révoque le refresh token (best-effort), purge la session
  * locale, puis redirige vers /login. À utiliser sous `<AuthProvider>`.
+ *
+ * `className` permet de restyler le bouton (ex. footer de la sidebar sombre) —
+ * le `Button` shadcn fusionne ses classes avec `cn`.
  */
-export function LogoutButton() {
+export function LogoutButton({ className }: { className?: string }) {
 	const { logout } = useAuth();
 	const router = useRouter();
 
@@ -16,6 +19,7 @@ export function LogoutButton() {
 		<Button
 			variant="ghost"
 			size="sm"
+			className={className}
 			onClick={() => {
 				void logout().then(() => router.navigate({ to: "/login" }));
 			}}

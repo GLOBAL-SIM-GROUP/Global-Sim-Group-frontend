@@ -7,114 +7,121 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  --sea-ink: #173a40;
-  --sea-ink-soft: #416166;
-  --lagoon: #4fb8b2;
-  --lagoon-deep: #328f97;
-  --palm: #2f6a4a;
-  --sand: #e7f0e8;
-  --foam: #f3faf5;
-  --surface: rgba(255, 255, 255, 0.74);
-  --surface-strong: rgba(255, 255, 255, 0.9);
-  --line: rgba(23, 58, 64, 0.14);
+  /* Palette de base — identité app : navy #1A2B4C (texte, fond sidebar),
+     orange #E67E22 (action/marque), fond clair #F4F6F9. Les variables
+     --sea-ink/--lagoon/--palm s'éclaircissent sous `.dark` ; pour des valeurs
+     FIGÉES utiliser les tokens --color-* du bloc @theme inline. */
+  --sea-ink: #1A2B4C;
+  --sea-ink-soft: #43536E;
+  --lagoon: #E67E22;
+  --lagoon-deep: #C86A18;
+  --palm: #2C3E5E;
+  --sand: #F4F6F9;
+  --foam: #ffffff;
+  --surface: rgba(255, 255, 255, 0.78);
+  --surface-strong: rgba(255, 255, 255, 0.92);
+  --line: rgba(26, 43, 76, 0.14);
   --inset-glint: rgba(255, 255, 255, 0.82);
-  --kicker: rgba(47, 106, 74, 0.9);
-  --bg-base: #e7f3ec;
-  --header-bg: rgba(251, 255, 248, 0.84);
-  --chip-bg: rgba(255, 255, 255, 0.8);
-  --chip-line: rgba(47, 106, 74, 0.18);
+  --kicker: rgba(230, 126, 34, 0.92);
+  --bg-base: #F4F6F9;
+  --header-bg: rgba(255, 255, 255, 0.85);
+  --chip-bg: rgba(255, 255, 255, 0.85);
+  --chip-line: rgba(26, 43, 76, 0.12);
   --link-bg-hover: rgba(255, 255, 255, 0.9);
-  --hero-a: rgba(79, 184, 178, 0.36);
-  --hero-b: rgba(47, 106, 74, 0.2);
+  --hero-a: rgba(230, 126, 34, 0.18);
+  --hero-b: rgba(26, 43, 76, 0.09);
 
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.141 0.005 285.823);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.141 0.005 285.823);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.141 0.005 285.823);
-  --primary: oklch(0.21 0.006 285.885);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.967 0.001 286.375);
-  --secondary-foreground: oklch(0.21 0.006 285.885);
-  --muted: oklch(0.967 0.001 286.375);
-  --muted-foreground: oklch(0.552 0.016 285.938);
-  --accent: oklch(0.967 0.001 286.375);
-  --accent-foreground: oklch(0.21 0.006 285.885);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.577 0.245 27.325);
-  --border: oklch(0.92 0.004 286.32);
-  --input: oklch(0.92 0.004 286.32);
-  --ring: oklch(0.871 0.006 286.286);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
+  /* Tokens sémantiques shadcn — rebasés sur l'identité app (template :
+     orange #E67E22 = action/marque, fond clair #F4F6F9, navy #1A2B4C = texte
+     et fond sidebar). On remplace les anciens neutres teal/vert. */
+  --background: #F4F6F9;
+  --foreground: #1A2B4C;
+  --card: #ffffff;
+  --card-foreground: #1A2B4C;
+  --popover: #ffffff;
+  --popover-foreground: #1A2B4C;
+  --primary: #E67E22;
+  --primary-foreground: #1A2B4C;
+  --secondary: #E9EDF4;
+  --secondary-foreground: #1A2B4C;
+  --muted: #EEF1F7;
+  --muted-foreground: #5A6985;
+  --accent: #FBEEDC;
+  --accent-foreground: #1A2B4C;
+  --destructive: #D64531;
+  --destructive-foreground: #ffffff;
+  --border: #DCE3EC;
+  --input: #DCE3EC;
+  --ring: #E67E22;
+  --chart-1: #E67E22;
+  --chart-2: #1A2B4C;
+  --chart-3: #F4A35E;
+  --chart-4: #4A5D7E;
+  --chart-5: #B7C3D6;
   --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.141 0.005 285.823);
-  --sidebar-primary: oklch(0.21 0.006 285.885);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.967 0.001 286.375);
-  --sidebar-accent-foreground: oklch(0.21 0.006 285.885);
-  --sidebar-border: oklch(0.92 0.004 286.32);
-  --sidebar-ring: oklch(0.871 0.006 286.286);
+  --sidebar: #1A2B4C;
+  --sidebar-foreground: #F4F6F9;
+  --sidebar-primary: #E67E22;
+  --sidebar-primary-foreground: #1A2B4C;
+  --sidebar-accent: rgba(230, 126, 34, 0.16);
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: #2C3E5E;
+  --sidebar-ring: #E67E22;
 }
 
 .dark {
-  --sea-ink: #d7ece8;
-  --sea-ink-soft: #afcdc8;
-  --lagoon: #60d7cf;
-  --lagoon-deep: #8de5db;
-  --palm: #6ec89a;
-  --sand: #0f1a1e;
-  --foam: #101d22;
-  --surface: rgba(16, 30, 34, 0.8);
-  --surface-strong: rgba(15, 27, 31, 0.92);
-  --line: rgba(141, 229, 219, 0.18);
-  --inset-glint: rgba(194, 247, 238, 0.14);
-  --kicker: #b8efe5;
-  --bg-base: #0a1418;
-  --header-bg: rgba(10, 20, 24, 0.8);
-  --chip-bg: rgba(13, 28, 32, 0.9);
-  --chip-line: rgba(141, 229, 219, 0.24);
-  --link-bg-hover: rgba(24, 44, 49, 0.8);
-  --hero-a: rgba(96, 215, 207, 0.18);
-  --hero-b: rgba(110, 200, 154, 0.12);
+  --sea-ink: #D7E1EE;
+  --sea-ink-soft: #9DADC4;
+  --lagoon: #F0954D;
+  --lagoon-deep: #E67E22;
+  --palm: #8FA3C2;
+  --sand: #121A29;
+  --foam: #0E1522;
+  --surface: rgba(14, 22, 35, 0.8);
+  --surface-strong: rgba(11, 17, 28, 0.92);
+  --line: rgba(154, 173, 201, 0.18);
+  --inset-glint: rgba(214, 226, 244, 0.12);
+  --kicker: #F0954D;
+  --bg-base: #0C1420;
+  --header-bg: rgba(12, 20, 32, 0.8);
+  --chip-bg: rgba(13, 21, 34, 0.9);
+  --chip-line: rgba(154, 173, 201, 0.22);
+  --link-bg-hover: rgba(21, 32, 50, 0.8);
+  --hero-a: rgba(240, 149, 77, 0.14);
+  --hero-b: rgba(143, 163, 194, 0.1);
 
-  --background: oklch(0.141 0.005 285.823);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.141 0.005 285.823);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.141 0.005 285.823);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.985 0 0);
-  --primary-foreground: oklch(0.21 0.006 285.885);
-  --secondary: oklch(0.274 0.006 286.033);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.274 0.006 286.033);
-  --muted-foreground: oklch(0.705 0.015 286.067);
-  --accent: oklch(0.274 0.006 286.033);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.396 0.141 25.723);
-  --destructive-foreground: oklch(0.637 0.237 25.331);
-  --border: oklch(0.274 0.006 286.033);
-  --input: oklch(0.274 0.006 286.033);
-  --ring: oklch(0.442 0.017 285.786);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.21 0.006 285.885);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.274 0.006 286.033);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(0.274 0.006 286.033);
-  --sidebar-ring: oklch(0.442 0.017 285.786);
+  --background: #0C1420;
+  --foreground: #E4ECF8;
+  --card: #101927;
+  --card-foreground: #E4ECF8;
+  --popover: #101927;
+  --popover-foreground: #E4ECF8;
+  --primary: #F0954D;
+  --primary-foreground: #1A2B4C;
+  --secondary: #1C2739;
+  --secondary-foreground: #E4ECF8;
+  --muted: #1C2739;
+  --muted-foreground: #9DADC4;
+  --accent: rgba(240, 149, 77, 0.16);
+  --accent-foreground: #E4ECF8;
+  --destructive: #E5604B;
+  --destructive-foreground: #ffffff;
+  --border: #22314A;
+  --input: #22314A;
+  --ring: #F0954D;
+  --chart-1: #F4A35E;
+  --chart-2: #E4ECF8;
+  --chart-3: #F0954D;
+  --chart-4: #7A8DAE;
+  --chart-5: #9DADC4;
+  --sidebar: #1A2B4C;
+  --sidebar-foreground: #E4ECF8;
+  --sidebar-primary: #F0954D;
+  --sidebar-primary-foreground: #1A2B4C;
+  --sidebar-accent: rgba(240, 149, 77, 0.16);
+  --sidebar-accent-foreground: #E4ECF8;
+  --sidebar-border: #2C3E5E;
+  --sidebar-ring: #F0954D;
 }
 
 @theme inline {
@@ -155,6 +162,15 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Palette FIGÉE de la sidebar (identité app). Valeurs stables dans les deux
+     thèmes : contrairement à --sea-ink/--lagoon/--palm (qui s'éclaircissent
+     sous `.dark`), --color-sea-ink/--color-lagoon/--color-palm ne changent pas.
+     Fond sidebar conservé en navy #1A2B4C ; orange #E67E22 = action/marque ;
+     navy moyen #2C3E5E = bordures sur fond sombre. */
+  --color-sea-ink: #1A2B4C;
+  --color-lagoon: #E67E22;
+  --color-palm: #2C3E5E;
 }
 
 html,
@@ -171,7 +187,7 @@ body {
   background:
     radial-gradient(1100px 620px at -8% -10%, var(--hero-a), transparent 58%),
     radial-gradient(1050px 620px at 112% -12%, var(--hero-b), transparent 62%),
-    radial-gradient(720px 380px at 50% 115%, rgba(79, 184, 178, 0.1), transparent 68%),
+    radial-gradient(720px 380px at 50% 115%, rgba(230, 126, 34, 0.08), transparent 68%),
     linear-gradient(180deg, color-mix(in oklab, var(--sand) 68%, white) 0%, var(--foam) 44%, var(--bg-base) 100%);
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
@@ -187,8 +203,8 @@ body::before {
   opacity: 0.28;
   background:
     radial-gradient(circle at 20% 15%, rgba(255, 255, 255, 0.8), transparent 34%),
-    radial-gradient(circle at 78% 26%, rgba(79, 184, 178, 0.2), transparent 42%),
-    radial-gradient(circle at 42% 82%, rgba(47, 106, 74, 0.14), transparent 36%);
+    radial-gradient(circle at 78% 26%, rgba(230, 126, 34, 0.16), transparent 42%),
+    radial-gradient(circle at 42% 82%, rgba(26, 43, 76, 0.09), transparent 36%);
 }
 
 body::after {
@@ -206,10 +222,10 @@ body::after {
 }
 
 /* Fond spécifique à la page de connexion — dégradé vertical de la palette
-   (haut menthe clair → bas vert océan). Scopé à la route /login : le reste du
-   site garde le fond global de `body`. Les halos radiaux reprennent la lumière
-   de marque de `body::before`. Règle hors layer (les règles en layer perdent
-   face aux utilitaires Tailwind). */
+   (haut clair → bas navy). Scopé à la route /login : le reste du site garde le
+   fond global de `body`. Les halos radiaux reprennent la lumière de marque de
+   `body::before`. Règle hors layer (les règles en layer perdent face aux
+   utilitaires Tailwind). */
 .login-bg {
   background:
     radial-gradient(1100px 620px at -8% -10%, var(--hero-a), transparent 58%),
@@ -238,13 +254,13 @@ body::after {
 
 a {
   color: var(--lagoon-deep);
-  text-decoration-color: rgba(50, 143, 151, 0.4);
+  text-decoration-color: rgba(200, 106, 24, 0.4);
   text-decoration-thickness: 1px;
   text-underline-offset: 2px;
 }
 
 a:hover {
-  color: #246f76;
+  color: #B05E14;
 }
 
 code {
@@ -267,8 +283,8 @@ pre code {
 .prose pre {
   border: 1px solid var(--line);
   border-radius: 12px;
-  background: #1d2e45;
-  color: #e8efff;
+  background: #16233B;
+  color: #E8EFF9;
 }
 
 .page-wrap {
@@ -285,8 +301,8 @@ pre code {
   background: linear-gradient(165deg, var(--surface-strong), var(--surface));
   box-shadow:
     0 1px 0 var(--inset-glint) inset,
-    0 22px 44px rgba(30, 90, 72, 0.1),
-    0 6px 18px rgba(23, 58, 64, 0.08);
+    0 22px 44px rgba(26, 43, 76, 0.1),
+    0 6px 18px rgba(26, 43, 76, 0.08);
   backdrop-filter: blur(4px);
 }
 
@@ -294,8 +310,8 @@ pre code {
   background: linear-gradient(165deg, color-mix(in oklab, var(--surface-strong) 93%, white 7%), var(--surface));
   box-shadow:
     0 1px 0 var(--inset-glint) inset,
-    0 18px 34px rgba(30, 90, 72, 0.1),
-    0 4px 14px rgba(23, 58, 64, 0.06);
+    0 18px 34px rgba(26, 43, 76, 0.1),
+    0 4px 14px rgba(26, 43, 76, 0.06);
 }
 
 .feature-card:hover {
@@ -333,7 +349,7 @@ a {
   height: 2px;
   transform: scaleX(0);
   transform-origin: left;
-  background: linear-gradient(90deg, var(--lagoon), #7ed3bf);
+  background: linear-gradient(90deg, var(--lagoon), #F4A35E);
   transition: transform 170ms ease;
 }
 
