@@ -1,0 +1,29 @@
+# Lance l'app en mode production (build local + run).
+#
+#   docker compose up --build
+#
+# → http://localhost:3004
+#
+# L'image sert le rendu SSR + les assets ET relaie `/api/*` vers le backend
+# (`API_TARGET` ci-dessous) — le navigateur n'appelle que la même origine,
+# le CORS du backend n'est donc pas un problème.
+#
+# `VITE_API_URL=/api/v1` est le défaut au build (même origine) : aucun
+# --build-arg n'est nécessaire. Pour un backend sur un autre domaine,
+# servez le frontend et le backend sur le même hôte (reverse-proxy) plutôt
+# qu'une URL absolue inlinée, qui recréerait le CORS côté navigateur.
+services:
+  frontend:
+    build:
+      context: .
+    image: sim-frontend
+    # Hôte:container — 3000 est capturé par WSL sur cette machine → 3004.
+    # Le port interne du container reste 3000 (env PORT ci-dessous).
+    ports:
+      - "3004:3000"
+    environment:
+      PORT: "3000"
+      # Backend relayé par `/api/*`. Instance de DEV ici — à remplacer par
+      # l'URL du backend de production.
+      API_TARGET: "https://dev.sim.strife-cyber.org"
+    restart: unless-stopped

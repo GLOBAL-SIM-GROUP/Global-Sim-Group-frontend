@@ -1,0 +1,13 @@
+* text=auto
+
+# Fin de ligne normalisée pour les sources
+*.ts text eol=lf
+*.tsx text eol=lf
+*.js text eol=lf
+*.json text eol=lf
+*.md text eol=lf
+
+# Fichiers générés (ne pas éditer à la main)
+src/core/api/generated/schema.ts linguist-generated
+src/routeTree.gen.ts linguist-generated
+src/paraglide/** linguist-generated

@@ -1,0 +1,43 @@
+# Contexte de build minimal : le container reconstruit tout (npm ci,
+# vite build). Rien d'hôte à copier inutilement, et surtout pas les
+# node_modules Windows ni les dist de la machine.
+
+# Dépendances
+node_modules
+
+# Build / cache de dev (reconstruits dans le container)
+dist
+dist-ssr
+.nitro
+.tanstack
+.vite
+.wrangler
+.output
+.vinxi
+*.tsbuildinfo
+coverage
+
+# Environnement local (ne JAMAIS embarquer de secrets dans l'image)
+.env
+.env.*
+!.env.example
+*.local
+
+# i18n compilé (régénéré au build)
+src/paraglide/
+
+# Snapshot OpenAPI local
+scripts/openapi.latest.json
+
+# Logs
+logs/
+*.log
+
+# Git, éditeurs, divers
+.git
+.gitignore
+.idea/
+.vscode
+.DS_Store
+Thumbs.db
+Desktop.ini

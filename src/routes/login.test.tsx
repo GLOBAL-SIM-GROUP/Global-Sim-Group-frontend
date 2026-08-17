@@ -1,0 +1,131 @@
+import { render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+import { ApiError } from "#/core/api";
+import { LoginPage } from "./login";
+
+const mocks = vi.hoisted(() => ({
+	auth: {
+		isAuthenticated: false,
+		login: vi.fn<() => Promise<void>>(),
+	},
+	navigate: vi.fn<() => Promise<void>>(),
+}));
+
+// Le formulaire de login est testé hors du routeur complet : on mocke
+// uniquement les hooks de navigation/route, TanStack Form et Paraglide restent
+// réels (comportement du formulaire et i18n effectivement exercés).
+vi.mock("@tanstack/react-router", async (importOriginal) => {
+	const actual =
+		await importOriginal<typeof import("@tanstack/react-router")>();
+	return {
+		...actual,
+		useRouteContext: () => ({ auth: mocks.auth }),
+		useNavigate: () => mocks.navigate,
+	};
+});
+
+function renderLogin() {
+	return render(<LoginPage />);
+}
+
+beforeEach(() => {
+	mocks.auth.login.mockReset();
+	mocks.navigate.mockReset();
+});
+
+describe("LoginPage", () => {
+	it("affiche le formulaire en français", () => {
+		renderLogin();
+
+		expect(screen.getByLabelText("Identifiant")).toBeInTheDocument();
+		expect(screen.getByLabelText("Mot de passe")).toBeInTheDocument();
+		expect(
+			screen.getByRole("button", { name: "Se connecter" }),
+		).toBeInTheDocument();
+	});
+
+	it("bloque l’envoi si un champ est vide", async () => {
+		const user = userEvent.setup();
+		renderLogin();
+
+		await user.click(screen.getByRole("button", { name: "Se connecter" }));
+
+		expect(await screen.findAllByText("Ce champ est requis.")).toHaveLength(2);
+		expect(mocks.auth.login).not.toHaveBeenCalled();
+	});
+
+	it("mappe les erreurs backend champ par champ (VALIDATION_ERROR)", async () => {
+		mocks.auth.login.mockRejectedValueOnce(
+			new ApiError({
+				status: 422,
+				code: "VALIDATION_ERROR",
+				message: "Validation échouée",
+				details: [{ property: "login", messages: ["Identifiant invalide."] }],
+			}),
+		);
+		const user = userEvent.setup();
+		renderLogin();
+
+		await user.type(screen.getByLabelText("Identifiant"), "admin");
+		await user.type(screen.getByLabelText("Mot de passe"), "motdepasse");
+		await user.click(screen.getByRole("button", { name: "Se connecter" }));
+
+		expect(
+			await screen.findByText("Identifiant invalide."),
+		).toBeInTheDocument();
+		expect(mocks.auth.login).toHaveBeenCalledWith("admin", "motdepasse");
+	});
+
+	it("traduit le code UNAUTHORIZED en erreur globale", async () => {
+		mocks.auth.login.mockRejectedValueOnce(
+			new ApiError({
+				status: 401,
+				code: "UNAUTHORIZED",
+				message: "Non autorisé",
+			}),
+		);
+		const user = userEvent.setup();
+		renderLogin();
+
+		await user.type(screen.getByLabelText("Identifiant"), "admin");
+		await user.type(screen.getByLabelText("Mot de passe"), "motdepasse");
+		await user.click(screen.getByRole("button", { name: "Se connecter" }));
+
+		expect(await screen.findByRole("alert")).toHaveTextContent(
+			"Session expirée, veuillez vous reconnecter.",
+		);
+	});
+
+	it("affiche le message générique pour un code d’erreur inconnu", async () => {
+		mocks.auth.login.mockRejectedValueOnce(
+			new ApiError({ status: 500, code: "INTERNE", message: "Boom" }),
+		);
+		const user = userEvent.setup();
+		renderLogin();
+
+		await user.type(screen.getByLabelText("Identifiant"), "admin");
+		await user.type(screen.getByLabelText("Mot de passe"), "motdepasse");
+		await user.click(screen.getByRole("button", { name: "Se connecter" }));
+
+		expect(await screen.findByRole("alert")).toHaveTextContent(
+			"Connexion impossible.",
+		);
+	});
+
+	it("se connecte puis navigue vers l’accueil", async () => {
+		mocks.auth.login.mockResolvedValueOnce(undefined);
+		const user = userEvent.setup();
+		renderLogin();
+
+		await user.type(screen.getByLabelText("Identifiant"), "  admin  ");
+		await user.type(screen.getByLabelText("Mot de passe"), "motdepasse");
+		await user.click(screen.getByRole("button", { name: "Se connecter" }));
+
+		await waitFor(() => {
+			expect(mocks.auth.login).toHaveBeenCalledWith("admin", "motdepasse");
+		});
+		expect(mocks.navigate).toHaveBeenCalledWith({ to: "/" });
+	});
+});
