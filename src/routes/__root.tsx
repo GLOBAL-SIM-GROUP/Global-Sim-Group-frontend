@@ -34,7 +34,11 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 			{ name: "viewport", content: "width=device-width, initial-scale=1" },
 			{ title: `${m.app_name()} — SIM` },
 		],
-		links: [{ rel: "stylesheet", href: appCss }],
+		links: [
+			{ rel: "stylesheet", href: appCss },
+			// Favicon de l'onglet — logo servis depuis public/ (idem /login).
+			{ rel: "icon", type: "image/png", href: "/logo.png" },
+		],
 	}),
 	component: RootComponent,
 	errorComponent: ErrorComponent,

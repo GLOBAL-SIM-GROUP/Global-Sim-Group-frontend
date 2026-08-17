@@ -5,10 +5,11 @@ import {
 	useNavigate,
 	useRouteContext,
 } from "@tanstack/react-router";
+import { Loader2, Lock, User } from "lucide-react";
 import { useState } from "react";
 import { Button } from "#/components/ui/button";
-import { Input } from "#/components/ui/input";
-import { Label } from "#/components/ui/label";
+import { InputField } from "#/components/ui/input-field";
+import { PasswordInput } from "#/components/ui/password-input";
 import { getFieldErrors, toApiError } from "#/core/api";
 import { getErrorMessageForCode } from "#/core/i18n";
 import * as m from "#/paraglide/messages";
@@ -86,14 +87,22 @@ export function LoginPage() {
 	});
 
 	return (
-		<main className="flex min-h-dvh items-center justify-center p-6">
-			<div className="w-full max-w-sm space-y-6 rounded-xl border bg-card p-8 shadow-sm">
-				<header className="space-y-1">
-					<h1 className="text-xl font-semibold">{m.app_name()}</h1>
+		<main className="login-bg flex min-h-dvh items-center justify-center p-6">
+			<div className="w-full max-w-[420px] space-y-6 rounded-xl border bg-card p-8 shadow-sm">
+				<header className="space-y-1 text-center">
+					{/* Logo servis depuis public/ (décoratif : le nom est le h1 juste
+					    en dessous → alt vide, lu comme décoratif par les lecteurs
+					    d'écran). */}
+					<img src="/logo.png" alt="" className="mx-auto h-10 w-auto" />
+					<h1 className="text-xl font-semibold tracking-tight text-primary">
+						{m.app_name()}
+					</h1>
 					<p className="text-sm text-muted-foreground">
 						{m.auth_login_subtitle()}
 					</p>
 				</header>
+
+				<h2 className="text-lg font-semibold">{m.auth_login_title()}</h2>
 
 				<form
 					className="space-y-4"
@@ -105,46 +114,34 @@ export function LoginPage() {
 				>
 					<form.Field name="login">
 						{(field) => (
-							<div className="space-y-2">
-								<Label htmlFor={field.name}>{m.auth_login_label_login()}</Label>
-								<Input
-									id={field.name}
-									name={field.name}
-									autoComplete="username"
-									value={field.state.value}
-									onBlur={field.handleBlur}
-									onChange={(event) => field.handleChange(event.target.value)}
-								/>
-								{field.state.meta.errors[0] ? (
-									<p className="text-sm text-destructive">
-										{field.state.meta.errors[0]}
-									</p>
-								) : null}
-							</div>
+							<InputField
+								id={field.name}
+								name={field.name}
+								label={m.auth_login_label_login()}
+								placeholder={m.auth_login_placeholder_login()}
+								autoComplete="username"
+								icon={<User className="size-4" aria-hidden />}
+								value={field.state.value}
+								onBlur={field.handleBlur}
+								onChange={(event) => field.handleChange(event.target.value)}
+								error={field.state.meta.errors[0]}
+							/>
 						)}
 					</form.Field>
 
 					<form.Field name="motDePasse">
 						{(field) => (
-							<div className="space-y-2">
-								<Label htmlFor={field.name}>
-									{m.auth_login_label_password()}
-								</Label>
-								<Input
-									id={field.name}
-									name={field.name}
-									type="password"
-									autoComplete="current-password"
-									value={field.state.value}
-									onBlur={field.handleBlur}
-									onChange={(event) => field.handleChange(event.target.value)}
-								/>
-								{field.state.meta.errors[0] ? (
-									<p className="text-sm text-destructive">
-										{field.state.meta.errors[0]}
-									</p>
-								) : null}
-							</div>
+							<PasswordInput
+								id={field.name}
+								name={field.name}
+								label={m.auth_login_label_password()}
+								placeholder={m.auth_login_placeholder_password()}
+								icon={<Lock className="size-4" aria-hidden />}
+								value={field.state.value}
+								onBlur={field.handleBlur}
+								onChange={(event) => field.handleChange(event.target.value)}
+								error={field.state.meta.errors[0]}
+							/>
 						)}
 					</form.Field>
 
@@ -157,11 +154,22 @@ export function LoginPage() {
 					<form.Subscribe selector={(state) => state.isSubmitting}>
 						{(isSubmitting) => (
 							<Button type="submit" className="w-full" disabled={isSubmitting}>
-								{isSubmitting ? m.auth_login_pending() : m.auth_login_submit()}
+								{isSubmitting ? (
+									<>
+										<Loader2 className="animate-spin" aria-hidden />
+										{m.auth_login_pending()}
+									</>
+								) : (
+									m.auth_login_submit()
+								)}
 							</Button>
 						)}
 					</form.Subscribe>
 				</form>
+
+				<footer className="text-center text-xs text-muted-foreground">
+					{m.auth_login_copyright()}
+				</footer>
 			</div>
 		</main>
 	);

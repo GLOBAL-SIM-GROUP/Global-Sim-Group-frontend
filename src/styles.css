@@ -205,6 +205,37 @@ body::after {
   mask-image: radial-gradient(circle at 50% 30%, black, transparent 78%);
 }
 
+/* Fond spécifique à la page de connexion — dégradé vertical de la palette
+   (haut menthe clair → bas vert océan). Scopé à la route /login : le reste du
+   site garde le fond global de `body`. Les halos radiaux reprennent la lumière
+   de marque de `body::before`. Règle hors layer (les règles en layer perdent
+   face aux utilitaires Tailwind). */
+.login-bg {
+  background:
+    radial-gradient(1100px 620px at -8% -10%, var(--hero-a), transparent 58%),
+    radial-gradient(1050px 620px at 112% -12%, var(--hero-b), transparent 62%),
+    linear-gradient(
+      180deg,
+      color-mix(in oklab, var(--sand) 85%, white) 0%,
+      var(--foam) 34%,
+      color-mix(in oklab, var(--lagoon) 34%, var(--bg-base)) 64%,
+      var(--sea-ink) 100%
+    );
+}
+
+.dark .login-bg {
+  background:
+    radial-gradient(1100px 620px at -8% -10%, var(--hero-a), transparent 58%),
+    radial-gradient(1050px 620px at 112% -12%, var(--hero-b), transparent 62%),
+    linear-gradient(
+      180deg,
+      var(--bg-base) 0%,
+      var(--foam) 38%,
+      color-mix(in oklab, var(--lagoon) 22%, var(--bg-base)) 66%,
+      var(--bg-base) 100%
+    );
+}
+
 a {
   color: var(--lagoon-deep);
   text-decoration-color: rgba(50, 143, 151, 0.4);
