@@ -5,7 +5,11 @@ import { ChargeForm } from "./charge-form";
 
 interface ChargeFormDialogProps {
 	open: boolean;
-	logementId: string;
+	/**
+	 * Logement fixé (onglet Charges de la fiche logement) ; absent → la page
+	 * « Nouvelle charge » propose un sélecteur de logement.
+	 */
+	logementId?: string;
 	/** Catégories disponibles (déjà chargées par la page). */
 	categories: CategorieCharge[];
 	/** Fermeture (overlay, Échap, Annuler). */
@@ -29,17 +33,17 @@ export function ChargeFormDialog({
 		<Dialog.Root open={open} onOpenChange={onOpenChange}>
 			<Dialog.Portal>
 				<Dialog.Overlay className="fixed inset-0 z-50 bg-black/50" />
-				<Dialog.Content className="fixed top-1/2 left-1/2 z-50 max-h-[85dvh] w-[calc(100vw-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-lg border border-border bg-card p-6 shadow-lg">
+				<Dialog.Content className="fixed top-1/2 left-1/2 z-50 max-h-[85dvh] w-[calc(100vw-2rem)] max-w-2xl -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-lg border border-border bg-card p-6 shadow-lg">
 					<Dialog.Title className="text-base font-semibold text-foreground">
 						Ajouter une charge
 					</Dialog.Title>
 					<Dialog.Description className="mt-1 text-sm text-muted-foreground">
-						Enregistrer une charge (eau, électricité…) pour ce logement.
+						Enregistrer une charge (eau, électricité…) pour un logement.
 					</Dialog.Description>
 					<div className="mt-4">
 						<ChargeForm
-							key={logementId}
-							logementId={logementId}
+							key={logementId ?? "create"}
+							logementIdParDefaut={logementId}
 							categories={categories}
 							onCancel={() => onOpenChange(false)}
 							onSaved={onSaved}

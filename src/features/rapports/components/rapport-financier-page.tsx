@@ -1,0 +1,234 @@
+import { Link } from "@tanstack/react-router";
+import { FileDown } from "lucide-react";
+import type { ReactNode } from "react";
+
+import { Breadcrumb } from "#/components/ui/breadcrumb";
+import { Button } from "#/components/ui/button";
+import {
+	formatDateHeureISO,
+	formatMontantFCFA,
+} from "#/features/residence/models/format";
+
+import { useRapportFinancier } from "../hooks/use-rapports";
+import { telechargerTexte } from "../lib/export";
+import {
+	construireCsv,
+	periodeParDefaut,
+	type RapportPeriodeSearch,
+} from "../models/rapports";
+
+interface RapportFinancierPageProps {
+	initialSearch: RapportPeriodeSearch;
+}
+
+/**
+ * Page « Rapport financier » (M10) : encaissements (activité, moyen), dépenses
+ * (catégorie) et impayés sur la période.
+ */
+export function RapportFinancierPage({
+	initialSearch,
+}: RapportFinancierPageProps) {
+	const periode = periodeParDefaut(initialSearch);
+	const rapportQuery = useRapportFinancier(periode.du, periode.au);
+
+	const exporter = () => {
+		if (!rapportQuery.data) return;
+		const { encaissements, depenses, impayes } = rapportQuery.data;
+		const lignes: (string | number)[][] = [
+			["Période", `${periode.du} → ${periode.au}`],
+			[],
+			["ENCAISSEMENTS"],
+			["Date", "Activité", "Moyen", "Montant"],
+			...encaissements.map((e) => [
+				e.date,
+				e.activite_libelle,
+				e.moyen_libelle,
+				e.montant,
+			]),
+			[],
+			["DÉPENSES"],
+			["Date", "Catégorie", "Libellé", "Montant"],
+			...depenses.map((d) => [
+				d.date,
+				d.categorie_libelle,
+				d.libelle,
+				d.montant,
+			]),
+			[],
+			["IMPAYÉS"],
+			["Type", "Client", "Référence", "Montant dû", "Payé", "Reste"],
+			...impayes.map((i) => [
+				i.type,
+				i.client,
+				i.reference,
+				i.montant_du,
+				i.montant_paye,
+				i.reste,
+			]),
+		];
+		telechargerTexte(
+			`rapport-financier-${periode.du}-${periode.au}.csv`,
+			construireCsv(lignes),
+		);
+	};
+
+	return (
+		<div className="mx-auto w-full max-w-6xl space-y-6 p-6">
+			<Breadcrumb
+				items={[
+					{ label: "Accueil", to: "/" },
+					{ label: "Rapports", to: "/rapports" },
+					{ label: "Rapport financier" },
+				]}
+			/>
+
+			<div className="flex flex-wrap items-end justify-between gap-4">
+				<section className="space-y-1">
+					<h1 className="text-2xl font-semibold text-foreground">
+						Rapport financier
+					</h1>
+					<p className="text-muted-foreground">
+						Période du {periode.du} au {periode.au}.
+					</p>
+				</section>
+				<div className="flex items-center gap-2">
+					<Button variant="outline" size="sm" asChild>
+						<Link to="/rapports">Nouveau rapport</Link>
+					</Button>
+					<Button size="sm" onClick={exporter} disabled={!rapportQuery.data}>
+						<FileDown className="size-4" aria-hidden />
+						Exporter en Excel (CSV)
+					</Button>
+				</div>
+			</div>
+
+			{rapportQuery.isLoading ? (
+				<p className="text-sm text-muted-foreground">Chargement…</p>
+			) : rapportQuery.isError ? (
+				<div
+					role="alert"
+					className="space-y-3 rounded-lg border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive"
+				>
+					<p>Impossible de charger le rapport.</p>
+					<Button
+						variant="outline"
+						size="sm"
+						onClick={() => void rapportQuery.refetch()}
+					>
+						Réessayer
+					</Button>
+				</div>
+			) : rapportQuery.data ? (
+				<>
+					<SectionTableau
+						titre={`Encaissements (${rapportQuery.data.encaissements.length})`}
+						entetes={["Date", "Activité", "Moyen", "Montant"]}
+						colAlignes={["", "", "", "text-right"]}
+					>
+						{rapportQuery.data.encaissements.map((e) => (
+							<tr
+								key={e.id}
+								className="border-t border-border transition-colors hover:bg-accent/40"
+							>
+								<td className="px-4 py-3 text-muted-foreground">
+									{formatDateHeureISO(e.date)}
+								</td>
+								<td className="px-4 py-3 text-foreground">
+									{e.activite_libelle}
+								</td>
+								<td className="px-4 py-3 text-muted-foreground">
+									{e.moyen_libelle}
+								</td>
+								<td className="px-4 py-3 text-right font-medium text-foreground">
+									{formatMontantFCFA(e.montant)}
+								</td>
+							</tr>
+						))}
+					</SectionTableau>
+
+					<SectionTableau
+						titre={`Dépenses (${rapportQuery.data.depenses.length})`}
+						entetes={["Date", "Catégorie", "Libellé", "Montant"]}
+						colAlignes={["", "", "", "text-right"]}
+					>
+						{rapportQuery.data.depenses.map((d) => (
+							<tr
+								key={d.id}
+								className="border-t border-border transition-colors hover:bg-accent/40"
+							>
+								<td className="px-4 py-3 text-muted-foreground">
+									{formatDateHeureISO(d.date)}
+								</td>
+								<td className="px-4 py-3 text-foreground">
+									{d.categorie_libelle}
+								</td>
+								<td className="px-4 py-3 text-muted-foreground">{d.libelle}</td>
+								<td className="px-4 py-3 text-right font-medium text-destructive">
+									- {formatMontantFCFA(d.montant)}
+								</td>
+							</tr>
+						))}
+					</SectionTableau>
+
+					<SectionTableau
+						titre={`Impayés (${rapportQuery.data.impayes.length})`}
+						entetes={["Type", "Client", "Référence", "Reste"]}
+						colAlignes={["", "", "", "text-right"]}
+					>
+						{rapportQuery.data.impayes.map((i) => (
+							<tr
+								key={`${i.type}-${i.reference}-${i.client}-${i.montant_du}`}
+								className="border-t border-border transition-colors hover:bg-accent/40"
+							>
+								<td className="px-4 py-3 text-foreground">{i.type}</td>
+								<td className="px-4 py-3 text-foreground">{i.client}</td>
+								<td className="px-4 py-3 text-muted-foreground">
+									{i.reference}
+								</td>
+								<td className="px-4 py-3 text-right font-semibold text-destructive">
+									{formatMontantFCFA(i.reste)}
+								</td>
+							</tr>
+						))}
+					</SectionTableau>
+				</>
+			) : null}
+		</div>
+	);
+}
+
+function SectionTableau({
+	titre,
+	entetes,
+	colAlignes,
+	children,
+}: {
+	titre: string;
+	entetes: string[];
+	colAlignes: string[];
+	children: ReactNode;
+}) {
+	return (
+		<section className="space-y-3 rounded-lg border border-border bg-card p-5 shadow-sm">
+			<h2 className="text-lg font-semibold text-foreground">{titre}</h2>
+			<div className="overflow-x-auto">
+				<table className="w-full border-collapse text-sm">
+					<thead className="bg-sea-ink text-left text-white">
+						<tr>
+							{entetes.map((entete, index) => (
+								<th
+									key={entete}
+									scope="col"
+									className={`px-4 py-3 font-medium ${colAlignes[index] ?? ""}`}
+								>
+									{entete}
+								</th>
+							))}
+						</tr>
+					</thead>
+					<tbody>{children}</tbody>
+				</table>
+			</div>
+		</section>
+	);
+}

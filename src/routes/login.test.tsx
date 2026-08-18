@@ -9,6 +9,7 @@ const mocks = vi.hoisted(() => ({
 	auth: {
 		isAuthenticated: false,
 		login: vi.fn<() => Promise<void>>(),
+		restore: vi.fn<() => Promise<void>>(),
 	},
 	navigate: vi.fn<() => Promise<void>>(),
 }));
@@ -23,11 +24,15 @@ vi.mock("@tanstack/react-router", async (importOriginal) => {
 		...actual,
 		useRouteContext: () => ({ auth: mocks.auth }),
 		useNavigate: () => mocks.navigate,
+		useSearch: () => ({ next: undefined }),
 	};
 });
 
-function renderLogin() {
-	return render(<LoginPage />);
+async function renderLogin() {
+	render(<LoginPage />);
+	// Attend la fin de la « Vérification de la session… » (restauration mockée)
+	// avant d'interroger le formulaire.
+	await screen.findByLabelText("Identifiant");
 }
 
 beforeEach(() => {
@@ -36,8 +41,8 @@ beforeEach(() => {
 });
 
 describe("LoginPage", () => {
-	it("affiche le formulaire en français", () => {
-		renderLogin();
+	it("affiche le formulaire en français", async () => {
+		await renderLogin();
 
 		expect(screen.getByLabelText("Identifiant")).toBeInTheDocument();
 		expect(screen.getByLabelText("Mot de passe")).toBeInTheDocument();
@@ -48,7 +53,7 @@ describe("LoginPage", () => {
 
 	it("bloque l’envoi si un champ est vide", async () => {
 		const user = userEvent.setup();
-		renderLogin();
+		await renderLogin();
 
 		await user.click(screen.getByRole("button", { name: "Se connecter" }));
 
@@ -66,7 +71,7 @@ describe("LoginPage", () => {
 			}),
 		);
 		const user = userEvent.setup();
-		renderLogin();
+		await renderLogin();
 
 		await user.type(screen.getByLabelText("Identifiant"), "admin");
 		await user.type(screen.getByLabelText("Mot de passe"), "motdepasse");
@@ -87,7 +92,7 @@ describe("LoginPage", () => {
 			}),
 		);
 		const user = userEvent.setup();
-		renderLogin();
+		await renderLogin();
 
 		await user.type(screen.getByLabelText("Identifiant"), "admin");
 		await user.type(screen.getByLabelText("Mot de passe"), "motdepasse");
@@ -103,7 +108,7 @@ describe("LoginPage", () => {
 			new ApiError({ status: 500, code: "INTERNE", message: "Boom" }),
 		);
 		const user = userEvent.setup();
-		renderLogin();
+		await renderLogin();
 
 		await user.type(screen.getByLabelText("Identifiant"), "admin");
 		await user.type(screen.getByLabelText("Mot de passe"), "motdepasse");
@@ -117,7 +122,7 @@ describe("LoginPage", () => {
 	it("se connecte puis navigue vers l’accueil", async () => {
 		mocks.auth.login.mockResolvedValueOnce(undefined);
 		const user = userEvent.setup();
-		renderLogin();
+		await renderLogin();
 
 		await user.type(screen.getByLabelText("Identifiant"), "  admin  ");
 		await user.type(screen.getByLabelText("Mot de passe"), "motdepasse");
@@ -126,6 +131,6 @@ describe("LoginPage", () => {
 		await waitFor(() => {
 			expect(mocks.auth.login).toHaveBeenCalledWith("admin", "motdepasse");
 		});
-		expect(mocks.navigate).toHaveBeenCalledWith({ to: "/" });
+		expect(mocks.navigate).toHaveBeenCalledWith({ href: "/" });
 	});
 });

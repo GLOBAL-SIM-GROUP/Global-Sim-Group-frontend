@@ -1,0 +1,192 @@
+import { getApiClient } from "#/core/api";
+import type { components } from "#/core/api/generated/schema";
+
+import type {
+	CategorieDepense,
+	Depense,
+	Impaye,
+	LigneTableauBord,
+	MoyenPaiement,
+	Paiement,
+} from "../models/finances";
+
+type CreerDepenseDto = components["schemas"]["CreerDepenseDto"];
+type MajDepenseDto = components["schemas"]["MajDepenseDto"];
+type CreerCategorieDepenseDto =
+	components["schemas"]["CreerCategorieDepenseDto"];
+type CreerMoyenPaiementDto = components["schemas"]["CreerMoyenPaiementDto"];
+type MajMoyenPaiementDto = components["schemas"]["MajMoyenPaiementDto"];
+
+type PaiementWire = Omit<Paiement, "id"> & { id_paiement: string };
+type DepenseWire = Omit<Depense, "id"> & { id_depense: string };
+type CategorieDepenseWire = Omit<CategorieDepense, "id"> & {
+	id_categorie_depense: string;
+};
+type MoyenPaiementWire = Omit<MoyenPaiement, "id"> & { id_moyen: string };
+
+const texteOuNull = (valeur: string | null | undefined): string | null =>
+	valeur?.trim() ? valeur : null;
+
+/** Appels API du module Finances. */
+export function listTableauBord(): Promise<LigneTableauBord[]> {
+	return getApiClient().apiFetch<LigneTableauBord[]>(
+		"/finances/tableau-de-bord",
+	);
+}
+
+export function listPaiements(filtres?: {
+	du?: string;
+	au?: string;
+	type?: string;
+}): Promise<Paiement[]> {
+	const params = new URLSearchParams();
+	if (filtres?.du) params.set("du", filtres.du);
+	if (filtres?.au) params.set("au", filtres.au);
+	if (filtres?.type) params.set("type", filtres.type);
+	const qs = params.toString();
+	return getApiClient()
+		.apiFetch<PaiementWire[]>(`/finances/paiements${qs ? `?${qs}` : ""}`)
+		.then((data) =>
+			data.map(({ id_paiement: id, ...reste }) => ({ id, ...reste })),
+		);
+}
+
+export function listDepenses(filtres?: {
+	du?: string;
+	au?: string;
+}): Promise<Depense[]> {
+	const params = new URLSearchParams();
+	if (filtres?.du) params.set("du", filtres.du);
+	if (filtres?.au) params.set("au", filtres.au);
+	const qs = params.toString();
+	return getApiClient()
+		.apiFetch<DepenseWire[]>(`/finances/depenses${qs ? `?${qs}` : ""}`)
+		.then((data) =>
+			data.map(({ id_depense: id, ...reste }) => ({ id, ...reste })),
+		);
+}
+
+export function listImpayes(filtres?: {
+	type?: string;
+	client?: string;
+	periode?: string;
+}): Promise<Impaye[]> {
+	const params = new URLSearchParams();
+	if (filtres?.type && filtres.type !== "tous")
+		params.set("type", filtres.type);
+	if (filtres?.client) params.set("client", filtres.client);
+	if (filtres?.periode) params.set("periode", filtres.periode);
+	const qs = params.toString();
+	return getApiClient().apiFetch<Impaye[]>(
+		`/finances/impayes${qs ? `?${qs}` : ""}`,
+	);
+}
+
+export function listCategoriesDepenses(): Promise<CategorieDepense[]> {
+	return getApiClient()
+		.apiFetch<CategorieDepenseWire[]>("/finances/categories-depenses")
+		.then((data) =>
+			data.map(({ id_categorie_depense: id, ...reste }) => ({ id, ...reste })),
+		);
+}
+
+export function creerCategorieDepense(body: {
+	libelle: string;
+}): Promise<unknown> {
+	const corps = { libelle: body.libelle } satisfies CreerCategorieDepenseDto;
+	return getApiClient().apiFetch("/finances/categories-depenses", {
+		method: "POST",
+		body: JSON.stringify(corps),
+	});
+}
+
+export function supprimerCategorieDepense(id: string): Promise<unknown> {
+	return getApiClient().apiFetch(`/finances/categories-depenses/${id}`, {
+		method: "DELETE",
+	});
+}
+
+export function listMoyensPaiement(): Promise<MoyenPaiement[]> {
+	return getApiClient()
+		.apiFetch<MoyenPaiementWire[]>("/finances/moyens-paiement")
+		.then((data) =>
+			data.map(({ id_moyen: id, ...reste }) => ({ id, ...reste })),
+		);
+}
+
+export function creerMoyenPaiement(body: {
+	libelle: string;
+	actif?: boolean;
+}): Promise<unknown> {
+	const corps = {
+		libelle: body.libelle,
+		actif: body.actif ?? true,
+	} satisfies CreerMoyenPaiementDto;
+	return getApiClient().apiFetch("/finances/moyens-paiement", {
+		method: "POST",
+		body: JSON.stringify(corps),
+	});
+}
+
+export function modifierMoyenPaiement(
+	id: string,
+	body: { libelle?: string; actif?: boolean },
+): Promise<unknown> {
+	const corps = {
+		...(body.libelle !== undefined ? { libelle: body.libelle } : {}),
+		...(body.actif !== undefined ? { actif: body.actif } : {}),
+	} satisfies MajMoyenPaiementDto;
+	return getApiClient().apiFetch(`/finances/moyens-paiement/${id}`, {
+		method: "PATCH",
+		body: JSON.stringify(corps),
+	});
+}
+
+export interface DepenseBody {
+	date: string;
+	montant: string;
+	idCategorieDepense: string;
+	libelle: string;
+	justificatif?: string | null;
+}
+
+export function creerDepense(body: DepenseBody): Promise<unknown> {
+	const corps = {
+		date: body.date,
+		montant: body.montant,
+		id_categorie_depense: body.idCategorieDepense,
+		libelle: body.libelle,
+		justificatif: texteOuNull(body.justificatif),
+	} satisfies Omit<CreerDepenseDto, "id_activite" | "justificatif"> & {
+		justificatif?: string | null;
+	};
+	return getApiClient().apiFetch("/finances/depenses", {
+		method: "POST",
+		body: JSON.stringify(corps),
+	});
+}
+
+export function modifierDepense(
+	id: string,
+	body: DepenseBody,
+): Promise<unknown> {
+	const corps = {
+		date: body.date,
+		montant: body.montant,
+		id_categorie_depense: body.idCategorieDepense,
+		libelle: body.libelle,
+		justificatif: texteOuNull(body.justificatif),
+	} satisfies Omit<MajDepenseDto, "id_activite" | "justificatif"> & {
+		justificatif?: string | null;
+	};
+	return getApiClient().apiFetch(`/finances/depenses/${id}`, {
+		method: "PATCH",
+		body: JSON.stringify(corps),
+	});
+}
+
+export function supprimerDepense(id: string): Promise<unknown> {
+	return getApiClient().apiFetch(`/finances/depenses/${id}`, {
+		method: "DELETE",
+	});
+}

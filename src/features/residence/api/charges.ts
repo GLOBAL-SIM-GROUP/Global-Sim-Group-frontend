@@ -4,6 +4,9 @@ import type { components } from "#/core/api/generated/schema";
 import type { CategorieCharge, Charge } from "../models/charges";
 
 type CreerChargeDto = components["schemas"]["CreerChargeDto"];
+type CreerCategorieChargeDto = components["schemas"]["CreerCategorieChargeDto"];
+type MajCategorieChargeDto = components["schemas"]["MajCategorieChargeDto"];
+type PayerChargeDto = components["schemas"]["PayerChargeDto"];
 
 /**
  * Le schéma généré type `compteur_numero`/`lecture_*`/`consommation` en objet
@@ -75,6 +78,51 @@ export function creerCharge(body: ChargeBody): Promise<unknown> {
 		consommation?: string | null;
 	};
 	return getApiClient().apiFetch("/residence/charges", {
+		method: "POST",
+		body: JSON.stringify(corps),
+	});
+}
+
+/** Crée une catégorie de charge (POST `CreerCategorieChargeDto`). */
+export function creerCategorieCharge(body: {
+	libelle: string;
+	actif?: boolean;
+}): Promise<unknown> {
+	const corps = {
+		libelle: body.libelle,
+		actif: body.actif ?? true,
+	} satisfies CreerCategorieChargeDto;
+	return getApiClient().apiFetch("/residence/categories-charges", {
+		method: "POST",
+		body: JSON.stringify(corps),
+	});
+}
+
+/** Modifie une catégorie de charge (PATCH `MajCategorieChargeDto`). */
+export function modifierCategorieCharge(
+	id: string,
+	body: { libelle?: string; actif?: boolean },
+): Promise<unknown> {
+	const corps = {
+		...(body.libelle !== undefined ? { libelle: body.libelle } : {}),
+		...(body.actif !== undefined ? { actif: body.actif } : {}),
+	} satisfies MajCategorieChargeDto;
+	return getApiClient().apiFetch(`/residence/categories-charges/${id}`, {
+		method: "PATCH",
+		body: JSON.stringify(corps),
+	});
+}
+
+/** Enregistre un paiement de charge (POST `/charges/{id}/payer`). */
+export function payerCharge(
+	id: string,
+	body: { montant: string; idMoyen: string },
+): Promise<unknown> {
+	const corps = {
+		montant: body.montant,
+		id_moyen: body.idMoyen,
+	} satisfies PayerChargeDto;
+	return getApiClient().apiFetch(`/residence/charges/${id}/payer`, {
 		method: "POST",
 		body: JSON.stringify(corps),
 	});

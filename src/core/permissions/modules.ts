@@ -81,7 +81,7 @@ export const MODULE_DEFINITIONS: ModuleDefinition[] = [
 			},
 			{
 				id: "locations",
-				label: "Locations",
+				label: "Contrats de location",
 				permission: "RESIDENCE.VOIR",
 				path: "/residence/contrats",
 			},
@@ -119,23 +119,13 @@ export const MODULE_DEFINITIONS: ModuleDefinition[] = [
 		path: "/pressing",
 		permission: "PRESSING.VOIR",
 		subItems: [
+			// Le dépôt et le retrait d'une commande sont des modales ouvertes
+			// depuis la liste des commandes — pas des pages de la sidebar.
 			{
 				id: "commandes",
 				label: "Commandes",
 				permission: "PRESSING.VOIR",
 				path: "/pressing/commandes",
-			},
-			{
-				id: "depot",
-				label: "Dépôt",
-				permission: "PRESSING.VOIR",
-				path: "/pressing/depot",
-			},
-			{
-				id: "retrait",
-				label: "Retrait",
-				permission: "PRESSING.VOIR",
-				path: "/pressing/retrait",
 			},
 		],
 	},

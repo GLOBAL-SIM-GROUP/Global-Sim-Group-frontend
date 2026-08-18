@@ -1,0 +1,53 @@
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+
+import {
+	creerEmploye,
+	type EmployeBody,
+	getEmploye,
+	listEmployes,
+	modifierEmploye,
+} from "../api/employes";
+import type { EmployeStatut } from "../models/employes";
+import { employesKeys } from "../permissions";
+
+/** Liste des employés (option : uniquement ceux sans compte utilisateur). */
+export function useEmployes(sansCompte?: boolean) {
+	return useQuery({
+		queryKey: employesKeys.list(Boolean(sansCompte)),
+		queryFn: () => listEmployes(sansCompte),
+	});
+}
+
+/** Détail d'un employé (fiche). `retry: false` : 404 = introuvable. */
+export function useEmploye(id: string) {
+	return useQuery({
+		queryKey: employesKeys.detail(id),
+		queryFn: () => getEmploye(id),
+		retry: false,
+	});
+}
+
+/** Invalide la liste des employés après une mutation. */
+function useInvalidation() {
+	const queryClient = useQueryClient();
+	return () => {
+		void queryClient.invalidateQueries({ queryKey: employesKeys.all });
+	};
+}
+
+export function useCreerEmploye() {
+	const invalider = useInvalidation();
+	return useMutation({ mutationFn: creerEmploye, onSuccess: invalider });
+}
+
+export function useModifierEmploye() {
+	const invalider = useInvalidation();
+	return useMutation({
+		mutationFn: ({
+			id,
+			...body
+		}: Partial<EmployeBody> & { statut?: EmployeStatut } & { id: string }) =>
+			modifierEmploye(id, body),
+		onSuccess: invalider,
+	});
+}

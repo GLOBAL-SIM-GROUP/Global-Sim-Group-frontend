@@ -4,9 +4,11 @@ import {
 	redirect,
 	useNavigate,
 	useRouteContext,
+	useSearch,
 } from "@tanstack/react-router";
 import { Loader2, Lock, User } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { z } from "zod";
 import { Button } from "#/components/ui/button";
 import { InputField } from "#/components/ui/input-field";
 import { PasswordInput } from "#/components/ui/password-input";
@@ -21,6 +23,10 @@ const FIELD_PROPERTY_TO_FORM: Record<string, LoginField> = {
 };
 
 export const Route = createFileRoute("/login")({
+	validateSearch: z.object({
+		/** URL d'origine (retour après connexion/restauration de session). */
+		next: z.string().optional(),
+	}),
 	beforeLoad: ({ context }) => {
 		// Déjà connecté → pas de page de login.
 		if (context.auth.isAuthenticated) {
@@ -33,7 +39,30 @@ export const Route = createFileRoute("/login")({
 export function LoginPage() {
 	const navigate = useNavigate();
 	const { auth } = useRouteContext({ from: "/login" });
+	const search = useSearch({ from: "/login" });
 	const [globalError, setGlobalError] = useState<string | null>(null);
+	// Pendant la restauration de la session persistée (rechargement), on masque
+	// le formulaire : l'utilisateur est renvoyé vers `next` sans voir /login.
+	const [verification, setVerification] = useState(true);
+
+	useEffect(() => {
+		let cancelled = false;
+		(async () => {
+			if (auth.isAuthenticated) {
+				setVerification(false);
+				return;
+			}
+			await auth.restore();
+			if (cancelled) return;
+			setVerification(false);
+			if (auth.isAuthenticated) {
+				await navigate({ href: search.next ?? "/" });
+			}
+		})();
+		return () => {
+			cancelled = true;
+		};
+	}, [auth, navigate, search.next]);
 
 	const form = useForm({
 		defaultValues: {
@@ -55,7 +84,7 @@ export function LoginPage() {
 			setGlobalError(null);
 			try {
 				await auth.login(value.login.trim(), value.motDePasse);
-				await navigate({ to: "/" });
+				await navigate({ href: search.next ?? "/" });
 			} catch (error) {
 				// Erreurs de validation backend → champ par champ (details[].property).
 				let mappedFields = 0;
@@ -82,6 +111,16 @@ export function LoginPage() {
 			}
 		},
 	});
+
+	if (verification) {
+		return (
+			<main className="login-bg flex min-h-dvh items-center justify-center p-6">
+				<p className="text-sm text-muted-foreground">
+					Vérification de la session…
+				</p>
+			</main>
+		);
+	}
 
 	return (
 		<main className="login-bg flex min-h-dvh items-center justify-center p-6">

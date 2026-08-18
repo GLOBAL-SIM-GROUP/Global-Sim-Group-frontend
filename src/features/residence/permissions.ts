@@ -29,6 +29,9 @@ export const clientsKeys = createQueryKeys("clients");
 /** Clés de requêtes du module Finances — moyens de paiement. */
 export const moyensPaiementKeys = createQueryKeys("finances.moyens-paiement");
 
+/** Clés de requêtes du module Résidence — abonnements. */
+export const abonnementsKeys = createQueryKeys("residence.abonnements");
+
 /** Taille de page de la pagination client de la liste des bâtiments. */
 export const BATIMENTS_PAGE_SIZE = 10;
 
@@ -40,3 +43,12 @@ export const CONTRATS_PAGE_SIZE = 10;
 
 /** Taille de page de la pagination client du suivi des échéances. */
 export const ECHANCES_PAGE_SIZE = 10;
+
+/** Taille de page de la pagination client de la liste des séjours. */
+export const SEJOURS_PAGE_SIZE = 10;
+
+/** Taille de page de la pagination client de la liste des charges. */
+export const CHARGES_PAGE_SIZE = 10;
+
+/** Taille de page de la pagination client de la liste des abonnements. */
+export const ABONNEMENTS_PAGE_SIZE = 10;

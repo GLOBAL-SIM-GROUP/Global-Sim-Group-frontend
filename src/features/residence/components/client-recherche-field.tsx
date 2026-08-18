@@ -9,6 +9,15 @@ import { useRechercherClients } from "../hooks/use-clients";
 import { nomComplet } from "../models/clients";
 import { CreerClientInlineForm } from "./creer-client-inline-form";
 
+// ═══ DEBUG création client — CANARY ═══
+// Exécuté au chargement de ce module (c.-à-d. quand un formulaire qui utilise
+// la recherche client est ouvert). S'il n'apparaît PAS dans la console,
+// l'application en cours d'exécution ne contient pas le code de débug.
+console.log(
+	"[DEBUG-client] CANARY — module client-recherche-field chargé (le code de débug est actif)",
+);
+// ═══ fin DEBUG ═══
+
 /** Mini-hook de debounce (aucune dépendance ajoutée). */
 function useDebouncedValue<T>(value: T, delay: number): T {
 	const [debounced, setDebounced] = useState(value);
@@ -120,7 +129,12 @@ export function ClientRechercheField({
 							type="button"
 							variant="outline"
 							size="sm"
-							onClick={() => setCreationOuverte(true)}
+							onClick={() => {
+								console.log(
+									"[DEBUG-client] bouton 'Créer un client' cliqué — ouverture du formulaire inline",
+								);
+								setCreationOuverte(true);
+							}}
 						>
 							<Plus className="size-4" aria-hidden />
 							Créer un client
@@ -129,6 +143,12 @@ export function ClientRechercheField({
 						<CreerClientInlineForm
 							onCancel={() => setCreationOuverte(false)}
 							onSaved={(id, label) => {
+								console.log(
+									"[DEBUG-client] 4. onSaved appelé — id =",
+									id,
+									"label =",
+									label,
+								);
 								setSelectionne({ id, label });
 								onChange(id, label);
 								setCreationOuverte(false);

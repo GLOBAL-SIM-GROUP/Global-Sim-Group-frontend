@@ -25,6 +25,11 @@ export interface AuthSession {
 	logout(): Promise<void>;
 	/** Rafraîchit la session (rotation). false = session expirée. */
 	refresh(): Promise<boolean>;
+	/**
+	 * Restaure la session depuis les tokens persistés (au démarrage du client) :
+	 * refresh + `/auth/me` → utilisateur rétabli sans reconnexion manuelle.
+	 */
+	restore(): Promise<void>;
 	handleSessionExpired(): void;
 	subscribe(listener: () => void): () => void;
 	getSnapshot(): AuthSessionSnapshot;
@@ -56,6 +61,10 @@ export function createAuthSession(
 
 	let currentUser: AuthMeResponse | null = null;
 	let refreshTimer: ReturnType<typeof setTimeout> | null = null;
+	// Anti-course : le refresh planifié et le refresh déclenché par un 401
+	// partagent la même promesse — le backend RÉVOQUE la session si un refresh
+	// token est rejoué, un double refresh concurrent déconnecterait l'utilisateur.
+	let refreshInFlight: Promise<boolean> | null = null;
 	// Snapshot référentiellement stable (indispensable à useSyncExternalStore).
 	let snapshot: AuthSessionSnapshot = { isAuthenticated: false, user: null };
 
@@ -103,7 +112,7 @@ export function createAuthSession(
 		scheduleRefresh(response.accessExpiresIn);
 	}
 
-	async function refresh(): Promise<boolean> {
+	async function doRefresh(): Promise<boolean> {
 		const tokens = tokenStorage.get();
 		if (!tokens) return false;
 		try {
@@ -121,6 +130,31 @@ export function createAuthSession(
 		} catch {
 			handleSessionExpired();
 			return false;
+		}
+	}
+
+	async function refresh(): Promise<boolean> {
+		if (refreshInFlight) return refreshInFlight;
+		refreshInFlight = doRefresh().finally(() => {
+			refreshInFlight = null;
+		});
+		return refreshInFlight;
+	}
+
+	async function restore(): Promise<void> {
+		if (currentUser) return;
+		// SSR : pas de localStorage ni de tokens — la restauration est côté client.
+		if (typeof window === "undefined") return;
+		const tokens = tokenStorage.get();
+		if (!tokens) return;
+		try {
+			const refreshed = await refresh();
+			if (refreshed) {
+				const me = await authApi.me();
+				setUser(me);
+			}
+		} catch {
+			handleSessionExpired();
 		}
 	}
 
@@ -147,6 +181,7 @@ export function createAuthSession(
 		login,
 		logout,
 		refresh,
+		restore,
 		handleSessionExpired,
 		subscribe(listener: () => void): () => void {
 			listeners.add(listener);

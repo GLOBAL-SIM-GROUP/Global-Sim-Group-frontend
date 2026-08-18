@@ -1,8 +1,8 @@
 import { Link, useLocation } from "@tanstack/react-router";
-import { ChevronDown, LayoutGrid } from "lucide-react";
+import { BarChart3, ChevronDown, LayoutGrid } from "lucide-react";
 import { useState } from "react";
 
-import { useCurrentUser, usePermissions } from "#/core/auth";
+import { useCan, useCurrentUser, usePermissions } from "#/core/auth";
 import {
 	getAccessibleModuleSubItems,
 	getAccessibleModules,
@@ -23,19 +23,78 @@ function initialsOf(login: string): string {
 }
 
 /**
+ * Routes métier construites (liens typés de la sidebar), par module puis
+ * `sub.id` (les ids de sous-menu se chevauchent entre modules, ex.
+ * « statistiques »). Les autres sous-menus pointent vers le placeholder
+ * `/en-cours`.
+ */
+const ROUTES_REALLES: Record<
+	string,
+	Record<string, { to: string; exact: boolean }>
+> = {
+	RESIDENCE: {
+		batiments: { to: "/residence/batiments", exact: true },
+		// `exact: false` garde le lien actif sur la fiche contrat.
+		locations: { to: "/residence/contrats", exact: false },
+		echeances: { to: "/residence/echeances", exact: true },
+		sejours_courts: { to: "/residence/sejours-courts", exact: true },
+		charges: { to: "/residence/charges", exact: true },
+	},
+	MARCHANDISE: {
+		produits: { to: "/marchandise/produits", exact: true },
+		mouvements: { to: "/marchandise/mouvements", exact: true },
+		ventes: { to: "/marchandise/ventes", exact: true },
+		statistiques: { to: "/marchandise/statistiques", exact: true },
+	},
+	// Le dépôt et le retrait sont des modales depuis la liste des commandes.
+	PRESSING: {
+		commandes: { to: "/pressing/commandes", exact: false },
+	},
+	RESTAURANT: {
+		plats: { to: "/restaurant/plats", exact: true },
+		commandes: { to: "/restaurant/commandes", exact: true },
+		statistiques: { to: "/restaurant/statistiques", exact: true },
+	},
+	SALLE_FETE: {
+		calendrier: { to: "/salle-fete/calendrier", exact: true },
+		reservations: { to: "/salle-fete/reservations", exact: false },
+	},
+	FACTURATION: {
+		prestations: { to: "/facturation/prestations", exact: true },
+		// `exact: false` garde le lien actif sur la fiche facture.
+		facturation: { to: "/facturation/factures", exact: false },
+	},
+	FINANCES: {
+		tableau_de_bord: { to: "/finances/tableau-de-bord", exact: true },
+		encaissements: { to: "/finances/encaissements", exact: true },
+		depenses: { to: "/finances/depenses", exact: true },
+		impayes: { to: "/finances/impayes", exact: true },
+		moyens_paiement: { to: "/finances/moyens-paiement", exact: true },
+		categories_depenses: { to: "/finances/categories-depenses", exact: true },
+	},
+	RH: {
+		employes: { to: "/rh/employes", exact: true },
+		// `exact: false` garde la fiche employé active.
+		pointage: { to: "/rh/pointage", exact: false },
+		// `exact: false` garde la fiche bulletin active.
+		bulletins: { to: "/rh/bulletins", exact: false },
+		comptes: { to: "/rh/comptes", exact: true },
+	},
+};
+
+/**
  * Menu latéral des écrans authentifiés (desktop) : marque + Accueil, puis un
  * accordéon par module accessible (un seul ouvert à la fois), footer
  * utilisateur + déconnexion.
  *
  * Fond `bg-sea-ink` FIGÉ (tokens --color-sea-ink/lagoon/palm : les variables
  * --sea-ink/--lagoon/--palm changent de valeur sous `.dark` et éclairciraient
- * la sidebar). Les sous-menus sans route métier construite pointent vers le
- * placeholder partagé `/en-cours` ; les routes réelles (`/residence/*`) sont
- * de vrais liens.
+ * la sidebar).
  */
 export function Sidebar() {
 	const user = useCurrentUser();
 	const permissions = usePermissions();
+	const canVoirRapports = useCan("ADMIN.VOIR");
 	const accessibleModules = getAccessibleModules(permissions);
 	const { pathname, search } = useLocation();
 	const activeModule = (search as { module?: string } | undefined)?.module;
@@ -43,8 +102,19 @@ export function Sidebar() {
 	// Un seul module ouvert à la fois ; le module actif de l'URL est ouvert par
 	// défaut (auto-ouverture du parent quand on arrive sur un sous-menu). Les
 	// routes métier construites (ex. /residence/*) ouvrent leur module.
+	const moduleDeLaRoute = (chemin: string): string | null => {
+		if (chemin.startsWith("/residence")) return "RESIDENCE";
+		if (chemin.startsWith("/marchandise")) return "MARCHANDISE";
+		if (chemin.startsWith("/pressing")) return "PRESSING";
+		if (chemin.startsWith("/restaurant")) return "RESTAURANT";
+		if (chemin.startsWith("/salle-fete")) return "SALLE_FETE";
+		if (chemin.startsWith("/facturation")) return "FACTURATION";
+		if (chemin.startsWith("/finances")) return "FINANCES";
+		if (chemin.startsWith("/rh")) return "RH";
+		return null;
+	};
 	const [openModule, setOpenModule] = useState<string | null>(
-		activeModule ?? (pathname.startsWith("/residence") ? "RESIDENCE" : null),
+		activeModule ?? moduleDeLaRoute(pathname),
 	);
 
 	const toggleModule = (code: string) =>
@@ -89,6 +159,22 @@ export function Sidebar() {
 							</Link>
 						</li>
 
+						{canVoirRapports ? (
+							<li>
+								{/* M10 : pas de module/permission RAPPORTS côté backend — le
+								    menu Rapports suit `ADMIN.VOIR` (administrateurs, dirigeants). */}
+								<Link
+									to="/rapports"
+									activeOptions={{ exact: false }}
+									activeProps={{ className: "bg-lagoon/25 text-white" }}
+									className={linkClassName}
+								>
+									<BarChart3 className="size-4 text-lagoon" aria-hidden />
+									Rapports
+								</Link>
+							</li>
+						) : null}
+
 						{accessibleModules.map((module) => {
 							const isOpen = openModule === module.code;
 							const subItems = getAccessibleModuleSubItems(module, permissions);
@@ -115,56 +201,38 @@ export function Sidebar() {
 
 									{subItems.length > 0 && isOpen && (
 										<ul className="ml-5 mt-1 space-y-1 border-l border-palm pl-2">
-											{subItems.map((sub) => (
-												<li key={sub.id}>
-													{sub.id === "batiments" ? (
-														// Route métier réelle (M2.1) : lien typé, les filtres vivent dans la
-														// search de cette route, pas ici.
-														<Link
-															to="/residence/batiments"
-															activeOptions={{ exact: true }}
-															activeProps={{ className: subActiveClassName }}
-															className={subLinkClassName}
-														>
-															{sub.label}
-														</Link>
-													) : sub.id === "locations" ? (
-														// « Locations » → liste des contrats de location (M2.2). `exact:
-														// false` garde le lien actif sur la fiche contrat.
-														<Link
-															to="/residence/contrats"
-															activeOptions={{ exact: false }}
-															activeProps={{ className: subActiveClassName }}
-															className={subLinkClassName}
-														>
-															{sub.label}
-														</Link>
-													) : sub.id === "echeances" ? (
-														// « Échéances de loyer » → suivi consolidé des échéances (M2.2).
-														<Link
-															to="/residence/echeances"
-															activeOptions={{ exact: true }}
-															activeProps={{ className: subActiveClassName }}
-															className={subLinkClassName}
-														>
-															{sub.label}
-														</Link>
-													) : (
-														// Placeholder partagé tant que la route métier n'existe pas.
-														<Link
-															to="/en-cours"
-															search={{ module: module.code, page: sub.id }}
-															activeOptions={{ includeSearch: true }}
-															activeProps={{
-																className: subActiveClassName,
-															}}
-															className={subLinkClassName}
-														>
-															{sub.label}
-														</Link>
-													)}
-												</li>
-											))}
+											{subItems.map((sub) => {
+												const route = ROUTES_REALLES[module.code]?.[sub.id];
+												return (
+													<li key={sub.id}>
+														{route ? (
+															// Route métier réelle : lien typé, les filtres vivent dans la
+															// search de cette route, pas ici.
+															<Link
+																to={route.to as never}
+																activeOptions={{ exact: route.exact }}
+																activeProps={{ className: subActiveClassName }}
+																className={subLinkClassName}
+															>
+																{sub.label}
+															</Link>
+														) : (
+															// Placeholder partagé tant que la route métier n'existe pas.
+															<Link
+																to="/en-cours"
+																search={{ module: module.code, page: sub.id }}
+																activeOptions={{ includeSearch: true }}
+																activeProps={{
+																	className: subActiveClassName,
+																}}
+																className={subLinkClassName}
+															>
+																{sub.label}
+															</Link>
+														)}
+													</li>
+												);
+											})}
 										</ul>
 									)}
 								</li>

@@ -16,9 +16,11 @@ import { getErrorMessageForCode, getFieldErrors, toApiError } from "#/core/api";
 
 import { useCreerCharge } from "../hooks/use-charges";
 import type { CategorieCharge } from "../models/charges";
+import { LogementCascadeField } from "./logement-cascade-field";
 
 /** Champs du formulaire (noms cohérents avec le corps API). */
 type ChargeField =
+	| "idLogement"
 	| "idCategorieCharge"
 	| "periode"
 	| "montant"
@@ -29,6 +31,7 @@ type ChargeField =
 
 /** Propriétés backend (snake_case) → champs du formulaire. */
 const FIELD_PROPERTY_TO_FORM: Record<string, ChargeField> = {
+	id_logement: "idLogement",
 	id_categorie_charge: "idCategorieCharge",
 	periode: "periode",
 	montant: "montant",
@@ -39,7 +42,11 @@ const FIELD_PROPERTY_TO_FORM: Record<string, ChargeField> = {
 };
 
 interface ChargeFormProps {
-	logementId: string;
+	/**
+	 * Logement fixé (onglet Charges de la fiche logement) ; absent → le
+	 * formulaire propose un sélecteur de logement (page « Nouvelle charge »).
+	 */
+	logementIdParDefaut?: string;
 	/** Catégories disponibles (déjà chargées par la page). */
 	categories: CategorieCharge[];
 	/** Annulation (ferme la modale). */
@@ -83,7 +90,7 @@ function SelectField({
  * compteur et les lectures sont optionnels.
  */
 export function ChargeForm({
-	logementId,
+	logementIdParDefaut,
 	categories,
 	onCancel,
 	onSaved,
@@ -93,6 +100,7 @@ export function ChargeForm({
 
 	const form = useForm({
 		defaultValues: {
+			idLogement: logementIdParDefaut ?? "",
 			idCategorieCharge: "",
 			periode: new Date().toISOString().slice(0, 7),
 			montant: "",
@@ -105,6 +113,7 @@ export function ChargeForm({
 			onSubmit: ({ value }) => {
 				// `{ fields }` = erreurs champ par champ (cf. login.tsx).
 				const fields: Partial<Record<ChargeField, string>> = {};
+				if (!value.idLogement) fields.idLogement = "Sélectionnez un logement.";
 				if (!value.idCategorieCharge)
 					fields.idCategorieCharge = "Ce champ est requis.";
 				if (!value.periode.trim()) fields.periode = "Ce champ est requis.";
@@ -120,7 +129,7 @@ export function ChargeForm({
 			setGlobalError(null);
 			try {
 				await createMutation.mutateAsync({
-					idLogement: logementId,
+					idLogement: value.idLogement,
 					idCategorieCharge: value.idCategorieCharge,
 					periode: value.periode,
 					montant: value.montant.trim(),
@@ -166,6 +175,17 @@ export function ChargeForm({
 				void form.handleSubmit();
 			}}
 		>
+			{!logementIdParDefaut ? (
+				<form.Field name="idLogement">
+					{(field) => (
+						<LogementCascadeField
+							value={field.state.value}
+							onChange={field.handleChange}
+						/>
+					)}
+				</form.Field>
+			) : null}
+
 			<form.Field name="idCategorieCharge">
 				{(field) => (
 					<SelectField

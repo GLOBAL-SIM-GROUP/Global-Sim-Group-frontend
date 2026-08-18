@@ -13,12 +13,51 @@ import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
 import { Route as AuthenticatedEnCoursRouteImport } from './routes/_authenticated/en-cours'
+import { Route as AuthenticatedRapportsIndexRouteImport } from './routes/_authenticated/rapports/index'
+import { Route as AuthenticatedFacturationFacturesIndexRouteImport } from './routes/_authenticated/facturation/factures/index'
+import { Route as AuthenticatedFacturationFacturesIdRouteImport } from './routes/_authenticated/facturation/factures/$id'
+import { Route as AuthenticatedFacturationPrestationsIndexRouteImport } from './routes/_authenticated/facturation/prestations/index'
+import { Route as AuthenticatedFinancesCategoriesDepensesIndexRouteImport } from './routes/_authenticated/finances/categories-depenses/index'
+import { Route as AuthenticatedFinancesDepensesIndexRouteImport } from './routes/_authenticated/finances/depenses/index'
+import { Route as AuthenticatedFinancesEncaissementsIndexRouteImport } from './routes/_authenticated/finances/encaissements/index'
+import { Route as AuthenticatedFinancesImpayesIndexRouteImport } from './routes/_authenticated/finances/impayes/index'
+import { Route as AuthenticatedFinancesMoyensPaiementIndexRouteImport } from './routes/_authenticated/finances/moyens-paiement/index'
+import { Route as AuthenticatedFinancesTableauDeBordIndexRouteImport } from './routes/_authenticated/finances/tableau-de-bord/index'
+import { Route as AuthenticatedMarchandiseCategoriesProduitsIndexRouteImport } from './routes/_authenticated/marchandise/categories-produits/index'
+import { Route as AuthenticatedMarchandiseMouvementsIndexRouteImport } from './routes/_authenticated/marchandise/mouvements/index'
+import { Route as AuthenticatedMarchandiseProduitsIndexRouteImport } from './routes/_authenticated/marchandise/produits/index'
+import { Route as AuthenticatedMarchandiseStatistiquesIndexRouteImport } from './routes/_authenticated/marchandise/statistiques/index'
+import { Route as AuthenticatedMarchandiseVentesIndexRouteImport } from './routes/_authenticated/marchandise/ventes/index'
+import { Route as AuthenticatedPressingCommandesIndexRouteImport } from './routes/_authenticated/pressing/commandes/index'
+import { Route as AuthenticatedPressingCommandesIdRouteImport } from './routes/_authenticated/pressing/commandes/$id'
+import { Route as AuthenticatedRapportsActivitesCodeRouteImport } from './routes/_authenticated/rapports/activites/$code'
+import { Route as AuthenticatedRapportsFinancierIndexRouteImport } from './routes/_authenticated/rapports/financier/index'
+import { Route as AuthenticatedRapportsRhIndexRouteImport } from './routes/_authenticated/rapports/rh/index'
+import { Route as AuthenticatedRapportsSyntheseGlobaleIndexRouteImport } from './routes/_authenticated/rapports/synthese-globale/index'
+import { Route as AuthenticatedResidenceAbonnementsIndexRouteImport } from './routes/_authenticated/residence/abonnements/index'
 import { Route as AuthenticatedResidenceBatimentsIndexRouteImport } from './routes/_authenticated/residence/batiments/index'
+import { Route as AuthenticatedResidenceCategoriesChargesIndexRouteImport } from './routes/_authenticated/residence/categories-charges/index'
+import { Route as AuthenticatedResidenceChargesIndexRouteImport } from './routes/_authenticated/residence/charges/index'
 import { Route as AuthenticatedResidenceContratsIndexRouteImport } from './routes/_authenticated/residence/contrats/index'
 import { Route as AuthenticatedResidenceContratsIdRouteImport } from './routes/_authenticated/residence/contrats/$id'
 import { Route as AuthenticatedResidenceEcheancesIndexRouteImport } from './routes/_authenticated/residence/echeances/index'
 import { Route as AuthenticatedResidenceLogementsIndexRouteImport } from './routes/_authenticated/residence/logements/index'
 import { Route as AuthenticatedResidenceLogementsIdRouteImport } from './routes/_authenticated/residence/logements/$id'
+import { Route as AuthenticatedResidenceSejoursCourtsIndexRouteImport } from './routes/_authenticated/residence/sejours-courts/index'
+import { Route as AuthenticatedResidenceSejoursCourtsIdRouteImport } from './routes/_authenticated/residence/sejours-courts/$id'
+import { Route as AuthenticatedRestaurantCommandesIndexRouteImport } from './routes/_authenticated/restaurant/commandes/index'
+import { Route as AuthenticatedRestaurantPlatsIndexRouteImport } from './routes/_authenticated/restaurant/plats/index'
+import { Route as AuthenticatedRestaurantStatistiquesIndexRouteImport } from './routes/_authenticated/restaurant/statistiques/index'
+import { Route as AuthenticatedRhBulletinsIndexRouteImport } from './routes/_authenticated/rh/bulletins/index'
+import { Route as AuthenticatedRhBulletinsIdRouteImport } from './routes/_authenticated/rh/bulletins/$id'
+import { Route as AuthenticatedRhComptesIndexRouteImport } from './routes/_authenticated/rh/comptes/index'
+import { Route as AuthenticatedRhEmployesIndexRouteImport } from './routes/_authenticated/rh/employes/index'
+import { Route as AuthenticatedRhEmployesIdRouteImport } from './routes/_authenticated/rh/employes/$id'
+import { Route as AuthenticatedRhPointageIndexRouteImport } from './routes/_authenticated/rh/pointage/index'
+import { Route as AuthenticatedSalleFeteCalendrierIndexRouteImport } from './routes/_authenticated/salle-fete/calendrier/index'
+import { Route as AuthenticatedSalleFeteReservationsIndexRouteImport } from './routes/_authenticated/salle-fete/reservations/index'
+import { Route as AuthenticatedSalleFeteReservationsIdRouteImport } from './routes/_authenticated/salle-fete/reservations/$id'
+import { Route as AuthenticatedRhPointageConsultationIndexRouteImport } from './routes/_authenticated/rh/pointage/consultation/index'
 
 const AuthenticatedRoute = AuthenticatedRouteImport.update({
   id: '/_authenticated',
@@ -39,10 +78,154 @@ const AuthenticatedEnCoursRoute = AuthenticatedEnCoursRouteImport.update({
   path: '/en-cours',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedRapportsIndexRoute =
+  AuthenticatedRapportsIndexRouteImport.update({
+    id: '/rapports/',
+    path: '/rapports/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFacturationFacturesIndexRoute =
+  AuthenticatedFacturationFacturesIndexRouteImport.update({
+    id: '/facturation/factures/',
+    path: '/facturation/factures/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFacturationFacturesIdRoute =
+  AuthenticatedFacturationFacturesIdRouteImport.update({
+    id: '/facturation/factures/$id',
+    path: '/facturation/factures/$id',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFacturationPrestationsIndexRoute =
+  AuthenticatedFacturationPrestationsIndexRouteImport.update({
+    id: '/facturation/prestations/',
+    path: '/facturation/prestations/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFinancesCategoriesDepensesIndexRoute =
+  AuthenticatedFinancesCategoriesDepensesIndexRouteImport.update({
+    id: '/finances/categories-depenses/',
+    path: '/finances/categories-depenses/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFinancesDepensesIndexRoute =
+  AuthenticatedFinancesDepensesIndexRouteImport.update({
+    id: '/finances/depenses/',
+    path: '/finances/depenses/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFinancesEncaissementsIndexRoute =
+  AuthenticatedFinancesEncaissementsIndexRouteImport.update({
+    id: '/finances/encaissements/',
+    path: '/finances/encaissements/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFinancesImpayesIndexRoute =
+  AuthenticatedFinancesImpayesIndexRouteImport.update({
+    id: '/finances/impayes/',
+    path: '/finances/impayes/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFinancesMoyensPaiementIndexRoute =
+  AuthenticatedFinancesMoyensPaiementIndexRouteImport.update({
+    id: '/finances/moyens-paiement/',
+    path: '/finances/moyens-paiement/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFinancesTableauDeBordIndexRoute =
+  AuthenticatedFinancesTableauDeBordIndexRouteImport.update({
+    id: '/finances/tableau-de-bord/',
+    path: '/finances/tableau-de-bord/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedMarchandiseCategoriesProduitsIndexRoute =
+  AuthenticatedMarchandiseCategoriesProduitsIndexRouteImport.update({
+    id: '/marchandise/categories-produits/',
+    path: '/marchandise/categories-produits/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedMarchandiseMouvementsIndexRoute =
+  AuthenticatedMarchandiseMouvementsIndexRouteImport.update({
+    id: '/marchandise/mouvements/',
+    path: '/marchandise/mouvements/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedMarchandiseProduitsIndexRoute =
+  AuthenticatedMarchandiseProduitsIndexRouteImport.update({
+    id: '/marchandise/produits/',
+    path: '/marchandise/produits/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedMarchandiseStatistiquesIndexRoute =
+  AuthenticatedMarchandiseStatistiquesIndexRouteImport.update({
+    id: '/marchandise/statistiques/',
+    path: '/marchandise/statistiques/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedMarchandiseVentesIndexRoute =
+  AuthenticatedMarchandiseVentesIndexRouteImport.update({
+    id: '/marchandise/ventes/',
+    path: '/marchandise/ventes/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedPressingCommandesIndexRoute =
+  AuthenticatedPressingCommandesIndexRouteImport.update({
+    id: '/pressing/commandes/',
+    path: '/pressing/commandes/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedPressingCommandesIdRoute =
+  AuthenticatedPressingCommandesIdRouteImport.update({
+    id: '/pressing/commandes/$id',
+    path: '/pressing/commandes/$id',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedRapportsActivitesCodeRoute =
+  AuthenticatedRapportsActivitesCodeRouteImport.update({
+    id: '/rapports/activites/$code',
+    path: '/rapports/activites/$code',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedRapportsFinancierIndexRoute =
+  AuthenticatedRapportsFinancierIndexRouteImport.update({
+    id: '/rapports/financier/',
+    path: '/rapports/financier/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedRapportsRhIndexRoute =
+  AuthenticatedRapportsRhIndexRouteImport.update({
+    id: '/rapports/rh/',
+    path: '/rapports/rh/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedRapportsSyntheseGlobaleIndexRoute =
+  AuthenticatedRapportsSyntheseGlobaleIndexRouteImport.update({
+    id: '/rapports/synthese-globale/',
+    path: '/rapports/synthese-globale/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedResidenceAbonnementsIndexRoute =
+  AuthenticatedResidenceAbonnementsIndexRouteImport.update({
+    id: '/residence/abonnements/',
+    path: '/residence/abonnements/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedResidenceBatimentsIndexRoute =
   AuthenticatedResidenceBatimentsIndexRouteImport.update({
     id: '/residence/batiments/',
     path: '/residence/batiments/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedResidenceCategoriesChargesIndexRoute =
+  AuthenticatedResidenceCategoriesChargesIndexRouteImport.update({
+    id: '/residence/categories-charges/',
+    path: '/residence/categories-charges/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedResidenceChargesIndexRoute =
+  AuthenticatedResidenceChargesIndexRouteImport.update({
+    id: '/residence/charges/',
+    path: '/residence/charges/',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedResidenceContratsIndexRoute =
@@ -75,28 +258,196 @@ const AuthenticatedResidenceLogementsIdRoute =
     path: '/residence/logements/$id',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedResidenceSejoursCourtsIndexRoute =
+  AuthenticatedResidenceSejoursCourtsIndexRouteImport.update({
+    id: '/residence/sejours-courts/',
+    path: '/residence/sejours-courts/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedResidenceSejoursCourtsIdRoute =
+  AuthenticatedResidenceSejoursCourtsIdRouteImport.update({
+    id: '/residence/sejours-courts/$id',
+    path: '/residence/sejours-courts/$id',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedRestaurantCommandesIndexRoute =
+  AuthenticatedRestaurantCommandesIndexRouteImport.update({
+    id: '/restaurant/commandes/',
+    path: '/restaurant/commandes/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedRestaurantPlatsIndexRoute =
+  AuthenticatedRestaurantPlatsIndexRouteImport.update({
+    id: '/restaurant/plats/',
+    path: '/restaurant/plats/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedRestaurantStatistiquesIndexRoute =
+  AuthenticatedRestaurantStatistiquesIndexRouteImport.update({
+    id: '/restaurant/statistiques/',
+    path: '/restaurant/statistiques/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedRhBulletinsIndexRoute =
+  AuthenticatedRhBulletinsIndexRouteImport.update({
+    id: '/rh/bulletins/',
+    path: '/rh/bulletins/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedRhBulletinsIdRoute =
+  AuthenticatedRhBulletinsIdRouteImport.update({
+    id: '/rh/bulletins/$id',
+    path: '/rh/bulletins/$id',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedRhComptesIndexRoute =
+  AuthenticatedRhComptesIndexRouteImport.update({
+    id: '/rh/comptes/',
+    path: '/rh/comptes/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedRhEmployesIndexRoute =
+  AuthenticatedRhEmployesIndexRouteImport.update({
+    id: '/rh/employes/',
+    path: '/rh/employes/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedRhEmployesIdRoute =
+  AuthenticatedRhEmployesIdRouteImport.update({
+    id: '/rh/employes/$id',
+    path: '/rh/employes/$id',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedRhPointageIndexRoute =
+  AuthenticatedRhPointageIndexRouteImport.update({
+    id: '/rh/pointage/',
+    path: '/rh/pointage/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedSalleFeteCalendrierIndexRoute =
+  AuthenticatedSalleFeteCalendrierIndexRouteImport.update({
+    id: '/salle-fete/calendrier/',
+    path: '/salle-fete/calendrier/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedSalleFeteReservationsIndexRoute =
+  AuthenticatedSalleFeteReservationsIndexRouteImport.update({
+    id: '/salle-fete/reservations/',
+    path: '/salle-fete/reservations/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedSalleFeteReservationsIdRoute =
+  AuthenticatedSalleFeteReservationsIdRouteImport.update({
+    id: '/salle-fete/reservations/$id',
+    path: '/salle-fete/reservations/$id',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedRhPointageConsultationIndexRoute =
+  AuthenticatedRhPointageConsultationIndexRouteImport.update({
+    id: '/rh/pointage/consultation/',
+    path: '/rh/pointage/consultation/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
   '/login': typeof LoginRoute
   '/en-cours': typeof AuthenticatedEnCoursRoute
+  '/rapports/': typeof AuthenticatedRapportsIndexRoute
+  '/facturation/factures/$id': typeof AuthenticatedFacturationFacturesIdRoute
+  '/pressing/commandes/$id': typeof AuthenticatedPressingCommandesIdRoute
+  '/rapports/activites/$code': typeof AuthenticatedRapportsActivitesCodeRoute
   '/residence/contrats/$id': typeof AuthenticatedResidenceContratsIdRoute
   '/residence/logements/$id': typeof AuthenticatedResidenceLogementsIdRoute
+  '/residence/sejours-courts/$id': typeof AuthenticatedResidenceSejoursCourtsIdRoute
+  '/rh/bulletins/$id': typeof AuthenticatedRhBulletinsIdRoute
+  '/rh/employes/$id': typeof AuthenticatedRhEmployesIdRoute
+  '/salle-fete/reservations/$id': typeof AuthenticatedSalleFeteReservationsIdRoute
+  '/facturation/factures/': typeof AuthenticatedFacturationFacturesIndexRoute
+  '/facturation/prestations/': typeof AuthenticatedFacturationPrestationsIndexRoute
+  '/finances/categories-depenses/': typeof AuthenticatedFinancesCategoriesDepensesIndexRoute
+  '/finances/depenses/': typeof AuthenticatedFinancesDepensesIndexRoute
+  '/finances/encaissements/': typeof AuthenticatedFinancesEncaissementsIndexRoute
+  '/finances/impayes/': typeof AuthenticatedFinancesImpayesIndexRoute
+  '/finances/moyens-paiement/': typeof AuthenticatedFinancesMoyensPaiementIndexRoute
+  '/finances/tableau-de-bord/': typeof AuthenticatedFinancesTableauDeBordIndexRoute
+  '/marchandise/categories-produits/': typeof AuthenticatedMarchandiseCategoriesProduitsIndexRoute
+  '/marchandise/mouvements/': typeof AuthenticatedMarchandiseMouvementsIndexRoute
+  '/marchandise/produits/': typeof AuthenticatedMarchandiseProduitsIndexRoute
+  '/marchandise/statistiques/': typeof AuthenticatedMarchandiseStatistiquesIndexRoute
+  '/marchandise/ventes/': typeof AuthenticatedMarchandiseVentesIndexRoute
+  '/pressing/commandes/': typeof AuthenticatedPressingCommandesIndexRoute
+  '/rapports/financier/': typeof AuthenticatedRapportsFinancierIndexRoute
+  '/rapports/rh/': typeof AuthenticatedRapportsRhIndexRoute
+  '/rapports/synthese-globale/': typeof AuthenticatedRapportsSyntheseGlobaleIndexRoute
+  '/residence/abonnements/': typeof AuthenticatedResidenceAbonnementsIndexRoute
   '/residence/batiments/': typeof AuthenticatedResidenceBatimentsIndexRoute
+  '/residence/categories-charges/': typeof AuthenticatedResidenceCategoriesChargesIndexRoute
+  '/residence/charges/': typeof AuthenticatedResidenceChargesIndexRoute
   '/residence/contrats/': typeof AuthenticatedResidenceContratsIndexRoute
   '/residence/echeances/': typeof AuthenticatedResidenceEcheancesIndexRoute
   '/residence/logements/': typeof AuthenticatedResidenceLogementsIndexRoute
+  '/residence/sejours-courts/': typeof AuthenticatedResidenceSejoursCourtsIndexRoute
+  '/restaurant/commandes/': typeof AuthenticatedRestaurantCommandesIndexRoute
+  '/restaurant/plats/': typeof AuthenticatedRestaurantPlatsIndexRoute
+  '/restaurant/statistiques/': typeof AuthenticatedRestaurantStatistiquesIndexRoute
+  '/rh/bulletins/': typeof AuthenticatedRhBulletinsIndexRoute
+  '/rh/comptes/': typeof AuthenticatedRhComptesIndexRoute
+  '/rh/employes/': typeof AuthenticatedRhEmployesIndexRoute
+  '/rh/pointage/': typeof AuthenticatedRhPointageIndexRoute
+  '/salle-fete/calendrier/': typeof AuthenticatedSalleFeteCalendrierIndexRoute
+  '/salle-fete/reservations/': typeof AuthenticatedSalleFeteReservationsIndexRoute
+  '/rh/pointage/consultation/': typeof AuthenticatedRhPointageConsultationIndexRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/en-cours': typeof AuthenticatedEnCoursRoute
   '/': typeof AuthenticatedIndexRoute
+  '/rapports': typeof AuthenticatedRapportsIndexRoute
+  '/facturation/factures/$id': typeof AuthenticatedFacturationFacturesIdRoute
+  '/pressing/commandes/$id': typeof AuthenticatedPressingCommandesIdRoute
+  '/rapports/activites/$code': typeof AuthenticatedRapportsActivitesCodeRoute
   '/residence/contrats/$id': typeof AuthenticatedResidenceContratsIdRoute
   '/residence/logements/$id': typeof AuthenticatedResidenceLogementsIdRoute
+  '/residence/sejours-courts/$id': typeof AuthenticatedResidenceSejoursCourtsIdRoute
+  '/rh/bulletins/$id': typeof AuthenticatedRhBulletinsIdRoute
+  '/rh/employes/$id': typeof AuthenticatedRhEmployesIdRoute
+  '/salle-fete/reservations/$id': typeof AuthenticatedSalleFeteReservationsIdRoute
+  '/facturation/factures': typeof AuthenticatedFacturationFacturesIndexRoute
+  '/facturation/prestations': typeof AuthenticatedFacturationPrestationsIndexRoute
+  '/finances/categories-depenses': typeof AuthenticatedFinancesCategoriesDepensesIndexRoute
+  '/finances/depenses': typeof AuthenticatedFinancesDepensesIndexRoute
+  '/finances/encaissements': typeof AuthenticatedFinancesEncaissementsIndexRoute
+  '/finances/impayes': typeof AuthenticatedFinancesImpayesIndexRoute
+  '/finances/moyens-paiement': typeof AuthenticatedFinancesMoyensPaiementIndexRoute
+  '/finances/tableau-de-bord': typeof AuthenticatedFinancesTableauDeBordIndexRoute
+  '/marchandise/categories-produits': typeof AuthenticatedMarchandiseCategoriesProduitsIndexRoute
+  '/marchandise/mouvements': typeof AuthenticatedMarchandiseMouvementsIndexRoute
+  '/marchandise/produits': typeof AuthenticatedMarchandiseProduitsIndexRoute
+  '/marchandise/statistiques': typeof AuthenticatedMarchandiseStatistiquesIndexRoute
+  '/marchandise/ventes': typeof AuthenticatedMarchandiseVentesIndexRoute
+  '/pressing/commandes': typeof AuthenticatedPressingCommandesIndexRoute
+  '/rapports/financier': typeof AuthenticatedRapportsFinancierIndexRoute
+  '/rapports/rh': typeof AuthenticatedRapportsRhIndexRoute
+  '/rapports/synthese-globale': typeof AuthenticatedRapportsSyntheseGlobaleIndexRoute
+  '/residence/abonnements': typeof AuthenticatedResidenceAbonnementsIndexRoute
   '/residence/batiments': typeof AuthenticatedResidenceBatimentsIndexRoute
+  '/residence/categories-charges': typeof AuthenticatedResidenceCategoriesChargesIndexRoute
+  '/residence/charges': typeof AuthenticatedResidenceChargesIndexRoute
   '/residence/contrats': typeof AuthenticatedResidenceContratsIndexRoute
   '/residence/echeances': typeof AuthenticatedResidenceEcheancesIndexRoute
   '/residence/logements': typeof AuthenticatedResidenceLogementsIndexRoute
+  '/residence/sejours-courts': typeof AuthenticatedResidenceSejoursCourtsIndexRoute
+  '/restaurant/commandes': typeof AuthenticatedRestaurantCommandesIndexRoute
+  '/restaurant/plats': typeof AuthenticatedRestaurantPlatsIndexRoute
+  '/restaurant/statistiques': typeof AuthenticatedRestaurantStatistiquesIndexRoute
+  '/rh/bulletins': typeof AuthenticatedRhBulletinsIndexRoute
+  '/rh/comptes': typeof AuthenticatedRhComptesIndexRoute
+  '/rh/employes': typeof AuthenticatedRhEmployesIndexRoute
+  '/rh/pointage': typeof AuthenticatedRhPointageIndexRoute
+  '/salle-fete/calendrier': typeof AuthenticatedSalleFeteCalendrierIndexRoute
+  '/salle-fete/reservations': typeof AuthenticatedSalleFeteReservationsIndexRoute
+  '/rh/pointage/consultation': typeof AuthenticatedRhPointageConsultationIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -104,12 +455,51 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/_authenticated/en-cours': typeof AuthenticatedEnCoursRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
+  '/_authenticated/rapports/': typeof AuthenticatedRapportsIndexRoute
+  '/_authenticated/facturation/factures/$id': typeof AuthenticatedFacturationFacturesIdRoute
+  '/_authenticated/pressing/commandes/$id': typeof AuthenticatedPressingCommandesIdRoute
+  '/_authenticated/rapports/activites/$code': typeof AuthenticatedRapportsActivitesCodeRoute
   '/_authenticated/residence/contrats/$id': typeof AuthenticatedResidenceContratsIdRoute
   '/_authenticated/residence/logements/$id': typeof AuthenticatedResidenceLogementsIdRoute
+  '/_authenticated/residence/sejours-courts/$id': typeof AuthenticatedResidenceSejoursCourtsIdRoute
+  '/_authenticated/rh/bulletins/$id': typeof AuthenticatedRhBulletinsIdRoute
+  '/_authenticated/rh/employes/$id': typeof AuthenticatedRhEmployesIdRoute
+  '/_authenticated/salle-fete/reservations/$id': typeof AuthenticatedSalleFeteReservationsIdRoute
+  '/_authenticated/facturation/factures/': typeof AuthenticatedFacturationFacturesIndexRoute
+  '/_authenticated/facturation/prestations/': typeof AuthenticatedFacturationPrestationsIndexRoute
+  '/_authenticated/finances/categories-depenses/': typeof AuthenticatedFinancesCategoriesDepensesIndexRoute
+  '/_authenticated/finances/depenses/': typeof AuthenticatedFinancesDepensesIndexRoute
+  '/_authenticated/finances/encaissements/': typeof AuthenticatedFinancesEncaissementsIndexRoute
+  '/_authenticated/finances/impayes/': typeof AuthenticatedFinancesImpayesIndexRoute
+  '/_authenticated/finances/moyens-paiement/': typeof AuthenticatedFinancesMoyensPaiementIndexRoute
+  '/_authenticated/finances/tableau-de-bord/': typeof AuthenticatedFinancesTableauDeBordIndexRoute
+  '/_authenticated/marchandise/categories-produits/': typeof AuthenticatedMarchandiseCategoriesProduitsIndexRoute
+  '/_authenticated/marchandise/mouvements/': typeof AuthenticatedMarchandiseMouvementsIndexRoute
+  '/_authenticated/marchandise/produits/': typeof AuthenticatedMarchandiseProduitsIndexRoute
+  '/_authenticated/marchandise/statistiques/': typeof AuthenticatedMarchandiseStatistiquesIndexRoute
+  '/_authenticated/marchandise/ventes/': typeof AuthenticatedMarchandiseVentesIndexRoute
+  '/_authenticated/pressing/commandes/': typeof AuthenticatedPressingCommandesIndexRoute
+  '/_authenticated/rapports/financier/': typeof AuthenticatedRapportsFinancierIndexRoute
+  '/_authenticated/rapports/rh/': typeof AuthenticatedRapportsRhIndexRoute
+  '/_authenticated/rapports/synthese-globale/': typeof AuthenticatedRapportsSyntheseGlobaleIndexRoute
+  '/_authenticated/residence/abonnements/': typeof AuthenticatedResidenceAbonnementsIndexRoute
   '/_authenticated/residence/batiments/': typeof AuthenticatedResidenceBatimentsIndexRoute
+  '/_authenticated/residence/categories-charges/': typeof AuthenticatedResidenceCategoriesChargesIndexRoute
+  '/_authenticated/residence/charges/': typeof AuthenticatedResidenceChargesIndexRoute
   '/_authenticated/residence/contrats/': typeof AuthenticatedResidenceContratsIndexRoute
   '/_authenticated/residence/echeances/': typeof AuthenticatedResidenceEcheancesIndexRoute
   '/_authenticated/residence/logements/': typeof AuthenticatedResidenceLogementsIndexRoute
+  '/_authenticated/residence/sejours-courts/': typeof AuthenticatedResidenceSejoursCourtsIndexRoute
+  '/_authenticated/restaurant/commandes/': typeof AuthenticatedRestaurantCommandesIndexRoute
+  '/_authenticated/restaurant/plats/': typeof AuthenticatedRestaurantPlatsIndexRoute
+  '/_authenticated/restaurant/statistiques/': typeof AuthenticatedRestaurantStatistiquesIndexRoute
+  '/_authenticated/rh/bulletins/': typeof AuthenticatedRhBulletinsIndexRoute
+  '/_authenticated/rh/comptes/': typeof AuthenticatedRhComptesIndexRoute
+  '/_authenticated/rh/employes/': typeof AuthenticatedRhEmployesIndexRoute
+  '/_authenticated/rh/pointage/': typeof AuthenticatedRhPointageIndexRoute
+  '/_authenticated/salle-fete/calendrier/': typeof AuthenticatedSalleFeteCalendrierIndexRoute
+  '/_authenticated/salle-fete/reservations/': typeof AuthenticatedSalleFeteReservationsIndexRoute
+  '/_authenticated/rh/pointage/consultation/': typeof AuthenticatedRhPointageConsultationIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -117,35 +507,152 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/en-cours'
+    | '/rapports/'
+    | '/facturation/factures/$id'
+    | '/pressing/commandes/$id'
+    | '/rapports/activites/$code'
     | '/residence/contrats/$id'
     | '/residence/logements/$id'
+    | '/residence/sejours-courts/$id'
+    | '/rh/bulletins/$id'
+    | '/rh/employes/$id'
+    | '/salle-fete/reservations/$id'
+    | '/facturation/factures/'
+    | '/facturation/prestations/'
+    | '/finances/categories-depenses/'
+    | '/finances/depenses/'
+    | '/finances/encaissements/'
+    | '/finances/impayes/'
+    | '/finances/moyens-paiement/'
+    | '/finances/tableau-de-bord/'
+    | '/marchandise/categories-produits/'
+    | '/marchandise/mouvements/'
+    | '/marchandise/produits/'
+    | '/marchandise/statistiques/'
+    | '/marchandise/ventes/'
+    | '/pressing/commandes/'
+    | '/rapports/financier/'
+    | '/rapports/rh/'
+    | '/rapports/synthese-globale/'
+    | '/residence/abonnements/'
     | '/residence/batiments/'
+    | '/residence/categories-charges/'
+    | '/residence/charges/'
     | '/residence/contrats/'
     | '/residence/echeances/'
     | '/residence/logements/'
+    | '/residence/sejours-courts/'
+    | '/restaurant/commandes/'
+    | '/restaurant/plats/'
+    | '/restaurant/statistiques/'
+    | '/rh/bulletins/'
+    | '/rh/comptes/'
+    | '/rh/employes/'
+    | '/rh/pointage/'
+    | '/salle-fete/calendrier/'
+    | '/salle-fete/reservations/'
+    | '/rh/pointage/consultation/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/login'
     | '/en-cours'
     | '/'
+    | '/rapports'
+    | '/facturation/factures/$id'
+    | '/pressing/commandes/$id'
+    | '/rapports/activites/$code'
     | '/residence/contrats/$id'
     | '/residence/logements/$id'
+    | '/residence/sejours-courts/$id'
+    | '/rh/bulletins/$id'
+    | '/rh/employes/$id'
+    | '/salle-fete/reservations/$id'
+    | '/facturation/factures'
+    | '/facturation/prestations'
+    | '/finances/categories-depenses'
+    | '/finances/depenses'
+    | '/finances/encaissements'
+    | '/finances/impayes'
+    | '/finances/moyens-paiement'
+    | '/finances/tableau-de-bord'
+    | '/marchandise/categories-produits'
+    | '/marchandise/mouvements'
+    | '/marchandise/produits'
+    | '/marchandise/statistiques'
+    | '/marchandise/ventes'
+    | '/pressing/commandes'
+    | '/rapports/financier'
+    | '/rapports/rh'
+    | '/rapports/synthese-globale'
+    | '/residence/abonnements'
     | '/residence/batiments'
+    | '/residence/categories-charges'
+    | '/residence/charges'
     | '/residence/contrats'
     | '/residence/echeances'
     | '/residence/logements'
+    | '/residence/sejours-courts'
+    | '/restaurant/commandes'
+    | '/restaurant/plats'
+    | '/restaurant/statistiques'
+    | '/rh/bulletins'
+    | '/rh/comptes'
+    | '/rh/employes'
+    | '/rh/pointage'
+    | '/salle-fete/calendrier'
+    | '/salle-fete/reservations'
+    | '/rh/pointage/consultation'
   id:
     | '__root__'
     | '/_authenticated'
     | '/login'
     | '/_authenticated/en-cours'
     | '/_authenticated/'
+    | '/_authenticated/rapports/'
+    | '/_authenticated/facturation/factures/$id'
+    | '/_authenticated/pressing/commandes/$id'
+    | '/_authenticated/rapports/activites/$code'
     | '/_authenticated/residence/contrats/$id'
     | '/_authenticated/residence/logements/$id'
+    | '/_authenticated/residence/sejours-courts/$id'
+    | '/_authenticated/rh/bulletins/$id'
+    | '/_authenticated/rh/employes/$id'
+    | '/_authenticated/salle-fete/reservations/$id'
+    | '/_authenticated/facturation/factures/'
+    | '/_authenticated/facturation/prestations/'
+    | '/_authenticated/finances/categories-depenses/'
+    | '/_authenticated/finances/depenses/'
+    | '/_authenticated/finances/encaissements/'
+    | '/_authenticated/finances/impayes/'
+    | '/_authenticated/finances/moyens-paiement/'
+    | '/_authenticated/finances/tableau-de-bord/'
+    | '/_authenticated/marchandise/categories-produits/'
+    | '/_authenticated/marchandise/mouvements/'
+    | '/_authenticated/marchandise/produits/'
+    | '/_authenticated/marchandise/statistiques/'
+    | '/_authenticated/marchandise/ventes/'
+    | '/_authenticated/pressing/commandes/'
+    | '/_authenticated/rapports/financier/'
+    | '/_authenticated/rapports/rh/'
+    | '/_authenticated/rapports/synthese-globale/'
+    | '/_authenticated/residence/abonnements/'
     | '/_authenticated/residence/batiments/'
+    | '/_authenticated/residence/categories-charges/'
+    | '/_authenticated/residence/charges/'
     | '/_authenticated/residence/contrats/'
     | '/_authenticated/residence/echeances/'
     | '/_authenticated/residence/logements/'
+    | '/_authenticated/residence/sejours-courts/'
+    | '/_authenticated/restaurant/commandes/'
+    | '/_authenticated/restaurant/plats/'
+    | '/_authenticated/restaurant/statistiques/'
+    | '/_authenticated/rh/bulletins/'
+    | '/_authenticated/rh/comptes/'
+    | '/_authenticated/rh/employes/'
+    | '/_authenticated/rh/pointage/'
+    | '/_authenticated/salle-fete/calendrier/'
+    | '/_authenticated/salle-fete/reservations/'
+    | '/_authenticated/rh/pointage/consultation/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -183,11 +690,179 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedEnCoursRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/rapports/': {
+      id: '/_authenticated/rapports/'
+      path: '/rapports'
+      fullPath: '/rapports/'
+      preLoaderRoute: typeof AuthenticatedRapportsIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/facturation/factures/': {
+      id: '/_authenticated/facturation/factures/'
+      path: '/facturation/factures'
+      fullPath: '/facturation/factures/'
+      preLoaderRoute: typeof AuthenticatedFacturationFacturesIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/facturation/factures/$id': {
+      id: '/_authenticated/facturation/factures/$id'
+      path: '/facturation/factures/$id'
+      fullPath: '/facturation/factures/$id'
+      preLoaderRoute: typeof AuthenticatedFacturationFacturesIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/facturation/prestations/': {
+      id: '/_authenticated/facturation/prestations/'
+      path: '/facturation/prestations'
+      fullPath: '/facturation/prestations/'
+      preLoaderRoute: typeof AuthenticatedFacturationPrestationsIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/finances/categories-depenses/': {
+      id: '/_authenticated/finances/categories-depenses/'
+      path: '/finances/categories-depenses'
+      fullPath: '/finances/categories-depenses/'
+      preLoaderRoute: typeof AuthenticatedFinancesCategoriesDepensesIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/finances/depenses/': {
+      id: '/_authenticated/finances/depenses/'
+      path: '/finances/depenses'
+      fullPath: '/finances/depenses/'
+      preLoaderRoute: typeof AuthenticatedFinancesDepensesIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/finances/encaissements/': {
+      id: '/_authenticated/finances/encaissements/'
+      path: '/finances/encaissements'
+      fullPath: '/finances/encaissements/'
+      preLoaderRoute: typeof AuthenticatedFinancesEncaissementsIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/finances/impayes/': {
+      id: '/_authenticated/finances/impayes/'
+      path: '/finances/impayes'
+      fullPath: '/finances/impayes/'
+      preLoaderRoute: typeof AuthenticatedFinancesImpayesIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/finances/moyens-paiement/': {
+      id: '/_authenticated/finances/moyens-paiement/'
+      path: '/finances/moyens-paiement'
+      fullPath: '/finances/moyens-paiement/'
+      preLoaderRoute: typeof AuthenticatedFinancesMoyensPaiementIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/finances/tableau-de-bord/': {
+      id: '/_authenticated/finances/tableau-de-bord/'
+      path: '/finances/tableau-de-bord'
+      fullPath: '/finances/tableau-de-bord/'
+      preLoaderRoute: typeof AuthenticatedFinancesTableauDeBordIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/marchandise/categories-produits/': {
+      id: '/_authenticated/marchandise/categories-produits/'
+      path: '/marchandise/categories-produits'
+      fullPath: '/marchandise/categories-produits/'
+      preLoaderRoute: typeof AuthenticatedMarchandiseCategoriesProduitsIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/marchandise/mouvements/': {
+      id: '/_authenticated/marchandise/mouvements/'
+      path: '/marchandise/mouvements'
+      fullPath: '/marchandise/mouvements/'
+      preLoaderRoute: typeof AuthenticatedMarchandiseMouvementsIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/marchandise/produits/': {
+      id: '/_authenticated/marchandise/produits/'
+      path: '/marchandise/produits'
+      fullPath: '/marchandise/produits/'
+      preLoaderRoute: typeof AuthenticatedMarchandiseProduitsIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/marchandise/statistiques/': {
+      id: '/_authenticated/marchandise/statistiques/'
+      path: '/marchandise/statistiques'
+      fullPath: '/marchandise/statistiques/'
+      preLoaderRoute: typeof AuthenticatedMarchandiseStatistiquesIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/marchandise/ventes/': {
+      id: '/_authenticated/marchandise/ventes/'
+      path: '/marchandise/ventes'
+      fullPath: '/marchandise/ventes/'
+      preLoaderRoute: typeof AuthenticatedMarchandiseVentesIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/pressing/commandes/': {
+      id: '/_authenticated/pressing/commandes/'
+      path: '/pressing/commandes'
+      fullPath: '/pressing/commandes/'
+      preLoaderRoute: typeof AuthenticatedPressingCommandesIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/pressing/commandes/$id': {
+      id: '/_authenticated/pressing/commandes/$id'
+      path: '/pressing/commandes/$id'
+      fullPath: '/pressing/commandes/$id'
+      preLoaderRoute: typeof AuthenticatedPressingCommandesIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/rapports/activites/$code': {
+      id: '/_authenticated/rapports/activites/$code'
+      path: '/rapports/activites/$code'
+      fullPath: '/rapports/activites/$code'
+      preLoaderRoute: typeof AuthenticatedRapportsActivitesCodeRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/rapports/financier/': {
+      id: '/_authenticated/rapports/financier/'
+      path: '/rapports/financier'
+      fullPath: '/rapports/financier/'
+      preLoaderRoute: typeof AuthenticatedRapportsFinancierIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/rapports/rh/': {
+      id: '/_authenticated/rapports/rh/'
+      path: '/rapports/rh'
+      fullPath: '/rapports/rh/'
+      preLoaderRoute: typeof AuthenticatedRapportsRhIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/rapports/synthese-globale/': {
+      id: '/_authenticated/rapports/synthese-globale/'
+      path: '/rapports/synthese-globale'
+      fullPath: '/rapports/synthese-globale/'
+      preLoaderRoute: typeof AuthenticatedRapportsSyntheseGlobaleIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/residence/abonnements/': {
+      id: '/_authenticated/residence/abonnements/'
+      path: '/residence/abonnements'
+      fullPath: '/residence/abonnements/'
+      preLoaderRoute: typeof AuthenticatedResidenceAbonnementsIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/residence/batiments/': {
       id: '/_authenticated/residence/batiments/'
       path: '/residence/batiments'
       fullPath: '/residence/batiments/'
       preLoaderRoute: typeof AuthenticatedResidenceBatimentsIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/residence/categories-charges/': {
+      id: '/_authenticated/residence/categories-charges/'
+      path: '/residence/categories-charges'
+      fullPath: '/residence/categories-charges/'
+      preLoaderRoute: typeof AuthenticatedResidenceCategoriesChargesIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/residence/charges/': {
+      id: '/_authenticated/residence/charges/'
+      path: '/residence/charges'
+      fullPath: '/residence/charges/'
+      preLoaderRoute: typeof AuthenticatedResidenceChargesIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/residence/contrats/': {
@@ -225,34 +900,247 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedResidenceLogementsIdRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/residence/sejours-courts/': {
+      id: '/_authenticated/residence/sejours-courts/'
+      path: '/residence/sejours-courts'
+      fullPath: '/residence/sejours-courts/'
+      preLoaderRoute: typeof AuthenticatedResidenceSejoursCourtsIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/residence/sejours-courts/$id': {
+      id: '/_authenticated/residence/sejours-courts/$id'
+      path: '/residence/sejours-courts/$id'
+      fullPath: '/residence/sejours-courts/$id'
+      preLoaderRoute: typeof AuthenticatedResidenceSejoursCourtsIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/restaurant/commandes/': {
+      id: '/_authenticated/restaurant/commandes/'
+      path: '/restaurant/commandes'
+      fullPath: '/restaurant/commandes/'
+      preLoaderRoute: typeof AuthenticatedRestaurantCommandesIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/restaurant/plats/': {
+      id: '/_authenticated/restaurant/plats/'
+      path: '/restaurant/plats'
+      fullPath: '/restaurant/plats/'
+      preLoaderRoute: typeof AuthenticatedRestaurantPlatsIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/restaurant/statistiques/': {
+      id: '/_authenticated/restaurant/statistiques/'
+      path: '/restaurant/statistiques'
+      fullPath: '/restaurant/statistiques/'
+      preLoaderRoute: typeof AuthenticatedRestaurantStatistiquesIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/rh/bulletins/': {
+      id: '/_authenticated/rh/bulletins/'
+      path: '/rh/bulletins'
+      fullPath: '/rh/bulletins/'
+      preLoaderRoute: typeof AuthenticatedRhBulletinsIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/rh/bulletins/$id': {
+      id: '/_authenticated/rh/bulletins/$id'
+      path: '/rh/bulletins/$id'
+      fullPath: '/rh/bulletins/$id'
+      preLoaderRoute: typeof AuthenticatedRhBulletinsIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/rh/comptes/': {
+      id: '/_authenticated/rh/comptes/'
+      path: '/rh/comptes'
+      fullPath: '/rh/comptes/'
+      preLoaderRoute: typeof AuthenticatedRhComptesIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/rh/employes/': {
+      id: '/_authenticated/rh/employes/'
+      path: '/rh/employes'
+      fullPath: '/rh/employes/'
+      preLoaderRoute: typeof AuthenticatedRhEmployesIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/rh/employes/$id': {
+      id: '/_authenticated/rh/employes/$id'
+      path: '/rh/employes/$id'
+      fullPath: '/rh/employes/$id'
+      preLoaderRoute: typeof AuthenticatedRhEmployesIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/rh/pointage/': {
+      id: '/_authenticated/rh/pointage/'
+      path: '/rh/pointage'
+      fullPath: '/rh/pointage/'
+      preLoaderRoute: typeof AuthenticatedRhPointageIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/salle-fete/calendrier/': {
+      id: '/_authenticated/salle-fete/calendrier/'
+      path: '/salle-fete/calendrier'
+      fullPath: '/salle-fete/calendrier/'
+      preLoaderRoute: typeof AuthenticatedSalleFeteCalendrierIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/salle-fete/reservations/': {
+      id: '/_authenticated/salle-fete/reservations/'
+      path: '/salle-fete/reservations'
+      fullPath: '/salle-fete/reservations/'
+      preLoaderRoute: typeof AuthenticatedSalleFeteReservationsIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/salle-fete/reservations/$id': {
+      id: '/_authenticated/salle-fete/reservations/$id'
+      path: '/salle-fete/reservations/$id'
+      fullPath: '/salle-fete/reservations/$id'
+      preLoaderRoute: typeof AuthenticatedSalleFeteReservationsIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/rh/pointage/consultation/': {
+      id: '/_authenticated/rh/pointage/consultation/'
+      path: '/rh/pointage/consultation'
+      fullPath: '/rh/pointage/consultation/'
+      preLoaderRoute: typeof AuthenticatedRhPointageConsultationIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
   }
 }
 
 interface AuthenticatedRouteChildren {
   AuthenticatedEnCoursRoute: typeof AuthenticatedEnCoursRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
+  AuthenticatedRapportsIndexRoute: typeof AuthenticatedRapportsIndexRoute
+  AuthenticatedFacturationFacturesIdRoute: typeof AuthenticatedFacturationFacturesIdRoute
+  AuthenticatedPressingCommandesIdRoute: typeof AuthenticatedPressingCommandesIdRoute
+  AuthenticatedRapportsActivitesCodeRoute: typeof AuthenticatedRapportsActivitesCodeRoute
   AuthenticatedResidenceContratsIdRoute: typeof AuthenticatedResidenceContratsIdRoute
   AuthenticatedResidenceLogementsIdRoute: typeof AuthenticatedResidenceLogementsIdRoute
+  AuthenticatedResidenceSejoursCourtsIdRoute: typeof AuthenticatedResidenceSejoursCourtsIdRoute
+  AuthenticatedRhBulletinsIdRoute: typeof AuthenticatedRhBulletinsIdRoute
+  AuthenticatedRhEmployesIdRoute: typeof AuthenticatedRhEmployesIdRoute
+  AuthenticatedSalleFeteReservationsIdRoute: typeof AuthenticatedSalleFeteReservationsIdRoute
+  AuthenticatedFacturationFacturesIndexRoute: typeof AuthenticatedFacturationFacturesIndexRoute
+  AuthenticatedFacturationPrestationsIndexRoute: typeof AuthenticatedFacturationPrestationsIndexRoute
+  AuthenticatedFinancesCategoriesDepensesIndexRoute: typeof AuthenticatedFinancesCategoriesDepensesIndexRoute
+  AuthenticatedFinancesDepensesIndexRoute: typeof AuthenticatedFinancesDepensesIndexRoute
+  AuthenticatedFinancesEncaissementsIndexRoute: typeof AuthenticatedFinancesEncaissementsIndexRoute
+  AuthenticatedFinancesImpayesIndexRoute: typeof AuthenticatedFinancesImpayesIndexRoute
+  AuthenticatedFinancesMoyensPaiementIndexRoute: typeof AuthenticatedFinancesMoyensPaiementIndexRoute
+  AuthenticatedFinancesTableauDeBordIndexRoute: typeof AuthenticatedFinancesTableauDeBordIndexRoute
+  AuthenticatedMarchandiseCategoriesProduitsIndexRoute: typeof AuthenticatedMarchandiseCategoriesProduitsIndexRoute
+  AuthenticatedMarchandiseMouvementsIndexRoute: typeof AuthenticatedMarchandiseMouvementsIndexRoute
+  AuthenticatedMarchandiseProduitsIndexRoute: typeof AuthenticatedMarchandiseProduitsIndexRoute
+  AuthenticatedMarchandiseStatistiquesIndexRoute: typeof AuthenticatedMarchandiseStatistiquesIndexRoute
+  AuthenticatedMarchandiseVentesIndexRoute: typeof AuthenticatedMarchandiseVentesIndexRoute
+  AuthenticatedPressingCommandesIndexRoute: typeof AuthenticatedPressingCommandesIndexRoute
+  AuthenticatedRapportsFinancierIndexRoute: typeof AuthenticatedRapportsFinancierIndexRoute
+  AuthenticatedRapportsRhIndexRoute: typeof AuthenticatedRapportsRhIndexRoute
+  AuthenticatedRapportsSyntheseGlobaleIndexRoute: typeof AuthenticatedRapportsSyntheseGlobaleIndexRoute
+  AuthenticatedResidenceAbonnementsIndexRoute: typeof AuthenticatedResidenceAbonnementsIndexRoute
   AuthenticatedResidenceBatimentsIndexRoute: typeof AuthenticatedResidenceBatimentsIndexRoute
+  AuthenticatedResidenceCategoriesChargesIndexRoute: typeof AuthenticatedResidenceCategoriesChargesIndexRoute
+  AuthenticatedResidenceChargesIndexRoute: typeof AuthenticatedResidenceChargesIndexRoute
   AuthenticatedResidenceContratsIndexRoute: typeof AuthenticatedResidenceContratsIndexRoute
   AuthenticatedResidenceEcheancesIndexRoute: typeof AuthenticatedResidenceEcheancesIndexRoute
   AuthenticatedResidenceLogementsIndexRoute: typeof AuthenticatedResidenceLogementsIndexRoute
+  AuthenticatedResidenceSejoursCourtsIndexRoute: typeof AuthenticatedResidenceSejoursCourtsIndexRoute
+  AuthenticatedRestaurantCommandesIndexRoute: typeof AuthenticatedRestaurantCommandesIndexRoute
+  AuthenticatedRestaurantPlatsIndexRoute: typeof AuthenticatedRestaurantPlatsIndexRoute
+  AuthenticatedRestaurantStatistiquesIndexRoute: typeof AuthenticatedRestaurantStatistiquesIndexRoute
+  AuthenticatedRhBulletinsIndexRoute: typeof AuthenticatedRhBulletinsIndexRoute
+  AuthenticatedRhComptesIndexRoute: typeof AuthenticatedRhComptesIndexRoute
+  AuthenticatedRhEmployesIndexRoute: typeof AuthenticatedRhEmployesIndexRoute
+  AuthenticatedRhPointageIndexRoute: typeof AuthenticatedRhPointageIndexRoute
+  AuthenticatedSalleFeteCalendrierIndexRoute: typeof AuthenticatedSalleFeteCalendrierIndexRoute
+  AuthenticatedSalleFeteReservationsIndexRoute: typeof AuthenticatedSalleFeteReservationsIndexRoute
+  AuthenticatedRhPointageConsultationIndexRoute: typeof AuthenticatedRhPointageConsultationIndexRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedEnCoursRoute: AuthenticatedEnCoursRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
+  AuthenticatedRapportsIndexRoute: AuthenticatedRapportsIndexRoute,
+  AuthenticatedFacturationFacturesIdRoute:
+    AuthenticatedFacturationFacturesIdRoute,
+  AuthenticatedPressingCommandesIdRoute: AuthenticatedPressingCommandesIdRoute,
+  AuthenticatedRapportsActivitesCodeRoute:
+    AuthenticatedRapportsActivitesCodeRoute,
   AuthenticatedResidenceContratsIdRoute: AuthenticatedResidenceContratsIdRoute,
   AuthenticatedResidenceLogementsIdRoute:
     AuthenticatedResidenceLogementsIdRoute,
+  AuthenticatedResidenceSejoursCourtsIdRoute:
+    AuthenticatedResidenceSejoursCourtsIdRoute,
+  AuthenticatedRhBulletinsIdRoute: AuthenticatedRhBulletinsIdRoute,
+  AuthenticatedRhEmployesIdRoute: AuthenticatedRhEmployesIdRoute,
+  AuthenticatedSalleFeteReservationsIdRoute:
+    AuthenticatedSalleFeteReservationsIdRoute,
+  AuthenticatedFacturationFacturesIndexRoute:
+    AuthenticatedFacturationFacturesIndexRoute,
+  AuthenticatedFacturationPrestationsIndexRoute:
+    AuthenticatedFacturationPrestationsIndexRoute,
+  AuthenticatedFinancesCategoriesDepensesIndexRoute:
+    AuthenticatedFinancesCategoriesDepensesIndexRoute,
+  AuthenticatedFinancesDepensesIndexRoute:
+    AuthenticatedFinancesDepensesIndexRoute,
+  AuthenticatedFinancesEncaissementsIndexRoute:
+    AuthenticatedFinancesEncaissementsIndexRoute,
+  AuthenticatedFinancesImpayesIndexRoute:
+    AuthenticatedFinancesImpayesIndexRoute,
+  AuthenticatedFinancesMoyensPaiementIndexRoute:
+    AuthenticatedFinancesMoyensPaiementIndexRoute,
+  AuthenticatedFinancesTableauDeBordIndexRoute:
+    AuthenticatedFinancesTableauDeBordIndexRoute,
+  AuthenticatedMarchandiseCategoriesProduitsIndexRoute:
+    AuthenticatedMarchandiseCategoriesProduitsIndexRoute,
+  AuthenticatedMarchandiseMouvementsIndexRoute:
+    AuthenticatedMarchandiseMouvementsIndexRoute,
+  AuthenticatedMarchandiseProduitsIndexRoute:
+    AuthenticatedMarchandiseProduitsIndexRoute,
+  AuthenticatedMarchandiseStatistiquesIndexRoute:
+    AuthenticatedMarchandiseStatistiquesIndexRoute,
+  AuthenticatedMarchandiseVentesIndexRoute:
+    AuthenticatedMarchandiseVentesIndexRoute,
+  AuthenticatedPressingCommandesIndexRoute:
+    AuthenticatedPressingCommandesIndexRoute,
+  AuthenticatedRapportsFinancierIndexRoute:
+    AuthenticatedRapportsFinancierIndexRoute,
+  AuthenticatedRapportsRhIndexRoute: AuthenticatedRapportsRhIndexRoute,
+  AuthenticatedRapportsSyntheseGlobaleIndexRoute:
+    AuthenticatedRapportsSyntheseGlobaleIndexRoute,
+  AuthenticatedResidenceAbonnementsIndexRoute:
+    AuthenticatedResidenceAbonnementsIndexRoute,
   AuthenticatedResidenceBatimentsIndexRoute:
     AuthenticatedResidenceBatimentsIndexRoute,
+  AuthenticatedResidenceCategoriesChargesIndexRoute:
+    AuthenticatedResidenceCategoriesChargesIndexRoute,
+  AuthenticatedResidenceChargesIndexRoute:
+    AuthenticatedResidenceChargesIndexRoute,
   AuthenticatedResidenceContratsIndexRoute:
     AuthenticatedResidenceContratsIndexRoute,
   AuthenticatedResidenceEcheancesIndexRoute:
     AuthenticatedResidenceEcheancesIndexRoute,
   AuthenticatedResidenceLogementsIndexRoute:
     AuthenticatedResidenceLogementsIndexRoute,
+  AuthenticatedResidenceSejoursCourtsIndexRoute:
+    AuthenticatedResidenceSejoursCourtsIndexRoute,
+  AuthenticatedRestaurantCommandesIndexRoute:
+    AuthenticatedRestaurantCommandesIndexRoute,
+  AuthenticatedRestaurantPlatsIndexRoute:
+    AuthenticatedRestaurantPlatsIndexRoute,
+  AuthenticatedRestaurantStatistiquesIndexRoute:
+    AuthenticatedRestaurantStatistiquesIndexRoute,
+  AuthenticatedRhBulletinsIndexRoute: AuthenticatedRhBulletinsIndexRoute,
+  AuthenticatedRhComptesIndexRoute: AuthenticatedRhComptesIndexRoute,
+  AuthenticatedRhEmployesIndexRoute: AuthenticatedRhEmployesIndexRoute,
+  AuthenticatedRhPointageIndexRoute: AuthenticatedRhPointageIndexRoute,
+  AuthenticatedSalleFeteCalendrierIndexRoute:
+    AuthenticatedSalleFeteCalendrierIndexRoute,
+  AuthenticatedSalleFeteReservationsIndexRoute:
+    AuthenticatedSalleFeteReservationsIndexRoute,
+  AuthenticatedRhPointageConsultationIndexRoute:
+    AuthenticatedRhPointageConsultationIndexRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
