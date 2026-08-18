@@ -14,8 +14,8 @@ const mocks = vi.hoisted(() => ({
 }));
 
 // Le formulaire de login est testé hors du routeur complet : on mocke
-// uniquement les hooks de navigation/route, TanStack Form et Paraglide restent
-// réels (comportement du formulaire et i18n effectivement exercés).
+// uniquement les hooks de navigation/route, TanStack Form reste réel
+// (comportement du formulaire effectivement exercé).
 vi.mock("@tanstack/react-router", async (importOriginal) => {
 	const actual =
 		await importOriginal<typeof import("@tanstack/react-router")>();

@@ -1,4 +1,3 @@
-import { paraglideVitePlugin } from "@inlang/paraglide-js";
 import babel from "@rolldown/plugin-babel";
 import tailwindcss from "@tailwindcss/vite";
 import { devtools } from "@tanstack/devtools-vite";
@@ -23,14 +22,6 @@ const config = defineConfig({
 	plugins: [
 		// devtools-vite doit rester la première entrée du tableau.
 		devtools(),
-		// Compile messages/i18n à la volée. Options volontairement identiques
-		// à `npm run i18n:compile` (sortie committable + .d.ts pour typecheck).
-		paraglideVitePlugin({
-			project: "./project.inlang",
-			outdir: "./src/paraglide",
-			strategy: ["globalVariable", "baseLocale"],
-			emitTsDeclarations: true,
-		}),
 		tailwindcss(),
 		tanstackStart(),
 		viteReact(),

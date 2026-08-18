@@ -20,6 +20,7 @@ export {
 } from "./api-error";
 export { authApi } from "./auth";
 export { getApiClient, setApiClient } from "./client";
+export { getErrorMessageForCode } from "./error-messages";
 export { healthApi } from "./health";
 export type { ApiClient, ApiDeps } from "./http";
 export { createApiClient } from "./http";

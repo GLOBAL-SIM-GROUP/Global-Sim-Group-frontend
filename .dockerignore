@@ -23,9 +23,6 @@ coverage
 !.env.example
 *.local
 
-# i18n compilé (régénéré au build)
-src/paraglide/
-
 # Snapshot OpenAPI local
 scripts/openapi.latest.json
 

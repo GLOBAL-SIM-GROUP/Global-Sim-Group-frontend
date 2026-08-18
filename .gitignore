@@ -21,9 +21,6 @@ dist-ssr
 # ── Tests ────────────────────────────────────────────────────
 coverage
 
-# ── Paraglide (i18n compilé — régénéré à chaque build/typecheck) ──
-src/paraglide/
-
 # ── Snapshot OpenAPI local (régénéré) — ne PAS committer ─────
 scripts/openapi.latest.json
 

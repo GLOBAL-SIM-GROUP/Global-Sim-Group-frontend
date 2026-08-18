@@ -8,11 +8,11 @@ le conflit de peer de `openapi-typescript` vs TypeScript 6 — à conserver).
 ```bash
 npm install            # installation (reproductible grâce à package-lock.json)
 npm run dev            # serveur de dev sur http://localhost:3000
-npm run typecheck      # tsc --noEmit (compile d'abord i18n via pretypecheck)
+npm run typecheck      # tsc --noEmit
 npm run check          # biome check + typecheck (à passer avant de finir une tâche)
 npm run format         # biome format
 npm run lint           # biome lint
-npm run build          # build client + SSR de production (le plugin i18n compile au vol)
+npm run build          # build client + SSR de production
 npm run preview        # sert le build de production
 npm test               # vitest run
 ```
@@ -23,13 +23,7 @@ npm test               # vitest run
 npm run api:gen        # télécharge /docs-json → scripts/openapi.latest.json (gitignoré)
                        # → openapi-typescript → src/core/api/generated/schema.ts (commité)
 npm run generate-routes # tsr generate → src/routeTree.gen.ts (après chaque changement de routes)
-npm run i18n:compile   # paraglide-js compile → src/paraglide/** (gitignoré)
 ```
-
-Le plugin `paraglideVitePlugin` dans `vite.config.ts` recompile les messages
-au vol pendant `dev` et `build`. `pretypecheck` garantit que `src/paraglide/`
-existe avant tout `tsc` (le dossier est gitignoré, un clone frais doit donc
-passer par `npm run check` pour le générer).
 
 ## Environnement
 
@@ -72,13 +66,11 @@ pas). Sans `API_TARGET`, `/api/*` répond 404.
 
 ## Workflow type
 
-1. `npm run dev` pour développer (HMR : routes, i18n, tailwind).
-2. Après toute modification de `messages/*.json`, le plugin recompile ; pour
-   vérifier au clavier : `npm run i18n:compile`.
-3. Avant de terminer : `npm run check` puis `npm test`.
+1. `npm run dev` pour développer (HMR : routes, tailwind).
+2. Avant de terminer : `npm run check` puis `npm test`.
 
 ## À ne pas faire
 
 - ❌ Utiliser `pnpm` ou `yarn` (le lockfile npm doit rester la source de vérité).
-- ❌ Commiter `scripts/openapi.latest.json` ou `src/paraglide/**` (gitignorés).
+- ❌ Commiter `scripts/openapi.latest.json` (gitignoré).
 - ❌ Retirer `legacy-peer-deps` du `.npmrc`.

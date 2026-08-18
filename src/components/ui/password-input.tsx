@@ -1,11 +1,9 @@
 import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 
-import * as m from "#/paraglide/messages";
-
 import { InputField, type InputFieldProps } from "./input-field";
 
-/** Champ mot de passe avec bascule d'affichage (oeil) et label i18n. */
+/** Champ mot de passe avec bascule d'affichage (oeil). */
 type PasswordInputProps = Omit<
 	InputFieldProps,
 	"type" | "autoComplete" | "trailing"
@@ -25,9 +23,7 @@ function PasswordInput({ label, ...props }: PasswordInputProps) {
 					type="button"
 					onClick={() => setVisible((current) => !current)}
 					aria-label={
-						visible
-							? m.auth_login_hide_password()
-							: m.auth_login_show_password()
+						visible ? "Masquer le mot de passe" : "Afficher le mot de passe"
 					}
 					className="flex size-7 items-center justify-center rounded-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
 				>

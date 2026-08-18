@@ -8,7 +8,6 @@ import {
 	getAccessibleModules,
 } from "#/core/permissions/modules";
 import { cn } from "#/lib/utils";
-import * as m from "#/paraglide/messages";
 
 import { LogoutButton } from "./logout-button";
 
@@ -30,20 +29,22 @@ function initialsOf(login: string): string {
  *
  * Fond `bg-sea-ink` FIGÉ (tokens --color-sea-ink/lagoon/palm : les variables
  * --sea-ink/--lagoon/--palm changent de valeur sous `.dark` et éclairciraient
- * la sidebar). Les sous-menus pointent vers le placeholder partagé
- * `/en-cours` tant que les routes métier n'existent pas.
+ * la sidebar). Les sous-menus sans route métier construite pointent vers le
+ * placeholder partagé `/en-cours` ; les routes réelles (`/residence/*`) sont
+ * de vrais liens.
  */
 export function Sidebar() {
 	const user = useCurrentUser();
 	const permissions = usePermissions();
 	const accessibleModules = getAccessibleModules(permissions);
-	const { search } = useLocation();
+	const { pathname, search } = useLocation();
 	const activeModule = (search as { module?: string } | undefined)?.module;
 
 	// Un seul module ouvert à la fois ; le module actif de l'URL est ouvert par
-	// défaut (auto-ouverture du parent quand on arrive sur un sous-menu).
+	// défaut (auto-ouverture du parent quand on arrive sur un sous-menu). Les
+	// routes métier construites (ex. /residence/*) ouvrent leur module.
 	const [openModule, setOpenModule] = useState<string | null>(
-		activeModule ?? null,
+		activeModule ?? (pathname.startsWith("/residence") ? "RESIDENCE" : null),
 	);
 
 	const toggleModule = (code: string) =>
@@ -53,6 +54,10 @@ export function Sidebar() {
 		"flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-gray-300 transition-colors hover:bg-lagoon/20 hover:text-white";
 	const headerClassName = (isOpen: boolean) =>
 		cn(linkClassName, "w-full text-left", isOpen && "bg-lagoon/20 text-white");
+
+	const subLinkClassName =
+		"block rounded-lg px-3 py-2 text-sm text-gray-300 transition-colors hover:bg-lagoon/20 hover:text-white";
+	const subActiveClassName = "bg-lagoon/25 text-white font-medium";
 
 	return (
 		<aside className="sticky top-0 hidden h-dvh w-60 shrink-0 flex-col justify-between overflow-y-auto border-r border-palm bg-sea-ink px-3 py-4 lg:flex">
@@ -66,11 +71,11 @@ export function Sidebar() {
 						className="size-32 shrink-0 rounded-md object-contain"
 					/>
 					<span className="text-center text-lg font-semibold text-white">
-						{m.app_name()}
+						GLOBAL SIM GROUP
 					</span>
 				</div>
 
-				<nav aria-label={m.nav_sidebar_label()}>
+				<nav aria-label="Navigation">
 					<ul className="space-y-1">
 						<li>
 							<Link
@@ -80,7 +85,7 @@ export function Sidebar() {
 								className={linkClassName}
 							>
 								<LayoutGrid className="size-4 text-lagoon" aria-hidden />
-								{m.nav_home()}
+								Accueil
 							</Link>
 						</li>
 
@@ -96,7 +101,7 @@ export function Sidebar() {
 										className={headerClassName(isOpen)}
 									>
 										<module.icon className="size-4 text-lagoon" aria-hidden />
-										<span className="flex-1 text-left">{module.title()}</span>
+										<span className="flex-1 text-left">{module.title}</span>
 										{subItems.length > 0 && (
 											<ChevronDown
 												className={cn(
@@ -112,17 +117,52 @@ export function Sidebar() {
 										<ul className="ml-5 mt-1 space-y-1 border-l border-palm pl-2">
 											{subItems.map((sub) => (
 												<li key={sub.id}>
-													<Link
-														to="/en-cours"
-														search={{ module: module.code, page: sub.id }}
-														activeOptions={{ includeSearch: true }}
-														activeProps={{
-															className: "bg-lagoon/25 text-white font-medium",
-														}}
-														className="block rounded-lg px-3 py-2 text-sm text-gray-300 transition-colors hover:bg-lagoon/20 hover:text-white"
-													>
-														{sub.label()}
-													</Link>
+													{sub.id === "batiments" ? (
+														// Route métier réelle (M2.1) : lien typé, les filtres vivent dans la
+														// search de cette route, pas ici.
+														<Link
+															to="/residence/batiments"
+															activeOptions={{ exact: true }}
+															activeProps={{ className: subActiveClassName }}
+															className={subLinkClassName}
+														>
+															{sub.label}
+														</Link>
+													) : sub.id === "locations" ? (
+														// « Locations » → liste des contrats de location (M2.2). `exact:
+														// false` garde le lien actif sur la fiche contrat.
+														<Link
+															to="/residence/contrats"
+															activeOptions={{ exact: false }}
+															activeProps={{ className: subActiveClassName }}
+															className={subLinkClassName}
+														>
+															{sub.label}
+														</Link>
+													) : sub.id === "echeances" ? (
+														// « Échéances de loyer » → suivi consolidé des échéances (M2.2).
+														<Link
+															to="/residence/echeances"
+															activeOptions={{ exact: true }}
+															activeProps={{ className: subActiveClassName }}
+															className={subLinkClassName}
+														>
+															{sub.label}
+														</Link>
+													) : (
+														// Placeholder partagé tant que la route métier n'existe pas.
+														<Link
+															to="/en-cours"
+															search={{ module: module.code, page: sub.id }}
+															activeOptions={{ includeSearch: true }}
+															activeProps={{
+																className: subActiveClassName,
+															}}
+															className={subLinkClassName}
+														>
+															{sub.label}
+														</Link>
+													)}
 												</li>
 											))}
 										</ul>

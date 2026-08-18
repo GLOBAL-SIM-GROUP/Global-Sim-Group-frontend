@@ -1,7 +1,7 @@
 # `src/features/` — Conventions des fonctionnalités métier
 
 Ce dossier est **volontairement vide** : la fondation (auth, permissions,
-API, i18n, query, routing, layout) ne doit contenir **aucune fonctionnalité
+API, query, routing, layout) ne doit contenir **aucune fonctionnalité
 métier** (spec `prompt-adapted.md` §« IMPORTANT »). Il documente ici la
 convention à suivre dès qu'un module métier sera développé.
 
@@ -49,7 +49,7 @@ src/features/<module>/        ex. src/features/residence/
    restent de la colle : elles orchestrent des composants de features, sans
    logique métier ni fetch brut.
 2. **Pas de logique métier dans `src/core/`.** `core/` est la fondation
-   technique (auth, api, permissions, i18n, query, config) : générique,
+   technique (auth, api, permissions, query, config) : générique,
    indépendante des modules.
 3. **Les types de requête viennent du client généré** (`core/api/generated`).
    Les types métier supplémentaires se dérivent, on ne duplique pas les DTO.

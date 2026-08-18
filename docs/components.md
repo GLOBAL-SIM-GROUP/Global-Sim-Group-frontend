@@ -5,7 +5,7 @@
 ```
 src/components/
   ui/        composants shadcn/ui générés (button, input, label, select, …)
-  layout/    coquille applicative (app-shell, language-selector, logout-button)
+  layout/    coquille applicative (app-shell, logout-button, notification-button)
 ```
 
 Les écrans d'une feature vivent dans `features/<module>/components/`
@@ -17,11 +17,12 @@ dans `src/components/`.
 1. **Ne pas réécrire un composant shadcn** : composer avec les primitives de
    `components/ui` (props `className` via `cn` de `#/lib/utils`).
 2. Un composant de layout n'embarque pas de logique métier — il reçoit ses
-   données par props ou hooks d'état (`useAuth`, `useLocale`).
+   données par props ou hooks d'état (`useAuth`).
 3. L'accessibilité est de base : `Label` lié à l'input via `htmlFor`/`id`,
    `aria-label` sur les contrôles icônes, `role="alert"` sur les erreurs
    globales de formulaire.
-4. Les textes passent par les messages Paraglide (`m.*`) — jamais en dur.
+4. Les textes utilisateur sont en français, écrits en dur dans le composant
+   (pas de couche de traduction).
 
 ## Accents (Tailwind)
 

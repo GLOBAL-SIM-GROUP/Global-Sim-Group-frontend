@@ -6,7 +6,7 @@ finances, RH et administration.
 
 > **État actuel — fondation uniquement.** Ce dépôt contient l'architecture,
 > l'authentification JWT, le système de permissions, la couche API générée
-> depuis la spec OpenAPI réelle et l'internationalisation FR/EN.
+> depuis la spec OpenAPI réelle. L'interface est en français (texte en dur).
 > **Aucune fonctionnalité métier n'est implémentée** (contrainte de la spec
 > `prompt-adapted.md` §« IMPORTANT ») — les 12 modules (M0–M11) seront
 > construits par-dessus cette fondation.
@@ -19,7 +19,6 @@ TanStack Router
 TanStack Query
 TanStack Form
 TanStack Table
-Paraglide (i18n)
 shadcn/ui
 Biome
 TypeScript
@@ -37,7 +36,6 @@ src/
                    api/      client HTTP + types générés (OpenAPI)
                    auth/     session JWT, guards, AuthProvider
                    permissions/  modèle de permissions (UX only)
-                   i18n/     Paraglide (FR/EN), sélecteur de langue
                    query/    singleton TanStack Query + conventions de clés
   components/    ui/ (shadcn) + layout/ (coquille applicative)
 ```
@@ -71,14 +69,11 @@ Instance dev déployée : `https://dev.sim.strife-cyber.org`.
   13 préfixes, pas de `DELETE`) ; l'UI n'affiche que ce que `/auth/me` retourne.
 - Voir [`docs/api.md`](docs/api.md) et [`docs/authentication.md`](docs/authentication.md).
 
-## Internationalisation
+## Langue
 
-Français (par défaut) / Anglais. Textes via messages **Paraglide** (`m.*`),
-sélecteur de langue explicite, jamais de détection navigateur. La stratégie
-compilée est `globalVariable baseLocale` ; la locale est persistée dans
-`localStorage["sim.locale"]`.
-
-Voir [`docs/internationalization.md`](docs/internationalization.md).
+L'interface est **en français uniquement** : les libellés sont écrits
+directement dans les composants, sans couche de traduction FR/EN (Paraglide a
+été retiré). Les identifiants de code restent en anglais (camelCase).
 
 ## Développement
 
@@ -99,7 +94,6 @@ Scripts utiles :
 
 ```bash
 npm run generate-routes   # régénère src/routeTree.gen.ts
-npm run i18n:compile      # compile les messages Paraglide vers src/paraglide/
 npm run api:gen           # régénère le client OpenAPI depuis la spec live
 npm run typecheck         # tsc --noEmit
 npm run lint / format     # Biome seul
@@ -164,7 +158,6 @@ les régénérer avec les scripts ci-dessus.
 - [`docs/authorization.md`](docs/authorization.md) — permissions depuis `/me`
 - [`docs/routing.md`](docs/routing.md) — routes, guards, 404/erreurs
 - [`docs/state-management.md`](docs/state-management.md) — Query vs state vs URL vs Form
-- [`docs/internationalization.md`](docs/internationalization.md) — Paraglide FR/EN
 - [`docs/testing.md`](docs/testing.md) — pyramide de tests, outils installés
 - [`docs/components.md`](docs/components.md) — composants shadcn + layout
 - [`docs/security.md`](docs/security.md) — règles de sécurité frontend

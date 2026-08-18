@@ -52,11 +52,13 @@ describe("getAccessibleModuleSubItems", () => {
 		const withVoit = getAccessibleModuleSubItems(residence, [
 			"RESIDENCE.VOIR",
 		]).map((sub) => sub.id);
-		// Les 6 sous-pages de Résidence sont gâtées par RESIDENCE.VOIR.
+		// Les 6 sous-pages de Résidence sont gâtées par RESIDENCE.VOIR
+		// (Logements a été retiré du menu : l'accès se fait par la ligne des
+		// bâtiments, la route /residence/logements reste accessible).
 		expect(withVoit).toEqual([
 			"batiments",
-			"logements",
 			"locations",
+			"echeances",
 			"sejours_courts",
 			"charges",
 			"portail",

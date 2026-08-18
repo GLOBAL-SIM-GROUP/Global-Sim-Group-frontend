@@ -2,7 +2,6 @@ import { createFileRoute } from "@tanstack/react-router";
 import { ModuleTile } from "#/components/ui/module-tile";
 import { useCurrentUser, usePermissions } from "#/core/auth";
 import { getAccessibleModules } from "#/core/permissions/modules";
-import * as m from "#/paraglide/messages";
 
 /**
  * Accueil protégé = lanceur de modules. Les tuiles sont pilotées par les
@@ -21,10 +20,10 @@ function HomePage() {
 		<div className="mx-auto w-full max-w-5xl space-y-8 p-6">
 			<section className="space-y-1">
 				<h1 className="text-2xl font-semibold">
-					{m.home_welcome_name({ name: user?.login ?? "" })}
+					Bienvenue, {user?.login ?? ""} !
 				</h1>
 				<p className="text-muted-foreground">
-					{m.home_subtitle_select_module()}
+					Sélectionnez un module pour commencer.
 				</p>
 			</section>
 
@@ -34,8 +33,8 @@ function HomePage() {
 						<ModuleTile
 							key={module.code}
 							icon={module.icon}
-							title={module.title()}
-							description={module.description()}
+							title={module.title}
+							description={module.description}
 							linkProps={{
 								to: "/en-cours",
 								search: { module: module.code },
@@ -44,7 +43,9 @@ function HomePage() {
 					))}
 				</section>
 			) : (
-				<p className="text-sm text-muted-foreground">{m.home_no_modules()}</p>
+				<p className="text-sm text-muted-foreground">
+					Aucun module accessible.
+				</p>
 			)}
 		</div>
 	);

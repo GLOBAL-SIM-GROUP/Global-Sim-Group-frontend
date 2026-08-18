@@ -11,8 +11,9 @@ M0–M11 : à venir, par-dessus cette fondation). Ne pas en inventer une.
    `src/components/`. Voir [`src/features/README.md`](src/features/README.md).
 2. **Pas de logique métier dans les fichiers de routes** — les routes font du
    routing (guards, loaders) ; le reste va dans les hooks/features.
-3. **Pas de chaîne visible en dur** — tout texte utilisateur passe par les
-   messages Paraglide (`m.*`), FR source / EN traduction.
+3. **Interface en français, texte en dur** — l'UI est en français uniquement ;
+   les libellés sont écrits directement dans les composants (pas de couche de
+   traduction FR/EN).
 4. **Ne pas dupliquer à la main les types générés par OpenAPI** — les DTO sont
    importés de `src/core/api/generated/schema.ts`, régénéré par `npm run api:gen`.
 5. **Pas d'état global non justifié** — état serveur → TanStack Query
@@ -27,8 +28,8 @@ M0–M11 : à venir, par-dessus cette fondation). Ne pas en inventer une.
    navigateur sont publiques ; utiliser `.env.local` (ignoré par git) pour la
    config non-committée.
 9. **Ne pas modifier les fichiers générés à la main** — `src/routeTree.gen.ts`,
-   `src/core/api/generated/**`, `src/paraglide/**` : les régénérer par les
-   scripts (`generate-routes`, `api:gen`, `i18n:compile`).
+   `src/core/api/generated/**` : les régénérer par les scripts
+   (`generate-routes`, `api:gen`).
 10. **Ne pas inventer d'endpoints ou de permissions** — utiliser uniquement ce
     que le backend réel expose (spec `/docs-json`, `docs/api.md`) et les 13
     préfixes de permission réels (pas de `DELETE`).

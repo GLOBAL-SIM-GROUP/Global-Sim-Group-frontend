@@ -1,0 +1,81 @@
+import { getApiClient } from "#/core/api";
+import type { components } from "#/core/api/generated/schema";
+
+import type { CategorieCharge, Charge } from "../models/charges";
+
+type CreerChargeDto = components["schemas"]["CreerChargeDto"];
+
+/**
+ * Le schéma généré type `compteur_numero`/`lecture_*`/`consommation` en objet
+ * libre (`Record<string, never> | null`) mais ce sont de vraies valeurs ; on
+ * élargit ces champs (même pattern que `equipements`/`etat` côté logements).
+ */
+type ChargeWire = Omit<Charge, "id"> & { id_charge: string };
+type CategorieChargeWire = Omit<CategorieCharge, "id"> & {
+	id_categorie_charge: string;
+};
+
+const texteOuNull = (valeur: string | null | undefined): string | null =>
+	valeur?.trim() ? valeur : null;
+
+/**
+ * Appels API du module Résidence — charges. Réponses hand-typed revalidées sur
+ * le backend réel. Le lister documente des params marqués `required` à tort
+ * (cf. docs/api.md) ; de plus `?logement=` renvoie un 500 sur le backend réel
+ * (param cassé) — on charge donc TOUTES les charges et on filtre côté client
+ * par `id_logement` (onglet Charges de la fiche logement).
+ */
+export function listCharges(): Promise<Charge[]> {
+	return getApiClient()
+		.apiFetch<ChargeWire[]>("/residence/charges")
+		.then((data) =>
+			data.map(({ id_charge: id, ...reste }) => ({ id, ...reste })),
+		);
+}
+
+/** Catégories de charges (GET /residence/categories-charges). */
+export function listCategoriesCharges(): Promise<CategorieCharge[]> {
+	return getApiClient()
+		.apiFetch<CategorieChargeWire[]>("/residence/categories-charges")
+		.then((data) =>
+			data.map(({ id_categorie_charge: id, ...reste }) => ({ id, ...reste })),
+		);
+}
+
+/** Corps saisi par le formulaire « Ajouter une charge ». */
+export interface ChargeBody {
+	idLogement: string;
+	idCategorieCharge: string;
+	periode: string;
+	montant: string;
+	compteurNumero?: string | null;
+	lectureDebut?: string | null;
+	lectureFin?: string | null;
+	consommation?: string | null;
+}
+
+/** Crée une charge (POST `CreerChargeDto`). */
+export function creerCharge(body: ChargeBody): Promise<unknown> {
+	const corps = {
+		id_logement: body.idLogement,
+		id_categorie_charge: body.idCategorieCharge,
+		periode: body.periode,
+		montant: body.montant,
+		compteur_numero: texteOuNull(body.compteurNumero),
+		lecture_debut: texteOuNull(body.lectureDebut),
+		lecture_fin: texteOuNull(body.lectureFin),
+		consommation: texteOuNull(body.consommation),
+	} satisfies Omit<
+		CreerChargeDto,
+		"compteur_numero" | "lecture_debut" | "lecture_fin" | "consommation"
+	> & {
+		compteur_numero?: string | null;
+		lecture_debut?: string | null;
+		lecture_fin?: string | null;
+		consommation?: string | null;
+	};
+	return getApiClient().apiFetch("/residence/charges", {
+		method: "POST",
+		body: JSON.stringify(corps),
+	});
+}

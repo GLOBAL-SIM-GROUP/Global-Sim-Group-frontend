@@ -2,7 +2,6 @@ import { useRouter } from "@tanstack/react-router";
 import { LogOut } from "lucide-react";
 import { Button } from "#/components/ui/button";
 import { useAuth } from "#/core/auth";
-import * as m from "#/paraglide/messages";
 
 /**
  * Déconnexion : révoque le refresh token (best-effort), purge la session
@@ -25,7 +24,7 @@ export function LogoutButton({ className }: { className?: string }) {
 			}}
 		>
 			<LogOut />
-			{m.auth_logout()}
+			Se déconnecter
 		</Button>
 	);
 }

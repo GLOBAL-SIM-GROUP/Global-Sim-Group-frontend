@@ -14,8 +14,6 @@ import {
 	Wallet,
 } from "lucide-react";
 
-import * as m from "#/paraglide/messages";
-
 import { hasPermission } from "./index";
 import type { ModuleCode, PermissionCode } from "./types";
 
@@ -39,8 +37,8 @@ import type { ModuleCode, PermissionCode } from "./types";
 export interface SubMenuItem {
 	/** Identifiant stable, ex. "logements" — sert de paramètre `page` dans /en-cours. */
 	id: string;
-	/** Libellé localisé (message Paraglide, jamais de string en dur). */
-	label: () => string;
+	/** Libellé affiché (français, en dur). */
+	label: string;
 	/** Permission requise pour afficher : `<CODE>.VOIR`. */
 	permission: PermissionCode;
 	/** Route future de la page (non construite, documentée pour le câblage). */
@@ -50,10 +48,10 @@ export interface SubMenuItem {
 export interface ModuleDefinition {
 	/** Code du module, source unique = `MODULES`. */
 	code: ModuleCode;
-	/** Titre localisé (message Paraglide, jamais de string en dur). */
-	title: () => string;
-	/** Description courte localisée. */
-	description: () => string;
+	/** Titre affiché (français, en dur). */
+	title: string;
+	/** Description courte affichée. */
+	description: string;
 	/** Icône lucide du module. */
 	icon: LucideIcon;
 	/** Route future du module (non construite : la fondation n'implémente
@@ -69,45 +67,45 @@ export interface ModuleDefinition {
 export const MODULE_DEFINITIONS: ModuleDefinition[] = [
 	{
 		code: "RESIDENCE",
-		title: m.module_residence_title,
-		description: m.module_residence_description,
+		title: "Résidence",
+		description: "Gestion des locataires, baux et maintenance.",
 		icon: Building2,
 		path: "/residence",
 		permission: "RESIDENCE.VOIR",
 		subItems: [
 			{
 				id: "batiments",
-				label: m.nav_residence_batiments,
+				label: "Bâtiments",
 				permission: "RESIDENCE.VOIR",
 				path: "/residence/batiments",
 			},
 			{
-				id: "logements",
-				label: m.nav_residence_logements,
+				id: "locations",
+				label: "Locations",
 				permission: "RESIDENCE.VOIR",
-				path: "/residence/logements",
+				path: "/residence/contrats",
 			},
 			{
-				id: "locations",
-				label: m.nav_residence_locations,
+				id: "echeances",
+				label: "Échéances de loyer",
 				permission: "RESIDENCE.VOIR",
-				path: "/residence/locations",
+				path: "/residence/echeances",
 			},
 			{
 				id: "sejours_courts",
-				label: m.nav_residence_sejours_courts,
+				label: "Séjours courts",
 				permission: "RESIDENCE.VOIR",
 				path: "/residence/sejours-courts",
 			},
 			{
 				id: "charges",
-				label: m.nav_residence_charges,
+				label: "Charges et abonnements",
 				permission: "RESIDENCE.VOIR",
 				path: "/residence/charges",
 			},
 			{
 				id: "portail",
-				label: m.nav_residence_portail,
+				label: "Portail résident",
 				permission: "RESIDENCE.VOIR",
 				path: "/residence/portail",
 			},
@@ -115,27 +113,27 @@ export const MODULE_DEFINITIONS: ModuleDefinition[] = [
 	},
 	{
 		code: "PRESSING",
-		title: m.module_pressing_title,
-		description: m.module_pressing_description,
+		title: "Blanchisserie",
+		description: "Suivi des articles, commandes et livraisons de pressing.",
 		icon: Shirt,
 		path: "/pressing",
 		permission: "PRESSING.VOIR",
 		subItems: [
 			{
 				id: "commandes",
-				label: m.nav_pressing_commandes,
+				label: "Commandes",
 				permission: "PRESSING.VOIR",
 				path: "/pressing/commandes",
 			},
 			{
 				id: "depot",
-				label: m.nav_pressing_depot,
+				label: "Dépôt",
 				permission: "PRESSING.VOIR",
 				path: "/pressing/depot",
 			},
 			{
 				id: "retrait",
-				label: m.nav_pressing_retrait,
+				label: "Retrait",
 				permission: "PRESSING.VOIR",
 				path: "/pressing/retrait",
 			},
@@ -143,27 +141,27 @@ export const MODULE_DEFINITIONS: ModuleDefinition[] = [
 	},
 	{
 		code: "RESTAURANT",
-		title: m.module_restaurant_title,
-		description: m.module_restaurant_description,
+		title: "Restaurant",
+		description: "Gestion des menus, des commandes et du service.",
 		icon: UtensilsCrossed,
 		path: "/restaurant",
 		permission: "RESTAURANT.VOIR",
 		subItems: [
 			{
 				id: "plats",
-				label: m.nav_restaurant_plats,
+				label: "Plats / carte",
 				permission: "RESTAURANT.VOIR",
 				path: "/restaurant/plats",
 			},
 			{
 				id: "commandes",
-				label: m.nav_restaurant_commandes,
+				label: "Commandes",
 				permission: "RESTAURANT.VOIR",
 				path: "/restaurant/commandes",
 			},
 			{
 				id: "statistiques",
-				label: m.nav_restaurant_statistiques,
+				label: "Statistiques",
 				permission: "RESTAURANT.VOIR",
 				path: "/restaurant/statistiques",
 			},
@@ -171,21 +169,21 @@ export const MODULE_DEFINITIONS: ModuleDefinition[] = [
 	},
 	{
 		code: "SALLE_FETE",
-		title: m.module_salle_fete_title,
-		description: m.module_salle_fete_description,
+		title: "Salle de fête",
+		description: "Réservation et organisation des événements en salle.",
 		icon: PartyPopper,
 		path: "/salle-fete",
 		permission: "SALLE_FETE.VOIR",
 		subItems: [
 			{
 				id: "calendrier",
-				label: m.nav_salle_fete_calendrier,
+				label: "Calendrier",
 				permission: "SALLE_FETE.VOIR",
 				path: "/salle-fete/calendrier",
 			},
 			{
 				id: "reservations",
-				label: m.nav_salle_fete_reservations,
+				label: "Réservations",
 				permission: "SALLE_FETE.VOIR",
 				path: "/salle-fete/reservations",
 			},
@@ -193,21 +191,21 @@ export const MODULE_DEFINITIONS: ModuleDefinition[] = [
 	},
 	{
 		code: "FACTURATION",
-		title: m.module_facturation_title,
-		description: m.module_facturation_description,
+		title: "Facturation",
+		description: "Émission et suivi des factures et des paiements.",
 		icon: Receipt,
 		path: "/facturation",
 		permission: "FACTURATION.VOIR",
 		subItems: [
 			{
 				id: "prestations",
-				label: m.nav_facturation_prestations,
+				label: "Prestations facturables",
 				permission: "FACTURATION.VOIR",
 				path: "/facturation/prestations",
 			},
 			{
 				id: "facturation",
-				label: m.nav_facturation_facturation,
+				label: "Facturation ponctuelle",
 				permission: "FACTURATION.VOIR",
 				path: "/facturation/facturation",
 			},
@@ -215,45 +213,45 @@ export const MODULE_DEFINITIONS: ModuleDefinition[] = [
 	},
 	{
 		code: "FINANCES",
-		title: m.module_finances_title,
-		description: m.module_finances_description,
+		title: "Finances",
+		description: "Suivi des encaissements, dépenses et trésorerie.",
 		icon: Wallet,
 		path: "/finances",
 		permission: "FINANCES.VOIR",
 		subItems: [
 			{
 				id: "tableau_de_bord",
-				label: m.nav_finances_tableau_de_bord,
+				label: "Tableau de bord financier",
 				permission: "FINANCES.VOIR",
 				path: "/finances/tableau-de-bord",
 			},
 			{
 				id: "encaissements",
-				label: m.nav_finances_encaissements,
+				label: "Encaissements",
 				permission: "FINANCES.VOIR",
 				path: "/finances/encaissements",
 			},
 			{
 				id: "depenses",
-				label: m.nav_finances_depenses,
+				label: "Dépenses",
 				permission: "FINANCES.VOIR",
 				path: "/finances/depenses",
 			},
 			{
 				id: "impayes",
-				label: m.nav_finances_impayes,
+				label: "Impayés",
 				permission: "FINANCES.VOIR",
 				path: "/finances/impayes",
 			},
 			{
 				id: "moyens_paiement",
-				label: m.nav_finances_moyens_paiement,
+				label: "Moyens de paiement",
 				permission: "FINANCES.VOIR",
 				path: "/finances/moyens-paiement",
 			},
 			{
 				id: "categories_depenses",
-				label: m.nav_finances_categories_depenses,
+				label: "Catégories de dépenses",
 				permission: "FINANCES.VOIR",
 				path: "/finances/categories-depenses",
 			},
@@ -261,33 +259,33 @@ export const MODULE_DEFINITIONS: ModuleDefinition[] = [
 	},
 	{
 		code: "RH",
-		title: m.module_rh_title,
-		description: m.module_rh_description,
+		title: "Ressources humaines",
+		description: "Gestion des employés, contrats et présences.",
 		icon: Users,
 		path: "/rh",
 		permission: "RH.VOIR",
 		subItems: [
 			{
 				id: "employes",
-				label: m.nav_rh_employes,
+				label: "Employés",
 				permission: "RH.VOIR",
 				path: "/rh/employes",
 			},
 			{
 				id: "pointage",
-				label: m.nav_rh_pointage,
+				label: "Pointage",
 				permission: "RH.VOIR",
 				path: "/rh/pointage",
 			},
 			{
 				id: "bulletins",
-				label: m.nav_rh_bulletins,
+				label: "Bulletins de salaire",
 				permission: "RH.VOIR",
 				path: "/rh/bulletins",
 			},
 			{
 				id: "comptes",
-				label: m.nav_rh_comptes,
+				label: "Comptes utilisateurs",
 				permission: "RH.VOIR",
 				path: "/rh/comptes",
 			},
@@ -295,41 +293,41 @@ export const MODULE_DEFINITIONS: ModuleDefinition[] = [
 	},
 	{
 		code: "CLIENT",
-		title: m.module_client_title,
-		description: m.module_client_description,
+		title: "Clients",
+		description: "Fiches clients et historique des transactions.",
 		icon: Users2,
 		path: "/client",
 		permission: "CLIENT.VOIR",
 	},
 	{
 		code: "MARCHANDISE",
-		title: m.module_marchandise_title,
-		description: m.module_marchandise_description,
+		title: "Marchandise",
+		description: "Gestion des stocks et des inventaires.",
 		icon: Package,
 		path: "/marchandise",
 		permission: "MARCHANDISE.VOIR",
 		subItems: [
 			{
 				id: "produits",
-				label: m.nav_marchandise_produits,
+				label: "Produits",
 				permission: "MARCHANDISE.VOIR",
 				path: "/marchandise/produits",
 			},
 			{
 				id: "mouvements",
-				label: m.nav_marchandise_mouvements,
+				label: "Mouvements de stock",
 				permission: "MARCHANDISE.VOIR",
 				path: "/marchandise/mouvements",
 			},
 			{
 				id: "ventes",
-				label: m.nav_marchandise_ventes,
+				label: "Ventes",
 				permission: "MARCHANDISE.VOIR",
 				path: "/marchandise/ventes",
 			},
 			{
 				id: "statistiques",
-				label: m.nav_marchandise_statistiques,
+				label: "Statistiques",
 				permission: "MARCHANDISE.VOIR",
 				path: "/marchandise/statistiques",
 			},
@@ -337,39 +335,39 @@ export const MODULE_DEFINITIONS: ModuleDefinition[] = [
 	},
 	{
 		code: "ADMIN",
-		title: m.module_admin_title,
-		description: m.module_admin_description,
+		title: "Administration",
+		description: "Paramètres généraux et comptes utilisateurs.",
 		icon: ShieldCheck,
 		path: "/admin",
 		permission: "ADMIN.VOIR",
 		subItems: [
 			{
 				id: "utilisateurs",
-				label: m.nav_admin_utilisateurs,
+				label: "Utilisateurs",
 				permission: "ADMIN.VOIR",
 				path: "/admin/utilisateurs",
 			},
 			{
 				id: "roles",
-				label: m.nav_admin_roles,
+				label: "Rôles",
 				permission: "ADMIN.VOIR",
 				path: "/admin/roles",
 			},
 			{
 				id: "journal",
-				label: m.nav_admin_journal,
+				label: "Journal d'audit",
 				permission: "ADMIN.VOIR",
 				path: "/admin/journal",
 			},
 			{
 				id: "parametres",
-				label: m.nav_admin_parametres,
+				label: "Paramètres",
 				permission: "ADMIN.VOIR",
 				path: "/admin/parametres",
 			},
 			{
 				id: "sauvegardes",
-				label: m.nav_admin_sauvegardes,
+				label: "Sauvegardes",
 				permission: "ADMIN.VOIR",
 				path: "/admin/sauvegardes",
 			},
@@ -377,16 +375,16 @@ export const MODULE_DEFINITIONS: ModuleDefinition[] = [
 	},
 	{
 		code: "AUDIT",
-		title: m.module_audit_title,
-		description: m.module_audit_description,
+		title: "Audit",
+		description: "Consultation des journaux d'activité.",
 		icon: ClipboardList,
 		path: "/audit",
 		permission: "AUDIT.VOIR",
 	},
 	{
 		code: "CORE",
-		title: m.module_core_title,
-		description: m.module_core_description,
+		title: "Système",
+		description: "Configuration technique de la plateforme.",
 		icon: Settings,
 		path: "/core",
 		permission: "CORE.VOIR",

@@ -2,11 +2,10 @@
 
 ## Langue
 
-- Code, commentaires et messages de l'UI : le **français** est la langue de
-  référence (source Paraglide = `fr`). Les identifiants restent en anglais
-  (camelCase) comme dans tout le code TypeScript.
-- Les messages utilisateur vont dans `messages/{fr,en}.json` — **jamais** de
-  string en dur dans un composant.
+- Interface : **français uniquement**, libellés écrits en dur dans les
+  composants (pas de couche de traduction FR/EN — Paraglide a été retiré).
+- Code, commentaires et identifiants : l'anglais (camelCase) comme dans tout
+  le code TypeScript ; les libellés utilisateur restent en français.
 
 ## Style
 
@@ -41,5 +40,5 @@
 
 - ❌ Créer `src/hooks/` ou `src/lib/` génériques fourre-tout (l'organisation se
   fait par couche `core/` / `features/`).
-- ❌ Éditer les fichiers générés (`schema.ts`, `routeTree.gen.ts`, `src/paraglide/**`).
+- ❌ Éditer les fichiers générés (`schema.ts`, `routeTree.gen.ts`).
 - ❌ Inventer des endpoints, permissions ou modules (voir `docs/authorization.md`).

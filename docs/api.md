@@ -51,7 +51,7 @@ try {
   await authApi.login(dto)
 } catch (error) {
   const apiError = toApiError(error)
-  getErrorMessageForCode(apiError.code)   // code → message i18n (docs/internationalization.md)
+  getErrorMessageForCode(apiError.code)   // code → message français (core/api/error-messages.ts)
   getFieldErrors(error)                    // details[].property → erreurs de formulaire
 }
 ```

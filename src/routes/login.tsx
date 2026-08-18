@@ -10,9 +10,7 @@ import { useState } from "react";
 import { Button } from "#/components/ui/button";
 import { InputField } from "#/components/ui/input-field";
 import { PasswordInput } from "#/components/ui/password-input";
-import { getFieldErrors, toApiError } from "#/core/api";
-import { getErrorMessageForCode } from "#/core/i18n";
-import * as m from "#/paraglide/messages";
+import { getErrorMessageForCode, getFieldErrors, toApiError } from "#/core/api";
 
 type LoginField = "login" | "motDePasse";
 
@@ -48,9 +46,8 @@ export function LoginPage() {
 				// Un objet plat `{ champ: erreur }` serait interprété comme une erreur
 				// globale de formulaire, pas comme des erreurs champ par champ.
 				const fields: Partial<Record<LoginField, string>> = {};
-				if (!value.login.trim()) fields.login = m.auth_login_field_required();
-				if (!value.motDePasse)
-					fields.motDePasse = m.auth_login_field_required();
+				if (!value.login.trim()) fields.login = "Ce champ est requis.";
+				if (!value.motDePasse) fields.motDePasse = "Ce champ est requis.";
 				return { fields };
 			},
 		},
@@ -79,7 +76,7 @@ export function LoginPage() {
 				if (mappedFields === 0) {
 					setGlobalError(
 						getErrorMessageForCode(toApiError(error).code) ??
-							m.auth_login_error_global(),
+							"Connexion impossible.",
 					);
 				}
 			}
@@ -95,14 +92,14 @@ export function LoginPage() {
 					    d'écran). */}
 					<img src="/logo.png" alt="" className="mx-auto h-32 w-auto" />
 					<h1 className="text-xl font-semibold tracking-tight text-foreground">
-						{m.app_name()}
+						GLOBAL SIM GROUP
 					</h1>
 					<p className="text-sm text-muted-foreground">
-						{m.auth_login_subtitle()}
+						Accédez à votre espace de gestion
 					</p>
 				</header>
 
-				<h2 className="text-lg font-semibold">{m.auth_login_title()}</h2>
+				<h2 className="text-lg font-semibold">Connexion</h2>
 
 				<form
 					className="space-y-4"
@@ -117,8 +114,8 @@ export function LoginPage() {
 							<InputField
 								id={field.name}
 								name={field.name}
-								label={m.auth_login_label_login()}
-								placeholder={m.auth_login_placeholder_login()}
+								label="Identifiant"
+								placeholder="email@exemple.com"
 								autoComplete="username"
 								icon={<User className="size-4" aria-hidden />}
 								value={field.state.value}
@@ -134,8 +131,8 @@ export function LoginPage() {
 							<PasswordInput
 								id={field.name}
 								name={field.name}
-								label={m.auth_login_label_password()}
-								placeholder={m.auth_login_placeholder_password()}
+								label="Mot de passe"
+								placeholder="••••••••"
 								icon={<Lock className="size-4" aria-hidden />}
 								value={field.state.value}
 								onBlur={field.handleBlur}
@@ -157,10 +154,10 @@ export function LoginPage() {
 								{isSubmitting ? (
 									<>
 										<Loader2 className="animate-spin" aria-hidden />
-										{m.auth_login_pending()}
+										Connexion…
 									</>
 								) : (
-									m.auth_login_submit()
+									"Se connecter"
 								)}
 							</Button>
 						)}
@@ -168,7 +165,7 @@ export function LoginPage() {
 				</form>
 
 				<footer className="text-center text-xs text-muted-foreground">
-					{m.auth_login_copyright()}
+					© 2026 GLOBAL SIM GROUP. Tous droits réservés.
 				</footer>
 			</div>
 		</main>

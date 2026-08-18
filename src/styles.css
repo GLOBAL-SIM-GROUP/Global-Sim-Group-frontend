@@ -14,7 +14,7 @@
   --sea-ink: #1A2B4C;
   --sea-ink-soft: #43536E;
   --lagoon: #E67E22;
-  --lagoon-deep: #C86A18;
+  --lagoon-deep: #ffffff;
   --palm: #2C3E5E;
   --sand: #F4F6F9;
   --foam: #ffffff;
@@ -73,7 +73,7 @@
   --sea-ink: #D7E1EE;
   --sea-ink-soft: #9DADC4;
   --lagoon: #F0954D;
-  --lagoon-deep: #E67E22;
+  --lagoon-deep: #ffffff;
   --palm: #8FA3C2;
   --sand: #121A29;
   --foam: #0E1522;
@@ -252,15 +252,16 @@ body::after {
     );
 }
 
-a {
-  color: var(--lagoon-deep);
+/* Liens globaux — on ne force AUCUNE couleur : une règle non-layée écraserait
+   les utilities Tailwind (layered) et noirait en blanc les liens des pages à
+   fond clair (nom de bâtiment, tuiles du lanceur…). Les couleurs viennent des
+   classes (ex. text-lagoon, text-muted-foreground) ; les boutons rendus en <a>
+   (data-slot="button") portent leurs propres couleurs (primary /
+   primary-foreground). On ne stylise ici que la décoration de soulignement. */
+a:not([data-slot="button"]) {
   text-decoration-color: rgba(200, 106, 24, 0.4);
   text-decoration-thickness: 1px;
   text-underline-offset: 2px;
-}
-
-a:hover {
-  color: #B05E14;
 }
 
 code {

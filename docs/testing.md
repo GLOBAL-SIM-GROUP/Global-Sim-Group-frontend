@@ -40,7 +40,7 @@ it('accorde une permission présente', () => {
   une vraie `createAuthSession({ tokenStorage: createMemoryTokenStore() })` ou
   une session factice.
 - On teste : le mapping des erreurs de champ (`details[].property` →
-  erreur sous l'input), l'affichage des messages i18n, l'état `isSubmitting`.
+  erreur sous l'input), l'affichage des messages français, l'état `isSubmitting`.
 
 ## À ne pas faire
 

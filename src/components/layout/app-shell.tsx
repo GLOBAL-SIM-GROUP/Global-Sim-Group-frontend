@@ -1,16 +1,14 @@
 import type { ReactNode } from "react";
 
-import * as m from "#/paraglide/messages";
-
 import { LogoutButton } from "./logout-button";
 import { NotificationButton } from "./notification-button";
 import { Sidebar } from "./sidebar";
 
 /**
- * Coquille applicative des écrans authentifiés : header (langue, déconnexion —
- * la marque et l'utilisateur passent dans la sidebar sur desktop, la marque
- * reste dans le header sur mobile où la sidebar est masquée), sidebar gauche
- * et zone de contenu.
+ * Coquille applicative des écrans authentifiés : header (notifications,
+ * déconnexion — la marque et l'utilisateur passent dans la sidebar sur
+ * desktop, la marque reste dans le header sur mobile où la sidebar est
+ * masquée), sidebar gauche et zone de contenu.
  */
 export function AppShell({ children }: { children: ReactNode }) {
 	return (
@@ -22,7 +20,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 				<header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur">
 					<div className="flex h-14 w-full items-center gap-4 px-4">
 						<span className="text-lg font-semibold lg:hidden">
-							{m.app_name()}
+							GLOBAL SIM GROUP
 						</span>
 						<div className="ml-auto flex items-center gap-3">
 							<NotificationButton />

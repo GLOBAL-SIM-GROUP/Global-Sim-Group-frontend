@@ -13,6 +13,12 @@ import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
 import { Route as AuthenticatedEnCoursRouteImport } from './routes/_authenticated/en-cours'
+import { Route as AuthenticatedResidenceBatimentsIndexRouteImport } from './routes/_authenticated/residence/batiments/index'
+import { Route as AuthenticatedResidenceContratsIndexRouteImport } from './routes/_authenticated/residence/contrats/index'
+import { Route as AuthenticatedResidenceContratsIdRouteImport } from './routes/_authenticated/residence/contrats/$id'
+import { Route as AuthenticatedResidenceEcheancesIndexRouteImport } from './routes/_authenticated/residence/echeances/index'
+import { Route as AuthenticatedResidenceLogementsIndexRouteImport } from './routes/_authenticated/residence/logements/index'
+import { Route as AuthenticatedResidenceLogementsIdRouteImport } from './routes/_authenticated/residence/logements/$id'
 
 const AuthenticatedRoute = AuthenticatedRouteImport.update({
   id: '/_authenticated',
@@ -33,16 +39,64 @@ const AuthenticatedEnCoursRoute = AuthenticatedEnCoursRouteImport.update({
   path: '/en-cours',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedResidenceBatimentsIndexRoute =
+  AuthenticatedResidenceBatimentsIndexRouteImport.update({
+    id: '/residence/batiments/',
+    path: '/residence/batiments/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedResidenceContratsIndexRoute =
+  AuthenticatedResidenceContratsIndexRouteImport.update({
+    id: '/residence/contrats/',
+    path: '/residence/contrats/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedResidenceContratsIdRoute =
+  AuthenticatedResidenceContratsIdRouteImport.update({
+    id: '/residence/contrats/$id',
+    path: '/residence/contrats/$id',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedResidenceEcheancesIndexRoute =
+  AuthenticatedResidenceEcheancesIndexRouteImport.update({
+    id: '/residence/echeances/',
+    path: '/residence/echeances/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedResidenceLogementsIndexRoute =
+  AuthenticatedResidenceLogementsIndexRouteImport.update({
+    id: '/residence/logements/',
+    path: '/residence/logements/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedResidenceLogementsIdRoute =
+  AuthenticatedResidenceLogementsIdRouteImport.update({
+    id: '/residence/logements/$id',
+    path: '/residence/logements/$id',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
   '/login': typeof LoginRoute
   '/en-cours': typeof AuthenticatedEnCoursRoute
+  '/residence/contrats/$id': typeof AuthenticatedResidenceContratsIdRoute
+  '/residence/logements/$id': typeof AuthenticatedResidenceLogementsIdRoute
+  '/residence/batiments/': typeof AuthenticatedResidenceBatimentsIndexRoute
+  '/residence/contrats/': typeof AuthenticatedResidenceContratsIndexRoute
+  '/residence/echeances/': typeof AuthenticatedResidenceEcheancesIndexRoute
+  '/residence/logements/': typeof AuthenticatedResidenceLogementsIndexRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/en-cours': typeof AuthenticatedEnCoursRoute
   '/': typeof AuthenticatedIndexRoute
+  '/residence/contrats/$id': typeof AuthenticatedResidenceContratsIdRoute
+  '/residence/logements/$id': typeof AuthenticatedResidenceLogementsIdRoute
+  '/residence/batiments': typeof AuthenticatedResidenceBatimentsIndexRoute
+  '/residence/contrats': typeof AuthenticatedResidenceContratsIndexRoute
+  '/residence/echeances': typeof AuthenticatedResidenceEcheancesIndexRoute
+  '/residence/logements': typeof AuthenticatedResidenceLogementsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -50,18 +104,48 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/_authenticated/en-cours': typeof AuthenticatedEnCoursRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
+  '/_authenticated/residence/contrats/$id': typeof AuthenticatedResidenceContratsIdRoute
+  '/_authenticated/residence/logements/$id': typeof AuthenticatedResidenceLogementsIdRoute
+  '/_authenticated/residence/batiments/': typeof AuthenticatedResidenceBatimentsIndexRoute
+  '/_authenticated/residence/contrats/': typeof AuthenticatedResidenceContratsIndexRoute
+  '/_authenticated/residence/echeances/': typeof AuthenticatedResidenceEcheancesIndexRoute
+  '/_authenticated/residence/logements/': typeof AuthenticatedResidenceLogementsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/en-cours'
+  fullPaths:
+    | '/'
+    | '/login'
+    | '/en-cours'
+    | '/residence/contrats/$id'
+    | '/residence/logements/$id'
+    | '/residence/batiments/'
+    | '/residence/contrats/'
+    | '/residence/echeances/'
+    | '/residence/logements/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/login' | '/en-cours' | '/'
+  to:
+    | '/login'
+    | '/en-cours'
+    | '/'
+    | '/residence/contrats/$id'
+    | '/residence/logements/$id'
+    | '/residence/batiments'
+    | '/residence/contrats'
+    | '/residence/echeances'
+    | '/residence/logements'
   id:
     | '__root__'
     | '/_authenticated'
     | '/login'
     | '/_authenticated/en-cours'
     | '/_authenticated/'
+    | '/_authenticated/residence/contrats/$id'
+    | '/_authenticated/residence/logements/$id'
+    | '/_authenticated/residence/batiments/'
+    | '/_authenticated/residence/contrats/'
+    | '/_authenticated/residence/echeances/'
+    | '/_authenticated/residence/logements/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -99,17 +183,76 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedEnCoursRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/residence/batiments/': {
+      id: '/_authenticated/residence/batiments/'
+      path: '/residence/batiments'
+      fullPath: '/residence/batiments/'
+      preLoaderRoute: typeof AuthenticatedResidenceBatimentsIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/residence/contrats/': {
+      id: '/_authenticated/residence/contrats/'
+      path: '/residence/contrats'
+      fullPath: '/residence/contrats/'
+      preLoaderRoute: typeof AuthenticatedResidenceContratsIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/residence/contrats/$id': {
+      id: '/_authenticated/residence/contrats/$id'
+      path: '/residence/contrats/$id'
+      fullPath: '/residence/contrats/$id'
+      preLoaderRoute: typeof AuthenticatedResidenceContratsIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/residence/echeances/': {
+      id: '/_authenticated/residence/echeances/'
+      path: '/residence/echeances'
+      fullPath: '/residence/echeances/'
+      preLoaderRoute: typeof AuthenticatedResidenceEcheancesIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/residence/logements/': {
+      id: '/_authenticated/residence/logements/'
+      path: '/residence/logements'
+      fullPath: '/residence/logements/'
+      preLoaderRoute: typeof AuthenticatedResidenceLogementsIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/residence/logements/$id': {
+      id: '/_authenticated/residence/logements/$id'
+      path: '/residence/logements/$id'
+      fullPath: '/residence/logements/$id'
+      preLoaderRoute: typeof AuthenticatedResidenceLogementsIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
   }
 }
 
 interface AuthenticatedRouteChildren {
   AuthenticatedEnCoursRoute: typeof AuthenticatedEnCoursRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
+  AuthenticatedResidenceContratsIdRoute: typeof AuthenticatedResidenceContratsIdRoute
+  AuthenticatedResidenceLogementsIdRoute: typeof AuthenticatedResidenceLogementsIdRoute
+  AuthenticatedResidenceBatimentsIndexRoute: typeof AuthenticatedResidenceBatimentsIndexRoute
+  AuthenticatedResidenceContratsIndexRoute: typeof AuthenticatedResidenceContratsIndexRoute
+  AuthenticatedResidenceEcheancesIndexRoute: typeof AuthenticatedResidenceEcheancesIndexRoute
+  AuthenticatedResidenceLogementsIndexRoute: typeof AuthenticatedResidenceLogementsIndexRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedEnCoursRoute: AuthenticatedEnCoursRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
+  AuthenticatedResidenceContratsIdRoute: AuthenticatedResidenceContratsIdRoute,
+  AuthenticatedResidenceLogementsIdRoute:
+    AuthenticatedResidenceLogementsIdRoute,
+  AuthenticatedResidenceBatimentsIndexRoute:
+    AuthenticatedResidenceBatimentsIndexRoute,
+  AuthenticatedResidenceContratsIndexRoute:
+    AuthenticatedResidenceContratsIndexRoute,
+  AuthenticatedResidenceEcheancesIndexRoute:
+    AuthenticatedResidenceEcheancesIndexRoute,
+  AuthenticatedResidenceLogementsIndexRoute:
+    AuthenticatedResidenceLogementsIndexRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
@@ -123,12 +266,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}
