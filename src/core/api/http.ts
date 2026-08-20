@@ -26,6 +26,11 @@ export interface ApiClient {
 	 * bearer + rafraîchissement sur 401.
 	 */
 	download(path: string, init?: RequestInit): Promise<Blob>;
+	/**
+	 * Upload avec FormData (images, fichiers) : ne force pas content-type JSON.
+	 * Laisse le navigateur ajouter `multipart/form-data; boundary=...`.
+	 */
+	uploadForm<T>(path: string, init?: RequestInit): Promise<T>;
 }
 
 /**
@@ -120,7 +125,42 @@ export function createApiClient(deps: ApiDeps): ApiClient {
 		}
 	}
 
-	return { apiFetch, download };
+	async function uploadForm<T>(path: string, init: RequestInit = {}): Promise<T> {
+		const requiresAuth = !NO_AUTH_PATHS.some((p) => path.startsWith(p));
+		const { signal, timedOut, timeoutId } = prepareRequete(init);
+		try {
+			// Pour FormData, on n'ajoute PAS content-type JSON — le navigateur ajoute
+			// multipart/form-data + boundary automatiquement.
+			const headers = new Headers(init.headers);
+			if (requiresAuth) {
+				const token = deps.getAccessToken();
+				if (token) headers.set("authorization", `Bearer ${token}`);
+			}
+
+			const executer = () =>
+				fetch(`${baseUrl}${path}`, { ...init, headers, signal });
+
+			let response = await executer();
+			if (response.status === 401 && requiresAuth) {
+				const refreshed = await refreshSingleFlight();
+				if (refreshed) {
+					const token = deps.getAccessToken();
+					if (token) headers.set("authorization", `Bearer ${token}`);
+					response = await executer();
+				} else {
+					deps.onSessionExpired?.();
+				}
+			}
+
+			return await unwrap<T>(response);
+		} catch (error) {
+			throw mapperErreur(error, timedOut());
+		} finally {
+			clearTimeout(timeoutId);
+		}
+	}
+
+	return { apiFetch, download, uploadForm };
 }
 
 /**
