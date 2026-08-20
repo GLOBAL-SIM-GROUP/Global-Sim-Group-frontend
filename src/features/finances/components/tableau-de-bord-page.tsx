@@ -1,4 +1,6 @@
 import { Download, FileText, X } from "lucide-react";
+import { jsPDF } from "jspdf";
+import "jspdf-autotable";
 import { useState } from "react";
 
 import { Breadcrumb } from "#/components/ui/breadcrumb";
@@ -64,10 +66,86 @@ export function TableauDeBordPage() {
 	const [activite, setActivite] = useState<ActiviteFiltre>("global");
 	const [detailsOuvert, setDetailsOuvert] = useState(false);
 
-	// Fonction d'export CSV
+	// Fonction d'export PDF
 	const handleExport = () => {
-		const headers = ["Période", "Recettes", "Dépenses", "Solde", "% Marge"];
-		const rows = lignes.map((ligne) => {
+		const doc = new jsPDF();
+		const pageWidth = doc.internal.pageSize.getWidth();
+		const pageHeight = doc.internal.pageSize.getHeight();
+		let yPosition = 20;
+
+		// En-tête
+		doc.setFontSize(16);
+		doc.text("Tableau de Bord Financier", pageWidth / 2, yPosition, {
+			align: "center",
+		});
+		yPosition += 10;
+
+		doc.setFontSize(10);
+		doc.setTextColor(128, 128, 128);
+		doc.text(
+			`Généré le ${new Date().toLocaleDateString("fr-FR")}`,
+			pageWidth / 2,
+			yPosition,
+			{ align: "center" },
+		);
+		yPosition += 15;
+
+		// Indicateurs principaux
+		doc.setTextColor(0, 0, 0);
+		doc.setFontSize(11);
+		doc.text("INDICATEURS PRINCIPAUX", 20, yPosition);
+		yPosition += 8;
+
+		doc.setFontSize(9);
+		const indicateurs = [
+			[
+				"Recettes totales:",
+				formatMontantFCFA(
+					String(
+						lignes.reduce((sum, l) => sum + Number(l.encaissements), 0),
+					),
+				),
+			],
+			[
+				"Dépenses totales:",
+				formatMontantFCFA(
+					String(
+						lignes.reduce((sum, l) => sum + Number(l.decaissements), 0),
+					),
+				),
+			],
+			[
+				"Solde:",
+				formatMontantFCFA(
+					String(
+						lignes.reduce((sum, l) => sum + Number(l.encaissements), 0) -
+							lignes.reduce((sum, l) => sum + Number(l.decaissements), 0),
+					),
+				),
+			],
+			[
+				"Bénéfice estimatif:",
+				formatMontantFCFA(
+					String(
+						lignes.reduce((sum, l) => sum + Number(l.marge_nette), 0),
+					),
+				),
+			],
+		];
+
+		indicateurs.forEach(([label, value]) => {
+			doc.text(`${label} ${value}`, 25, yPosition);
+			yPosition += 6;
+		});
+
+		yPosition += 5;
+
+		// Tableau des périodes
+		doc.setFontSize(11);
+		doc.text("DÉTAIL PAR PÉRIODE", 20, yPosition);
+		yPosition += 8;
+
+		const tableData = lignes.map((ligne) => {
 			const encaissementsNum = Number(ligne.encaissements);
 			const depensesNum = Number(ligne.decaissements);
 			const margeNum = Number(ligne.marge_nette);
@@ -84,7 +162,7 @@ export function TableauDeBordPage() {
 			];
 		});
 
-		// Ajouter les totaux
+		// Ajouter totaux
 		const totalRecettes = lignes.reduce(
 			(sum, l) => sum + Number(l.encaissements),
 			0,
@@ -93,35 +171,50 @@ export function TableauDeBordPage() {
 			(sum, l) => sum + Number(l.decaissements),
 			0,
 		);
-		const solde = totalRecettes - totalDepenses;
-		const beneficeNum = lignes.reduce(
+		const totalBenefit = lignes.reduce(
 			(sum, l) => sum + Number(l.marge_nette),
 			0,
 		);
-		const margePct = totalRecettes > 0
-			? ((beneficeNum / totalRecettes) * 100).toFixed(1)
+		const totalMargePct = totalRecettes > 0
+			? ((totalBenefit / totalRecettes) * 100).toFixed(1)
 			: "0";
 
-		rows.push([
+		tableData.push([
 			"TOTAL",
 			totalRecettes.toLocaleString("fr-FR"),
 			totalDepenses.toLocaleString("fr-FR"),
-			solde.toLocaleString("fr-FR"),
-			`${margePct}%`,
+			(totalRecettes - totalDepenses).toLocaleString("fr-FR"),
+			`${totalMargePct}%`,
 		]);
 
-		// Créer CSV
-		const csv = [
-			headers.join(","),
-			...rows.map((row) => row.map((cell) => `"${cell}"`).join(",")),
-		].join("\n");
+		// Créer le tableau PDF
+		(doc as any).autoTable({
+			head: [["Période", "Recettes", "Dépenses", "Solde", "% Marge"]],
+			body: tableData,
+			startY: yPosition,
+			margin: 20,
+			headStyles: {
+				fillColor: [41, 128, 185],
+				textColor: 255,
+				fontStyle: "bold",
+			},
+			bodyStyles: {
+				textColor: 0,
+			},
+			footStyles: {
+				fillColor: [230, 230, 230],
+				textColor: 0,
+				fontStyle: "bold",
+			},
+			alternateRowStyles: {
+				fillColor: [245, 245, 245],
+			},
+		});
 
 		// Télécharger
-		const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-		const link = document.createElement("a");
-		link.href = URL.createObjectURL(blob);
-		link.download = `tableau-de-bord-financier-${new Date().toISOString().split("T")[0]}.csv`;
-		link.click();
+		doc.save(
+			`tableau-de-bord-financier-${new Date().toISOString().split("T")[0]}.pdf`,
+		);
 	};
 
 	if (!canVoir) {
@@ -216,7 +309,7 @@ export function TableauDeBordPage() {
 						disabled={lignes.length === 0}
 					>
 						<Download className="mr-2 size-4" aria-hidden />
-						Exporter CSV
+						Exporter PDF
 					</Button>
 					<Button
 						variant="outline"
