@@ -1,8 +1,9 @@
 import { useState, type ReactNode } from "react";
+import { useRouter } from "@tanstack/react-router";
 import { LogOut } from "lucide-react";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 
-import { LogoutButton } from "./logout-button";
+import { useAuth } from "#/core/auth";
 
 export function UserMenu({
 	avatar,
@@ -14,6 +15,14 @@ export function UserMenu({
 	role?: string;
 }) {
 	const [open, setOpen] = useState(false);
+	const { logout } = useAuth();
+	const router = useRouter();
+
+	const handleLogout = async () => {
+		setOpen(false);
+		await logout();
+		await router.navigate({ to: "/login" });
+	};
 
 	return (
 		<DropdownMenu.Root open={open} onOpenChange={setOpen}>
@@ -41,7 +50,7 @@ export function UserMenu({
 					sideOffset={8}
 					align="end"
 				>
-					<div className="px-4 py-3 border-b border-palm">
+					<div className="px-4 py-3 border-b border-palm text-center">
 						<p className="text-sm font-medium text-white">{login}</p>
 						{role ? (
 							<p className="text-xs text-gray-400">{role}</p>
@@ -54,9 +63,9 @@ export function UserMenu({
 							onClick={(e) => {
 								e.preventDefault();
 								e.stopPropagation();
-								setOpen(false);
+								void handleLogout();
 							}}
-							className="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-300 hover:bg-lagoon/20 hover:text-white transition-colors outline-none"
+							className="w-full flex items-center justify-center gap-2 px-4 py-2 text-sm text-gray-300 hover:bg-lagoon/20 hover:text-white transition-colors outline-none"
 						>
 							<LogOut className="size-4" aria-hidden />
 							<span>Se déconnecter</span>
