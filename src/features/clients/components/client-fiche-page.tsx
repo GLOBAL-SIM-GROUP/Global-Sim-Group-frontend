@@ -35,9 +35,9 @@ import { ClientFormDialog } from "./client-form-dialog";
 /** Ligne lecture seule. */
 function Ligne({ label, valeur }: { label: string; valeur: string }) {
 	return (
-		<div className="grid grid-cols-[11rem_1fr] gap-3 text-sm">
+		<div className="grid grid-cols-1 gap-1 text-sm sm:grid-cols-[10rem_1fr] sm:gap-3">
 			<dt className="text-muted-foreground">{label}</dt>
-			<dd className="text-foreground">{valeur}</dd>
+			<dd className="text-foreground break-words">{valeur}</dd>
 		</div>
 	);
 }

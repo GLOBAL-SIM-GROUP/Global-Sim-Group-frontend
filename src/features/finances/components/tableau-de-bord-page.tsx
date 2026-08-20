@@ -99,44 +99,46 @@ export function TableauDeBordPage() {
 			</section>
 
 			{/* Filtres */}
-			<div className="flex flex-wrap gap-3 rounded-lg border border-border bg-card p-4">
-				<div className="flex-1 min-w-48">
-					<label className="block text-xs font-medium text-muted-foreground mb-1">
-						Période
-					</label>
-					<Select value={periode} onValueChange={(v) => setPeriode(v as PeriodeFiltre)}>
-						<SelectTrigger>
-							<SelectValue />
-						</SelectTrigger>
-						<SelectContent>
-							{Object.entries(PERIODES).map(([key, label]) => (
-								<SelectItem key={key} value={key}>
-									{label}
-								</SelectItem>
-							))}
-						</SelectContent>
-					</Select>
+			<div className="space-y-3 rounded-lg border border-border bg-card p-4">
+				<div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+					<div>
+						<label className="block text-xs font-medium text-muted-foreground mb-1">
+							Période
+						</label>
+						<Select value={periode} onValueChange={(v) => setPeriode(v as PeriodeFiltre)}>
+							<SelectTrigger>
+								<SelectValue />
+							</SelectTrigger>
+							<SelectContent>
+								{Object.entries(PERIODES).map(([key, label]) => (
+									<SelectItem key={key} value={key}>
+										{label}
+									</SelectItem>
+								))}
+							</SelectContent>
+						</Select>
+					</div>
+
+					<div>
+						<label className="block text-xs font-medium text-muted-foreground mb-1">
+							Activité
+						</label>
+						<Select value={activite} onValueChange={(v) => setActivite(v as ActiviteFiltre)}>
+							<SelectTrigger>
+								<SelectValue />
+							</SelectTrigger>
+							<SelectContent>
+								{Object.entries(ACTIVITES).map(([key, label]) => (
+									<SelectItem key={key} value={key}>
+										{label}
+									</SelectItem>
+								))}
+							</SelectContent>
+						</Select>
+					</div>
 				</div>
 
-				<div className="flex-1 min-w-48">
-					<label className="block text-xs font-medium text-muted-foreground mb-1">
-						Activité
-					</label>
-					<Select value={activite} onValueChange={(v) => setActivite(v as ActiviteFiltre)}>
-						<SelectTrigger>
-							<SelectValue />
-						</SelectTrigger>
-						<SelectContent>
-							{Object.entries(ACTIVITES).map(([key, label]) => (
-								<SelectItem key={key} value={key}>
-									{label}
-								</SelectItem>
-							))}
-						</SelectContent>
-					</Select>
-				</div>
-
-				<div className="flex items-end gap-2">
+				<div className="flex flex-wrap gap-2">
 					<Button variant="outline" size="sm">
 						<Download className="mr-2 size-4" aria-hidden />
 						Exporter
@@ -160,7 +162,7 @@ export function TableauDeBordPage() {
 				</div>
 			) : (
 				<>
-					<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+					<div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
 						<Indicateur
 							label="Recettes totales"
 							valeur={formatMontantFCFA(totalRecettes)}
@@ -190,7 +192,7 @@ export function TableauDeBordPage() {
 						</div>
 					) : (
 						<div className="overflow-x-auto rounded-lg border border-border">
-							<table className="w-full text-sm">
+							<table className="w-full text-xs sm:text-sm">
 								<thead className="bg-muted">
 									<tr>
 										<th className="px-4 py-3 text-left font-semibold">
