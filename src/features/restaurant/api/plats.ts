@@ -45,6 +45,7 @@ export interface PlatBody {
 	prix: string;
 	disponible?: boolean;
 	description?: string | null;
+	imageUrl?: string | null;
 }
 
 /** Crée un plat (POST `CreerPlatDto`). */
@@ -55,9 +56,11 @@ export function creerPlat(body: PlatBody): Promise<unknown> {
 		prix: body.prix,
 		disponible: body.disponible ?? true,
 		description: texteOuNull(body.description),
+		image_url: texteOuNull(body.imageUrl),
 	} satisfies Omit<CreerPlatDto, "id_categorie_plat" | "description"> & {
 		id_categorie_plat?: string | null;
 		description?: string | null;
+		image_url?: string | null;
 	};
 	return getApiClient().apiFetch("/restaurant/plats", {
 		method: "POST",
@@ -73,9 +76,11 @@ export function modifierPlat(id: string, body: PlatBody): Promise<unknown> {
 		prix: body.prix,
 		disponible: body.disponible ?? true,
 		description: texteOuNull(body.description),
+		image_url: texteOuNull(body.imageUrl),
 	} satisfies Omit<MajPlatDto, "id_categorie_plat" | "description"> & {
 		id_categorie_plat?: string | null;
 		description?: string | null;
+		image_url?: string | null;
 	};
 	return getApiClient().apiFetch(`/restaurant/plats/${id}`, {
 		method: "PATCH",
