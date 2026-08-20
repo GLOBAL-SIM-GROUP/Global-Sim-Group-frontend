@@ -33,19 +33,18 @@ ENV VITE_API_URL=$VITE_API_URL
 
 RUN npm run build
 
-# ── Étape 2 — Runtime : dist/ + serveur SSR ──────────────────
+# ── Étape 2 — Runtime : .output/ (Nitro) ────────────────────
 FROM node:22-alpine AS runtime
 ENV NODE_ENV=production
 WORKDIR /app
 
-# Le bundle SSR EXTERNALISE react/@tanstack/h3 → deps de prod requises
-# au runtime (pas de bundle autonome). Dev deps inutiles ici.
+# Dépendances de prod uniquement (React, TanStack, etc.).
 # Même `.npmrc` + flag qu'à l'étape build.
 COPY package.json package-lock.json .npmrc ./
 RUN npm ci --omit=dev --legacy-peer-deps && npm cache clean --force
 
-COPY --from=build /app/dist ./dist
-COPY prod-server.mjs ./prod-server.mjs
+# Artefacts du build Nitro : assets statiques + handler serveur SSR.
+COPY --from=build /app/.output ./.output
 
 ENV PORT=3000
 EXPOSE 3000
@@ -53,4 +52,5 @@ EXPOSE 3000
 # Non-root : l'image officielle node fournit l'utilisateur `node`.
 USER node
 
-CMD ["node", "prod-server.mjs"]
+# Nitro génère .output/server/index.mjs : handler Web standard.
+CMD ["node", ".output/server/index.mjs"]
