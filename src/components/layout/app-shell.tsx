@@ -36,10 +36,10 @@ export function AppShell({ children }: { children: ReactNode }) {
 
 			<div className="flex min-w-0 flex-1 flex-col">
 				<header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur">
-					<div className="flex h-14 w-full items-center gap-4 px-4">
+					<div className="flex h-14 w-full items-center gap-2 sm:gap-4 px-2 sm:px-4">
 						<button
 							onClick={() => setSidebarOpen(!sidebarOpen)}
-							className="lg:hidden p-2 hover:bg-accent rounded-md transition-colors"
+							className="lg:hidden p-2 hover:bg-accent rounded-md transition-colors shrink-0"
 							aria-label="Toggle sidebar"
 						>
 							{sidebarOpen ? (
@@ -48,10 +48,10 @@ export function AppShell({ children }: { children: ReactNode }) {
 								<Menu className="size-5" />
 							)}
 						</button>
-						<span className="text-lg font-semibold lg:hidden">
+						<span className="text-xs sm:text-lg font-semibold lg:hidden truncate">
 							GLOBAL SIM GROUP
 						</span>
-						<div className="ml-auto flex items-center gap-3">
+						<div className="ml-auto flex items-center gap-2 sm:gap-3">
 							<NotificationButton />
 							<span className="lg:hidden">
 								<LogoutButton />

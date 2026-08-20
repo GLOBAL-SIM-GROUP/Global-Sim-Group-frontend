@@ -9,22 +9,31 @@ import { useAuth } from "#/core/auth";
  *
  * `className` permet de restyler le bouton (ex. footer de la sidebar sombre) —
  * le `Button` shadcn fusionne ses classes avec `cn`.
+ * `showLabel` contrôle l'affichage du texte (par défaut true).
  */
-export function LogoutButton({ className }: { className?: string }) {
+export function LogoutButton({
+	className,
+	showLabel = true,
+}: {
+	className?: string;
+	showLabel?: boolean;
+}) {
 	const { logout } = useAuth();
 	const router = useRouter();
 
 	return (
 		<Button
 			variant="ghost"
-			size="sm"
+			size={showLabel ? "sm" : "icon"}
 			className={className}
+			title={showLabel ? undefined : "Se déconnecter"}
+			aria-label="Se déconnecter"
 			onClick={() => {
 				void logout().then(() => router.navigate({ to: "/login" }));
 			}}
 		>
-			<LogOut />
-			Se déconnecter
+			<LogOut className="size-4" />
+			{showLabel && <span className="hidden sm:inline">Se déconnecter</span>}
 		</Button>
 	);
 }
