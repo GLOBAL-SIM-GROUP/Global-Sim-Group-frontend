@@ -358,12 +358,6 @@ export const MODULE_DEFINITIONS: ModuleDefinition[] = [
 				path: "/admin/journal",
 			},
 			{
-				id: "parametres",
-				label: "Paramètres",
-				permission: "ADMIN.VOIR",
-				path: "/admin/parametres",
-			},
-			{
 				id: "sauvegardes",
 				label: "Sauvegardes",
 				permission: "ADMIN.VOIR",

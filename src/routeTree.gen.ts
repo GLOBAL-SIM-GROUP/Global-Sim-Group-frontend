@@ -17,6 +17,7 @@ import { Route as AuthenticatedRapportsIndexRouteImport } from './routes/_authen
 import { Route as AuthenticatedAdminJournalIndexRouteImport } from './routes/_authenticated/admin/journal/index'
 import { Route as AuthenticatedAdminParametresIndexRouteImport } from './routes/_authenticated/admin/parametres/index'
 import { Route as AuthenticatedAdminRolesIndexRouteImport } from './routes/_authenticated/admin/roles/index'
+import { Route as AuthenticatedAdminSauvegardesIndexRouteImport } from './routes/_authenticated/admin/sauvegardes/index'
 import { Route as AuthenticatedAdminUtilisateursIndexRouteImport } from './routes/_authenticated/admin/utilisateurs/index'
 import { Route as AuthenticatedClientClientsIndexRouteImport } from './routes/_authenticated/client/clients/index'
 import { Route as AuthenticatedClientClientsIdRouteImport } from './routes/_authenticated/client/clients/$id'
@@ -111,6 +112,12 @@ const AuthenticatedAdminRolesIndexRoute =
   AuthenticatedAdminRolesIndexRouteImport.update({
     id: '/admin/roles/',
     path: '/admin/roles/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedAdminSauvegardesIndexRoute =
+  AuthenticatedAdminSauvegardesIndexRouteImport.update({
+    id: '/admin/sauvegardes/',
+    path: '/admin/sauvegardes/',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedAdminUtilisateursIndexRoute =
@@ -444,6 +451,7 @@ export interface FileRoutesByFullPath {
   '/admin/journal/': typeof AuthenticatedAdminJournalIndexRoute
   '/admin/parametres/': typeof AuthenticatedAdminParametresIndexRoute
   '/admin/roles/': typeof AuthenticatedAdminRolesIndexRoute
+  '/admin/sauvegardes/': typeof AuthenticatedAdminSauvegardesIndexRoute
   '/admin/utilisateurs/': typeof AuthenticatedAdminUtilisateursIndexRoute
   '/client/clients/': typeof AuthenticatedClientClientsIndexRoute
   '/facturation/factures/': typeof AuthenticatedFacturationFacturesIndexRoute
@@ -505,6 +513,7 @@ export interface FileRoutesByTo {
   '/admin/journal': typeof AuthenticatedAdminJournalIndexRoute
   '/admin/parametres': typeof AuthenticatedAdminParametresIndexRoute
   '/admin/roles': typeof AuthenticatedAdminRolesIndexRoute
+  '/admin/sauvegardes': typeof AuthenticatedAdminSauvegardesIndexRoute
   '/admin/utilisateurs': typeof AuthenticatedAdminUtilisateursIndexRoute
   '/client/clients': typeof AuthenticatedClientClientsIndexRoute
   '/facturation/factures': typeof AuthenticatedFacturationFacturesIndexRoute
@@ -568,6 +577,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/journal/': typeof AuthenticatedAdminJournalIndexRoute
   '/_authenticated/admin/parametres/': typeof AuthenticatedAdminParametresIndexRoute
   '/_authenticated/admin/roles/': typeof AuthenticatedAdminRolesIndexRoute
+  '/_authenticated/admin/sauvegardes/': typeof AuthenticatedAdminSauvegardesIndexRoute
   '/_authenticated/admin/utilisateurs/': typeof AuthenticatedAdminUtilisateursIndexRoute
   '/_authenticated/client/clients/': typeof AuthenticatedClientClientsIndexRoute
   '/_authenticated/facturation/factures/': typeof AuthenticatedFacturationFacturesIndexRoute
@@ -631,6 +641,7 @@ export interface FileRouteTypes {
     | '/admin/journal/'
     | '/admin/parametres/'
     | '/admin/roles/'
+    | '/admin/sauvegardes/'
     | '/admin/utilisateurs/'
     | '/client/clients/'
     | '/facturation/factures/'
@@ -692,6 +703,7 @@ export interface FileRouteTypes {
     | '/admin/journal'
     | '/admin/parametres'
     | '/admin/roles'
+    | '/admin/sauvegardes'
     | '/admin/utilisateurs'
     | '/client/clients'
     | '/facturation/factures'
@@ -754,6 +766,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/journal/'
     | '/_authenticated/admin/parametres/'
     | '/_authenticated/admin/roles/'
+    | '/_authenticated/admin/sauvegardes/'
     | '/_authenticated/admin/utilisateurs/'
     | '/_authenticated/client/clients/'
     | '/_authenticated/facturation/factures/'
@@ -859,6 +872,13 @@ declare module '@tanstack/react-router' {
       path: '/admin/roles'
       fullPath: '/admin/roles/'
       preLoaderRoute: typeof AuthenticatedAdminRolesIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/admin/sauvegardes/': {
+      id: '/_authenticated/admin/sauvegardes/'
+      path: '/admin/sauvegardes'
+      fullPath: '/admin/sauvegardes/'
+      preLoaderRoute: typeof AuthenticatedAdminSauvegardesIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/admin/utilisateurs/': {
@@ -1245,6 +1265,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedAdminJournalIndexRoute: typeof AuthenticatedAdminJournalIndexRoute
   AuthenticatedAdminParametresIndexRoute: typeof AuthenticatedAdminParametresIndexRoute
   AuthenticatedAdminRolesIndexRoute: typeof AuthenticatedAdminRolesIndexRoute
+  AuthenticatedAdminSauvegardesIndexRoute: typeof AuthenticatedAdminSauvegardesIndexRoute
   AuthenticatedAdminUtilisateursIndexRoute: typeof AuthenticatedAdminUtilisateursIndexRoute
   AuthenticatedClientClientsIndexRoute: typeof AuthenticatedClientClientsIndexRoute
   AuthenticatedFacturationFacturesIndexRoute: typeof AuthenticatedFacturationFacturesIndexRoute
@@ -1312,6 +1333,8 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedAdminParametresIndexRoute:
     AuthenticatedAdminParametresIndexRoute,
   AuthenticatedAdminRolesIndexRoute: AuthenticatedAdminRolesIndexRoute,
+  AuthenticatedAdminSauvegardesIndexRoute:
+    AuthenticatedAdminSauvegardesIndexRoute,
   AuthenticatedAdminUtilisateursIndexRoute:
     AuthenticatedAdminUtilisateursIndexRoute,
   AuthenticatedClientClientsIndexRoute: AuthenticatedClientClientsIndexRoute,

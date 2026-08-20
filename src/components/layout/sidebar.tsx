@@ -87,8 +87,7 @@ const ROUTES_REALLES: Record<
 		// `exact: false` garde le lien actif sur la page permissions d'un rôle.
 		roles: { to: "/admin/roles", exact: false },
 		journal: { to: "/admin/journal", exact: true },
-		parametres: { to: "/admin/parametres", exact: true },
-		// Sauvegardes : aucun endpoint backend → placeholder /en-cours.
+		sauvegardes: { to: "/admin/sauvegardes", exact: true },
 	},
 	CLIENT: {
 		// `exact: false` garde le lien actif sur la fiche client.
