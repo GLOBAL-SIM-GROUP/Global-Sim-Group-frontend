@@ -4,7 +4,7 @@ import { useState } from "react";
 
 import { Breadcrumb } from "#/components/ui/breadcrumb";
 import { Button } from "#/components/ui/button";
-import { Input } from "#/components/ui/input";
+import { InputField } from "#/components/ui/input-field";
 import {
 	Select,
 	SelectContent,
@@ -68,15 +68,16 @@ export function ClientsPage({
 	onSearchChange,
 }: ClientsPageProps) {
 	const canCreer = useCan("CLIENT.CREER");
-	const clientsQuery = useClients();
 
 	const [recherche, setRecherche] = useState(initialSearch.recherche ?? "");
 	const [type, setType] = useState(initialSearch.type ?? "tous");
 	const [page, setPage] = useState(initialSearch.page ?? 1);
 	const [formOuvert, setFormOuvert] = useState(false);
 
+	const clientsQuery = useClients({ search: recherche });
+
 	const changerFiltre = (patch: { recherche?: string; type?: string }) => {
-		setRecherche(patch.recherche ?? recherche);
+		if (patch.recherche !== undefined) setRecherche(patch.recherche);
 		setType(patch.type ?? type);
 		setPage(1);
 		onSearchChange((prev) => ({ ...prev, ...patch, page: 1 }));
@@ -117,14 +118,14 @@ export function ClientsPage({
 				) : null}
 			</div>
 
-			<div className="flex flex-wrap items-center gap-3 rounded-lg border border-border bg-card p-4 shadow-sm">
-				<Input
-					value={recherche}
-					onChange={(event) => changerFiltre({ recherche: event.target.value })}
-					placeholder="Rechercher par nom, prénom, téléphone…"
-					aria-label="Rechercher"
-					className="w-64"
-				/>
+			<div className="flex gap-2">
+				<div className="flex-1">
+					<InputField
+						placeholder="Rechercher par nom, prénom, téléphone…"
+						value={recherche}
+						onChange={(e) => changerFiltre({ recherche: e.target.value })}
+					/>
+				</div>
 				<Select
 					value={type}
 					onValueChange={(valeur) => changerFiltre({ type: valeur })}

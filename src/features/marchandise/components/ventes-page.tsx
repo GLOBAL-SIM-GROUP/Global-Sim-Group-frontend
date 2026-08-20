@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 
 import { Breadcrumb } from "#/components/ui/breadcrumb";
 import { Button } from "#/components/ui/button";
+import { InputField } from "#/components/ui/input-field";
 import { useCan } from "#/core/auth";
 import { useClientsDetails } from "#/features/residence/hooks/use-clients";
 import { useMoyensPaiement } from "#/features/residence/hooks/use-moyens-paiement";
@@ -26,6 +27,7 @@ import { VenteTable } from "./vente-table";
 
 /** Filtres/pagination reflétés dans l'URL (liens partageables). */
 export interface VentesSearch {
+	search?: string;
 	statut?: VenteStatutFiltre;
 	du?: string;
 	au?: string;
@@ -46,7 +48,16 @@ interface VentesPageProps {
 export function VentesPage({ initialSearch, onSearchChange }: VentesPageProps) {
 	const canCreer = useCan("MARCHANDISE.CREER");
 
-	const ventesQuery = useVentes();
+	const [search, setSearch] = useState(initialSearch.search ?? "");
+	const [statut, setStatut] = useState<VenteStatutFiltre>(
+		initialSearch.statut ?? "tous",
+	);
+	const [du, setDu] = useState(initialSearch.du ?? "");
+	const [au, setAu] = useState(initialSearch.au ?? "");
+	const [client, setClient] = useState(initialSearch.client ?? "");
+	const [page, setPage] = useState(initialSearch.page ?? 1);
+
+	const ventesQuery = useVentes({ search });
 	const produitsQuery = useProduits();
 	const moyensQuery = useMoyensPaiement();
 	const annulerMutation = useAnnulerVente();
@@ -58,14 +69,6 @@ export function VentesPage({ initialSearch, onSearchChange }: VentesPageProps) {
 		[ventes],
 	);
 	const clientsDetails = useClientsDetails(clientIds);
-
-	const [statut, setStatut] = useState<VenteStatutFiltre>(
-		initialSearch.statut ?? "tous",
-	);
-	const [du, setDu] = useState(initialSearch.du ?? "");
-	const [au, setAu] = useState(initialSearch.au ?? "");
-	const [client, setClient] = useState(initialSearch.client ?? "");
-	const [page, setPage] = useState(initialSearch.page ?? 1);
 	const [formOuvert, setFormOuvert] = useState(false);
 	const [aVoir, setAVoir] = useState<string | null>(null);
 	const [aAnnuler, setAAnnuler] = useState<VenteJoin | null>(null);
@@ -87,11 +90,13 @@ export function VentesPage({ initialSearch, onSearchChange }: VentesPageProps) {
 	);
 
 	const changerFiltre = (patch: {
+		search?: string;
 		statut?: VenteStatutFiltre;
 		du?: string;
 		au?: string;
 		client?: string;
 	}) => {
+		if (patch.search !== undefined) setSearch(patch.search);
 		setStatut(patch.statut ?? statut);
 		setDu(patch.du ?? du);
 		setAu(patch.au ?? au);
@@ -170,6 +175,16 @@ export function VentesPage({ initialSearch, onSearchChange }: VentesPageProps) {
 					</Button>
 				</div>
 			) : null}
+
+			<div className="flex gap-2">
+				<div className="flex-1">
+					<InputField
+						placeholder="Rechercher par numéro, client, référence…"
+						value={search}
+						onChange={(e) => changerFiltre({ search: e.target.value })}
+					/>
+				</div>
+			</div>
 
 			<VenteFilters
 				statut={statut}

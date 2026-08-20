@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 
 import { Breadcrumb } from "#/components/ui/breadcrumb";
 import { Button } from "#/components/ui/button";
+import { InputField } from "#/components/ui/input-field";
 import { useCan } from "#/core/auth";
 
 import { useBatiments } from "../hooks/use-batiments";
@@ -24,6 +25,7 @@ import { LogementTable } from "./logement-table";
 /** Filtres/pagination reflétés dans l'URL (liens partageables). */
 export interface LogementsSearch {
 	batiment?: string;
+	search?: string;
 	type?: LogementTypeFiltre;
 	statut?: LogementStatutFiltre;
 	dispo?: LogementDispoFiltre;
@@ -60,6 +62,7 @@ export function LogementsPage({
 		(item) => item.id === initialSearch.batiment,
 	);
 
+	const [search, setSearch] = useState(initialSearch.search ?? "");
 	const [type, setType] = useState<LogementTypeFiltre>(
 		initialSearch.type ?? "tous",
 	);
@@ -83,10 +86,12 @@ export function LogementsPage({
 
 	/** Met à jour un filtre, remet à la page 1 et reflète le tout dans l'URL. */
 	const changerFiltre = (patch: {
+		search?: string;
 		type?: LogementTypeFiltre;
 		statut?: LogementStatutFiltre;
 		dispo?: LogementDispoFiltre;
 	}) => {
+		if (patch.search !== undefined) setSearch(patch.search);
 		setType(patch.type ?? type);
 		setStatut(patch.statut ?? statut);
 		setDispo(patch.dispo ?? dispo);
@@ -99,10 +104,14 @@ export function LogementsPage({
 		onSearchChange((prev) => ({ ...prev, page: pageSuivante }));
 	};
 
-	// Les filtres serveur (type/statut) rechargent la liste via la query key ;
-	// on ré-applique type/statut côté client sans effet (idempotent) et le
-	// filtre dispo (statut === DISPONIBLE) — mêmes données déjà filtrées.
-	const logementsQuery = useLogements(initialSearch.batiment, type, statut);
+	// Les filtres serveur (search/type/statut) rechargent la liste via la query key ;
+	// le filtre dispo reste côté client.
+	const logementsQuery = useLogements(
+		initialSearch.batiment,
+		type,
+		statut,
+		search,
+	);
 
 	const filtres = useMemo(
 		() => filtrerLogements(logementsQuery.data ?? [], { type, statut, dispo }),
@@ -141,6 +150,16 @@ export function LogementsPage({
 
 			{batiment ? (
 				<>
+					<div className="flex gap-2">
+						<div className="flex-1">
+							<InputField
+								placeholder="Rechercher par numéro, adresse…"
+								value={search}
+								onChange={(e) => changerFiltre({ search: e.target.value })}
+							/>
+						</div>
+					</div>
+
 					<LogementFilters
 						type={type}
 						statut={statut}

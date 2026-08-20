@@ -6,16 +6,22 @@ import {
 	getCommande,
 	listCommandes,
 	listRapportVentes,
+	type ListCommandesParams,
 	majStatutCommande,
 } from "../api/commandes";
 import type { CommandeRestaurantStatut } from "../models/commandes";
 import { commandesRestaurantKeys, rapportRestaurantKeys } from "../permissions";
 
 /** Historique des commandes, avec les filtres serveur portés par la clé. */
-export function useCommandes(statut: string, du?: string, au?: string) {
+export function useCommandes(params?: ListCommandesParams) {
 	return useQuery({
-		queryKey: commandesRestaurantKeys.list(statut, du, au),
-		queryFn: () => listCommandes({ statut, du, au }),
+		queryKey: commandesRestaurantKeys.list(
+			params?.statut,
+			params?.du,
+			params?.au,
+			params?.search,
+		),
+		queryFn: () => listCommandes(params),
 	});
 }
 

@@ -3,16 +3,17 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
 	creerUtilisateur,
 	listUtilisateurs,
+	type ListUtilisateursParams,
 	modifierUtilisateur,
 	reinitialiserMotDePasse,
 	type UtilisateurBody,
 } from "../api/utilisateurs";
 import { utilisateursKeys } from "../permissions";
 
-export function useUtilisateurs() {
+export function useUtilisateurs(params?: ListUtilisateursParams) {
 	return useQuery({
-		queryKey: utilisateursKeys.list(),
-		queryFn: listUtilisateurs,
+		queryKey: utilisateursKeys.list(params?.search),
+		queryFn: () => listUtilisateurs(params),
 	});
 }
 

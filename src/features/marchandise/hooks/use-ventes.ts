@@ -6,13 +6,17 @@ import {
 	getVente,
 	listRapportVentes,
 	listVentes,
+	type ListVentesParams,
 	type VenteBody,
 } from "../api/ventes";
 import { produitsKeys, rapportVentesKeys, ventesKeys } from "../permissions";
 
-/** Historique des ventes. */
-export function useVentes() {
-	return useQuery({ queryKey: ventesKeys.list(), queryFn: listVentes });
+/** Historique des ventes avec filtres côté backend. */
+export function useVentes(params?: ListVentesParams) {
+	return useQuery({
+		queryKey: ventesKeys.list(params?.search),
+		queryFn: () => listVentes(params),
+	});
 }
 
 /** Détail d'une vente (lignes embarquées). `retry: false` : 404 = introuvable. */

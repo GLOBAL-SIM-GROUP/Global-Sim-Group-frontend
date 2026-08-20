@@ -21,19 +21,23 @@ type DetailWire = Omit<CommandeRestaurantDetail, "id" | "lignes"> & {
 	lignes: LigneWire[];
 };
 
-/** Appels API du module Restaurant — commandes et rapports. */
-export function listCommandes(filtres?: {
+export interface ListCommandesParams {
+	search?: string;
 	du?: string;
 	au?: string;
 	statut?: string;
-}): Promise<CommandeRestaurant[]> {
-	const params = new URLSearchParams();
-	if (filtres?.du) params.set("du", filtres.du);
-	if (filtres?.au) params.set("au", filtres.au);
-	if (filtres?.statut && filtres.statut !== "tous") {
-		params.set("statut", filtres.statut);
+}
+
+/** Appels API du module Restaurant — commandes et rapports. */
+export function listCommandes(params?: ListCommandesParams): Promise<CommandeRestaurant[]> {
+	const searchParams = new URLSearchParams();
+	if (params?.search) searchParams.set("search", params.search);
+	if (params?.du) searchParams.set("du", params.du);
+	if (params?.au) searchParams.set("au", params.au);
+	if (params?.statut && params.statut !== "tous") {
+		searchParams.set("statut", params.statut);
 	}
-	const qs = params.toString();
+	const qs = searchParams.toString();
 	return getApiClient()
 		.apiFetch<CommandeWire[]>(`/restaurant/commandes${qs ? `?${qs}` : ""}`)
 		.then((data) =>

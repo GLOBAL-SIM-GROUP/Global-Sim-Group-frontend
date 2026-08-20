@@ -26,10 +26,24 @@ type FournisseurWire = Omit<Fournisseur, "id"> & { id_fournisseur: string };
 const texteOuNull = (valeur: string | null | undefined): string | null =>
 	valeur?.trim() ? valeur : null;
 
+export interface ListProduitsParams {
+	search?: string;
+	categorie?: string;
+	fournisseur?: string;
+}
+
 /** Appels API du module Marchandise — produits (chemins `/market/*`). */
-export function listProduits(): Promise<Produit[]> {
+export function listProduits(params?: ListProduitsParams): Promise<Produit[]> {
+	const searchParams = new URLSearchParams();
+	if (params?.search) searchParams.append("search", params.search);
+	if (params?.categorie) searchParams.append("categorie", params.categorie);
+	if (params?.fournisseur) searchParams.append("fournisseur", params.fournisseur);
+
+	const queryString = searchParams.toString();
+	const path = `/market/produits${queryString ? `?${queryString}` : ""}`;
+
 	return getApiClient()
-		.apiFetch<ProduitWire[]>("/market/produits")
+		.apiFetch<ProduitWire[]>(path)
 		.then((data) =>
 			data.map(({ id_produit: id, ...reste }) => ({ id, ...reste })),
 		);

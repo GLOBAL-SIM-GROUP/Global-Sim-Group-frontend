@@ -15,10 +15,20 @@ const remapper = ({
 	...reste
 }: UtilisateurWire): Utilisateur => ({ id, ...reste });
 
+export interface ListUtilisateursParams {
+	search?: string;
+}
+
 /** Appels API du module Administration — utilisateurs. */
-export function listUtilisateurs(): Promise<Utilisateur[]> {
+export function listUtilisateurs(params?: ListUtilisateursParams): Promise<Utilisateur[]> {
+	const searchParams = new URLSearchParams();
+	if (params?.search) searchParams.append("search", params.search);
+
+	const queryString = searchParams.toString();
+	const path = `/admin/utilisateurs${queryString ? `?${queryString}` : ""}`;
+
 	return getApiClient()
-		.apiFetch<UtilisateurWire[]>("/admin/utilisateurs")
+		.apiFetch<UtilisateurWire[]>(path)
 		.then((data) => data.map(remapper));
 }
 

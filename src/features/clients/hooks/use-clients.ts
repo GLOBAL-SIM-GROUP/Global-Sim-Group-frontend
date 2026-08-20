@@ -7,15 +7,16 @@ import {
 	creerPiece,
 	getClient,
 	listClients,
+	type ListClientsParams,
 	modifierClient,
 } from "../api/clients";
 import { clientsKeys } from "../permissions";
 
-/** Liste des clients, filtrée serveur par recherche (nom/téléphone). */
-export function useClients(recherche?: string) {
+/** Liste des clients, filtrée serveur par recherche (nom/téléphone/email). */
+export function useClients(params?: ListClientsParams) {
 	return useQuery({
-		queryKey: clientsKeys.list(recherche),
-		queryFn: () => listClients(recherche),
+		queryKey: clientsKeys.list(params?.search),
+		queryFn: () => listClients(params),
 	});
 }
 

@@ -1,9 +1,10 @@
 import { Link } from "@tanstack/react-router";
-import { Plus } from "lucide-react";
+import { Plus, Search, X } from "lucide-react";
 import { useState } from "react";
 
 import { Breadcrumb } from "#/components/ui/breadcrumb";
 import { Button } from "#/components/ui/button";
+import { InputField } from "#/components/ui/input-field";
 import { useCan } from "#/core/auth";
 
 import {
@@ -25,6 +26,7 @@ import { ProduitTable } from "./produit-table";
 
 /** Filtres/pagination reflétés dans l'URL (liens partageables). */
 export interface ProduitsSearch {
+	search?: string;
 	categorie?: string;
 	fournisseur?: string;
 	alerte?: ProduitAlerteFiltre;
@@ -49,10 +51,7 @@ export function ProduitsPage({
 }: ProduitsPageProps) {
 	const canCreer = useCan("MARCHANDISE.CREER");
 
-	const produitsQuery = useProduits();
-	const categoriesQuery = useCategoriesProduits();
-	const fournisseursQuery = useFournisseurs();
-
+	const [search, setSearch] = useState(initialSearch.search ?? "");
 	const [categorie, setCategorie] = useState(initialSearch.categorie ?? "tous");
 	const [fournisseur, setFournisseur] = useState(
 		initialSearch.fournisseur ?? "tous",
@@ -67,17 +66,27 @@ export function ProduitsPage({
 	const [formOuvert, setFormOuvert] = useState(false);
 	const [aModifier, setAModifier] = useState<Produit | null>(null);
 
+	const produitsQuery = useProduits({
+		search,
+		categorie: categorie === "tous" ? undefined : categorie,
+		fournisseur: fournisseur === "tous" ? undefined : fournisseur,
+	});
+	const categoriesQuery = useCategoriesProduits();
+	const fournisseursQuery = useFournisseurs();
+
 	const fermerFormulaire = () => {
 		setFormOuvert(false);
 		setAModifier(null);
 	};
 
 	const changerFiltre = (patch: {
+		search?: string;
 		categorie?: string;
 		fournisseur?: string;
 		alerte?: ProduitAlerteFiltre;
 		epuises?: ProduitEpuisesFiltre;
 	}) => {
+		if (patch.search !== undefined) setSearch(patch.search);
 		setCategorie(patch.categorie ?? categorie);
 		setFournisseur(patch.fournisseur ?? fournisseur);
 		setAlerte(patch.alerte ?? alerte);
@@ -91,9 +100,11 @@ export function ProduitsPage({
 		onSearchChange((prev) => ({ ...prev, page: pageSuivante }));
 	};
 
+	// Filtrage côté client uniquement pour alerte/epuises
+	// (search, categorie, fournisseur sont filtrés côté backend)
 	const filtres = filtrerProduits(produitsQuery.data ?? [], {
-		categorie,
-		fournisseur,
+		categorie: "tous",
+		fournisseur: "tous",
 		alerte,
 		epuises,
 	});
@@ -134,6 +145,16 @@ export function ProduitsPage({
 							Ajouter un produit
 						</Button>
 					) : null}
+				</div>
+			</div>
+
+			<div className="flex gap-2">
+				<div className="flex-1">
+					<InputField
+						placeholder="Rechercher par nom, référence…"
+						value={search}
+						onChange={(e) => changerFiltre({ search: e.target.value })}
+					/>
 				</div>
 			</div>
 

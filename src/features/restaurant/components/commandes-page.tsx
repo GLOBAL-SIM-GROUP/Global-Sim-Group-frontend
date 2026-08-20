@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 
 import { Breadcrumb } from "#/components/ui/breadcrumb";
 import { Button } from "#/components/ui/button";
-import { Input } from "#/components/ui/input";
+import { InputField } from "#/components/ui/input-field";
 import {
 	Select,
 	SelectContent,
@@ -43,6 +43,7 @@ import { CommandeTable } from "./commande-table";
 
 /** Filtres/pagination reflétés dans l'URL. */
 export interface CommandesSearch {
+	search?: string;
 	statut?: CommandeStatutFiltre;
 	type?: TypeCommandeFiltre;
 	du?: string;
@@ -69,11 +70,23 @@ export function CommandesPage({
 	const canModifier = useCan("RESTAURANT.MODIFIER");
 	const canSupprimer = useCan("RESTAURANT.SUPPRIMER");
 
-	const commandesQuery = useCommandes(
+	const [search, setSearch] = useState(initialSearch.search ?? "");
+	const [statut, setStatut] = useState<CommandeStatutFiltre>(
 		initialSearch.statut ?? "tous",
-		initialSearch.du,
-		initialSearch.au,
 	);
+	const [type, setType] = useState<TypeCommandeFiltre>(
+		initialSearch.type ?? "tous",
+	);
+	const [du, setDu] = useState(initialSearch.du ?? "");
+	const [au, setAu] = useState(initialSearch.au ?? "");
+	const [page, setPage] = useState(initialSearch.page ?? 1);
+
+	const commandesQuery = useCommandes({
+		search,
+		statut,
+		du,
+		au,
+	});
 	const platsQuery = usePlats();
 	const moyensQuery = useMoyensPaiement();
 	const statutMutation = useMajStatutCommande();
@@ -101,25 +114,18 @@ export function CommandesPage({
 		[clientsDetails.data],
 	);
 
-	const [statut, setStatut] = useState<CommandeStatutFiltre>(
-		initialSearch.statut ?? "tous",
-	);
-	const [type, setType] = useState<TypeCommandeFiltre>(
-		initialSearch.type ?? "tous",
-	);
-	const [du, setDu] = useState(initialSearch.du ?? "");
-	const [au, setAu] = useState(initialSearch.au ?? "");
-	const [page, setPage] = useState(initialSearch.page ?? 1);
 	const [formOuvert, setFormOuvert] = useState(false);
 	const [aVoir, setAVoir] = useState<string | null>(null);
 	const [aAnnuler, setAAnnuler] = useState<CommandeRestaurant | null>(null);
 
 	const changerFiltre = (patch: {
+		search?: string;
 		statut?: CommandeStatutFiltre;
 		type?: TypeCommandeFiltre;
 		du?: string;
 		au?: string;
 	}) => {
+		if (patch.search !== undefined) setSearch(patch.search);
 		setStatut(patch.statut ?? statut);
 		setType(patch.type ?? type);
 		setDu(patch.du ?? du);
@@ -202,6 +208,16 @@ export function CommandesPage({
 					</Button>
 				</div>
 			) : null}
+
+			<div className="flex gap-2">
+				<div className="flex-1">
+					<InputField
+						placeholder="Rechercher par numéro, client…"
+						value={search}
+						onChange={(e) => changerFiltre({ search: e.target.value })}
+					/>
+				</div>
+			</div>
 
 			<div className="flex flex-wrap items-center gap-3 rounded-lg border border-border bg-card p-4 shadow-sm">
 				<Select

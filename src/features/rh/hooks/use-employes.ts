@@ -5,16 +5,17 @@ import {
 	type EmployeBody,
 	getEmploye,
 	listEmployes,
+	type ListEmployesParams,
 	modifierEmploye,
 } from "../api/employes";
 import type { EmployeStatut } from "../models/employes";
 import { employesKeys } from "../permissions";
 
-/** Liste des employés (option : uniquement ceux sans compte utilisateur). */
-export function useEmployes(sansCompte?: boolean) {
+/** Liste des employés avec recherche et filtres. */
+export function useEmployes(params?: ListEmployesParams) {
 	return useQuery({
-		queryKey: employesKeys.list(Boolean(sansCompte)),
-		queryFn: () => listEmployes(sansCompte),
+		queryKey: employesKeys.list(Boolean(params?.sansCompte), params?.search),
+		queryFn: () => listEmployes(params),
 	});
 }
 

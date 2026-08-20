@@ -8,11 +8,22 @@ type MajEmployeDto = components["schemas"]["MajEmployeDto"];
 
 type EmployeWire = Omit<Employe, "id"> & { id_employe: string };
 
+export interface ListEmployesParams {
+	search?: string;
+	sansCompte?: boolean;
+}
+
 /** Appels API du module RH — employés. */
-export function listEmployes(sansCompte?: boolean): Promise<Employe[]> {
-	const qs = sansCompte ? "?sans_compte=true" : "";
+export function listEmployes(params?: ListEmployesParams): Promise<Employe[]> {
+	const searchParams = new URLSearchParams();
+	if (params?.search) searchParams.append("search", params.search);
+	if (params?.sansCompte) searchParams.append("sans_compte", "true");
+
+	const queryString = searchParams.toString();
+	const path = `/rh/employes${queryString ? `?${queryString}` : ""}`;
+
 	return getApiClient()
-		.apiFetch<EmployeWire[]>(`/rh/employes${qs}`)
+		.apiFetch<EmployeWire[]>(path)
 		.then((data) =>
 			data.map(({ id_employe: id, ...reste }) => ({ id, ...reste })),
 		);

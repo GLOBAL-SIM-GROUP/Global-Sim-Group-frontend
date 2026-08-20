@@ -56,20 +56,24 @@ interface LogementWire {
 	id_batiment: string;
 }
 
+export interface ListLogementsParams {
+	batiment: string;
+	search?: string;
+	type?: LogementType | "tous";
+	statut?: LogementStatut | "tous";
+}
+
 export async function listLogements(
-	batiment: string,
-	filtres?: {
-		type?: LogementType | "tous";
-		statut?: LogementStatut | "tous";
-	},
+	params: ListLogementsParams,
 ): Promise<Logement[]> {
-	const params = new URLSearchParams({ batiment });
-	if (filtres?.type && filtres.type !== "tous")
-		params.set("type", filtres.type);
-	if (filtres?.statut && filtres.statut !== "tous") {
-		params.set("statut", filtres.statut);
+	const searchParams = new URLSearchParams({ batiment: params.batiment });
+	if (params.search) searchParams.set("search", params.search);
+	if (params.type && params.type !== "tous")
+		searchParams.set("type", params.type);
+	if (params.statut && params.statut !== "tous") {
+		searchParams.set("statut", params.statut);
 	}
-	const qs = params.toString();
+	const qs = searchParams.toString();
 	const data = await getApiClient().apiFetch<LogementWire[]>(
 		`/residence/logements${qs ? `?${qs}` : ""}`,
 	);

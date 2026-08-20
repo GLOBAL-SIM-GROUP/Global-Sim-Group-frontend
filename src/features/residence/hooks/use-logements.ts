@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import {
 	creerLogement,
 	getLogement,
+	type ListLogementsParams,
 	type LogementBody,
 	listLogements,
 	modifierLogement,
@@ -12,20 +13,21 @@ import type { LogementStatut, LogementType } from "../models/logements";
 import { logementsKeys } from "../permissions";
 
 /**
- * Charge les logements d'un bâtiment. `type`/`statut` sont envoyés au lister
- * (params réels) et portés par la clé de requête → refetch au changement.
- * Sans bâtiment (lien direct sans `batiment`), la requête est désactivée.
+ * Charge les logements d'un bâtiment avec recherche. `type`/`statut`/`search`
+ * sont envoyés au lister (params réels) et portés par la clé de requête →
+ * refetch au changement. Sans bâtiment, la requête est désactivée.
  */
 export function useLogements(
 	batiment: string | undefined,
 	type: LogementType | "tous",
 	statut: LogementStatut | "tous",
+	search?: string,
 ) {
 	return useQuery({
-		queryKey: logementsKeys.list(batiment, type, statut),
+		queryKey: logementsKeys.list(batiment, type, statut, search),
 		queryFn: async () => {
 			if (!batiment) return [];
-			return listLogements(batiment, { type, statut });
+			return listLogements({ batiment, type, statut, search });
 		},
 		enabled: Boolean(batiment),
 	});

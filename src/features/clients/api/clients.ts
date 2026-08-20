@@ -73,10 +73,14 @@ function corpsClient(body: ClientBody, dto: "create" | "update"): object {
 	return valeurs;
 }
 
+export interface ListClientsParams {
+	search?: string;
+}
+
 /** Appels API du module Clients — fiches locataires et clients. */
-export function listClients(recherche?: string): Promise<Client[]> {
-	const qs = recherche?.trim()
-		? `?recherche=${encodeURIComponent(recherche.trim())}`
+export function listClients(params?: ListClientsParams): Promise<Client[]> {
+	const qs = params?.search?.trim()
+		? `?search=${encodeURIComponent(params.search.trim())}`
 		: "";
 	return getApiClient()
 		.apiFetch<ClientWire[]>(`/client/clients${qs}`)

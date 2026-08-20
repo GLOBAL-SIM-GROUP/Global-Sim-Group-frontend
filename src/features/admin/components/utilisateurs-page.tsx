@@ -32,6 +32,7 @@ import { UtilisateurFormDialog } from "./utilisateur-form-dialog";
 
 /** Filtres/pagination reflétés dans l'URL. */
 export interface UtilisateursSearch {
+	search?: string;
 	role?: string;
 	statut?: string;
 	page?: number;
@@ -133,10 +134,7 @@ export function UtilisateursPage({
 	const canCreer = useCan("ADMIN.CREER");
 	const canModifier = useCan("ADMIN.MODIFIER");
 
-	const utilisateursQuery = useUtilisateurs();
-	const rolesQuery = useRoles();
-	const modifierMutation = useModifierUtilisateur();
-
+	const [search, setSearch] = useState(initialSearch.search ?? "");
 	const [role, setRole] = useState(initialSearch.role ?? "tous");
 	const [statut, setStatut] = useState(initialSearch.statut ?? "tous");
 	const [page, setPage] = useState(initialSearch.page ?? 1);
@@ -146,13 +144,22 @@ export function UtilisateursPage({
 		null,
 	);
 
+	const utilisateursQuery = useUtilisateurs({ search });
+	const rolesQuery = useRoles();
+	const modifierMutation = useModifierUtilisateur();
+
 	const roles = rolesQuery.data ?? [];
 	const roleParId = useMemo(
 		() => new Map(roles.map((r) => [r.id, r.libelle])),
 		[roles],
 	);
 
-	const changerFiltre = (patch: { role?: string; statut?: string }) => {
+	const changerFiltre = (patch: {
+		search?: string;
+		role?: string;
+		statut?: string;
+	}) => {
+		if (patch.search !== undefined) setSearch(patch.search);
 		setRole(patch.role ?? role);
 		setStatut(patch.statut ?? statut);
 		setPage(1);
@@ -189,6 +196,16 @@ export function UtilisateursPage({
 						Ajouter un utilisateur
 					</Button>
 				) : null}
+			</div>
+
+			<div className="flex gap-2">
+				<div className="flex-1">
+					<InputField
+						placeholder="Rechercher par login, email, nom…"
+						value={search}
+						onChange={(e) => changerFiltre({ search: e.target.value })}
+					/>
+				</div>
 			</div>
 
 			<div className="flex flex-wrap items-center gap-3 rounded-lg border border-border bg-card p-4 shadow-sm">

@@ -13,10 +13,20 @@ type VenteDetailWire = Omit<VenteDetail, "id" | "lignes"> & {
 	lignes: LigneVenteWire[];
 };
 
+export interface ListVentesParams {
+	search?: string;
+}
+
 /** Appels API du module Marchandise — ventes (chemins `/market/*`). */
-export function listVentes(): Promise<Vente[]> {
+export function listVentes(params?: ListVentesParams): Promise<Vente[]> {
+	const searchParams = new URLSearchParams();
+	if (params?.search) searchParams.append("search", params.search);
+
+	const queryString = searchParams.toString();
+	const path = `/market/ventes${queryString ? `?${queryString}` : ""}`;
+
 	return getApiClient()
-		.apiFetch<VenteWire[]>("/market/ventes")
+		.apiFetch<VenteWire[]>(path)
 		.then((data) =>
 			data.map(({ id_vente: id, ...reste }) => ({ id, ...reste })),
 		);

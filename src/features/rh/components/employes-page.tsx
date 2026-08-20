@@ -4,6 +4,7 @@ import { useState } from "react";
 
 import { Breadcrumb } from "#/components/ui/breadcrumb";
 import { Button } from "#/components/ui/button";
+import { InputField } from "#/components/ui/input-field";
 import {
 	Select,
 	SelectContent,
@@ -34,6 +35,7 @@ import { EmployeFormDialog } from "./employe-form-dialog";
 
 /** Filtres/pagination reflétés dans l'URL. */
 export interface EmployesSearch {
+	search?: string;
 	service?: string;
 	statut?: string;
 	page?: number;
@@ -56,17 +58,23 @@ export function EmployesPage({
 	const canCreer = useCan("RH.CREER");
 	const canModifier = useCan("RH.MODIFIER");
 
-	const employesQuery = useEmployes();
-	const servicesQuery = useServices();
-	const modifierMutation = useModifierEmploye();
-
+	const [search, setSearch] = useState(initialSearch.search ?? "");
 	const [service, setService] = useState(initialSearch.service ?? "tous");
 	const [statut, setStatut] = useState(initialSearch.statut ?? "tous");
 	const [page, setPage] = useState(initialSearch.page ?? 1);
 	const [formOuvert, setFormOuvert] = useState(false);
 	const [aModifier, setAModifier] = useState<Employe | null>(null);
 
-	const changerFiltre = (patch: { service?: string; statut?: string }) => {
+	const employesQuery = useEmployes({ search });
+	const servicesQuery = useServices();
+	const modifierMutation = useModifierEmploye();
+
+	const changerFiltre = (patch: {
+		search?: string;
+		service?: string;
+		statut?: string;
+	}) => {
+		if (patch.search !== undefined) setSearch(patch.search);
 		setService(patch.service ?? service);
 		setStatut(patch.statut ?? statut);
 		setPage(1);
@@ -109,6 +117,16 @@ export function EmployesPage({
 						Ajouter un employé
 					</Button>
 				) : null}
+			</div>
+
+			<div className="flex gap-2">
+				<div className="flex-1">
+					<InputField
+						placeholder="Rechercher par nom, prénom…"
+						value={search}
+						onChange={(e) => changerFiltre({ search: e.target.value })}
+					/>
+				</div>
 			</div>
 
 			<div className="flex flex-wrap items-center gap-3 rounded-lg border border-border bg-card p-4 shadow-sm">

@@ -7,6 +7,7 @@ import {
 	listFournisseurs,
 	listProduits,
 	modifierProduit,
+	type ListProduitsParams,
 	type ProduitBody,
 } from "../api/produits";
 import {
@@ -15,9 +16,12 @@ import {
 	produitsKeys,
 } from "../permissions";
 
-/** Catalogue des produits. */
-export function useProduits() {
-	return useQuery({ queryKey: produitsKeys.list(), queryFn: listProduits });
+/** Catalogue des produits avec filtres côté backend. */
+export function useProduits(params?: ListProduitsParams) {
+	return useQuery({
+		queryKey: produitsKeys.list(params?.search, params?.categorie, params?.fournisseur),
+		queryFn: () => listProduits(params),
+	});
 }
 
 /** Catégories de produits (selects du formulaire et des filtres). */
