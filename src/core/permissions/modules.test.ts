@@ -36,10 +36,12 @@ describe("getAccessibleModules", () => {
 		expect(result).toEqual(["RESIDENCE", "FINANCES", "AUDIT"]);
 	});
 
-	it("expose les 12 modules réels, chacun gâté par sa permission `<CODE>.VOIR`", () => {
+	it("expose les 12 modules métier, chacun gâté par sa permission `<CODE>.VOIR`", () => {
 		expect(MODULE_DEFINITIONS).toHaveLength(12);
+		// `RESIDENT` (13ᵉ préfixe réel, portail) n'a pas de tuile lanceur : l'accès
+		// se fait par le lien « Mon espace résident » de la sidebar.
 		expect(new Set(MODULE_DEFINITIONS.map((def) => def.code))).toEqual(
-			new Set(MODULES),
+			new Set(MODULES.filter((module) => module !== "RESIDENT")),
 		);
 		for (const def of MODULE_DEFINITIONS) {
 			expect(def.permission).toBe(`${def.code}.VOIR`);
@@ -71,9 +73,9 @@ describe("getAccessibleModuleSubItems", () => {
 	});
 
 	it("retourne `[]` pour un module sans sous-pages (transverse)", () => {
-		const client = MODULE_DEFINITIONS.find((def) => def.code === "CLIENT");
-		if (!client) throw new Error("CLIENT attendu dans le registre");
-		expect(getAccessibleModuleSubItems(client, ["CLIENT.VOIR"])).toEqual([]);
+		const audit = MODULE_DEFINITIONS.find((def) => def.code === "AUDIT");
+		if (!audit) throw new Error("AUDIT attendu dans le registre");
+		expect(getAccessibleModuleSubItems(audit, ["AUDIT.VOIR"])).toEqual([]);
 	});
 
 	it("conserve l'ordre de déclaration", () => {
@@ -97,6 +99,7 @@ describe("getAccessibleModuleSubItems", () => {
 			"FACTURATION",
 			"FINANCES",
 			"RH",
+			"CLIENT",
 			"MARCHANDISE",
 			"ADMIN",
 		]);

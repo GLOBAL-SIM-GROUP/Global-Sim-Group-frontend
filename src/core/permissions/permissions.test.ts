@@ -57,8 +57,8 @@ describe("hasAllPermissions", () => {
 });
 
 describe("modèle de permissions (réel, pas inventé)", () => {
-	it("expose les 12 modules renvoyés par GET /auth/me (smoke test 2026-08-17)", () => {
-		expect(MODULES).toHaveLength(12);
+	it("expose les 13 modules renvoyés par GET /auth/me (smoke tests 2026-08-17/20)", () => {
+		expect(MODULES).toHaveLength(13);
 		expect(MODULES).toEqual(
 			expect.arrayContaining([
 				"RESIDENCE",
@@ -68,6 +68,7 @@ describe("modèle de permissions (réel, pas inventé)", () => {
 				"FACTURATION",
 				"FINANCES",
 				"RH",
+				"RESIDENT",
 				"CLIENT",
 				"MARCHANDISE",
 				"ADMIN",

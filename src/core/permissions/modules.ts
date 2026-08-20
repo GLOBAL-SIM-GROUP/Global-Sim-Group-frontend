@@ -288,6 +288,14 @@ export const MODULE_DEFINITIONS: ModuleDefinition[] = [
 		icon: Users2,
 		path: "/client",
 		permission: "CLIENT.VOIR",
+		subItems: [
+			{
+				id: "clients",
+				label: "Locataires et clients",
+				permission: "CLIENT.VOIR",
+				path: "/client/clients",
+			},
+		],
 	},
 	{
 		code: "MARCHANDISE",
