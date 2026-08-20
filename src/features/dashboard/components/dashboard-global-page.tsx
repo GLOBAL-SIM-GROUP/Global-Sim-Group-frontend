@@ -1,6 +1,5 @@
 import {
 	AlertCircle,
-	ArrowRight,
 	CheckCircle2,
 	Clock,
 	Package,
@@ -11,7 +10,6 @@ import {
 import { useState } from "react";
 
 import { Breadcrumb } from "#/components/ui/breadcrumb";
-import { Button } from "#/components/ui/button";
 import {
 	Select,
 	SelectContent,
@@ -20,11 +18,8 @@ import {
 	SelectValue,
 } from "#/components/ui/select";
 import { useCan } from "#/core/auth";
-import { getAccessibleModules } from "#/core/permissions/modules";
-import { usePermissions } from "#/core/auth";
 import { formatMontantFCFA } from "#/features/residence/models/format";
 import { cn } from "#/lib/utils";
-import { useNavigate } from "@tanstack/react-router";
 
 import {
 	useSyntheseGlobale,
@@ -61,9 +56,6 @@ const PERIODES: Record<PeriodeFiltre, string> = {
  */
 export function DashboardGlobalPage() {
 	const canVoir = useCan("ADMIN.VOIR");
-	const navigate = useNavigate();
-	const permissions = usePermissions();
-	const accessibleModules = getAccessibleModules(permissions);
 
 	const [periode, setPeriode] = useState<PeriodeFiltre>("ce_mois");
 	const periodeParam = periode !== "personnalisee" ? periode : undefined;
@@ -330,34 +322,6 @@ export function DashboardGlobalPage() {
 						</div>
 					</div>
 
-					{/* Accès rapide aux modules */}
-					<div className="space-y-3">
-						<h2 className="text-lg font-semibold text-foreground">
-							Accès rapide
-						</h2>
-						<div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-							{accessibleModules.map((module) => (
-								<Button
-									key={module.code}
-									variant="outline"
-									className="h-auto flex-col items-start justify-start gap-2 p-4 text-left"
-									onClick={() =>
-										navigate({ to: module.path, replace: false })
-									}
-								>
-									<div className="flex w-full items-center justify-between">
-										<span className="font-semibold text-foreground">
-											{module.title}
-										</span>
-										<ArrowRight className="size-4" />
-									</div>
-									<p className="text-xs text-muted-foreground">
-										{module.description}
-									</p>
-								</Button>
-							))}
-						</div>
-					</div>
 				</>
 			) : null}
 		</div>
