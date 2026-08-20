@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 
 import { Breadcrumb } from "#/components/ui/breadcrumb";
 import { Button } from "#/components/ui/button";
+import { Input } from "#/components/ui/input";
 import { InputField } from "#/components/ui/input-field";
 import {
 	Select,
