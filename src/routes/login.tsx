@@ -16,7 +16,6 @@ import { getErrorMessageForCode, getFieldErrors, toApiError } from "#/core/api";
 
 type LoginField = "login" | "motDePasse";
 
-/** Propriétés backend (snake_case) → champs du formulaire. */
 const FIELD_PROPERTY_TO_FORM: Record<string, LoginField> = {
 	login: "login",
 	mot_de_passe: "motDePasse",
@@ -24,11 +23,9 @@ const FIELD_PROPERTY_TO_FORM: Record<string, LoginField> = {
 
 export const Route = createFileRoute("/login")({
 	validateSearch: z.object({
-		/** URL d'origine (retour après connexion/restauration de session). */
 		next: z.string().optional(),
 	}),
 	beforeLoad: ({ context }) => {
-		// Déjà connecté → pas de page de login.
 		if (context.auth.isAuthenticated) {
 			throw redirect({ href: "/" });
 		}
@@ -41,8 +38,6 @@ export function LoginPage() {
 	const { auth } = useRouteContext({ from: "/login" });
 	const search = useSearch({ from: "/login" });
 	const [globalError, setGlobalError] = useState<string | null>(null);
-	// Pendant la restauration de la session persistée (rechargement), on masque
-	// le formulaire : l'utilisateur est renvoyé vers `next` sans voir /login.
 	const [verification, setVerification] = useState(true);
 
 	useEffect(() => {
@@ -71,9 +66,6 @@ export function LoginPage() {
 		},
 		validators: {
 			onSubmit: ({ value }) => {
-				// Retour attendu par TanStack Form : `{ form?, fields: { champ: erreur } }`.
-				// Un objet plat `{ champ: erreur }` serait interprété comme une erreur
-				// globale de formulaire, pas comme des erreurs champ par champ.
 				const fields: Partial<Record<LoginField, string>> = {};
 				if (!value.login.trim()) fields.login = "Ce champ est requis.";
 				if (!value.motDePasse) fields.motDePasse = "Ce champ est requis.";
@@ -86,7 +78,6 @@ export function LoginPage() {
 				await auth.login(value.login.trim(), value.motDePasse);
 				await navigate({ href: search.next ?? "/" });
 			} catch (error) {
-				// Erreurs de validation backend → champ par champ (details[].property).
 				let mappedFields = 0;
 				for (const detail of getFieldErrors(error)) {
 					const formField = FIELD_PROPERTY_TO_FORM[detail.property];
@@ -101,7 +92,6 @@ export function LoginPage() {
 						mappedFields += 1;
 					}
 				}
-				// Erreur globale (identifiants invalides, réseau…) sinon.
 				if (mappedFields === 0) {
 					setGlobalError(
 						getErrorMessageForCode(toApiError(error).code) ??
@@ -114,117 +104,191 @@ export function LoginPage() {
 
 	if (verification) {
 		return (
-			<main className="login-bg flex min-h-dvh items-center justify-center p-6">
-				<p className="text-sm text-muted-foreground">
+			<main className="flex min-h-dvh items-center justify-center bg-gradient-to-br from-background to-muted p-4">
+				<div className="text-sm text-muted-foreground">
 					Vérification de la session…
-				</p>
+				</div>
 			</main>
 		);
 	}
 
 	return (
-		<main className="login-bg flex min-h-dvh items-center justify-center p-6">
-			<div className="w-full max-w-[420px] overflow-hidden rounded-xl border border-sea-ink/20 bg-card shadow-lg">
-				{/* Fond de carte blanc uniforme ; une légère teinte en dégradé
-				    (navy → transparent) derrière le logo rend ses écritures
-				    blanches lisibles sans bandeau plein. */}
-				<header className="relative px-8 pt-4 pb-2 text-center">
-					<div
-						aria-hidden
-						className="pointer-events-none absolute inset-x-0 top-0 h-44 bg-linear-to-b from-sea-ink/95 via-sea-ink/55 to-transparent"
-					/>
-					<div className="relative space-y-1">
-						{/* Logo servi depuis public/ (décoratif : le nom est le h1
-						    juste en dessous → alt vide). */}
-						<img
-							src="/logo.png"
-							alt=""
-							className="mx-auto h-28 w-auto object-contain"
-						/>
-						<h1 className="text-xl font-semibold tracking-tight text-foreground">
-							GLOBAL SIM GROUP
-						</h1>
-						<p className="text-sm text-muted-foreground">
-							Accédez à votre espace de gestion
-						</p>
+		<main className="flex min-h-dvh items-center justify-center bg-gradient-to-br from-background via-background to-muted/30 p-4 sm:p-6">
+			<div className="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-2 gap-0 overflow-hidden rounded-2xl shadow-2xl">
+				{/* Section gauche : Branding */}
+				<div className="hidden lg:flex flex-col justify-between bg-linear-to-br from-sea-ink via-sea-ink/95 to-lagoon/20 p-12 text-white">
+					<div className="space-y-8">
+						<div className="space-y-4">
+							<img
+								src="/logo.png"
+								alt="GLOBAL SIM GROUP"
+								className="h-20 w-auto object-contain brightness-0 invert"
+							/>
+							<div className="space-y-2">
+								<h1 className="text-4xl font-bold tracking-tight">
+									GLOBAL SIM GROUP
+								</h1>
+								<p className="text-lg text-white/80">
+									Plateforme de gestion intégrée
+								</p>
+							</div>
+						</div>
+
+						<div className="space-y-4 pt-6 border-t border-white/20">
+							<Feature
+								icon="📊"
+								title="Gestion Complète"
+								desc="Résidence, clients, finances et RH"
+							/>
+							<Feature
+								icon="🔒"
+								title="Sécurisé"
+								desc="Authentification JWT avec permissions granulaires"
+							/>
+							<Feature
+								icon="⚡"
+								title="Performant"
+								desc="Interface réactive et responsive"
+							/>
+						</div>
 					</div>
-				</header>
 
-				<div className="space-y-6 p-8">
-					<h2 className="text-lg font-semibold text-foreground">Connexion</h2>
-
-					<form
-						className="space-y-4"
-						onSubmit={(event) => {
-							event.preventDefault();
-							event.stopPropagation();
-							void form.handleSubmit();
-						}}
-					>
-						<form.Field name="login">
-							{(field) => (
-								<InputField
-									id={field.name}
-									name={field.name}
-									label="Identifiant"
-									placeholder="email@exemple.com"
-									autoComplete="username"
-									icon={<User className="size-4" aria-hidden />}
-									value={field.state.value}
-									onBlur={field.handleBlur}
-									onChange={(event) => field.handleChange(event.target.value)}
-									error={field.state.meta.errors[0]}
-								/>
-							)}
-						</form.Field>
-
-						<form.Field name="motDePasse">
-							{(field) => (
-								<PasswordInput
-									id={field.name}
-									name={field.name}
-									label="Mot de passe"
-									placeholder="••••••••"
-									icon={<Lock className="size-4" aria-hidden />}
-									value={field.state.value}
-									onBlur={field.handleBlur}
-									onChange={(event) => field.handleChange(event.target.value)}
-									error={field.state.meta.errors[0]}
-								/>
-							)}
-						</form.Field>
-
-						{globalError ? (
-							<p role="alert" className="text-sm font-medium text-destructive">
-								{globalError}
-							</p>
-						) : null}
-
-						<form.Subscribe selector={(state) => state.isSubmitting}>
-							{(isSubmitting) => (
-								<Button
-									type="submit"
-									className="w-full bg-lagoon text-white hover:bg-lagoon/90"
-									disabled={isSubmitting}
-								>
-									{isSubmitting ? (
-										<>
-											<Loader2 className="animate-spin" aria-hidden />
-											Connexion…
-										</>
-									) : (
-										"Se connecter"
-									)}
-								</Button>
-							)}
-						</form.Subscribe>
-					</form>
-
-					<footer className="text-center text-xs text-muted-foreground">
+					<div className="text-sm text-white/60">
 						© 2026 GLOBAL SIM GROUP. Tous droits réservés.
-					</footer>
+					</div>
+				</div>
+
+				{/* Section droite : Formulaire */}
+				<div className="flex flex-col justify-center bg-card p-8 sm:p-12 lg:p-10">
+					<div className="space-y-8 max-w-md mx-auto w-full">
+						{/* En-tête mobile */}
+						<div className="lg:hidden space-y-2 text-center">
+							<img
+								src="/logo.png"
+								alt="GLOBAL SIM GROUP"
+								className="h-12 w-auto mx-auto object-contain"
+							/>
+							<h1 className="text-2xl font-bold text-foreground">
+								GLOBAL SIM GROUP
+							</h1>
+						</div>
+
+						{/* Titre formulaire */}
+						<div className="space-y-2">
+							<h2 className="text-2xl font-bold text-foreground">
+								Connexion
+							</h2>
+							<p className="text-sm text-muted-foreground">
+								Accédez à votre espace de gestion
+							</p>
+						</div>
+
+						{/* Formulaire */}
+						<form
+							className="space-y-5"
+							onSubmit={(event) => {
+								event.preventDefault();
+								event.stopPropagation();
+								void form.handleSubmit();
+							}}
+						>
+							<form.Field name="login">
+								{(field) => (
+									<InputField
+										id={field.name}
+										name={field.name}
+										label="Identifiant"
+										placeholder="Votre identifiant ou email"
+										autoComplete="username"
+										icon={<User className="size-4" aria-hidden />}
+										value={field.state.value}
+										onBlur={field.handleBlur}
+										onChange={(event) =>
+											field.handleChange(event.target.value)
+										}
+										error={field.state.meta.errors[0]}
+									/>
+								)}
+							</form.Field>
+
+							<form.Field name="motDePasse">
+								{(field) => (
+									<PasswordInput
+										id={field.name}
+										name={field.name}
+										label="Mot de passe"
+										placeholder="Votre mot de passe"
+										icon={<Lock className="size-4" aria-hidden />}
+										value={field.state.value}
+										onBlur={field.handleBlur}
+										onChange={(event) =>
+											field.handleChange(event.target.value)
+										}
+										error={field.state.meta.errors[0]}
+									/>
+								)}
+							</form.Field>
+
+							{globalError ? (
+								<div
+									role="alert"
+									className="rounded-lg bg-destructive/10 border border-destructive/30 px-4 py-3 text-sm text-destructive"
+								>
+									{globalError}
+								</div>
+							) : null}
+
+							<form.Subscribe selector={(state) => state.isSubmitting}>
+								{(isSubmitting) => (
+									<Button
+										type="submit"
+										className="w-full h-11 bg-lagoon hover:bg-lagoon/90 text-white font-semibold transition-all duration-200 active:scale-95"
+										disabled={isSubmitting}
+									>
+										{isSubmitting ? (
+											<>
+												<Loader2 className="size-4 animate-spin mr-2" aria-hidden />
+												Connexion…
+											</>
+										) : (
+											"Se connecter"
+										)}
+									</Button>
+								)}
+							</form.Subscribe>
+
+							<p className="text-xs text-center text-muted-foreground pt-2">
+								Identifiants de test : admin / motdepasse
+							</p>
+						</form>
+					</div>
+
+					{/* Footer mobile */}
+					<div className="lg:hidden text-center mt-8 text-xs text-muted-foreground">
+						© 2026 GLOBAL SIM GROUP
+					</div>
 				</div>
 			</div>
 		</main>
+	);
+}
+
+function Feature({
+	icon,
+	title,
+	desc,
+}: {
+	icon: string;
+	title: string;
+	desc: string;
+}) {
+	return (
+		<div className="flex gap-4">
+			<div className="text-2xl flex-shrink-0">{icon}</div>
+			<div>
+				<h3 className="font-semibold text-white">{title}</h3>
+				<p className="text-sm text-white/70">{desc}</p>
+			</div>
+		</div>
 	);
 }
