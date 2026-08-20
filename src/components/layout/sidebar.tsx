@@ -111,6 +111,7 @@ export function Sidebar({ onClose }: { onClose?: () => void } = {}) {
 	const accessibleModules = getAccessibleModules(permissions);
 	const { pathname, search } = useLocation();
 	const activeModule = (search as { module?: string } | undefined)?.module;
+	const [showUserMenu, setShowUserMenu] = useState(false);
 
 	// Un seul module ouvert à la fois ; le module actif de l'URL est ouvert par
 	// défaut (auto-ouverture du parent quand on arrive sur un sous-menu). Les
@@ -296,7 +297,11 @@ export function Sidebar({ onClose }: { onClose?: () => void } = {}) {
 
 			{user ? (
 				<div className="space-y-3 border-t border-palm pt-3">
-					<div className="flex items-center gap-3 px-3">
+					<button
+						type="button"
+						onClick={() => setShowUserMenu(!showUserMenu)}
+						className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-lagoon/20 transition-colors"
+					>
 						{/* Cercle avatar : aucune photo réelle n'est exposée par
 						    /auth/me → initiales du login en attendant une vraie photo. */}
 						<div
@@ -313,8 +318,10 @@ export function Sidebar({ onClose }: { onClose?: () => void } = {}) {
 								<p className="truncate text-sm text-gray-400">{user.role}</p>
 							) : null}
 						</div>
-					</div>
-					<LogoutButton className="w-full justify-start text-gray-300 hover:bg-lagoon/20 hover:text-white" />
+					</button>
+					{showUserMenu && (
+						<LogoutButton className="w-full justify-start text-gray-300 hover:bg-lagoon/20 hover:text-white" />
+					)}
 				</div>
 			) : null}
 		</aside>

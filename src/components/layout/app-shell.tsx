@@ -1,10 +1,7 @@
 import { useState, type ReactNode } from "react";
 import { Menu, X } from "lucide-react";
 
-import { LogoutButton } from "./logout-button";
-import { NotificationButton } from "./notification-button";
 import { Sidebar } from "./sidebar";
-import { Button } from "#/components/ui/button";
 
 export function AppShell({ children }: { children: ReactNode }) {
 	const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -51,12 +48,6 @@ export function AppShell({ children }: { children: ReactNode }) {
 						<span className="text-xs sm:text-lg font-semibold lg:hidden truncate">
 							GLOBAL SIM GROUP
 						</span>
-						<div className="ml-auto flex items-center gap-2 sm:gap-3">
-							<NotificationButton />
-							<span className="lg:hidden">
-								<LogoutButton />
-							</span>
-						</div>
 					</div>
 				</header>
 				<main
