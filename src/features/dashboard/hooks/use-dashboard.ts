@@ -18,10 +18,10 @@ import {
 	type SyntheseGlobale,
 } from "../api/dashboard";
 
-export function useSyntheseGlobale(periode?: string) {
+export function useSyntheseGlobale(du?: string, au?: string) {
 	return useQuery({
-		queryKey: ["dashboard", "synthese-globale", periode],
-		queryFn: () => getSyntheseGlobale(periode),
+		queryKey: ["dashboard", "synthese-globale", du, au],
+		queryFn: () => getSyntheseGlobale(du, au),
 	});
 }
 

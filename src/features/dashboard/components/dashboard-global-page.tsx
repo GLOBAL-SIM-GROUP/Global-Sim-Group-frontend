@@ -30,15 +30,7 @@ import {
 	usePointagesAujourdhui,
 	useImpayes,
 } from "../hooks/use-dashboard";
-
-type PeriodeFiltre =
-	| "aujourd_hui"
-	| "hier"
-	| "cette_semaine"
-	| "ce_mois"
-	| "mois_precedent"
-	| "annee"
-	| "personnalisee";
+import { type PeriodeFiltre, getPeriodeDates } from "../models/periodes";
 
 const PERIODES: Record<PeriodeFiltre, string> = {
 	aujourd_hui: "Aujourd'hui",
@@ -58,9 +50,9 @@ export function DashboardGlobalPage() {
 	const canVoir = useCan("ADMIN.VOIR");
 
 	const [periode, setPeriode] = useState<PeriodeFiltre>("ce_mois");
-	const periodeParam = periode !== "personnalisee" ? periode : undefined;
+	const dates = getPeriodeDates(periode);
 
-	const syntheseQuery = useSyntheseGlobale(periodeParam);
+	const syntheseQuery = useSyntheseGlobale(dates.du, dates.au);
 	const logementsQuery = useLogementsDispo();
 	const produitsQuery = useProduitsCritiques();
 	const commandesQuery = useCommandesPressing();

@@ -73,11 +73,13 @@ export interface Impaye {
 }
 
 /** Récupère la synthèse globale du tableau de bord */
-export function getSyntheseGlobale(periode?: string): Promise<SyntheseGlobale> {
-	const params = periode ? `?periode=${encodeURIComponent(periode)}` : "";
-	return getApiClient().apiFetch<SyntheseGlobale>(
-		`/rapports/synthese-globale${params}`,
-	);
+export function getSyntheseGlobale(du?: string, au?: string): Promise<SyntheseGlobale> {
+	const params = new URLSearchParams();
+	if (du) params.set("du", du);
+	if (au) params.set("au", au);
+	const qs = params.toString();
+	const url = qs ? `/rapports/synthese-globale?${qs}` : "/rapports/synthese-globale";
+	return getApiClient().apiFetch<SyntheseGlobale>(url);
 }
 
 /** Récupère les indicateurs pour une activité spécifique */
