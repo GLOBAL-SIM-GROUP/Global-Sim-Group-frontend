@@ -16,6 +16,7 @@ export function useUploadBlobUrl(key: string | null | undefined) {
 	useEffect(() => {
 		if (!key) {
 			setBlobUrl(null);
+			setError(null);
 			return;
 		}
 
@@ -43,12 +44,17 @@ export function useUploadBlobUrl(key: string | null | undefined) {
 
 		return () => {
 			mounted = false;
-			// Nettoyer le blob URL quand le composant se démonte
+		};
+	}, [key]);
+
+	// Cleanup blob URL on unmount
+	useEffect(() => {
+		return () => {
 			if (blobUrl) {
 				URL.revokeObjectURL(blobUrl);
 			}
 		};
-	}, [key, blobUrl]);
+	}, [blobUrl]);
 
 	return { blobUrl, isLoading, error };
 }
