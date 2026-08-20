@@ -73,11 +73,20 @@ export function TableauDeBordPage() {
 
 	const lignes = tableauBordQuery.data ?? [];
 
-	// Calcul des indicateurs globaux
-	const totalRecettes = lignes.reduce((sum, l) => sum + l.encaissements, 0);
-	const totalDepenses = lignes.reduce((sum, l) => sum + l.decaissements, 0);
+	// Calcul des indicateurs globaux (convertir strings en nombres)
+	const totalRecettes = lignes.reduce(
+		(sum, l) => sum + Number(l.encaissements),
+		0,
+	);
+	const totalDepenses = lignes.reduce(
+		(sum, l) => sum + Number(l.decaissements),
+		0,
+	);
 	const solde = totalRecettes - totalDepenses;
-	const beneficeEstimatif = lignes.reduce((sum, l) => sum + l.marge_nette, 0);
+	const beneficeEstimatif = lignes.reduce(
+		(sum, l) => sum + Number(l.marge_nette),
+		0,
+	);
 
 	return (
 		<div className="mx-auto w-full max-w-6xl space-y-6 p-6">
@@ -214,8 +223,10 @@ export function TableauDeBordPage() {
 								</thead>
 								<tbody>
 									{lignes.map((ligne) => {
-										const marge = ligne.encaissements > 0
-											? ((ligne.marge_nette / ligne.encaissements) * 100).toFixed(1)
+										const encaissementsNum = Number(ligne.encaissements);
+										const margeNum = Number(ligne.marge_nette);
+										const marge = encaissementsNum > 0
+											? ((margeNum / encaissementsNum) * 100).toFixed(1)
 											: "0";
 
 										return (
@@ -235,7 +246,7 @@ export function TableauDeBordPage() {
 												<td
 													className={cn(
 														"px-4 py-3 text-right font-medium",
-														ligne.marge_nette >= 0
+														margeNum >= 0
 															? "text-[#27AE60]"
 															: "text-destructive",
 													)}
