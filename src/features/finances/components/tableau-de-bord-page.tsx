@@ -268,11 +268,13 @@ function Indicateur({
 	couleur: string;
 }) {
 	return (
-		<div className="rounded-lg border border-border bg-card p-4 shadow-sm">
+		<div className="rounded-lg border border-border bg-card p-3 sm:p-4 shadow-sm">
 			<p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
 				{label}
 			</p>
-			<p className={`mt-2 text-2xl font-bold ${couleur}`}>{valeur}</p>
+			<p className={`mt-2 text-lg sm:text-2xl font-bold ${couleur} break-words overflow-hidden`}>
+				{valeur}
+			</p>
 		</div>
 	);
 }
