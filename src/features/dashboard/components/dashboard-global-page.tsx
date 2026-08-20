@@ -1,4 +1,13 @@
-import { ArrowRight, TrendingUp } from "lucide-react";
+import {
+	AlertCircle,
+	ArrowRight,
+	CheckCircle2,
+	Clock,
+	Package,
+	TrendingUp,
+	Users,
+	AlertTriangle,
+} from "lucide-react";
 import { useState } from "react";
 
 import { Breadcrumb } from "#/components/ui/breadcrumb";
@@ -17,7 +26,15 @@ import { formatMontantFCFA } from "#/features/residence/models/format";
 import { cn } from "#/lib/utils";
 import { useNavigate } from "@tanstack/react-router";
 
-import { useSyntheseGlobale } from "../hooks/use-dashboard";
+import {
+	useSyntheseGlobale,
+	useLogementsDispo,
+	useProduitsCritiques,
+	useCommandesPressing,
+	useReservationsSalle,
+	usePointagesAujourdhui,
+	useImpayes,
+} from "../hooks/use-dashboard";
 
 type PeriodeFiltre =
 	| "aujourd_hui"
@@ -52,7 +69,24 @@ export function DashboardGlobalPage() {
 	const periodeParam = periode !== "personnalisee" ? periode : undefined;
 
 	const syntheseQuery = useSyntheseGlobale();
+	const logementsQuery = useLogementsDispo();
+	const produitsQuery = useProduitsCritiques();
+	const commandesQuery = useCommandesPressing();
+	const reservationsQuery = useReservationsSalle();
+	const pointagesQuery = usePointagesAujourdhui();
+	const impayesQuery = useImpayes();
+
 	const synthese = syntheseQuery.data;
+	const logementsDispo = logementsQuery.data ?? [];
+	const produitsCritiques = produitsQuery.data ?? [];
+	const commandesPressing = commandesQuery.data ?? [];
+	const reservations = reservationsQuery.data ?? [];
+	const pointages = pointagesQuery.data ?? [];
+	const impayes = impayesQuery.data ?? [];
+
+	// Calcul des statistiques
+	const presentsAujourdhui = pointages.filter((p) => p.statut === "present").length;
+	const retardsAujourdhui = pointages.filter((p) => p.retard).length;
 
 	if (!canVoir) {
 		return (
@@ -115,39 +149,44 @@ export function DashboardGlobalPage() {
 				</div>
 			) : synthese ? (
 				<>
-					{/* KPIs */}
-					<div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-						<KPICard
-							label="Recettes totales"
-							valeur={formatMontantFCFA(String(synthese.total_recettes))}
-							couleur="text-emerald-600"
-						/>
-						<KPICard
-							label="Dépenses totales"
-							valeur={formatMontantFCFA(String(synthese.total_depenses))}
-							couleur="text-amber-600"
-						/>
-						<KPICard
-							label="Solde"
-							valeur={formatMontantFCFA(String(synthese.solde))}
-							couleur={Number(synthese.solde) >= 0 ? "text-emerald-600" : "text-destructive"}
-						/>
-						<KPICard
-							label="Masse salariale"
-							valeur={formatMontantFCFA(String(synthese.masse_salariale))}
-							couleur="text-blue-600"
-						/>
-						<KPICard
-							label="Impayés"
-							valeur={`${synthese.impayes.nombre} (${formatMontantFCFA(String(synthese.impayes.montant))})`}
-							couleur="text-destructive"
-						/>
+					{/* KPIs Financiers */}
+					<div className="space-y-4">
+						<h2 className="text-lg font-semibold text-foreground">
+							Vue financière
+						</h2>
+						<div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+							<KPICard
+								label="Chiffre d'affaires global"
+								valeur={formatMontantFCFA(String(synthese.total_recettes))}
+								couleur="text-emerald-600"
+								icon={TrendingUp}
+							/>
+							<KPICard
+								label="Dépenses totales"
+								valeur={formatMontantFCFA(String(synthese.total_depenses))}
+								couleur="text-amber-600"
+								icon={AlertTriangle}
+							/>
+							<KPICard
+								label="Solde"
+								valeur={formatMontantFCFA(String(synthese.solde))}
+								couleur={Number(synthese.solde) >= 0 ? "text-emerald-600" : "text-destructive"}
+								icon={TrendingUp}
+							/>
+							<KPICard
+								label="Impayés"
+								valeur={`${synthese.impayes.nombre}`}
+								subtext={formatMontantFCFA(String(synthese.impayes.montant))}
+								couleur="text-destructive"
+								icon={AlertCircle}
+							/>
+						</div>
 					</div>
 
 					{/* Recettes par activité */}
 					<div className="space-y-3">
 						<h2 className="text-lg font-semibold text-foreground">
-							Recettes par activité
+							Recettes par activité ce mois-ci
 						</h2>
 						<div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
 							{synthese.recettes_par_activite.map((activite) => (
@@ -163,6 +202,131 @@ export function DashboardGlobalPage() {
 									</p>
 								</div>
 							))}
+						</div>
+					</div>
+
+					{/* Résidence */}
+					<div className="space-y-3">
+						<h2 className="text-lg font-semibold text-foreground">
+							Résidence
+						</h2>
+						<div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+							<InfoCard
+								label="Chambres disponibles"
+								valeur={String(logementsDispo.length)}
+								icon={CheckCircle2}
+								loading={logementsQuery.isLoading}
+							/>
+							<InfoCard
+								label="Locataires impayés"
+								valeur={String(
+									impayes.filter((i) => i.statut === "RESIDENCE").length,
+								)}
+								icon={AlertCircle}
+								couleur="text-destructive"
+								loading={impayesQuery.isLoading}
+							/>
+							<InfoCard
+								label="Masse salariale à payer"
+								valeur={formatMontantFCFA(String(synthese.masse_salariale))}
+								icon={Users}
+								loading={syntheseQuery.isLoading}
+							/>
+						</div>
+					</div>
+
+					{/* Market et Stock */}
+					<div className="space-y-3">
+						<h2 className="text-lg font-semibold text-foreground">
+							Market & Inventaire
+						</h2>
+						<div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+							<InfoCard
+								label="Produits en stock critique"
+								valeur={String(produitsCritiques.length)}
+								icon={AlertTriangle}
+								couleur={produitsCritiques.length > 0 ? "text-destructive" : "text-muted-foreground"}
+								loading={produitsQuery.isLoading}
+							/>
+						</div>
+						{produitsCritiques.length > 0 && (
+							<div className="rounded-lg border border-destructive/40 bg-destructive/10 p-4">
+								<p className="text-sm font-medium text-destructive mb-2">
+									Produits à réapprovisionner:
+								</p>
+								<ul className="space-y-1 text-xs">
+									{produitsCritiques.slice(0, 5).map((p) => (
+										<li key={p.id_produit}>
+											{p.nom} (stock: {p.stock})
+										</li>
+									))}
+								</ul>
+							</div>
+						)}
+					</div>
+
+					{/* Pressing */}
+					<div className="space-y-3">
+						<h2 className="text-lg font-semibold text-foreground">
+							Blanchisserie
+						</h2>
+						<div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+							<InfoCard
+								label="Commandes en cours"
+								valeur={String(commandesPressing.length)}
+								icon={Package}
+								loading={commandesQuery.isLoading}
+							/>
+						</div>
+					</div>
+
+					{/* Restaurant & Salle */}
+					<div className="space-y-3">
+						<h2 className="text-lg font-semibold text-foreground">
+							Services
+						</h2>
+						<div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+							<div className="rounded-lg border border-border bg-card p-4 shadow-sm">
+								<p className="text-sm font-medium text-muted-foreground mb-2">
+									Prochaines réservations (Salle de fête)
+								</p>
+								{reservationsQuery.isLoading ? (
+									<p className="text-xs text-muted-foreground">Chargement…</p>
+								) : reservations.length === 0 ? (
+									<p className="text-xs text-muted-foreground">Aucune réservation</p>
+								) : (
+									<ul className="space-y-2 text-xs">
+										{reservations.slice(0, 3).map((r, idx) => (
+											<li key={idx} className="text-foreground">
+												{r.nom_client} - {new Date(r.date).toLocaleDateString("fr-FR")} à {r.heure_debut}
+											</li>
+										))}
+									</ul>
+								)}
+							</div>
+						</div>
+					</div>
+
+					{/* Ressources Humaines */}
+					<div className="space-y-3">
+						<h2 className="text-lg font-semibold text-foreground">
+							Ressources humaines
+						</h2>
+						<div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+							<InfoCard
+								label="Présents aujourd'hui"
+								valeur={String(presentsAujourdhui)}
+								icon={CheckCircle2}
+								couleur="text-emerald-600"
+								loading={pointagesQuery.isLoading}
+							/>
+							<InfoCard
+								label="Retards aujourd'hui"
+								valeur={String(retardsAujourdhui)}
+								icon={Clock}
+								couleur={retardsAujourdhui > 0 ? "text-amber-600" : "text-muted-foreground"}
+								loading={pointagesQuery.isLoading}
+							/>
 						</div>
 					</div>
 
@@ -203,15 +367,19 @@ export function DashboardGlobalPage() {
 function KPICard({
 	label,
 	valeur,
+	subtext,
 	couleur,
+	icon: Icon = TrendingUp,
 }: {
 	label: string;
 	valeur: string;
+	subtext?: string;
 	couleur: string;
+	icon?: typeof TrendingUp;
 }) {
 	return (
 		<div className="rounded-lg border border-border bg-card p-4 shadow-sm">
-			<div className="flex items-center justify-between">
+			<div className="flex items-start justify-between">
 				<div className="flex-1">
 					<p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
 						{label}
@@ -219,9 +387,53 @@ function KPICard({
 					<p className={cn("mt-2 text-lg font-bold sm:text-2xl break-words", couleur)}>
 						{valeur}
 					</p>
+					{subtext && (
+						<p className="mt-1 text-xs text-muted-foreground">{subtext}</p>
+					)}
 				</div>
-				<div className="ml-4 flex size-10 items-center justify-center rounded-lg bg-muted">
-					<TrendingUp className="size-5 text-muted-foreground" />
+				<div className="ml-4 flex size-10 shrink-0 items-center justify-center rounded-lg bg-muted">
+					<Icon className="size-5 text-muted-foreground" />
+				</div>
+			</div>
+		</div>
+	);
+}
+
+function InfoCard({
+	label,
+	valeur,
+	icon: Icon,
+	couleur = "text-foreground",
+	loading = false,
+	subtext,
+}: {
+	label: string;
+	valeur: string;
+	icon: typeof TrendingUp;
+	couleur?: string;
+	loading?: boolean;
+	subtext?: string;
+}) {
+	return (
+		<div className="rounded-lg border border-border bg-card p-4 shadow-sm">
+			<div className="flex items-start justify-between">
+				<div>
+					<p className="text-xs font-medium text-muted-foreground">{label}</p>
+					{loading ? (
+						<p className="mt-2 text-sm text-muted-foreground">Chargement…</p>
+					) : (
+						<>
+							<p className={cn("mt-2 text-2xl font-bold", couleur)}>
+								{valeur}
+							</p>
+							{subtext && (
+								<p className="mt-1 text-xs text-muted-foreground">{subtext}</p>
+							)}
+						</>
+					)}
+				</div>
+				<div className="flex size-10 items-center justify-center rounded-lg bg-muted">
+					<Icon className="size-5 text-muted-foreground" />
 				</div>
 			</div>
 		</div>
