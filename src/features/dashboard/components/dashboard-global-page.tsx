@@ -242,22 +242,33 @@ export function DashboardGlobalPage() {
 													Montant
 												</th>
 												<th className="text-right py-2 px-2 text-destructive font-semibold">
+													Statut
+												</th>
+												<th className="text-right py-2 px-2 text-destructive font-semibold">
 													Échéance
 												</th>
 											</tr>
 										</thead>
 										<tbody>
-											{impayes.slice(0, 10).map((i, idx) => (
-												<tr key={idx} className="border-b border-destructive/10">
-													<td className="py-2 px-2 text-foreground">{i.locataire}</td>
-													<td className="text-right py-2 px-2 text-foreground">
-														{formatMontantFCFA(String(i.montant))}
-													</td>
-													<td className="text-right py-2 px-2 text-muted-foreground">
-														{new Date(i.date_echeance).toLocaleDateString("fr-FR")}
-													</td>
-												</tr>
-											))}
+											{impayes.slice(0, 10).map((i: any, idx) => {
+												const montant = i.montant ?? i.montant_dû ?? i.montant_impaye ?? "—";
+												const locataire = i.locataire ?? i.nom_locataire ?? i.client ?? "—";
+												const statut = i.statut ?? "IMPAYÉ";
+												return (
+													<tr key={idx} className="border-b border-destructive/10">
+														<td className="py-2 px-2 text-foreground">{locataire}</td>
+														<td className="text-right py-2 px-2 text-foreground">
+															{montant && montant !== "—" ? formatMontantFCFA(String(montant)) : "—"}
+														</td>
+														<td className="text-right py-2 px-2 text-muted-foreground text-xs uppercase">
+															{statut}
+														</td>
+														<td className="text-right py-2 px-2 text-muted-foreground">
+															{i.date_echeance ? new Date(i.date_echeance).toLocaleDateString("fr-FR") : "—"}
+														</td>
+													</tr>
+												);
+											})}
 										</tbody>
 									</table>
 								</div>
