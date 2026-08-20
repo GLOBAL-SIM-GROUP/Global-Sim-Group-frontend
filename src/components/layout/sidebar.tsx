@@ -104,7 +104,7 @@ const ROUTES_REALLES: Record<
  * --sea-ink/--lagoon/--palm changent de valeur sous `.dark` et éclairciraient
  * la sidebar).
  */
-export function Sidebar() {
+export function Sidebar({ onClose }: { onClose?: () => void } = {}) {
 	const user = useCurrentUser();
 	const permissions = usePermissions();
 	const canVoirRapports = useCan("ADMIN.VOIR");
@@ -145,7 +145,7 @@ export function Sidebar() {
 	const subActiveClassName = "bg-lagoon/25 text-white font-medium";
 
 	return (
-		<aside className="sticky top-0 hidden h-dvh w-60 shrink-0 flex-col justify-between overflow-y-auto border-r border-palm bg-sea-ink px-3 py-4 lg:flex">
+		<aside className="sticky top-0 h-dvh w-60 shrink-0 flex-col justify-between overflow-y-auto border-r border-palm bg-sea-ink px-3 py-4 flex">
 			<div className="space-y-6">
 				<div className="flex flex-col items-center gap-2 px-3">
 					{/* Logo de marque servi depuis public/ (sur fond sombre sea-ink). */}
@@ -168,6 +168,7 @@ export function Sidebar() {
 								activeOptions={{ exact: true }}
 								activeProps={{ className: "bg-lagoon/25 text-white" }}
 								className={linkClassName}
+								onClick={() => onClose?.()}
 							>
 								<LayoutGrid className="size-4 text-lagoon" aria-hidden />
 								Accueil
@@ -181,6 +182,7 @@ export function Sidebar() {
 									activeOptions={{ exact: false }}
 									activeProps={{ className: "bg-lagoon/25 text-white" }}
 									className={linkClassName}
+									onClick={() => onClose?.()}
 								>
 									<BarChart2 className="size-4 text-lagoon" aria-hidden />
 									Tableau de bord global
@@ -197,6 +199,7 @@ export function Sidebar() {
 									activeOptions={{ exact: false }}
 									activeProps={{ className: "bg-lagoon/25 text-white" }}
 									className={linkClassName}
+									onClick={() => onClose?.()}
 								>
 									<BarChart3 className="size-4 text-lagoon" aria-hidden />
 									Rapports
@@ -214,6 +217,7 @@ export function Sidebar() {
 									activeOptions={{ exact: false }}
 									activeProps={{ className: "bg-lagoon/25 text-white" }}
 									className={linkClassName}
+									onClick={() => onClose?.()}
 								>
 									<Home className="size-4 text-lagoon" aria-hidden />
 									Mon espace résident
@@ -259,6 +263,7 @@ export function Sidebar() {
 																activeOptions={{ exact: route.exact }}
 																activeProps={{ className: subActiveClassName }}
 																className={subLinkClassName}
+																onClick={() => onClose?.()}
 															>
 																{sub.label}
 															</Link>
@@ -272,6 +277,7 @@ export function Sidebar() {
 																	className: subActiveClassName,
 																}}
 																className={subLinkClassName}
+																onClick={() => onClose?.()}
 															>
 																{sub.label}
 															</Link>

@@ -22,12 +22,12 @@ function HomePage() {
 	const accessibleModules = getAccessibleModules(usePermissions());
 
 	return (
-		<div className="mx-auto w-full max-w-5xl space-y-8 p-6">
+		<div className="mx-auto w-full max-w-5xl space-y-6 p-4 sm:p-6">
 			<section className="space-y-1">
-				<h1 className="text-2xl font-semibold">
+				<h1 className="text-xl sm:text-2xl font-semibold">
 					Bienvenue, {user?.login ?? ""} !
 				</h1>
-				<p className="text-muted-foreground">
+				<p className="text-sm sm:text-base text-muted-foreground">
 					Sélectionnez un module pour commencer.
 				</p>
 			</section>
@@ -35,16 +35,16 @@ function HomePage() {
 			{user?.role === "RESIDENT" ? (
 				<Link
 					to="/residence/portail"
-					className="flex items-start gap-4 rounded-lg border border-border bg-card p-6 shadow-sm transition-colors hover:bg-accent/40"
+					className="flex items-start gap-3 sm:gap-4 rounded-lg border border-border bg-card p-4 sm:p-6 shadow-sm transition-colors hover:bg-accent/40"
 				>
-					<span className="grid size-10 shrink-0 place-items-center rounded-md bg-lagoon/15 text-lagoon">
-						<Home className="size-5" aria-hidden />
+					<span className="grid size-9 sm:size-10 shrink-0 place-items-center rounded-md bg-lagoon/15 text-lagoon">
+						<Home className="size-4 sm:size-5" aria-hidden />
 					</span>
-					<span>
-						<span className="block text-lg font-semibold text-foreground">
+					<span className="min-w-0">
+						<span className="block text-base sm:text-lg font-semibold text-foreground">
 							Mon espace résident
 						</span>
-						<span className="block text-sm text-muted-foreground">
+						<span className="block text-xs sm:text-sm text-muted-foreground">
 							Suivi de votre loyer, de vos paiements et de votre caution.
 						</span>
 					</span>
@@ -52,7 +52,7 @@ function HomePage() {
 			) : null}
 
 			{accessibleModules.length > 0 ? (
-				<section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+				<section className="grid grid-cols-1 gap-3 sm:gap-4 sm:grid-cols-2 lg:grid-cols-4">
 					{accessibleModules.map((module) => {
 						// Obtient la première sous-page accessible du module
 						const subItems = getAccessibleModuleSubItems(
