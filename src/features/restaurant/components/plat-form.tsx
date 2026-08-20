@@ -94,11 +94,11 @@ export function PlatForm({
 	const form = useForm({
 		defaultValues: {
 			nom: plat?.nom ?? "",
-			idCategoriePlat: plat?.id_categorie_plat ?? "",
+			id_categorie_plat: plat?.id_categorie_plat ?? "",
 			prix: plat?.prix ?? "",
 			disponible: plat?.disponible ?? true,
 			description: plat?.description ?? "",
-			imageUrl: plat?.image_url ?? "",
+			image_url: plat?.image_url ?? "",
 		},
 		validators: {
 			onSubmit: ({ value }) => {
@@ -116,10 +116,10 @@ export function PlatForm({
 			setGlobalError(null);
 			try {
 				// Si une image a été uploadée, l'envoyer à MinIO
-				let imageUrl = value.imageUrl.trim() || null;
+				let image_url = value.image_url.trim() || null;
 				if (uploadedFile) {
 					try {
-						imageUrl = await uploadImage(uploadedFile, "plat-photo");
+						image_url = await uploadImage(uploadedFile, "plat-photo");
 					} catch (uploadError) {
 						setGlobalError(
 							uploadError instanceof Error
@@ -132,11 +132,11 @@ export function PlatForm({
 
 				const corps = {
 					nom: value.nom.trim(),
-					idCategoriePlat: value.idCategoriePlat || null,
+					id_categorie_plat: value.id_categorie_plat || null,
 					prix: value.prix.trim(),
 					disponible: value.disponible,
 					description: value.description.trim() || null,
-					imageUrl,
+					image_url,
 				};
 				if (plat) {
 					await editMutation.mutateAsync({ id: plat.id, ...corps });
@@ -179,7 +179,7 @@ export function PlatForm({
 			</form.Field>
 
 			<div className="grid gap-4 sm:grid-cols-2">
-				<form.Field name="idCategoriePlat">
+				<form.Field name="id_categorie_plat">
 					{(field) => (
 						<SelectField
 							id={field.name}
@@ -244,7 +244,7 @@ export function PlatForm({
 								size="sm"
 								onClick={() => {
 									setImagePreview(null);
-									form.setFieldValue("imageUrl", "");
+									form.setFieldValue("image_url", "");
 									if (fileInputRef.current) {
 										fileInputRef.current.value = "";
 									}

@@ -41,22 +41,22 @@ export function listCategoriesPlats(): Promise<CategoriePlat[]> {
 /** Corps saisi par le formulaire plat (create/update). */
 export interface PlatBody {
 	nom: string;
-	idCategoriePlat?: string | null;
+	id_categorie_plat?: string | null;
 	prix: string;
 	disponible?: boolean;
 	description?: string | null;
-	imageUrl?: string | null;
+	image_url?: string | null;
 }
 
 /** Crée un plat (POST `CreerPlatDto`). */
 export function creerPlat(body: PlatBody): Promise<unknown> {
 	const corps = {
 		nom: body.nom,
-		id_categorie_plat: texteOuNull(body.idCategoriePlat),
+		id_categorie_plat: texteOuNull(body.id_categorie_plat),
 		prix: body.prix,
 		disponible: body.disponible ?? true,
 		description: texteOuNull(body.description),
-		image_url: texteOuNull(body.imageUrl),
+		image_url: texteOuNull(body.image_url),
 	} satisfies Omit<CreerPlatDto, "id_categorie_plat" | "description"> & {
 		id_categorie_plat?: string | null;
 		description?: string | null;
@@ -72,11 +72,11 @@ export function creerPlat(body: PlatBody): Promise<unknown> {
 export function modifierPlat(id: string, body: PlatBody): Promise<unknown> {
 	const corps = {
 		nom: body.nom,
-		id_categorie_plat: texteOuNull(body.idCategoriePlat),
+		id_categorie_plat: texteOuNull(body.id_categorie_plat),
 		prix: body.prix,
 		disponible: body.disponible ?? true,
 		description: texteOuNull(body.description),
-		image_url: texteOuNull(body.imageUrl),
+		image_url: texteOuNull(body.image_url),
 	} satisfies Omit<MajPlatDto, "id_categorie_plat" | "description"> & {
 		id_categorie_plat?: string | null;
 		description?: string | null;
