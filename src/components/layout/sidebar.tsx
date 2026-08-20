@@ -1,5 +1,5 @@
 import { Link, useLocation } from "@tanstack/react-router";
-import { BarChart3, ChevronDown, LayoutGrid } from "lucide-react";
+import { BarChart3, ChevronDown, Home, LayoutGrid } from "lucide-react";
 import { useState } from "react";
 
 import { useCan, useCurrentUser, usePermissions } from "#/core/auth";
@@ -39,6 +39,8 @@ const ROUTES_REALLES: Record<
 		echeances: { to: "/residence/echeances", exact: true },
 		sejours_courts: { to: "/residence/sejours-courts", exact: true },
 		charges: { to: "/residence/charges", exact: true },
+		// `exact: false` garde le lien actif sur échéances/paiements/caution.
+		portail: { to: "/residence/portail", exact: false },
 	},
 	MARCHANDISE: {
 		produits: { to: "/marchandise/produits", exact: true },
@@ -80,6 +82,18 @@ const ROUTES_REALLES: Record<
 		bulletins: { to: "/rh/bulletins", exact: false },
 		comptes: { to: "/rh/comptes", exact: true },
 	},
+	ADMIN: {
+		utilisateurs: { to: "/admin/utilisateurs", exact: true },
+		// `exact: false` garde le lien actif sur la page permissions d'un rôle.
+		roles: { to: "/admin/roles", exact: false },
+		journal: { to: "/admin/journal", exact: true },
+		parametres: { to: "/admin/parametres", exact: true },
+		// Sauvegardes : aucun endpoint backend → placeholder /en-cours.
+	},
+	CLIENT: {
+		// `exact: false` garde le lien actif sur la fiche client.
+		clients: { to: "/client/clients", exact: false },
+	},
 };
 
 /**
@@ -111,6 +125,7 @@ export function Sidebar() {
 		if (chemin.startsWith("/facturation")) return "FACTURATION";
 		if (chemin.startsWith("/finances")) return "FINANCES";
 		if (chemin.startsWith("/rh")) return "RH";
+		if (chemin.startsWith("/admin")) return "ADMIN";
 		return null;
 	};
 	const [openModule, setOpenModule] = useState<string | null>(
@@ -171,6 +186,23 @@ export function Sidebar() {
 								>
 									<BarChart3 className="size-4 text-lagoon" aria-hidden />
 									Rapports
+								</Link>
+							</li>
+						) : null}
+
+						{user?.role === "RESIDENT" ? (
+							<li>
+								{/* M2.5 : le portail résident est réservé aux comptes dont le
+								    rôle est RESIDENT (les admins ont aussi RESIDENT.VOIR mais
+								    ne sont pas liés à un dossier client). */}
+								<Link
+									to="/residence/portail"
+									activeOptions={{ exact: false }}
+									activeProps={{ className: "bg-lagoon/25 text-white" }}
+									className={linkClassName}
+								>
+									<Home className="size-4 text-lagoon" aria-hidden />
+									Mon espace résident
 								</Link>
 							</li>
 						) : null}
