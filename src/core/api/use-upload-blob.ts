@@ -1,9 +1,15 @@
 import { useEffect, useState } from "react";
 import { getUploadBlobUrl } from "./uploads";
+import { uploadCache } from "./upload-cache";
 
 /**
  * Hook pour charger un fichier uploadé et retourner un blob URL.
- * Gère automatiquement le nettoyage du blob URL.
+ * Utilise un cache en mémoire pour éviter les rechargements inutiles.
+ *
+ * Cache LRU (Least Recently Used):
+ * - Max 100 images en mémoire
+ * - Référence comptage (refCount) pour savoir quand libérer la mémoire
+ * - Nettoyage automatique des entrées expirées (5min inactif)
  *
  * @param key - Clé MinIO du fichier uploadé (e.g. "plat-photo/3-<uuid>.jpg")
  * @returns Objet avec: blobUrl (string | null), isLoading (boolean), error (Error | null)
@@ -26,9 +32,24 @@ export function useUploadBlobUrl(key: string | null | undefined) {
 
 		(async () => {
 			try {
+				// Vérifier le cache en premier
+				const cachedUrl = uploadCache.get(key);
+				if (cachedUrl) {
+					if (mounted) {
+						setBlobUrl(cachedUrl);
+						setIsLoading(false);
+					}
+					return;
+				}
+
+				// Si pas en cache, charger depuis le serveur
 				const url = await getUploadBlobUrl(key);
-				if (mounted) {
+				if (mounted && url) {
+					// Ajouter au cache pour les futures utilisations
+					uploadCache.set(key, url);
 					setBlobUrl(url);
+				} else if (mounted) {
+					setBlobUrl(null);
 				}
 			} catch (err) {
 				if (mounted) {
@@ -47,14 +68,14 @@ export function useUploadBlobUrl(key: string | null | undefined) {
 		};
 	}, [key]);
 
-	// Cleanup blob URL on unmount
+	// Cleanup: décrementer le refCount quand la clé change ou démonte
 	useEffect(() => {
 		return () => {
-			if (blobUrl) {
-				URL.revokeObjectURL(blobUrl);
+			if (key) {
+				uploadCache.release(key);
 			}
 		};
-	}, [blobUrl]);
+	}, [key]);
 
 	return { blobUrl, isLoading, error };
 }
