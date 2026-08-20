@@ -60,11 +60,15 @@ const ACTIVITES: Record<ActiviteFiltre, string> = {
  */
 export function TableauDeBordPage() {
 	const canVoir = useCan("FINANCES.VOIR");
-	const tableauBordQuery = useTableauBord();
-
 	const [periode, setPeriode] = useState<PeriodeFiltre>("ce_mois");
 	const [activite, setActivite] = useState<ActiviteFiltre>("global");
 	const [detailsOuvert, setDetailsOuvert] = useState(false);
+
+	// Map période filtre to backend parameter
+	const periodeParam = periode !== "personnalisee" ? periode : undefined;
+	const activiteParam = activite !== "global" ? activite : undefined;
+
+	const tableauBordQuery = useTableauBord(periodeParam, activiteParam);
 
 	// Fonction d'export PDF
 	const handleExport = () => {
@@ -427,69 +431,119 @@ export function TableauDeBordPage() {
 
 			{/* Modal détails par activité */}
 			{detailsOuvert && (
-				<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-					<div className="rounded-lg border border-border bg-card p-6 shadow-lg max-w-2xl max-h-[90vh] overflow-y-auto w-full mx-4">
-						<div className="flex items-center justify-between mb-4">
-							<h2 className="text-xl font-semibold">Détails par activité</h2>
-							<Button
-								variant="ghost"
-								size="sm"
-								onClick={() => setDetailsOuvert(false)}
-							>
-								<X className="size-4" aria-hidden />
-								<span className="sr-only">Fermer</span>
-							</Button>
-						</div>
+				<DetailsParActiviteModal
+					periode={periodeParam}
+					fermer={() => setDetailsOuvert(false)}
+				/>
+			)}
+		</div>
+	);
+}
 
-						<div className="space-y-4">
-							<p className="text-sm text-muted-foreground">
-								Détails consolidés par activité pour la période sélectionnée.
-							</p>
+function DetailsParActiviteModal({
+	periode,
+	fermer,
+}: {
+	periode?: string;
+	fermer: () => void;
+}) {
+	// Récupère les données pour chaque activité (sauf "global")
+	const activites = (Object.entries(ACTIVITES) as [ActiviteFiltre, string][])
+		.filter(([key]) => key !== "global");
 
-							<div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-								{Object.entries(ACTIVITES).map(([key, label]) => {
-									if (key === "global") return null;
+	return (
+		<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+			<div className="rounded-lg border border-border bg-card p-6 shadow-lg max-w-2xl max-h-[90vh] overflow-y-auto w-full mx-4">
+				<div className="flex items-center justify-between mb-4">
+					<h2 className="text-xl font-semibold">Détails par activité</h2>
+					<Button
+						variant="ghost"
+						size="sm"
+						onClick={fermer}
+					>
+						<X className="size-4" aria-hidden />
+						<span className="sr-only">Fermer</span>
+					</Button>
+				</div>
 
-									return (
-										<div
-											key={key}
-											className="rounded-lg border border-border bg-muted/30 p-4"
-										>
-											<h3 className="font-semibold text-foreground">
-												{label}
-											</h3>
-											<p className="text-xs text-muted-foreground mt-1">
-												Filtrage par activité à implémenter
-											</p>
-											<div className="space-y-2 mt-3 text-sm">
-												<div className="flex justify-between">
-													<span>Recettes:</span>
-													<span className="font-medium">—</span>
-												</div>
-												<div className="flex justify-between">
-													<span>Dépenses:</span>
-													<span className="font-medium">—</span>
-												</div>
-												<div className="flex justify-between">
-													<span>Marge:</span>
-													<span className="font-medium">—</span>
-												</div>
+				<div className="space-y-4">
+					<p className="text-sm text-muted-foreground">
+						Détails consolidés par activité pour la période sélectionnée.
+					</p>
+
+					<div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+						{activites.map(([key, label]) => {
+							// Récupère les données pour cette activité
+							const { data, isLoading } = useTableauBord(periode, key);
+							const lignesActivite = data ?? [];
+
+							const totalRecettes = lignesActivite.reduce(
+								(sum, l) => sum + Number(l.encaissements),
+								0,
+							);
+							const totalDepenses = lignesActivite.reduce(
+								(sum, l) => sum + Number(l.decaissements),
+								0,
+							);
+							const totalMarge = lignesActivite.reduce(
+								(sum, l) => sum + Number(l.marge_nette),
+								0,
+							);
+
+							return (
+								<div
+									key={key}
+									className="rounded-lg border border-border bg-muted/30 p-4"
+								>
+									<h3 className="font-semibold text-foreground">
+										{label}
+									</h3>
+									{isLoading && (
+										<p className="text-xs text-muted-foreground mt-1">
+											Chargement…
+										</p>
+									)}
+									{!isLoading && (
+										<div className="space-y-2 mt-3 text-sm">
+											<div className="flex justify-between">
+												<span>Recettes:</span>
+												<span className="font-medium">
+													{formatMontantFCFA(String(totalRecettes))}
+												</span>
+											</div>
+											<div className="flex justify-between">
+												<span>Dépenses:</span>
+												<span className="font-medium">
+													{formatMontantFCFA(String(totalDepenses))}
+												</span>
+											</div>
+											<div className="flex justify-between">
+												<span>Marge:</span>
+												<span
+													className={cn(
+														"font-medium",
+														totalMarge >= 0
+															? "text-[#27AE60]"
+															: "text-destructive",
+													)}
+												>
+													{formatMontantFCFA(String(totalMarge))}
+												</span>
 											</div>
 										</div>
-									);
-								})}
-							</div>
+									)}
+								</div>
+							);
+						})}
+					</div>
 
-							<div className="border-t border-border pt-4">
-								<p className="text-xs text-muted-foreground">
-									💡 Les détails par activité seront disponibles une fois que
-									l'API supportera le filtrage par activité.
-								</p>
-							</div>
-						</div>
+					<div className="border-t border-border pt-4">
+						<p className="text-xs text-muted-foreground">
+							💡 Les détails par activité sont maintenant calculés à partir des données filtrées par période.
+						</p>
 					</div>
 				</div>
-			)}
+			</div>
 		</div>
 	);
 }
