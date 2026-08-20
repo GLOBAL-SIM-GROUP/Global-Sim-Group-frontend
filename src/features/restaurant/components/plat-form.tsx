@@ -1,6 +1,6 @@
 import { useForm } from "@tanstack/react-form";
 import { Loader2, Upload, X } from "lucide-react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 import { Button } from "#/components/ui/button";
 import { InputField } from "#/components/ui/input-field";
@@ -63,7 +63,7 @@ export function PlatForm({
 	const editMutation = useModifierPlat();
 	const [globalError, setGlobalError] = useState<string | null>(null);
 	const [imagePreview, setImagePreview] = useState<string | null>(plat?.image_url ?? null);
-	const fileInputRef = useState<HTMLInputElement | null>(null)[1];
+	const fileInputRef = useRef<HTMLInputElement>(null);
 
 	const handleImageChange = async (file: File | null) => {
 		if (!file) {
@@ -203,7 +203,7 @@ export function PlatForm({
 					<div className="flex items-center gap-3">
 						<input
 							id="imageUpload"
-							ref={fileInputRef as any}
+							ref={fileInputRef}
 							type="file"
 							accept="image/jpeg,image/png,image/webp"
 							onChange={(e) => handleImageChange(e.target.files?.[0] ?? null)}
@@ -213,7 +213,7 @@ export function PlatForm({
 							type="button"
 							variant="outline"
 							size="sm"
-							onClick={() => (fileInputRef as any)?.current?.click()}
+							onClick={() => fileInputRef.current?.click()}
 						>
 							<Upload className="size-4 mr-2" aria-hidden />
 							Choisir une image
@@ -226,8 +226,8 @@ export function PlatForm({
 								onClick={() => {
 									setImagePreview(null);
 									form.setFieldValue("imageUrl", "");
-									if ((fileInputRef as any)?.current) {
-										(fileInputRef as any).current.value = "";
+									if (fileInputRef.current) {
+										fileInputRef.current.value = "";
 									}
 								}}
 							>
