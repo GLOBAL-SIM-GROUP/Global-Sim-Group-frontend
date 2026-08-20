@@ -1,4 +1,4 @@
-import { Download, FileText } from "lucide-react";
+import { Download, FileText, X } from "lucide-react";
 import { useState } from "react";
 
 import { Breadcrumb } from "#/components/ui/breadcrumb";
@@ -62,6 +62,67 @@ export function TableauDeBordPage() {
 
 	const [periode, setPeriode] = useState<PeriodeFiltre>("ce_mois");
 	const [activite, setActivite] = useState<ActiviteFiltre>("global");
+	const [detailsOuvert, setDetailsOuvert] = useState(false);
+
+	// Fonction d'export CSV
+	const handleExport = () => {
+		const headers = ["Période", "Recettes", "Dépenses", "Solde", "% Marge"];
+		const rows = lignes.map((ligne) => {
+			const encaissementsNum = Number(ligne.encaissements);
+			const depensesNum = Number(ligne.decaissements);
+			const margeNum = Number(ligne.marge_nette);
+			const marge = encaissementsNum > 0
+				? ((margeNum / encaissementsNum) * 100).toFixed(1)
+				: "0";
+
+			return [
+				ligne.periode,
+				encaissementsNum.toLocaleString("fr-FR"),
+				depensesNum.toLocaleString("fr-FR"),
+				(encaissementsNum - depensesNum).toLocaleString("fr-FR"),
+				`${marge}%`,
+			];
+		});
+
+		// Ajouter les totaux
+		const totalRecettes = lignes.reduce(
+			(sum, l) => sum + Number(l.encaissements),
+			0,
+		);
+		const totalDepenses = lignes.reduce(
+			(sum, l) => sum + Number(l.decaissements),
+			0,
+		);
+		const solde = totalRecettes - totalDepenses;
+		const beneficeNum = lignes.reduce(
+			(sum, l) => sum + Number(l.marge_nette),
+			0,
+		);
+		const margePct = totalRecettes > 0
+			? ((beneficeNum / totalRecettes) * 100).toFixed(1)
+			: "0";
+
+		rows.push([
+			"TOTAL",
+			totalRecettes.toLocaleString("fr-FR"),
+			totalDepenses.toLocaleString("fr-FR"),
+			solde.toLocaleString("fr-FR"),
+			`${margePct}%`,
+		]);
+
+		// Créer CSV
+		const csv = [
+			headers.join(","),
+			...rows.map((row) => row.map((cell) => `"${cell}"`).join(",")),
+		].join("\n");
+
+		// Télécharger
+		const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+		const link = document.createElement("a");
+		link.href = URL.createObjectURL(blob);
+		link.download = `tableau-de-bord-financier-${new Date().toISOString().split("T")[0]}.csv`;
+		link.click();
+	};
 
 	if (!canVoir) {
 		return (
@@ -148,13 +209,23 @@ export function TableauDeBordPage() {
 				</div>
 
 				<div className="flex flex-wrap gap-2">
-					<Button variant="outline" size="sm">
+					<Button
+						variant="outline"
+						size="sm"
+						onClick={handleExport}
+						disabled={lignes.length === 0}
+					>
 						<Download className="mr-2 size-4" aria-hidden />
-						Exporter
+						Exporter CSV
 					</Button>
-					<Button variant="outline" size="sm">
+					<Button
+						variant="outline"
+						size="sm"
+						onClick={() => setDetailsOuvert(true)}
+						disabled={lignes.length === 0}
+					>
 						<FileText className="mr-2 size-4" aria-hidden />
-						Détails
+						Détails par activité
 					</Button>
 				</div>
 			</div>
@@ -264,6 +335,72 @@ export function TableauDeBordPage() {
 						</div>
 					)}
 				</>
+			)}
+
+			{/* Modal détails par activité */}
+			{detailsOuvert && (
+				<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+					<div className="rounded-lg border border-border bg-card p-6 shadow-lg max-w-2xl max-h-[90vh] overflow-y-auto w-full mx-4">
+						<div className="flex items-center justify-between mb-4">
+							<h2 className="text-xl font-semibold">Détails par activité</h2>
+							<Button
+								variant="ghost"
+								size="sm"
+								onClick={() => setDetailsOuvert(false)}
+							>
+								<X className="size-4" aria-hidden />
+								<span className="sr-only">Fermer</span>
+							</Button>
+						</div>
+
+						<div className="space-y-4">
+							<p className="text-sm text-muted-foreground">
+								Détails consolidés par activité pour la période sélectionnée.
+							</p>
+
+							<div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+								{Object.entries(ACTIVITES).map(([key, label]) => {
+									if (key === "global") return null;
+
+									return (
+										<div
+											key={key}
+											className="rounded-lg border border-border bg-muted/30 p-4"
+										>
+											<h3 className="font-semibold text-foreground">
+												{label}
+											</h3>
+											<p className="text-xs text-muted-foreground mt-1">
+												Filtrage par activité à implémenter
+											</p>
+											<div className="space-y-2 mt-3 text-sm">
+												<div className="flex justify-between">
+													<span>Recettes:</span>
+													<span className="font-medium">—</span>
+												</div>
+												<div className="flex justify-between">
+													<span>Dépenses:</span>
+													<span className="font-medium">—</span>
+												</div>
+												<div className="flex justify-between">
+													<span>Marge:</span>
+													<span className="font-medium">—</span>
+												</div>
+											</div>
+										</div>
+									);
+								})}
+							</div>
+
+							<div className="border-t border-border pt-4">
+								<p className="text-xs text-muted-foreground">
+									💡 Les détails par activité seront disponibles une fois que
+									l'API supportera le filtrage par activité.
+								</p>
+							</div>
+						</div>
+					</div>
+				</div>
 			)}
 		</div>
 	);
