@@ -2,7 +2,7 @@
 #
 #   docker compose up --build
 #
-# → http://localhost:3004
+# → http://localhost:3100
 #
 # L'image sert le rendu SSR + les assets ET relaie `/api/*` vers le backend
 # (`API_TARGET` ci-dessous) — le navigateur n'appelle que la même origine,
@@ -17,10 +17,12 @@ services:
     build:
       context: .
     image: sim-frontend
-    # Hôte:container — 3000 est capturé par WSL sur cette machine → 3004.
-    # Le port interne du container reste 3000 (env PORT ci-dessous).
+    # Hôte:container — 3000 et 3004 sont dans la plage TCP exclue par Windows
+    # (2972-3071, réservée Hyper-V/Winnat, `netsh interface ipv4 show
+    # excludedportrange protocol=tcp`) → 3100, hors plage. Le port interne du
+    # container reste 3000 (env PORT ci-dessous).
     ports:
-      - "3004:3000"
+      - "3100:3000"
     environment:
       PORT: "3000"
       # Backend relayé par `/api/*`. Instance de DEV ici — à remplacer par

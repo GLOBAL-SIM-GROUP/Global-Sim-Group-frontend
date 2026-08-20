@@ -14,7 +14,10 @@ import { Button } from "#/components/ui/button";
 import type { AuthSession } from "#/core/auth";
 import TanStackQueryDevtools from "../integrations/tanstack-query/devtools";
 
-import appCss from "../styles.css?url";
+// Import CSS sans `?url` : Vite/TanStack Start injectent la feuille de style
+// (hash cohérent client/SSR). L'import `?url` + lien manuel désynchronisait le
+// hash référencé du fichier émis selon l'environnement de build (404 CSS).
+import "../styles.css";
 
 interface RouterContext {
 	queryClient: QueryClient;
@@ -29,7 +32,6 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 			{ title: "GLOBAL SIM GROUP — SIM" },
 		],
 		links: [
-			{ rel: "stylesheet", href: appCss },
 			// Favicon de l'onglet — logo servis depuis public/ (idem /login).
 			{ rel: "icon", type: "image/png", href: "/logo.png" },
 		],

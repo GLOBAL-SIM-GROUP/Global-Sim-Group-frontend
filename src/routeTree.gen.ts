@@ -14,6 +14,12 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
 import { Route as AuthenticatedEnCoursRouteImport } from './routes/_authenticated/en-cours'
 import { Route as AuthenticatedRapportsIndexRouteImport } from './routes/_authenticated/rapports/index'
+import { Route as AuthenticatedAdminJournalIndexRouteImport } from './routes/_authenticated/admin/journal/index'
+import { Route as AuthenticatedAdminParametresIndexRouteImport } from './routes/_authenticated/admin/parametres/index'
+import { Route as AuthenticatedAdminRolesIndexRouteImport } from './routes/_authenticated/admin/roles/index'
+import { Route as AuthenticatedAdminUtilisateursIndexRouteImport } from './routes/_authenticated/admin/utilisateurs/index'
+import { Route as AuthenticatedClientClientsIndexRouteImport } from './routes/_authenticated/client/clients/index'
+import { Route as AuthenticatedClientClientsIdRouteImport } from './routes/_authenticated/client/clients/$id'
 import { Route as AuthenticatedFacturationFacturesIndexRouteImport } from './routes/_authenticated/facturation/factures/index'
 import { Route as AuthenticatedFacturationFacturesIdRouteImport } from './routes/_authenticated/facturation/factures/$id'
 import { Route as AuthenticatedFacturationPrestationsIndexRouteImport } from './routes/_authenticated/facturation/prestations/index'
@@ -43,6 +49,7 @@ import { Route as AuthenticatedResidenceContratsIdRouteImport } from './routes/_
 import { Route as AuthenticatedResidenceEcheancesIndexRouteImport } from './routes/_authenticated/residence/echeances/index'
 import { Route as AuthenticatedResidenceLogementsIndexRouteImport } from './routes/_authenticated/residence/logements/index'
 import { Route as AuthenticatedResidenceLogementsIdRouteImport } from './routes/_authenticated/residence/logements/$id'
+import { Route as AuthenticatedResidencePortailIndexRouteImport } from './routes/_authenticated/residence/portail/index'
 import { Route as AuthenticatedResidenceSejoursCourtsIndexRouteImport } from './routes/_authenticated/residence/sejours-courts/index'
 import { Route as AuthenticatedResidenceSejoursCourtsIdRouteImport } from './routes/_authenticated/residence/sejours-courts/$id'
 import { Route as AuthenticatedRestaurantCommandesIndexRouteImport } from './routes/_authenticated/restaurant/commandes/index'
@@ -57,7 +64,11 @@ import { Route as AuthenticatedRhPointageIndexRouteImport } from './routes/_auth
 import { Route as AuthenticatedSalleFeteCalendrierIndexRouteImport } from './routes/_authenticated/salle-fete/calendrier/index'
 import { Route as AuthenticatedSalleFeteReservationsIndexRouteImport } from './routes/_authenticated/salle-fete/reservations/index'
 import { Route as AuthenticatedSalleFeteReservationsIdRouteImport } from './routes/_authenticated/salle-fete/reservations/$id'
+import { Route as AuthenticatedResidencePortailCautionIndexRouteImport } from './routes/_authenticated/residence/portail/caution/index'
+import { Route as AuthenticatedResidencePortailEcheancesIndexRouteImport } from './routes/_authenticated/residence/portail/echeances/index'
+import { Route as AuthenticatedResidencePortailPaiementsIndexRouteImport } from './routes/_authenticated/residence/portail/paiements/index'
 import { Route as AuthenticatedRhPointageConsultationIndexRouteImport } from './routes/_authenticated/rh/pointage/consultation/index'
+import { Route as AuthenticatedAdminRolesIdPermissionsIndexRouteImport } from './routes/_authenticated/admin/roles/$id/permissions/index'
 
 const AuthenticatedRoute = AuthenticatedRouteImport.update({
   id: '/_authenticated',
@@ -82,6 +93,42 @@ const AuthenticatedRapportsIndexRoute =
   AuthenticatedRapportsIndexRouteImport.update({
     id: '/rapports/',
     path: '/rapports/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedAdminJournalIndexRoute =
+  AuthenticatedAdminJournalIndexRouteImport.update({
+    id: '/admin/journal/',
+    path: '/admin/journal/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedAdminParametresIndexRoute =
+  AuthenticatedAdminParametresIndexRouteImport.update({
+    id: '/admin/parametres/',
+    path: '/admin/parametres/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedAdminRolesIndexRoute =
+  AuthenticatedAdminRolesIndexRouteImport.update({
+    id: '/admin/roles/',
+    path: '/admin/roles/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedAdminUtilisateursIndexRoute =
+  AuthenticatedAdminUtilisateursIndexRouteImport.update({
+    id: '/admin/utilisateurs/',
+    path: '/admin/utilisateurs/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedClientClientsIndexRoute =
+  AuthenticatedClientClientsIndexRouteImport.update({
+    id: '/client/clients/',
+    path: '/client/clients/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedClientClientsIdRoute =
+  AuthenticatedClientClientsIdRouteImport.update({
+    id: '/client/clients/$id',
+    path: '/client/clients/$id',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedFacturationFacturesIndexRoute =
@@ -258,6 +305,12 @@ const AuthenticatedResidenceLogementsIdRoute =
     path: '/residence/logements/$id',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedResidencePortailIndexRoute =
+  AuthenticatedResidencePortailIndexRouteImport.update({
+    id: '/residence/portail/',
+    path: '/residence/portail/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedResidenceSejoursCourtsIndexRoute =
   AuthenticatedResidenceSejoursCourtsIndexRouteImport.update({
     id: '/residence/sejours-courts/',
@@ -342,10 +395,34 @@ const AuthenticatedSalleFeteReservationsIdRoute =
     path: '/salle-fete/reservations/$id',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedResidencePortailCautionIndexRoute =
+  AuthenticatedResidencePortailCautionIndexRouteImport.update({
+    id: '/residence/portail/caution/',
+    path: '/residence/portail/caution/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedResidencePortailEcheancesIndexRoute =
+  AuthenticatedResidencePortailEcheancesIndexRouteImport.update({
+    id: '/residence/portail/echeances/',
+    path: '/residence/portail/echeances/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedResidencePortailPaiementsIndexRoute =
+  AuthenticatedResidencePortailPaiementsIndexRouteImport.update({
+    id: '/residence/portail/paiements/',
+    path: '/residence/portail/paiements/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedRhPointageConsultationIndexRoute =
   AuthenticatedRhPointageConsultationIndexRouteImport.update({
     id: '/rh/pointage/consultation/',
     path: '/rh/pointage/consultation/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedAdminRolesIdPermissionsIndexRoute =
+  AuthenticatedAdminRolesIdPermissionsIndexRouteImport.update({
+    id: '/admin/roles/$id/permissions/',
+    path: '/admin/roles/$id/permissions/',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 
@@ -354,6 +431,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/en-cours': typeof AuthenticatedEnCoursRoute
   '/rapports/': typeof AuthenticatedRapportsIndexRoute
+  '/client/clients/$id': typeof AuthenticatedClientClientsIdRoute
   '/facturation/factures/$id': typeof AuthenticatedFacturationFacturesIdRoute
   '/pressing/commandes/$id': typeof AuthenticatedPressingCommandesIdRoute
   '/rapports/activites/$code': typeof AuthenticatedRapportsActivitesCodeRoute
@@ -363,6 +441,11 @@ export interface FileRoutesByFullPath {
   '/rh/bulletins/$id': typeof AuthenticatedRhBulletinsIdRoute
   '/rh/employes/$id': typeof AuthenticatedRhEmployesIdRoute
   '/salle-fete/reservations/$id': typeof AuthenticatedSalleFeteReservationsIdRoute
+  '/admin/journal/': typeof AuthenticatedAdminJournalIndexRoute
+  '/admin/parametres/': typeof AuthenticatedAdminParametresIndexRoute
+  '/admin/roles/': typeof AuthenticatedAdminRolesIndexRoute
+  '/admin/utilisateurs/': typeof AuthenticatedAdminUtilisateursIndexRoute
+  '/client/clients/': typeof AuthenticatedClientClientsIndexRoute
   '/facturation/factures/': typeof AuthenticatedFacturationFacturesIndexRoute
   '/facturation/prestations/': typeof AuthenticatedFacturationPrestationsIndexRoute
   '/finances/categories-depenses/': typeof AuthenticatedFinancesCategoriesDepensesIndexRoute
@@ -387,6 +470,7 @@ export interface FileRoutesByFullPath {
   '/residence/contrats/': typeof AuthenticatedResidenceContratsIndexRoute
   '/residence/echeances/': typeof AuthenticatedResidenceEcheancesIndexRoute
   '/residence/logements/': typeof AuthenticatedResidenceLogementsIndexRoute
+  '/residence/portail/': typeof AuthenticatedResidencePortailIndexRoute
   '/residence/sejours-courts/': typeof AuthenticatedResidenceSejoursCourtsIndexRoute
   '/restaurant/commandes/': typeof AuthenticatedRestaurantCommandesIndexRoute
   '/restaurant/plats/': typeof AuthenticatedRestaurantPlatsIndexRoute
@@ -397,13 +481,18 @@ export interface FileRoutesByFullPath {
   '/rh/pointage/': typeof AuthenticatedRhPointageIndexRoute
   '/salle-fete/calendrier/': typeof AuthenticatedSalleFeteCalendrierIndexRoute
   '/salle-fete/reservations/': typeof AuthenticatedSalleFeteReservationsIndexRoute
+  '/residence/portail/caution/': typeof AuthenticatedResidencePortailCautionIndexRoute
+  '/residence/portail/echeances/': typeof AuthenticatedResidencePortailEcheancesIndexRoute
+  '/residence/portail/paiements/': typeof AuthenticatedResidencePortailPaiementsIndexRoute
   '/rh/pointage/consultation/': typeof AuthenticatedRhPointageConsultationIndexRoute
+  '/admin/roles/$id/permissions/': typeof AuthenticatedAdminRolesIdPermissionsIndexRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/en-cours': typeof AuthenticatedEnCoursRoute
   '/': typeof AuthenticatedIndexRoute
   '/rapports': typeof AuthenticatedRapportsIndexRoute
+  '/client/clients/$id': typeof AuthenticatedClientClientsIdRoute
   '/facturation/factures/$id': typeof AuthenticatedFacturationFacturesIdRoute
   '/pressing/commandes/$id': typeof AuthenticatedPressingCommandesIdRoute
   '/rapports/activites/$code': typeof AuthenticatedRapportsActivitesCodeRoute
@@ -413,6 +502,11 @@ export interface FileRoutesByTo {
   '/rh/bulletins/$id': typeof AuthenticatedRhBulletinsIdRoute
   '/rh/employes/$id': typeof AuthenticatedRhEmployesIdRoute
   '/salle-fete/reservations/$id': typeof AuthenticatedSalleFeteReservationsIdRoute
+  '/admin/journal': typeof AuthenticatedAdminJournalIndexRoute
+  '/admin/parametres': typeof AuthenticatedAdminParametresIndexRoute
+  '/admin/roles': typeof AuthenticatedAdminRolesIndexRoute
+  '/admin/utilisateurs': typeof AuthenticatedAdminUtilisateursIndexRoute
+  '/client/clients': typeof AuthenticatedClientClientsIndexRoute
   '/facturation/factures': typeof AuthenticatedFacturationFacturesIndexRoute
   '/facturation/prestations': typeof AuthenticatedFacturationPrestationsIndexRoute
   '/finances/categories-depenses': typeof AuthenticatedFinancesCategoriesDepensesIndexRoute
@@ -437,6 +531,7 @@ export interface FileRoutesByTo {
   '/residence/contrats': typeof AuthenticatedResidenceContratsIndexRoute
   '/residence/echeances': typeof AuthenticatedResidenceEcheancesIndexRoute
   '/residence/logements': typeof AuthenticatedResidenceLogementsIndexRoute
+  '/residence/portail': typeof AuthenticatedResidencePortailIndexRoute
   '/residence/sejours-courts': typeof AuthenticatedResidenceSejoursCourtsIndexRoute
   '/restaurant/commandes': typeof AuthenticatedRestaurantCommandesIndexRoute
   '/restaurant/plats': typeof AuthenticatedRestaurantPlatsIndexRoute
@@ -447,7 +542,11 @@ export interface FileRoutesByTo {
   '/rh/pointage': typeof AuthenticatedRhPointageIndexRoute
   '/salle-fete/calendrier': typeof AuthenticatedSalleFeteCalendrierIndexRoute
   '/salle-fete/reservations': typeof AuthenticatedSalleFeteReservationsIndexRoute
+  '/residence/portail/caution': typeof AuthenticatedResidencePortailCautionIndexRoute
+  '/residence/portail/echeances': typeof AuthenticatedResidencePortailEcheancesIndexRoute
+  '/residence/portail/paiements': typeof AuthenticatedResidencePortailPaiementsIndexRoute
   '/rh/pointage/consultation': typeof AuthenticatedRhPointageConsultationIndexRoute
+  '/admin/roles/$id/permissions': typeof AuthenticatedAdminRolesIdPermissionsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -456,6 +555,7 @@ export interface FileRoutesById {
   '/_authenticated/en-cours': typeof AuthenticatedEnCoursRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/_authenticated/rapports/': typeof AuthenticatedRapportsIndexRoute
+  '/_authenticated/client/clients/$id': typeof AuthenticatedClientClientsIdRoute
   '/_authenticated/facturation/factures/$id': typeof AuthenticatedFacturationFacturesIdRoute
   '/_authenticated/pressing/commandes/$id': typeof AuthenticatedPressingCommandesIdRoute
   '/_authenticated/rapports/activites/$code': typeof AuthenticatedRapportsActivitesCodeRoute
@@ -465,6 +565,11 @@ export interface FileRoutesById {
   '/_authenticated/rh/bulletins/$id': typeof AuthenticatedRhBulletinsIdRoute
   '/_authenticated/rh/employes/$id': typeof AuthenticatedRhEmployesIdRoute
   '/_authenticated/salle-fete/reservations/$id': typeof AuthenticatedSalleFeteReservationsIdRoute
+  '/_authenticated/admin/journal/': typeof AuthenticatedAdminJournalIndexRoute
+  '/_authenticated/admin/parametres/': typeof AuthenticatedAdminParametresIndexRoute
+  '/_authenticated/admin/roles/': typeof AuthenticatedAdminRolesIndexRoute
+  '/_authenticated/admin/utilisateurs/': typeof AuthenticatedAdminUtilisateursIndexRoute
+  '/_authenticated/client/clients/': typeof AuthenticatedClientClientsIndexRoute
   '/_authenticated/facturation/factures/': typeof AuthenticatedFacturationFacturesIndexRoute
   '/_authenticated/facturation/prestations/': typeof AuthenticatedFacturationPrestationsIndexRoute
   '/_authenticated/finances/categories-depenses/': typeof AuthenticatedFinancesCategoriesDepensesIndexRoute
@@ -489,6 +594,7 @@ export interface FileRoutesById {
   '/_authenticated/residence/contrats/': typeof AuthenticatedResidenceContratsIndexRoute
   '/_authenticated/residence/echeances/': typeof AuthenticatedResidenceEcheancesIndexRoute
   '/_authenticated/residence/logements/': typeof AuthenticatedResidenceLogementsIndexRoute
+  '/_authenticated/residence/portail/': typeof AuthenticatedResidencePortailIndexRoute
   '/_authenticated/residence/sejours-courts/': typeof AuthenticatedResidenceSejoursCourtsIndexRoute
   '/_authenticated/restaurant/commandes/': typeof AuthenticatedRestaurantCommandesIndexRoute
   '/_authenticated/restaurant/plats/': typeof AuthenticatedRestaurantPlatsIndexRoute
@@ -499,7 +605,11 @@ export interface FileRoutesById {
   '/_authenticated/rh/pointage/': typeof AuthenticatedRhPointageIndexRoute
   '/_authenticated/salle-fete/calendrier/': typeof AuthenticatedSalleFeteCalendrierIndexRoute
   '/_authenticated/salle-fete/reservations/': typeof AuthenticatedSalleFeteReservationsIndexRoute
+  '/_authenticated/residence/portail/caution/': typeof AuthenticatedResidencePortailCautionIndexRoute
+  '/_authenticated/residence/portail/echeances/': typeof AuthenticatedResidencePortailEcheancesIndexRoute
+  '/_authenticated/residence/portail/paiements/': typeof AuthenticatedResidencePortailPaiementsIndexRoute
   '/_authenticated/rh/pointage/consultation/': typeof AuthenticatedRhPointageConsultationIndexRoute
+  '/_authenticated/admin/roles/$id/permissions/': typeof AuthenticatedAdminRolesIdPermissionsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -508,6 +618,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/en-cours'
     | '/rapports/'
+    | '/client/clients/$id'
     | '/facturation/factures/$id'
     | '/pressing/commandes/$id'
     | '/rapports/activites/$code'
@@ -517,6 +628,11 @@ export interface FileRouteTypes {
     | '/rh/bulletins/$id'
     | '/rh/employes/$id'
     | '/salle-fete/reservations/$id'
+    | '/admin/journal/'
+    | '/admin/parametres/'
+    | '/admin/roles/'
+    | '/admin/utilisateurs/'
+    | '/client/clients/'
     | '/facturation/factures/'
     | '/facturation/prestations/'
     | '/finances/categories-depenses/'
@@ -541,6 +657,7 @@ export interface FileRouteTypes {
     | '/residence/contrats/'
     | '/residence/echeances/'
     | '/residence/logements/'
+    | '/residence/portail/'
     | '/residence/sejours-courts/'
     | '/restaurant/commandes/'
     | '/restaurant/plats/'
@@ -551,13 +668,18 @@ export interface FileRouteTypes {
     | '/rh/pointage/'
     | '/salle-fete/calendrier/'
     | '/salle-fete/reservations/'
+    | '/residence/portail/caution/'
+    | '/residence/portail/echeances/'
+    | '/residence/portail/paiements/'
     | '/rh/pointage/consultation/'
+    | '/admin/roles/$id/permissions/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/login'
     | '/en-cours'
     | '/'
     | '/rapports'
+    | '/client/clients/$id'
     | '/facturation/factures/$id'
     | '/pressing/commandes/$id'
     | '/rapports/activites/$code'
@@ -567,6 +689,11 @@ export interface FileRouteTypes {
     | '/rh/bulletins/$id'
     | '/rh/employes/$id'
     | '/salle-fete/reservations/$id'
+    | '/admin/journal'
+    | '/admin/parametres'
+    | '/admin/roles'
+    | '/admin/utilisateurs'
+    | '/client/clients'
     | '/facturation/factures'
     | '/facturation/prestations'
     | '/finances/categories-depenses'
@@ -591,6 +718,7 @@ export interface FileRouteTypes {
     | '/residence/contrats'
     | '/residence/echeances'
     | '/residence/logements'
+    | '/residence/portail'
     | '/residence/sejours-courts'
     | '/restaurant/commandes'
     | '/restaurant/plats'
@@ -601,7 +729,11 @@ export interface FileRouteTypes {
     | '/rh/pointage'
     | '/salle-fete/calendrier'
     | '/salle-fete/reservations'
+    | '/residence/portail/caution'
+    | '/residence/portail/echeances'
+    | '/residence/portail/paiements'
     | '/rh/pointage/consultation'
+    | '/admin/roles/$id/permissions'
   id:
     | '__root__'
     | '/_authenticated'
@@ -609,6 +741,7 @@ export interface FileRouteTypes {
     | '/_authenticated/en-cours'
     | '/_authenticated/'
     | '/_authenticated/rapports/'
+    | '/_authenticated/client/clients/$id'
     | '/_authenticated/facturation/factures/$id'
     | '/_authenticated/pressing/commandes/$id'
     | '/_authenticated/rapports/activites/$code'
@@ -618,6 +751,11 @@ export interface FileRouteTypes {
     | '/_authenticated/rh/bulletins/$id'
     | '/_authenticated/rh/employes/$id'
     | '/_authenticated/salle-fete/reservations/$id'
+    | '/_authenticated/admin/journal/'
+    | '/_authenticated/admin/parametres/'
+    | '/_authenticated/admin/roles/'
+    | '/_authenticated/admin/utilisateurs/'
+    | '/_authenticated/client/clients/'
     | '/_authenticated/facturation/factures/'
     | '/_authenticated/facturation/prestations/'
     | '/_authenticated/finances/categories-depenses/'
@@ -642,6 +780,7 @@ export interface FileRouteTypes {
     | '/_authenticated/residence/contrats/'
     | '/_authenticated/residence/echeances/'
     | '/_authenticated/residence/logements/'
+    | '/_authenticated/residence/portail/'
     | '/_authenticated/residence/sejours-courts/'
     | '/_authenticated/restaurant/commandes/'
     | '/_authenticated/restaurant/plats/'
@@ -652,7 +791,11 @@ export interface FileRouteTypes {
     | '/_authenticated/rh/pointage/'
     | '/_authenticated/salle-fete/calendrier/'
     | '/_authenticated/salle-fete/reservations/'
+    | '/_authenticated/residence/portail/caution/'
+    | '/_authenticated/residence/portail/echeances/'
+    | '/_authenticated/residence/portail/paiements/'
     | '/_authenticated/rh/pointage/consultation/'
+    | '/_authenticated/admin/roles/$id/permissions/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -695,6 +838,48 @@ declare module '@tanstack/react-router' {
       path: '/rapports'
       fullPath: '/rapports/'
       preLoaderRoute: typeof AuthenticatedRapportsIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/admin/journal/': {
+      id: '/_authenticated/admin/journal/'
+      path: '/admin/journal'
+      fullPath: '/admin/journal/'
+      preLoaderRoute: typeof AuthenticatedAdminJournalIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/admin/parametres/': {
+      id: '/_authenticated/admin/parametres/'
+      path: '/admin/parametres'
+      fullPath: '/admin/parametres/'
+      preLoaderRoute: typeof AuthenticatedAdminParametresIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/admin/roles/': {
+      id: '/_authenticated/admin/roles/'
+      path: '/admin/roles'
+      fullPath: '/admin/roles/'
+      preLoaderRoute: typeof AuthenticatedAdminRolesIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/admin/utilisateurs/': {
+      id: '/_authenticated/admin/utilisateurs/'
+      path: '/admin/utilisateurs'
+      fullPath: '/admin/utilisateurs/'
+      preLoaderRoute: typeof AuthenticatedAdminUtilisateursIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/client/clients/': {
+      id: '/_authenticated/client/clients/'
+      path: '/client/clients'
+      fullPath: '/client/clients/'
+      preLoaderRoute: typeof AuthenticatedClientClientsIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/client/clients/$id': {
+      id: '/_authenticated/client/clients/$id'
+      path: '/client/clients/$id'
+      fullPath: '/client/clients/$id'
+      preLoaderRoute: typeof AuthenticatedClientClientsIdRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/facturation/factures/': {
@@ -900,6 +1085,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedResidenceLogementsIdRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/residence/portail/': {
+      id: '/_authenticated/residence/portail/'
+      path: '/residence/portail'
+      fullPath: '/residence/portail/'
+      preLoaderRoute: typeof AuthenticatedResidencePortailIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/residence/sejours-courts/': {
       id: '/_authenticated/residence/sejours-courts/'
       path: '/residence/sejours-courts'
@@ -998,11 +1190,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSalleFeteReservationsIdRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/residence/portail/caution/': {
+      id: '/_authenticated/residence/portail/caution/'
+      path: '/residence/portail/caution'
+      fullPath: '/residence/portail/caution/'
+      preLoaderRoute: typeof AuthenticatedResidencePortailCautionIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/residence/portail/echeances/': {
+      id: '/_authenticated/residence/portail/echeances/'
+      path: '/residence/portail/echeances'
+      fullPath: '/residence/portail/echeances/'
+      preLoaderRoute: typeof AuthenticatedResidencePortailEcheancesIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/residence/portail/paiements/': {
+      id: '/_authenticated/residence/portail/paiements/'
+      path: '/residence/portail/paiements'
+      fullPath: '/residence/portail/paiements/'
+      preLoaderRoute: typeof AuthenticatedResidencePortailPaiementsIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/rh/pointage/consultation/': {
       id: '/_authenticated/rh/pointage/consultation/'
       path: '/rh/pointage/consultation'
       fullPath: '/rh/pointage/consultation/'
       preLoaderRoute: typeof AuthenticatedRhPointageConsultationIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/admin/roles/$id/permissions/': {
+      id: '/_authenticated/admin/roles/$id/permissions/'
+      path: '/admin/roles/$id/permissions'
+      fullPath: '/admin/roles/$id/permissions/'
+      preLoaderRoute: typeof AuthenticatedAdminRolesIdPermissionsIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
   }
@@ -1012,6 +1232,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedEnCoursRoute: typeof AuthenticatedEnCoursRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
   AuthenticatedRapportsIndexRoute: typeof AuthenticatedRapportsIndexRoute
+  AuthenticatedClientClientsIdRoute: typeof AuthenticatedClientClientsIdRoute
   AuthenticatedFacturationFacturesIdRoute: typeof AuthenticatedFacturationFacturesIdRoute
   AuthenticatedPressingCommandesIdRoute: typeof AuthenticatedPressingCommandesIdRoute
   AuthenticatedRapportsActivitesCodeRoute: typeof AuthenticatedRapportsActivitesCodeRoute
@@ -1021,6 +1242,11 @@ interface AuthenticatedRouteChildren {
   AuthenticatedRhBulletinsIdRoute: typeof AuthenticatedRhBulletinsIdRoute
   AuthenticatedRhEmployesIdRoute: typeof AuthenticatedRhEmployesIdRoute
   AuthenticatedSalleFeteReservationsIdRoute: typeof AuthenticatedSalleFeteReservationsIdRoute
+  AuthenticatedAdminJournalIndexRoute: typeof AuthenticatedAdminJournalIndexRoute
+  AuthenticatedAdminParametresIndexRoute: typeof AuthenticatedAdminParametresIndexRoute
+  AuthenticatedAdminRolesIndexRoute: typeof AuthenticatedAdminRolesIndexRoute
+  AuthenticatedAdminUtilisateursIndexRoute: typeof AuthenticatedAdminUtilisateursIndexRoute
+  AuthenticatedClientClientsIndexRoute: typeof AuthenticatedClientClientsIndexRoute
   AuthenticatedFacturationFacturesIndexRoute: typeof AuthenticatedFacturationFacturesIndexRoute
   AuthenticatedFacturationPrestationsIndexRoute: typeof AuthenticatedFacturationPrestationsIndexRoute
   AuthenticatedFinancesCategoriesDepensesIndexRoute: typeof AuthenticatedFinancesCategoriesDepensesIndexRoute
@@ -1045,6 +1271,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedResidenceContratsIndexRoute: typeof AuthenticatedResidenceContratsIndexRoute
   AuthenticatedResidenceEcheancesIndexRoute: typeof AuthenticatedResidenceEcheancesIndexRoute
   AuthenticatedResidenceLogementsIndexRoute: typeof AuthenticatedResidenceLogementsIndexRoute
+  AuthenticatedResidencePortailIndexRoute: typeof AuthenticatedResidencePortailIndexRoute
   AuthenticatedResidenceSejoursCourtsIndexRoute: typeof AuthenticatedResidenceSejoursCourtsIndexRoute
   AuthenticatedRestaurantCommandesIndexRoute: typeof AuthenticatedRestaurantCommandesIndexRoute
   AuthenticatedRestaurantPlatsIndexRoute: typeof AuthenticatedRestaurantPlatsIndexRoute
@@ -1055,13 +1282,18 @@ interface AuthenticatedRouteChildren {
   AuthenticatedRhPointageIndexRoute: typeof AuthenticatedRhPointageIndexRoute
   AuthenticatedSalleFeteCalendrierIndexRoute: typeof AuthenticatedSalleFeteCalendrierIndexRoute
   AuthenticatedSalleFeteReservationsIndexRoute: typeof AuthenticatedSalleFeteReservationsIndexRoute
+  AuthenticatedResidencePortailCautionIndexRoute: typeof AuthenticatedResidencePortailCautionIndexRoute
+  AuthenticatedResidencePortailEcheancesIndexRoute: typeof AuthenticatedResidencePortailEcheancesIndexRoute
+  AuthenticatedResidencePortailPaiementsIndexRoute: typeof AuthenticatedResidencePortailPaiementsIndexRoute
   AuthenticatedRhPointageConsultationIndexRoute: typeof AuthenticatedRhPointageConsultationIndexRoute
+  AuthenticatedAdminRolesIdPermissionsIndexRoute: typeof AuthenticatedAdminRolesIdPermissionsIndexRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedEnCoursRoute: AuthenticatedEnCoursRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
   AuthenticatedRapportsIndexRoute: AuthenticatedRapportsIndexRoute,
+  AuthenticatedClientClientsIdRoute: AuthenticatedClientClientsIdRoute,
   AuthenticatedFacturationFacturesIdRoute:
     AuthenticatedFacturationFacturesIdRoute,
   AuthenticatedPressingCommandesIdRoute: AuthenticatedPressingCommandesIdRoute,
@@ -1076,6 +1308,13 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedRhEmployesIdRoute: AuthenticatedRhEmployesIdRoute,
   AuthenticatedSalleFeteReservationsIdRoute:
     AuthenticatedSalleFeteReservationsIdRoute,
+  AuthenticatedAdminJournalIndexRoute: AuthenticatedAdminJournalIndexRoute,
+  AuthenticatedAdminParametresIndexRoute:
+    AuthenticatedAdminParametresIndexRoute,
+  AuthenticatedAdminRolesIndexRoute: AuthenticatedAdminRolesIndexRoute,
+  AuthenticatedAdminUtilisateursIndexRoute:
+    AuthenticatedAdminUtilisateursIndexRoute,
+  AuthenticatedClientClientsIndexRoute: AuthenticatedClientClientsIndexRoute,
   AuthenticatedFacturationFacturesIndexRoute:
     AuthenticatedFacturationFacturesIndexRoute,
   AuthenticatedFacturationPrestationsIndexRoute:
@@ -1123,6 +1362,8 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
     AuthenticatedResidenceEcheancesIndexRoute,
   AuthenticatedResidenceLogementsIndexRoute:
     AuthenticatedResidenceLogementsIndexRoute,
+  AuthenticatedResidencePortailIndexRoute:
+    AuthenticatedResidencePortailIndexRoute,
   AuthenticatedResidenceSejoursCourtsIndexRoute:
     AuthenticatedResidenceSejoursCourtsIndexRoute,
   AuthenticatedRestaurantCommandesIndexRoute:
@@ -1139,8 +1380,16 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
     AuthenticatedSalleFeteCalendrierIndexRoute,
   AuthenticatedSalleFeteReservationsIndexRoute:
     AuthenticatedSalleFeteReservationsIndexRoute,
+  AuthenticatedResidencePortailCautionIndexRoute:
+    AuthenticatedResidencePortailCautionIndexRoute,
+  AuthenticatedResidencePortailEcheancesIndexRoute:
+    AuthenticatedResidencePortailEcheancesIndexRoute,
+  AuthenticatedResidencePortailPaiementsIndexRoute:
+    AuthenticatedResidencePortailPaiementsIndexRoute,
   AuthenticatedRhPointageConsultationIndexRoute:
     AuthenticatedRhPointageConsultationIndexRoute,
+  AuthenticatedAdminRolesIdPermissionsIndexRoute:
+    AuthenticatedAdminRolesIdPermissionsIndexRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
