@@ -13,6 +13,7 @@ import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
 import { Route as AuthenticatedEnCoursRouteImport } from './routes/_authenticated/en-cours'
+import { Route as AuthenticatedDashboardIndexRouteImport } from './routes/_authenticated/dashboard/index'
 import { Route as AuthenticatedRapportsIndexRouteImport } from './routes/_authenticated/rapports/index'
 import { Route as AuthenticatedAdminJournalIndexRouteImport } from './routes/_authenticated/admin/journal/index'
 import { Route as AuthenticatedAdminParametresIndexRouteImport } from './routes/_authenticated/admin/parametres/index'
@@ -90,6 +91,12 @@ const AuthenticatedEnCoursRoute = AuthenticatedEnCoursRouteImport.update({
   path: '/en-cours',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedDashboardIndexRoute =
+  AuthenticatedDashboardIndexRouteImport.update({
+    id: '/dashboard/',
+    path: '/dashboard/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedRapportsIndexRoute =
   AuthenticatedRapportsIndexRouteImport.update({
     id: '/rapports/',
@@ -437,6 +444,7 @@ export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
   '/login': typeof LoginRoute
   '/en-cours': typeof AuthenticatedEnCoursRoute
+  '/dashboard/': typeof AuthenticatedDashboardIndexRoute
   '/rapports/': typeof AuthenticatedRapportsIndexRoute
   '/client/clients/$id': typeof AuthenticatedClientClientsIdRoute
   '/facturation/factures/$id': typeof AuthenticatedFacturationFacturesIdRoute
@@ -499,6 +507,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/en-cours': typeof AuthenticatedEnCoursRoute
   '/': typeof AuthenticatedIndexRoute
+  '/dashboard': typeof AuthenticatedDashboardIndexRoute
   '/rapports': typeof AuthenticatedRapportsIndexRoute
   '/client/clients/$id': typeof AuthenticatedClientClientsIdRoute
   '/facturation/factures/$id': typeof AuthenticatedFacturationFacturesIdRoute
@@ -563,6 +572,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/_authenticated/en-cours': typeof AuthenticatedEnCoursRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
+  '/_authenticated/dashboard/': typeof AuthenticatedDashboardIndexRoute
   '/_authenticated/rapports/': typeof AuthenticatedRapportsIndexRoute
   '/_authenticated/client/clients/$id': typeof AuthenticatedClientClientsIdRoute
   '/_authenticated/facturation/factures/$id': typeof AuthenticatedFacturationFacturesIdRoute
@@ -627,6 +637,7 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/en-cours'
+    | '/dashboard/'
     | '/rapports/'
     | '/client/clients/$id'
     | '/facturation/factures/$id'
@@ -689,6 +700,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/en-cours'
     | '/'
+    | '/dashboard'
     | '/rapports'
     | '/client/clients/$id'
     | '/facturation/factures/$id'
@@ -752,6 +764,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/_authenticated/en-cours'
     | '/_authenticated/'
+    | '/_authenticated/dashboard/'
     | '/_authenticated/rapports/'
     | '/_authenticated/client/clients/$id'
     | '/_authenticated/facturation/factures/$id'
@@ -844,6 +857,13 @@ declare module '@tanstack/react-router' {
       path: '/en-cours'
       fullPath: '/en-cours'
       preLoaderRoute: typeof AuthenticatedEnCoursRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/dashboard/': {
+      id: '/_authenticated/dashboard/'
+      path: '/dashboard'
+      fullPath: '/dashboard/'
+      preLoaderRoute: typeof AuthenticatedDashboardIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/rapports/': {
@@ -1251,6 +1271,7 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedRouteChildren {
   AuthenticatedEnCoursRoute: typeof AuthenticatedEnCoursRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
+  AuthenticatedDashboardIndexRoute: typeof AuthenticatedDashboardIndexRoute
   AuthenticatedRapportsIndexRoute: typeof AuthenticatedRapportsIndexRoute
   AuthenticatedClientClientsIdRoute: typeof AuthenticatedClientClientsIdRoute
   AuthenticatedFacturationFacturesIdRoute: typeof AuthenticatedFacturationFacturesIdRoute
@@ -1313,6 +1334,7 @@ interface AuthenticatedRouteChildren {
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedEnCoursRoute: AuthenticatedEnCoursRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
+  AuthenticatedDashboardIndexRoute: AuthenticatedDashboardIndexRoute,
   AuthenticatedRapportsIndexRoute: AuthenticatedRapportsIndexRoute,
   AuthenticatedClientClientsIdRoute: AuthenticatedClientClientsIdRoute,
   AuthenticatedFacturationFacturesIdRoute:

@@ -1,5 +1,5 @@
 import { Link, useLocation } from "@tanstack/react-router";
-import { BarChart3, ChevronDown, Home, LayoutGrid } from "lucide-react";
+import { BarChart2, BarChart3, ChevronDown, Home, LayoutGrid } from "lucide-react";
 import { useState } from "react";
 
 import { useCan, useCurrentUser, usePermissions } from "#/core/auth";
@@ -116,6 +116,7 @@ export function Sidebar() {
 	// défaut (auto-ouverture du parent quand on arrive sur un sous-menu). Les
 	// routes métier construites (ex. /residence/*) ouvrent leur module.
 	const moduleDeLaRoute = (chemin: string): string | null => {
+		if (chemin.startsWith("/dashboard")) return null; // Pas de module, lien top-level
 		if (chemin.startsWith("/residence")) return "RESIDENCE";
 		if (chemin.startsWith("/marchandise")) return "MARCHANDISE";
 		if (chemin.startsWith("/pressing")) return "PRESSING";
@@ -172,6 +173,20 @@ export function Sidebar() {
 								Accueil
 							</Link>
 						</li>
+
+						{canVoirRapports ? (
+							<li>
+								<Link
+									to="/dashboard"
+									activeOptions={{ exact: false }}
+									activeProps={{ className: "bg-lagoon/25 text-white" }}
+									className={linkClassName}
+								>
+									<BarChart2 className="size-4 text-lagoon" aria-hidden />
+									Tableau de bord global
+								</Link>
+							</li>
+						) : null}
 
 						{canVoirRapports ? (
 							<li>
