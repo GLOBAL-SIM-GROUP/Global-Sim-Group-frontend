@@ -119,7 +119,7 @@ export function PlatForm({
 				let imageUrl = value.imageUrl.trim() || null;
 				if (uploadedFile) {
 					try {
-						imageUrl = await uploadImage(uploadedFile);
+						imageUrl = await uploadImage(uploadedFile, "plat-photo");
 					} catch (uploadError) {
 						setGlobalError(
 							uploadError instanceof Error
