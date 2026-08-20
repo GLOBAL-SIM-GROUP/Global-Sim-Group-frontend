@@ -6,19 +6,24 @@ export type UploadCategorie = "client-photo" | "piece-identite" | "plat-photo";
 /**
  * Upload un fichier image vers MinIO via POST /api/v1/uploads.
  *
- * Authentification JWT + permission requise par le backend :
- * - client-photo, piece-identite → CLIENT.MODIFIER
- * - plat-photo → RESTAURANT.MODIFIER
+ * Contrat d'authentification:
+ * - JWT Bearer token requis (Authorization: Bearer <accessToken>)
+ * - Permission requise: CLIENT.MODIFIER (pour TOUTES les catégories)
+ * - Retourne 403 si l'utilisateur manque la permission
  *
- * Le backend valide :
- * - MIME whitelist: image/jpeg, image/png, image/webp, application/pdf
+ * Validation backend:
+ * - MIME whitelist (multer): image/jpeg, image/png, image/webp, application/pdf
  * - Max size: 5 MiB
- * - Catégorie exacte: one of exactly three strings
+ * - Catégorie exacte: client-photo | piece-identite | plat-photo
  *
- * @param file - Fichier à uploader (JPG/PNG/WebP — max 5 Mo)
- * @param categorie - Catégorie de stockage: client-photo | piece-identite | plat-photo
- * @returns Clé MinIO du fichier (e.g. "plat-photo/3-<uuid>.jpg") — à stocker en DB
- * @throws ApiError 403 si permission manque, 400 si fichier invalide, etc.
+ * Response: { "key": "categorie/3-<uuid>.<ext>" }
+ * La clé est dérivée du MIME, pas du nom de fichier client.
+ * À stocker en DB uniquement (jamais les bytes bruts).
+ *
+ * @param file - Fichier à uploader (JPG/PNG/WebP/PDF — max 5 Mo)
+ * @param categorie - Clé exacte: client-photo | piece-identite | plat-photo
+ * @returns Promise<string> — clé MinIO (e.g. "plat-photo/3-<uuid>.jpg")
+ * @throws ApiError 403 si CLIENT.MODIFIER manque, 400 si fichier invalide
  */
 export async function uploadImage(
 	file: File,
@@ -60,13 +65,24 @@ export async function uploadImage(
 
 /**
  * Récupère un fichier uploadé via GET /api/v1/uploads?key=...
- * Requiert une authentification Bearer (CLIENT.VOIR ou RESTAURANT.VOIR selon la catégorie).
  *
- * La clé est retournée par uploadImage() et stockée dans les modèles (e.g. plat.image_url).
+ * Contrat d'authentification:
+ * - JWT Bearer token requis (Authorization: Bearer <accessToken>)
+ * - Permission requise: CLIENT.VOIR (pour TOUTES les catégories)
+ * - Retourne 403 si l'utilisateur manque la permission
+ *
+ * Sécurité:
+ * - Query param 'key' validé strictement: ^(?:client-photo|piece-identite|plat-photo)\/[A-Za-z0-9._-]+$
+ * - Empêche les attaques path-traversal (pas d'accès arbitraire S3)
+ *
+ * Response:
+ * - Raw bytes (image binary)
+ * - Content-Type originel (image/jpeg, etc)
+ * - Content-Disposition: inline; filename="<key>"
  *
  * @param key - Clé MinIO retournée par uploadImage() (e.g. "plat-photo/3-<uuid>.jpg")
- * @returns Promise<Blob> — utiliser createObjectURL() pour <img src>
- * @throws ApiError si le fichier n'existe pas ou si permission manque (403)
+ * @returns Promise<Blob> — image binary prêt pour createObjectURL() → <img src>
+ * @throws ApiError 403 si CLIENT.VOIR manque, 400 si key invalide, 404 si fichier absent
  */
 export async function downloadUploadedFile(key: string | null | undefined): Promise<Blob | null> {
 	if (!key) return null;
@@ -82,14 +98,16 @@ export async function downloadUploadedFile(key: string | null | undefined): Prom
 }
 
 /**
- * Construit une URL de blob pour une image uploadée.
- * Charge d'abord le fichier via fetch avec authentification, puis crée un blob URL.
+ * Crée un blob URL pour une image uploadée.
+ * Flow: fetch avec Bearer token → Blob → URL.createObjectURL() → <img src>
  *
- * ⚠️ Rappel : le blob URL est de courte durée et ne survit pas à un rechargement de page.
- * Pour une utilisation persistante (cache d'images), implémenter un mécanisme de cache.
+ * ⚠️ Important:
+ * - Blob URL ne survit pas rechargement (stocké en mémoire)
+ * - Utilisé avec useUploadBlobUrl hook pour cache + lifecycle
+ * - Cache LRU maintient max 100 images, nettoie après 5min inactivité
  *
- * @param key - Clé MinIO retournée par uploadImage()
- * @returns Promise<string | null> — blob URL utilisable dans <img src>, ou null si échec
+ * @param key - Clé MinIO retournée par uploadImage() (e.g. "plat-photo/3-<uuid>.jpg")
+ * @returns Promise<string | null> — blob URL prêt pour <img src>, ou null si échec
  */
 export async function getUploadBlobUrl(key: string | null | undefined): Promise<string | null> {
 	if (!key) return null;
