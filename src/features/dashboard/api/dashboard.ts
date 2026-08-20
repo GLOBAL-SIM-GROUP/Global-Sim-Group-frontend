@@ -73,9 +73,10 @@ export interface Impaye {
 }
 
 /** Récupère la synthèse globale du tableau de bord */
-export function getSyntheseGlobale(): Promise<SyntheseGlobale> {
+export function getSyntheseGlobale(periode?: string): Promise<SyntheseGlobale> {
+	const params = periode ? `?periode=${encodeURIComponent(periode)}` : "";
 	return getApiClient().apiFetch<SyntheseGlobale>(
-		"/rapports/synthese-globale",
+		`/rapports/synthese-globale${params}`,
 	);
 }
 

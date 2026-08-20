@@ -60,7 +60,7 @@ export function DashboardGlobalPage() {
 	const [periode, setPeriode] = useState<PeriodeFiltre>("ce_mois");
 	const periodeParam = periode !== "personnalisee" ? periode : undefined;
 
-	const syntheseQuery = useSyntheseGlobale();
+	const syntheseQuery = useSyntheseGlobale(periodeParam);
 	const logementsQuery = useLogementsDispo();
 	const produitsQuery = useProduitsCritiques();
 	const commandesQuery = useCommandesPressing();
@@ -217,12 +217,108 @@ export function DashboardGlobalPage() {
 								loading={impayesQuery.isLoading}
 							/>
 							<InfoCard
+								label="Montant des impayés"
+								valeur={formatMontantFCFA(String(synthese.impayes.montant))}
+								icon={AlertCircle}
+								couleur="text-destructive"
+								loading={syntheseQuery.isLoading}
+							/>
+						</div>
+
+						{/* Liste des impayés */}
+						{impayes.length > 0 && (
+							<div className="rounded-lg border border-destructive/40 bg-destructive/10 p-4">
+								<p className="text-sm font-medium text-destructive mb-3">
+									Locataires ayant des impayés:
+								</p>
+								<div className="overflow-x-auto">
+									<table className="w-full text-xs">
+										<thead>
+											<tr className="border-b border-destructive/20">
+												<th className="text-left py-2 px-2 text-destructive font-semibold">
+													Locataire
+												</th>
+												<th className="text-right py-2 px-2 text-destructive font-semibold">
+													Montant
+												</th>
+												<th className="text-right py-2 px-2 text-destructive font-semibold">
+													Échéance
+												</th>
+											</tr>
+										</thead>
+										<tbody>
+											{impayes.slice(0, 10).map((i, idx) => (
+												<tr key={idx} className="border-b border-destructive/10">
+													<td className="py-2 px-2 text-foreground">{i.locataire}</td>
+													<td className="text-right py-2 px-2 text-foreground">
+														{formatMontantFCFA(String(i.montant))}
+													</td>
+													<td className="text-right py-2 px-2 text-muted-foreground">
+														{new Date(i.date_echeance).toLocaleDateString("fr-FR")}
+													</td>
+												</tr>
+											))}
+										</tbody>
+									</table>
+								</div>
+								{impayes.length > 10 && (
+									<p className="text-xs text-destructive mt-2">
+										+{impayes.length - 10} autres impayés…
+									</p>
+								)}
+							</div>
+						)}
+					</div>
+
+					{/* RH - Détails */}
+					<div className="space-y-3">
+						<h2 className="text-lg font-semibold text-foreground">
+							Ressources humaines
+						</h2>
+						<div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+							<InfoCard
+								label="Présents aujourd'hui"
+								valeur={String(presentsAujourdhui)}
+								icon={CheckCircle2}
+								couleur="text-emerald-600"
+								loading={pointagesQuery.isLoading}
+							/>
+							<InfoCard
+								label="Retards aujourd'hui"
+								valeur={String(retardsAujourdhui)}
+								icon={Clock}
+								couleur={retardsAujourdhui > 0 ? "text-amber-600" : "text-muted-foreground"}
+								loading={pointagesQuery.isLoading}
+							/>
+							<InfoCard
 								label="Masse salariale à payer"
 								valeur={formatMontantFCFA(String(synthese.masse_salariale))}
 								icon={Users}
 								loading={syntheseQuery.isLoading}
 							/>
 						</div>
+
+						{/* Liste des retards */}
+						{retardsAujourdhui > 0 && pointages.some((p) => p.retard) && (
+							<div className="rounded-lg border border-amber-600/40 bg-amber-600/10 p-4">
+								<p className="text-sm font-medium text-amber-600 mb-3">
+									Employés arrivés en retard:
+								</p>
+								<ul className="space-y-2 text-xs">
+									{pointages
+										.filter((p) => p.retard)
+										.slice(0, 10)
+										.map((p, idx) => (
+											<li key={idx} className="flex items-center justify-between text-foreground">
+												<span>{p.nom}</span>
+												<span className="text-muted-foreground">
+													{p.heure_arrivee ? new Date(p.heure_arrivee).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }) : "—"}
+												</span>
+											</li>
+										))}
+								</ul>
+							</div>
+						)}
 					</div>
 
 					{/* Market et Stock */}
@@ -297,28 +393,6 @@ export function DashboardGlobalPage() {
 						</div>
 					</div>
 
-					{/* Ressources Humaines */}
-					<div className="space-y-3">
-						<h2 className="text-lg font-semibold text-foreground">
-							Ressources humaines
-						</h2>
-						<div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-							<InfoCard
-								label="Présents aujourd'hui"
-								valeur={String(presentsAujourdhui)}
-								icon={CheckCircle2}
-								couleur="text-emerald-600"
-								loading={pointagesQuery.isLoading}
-							/>
-							<InfoCard
-								label="Retards aujourd'hui"
-								valeur={String(retardsAujourdhui)}
-								icon={Clock}
-								couleur={retardsAujourdhui > 0 ? "text-amber-600" : "text-muted-foreground"}
-								loading={pointagesQuery.isLoading}
-							/>
-						</div>
-					</div>
 
 				</>
 			) : null}
