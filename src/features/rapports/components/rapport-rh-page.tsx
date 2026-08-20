@@ -1,12 +1,14 @@
 import { Link } from "@tanstack/react-router";
-import { FileDown } from "lucide-react";
+import { FileDown, FileText } from "lucide-react";
+import { useState } from "react";
 
 import { Breadcrumb } from "#/components/ui/breadcrumb";
 import { Button } from "#/components/ui/button";
 import { formatMontantFCFA } from "#/features/residence/models/format";
 
+import { rapportPdfPath } from "../api/rapports";
 import { useRapportRh } from "../hooks/use-rapports";
-import { telechargerTexte } from "../lib/export";
+import { telechargerPdf, telechargerTexte } from "../lib/export";
 import {
 	construireCsv,
 	libelleStatutIndicateur,
@@ -25,11 +27,25 @@ interface RapportRhPageProps {
 export function RapportRhPage({ initialSearch }: RapportRhPageProps) {
 	const periode = periodeParDefaut(initialSearch);
 	const rapportQuery = useRapportRh(periode.du, periode.au);
+	const [pdfError, setPdfError] = useState(false);
 
-	const exporter = () => {
-		if (!rapportQuery.data) return;
+	const exporterPdf = async () => {
+		setPdfError(false);
+		try {
+			await telechargerPdf(
+				rapportPdfPath("/rapports/rh", periode.du, periode.au),
+				`rapport-rh-${periode.du}-${periode.au}.pdf`,
+			);
+		} catch {
+			setPdfError(true);
+		}
+	};
+
+	/** Lignes du rapport — base commune de l'export CSV et PDF. */
+	const construireLignes = (): (string | number)[][] => {
+		if (!rapportQuery.data) return [];
 		const { pointage, paie } = rapportQuery.data;
-		const lignes: (string | number)[][] = [
+		return [
 			["Période", `${periode.du} → ${periode.au}`],
 			[],
 			["POINTAGE"],
@@ -50,6 +66,11 @@ export function RapportRhPage({ initialSearch }: RapportRhPageProps) {
 			]),
 			["Total versé", paie.total_verse],
 		];
+	};
+
+	const exporter = () => {
+		const lignes = construireLignes();
+		if (lignes.length === 0) return;
 		telechargerTexte(
 			`rapport-rh-${periode.du}-${periode.au}.csv`,
 			construireCsv(lignes),
@@ -77,12 +98,31 @@ export function RapportRhPage({ initialSearch }: RapportRhPageProps) {
 					<Button variant="outline" size="sm" asChild>
 						<Link to="/rapports">Nouveau rapport</Link>
 					</Button>
+					<Button
+						size="sm"
+						variant="outline"
+						onClick={exporterPdf}
+						disabled={!rapportQuery.data}
+					>
+						<FileText className="size-4" aria-hidden />
+						Exporter en PDF
+					</Button>
 					<Button size="sm" onClick={exporter} disabled={!rapportQuery.data}>
 						<FileDown className="size-4" aria-hidden />
 						Exporter en Excel (CSV)
 					</Button>
 				</div>
 			</div>
+
+			{pdfError ? (
+				<p
+					role="alert"
+					className="rounded-md border border-destructive/40 bg-destructive/10 px-4 py-2 text-sm text-destructive"
+				>
+					Export PDF indisponible pour le moment (le serveur renvoie une
+					erreur).
+				</p>
+			) : null}
 
 			{rapportQuery.isLoading ? (
 				<p className="text-sm text-muted-foreground">Chargement…</p>
