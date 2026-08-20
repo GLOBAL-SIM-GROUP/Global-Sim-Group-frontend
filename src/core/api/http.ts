@@ -21,6 +21,11 @@ export interface ApiClient {
 	 * @param path  chemin relatif à la base (`/api/v1`), ex. `/auth/login`.
 	 */
 	apiFetch<T>(path: string, init?: RequestInit): Promise<T>;
+	/**
+	 * Télécharge une réponse binaire (ex. rapport `format=pdf`) avec le même
+	 * bearer + rafraîchissement sur 401.
+	 */
+	download(path: string, init?: RequestInit): Promise<Blob>;
 }
 
 /**
@@ -48,77 +53,119 @@ export function createApiClient(deps: ApiDeps): ApiClient {
 		return refreshing;
 	}
 
-	async function apiFetch<T>(path: string, init: RequestInit = {}): Promise<T> {
-		const requiresAuth = !NO_AUTH_PATHS.some((p) => path.startsWith(p));
-		const controller = new AbortController();
-		let timedOut = false;
-		const timeoutId = setTimeout(() => {
-			timedOut = true;
-			controller.abort();
-		}, DEFAULT_TIMEOUT_MS);
-
-		// Propagation de l'annulation éventuelle de l'appelant.
-		if (init.signal) {
-			if (init.signal.aborted) controller.abort();
-			else
-				init.signal.addEventListener("abort", () => controller.abort(), {
-					once: true,
-				});
+	// Requête authentifiée partagée : bearer + refresh sur 401 (single-flight,
+	// cf. `refreshSingleFlight`).
+	function requete(
+		path: string,
+		init: RequestInit,
+		requiresAuth: boolean,
+		signal: AbortSignal,
+	): Promise<Response> {
+		const headers = new Headers(init.headers);
+		headers.set("content-type", "application/json");
+		if (requiresAuth) {
+			const token = deps.getAccessToken();
+			if (token) headers.set("authorization", `Bearer ${token}`);
 		}
 
-		try {
-			const headers = new Headers(init.headers);
-			headers.set("content-type", "application/json");
-			if (requiresAuth) {
-				const token = deps.getAccessToken();
-				if (token) headers.set("authorization", `Bearer ${token}`);
-			}
+		const executer = () =>
+			fetch(`${baseUrl}${path}`, { ...init, headers, signal });
 
-			let response = await fetch(`${baseUrl}${path}`, {
-				...init,
-				headers,
-				signal: controller.signal,
-			});
-
+		return (async () => {
+			let response = await executer();
 			if (response.status === 401 && requiresAuth) {
 				const refreshed = await refreshSingleFlight();
 				if (refreshed) {
 					const token = deps.getAccessToken();
 					if (token) headers.set("authorization", `Bearer ${token}`);
-					response = await fetch(`${baseUrl}${path}`, {
-						...init,
-						headers,
-						signal: controller.signal,
-					});
+					response = await executer();
 				} else {
 					deps.onSessionExpired?.();
 				}
 			}
+			return response;
+		})();
+	}
 
+	async function apiFetch<T>(path: string, init: RequestInit = {}): Promise<T> {
+		const requiresAuth = !NO_AUTH_PATHS.some((p) => path.startsWith(p));
+		const { signal, timedOut, timeoutId } = prepareRequete(init);
+		try {
+			const response = await requete(path, init, requiresAuth, signal);
 			return await unwrap<T>(response);
 		} catch (error) {
-			if (error instanceof ApiError) throw error;
-			if (error instanceof DOMException && error.name === "AbortError") {
-				if (timedOut) {
-					throw new ApiError({
-						status: 0,
-						code: ApiErrorCode.TIMEOUT_ERROR,
-						message: "La requête a expiré.",
-					});
-				}
-				throw error; // annulation volontaire par l'appelant
-			}
-			throw new ApiError({
-				status: 0,
-				code: ApiErrorCode.NETWORK_ERROR,
-				message: "Impossible de joindre le serveur.",
-			});
+			throw mapperErreur(error, timedOut());
 		} finally {
 			clearTimeout(timeoutId);
 		}
 	}
 
-	return { apiFetch };
+	async function download(path: string, init: RequestInit = {}): Promise<Blob> {
+		const requiresAuth = !NO_AUTH_PATHS.some((p) => path.startsWith(p));
+		const { signal, timedOut, timeoutId } = prepareRequete(init);
+		try {
+			const response = await requete(path, init, requiresAuth, signal);
+			if (!response.ok) {
+				const contentType = response.headers.get("content-type") ?? "";
+				const body = contentType.includes("application/json")
+					? await response.json().catch(() => null)
+					: null;
+				throw buildApiError(response.status, body);
+			}
+			return await response.blob();
+		} catch (error) {
+			throw mapperErreur(error, timedOut());
+		} finally {
+			clearTimeout(timeoutId);
+		}
+	}
+
+	return { apiFetch, download };
+}
+
+/**
+ * Prépare un AbortController avec timeout : retourne le signal, une fonction
+ * `timedOut()` et l'id du timer (à libérer par l'appelant).
+ */
+function prepareRequete(init: RequestInit): {
+	signal: AbortSignal;
+	timedOut: () => boolean;
+	timeoutId: ReturnType<typeof setTimeout>;
+} {
+	const controller = new AbortController();
+	let timedOut = false;
+	const timeoutId = setTimeout(() => {
+		timedOut = true;
+		controller.abort();
+	}, DEFAULT_TIMEOUT_MS);
+	// Propagation de l'annulation éventuelle de l'appelant.
+	if (init.signal) {
+		if (init.signal.aborted) controller.abort();
+		else
+			init.signal.addEventListener("abort", () => controller.abort(), {
+				once: true,
+			});
+	}
+	return { signal: controller.signal, timedOut: () => timedOut, timeoutId };
+}
+
+function mapperErreur(error: unknown, timedOut: boolean): never {
+	if (error instanceof ApiError) throw error;
+	if (error instanceof DOMException && error.name === "AbortError") {
+		if (timedOut) {
+			throw new ApiError({
+				status: 0,
+				code: ApiErrorCode.TIMEOUT_ERROR,
+				message: "La requête a expiré.",
+			});
+		}
+		throw error; // annulation volontaire par l'appelant
+	}
+	throw new ApiError({
+		status: 0,
+		code: ApiErrorCode.NETWORK_ERROR,
+		message: "Impossible de joindre le serveur.",
+	});
 }
 
 async function unwrap<T>(response: Response): Promise<T> {
