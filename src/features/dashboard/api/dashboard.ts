@@ -86,11 +86,19 @@ export function getIndicateurActivite(code: string): Promise<IndicateurActivite>
 	);
 }
 
-/** Récupère les logements disponibles */
+/** Récupère les logements (tous) - filtre côté client par statut */
 export function getLogementsDispo(): Promise<Logement[]> {
 	return getApiClient()
-		.apiFetch<Array<Logement & { id_logement: string; id?: never }>>(
-			"/residence/logements?statut=disponible",
+		.apiFetch<Array<{ id_logement: string; statut: string; numero: string; id_batiment: string }>>("/residence/logements")
+		.then((logements) =>
+			logements
+				.filter((l) => l.statut === "disponible")
+				.map((l) => ({
+					id_logement: l.id_logement,
+					numero: l.numero,
+					statut: l.statut,
+					id_batiment: l.id_batiment,
+				})),
 		)
 		.catch(() => []);
 }
@@ -98,19 +106,20 @@ export function getLogementsDispo(): Promise<Logement[]> {
 /** Récupère les produits avec stock faible */
 export function getProduitsCritiques(): Promise<Produit[]> {
 	return getApiClient()
-		.apiFetch<Produit[]>("/market/produits")
+		.apiFetch<Array<{ id_produit: string; nom: string; stock: number | string; prix: number | string }>>("/market/produits")
 		.then((produits) =>
 			produits.filter((p) => Number(p.stock) < 10),
 		)
 		.catch(() => []);
 }
 
-/** Récupère les commandes au pressing */
+/** Récupère les commandes au pressing (en cours) */
 export function getCommandesPressing(): Promise<CommandePressing[]> {
 	return getApiClient()
-		.apiFetch<CommandePressing[]>("/pressing/commandes")
+		.apiFetch<Array<{ id_commande: string; statut: string; date_depot: string; date_retrait?: string }>>("/pressing/commandes")
 		.then((commandes) =>
-			commandes.filter((c) => c.statut !== "retirer"),
+			// Filtre côté client: exclude les retraitées et annulées
+			commandes.filter((c) => c.statut !== "RETIREE" && c.statut !== "ANNULEE"),
 		)
 		.catch(() => []);
 }
@@ -120,17 +129,17 @@ export function getReservationsSalle(): Promise<Reservation[]> {
 	return getApiClient()
 		.apiFetch<Reservation[]>("/salle-fete/reservations")
 		.then((reservations) =>
-			reservations.filter(
-				(r) => new Date(r.date) >= new Date(),
-			).slice(0, 5),
+			reservations
+				.filter((r) => new Date(r.date) >= new Date())
+				.slice(0, 5),
 		)
 		.catch(() => []);
 }
 
-/** Récupère les pointages du jour */
+/** Récupère les pointages - filtre côté client pour aujourd'hui */
 export function getPointagesAujourdhui(): Promise<Pointage[]> {
 	return getApiClient()
-		.apiFetch<Pointage[]>("/rh/pointages?date=aujourd_hui")
+		.apiFetch<Pointage[]>("/rh/pointages")
 		.catch(() => []);
 }
 

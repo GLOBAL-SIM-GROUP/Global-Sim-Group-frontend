@@ -211,9 +211,7 @@ export function DashboardGlobalPage() {
 							/>
 							<InfoCard
 								label="Locataires impayés"
-								valeur={String(
-									impayes.filter((i) => i.statut === "RESIDENCE").length,
-								)}
+								valeur={String(impayes.length)}
 								icon={AlertCircle}
 								couleur="text-destructive"
 								loading={impayesQuery.isLoading}
