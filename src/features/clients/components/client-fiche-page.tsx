@@ -494,13 +494,13 @@ export function ClientFichePage({ id }: ClientFichePageProps) {
 				</div>
 			</div>
 
-			<div className="grid gap-4 lg:gap-6 lg:grid-cols-2">
-				<section className="space-y-2 rounded-lg border border-border bg-card p-3 sm:p-5 shadow-sm">
-					<h2 className="flex items-center gap-2 text-base sm:text-lg font-semibold text-foreground">
-						<UserRound className="size-4 sm:size-5 text-lagoon" aria-hidden />
+			<div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
+				<section className="space-y-3 rounded-lg border border-border bg-card p-4 sm:p-5 shadow-sm">
+					<h2 className="flex items-center gap-2 text-lg font-semibold text-foreground">
+						<UserRound className="size-5 text-lagoon" aria-hidden />
 						Informations personnelles
 					</h2>
-					<dl className="grid gap-2 sm:gap-4 sm:grid-cols-2">
+					<dl className="grid gap-3 sm:gap-4 sm:grid-cols-2">
 						<Ligne label="Nom" valeur={client.nom} />
 						<Ligne label="Prénom(s)" valeur={client.prenoms} />
 						<Ligne
@@ -526,12 +526,12 @@ export function ClientFichePage({ id }: ClientFichePageProps) {
 					</dl>
 				</section>
 
-				<section className="space-y-2 rounded-lg border border-border bg-card p-3 sm:p-5 shadow-sm">
-					<h2 className="flex items-center gap-2 text-base sm:text-lg font-semibold text-foreground">
-						<Phone className="size-4 sm:size-5 text-lagoon" aria-hidden />
+				<section className="space-y-3 rounded-lg border border-border bg-card p-4 sm:p-5 shadow-sm">
+					<h2 className="flex items-center gap-2 text-lg font-semibold text-foreground">
+						<Phone className="size-5 text-lagoon" aria-hidden />
 						Coordonnées
 					</h2>
-					<dl className="grid gap-2 sm:gap-4 sm:grid-cols-2">
+					<dl className="grid gap-3 sm:gap-4 sm:grid-cols-2">
 						<Ligne label="Téléphone principal" valeur={client.tel_principal} />
 						<Ligne
 							label="Téléphone secondaire"
