@@ -9,7 +9,7 @@ import {
 } from "#/core/permissions/modules";
 import { cn } from "#/lib/utils";
 
-import { LogoutButton } from "./logout-button";
+import { UserMenu } from "./user-menu";
 
 /** Initiales de l'utilisateur pour l'avatar (2 premiers segments du login,
     ex. "jean.dupont" → "JD", "admin" → "A"). */
@@ -111,7 +111,6 @@ export function Sidebar({ onClose }: { onClose?: () => void } = {}) {
 	const accessibleModules = getAccessibleModules(permissions);
 	const { pathname, search } = useLocation();
 	const activeModule = (search as { module?: string } | undefined)?.module;
-	const [showUserMenu, setShowUserMenu] = useState(false);
 
 	// Un seul module ouvert à la fois ; le module actif de l'URL est ouvert par
 	// défaut (auto-ouverture du parent quand on arrive sur un sous-menu). Les
@@ -296,32 +295,19 @@ export function Sidebar({ onClose }: { onClose?: () => void } = {}) {
 			</div>
 
 			{user ? (
-				<div className="space-y-3 border-t border-palm pt-3">
-					<button
-						type="button"
-						onClick={() => setShowUserMenu(!showUserMenu)}
-						className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-lagoon/20 transition-colors"
-					>
-						{/* Cercle avatar : aucune photo réelle n'est exposée par
-						    /auth/me → initiales du login en attendant une vraie photo. */}
-						<div
-							aria-hidden
-							className="grid size-10 shrink-0 place-items-center rounded-full bg-lagoon/20 text-sm font-semibold text-lagoon ring-1 ring-palm"
-						>
-							{initialsOf(user.login)}
-						</div>
-						<div className="min-w-0">
-							<p className="truncate text-sm font-medium text-white">
-								{user.login}
-							</p>
-							{user.role ? (
-								<p className="truncate text-sm text-gray-400">{user.role}</p>
-							) : null}
-						</div>
-					</button>
-					{showUserMenu && (
-						<LogoutButton className="w-full justify-start text-gray-300 hover:bg-lagoon/20 hover:text-white" />
-					)}
+				<div className="border-t border-palm pt-3">
+					<UserMenu
+						avatar={
+							<div
+								aria-hidden
+								className="grid size-10 shrink-0 place-items-center rounded-full bg-lagoon/20 text-sm font-semibold text-lagoon ring-1 ring-palm"
+							>
+								{initialsOf(user.login)}
+							</div>
+						}
+						login={user.login}
+						role={user.role}
+					/>
 				</div>
 			) : null}
 		</aside>
