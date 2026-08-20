@@ -4,6 +4,7 @@ import { devtools } from "@tanstack/devtools-vite";
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 import viteReact, { reactCompilerPreset } from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
+import { nitro } from "nitro/vite";
 
 const config = defineConfig({
 	resolve: { tsconfigPaths: true },
@@ -24,6 +25,7 @@ const config = defineConfig({
 		devtools(),
 		tailwindcss(),
 		tanstackStart(),
+		nitro(),
 		viteReact(),
 		babel({ presets: [reactCompilerPreset()] }),
 	],

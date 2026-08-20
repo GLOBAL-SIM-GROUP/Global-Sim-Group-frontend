@@ -52,7 +52,7 @@ Le port hôte du compose est `3004` (3000 est capturé par WSL sur cette machine
 le port interne du container reste 3000 (`PORT`).
 
 L'image (`Dockerfile` multi-stage) construit `dist/` puis l'exécute via
-`server.mjs` : hôte `node:http` qui fait le rendu SSR (`dist/server/server.js`),
+`prod-server.mjs` : hôte `node:http` qui fait le rendu SSR (`dist/server/server.js`),
 sert les assets (`dist/client/`), et **relaie `/api/*` vers le backend** défini
 par la variable d'env `API_TARGET` (même pattern que le proxy Vite en dev —
 le navigateur n'appelle que la même origine, le CORS du backend ne s'applique
@@ -62,7 +62,7 @@ pas). Sans `API_TARGET`, `/api/*` répond 404.
 - `PORT` (défaut `3000`) et `API_TARGET` sont des variables du container.
 - `docker compose` configure `API_TARGET` sur l'instance de **dev** par défaut
   — la remplacer par l'URL du backend de production au déploiement.
-- `npm run build && node server.mjs` reproduit le runtime en local (sans Docker).
+- `npm run build && node prod-server.mjs` reproduit le runtime en local (sans Docker).
 
 ## Workflow type
 

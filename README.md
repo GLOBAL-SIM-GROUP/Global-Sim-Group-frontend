@@ -102,7 +102,7 @@ npm run lint / format     # Biome seul
 ## Docker (production)
 
 Build multi-stage (`Dockerfile`) : image minimale `node:22-alpine`, rendu SSR
-via `server.mjs` (hôte `node:http` + serveur statique pour `dist/client/`).
+via `prod-server.mjs` (hôte `node:http` + serveur statique pour `dist/client/`).
 
 ```bash
 docker compose up --build     # → http://localhost:3004
@@ -113,7 +113,7 @@ docker run -p 3004:3000 sim-frontend
 
 Le port hôte du compose est `3004` (3000 est capturé par WSL sur cette machine).
 Le port **interne** du container reste `3000` (`PORT`), aussi piloté par
-`server.mjs` (`PORT` env, défaut 3000) : seul le mapping hôte change.
+`prod-server.mjs` (`PORT` env, défaut 3000) : seul le mapping hôte change.
 
 - `VITE_API_URL` est **inliné au build** (variable Vite), défaut `/api/v1`
   (même origine). Le serveur relaie `/api/*` vers le backend via

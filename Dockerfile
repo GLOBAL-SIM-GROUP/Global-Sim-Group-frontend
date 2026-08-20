@@ -45,7 +45,7 @@ COPY package.json package-lock.json .npmrc ./
 RUN npm ci --omit=dev --legacy-peer-deps && npm cache clean --force
 
 COPY --from=build /app/dist ./dist
-COPY server.mjs ./server.mjs
+COPY prod-server.mjs ./prod-server.mjs
 
 ENV PORT=3000
 EXPOSE 3000
@@ -53,4 +53,4 @@ EXPOSE 3000
 # Non-root : l'image officielle node fournit l'utilisateur `node`.
 USER node
 
-CMD ["node", "server.mjs"]
+CMD ["node", "prod-server.mjs"]
