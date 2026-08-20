@@ -15,6 +15,8 @@ import {
 import { Switch } from "#/components/ui/switch";
 import { getErrorMessageForCode, toApiError } from "#/core/api";
 
+import { uploadImage } from "#/core/api/uploads";
+
 import { useCreerPlat, useModifierPlat } from "../hooks/use-plats";
 import type { CategoriePlat, Plat } from "../models/plats";
 
@@ -113,10 +115,19 @@ export function PlatForm({
 		onSubmit: async ({ value }) => {
 			setGlobalError(null);
 			try {
-				// Si une image a été uploadée, encoder en base64 (sinon garder l'URL)
+				// Si une image a été uploadée, l'envoyer à MinIO
 				let imageUrl = value.imageUrl.trim() || null;
-				if (uploadedFile && imagePreview?.startsWith("data:")) {
-					imageUrl = imagePreview;
+				if (uploadedFile) {
+					try {
+						imageUrl = await uploadImage(uploadedFile);
+					} catch (uploadError) {
+						setGlobalError(
+							uploadError instanceof Error
+								? uploadError.message
+								: "Erreur lors de l'upload de l'image.",
+						);
+						return;
+					}
 				}
 
 				const corps = {
