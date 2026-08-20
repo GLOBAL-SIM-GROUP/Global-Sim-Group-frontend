@@ -63,11 +63,13 @@ export function PlatForm({
 	const editMutation = useModifierPlat();
 	const [globalError, setGlobalError] = useState<string | null>(null);
 	const [imagePreview, setImagePreview] = useState<string | null>(plat?.image_url ?? null);
+	const [uploadedFile, setUploadedFile] = useState<File | null>(null);
 	const fileInputRef = useRef<HTMLInputElement>(null);
 
 	const handleImageChange = async (file: File | null) => {
 		if (!file) {
 			setImagePreview(null);
+			setUploadedFile(null);
 			return;
 		}
 
@@ -77,14 +79,14 @@ export function PlatForm({
 			return;
 		}
 
-		// Convertit en Data URL pour le preview et transmission
+		// Crée un preview local sans envoyer la Data URL au backend
 		const reader = new FileReader();
 		reader.onload = (e) => {
 			const dataUrl = e.target?.result as string;
 			setImagePreview(dataUrl);
-			form.setFieldValue("imageUrl", dataUrl);
 		};
 		reader.readAsDataURL(file);
+		setUploadedFile(file);
 	};
 
 	const form = useForm({
@@ -111,13 +113,19 @@ export function PlatForm({
 		onSubmit: async ({ value }) => {
 			setGlobalError(null);
 			try {
+				// Si une image a été uploadée, encoder en base64 (sinon garder l'URL)
+				let imageUrl = value.imageUrl.trim() || null;
+				if (uploadedFile && imagePreview?.startsWith("data:")) {
+					imageUrl = imagePreview;
+				}
+
 				const corps = {
 					nom: value.nom.trim(),
 					idCategoriePlat: value.idCategoriePlat || null,
 					prix: value.prix.trim(),
 					disponible: value.disponible,
 					description: value.description.trim() || null,
-					imageUrl: value.imageUrl.trim() || null,
+					imageUrl,
 				};
 				if (plat) {
 					await editMutation.mutateAsync({ id: plat.id, ...corps });
