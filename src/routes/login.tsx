@@ -116,45 +116,16 @@ export function LoginPage() {
 		<main className="flex min-h-dvh items-center justify-center bg-gradient-to-br from-background via-background to-muted/30 p-4 sm:p-6">
 			<div className="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-2 gap-0 overflow-hidden rounded-2xl shadow-2xl">
 				{/* Section gauche : Branding */}
-				<div className="hidden lg:flex flex-col justify-between bg-linear-to-br from-sea-ink via-sea-ink/95 to-lagoon/20 p-12 text-white">
-					<div className="space-y-8">
-						<div className="space-y-4">
-							<img
-								src="/logo.png"
-								alt="GLOBAL SIM GROUP"
-								className="h-20 w-auto object-contain brightness-0 invert"
-							/>
-							<div className="space-y-2">
-								<h1 className="text-4xl font-bold tracking-tight">
-									GLOBAL SIM GROUP
-								</h1>
-								<p className="text-lg text-white/80">
-									Plateforme de gestion intégrée
-								</p>
-							</div>
-						</div>
-
-						<div className="space-y-4 pt-6 border-t border-white/20">
-							<Feature
-								icon="📊"
-								title="Gestion Complète"
-								desc="Résidence, clients, finances et RH"
-							/>
-							<Feature
-								icon="🔒"
-								title="Sécurisé"
-								desc="Authentification JWT avec permissions granulaires"
-							/>
-							<Feature
-								icon="⚡"
-								title="Performant"
-								desc="Interface réactive et responsive"
-							/>
-						</div>
-					</div>
-
-					<div className="text-sm text-white/60">
-						© 2026 GLOBAL SIM GROUP. Tous droits réservés.
+				<div className="hidden lg:flex flex-col items-center justify-center bg-linear-to-br from-sea-ink via-sea-ink/95 to-lagoon/20 p-12 text-white">
+					<div className="space-y-4 text-center">
+						<img
+							src="/logo.png"
+							alt="GLOBAL SIM GROUP"
+							className="h-32 w-auto object-contain brightness-0 invert mx-auto"
+						/>
+						<h1 className="text-4xl font-bold tracking-tight">
+							GLOBAL SIM GROUP
+						</h1>
 					</div>
 				</div>
 
@@ -270,25 +241,5 @@ export function LoginPage() {
 				</div>
 			</div>
 		</main>
-	);
-}
-
-function Feature({
-	icon,
-	title,
-	desc,
-}: {
-	icon: string;
-	title: string;
-	desc: string;
-}) {
-	return (
-		<div className="flex gap-4">
-			<div className="text-2xl flex-shrink-0">{icon}</div>
-			<div>
-				<h3 className="font-semibold text-white">{title}</h3>
-				<p className="text-sm text-white/70">{desc}</p>
-			</div>
-		</div>
 	);
 }
