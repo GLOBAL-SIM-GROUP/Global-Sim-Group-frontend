@@ -117,11 +117,11 @@ export function LoginPage() {
 			<div className="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-2 gap-0 overflow-hidden rounded-2xl shadow-2xl">
 				{/* Section gauche : Branding */}
 				<div className="hidden lg:flex flex-col items-center justify-center bg-linear-to-br from-sea-ink via-sea-ink/95 to-lagoon/20 p-12 text-white">
-					<div className="space-y-4 text-center">
+					<div className="space-y-6 text-center">
 						<img
 							src="/logo.png"
 							alt="GLOBAL SIM GROUP"
-							className="h-32 w-auto object-contain brightness-0 invert mx-auto"
+							className="h-56 w-auto object-contain brightness-0 invert mx-auto"
 						/>
 						<h1 className="text-4xl font-bold tracking-tight">
 							GLOBAL SIM GROUP
