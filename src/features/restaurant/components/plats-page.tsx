@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Pencil, Plus, Power, PowerOff } from "lucide-react";
+import { Image as ImageIcon, Pencil, Plus, Power, PowerOff } from "lucide-react";
 import { useState } from "react";
 
 import { Breadcrumb } from "#/components/ui/breadcrumb";
@@ -165,103 +165,92 @@ export function PlatsPage({ initialSearch, onSearchChange }: PlatsPageProps) {
 					Aucun plat trouvé.
 				</div>
 			) : (
-				<div className="overflow-x-auto rounded-lg border border-border bg-card shadow-sm">
-					<table className="w-full border-collapse text-sm">
-						<thead className="bg-sea-ink text-left text-white">
-							<tr>
-								<th scope="col" className="px-4 py-3 font-medium">
-									NOM
-								</th>
-								<th scope="col" className="px-4 py-3 font-medium">
-									CATÉGORIE
-								</th>
-								<th scope="col" className="px-4 py-3 font-medium">
-									PRIX
-								</th>
-								<th scope="col" className="px-4 py-3 font-medium">
-									DISPONIBLE
-								</th>
-								<th scope="col" className="px-4 py-3 font-medium">
-									DESCRIPTION
-								</th>
-								<th scope="col" className="px-4 py-3 text-right font-medium">
-									ACTIONS
-								</th>
-							</tr>
-						</thead>
-						<tbody>
-							{pagination.items.map((plat) => (
-								<tr
-									key={plat.id}
-									className="border-t border-border transition-colors hover:bg-accent/40"
-								>
-									<td className="px-4 py-3 font-medium text-foreground">
-										{plat.nom}
-									</td>
-									<td className="px-4 py-3 text-muted-foreground">
-										{categorieParId.get(plat.id_categorie_plat ?? "") ?? "—"}
-									</td>
-									<td className="px-4 py-3 text-foreground">
-										{formatMontantFCFA(plat.prix)}
-									</td>
-									<td className="px-4 py-3">
-										<span
-											className={cn(
-												"inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium",
-												plat.disponible
-													? "bg-[#27AE60] text-white"
-													: "bg-[#95A5A6] text-white",
-											)}
-										>
-											{plat.disponible ? "Oui" : "Non"}
+				<div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+					{pagination.items.map((plat) => (
+						<div
+							key={plat.id}
+							className="group relative overflow-hidden rounded-lg border border-border bg-card shadow-sm transition-shadow hover:shadow-md"
+						>
+							<div className="relative h-48 w-full overflow-hidden bg-muted">
+								{plat.image_url ? (
+									<img
+										src={plat.image_url}
+										alt={plat.nom}
+										className="h-full w-full object-cover transition-transform group-hover:scale-105"
+									/>
+								) : (
+									<div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-sea-ink/10 to-lagoon/10">
+										<ImageIcon className="size-12 text-muted-foreground/50" aria-hidden />
+									</div>
+								)}
+								{!plat.disponible && (
+									<div className="absolute inset-0 flex items-center justify-center bg-black/40">
+										<span className="text-sm font-semibold text-white">
+											Indisponible
 										</span>
-									</td>
-									<td className="px-4 py-3 text-muted-foreground">
-										{plat.description ?? "—"}
-									</td>
-									<td className="px-4 py-3">
-										<div className="flex items-center justify-end gap-1">
-											{canModifier ? (
-												<>
-													<Button
-														variant="ghost"
-														size="icon-sm"
-														title="Modifier"
-														onClick={() => setAModifier(plat)}
-													>
-														<Pencil className="size-4" aria-hidden />
-														<span className="sr-only">Modifier</span>
-													</Button>
-													<Button
-														variant="ghost"
-														size="icon-sm"
-														title={plat.disponible ? "Désactiver" : "Activer"}
-														onClick={() =>
-															toggleMutation.mutate({
-																id: plat.id,
-																nom: plat.nom,
-																prix: plat.prix,
-																disponible: !plat.disponible,
-															})
-														}
-													>
-														{plat.disponible ? (
-															<PowerOff className="size-4" aria-hidden />
-														) : (
-															<Power className="size-4" aria-hidden />
-														)}
-														<span className="sr-only">
-															{plat.disponible ? "Désactiver" : "Activer"}
-														</span>
-													</Button>
-												</>
-											) : null}
-										</div>
-									</td>
-								</tr>
-							))}
-						</tbody>
-					</table>
+									</div>
+								)}
+							</div>
+
+							<div className="space-y-3 p-4">
+								<div>
+									<h3 className="font-semibold text-foreground">
+										{plat.nom}
+									</h3>
+									<p className="text-xs text-muted-foreground">
+										{categorieParId.get(plat.id_categorie_plat ?? "") ?? "—"}
+									</p>
+								</div>
+
+								<div className="space-y-1">
+									<p className="text-lg font-bold text-primary">
+										{formatMontantFCFA(plat.prix)}
+									</p>
+									{plat.description && (
+										<p className="line-clamp-2 text-xs text-muted-foreground">
+											{plat.description}
+										</p>
+									)}
+								</div>
+
+								{canModifier && (
+									<div className="flex items-center justify-end gap-1 border-t border-border pt-3">
+										<Button
+											variant="ghost"
+											size="icon-sm"
+											title="Modifier"
+											onClick={() => setAModifier(plat)}
+										>
+											<Pencil className="size-4" aria-hidden />
+											<span className="sr-only">Modifier</span>
+										</Button>
+										<Button
+											variant="ghost"
+											size="icon-sm"
+											title={plat.disponible ? "Désactiver" : "Activer"}
+											onClick={() =>
+												toggleMutation.mutate({
+													id: plat.id,
+													nom: plat.nom,
+													prix: plat.prix,
+													disponible: !plat.disponible,
+												})
+											}
+										>
+											{plat.disponible ? (
+												<PowerOff className="size-4" aria-hidden />
+											) : (
+												<Power className="size-4" aria-hidden />
+											)}
+											<span className="sr-only">
+												{plat.disponible ? "Désactiver" : "Activer"}
+											</span>
+										</Button>
+									</div>
+								)}
+							</div>
+						</div>
+					))}
 				</div>
 			)}
 

@@ -10,6 +10,7 @@ export interface Plat {
 	prix: string;
 	disponible: boolean;
 	description: string | null;
+	image_url?: string | null;
 }
 
 /** Catégorie de plat (GET /restaurant/categories). */

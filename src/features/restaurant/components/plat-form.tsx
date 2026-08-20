@@ -70,6 +70,7 @@ export function PlatForm({
 			prix: plat?.prix ?? "",
 			disponible: plat?.disponible ?? true,
 			description: plat?.description ?? "",
+			imageUrl: plat?.image_url ?? "",
 		},
 		validators: {
 			onSubmit: ({ value }) => {
@@ -92,6 +93,7 @@ export function PlatForm({
 					prix: value.prix.trim(),
 					disponible: value.disponible,
 					description: value.description.trim() || null,
+					imageUrl: value.imageUrl.trim() || null,
 				};
 				if (plat) {
 					await editMutation.mutateAsync({ id: plat.id, ...corps });
@@ -167,6 +169,23 @@ export function PlatForm({
 					)}
 				</form.Field>
 			</div>
+
+			<form.Field name="imageUrl">
+				{(field) => (
+					<InputField
+						id={field.name}
+						name={field.name}
+						label="URL de l'image (optionnelle)"
+						type="url"
+						placeholder="https://example.com/image.jpg"
+						autoComplete="off"
+						value={field.state.value}
+						onBlur={field.handleBlur}
+						onChange={(event) => field.handleChange(event.target.value)}
+						error={field.state.meta.errors[0]}
+					/>
+				)}
+			</form.Field>
 
 			<form.Field name="description">
 				{(field) => (
