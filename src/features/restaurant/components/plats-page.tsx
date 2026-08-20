@@ -12,7 +12,7 @@ import {
 	SelectValue,
 } from "#/components/ui/select";
 import { useCan } from "#/core/auth";
-import { getUploadUrl } from "#/core/api/uploads";
+import { useUploadBlobUrl } from "#/core/api/use-upload-blob";
 import { formatMontantFCFA } from "#/features/residence/models/format";
 import { cn } from "#/lib/utils";
 
@@ -172,29 +172,11 @@ export function PlatsPage({ initialSearch, onSearchChange }: PlatsPageProps) {
 							key={plat.id}
 							className="group relative overflow-hidden rounded-lg border border-border bg-card shadow-sm transition-shadow hover:shadow-md"
 						>
-							<div className="relative h-48 w-full overflow-hidden bg-muted">
-								{(() => {
-									const imageUrl = getUploadUrl(plat.image_url);
-									return imageUrl ? (
-										<img
-											src={imageUrl}
-											alt={plat.nom}
-											className="h-full w-full object-cover transition-transform group-hover:scale-105"
-										/>
-									) : (
-										<div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-sea-ink/10 to-lagoon/10">
-											<ImageIcon className="size-12 text-muted-foreground/50" aria-hidden />
-										</div>
-									);
-								})()}
-								{!plat.disponible && (
-									<div className="absolute inset-0 flex items-center justify-center bg-black/40">
-										<span className="text-sm font-semibold text-white">
-											Indisponible
-										</span>
-									</div>
-								)}
-							</div>
+							<PlatImageDisplay
+								imageKey={plat.image_url}
+								nomPlat={plat.nom}
+								indisponible={!plat.disponible}
+							/>
 
 							<div className="space-y-3 p-4">
 								<div>
@@ -297,6 +279,46 @@ export function PlatsPage({ initialSearch, onSearchChange }: PlatsPageProps) {
 				}}
 				onSaved={fermerFormulaire}
 			/>
+		</div>
+	);
+}
+
+/** Composant pour afficher une image de plat avec authentification */
+function PlatImageDisplay({
+	imageKey,
+	nomPlat,
+	indisponible,
+}: {
+	imageKey: string | null | undefined;
+	nomPlat: string;
+	indisponible: boolean;
+}) {
+	const { blobUrl, isLoading } = useUploadBlobUrl(imageKey);
+
+	return (
+		<div className="relative h-48 w-full overflow-hidden bg-muted">
+			{isLoading ? (
+				<div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-sea-ink/10 to-lagoon/10">
+					<div className="text-xs text-muted-foreground">Chargement…</div>
+				</div>
+			) : blobUrl ? (
+				<img
+					src={blobUrl}
+					alt={nomPlat}
+					className="h-full w-full object-cover transition-transform group-hover:scale-105"
+				/>
+			) : (
+				<div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-sea-ink/10 to-lagoon/10">
+					<ImageIcon className="size-12 text-muted-foreground/50" aria-hidden />
+				</div>
+			)}
+			{indisponible && (
+				<div className="absolute inset-0 flex items-center justify-center bg-black/40">
+					<span className="text-sm font-semibold text-white">
+						Indisponible
+					</span>
+				</div>
+			)}
 		</div>
 	);
 }

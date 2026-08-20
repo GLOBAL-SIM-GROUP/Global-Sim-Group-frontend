@@ -59,15 +59,43 @@ export async function uploadImage(
 }
 
 /**
- * Construit l'URL d'accès au fichier uploadé (GET /api/v1/uploads?key=...).
+ * Récupère un fichier uploadé via GET /api/v1/uploads?key=...
+ * Requiert une authentification Bearer (CLIENT.VOIR ou RESTAURANT.VOIR selon la catégorie).
+ *
  * La clé est retournée par uploadImage() et stockée dans les modèles (e.g. plat.image_url).
  *
  * @param key - Clé MinIO retournée par uploadImage() (e.g. "plat-photo/3-<uuid>.jpg")
- * @returns URL relative pour <img src> ou <a href>
+ * @returns Promise<Blob> — utiliser createObjectURL() pour <img src>
+ * @throws ApiError si le fichier n'existe pas ou si permission manque (403)
  */
-export function getUploadUrl(key: string | null | undefined): string | null {
+export async function downloadUploadedFile(key: string | null | undefined): Promise<Blob | null> {
 	if (!key) return null;
-	const baseUrl = env.VITE_API_URL.replace(/\/+$/, "");
-	const encodedKey = encodeURIComponent(key);
-	return `${baseUrl}/uploads?key=${encodedKey}`;
+
+	const client = getApiClient();
+	try {
+		return await client.download(`/uploads?key=${encodeURIComponent(key)}`);
+	} catch {
+		// Si le fichier n'existe pas ou permission manque, retourner null
+		// (l'image affichera le placeholder)
+		return null;
+	}
+}
+
+/**
+ * Construit une URL de blob pour une image uploadée.
+ * Charge d'abord le fichier via fetch avec authentification, puis crée un blob URL.
+ *
+ * ⚠️ Rappel : le blob URL est de courte durée et ne survit pas à un rechargement de page.
+ * Pour une utilisation persistante (cache d'images), implémenter un mécanisme de cache.
+ *
+ * @param key - Clé MinIO retournée par uploadImage()
+ * @returns Promise<string | null> — blob URL utilisable dans <img src>, ou null si échec
+ */
+export async function getUploadBlobUrl(key: string | null | undefined): Promise<string | null> {
+	if (!key) return null;
+
+	const blob = await downloadUploadedFile(key);
+	if (!blob) return null;
+
+	return URL.createObjectURL(blob);
 }
