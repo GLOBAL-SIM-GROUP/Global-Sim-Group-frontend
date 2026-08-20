@@ -33,7 +33,7 @@ ENV VITE_API_URL=$VITE_API_URL
 
 RUN npm run build
 
-# ── Étape 2 — Runtime : .output/ (Nitro) ────────────────────
+# ── Étape 2 — Runtime : dist/ + serveur custom ──────────────────
 FROM node:22-alpine AS runtime
 ENV NODE_ENV=production
 WORKDIR /app
@@ -43,8 +43,9 @@ WORKDIR /app
 COPY package.json package-lock.json .npmrc ./
 RUN npm ci --omit=dev --legacy-peer-deps && npm cache clean --force
 
-# Artefacts du build Nitro : assets statiques + handler serveur SSR.
-COPY --from=build /app/.output ./.output
+# Artefacts du build Vite (client + server, avant Nitro compilation).
+COPY --from=build /app/dist ./dist
+COPY prod-server.mjs ./prod-server.mjs
 
 ENV PORT=3000
 EXPOSE 3000
@@ -52,5 +53,5 @@ EXPOSE 3000
 # Non-root : l'image officielle node fournit l'utilisateur `node`.
 USER node
 
-# Nitro génère .output/server/index.mjs : handler Web standard.
-CMD ["node", ".output/server/index.mjs"]
+# Hôte custom : relaye /api/* vers le backend NestJS + sert SSR + assets.
+CMD ["node", "prod-server.mjs"]

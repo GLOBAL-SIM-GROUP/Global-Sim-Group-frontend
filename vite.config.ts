@@ -6,6 +6,10 @@ import viteReact, { reactCompilerPreset } from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 import { nitro } from "nitro/vite";
 
+// Nitro pour Vercel seulement (optimise SSR serverless).
+// Docker utilise le hôte custom prod-server.mjs.
+const isVercel = process.env.VERCEL === "1";
+
 const config = defineConfig({
 	resolve: { tsconfigPaths: true },
 	// En dev, `VITE_API_URL` est relatif (`/api/v1`) : le navigateur appelle
@@ -25,7 +29,7 @@ const config = defineConfig({
 		devtools(),
 		tailwindcss(),
 		tanstackStart(),
-		nitro(),
+		...(isVercel ? [nitro()] : []),
 		viteReact(),
 		babel({ presets: [reactCompilerPreset()] }),
 	],
