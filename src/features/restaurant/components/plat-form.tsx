@@ -1,5 +1,5 @@
 import { useForm } from "@tanstack/react-form";
-import { Loader2 } from "lucide-react";
+import { Loader2, Upload, X } from "lucide-react";
 import { useState } from "react";
 
 import { Button } from "#/components/ui/button";
@@ -62,6 +62,30 @@ export function PlatForm({
 	const createMutation = useCreerPlat();
 	const editMutation = useModifierPlat();
 	const [globalError, setGlobalError] = useState<string | null>(null);
+	const [imagePreview, setImagePreview] = useState<string | null>(plat?.image_url ?? null);
+	const fileInputRef = useState<HTMLInputElement | null>(null)[1];
+
+	const handleImageChange = async (file: File | null) => {
+		if (!file) {
+			setImagePreview(null);
+			return;
+		}
+
+		// Limite à 5 MB
+		if (file.size > 5 * 1024 * 1024) {
+			setGlobalError("L'image ne doit pas dépasser 5 Mo.");
+			return;
+		}
+
+		// Convertit en Data URL pour le preview et transmission
+		const reader = new FileReader();
+		reader.onload = (e) => {
+			const dataUrl = e.target?.result as string;
+			setImagePreview(dataUrl);
+			form.setFieldValue("imageUrl", dataUrl);
+		};
+		reader.readAsDataURL(file);
+	};
 
 	const form = useForm({
 		defaultValues: {
@@ -170,22 +194,60 @@ export function PlatForm({
 				</form.Field>
 			</div>
 
-			<form.Field name="imageUrl">
-				{(field) => (
-					<InputField
-						id={field.name}
-						name={field.name}
-						label="URL de l'image (optionnelle)"
-						type="url"
-						placeholder="https://example.com/image.jpg"
-						autoComplete="off"
-						value={field.state.value}
-						onBlur={field.handleBlur}
-						onChange={(event) => field.handleChange(event.target.value)}
-						error={field.state.meta.errors[0]}
-					/>
+			<div className="space-y-3">
+				<div>
+					<Label htmlFor="imageUpload">Image du plat (optionnelle)</Label>
+					<p className="text-xs text-muted-foreground mb-2">
+						JPG, PNG ou WebP — max 5 Mo
+					</p>
+					<div className="flex items-center gap-3">
+						<input
+							id="imageUpload"
+							ref={fileInputRef as any}
+							type="file"
+							accept="image/jpeg,image/png,image/webp"
+							onChange={(e) => handleImageChange(e.target.files?.[0] ?? null)}
+							className="hidden"
+						/>
+						<Button
+							type="button"
+							variant="outline"
+							size="sm"
+							onClick={() => (fileInputRef as any)?.current?.click()}
+						>
+							<Upload className="size-4 mr-2" aria-hidden />
+							Choisir une image
+						</Button>
+						{imagePreview && (
+							<Button
+								type="button"
+								variant="ghost"
+								size="sm"
+								onClick={() => {
+									setImagePreview(null);
+									form.setFieldValue("imageUrl", "");
+									if ((fileInputRef as any)?.current) {
+										(fileInputRef as any).current.value = "";
+									}
+								}}
+							>
+								<X className="size-4" aria-hidden />
+								<span className="sr-only">Supprimer</span>
+							</Button>
+						)}
+					</div>
+				</div>
+
+				{imagePreview && (
+					<div className="relative w-full max-w-sm overflow-hidden rounded-lg border border-border bg-muted">
+						<img
+							src={imagePreview}
+							alt="Aperçu de l'image"
+							className="h-auto w-full max-h-48 object-cover"
+						/>
+					</div>
 				)}
-			</form.Field>
+			</div>
 
 			<form.Field name="description">
 				{(field) => (
