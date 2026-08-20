@@ -1,6 +1,6 @@
 import { Download, FileText, X } from "lucide-react";
 import { jsPDF } from "jspdf";
-import "jspdf-autotable";
+import autoTable from "jspdf-autotable";
 import { useState } from "react";
 
 import { Breadcrumb } from "#/components/ui/breadcrumb";
@@ -188,7 +188,7 @@ export function TableauDeBordPage() {
 		]);
 
 		// Créer le tableau PDF
-		(doc as any).autoTable({
+		autoTable(doc, {
 			head: [["Période", "Recettes", "Dépenses", "Solde", "% Marge"]],
 			body: tableData,
 			startY: yPosition,
@@ -200,11 +200,6 @@ export function TableauDeBordPage() {
 			},
 			bodyStyles: {
 				textColor: 0,
-			},
-			footStyles: {
-				fillColor: [230, 230, 230],
-				textColor: 0,
-				fontStyle: "bold",
 			},
 			alternateRowStyles: {
 				fillColor: [245, 245, 245],
