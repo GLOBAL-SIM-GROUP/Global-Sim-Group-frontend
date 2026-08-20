@@ -3,7 +3,10 @@ import { Home } from "lucide-react";
 
 import { ModuleTile } from "#/components/ui/module-tile";
 import { useCurrentUser, usePermissions } from "#/core/auth";
-import { getAccessibleModules } from "#/core/permissions/modules";
+import {
+	getAccessibleModules,
+	getAccessibleModuleSubItems,
+} from "#/core/permissions/modules";
 
 /**
  * Accueil protégé = lanceur de modules. Les tuiles sont pilotées par les
@@ -50,18 +53,39 @@ function HomePage() {
 
 			{accessibleModules.length > 0 ? (
 				<section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-					{accessibleModules.map((module) => (
-						<ModuleTile
-							key={module.code}
-							icon={module.icon}
-							title={module.title}
-							description={module.description}
-							linkProps={{
-								to: "/en-cours",
-								search: { module: module.code },
-							}}
-						/>
-					))}
+					{accessibleModules.map((module) => {
+						// Obtient la première sous-page accessible du module
+						const subItems = getAccessibleModuleSubItems(
+							module,
+							usePermissions(),
+						);
+						// Pointe vers la première sous-page, ou le placeholder si aucune
+						const href =
+							subItems.length > 0
+								? subItems[0].path
+								: "/en-cours";
+						const search =
+							subItems.length === 0
+								? { module: module.code }
+								: undefined;
+
+						return (
+							<ModuleTile
+								key={module.code}
+								icon={module.icon}
+								title={module.title}
+								description={module.description}
+								linkProps={
+									search
+										? {
+												to: href,
+												search,
+											}
+										: { to: href }
+								}
+							/>
+						);
+					})}
 				</section>
 			) : (
 				<p className="text-sm text-muted-foreground">
