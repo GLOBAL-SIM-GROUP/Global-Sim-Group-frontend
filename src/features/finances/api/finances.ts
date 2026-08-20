@@ -30,12 +30,9 @@ const texteOuNull = (valeur: string | null | undefined): string | null =>
 /** Appels API du module Finances. */
 export function listTableauBord(filtres?: {
 	periodo?: string;
-	activite?: string;
 }): Promise<LigneTableauBord[]> {
 	const params = new URLSearchParams();
 	if (filtres?.periodo) params.set("periodo", filtres.periodo);
-	if (filtres?.activite && filtres.activite !== "global")
-		params.set("activite", filtres.activite);
 	const qs = params.toString();
 	return getApiClient().apiFetch<LigneTableauBord[]>(
 		`/finances/tableau-de-bord${qs ? `?${qs}` : ""}`,

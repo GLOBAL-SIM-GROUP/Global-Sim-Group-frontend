@@ -66,9 +66,8 @@ export function TableauDeBordPage() {
 
 	// Map période filtre to backend parameter
 	const periodeParam = periode !== "personnalisee" ? periode : undefined;
-	const activiteParam = activite !== "global" ? activite : undefined;
 
-	const tableauBordQuery = useTableauBord(periodeParam, activiteParam);
+	const tableauBordQuery = useTableauBord(periodeParam);
 
 	// Fonction d'export PDF
 	const handleExport = () => {
@@ -447,9 +446,22 @@ function DetailsParActiviteModal({
 	periode?: string;
 	fermer: () => void;
 }) {
-	// Récupère les données pour chaque activité (sauf "global")
-	const activites = (Object.entries(ACTIVITES) as [ActiviteFiltre, string][])
-		.filter(([key]) => key !== "global");
+	const { data, isLoading } = useTableauBord(periode);
+	const lignes = data ?? [];
+
+	// Calcule les totaux globaux
+	const totalRecettes = lignes.reduce(
+		(sum, l) => sum + Number(l.encaissements),
+		0,
+	);
+	const totalDepenses = lignes.reduce(
+		(sum, l) => sum + Number(l.decaissements),
+		0,
+	);
+	const totalMarge = lignes.reduce(
+		(sum, l) => sum + Number(l.marge_nette),
+		0,
+	);
 
 	return (
 		<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
@@ -468,78 +480,51 @@ function DetailsParActiviteModal({
 
 				<div className="space-y-4">
 					<p className="text-sm text-muted-foreground">
-						Détails consolidés par activité pour la période sélectionnée.
+						Détails consolidés pour la période sélectionnée.
 					</p>
 
-					<div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-						{activites.map(([key, label]) => {
-							// Récupère les données pour cette activité
-							const { data, isLoading } = useTableauBord(periode, key);
-							const lignesActivite = data ?? [];
-
-							const totalRecettes = lignesActivite.reduce(
-								(sum, l) => sum + Number(l.encaissements),
-								0,
-							);
-							const totalDepenses = lignesActivite.reduce(
-								(sum, l) => sum + Number(l.decaissements),
-								0,
-							);
-							const totalMarge = lignesActivite.reduce(
-								(sum, l) => sum + Number(l.marge_nette),
-								0,
-							);
-
-							return (
-								<div
-									key={key}
-									className="rounded-lg border border-border bg-muted/30 p-4"
-								>
-									<h3 className="font-semibold text-foreground">
-										{label}
-									</h3>
-									{isLoading && (
-										<p className="text-xs text-muted-foreground mt-1">
-											Chargement…
-										</p>
-									)}
-									{!isLoading && (
-										<div className="space-y-2 mt-3 text-sm">
-											<div className="flex justify-between">
-												<span>Recettes:</span>
-												<span className="font-medium">
-													{formatMontantFCFA(String(totalRecettes))}
-												</span>
-											</div>
-											<div className="flex justify-between">
-												<span>Dépenses:</span>
-												<span className="font-medium">
-													{formatMontantFCFA(String(totalDepenses))}
-												</span>
-											</div>
-											<div className="flex justify-between">
-												<span>Marge:</span>
-												<span
-													className={cn(
-														"font-medium",
-														totalMarge >= 0
-															? "text-[#27AE60]"
-															: "text-destructive",
-													)}
-												>
-													{formatMontantFCFA(String(totalMarge))}
-												</span>
-											</div>
-										</div>
-									)}
+					{isLoading ? (
+						<p className="text-sm text-muted-foreground">Chargement…</p>
+					) : (
+						<div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+							<div className="rounded-lg border border-border bg-muted/30 p-4">
+								<h3 className="font-semibold text-foreground">
+									Totaux consolidés
+								</h3>
+								<div className="space-y-2 mt-3 text-sm">
+									<div className="flex justify-between">
+										<span>Recettes totales:</span>
+										<span className="font-medium">
+											{formatMontantFCFA(String(totalRecettes))}
+										</span>
+									</div>
+									<div className="flex justify-between">
+										<span>Dépenses totales:</span>
+										<span className="font-medium">
+											{formatMontantFCFA(String(totalDepenses))}
+										</span>
+									</div>
+									<div className="flex justify-between">
+										<span>Marge nette:</span>
+										<span
+											className={cn(
+												"font-medium",
+												totalMarge >= 0
+													? "text-[#27AE60]"
+													: "text-destructive",
+											)}
+										>
+											{formatMontantFCFA(String(totalMarge))}
+										</span>
+									</div>
 								</div>
-							);
-						})}
-					</div>
+							</div>
+						</div>
+					)}
 
 					<div className="border-t border-border pt-4">
 						<p className="text-xs text-muted-foreground">
-							💡 Les détails par activité sont maintenant calculés à partir des données filtrées par période.
+							💡 Le filtrage détaillé par activité sera disponible une fois que le backend API supportera cette fonctionnalité.
 						</p>
 					</div>
 				</div>

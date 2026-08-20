@@ -25,10 +25,10 @@ import {
 	tableauBordKeys,
 } from "../permissions";
 
-export function useTableauBord(periodo?: string, activite?: string) {
+export function useTableauBord(periodo?: string) {
 	return useQuery({
-		queryKey: tableauBordKeys.list(periodo, activite),
-		queryFn: () => listTableauBord({ periodo, activite }),
+		queryKey: tableauBordKeys.list(periodo),
+		queryFn: () => listTableauBord({ periodo }),
 	});
 }
 
