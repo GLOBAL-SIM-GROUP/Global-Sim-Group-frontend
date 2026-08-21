@@ -50,7 +50,9 @@ export function DashboardGlobalPage() {
 	const canVoir = useCan("ADMIN.VOIR");
 
 	const [periode, setPeriode] = useState<PeriodeFiltre>("ce_mois");
-	const dates = getPeriodeDates(periode);
+	const [customDu, setCustomDu] = useState<string>("");
+	const [customAu, setCustomAu] = useState<string>("");
+	const dates = getPeriodeDates(periode, customDu, customAu);
 
 	const syntheseQuery = useSyntheseGlobale(dates.du, dates.au);
 	const logementsQuery = useLogementsDispo(dates.du, dates.au);
@@ -120,6 +122,34 @@ export function DashboardGlobalPage() {
 							</Select>
 						</div>
 					</div>
+
+					{/* Champs de date personnalisée */}
+					{periode === "personnalisee" && (
+						<div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:gap-4 pt-2 border-t border-border">
+							<div className="flex-1">
+								<label className="block text-xs font-medium text-muted-foreground mb-1">
+									Date de début
+								</label>
+								<input
+									type="date"
+									value={customDu}
+									onChange={(e) => setCustomDu(e.target.value)}
+									className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+								/>
+							</div>
+							<div className="flex-1">
+								<label className="block text-xs font-medium text-muted-foreground mb-1">
+									Date de fin
+								</label>
+								<input
+									type="date"
+									value={customAu}
+									onChange={(e) => setCustomAu(e.target.value)}
+									className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+								/>
+							</div>
+						</div>
+					)}
 
 					{/* Affichage des dates appliquées */}
 					<div className="text-xs text-muted-foreground bg-muted/50 rounded px-3 py-2">
