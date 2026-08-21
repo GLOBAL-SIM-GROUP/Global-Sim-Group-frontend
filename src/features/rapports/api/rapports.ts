@@ -55,3 +55,14 @@ export function rapportPdfPath(base: string, du: string, au: string): string {
 	query.set("format", "pdf");
 	return `${base}?${query.toString()}`;
 }
+
+/**
+ * Chemin d'un rapport au format Excel (`GET &format=xlsx`).
+ */
+export function rapportExcelPath(base: string, du: string, au: string): string {
+	const query = new URLSearchParams();
+	if (du) query.set("du", du);
+	if (au) query.set("au", au);
+	query.set("format", "xlsx");
+	return `${base}?${query.toString()}`;
+}

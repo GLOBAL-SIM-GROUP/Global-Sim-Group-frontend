@@ -23,6 +23,18 @@ export async function telechargerPdf(
 	telechargerBlob(blob, nomFichier);
 }
 
+/**
+ * Télécharge un rapport Excel via `GET ...&format=xlsx` : le blob est récupéré
+ * avec le même auth que le reste de l'app (backend).
+ */
+export async function telechargerExcel(
+	chemin: string,
+	nomFichier: string,
+): Promise<void> {
+	const blob = await getApiClient().download(chemin);
+	telechargerBlob(blob, nomFichier);
+}
+
 function telechargerBlob(blob: Blob, nomFichier: string): void {
 	const url = URL.createObjectURL(blob);
 	const lien = document.createElement("a");

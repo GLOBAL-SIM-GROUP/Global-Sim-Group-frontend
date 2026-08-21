@@ -85,19 +85,19 @@ export function RapportsPage() {
 	};
 
 	return (
-		<div className="mx-auto w-full max-w-3xl space-y-6 p-6">
+		<div className="mx-auto w-full max-w-3xl space-y-4 p-3 sm:space-y-6 sm:p-6">
 			<Breadcrumb
 				items={[{ label: "Accueil", to: "/" }, { label: "Rapports" }]}
 			/>
 
 			<section className="space-y-1">
-				<h1 className="text-2xl font-semibold text-foreground">Rapports</h1>
-				<p className="text-muted-foreground">
+				<h1 className="text-xl font-semibold text-foreground sm:text-2xl">Rapports</h1>
+				<p className="text-xs text-muted-foreground sm:text-sm">
 					Génération des rapports de synthèse, financiers, par activité et RH.
 				</p>
 			</section>
 
-			<section className="space-y-4 rounded-lg border border-border bg-card p-5 shadow-sm">
+			<section className="space-y-3 rounded-lg border border-border bg-card p-3 shadow-sm sm:space-y-4 sm:p-5">
 				<div className="space-y-1.5">
 					<Select value={type} onValueChange={setType}>
 						<SelectTrigger aria-label="Type de rapport" className="w-full">
@@ -132,29 +132,29 @@ export function RapportsPage() {
 				</div>
 
 				{periode === "personnalisee" ? (
-					<div className="flex flex-wrap items-center gap-3">
+					<div className="grid grid-cols-1 gap-2 sm:grid-cols-2 sm:gap-3">
 						<Input
 							type="date"
 							value={du}
 							onChange={(event) => setDu(event.target.value)}
 							aria-label="Début de période"
-							className="w-44"
+							className="w-full"
 						/>
 						<Input
 							type="date"
 							value={au}
 							onChange={(event) => setAu(event.target.value)}
 							aria-label="Fin de période"
-							className="w-44"
+							className="w-full"
 						/>
 					</div>
 				) : null}
 
-				<div className="flex items-center justify-end gap-3 border-t border-border pt-4">
+				<div className="flex flex-col gap-2 border-t border-border pt-3 sm:flex-row sm:items-center sm:justify-end sm:gap-3 sm:pt-4">
 					<p className="text-xs text-muted-foreground">
 						Export disponible en Excel (CSV) sur la page du rapport.
 					</p>
-					<Button onClick={generer}>
+					<Button onClick={generer} className="w-full sm:w-auto">
 						<FileDown className="size-4" aria-hidden />
 						Générer le rapport
 					</Button>

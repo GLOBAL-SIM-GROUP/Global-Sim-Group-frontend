@@ -6,9 +6,9 @@ import { Breadcrumb } from "#/components/ui/breadcrumb";
 import { Button } from "#/components/ui/button";
 import { formatMontantFCFA } from "#/features/residence/models/format";
 
-import { rapportPdfPath } from "../api/rapports";
+import { rapportPdfPath, rapportExcelPath } from "../api/rapports";
 import { useRapportActivite } from "../hooks/use-rapports";
-import { telechargerPdf, telechargerTexte } from "../lib/export";
+import { telechargerPdf, telechargerTexte, telechargerExcel } from "../lib/export";
 import {
 	construireCsv,
 	libelleIndicateur,
@@ -49,6 +49,18 @@ export function RapportActivitePage({
 			await telechargerPdf(
 				rapportPdfPath(`/rapports/activites/${code}`, periode.du, periode.au),
 				`rapport-${code}-${periode.du}-${periode.au}.pdf`,
+			);
+		} catch {
+			setPdfError(true);
+		}
+	};
+
+	const exporterExcel = async () => {
+		setPdfError(false);
+		try {
+			await telechargerExcel(
+				rapportExcelPath(`/rapports/activites/${code}`, periode.du, periode.au),
+				`rapport-${code}-${periode.du}-${periode.au}.xlsx`,
 			);
 		} catch {
 			setPdfError(true);
@@ -102,8 +114,8 @@ export function RapportActivitePage({
 						Période du {periode.du} au {periode.au}.
 					</p>
 				</section>
-				<div className="flex items-center gap-2">
-					<Button variant="outline" size="sm" asChild>
+				<div className="flex flex-col gap-2 w-full sm:w-auto sm:flex-row sm:items-center sm:gap-2">
+					<Button variant="outline" size="sm" asChild className="w-full sm:w-auto justify-center">
 						<Link to="/rapports">Nouveau rapport</Link>
 					</Button>
 					<Button
@@ -111,13 +123,20 @@ export function RapportActivitePage({
 						variant="outline"
 						onClick={exporterPdf}
 						disabled={!rapportQuery.data}
+						className="w-full sm:w-auto justify-center"
 					>
 						<FileText className="size-4" aria-hidden />
-						Exporter en PDF
+						PDF
 					</Button>
-					<Button size="sm" onClick={exporter} disabled={!rapportQuery.data}>
+					<Button
+						size="sm"
+						variant="outline"
+						onClick={exporterExcel}
+						disabled={!rapportQuery.data}
+						className="w-full sm:w-auto justify-center"
+					>
 						<FileDown className="size-4" aria-hidden />
-						Exporter en Excel (CSV)
+						Excel
 					</Button>
 				</div>
 			</div>

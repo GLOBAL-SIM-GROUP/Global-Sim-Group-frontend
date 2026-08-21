@@ -9,9 +9,9 @@ import {
 	formatMontantFCFA,
 } from "#/features/residence/models/format";
 
-import { rapportPdfPath } from "../api/rapports";
+import { rapportPdfPath, rapportExcelPath } from "../api/rapports";
 import { useRapportFinancier } from "../hooks/use-rapports";
-import { telechargerPdf, telechargerTexte } from "../lib/export";
+import { telechargerPdf, telechargerTexte, telechargerExcel } from "../lib/export";
 import {
 	construireCsv,
 	periodeParDefaut,
@@ -39,6 +39,18 @@ export function RapportFinancierPage({
 			await telechargerPdf(
 				rapportPdfPath("/rapports/financier", periode.du, periode.au),
 				`rapport-financier-${periode.du}-${periode.au}.pdf`,
+			);
+		} catch {
+			setPdfError(true);
+		}
+	};
+
+	const exporterExcel = async () => {
+		setPdfError(false);
+		try {
+			await telechargerExcel(
+				rapportExcelPath("/rapports/financier", periode.du, periode.au),
+				`rapport-financier-${periode.du}-${periode.au}.xlsx`,
 			);
 		} catch {
 			setPdfError(true);
@@ -93,7 +105,7 @@ export function RapportFinancierPage({
 	};
 
 	return (
-		<div className="mx-auto w-full max-w-6xl space-y-6 p-6">
+		<div className="mx-auto w-full max-w-6xl space-y-4 p-3 sm:space-y-6 sm:p-6">
 			<Breadcrumb
 				items={[
 					{ label: "Accueil", to: "/" },
@@ -102,17 +114,17 @@ export function RapportFinancierPage({
 				]}
 			/>
 
-			<div className="flex flex-wrap items-end justify-between gap-4">
+			<div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
 				<section className="space-y-1">
-					<h1 className="text-2xl font-semibold text-foreground">
+					<h1 className="text-lg font-semibold text-foreground sm:text-2xl">
 						Rapport financier
 					</h1>
-					<p className="text-muted-foreground">
+					<p className="text-xs text-muted-foreground sm:text-sm">
 						Période du {periode.du} au {periode.au}.
 					</p>
 				</section>
-				<div className="flex items-center gap-2">
-					<Button variant="outline" size="sm" asChild>
+				<div className="flex flex-col gap-2 w-full sm:w-auto sm:flex-row sm:items-center sm:gap-2">
+					<Button variant="outline" size="sm" asChild className="w-full sm:w-auto justify-center">
 						<Link to="/rapports">Nouveau rapport</Link>
 					</Button>
 					<Button
@@ -120,13 +132,20 @@ export function RapportFinancierPage({
 						variant="outline"
 						onClick={exporterPdf}
 						disabled={!rapportQuery.data}
+						className="w-full sm:w-auto justify-center"
 					>
 						<FileText className="size-4" aria-hidden />
-						Exporter en PDF
+						PDF
 					</Button>
-					<Button size="sm" onClick={exporter} disabled={!rapportQuery.data}>
+					<Button
+						size="sm"
+						variant="outline"
+						onClick={exporterExcel}
+						disabled={!rapportQuery.data}
+						className="w-full sm:w-auto justify-center"
+					>
 						<FileDown className="size-4" aria-hidden />
-						Exporter en Excel (CSV)
+						Excel
 					</Button>
 				</div>
 			</div>
