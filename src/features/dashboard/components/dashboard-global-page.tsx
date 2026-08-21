@@ -257,66 +257,55 @@ export function DashboardGlobalPage() {
 						{/* Liste des impayés */}
 						{impayes.length > 0 && (
 							<div className="rounded-lg border border-destructive/40 bg-destructive/10 p-4">
-								<p className="text-sm font-medium text-destructive mb-3">
-									Locataires ayant des impayés ({impayes.length}):
-								</p>
-								<div className="overflow-x-auto">
-									<table className="w-full text-xs">
-										<thead>
-											<tr className="border-b border-destructive/20">
-												<th className="text-left py-2 px-2 text-destructive font-semibold">
-													Locataire
-												</th>
-												<th className="text-right py-2 px-2 text-destructive font-semibold">
-													Montant
-												</th>
-												<th className="text-right py-2 px-2 text-destructive font-semibold">
-													Statut
-												</th>
-												<th className="text-right py-2 px-2 text-destructive font-semibold">
-													Échéance
-												</th>
-											</tr>
-										</thead>
-										<tbody>
-											{impayes.slice(0, 10).map((i: any, idx) => {
-												const montant = i.montant ?? i.montant_dû ?? i.montant_impaye ?? "—";
-												const locataire = i.locataire ?? i.nom_locataire ?? i.client ?? "—";
-												const statut = i.statut ?? "IMPAYÉ";
-												return (
-													<tr key={idx} className="border-b border-destructive/10">
-														<td className="py-2 px-2 text-foreground">{locataire}</td>
-														<td className="text-right py-2 px-2 text-foreground">
-															{montant && montant !== "—" ? formatMontantFCFA(String(montant)) : "—"}
-														</td>
-														<td className="text-right py-2 px-2 text-muted-foreground text-xs uppercase">
-															{statut}
-														</td>
-														<td className="text-right py-2 px-2 text-muted-foreground">
-															{i.date_echeance ? new Date(i.date_echeance).toLocaleDateString("fr-FR") : "—"}
-														</td>
-													</tr>
-												);
-											})}
-											<tr className="border-t border-destructive/30 bg-destructive/5">
-												<td className="py-2 px-2 font-semibold text-destructive">TOTAL</td>
-												<td className="text-right py-2 px-2 font-semibold text-destructive">
-													{formatMontantFCFA(
-														String(
-															impayes.reduce((sum, i: any) => {
-																const montant = Number(i.montant ?? i.montant_dû ?? i.montant_impaye ?? 0);
-																return sum + (isNaN(montant) ? 0 : montant);
-															}, 0)
-														)
-													)}
-												</td>
-												<td colSpan={2} className="text-right py-2 px-2 text-muted-foreground"></td>
-											</tr>
-										</tbody>
-									</table>
+								<div className="flex items-center justify-between mb-4">
+									<p className="text-sm font-medium text-destructive">
+										Locataires ayant des impayés ({impayes.length})
+									</p>
+									<p className="text-sm font-semibold text-destructive">
+										Total: {formatMontantFCFA(
+											String(
+												impayes.reduce((sum, i: any) => {
+													const montant = Number(i.montant ?? i.montant_dû ?? i.montant_impaye ?? 0);
+													return sum + (isNaN(montant) ? 0 : montant);
+												}, 0)
+											)
+										)}
+									</p>
 								</div>
+
+								<div className="space-y-2">
+									{impayes.slice(0, 10).map((i: any, idx) => {
+										const montant = i.montant ?? i.montant_dû ?? i.montant_impaye ?? "—";
+										const locataire = i.locataire ?? i.nom_locataire ?? i.client ?? "—";
+										const statut = i.statut ?? "IMPAYÉ";
+										return (
+											<div
+												key={idx}
+												className="flex items-center justify-between rounded-md border border-destructive/20 bg-background/50 p-3 hover:bg-background transition-colors"
+											>
+												<div className="flex-1 min-w-0">
+													<p className="text-sm font-medium text-foreground truncate">
+														{locataire}
+													</p>
+													<p className="text-xs text-muted-foreground">
+														Échéance: {i.date_echeance ? new Date(i.date_echeance).toLocaleDateString("fr-FR") : "—"}
+													</p>
+												</div>
+												<div className="text-right ml-4">
+													<p className="text-sm font-semibold text-destructive">
+														{montant && montant !== "—" ? formatMontantFCFA(String(montant)) : "—"}
+													</p>
+													<p className="text-xs text-destructive uppercase">
+														{statut}
+													</p>
+												</div>
+											</div>
+										);
+									})}
+								</div>
+
 								{impayes.length > 10 && (
-									<p className="text-xs text-destructive mt-2">
+									<p className="text-xs text-destructive mt-3 pt-3 border-t border-destructive/20">
 										+{impayes.length - 10} autres impayés…
 									</p>
 								)}
