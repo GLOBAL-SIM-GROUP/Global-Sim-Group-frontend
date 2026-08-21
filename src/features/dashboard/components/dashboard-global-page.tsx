@@ -53,12 +53,12 @@ export function DashboardGlobalPage() {
 	const dates = getPeriodeDates(periode);
 
 	const syntheseQuery = useSyntheseGlobale(dates.du, dates.au);
-	const logementsQuery = useLogementsDispo();
-	const produitsQuery = useProduitsCritiques();
-	const commandesQuery = useCommandesPressing();
-	const reservationsQuery = useReservationsSalle();
-	const pointagesQuery = usePointagesAujourdhui();
-	const impayesQuery = useImpayes();
+	const logementsQuery = useLogementsDispo(dates.du, dates.au);
+	const produitsQuery = useProduitsCritiques(dates.du, dates.au);
+	const commandesQuery = useCommandesPressing(dates.du, dates.au);
+	const reservationsQuery = useReservationsSalle(dates.du, dates.au);
+	const pointagesQuery = usePointagesAujourdhui(dates.du, dates.au);
+	const impayesQuery = useImpayes(dates.du, dates.au);
 
 	const synthese = syntheseQuery.data;
 	const logementsDispo = logementsQuery.data ?? [];
@@ -100,23 +100,30 @@ export function DashboardGlobalPage() {
 
 			{/* Filtres */}
 			<div className="rounded-lg border border-border bg-card p-4">
-				<div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:gap-4">
-					<div className="flex-1">
-						<label className="block text-xs font-medium text-muted-foreground mb-1">
-							Période
-						</label>
-						<Select value={periode} onValueChange={(v) => setPeriode(v as PeriodeFiltre)}>
-							<SelectTrigger>
-								<SelectValue />
-							</SelectTrigger>
-							<SelectContent>
-								{Object.entries(PERIODES).map(([key, label]) => (
-									<SelectItem key={key} value={key}>
-										{label}
-									</SelectItem>
-								))}
-							</SelectContent>
-						</Select>
+				<div className="flex flex-col gap-4">
+					<div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:gap-4">
+						<div className="flex-1">
+							<label className="block text-xs font-medium text-muted-foreground mb-1">
+								Période
+							</label>
+							<Select value={periode} onValueChange={(v) => setPeriode(v as PeriodeFiltre)}>
+								<SelectTrigger>
+									<SelectValue />
+								</SelectTrigger>
+								<SelectContent>
+									{Object.entries(PERIODES).map(([key, label]) => (
+										<SelectItem key={key} value={key}>
+											{label}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
+						</div>
+					</div>
+
+					{/* Affichage des dates appliquées */}
+					<div className="text-xs text-muted-foreground bg-muted/50 rounded px-3 py-2">
+						<span className="font-medium">Période appliquée:</span> {new Date(dates.du).toLocaleDateString("fr-FR")} au {new Date(dates.au).toLocaleDateString("fr-FR")}
 					</div>
 				</div>
 			</div>
@@ -221,7 +228,7 @@ export function DashboardGlobalPage() {
 						{impayes.length > 0 && (
 							<div className="rounded-lg border border-destructive/40 bg-destructive/10 p-4">
 								<p className="text-sm font-medium text-destructive mb-3">
-									Locataires ayant des impayés:
+									Locataires ayant des impayés ({impayes.length}):
 								</p>
 								<div className="overflow-x-auto">
 									<table className="w-full text-xs">
@@ -261,6 +268,20 @@ export function DashboardGlobalPage() {
 													</tr>
 												);
 											})}
+											<tr className="border-t border-destructive/30 bg-destructive/5">
+												<td className="py-2 px-2 font-semibold text-destructive">TOTAL</td>
+												<td className="text-right py-2 px-2 font-semibold text-destructive">
+													{formatMontantFCFA(
+														String(
+															impayes.reduce((sum, i: any) => {
+																const montant = Number(i.montant ?? i.montant_dû ?? i.montant_impaye ?? 0);
+																return sum + (isNaN(montant) ? 0 : montant);
+															}, 0)
+														)
+													)}
+												</td>
+												<td colSpan={2} className="text-right py-2 px-2 text-muted-foreground"></td>
+											</tr>
 										</tbody>
 									</table>
 								</div>

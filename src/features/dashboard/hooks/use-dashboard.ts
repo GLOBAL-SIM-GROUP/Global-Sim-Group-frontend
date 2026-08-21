@@ -33,44 +33,44 @@ export function useIndicateurActivite(code: string) {
 	});
 }
 
-export function useLogementsDispo() {
+export function useLogementsDispo(du?: string, au?: string) {
 	return useQuery({
-		queryKey: ["dashboard", "logements-dispo"],
-		queryFn: getLogementsDispo,
+		queryKey: ["dashboard", "logements-dispo", du, au],
+		queryFn: () => getLogementsDispo(du, au),
 	});
 }
 
-export function useProduitsCritiques() {
+export function useProduitsCritiques(du?: string, au?: string) {
 	return useQuery({
-		queryKey: ["dashboard", "produits-critiques"],
-		queryFn: getProduitsCritiques,
+		queryKey: ["dashboard", "produits-critiques", du, au],
+		queryFn: () => getProduitsCritiques(du, au),
 	});
 }
 
-export function useCommandesPressing() {
+export function useCommandesPressing(du?: string, au?: string) {
 	return useQuery({
-		queryKey: ["dashboard", "commandes-pressing"],
-		queryFn: getCommandesPressing,
+		queryKey: ["dashboard", "commandes-pressing", du, au],
+		queryFn: () => getCommandesPressing(du, au),
 	});
 }
 
-export function useReservationsSalle() {
+export function useReservationsSalle(du?: string, au?: string) {
 	return useQuery({
-		queryKey: ["dashboard", "reservations-salle"],
-		queryFn: getReservationsSalle,
+		queryKey: ["dashboard", "reservations-salle", du, au],
+		queryFn: () => getReservationsSalle(du, au),
 	});
 }
 
-export function usePointagesAujourdhui() {
+export function usePointagesAujourdhui(du?: string, au?: string) {
 	return useQuery({
-		queryKey: ["dashboard", "pointages-aujourd-hui"],
-		queryFn: getPointagesAujourdhui,
+		queryKey: ["dashboard", "pointages-aujourd-hui", du, au],
+		queryFn: () => getPointagesAujourdhui(du, au),
 	});
 }
 
-export function useImpayes() {
+export function useImpayes(du?: string, au?: string) {
 	return useQuery({
-		queryKey: ["dashboard", "impayes"],
-		queryFn: getImpayes,
+		queryKey: ["dashboard", "impayes", du, au],
+		queryFn: () => getImpayes(du, au),
 	});
 }
