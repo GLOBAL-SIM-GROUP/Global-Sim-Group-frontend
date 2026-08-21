@@ -1,8 +1,8 @@
 import { useForm } from "@tanstack/react-form";
 import { Link } from "@tanstack/react-router";
-import { Loader2, Pencil, Phone, Plus, UserRound } from "lucide-react";
+import { Image as ImageIcon, Loader2, Pencil, Phone, Plus, UserRound, X } from "lucide-react";
 import { Dialog } from "radix-ui";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { Breadcrumb } from "#/components/ui/breadcrumb";
 import { Button } from "#/components/ui/button";
@@ -16,6 +16,7 @@ import {
 	SelectValue,
 } from "#/components/ui/select";
 import { getErrorMessageForCode, toApiError } from "#/core/api";
+import { downloadUploadedFile, uploadImage } from "#/core/api/uploads";
 import { useCan } from "#/core/auth";
 import { formatDateISO } from "#/features/residence/models/format";
 
@@ -23,7 +24,9 @@ import {
 	useClient,
 	useCreerContact,
 	useCreerPiece,
+	useModifierPiece,
 } from "../hooks/use-clients";
+import type { PieceIdentite } from "../models/clients";
 import {
 	nomComplet,
 	SEXE_LABELS,
@@ -39,6 +42,166 @@ function Ligne({ label, valeur }: { label: string; valeur: string }) {
 			<dt className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{label}</dt>
 			<dd className="text-sm text-foreground break-words">{valeur}</dd>
 		</div>
+	);
+}
+
+/** Modale « Consulter les photos de la pièce d'identité » */
+function PiecePhotosDialog({
+	piece,
+	onOpenChange,
+}: {
+	piece: PieceIdentite | null;
+	onOpenChange: (open: boolean) => void;
+}) {
+	const [rectoUrl, setRectoUrl] = useState<string | null>(null);
+	const [versoUrl, setVersoUrl] = useState<string | null>(null);
+	const [loadingRecto, setLoadingRecto] = useState(false);
+	const [loadingVerso, setLoadingVerso] = useState(false);
+
+	useEffect(() => {
+		if (!piece) return;
+
+		const loadPhotos = async () => {
+			if (piece.copie_num) {
+				setLoadingRecto(true);
+				try {
+					const blob = await downloadUploadedFile(piece.copie_num);
+					if (blob) {
+						const url = URL.createObjectURL(blob);
+						setRectoUrl(url);
+					}
+				} catch (error) {
+					console.error("Erreur lors du chargement du recto", error);
+				} finally {
+					setLoadingRecto(false);
+				}
+			}
+
+			if (piece.copie_num_verso) {
+				setLoadingVerso(true);
+				try {
+					const blob = await downloadUploadedFile(piece.copie_num_verso);
+					if (blob) {
+						const url = URL.createObjectURL(blob);
+						setVersoUrl(url);
+					}
+				} catch (error) {
+					console.error("Erreur lors du chargement du verso", error);
+				} finally {
+					setLoadingVerso(false);
+				}
+			}
+		};
+
+		loadPhotos();
+
+		return () => {
+			if (rectoUrl) URL.revokeObjectURL(rectoUrl);
+			if (versoUrl) URL.revokeObjectURL(versoUrl);
+		};
+	}, [piece]);
+
+	if (!piece) return null;
+
+	const hasNoPhotos = !piece.copie_num && !piece.copie_num_verso;
+
+	return (
+		<Dialog.Root open={piece !== null} onOpenChange={onOpenChange}>
+			<Dialog.Portal>
+				<Dialog.Overlay className="fixed inset-0 z-50 bg-black/50" />
+				<Dialog.Content className="fixed top-1/2 left-1/2 z-50 w-[calc(100vw-2rem)] max-w-2xl -translate-x-1/2 -translate-y-1/2 rounded-lg border border-border bg-card p-6 shadow-lg max-h-[90vh] overflow-y-auto">
+					<div className="flex items-center justify-between mb-4">
+						<div>
+							<Dialog.Title className="text-lg font-semibold text-foreground">
+								{TYPE_PIECE_LABELS[piece.type_piece] ?? piece.type_piece}
+							</Dialog.Title>
+							<Dialog.Description className="mt-1 text-sm text-muted-foreground">
+								Numéro: {piece.numero}
+							</Dialog.Description>
+						</div>
+						<Button
+							variant="ghost"
+							size="icon"
+							onClick={() => onOpenChange(false)}
+						>
+							<X className="size-4" aria-hidden />
+							<span className="sr-only">Fermer</span>
+						</Button>
+					</div>
+
+					{hasNoPhotos ? (
+						<div className="rounded-lg border border-border bg-muted/30 p-8 text-center">
+							<ImageIcon className="mx-auto mb-2 size-8 text-muted-foreground" aria-hidden />
+							<p className="text-sm text-muted-foreground">
+								Aucune photo n'a été enregistrée pour cette pièce.
+							</p>
+						</div>
+					) : (
+						<div className="grid gap-6 sm:grid-cols-2">
+							{piece.copie_num && (
+								<div className="space-y-2">
+									<h3 className="text-sm font-medium text-foreground">Recto</h3>
+									<div className="rounded-lg border border-border bg-muted overflow-hidden">
+										{loadingRecto ? (
+											<div className="flex h-64 items-center justify-center">
+												<Loader2 className="size-5 animate-spin text-muted-foreground" aria-hidden />
+											</div>
+										) : rectoUrl ? (
+											<img
+												src={rectoUrl}
+												alt="Recto"
+												className="w-full h-auto max-h-96 object-contain"
+											/>
+										) : (
+											<div className="flex h-64 items-center justify-center bg-muted">
+												<p className="text-xs text-muted-foreground">
+													Impossible de charger l'image
+												</p>
+											</div>
+										)}
+									</div>
+								</div>
+							)}
+
+							{piece.copie_num_verso && (
+								<div className="space-y-2">
+									<h3 className="text-sm font-medium text-foreground">Verso</h3>
+									<div className="rounded-lg border border-border bg-muted overflow-hidden">
+										{loadingVerso ? (
+											<div className="flex h-64 items-center justify-center">
+												<Loader2 className="size-5 animate-spin text-muted-foreground" aria-hidden />
+											</div>
+										) : versoUrl ? (
+											<img
+												src={versoUrl}
+												alt="Verso"
+												className="w-full h-auto max-h-96 object-contain"
+											/>
+										) : (
+											<div className="flex h-64 items-center justify-center bg-muted">
+												<p className="text-xs text-muted-foreground">
+													Impossible de charger l'image
+												</p>
+											</div>
+										)}
+									</div>
+								</div>
+							)}
+						</div>
+					)}
+
+					<div className="flex items-center justify-end gap-2 pt-4 mt-4 border-t border-border">
+						<Button
+							type="button"
+							variant="ghost"
+							onClick={() => onOpenChange(false)}
+						>
+							Fermer
+						</Button>
+					</div>
+				</Dialog.Content>
+			</Dialog.Portal>
+		</Dialog.Root>
 	);
 }
 
@@ -246,7 +409,12 @@ function PieceDialog({
 	onOpenChange: (open: boolean) => void;
 }) {
 	const creerMutation = useCreerPiece();
+	const modifierMutation = useModifierPiece();
 	const [globalError, setGlobalError] = useState<string | null>(null);
+	const [fileRecto, setFileRecto] = useState<File | null>(null);
+	const [fileVerso, setFileVerso] = useState<File | null>(null);
+	const [uploading, setUploading] = useState(false);
+
 	const form = useForm({
 		defaultValues: {
 			typePiece: "CNI",
@@ -265,7 +433,10 @@ function PieceDialog({
 		onSubmit: async ({ value }) => {
 			setGlobalError(null);
 			try {
-				await creerMutation.mutateAsync({
+				setUploading(true);
+
+				// 1. Créer la pièce
+				const pieceResponse = await creerMutation.mutateAsync({
 					idClient,
 					typePiece: value.typePiece,
 					numero: value.numero.trim(),
@@ -273,20 +444,51 @@ function PieceDialog({
 					dateExpiration: value.dateExpiration || null,
 					autoriteDelivrance: value.autoriteDelivrance.trim() || null,
 				});
+
+				const idPiece = (pieceResponse as { id_piece: string }).id_piece;
+
+				// 2. Upload les fichiers si présents et attacher les clés
+				if (fileRecto || fileVerso) {
+					const updates: { copieNum?: string | null; copieNumVerso?: string | null } = {};
+
+					if (fileRecto) {
+						const keyRecto = await uploadImage(fileRecto, "piece-identite");
+						updates.copieNum = keyRecto;
+					}
+
+					if (fileVerso) {
+						const keyVerso = await uploadImage(fileVerso, "piece-identite");
+						updates.copieNumVerso = keyVerso;
+					}
+
+					if (Object.keys(updates).length > 0) {
+						await modifierMutation.mutateAsync({
+							idClient,
+							idPiece,
+							...updates,
+						});
+					}
+				}
+
 				onOpenChange(false);
 			} catch (error) {
 				setGlobalError(
 					getErrorMessageForCode(toApiError(error).code) ??
 						"Une erreur est survenue.",
 				);
+			} finally {
+				setUploading(false);
 			}
 		},
 	});
+
+	const isPending = creerMutation.isPending || modifierMutation.isPending || uploading;
+
 	return (
 		<Dialog.Root open onOpenChange={onOpenChange}>
 			<Dialog.Portal>
 				<Dialog.Overlay className="fixed inset-0 z-50 bg-black/50" />
-				<Dialog.Content className="fixed top-1/2 left-1/2 z-50 w-[calc(100vw-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-lg border border-border bg-card p-6 shadow-lg">
+				<Dialog.Content className="fixed top-1/2 left-1/2 z-50 w-[calc(100vw-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-lg border border-border bg-card p-6 shadow-lg max-h-[90vh] overflow-y-auto">
 					<Dialog.Title className="text-base font-semibold text-foreground">
 						Ajouter une pièce d'identité
 					</Dialog.Title>
@@ -342,6 +544,60 @@ function PieceDialog({
 								/>
 							)}
 						</form.Field>
+						<div className="grid grid-cols-2 gap-4">
+							<div className="space-y-1.5">
+								<Label htmlFor="fileRecto">Recto (photo)</Label>
+								<div className="relative">
+									<input
+										id="fileRecto"
+										type="file"
+										accept="image/jpeg,image/png,image/webp,application/pdf"
+										onChange={(e) => setFileRecto(e.target.files?.[0] ?? null)}
+										disabled={isPending}
+										className="absolute inset-0 cursor-pointer opacity-0"
+									/>
+									<div className="flex h-20 items-center justify-center rounded-md border border-dashed border-input bg-muted/30 text-center">
+										{fileRecto ? (
+											<div className="text-xs text-foreground">
+												<ImageIcon className="mx-auto mb-1 size-4" aria-hidden />
+												{fileRecto.name.substring(0, 20)}
+											</div>
+										) : (
+											<div className="text-xs text-muted-foreground">
+												<ImageIcon className="mx-auto mb-1 size-4" aria-hidden />
+												Choisir une image
+											</div>
+										)}
+									</div>
+								</div>
+							</div>
+							<div className="space-y-1.5">
+								<Label htmlFor="fileVerso">Verso (photo)</Label>
+								<div className="relative">
+									<input
+										id="fileVerso"
+										type="file"
+										accept="image/jpeg,image/png,image/webp,application/pdf"
+										onChange={(e) => setFileVerso(e.target.files?.[0] ?? null)}
+										disabled={isPending}
+										className="absolute inset-0 cursor-pointer opacity-0"
+									/>
+									<div className="flex h-20 items-center justify-center rounded-md border border-dashed border-input bg-muted/30 text-center">
+										{fileVerso ? (
+											<div className="text-xs text-foreground">
+												<ImageIcon className="mx-auto mb-1 size-4" aria-hidden />
+												{fileVerso.name.substring(0, 20)}
+											</div>
+										) : (
+											<div className="text-xs text-muted-foreground">
+												<ImageIcon className="mx-auto mb-1 size-4" aria-hidden />
+												Choisir une image
+											</div>
+										)}
+									</div>
+								</div>
+							</div>
+						</div>
 						<div className="grid grid-cols-2 gap-4">
 							<form.Field name="dateDelivrance">
 								{(field) => (
@@ -401,11 +657,12 @@ function PieceDialog({
 								type="button"
 								variant="ghost"
 								onClick={() => onOpenChange(false)}
+								disabled={isPending}
 							>
 								Annuler
 							</Button>
-							<Button type="submit" disabled={creerMutation.isPending}>
-								{creerMutation.isPending ? (
+							<Button type="submit" disabled={isPending}>
+								{isPending ? (
 									<Loader2 className="size-4 animate-spin" aria-hidden />
 								) : null}
 								Enregistrer
@@ -433,6 +690,7 @@ export function ClientFichePage({ id }: ClientFichePageProps) {
 	const [formOuvert, setFormOuvert] = useState(false);
 	const [contactOuvert, setContactOuvert] = useState(false);
 	const [pieceOuverte, setPieceOuverte] = useState(false);
+	const [pieceAConsulter, setPieceAConsulter] = useState<PieceIdentite | null>(null);
 
 	if (clientQuery.isLoading) {
 		return (
@@ -581,6 +839,9 @@ export function ClientFichePage({ id }: ClientFichePageProps) {
 									<th scope="col" className="px-4 py-3 font-medium">
 										AUTORITÉ
 									</th>
+									<th scope="col" className="px-4 py-3 font-medium">
+										PHOTOS
+									</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -603,6 +864,21 @@ export function ClientFichePage({ id }: ClientFichePageProps) {
 										</td>
 										<td className="px-4 py-3 text-muted-foreground">
 											{piece.autorite_delivrance ?? "—"}
+										</td>
+										<td className="px-4 py-3 text-center">
+											{piece.copie_num || piece.copie_num_verso ? (
+												<Button
+													variant="ghost"
+													size="sm"
+													onClick={() => setPieceAConsulter(piece)}
+													className="text-xs"
+												>
+													<ImageIcon className="size-4 mr-1" aria-hidden />
+													Voir
+												</Button>
+											) : (
+												<span className="text-xs text-muted-foreground">—</span>
+											)}
 										</td>
 									</tr>
 								))}
@@ -693,6 +969,15 @@ export function ClientFichePage({ id }: ClientFichePageProps) {
 
 			{pieceOuverte ? (
 				<PieceDialog idClient={client.id} onOpenChange={setPieceOuverte} />
+			) : null}
+
+			{pieceAConsulter ? (
+				<PiecePhotosDialog
+					piece={pieceAConsulter}
+					onOpenChange={(ouvert) => {
+						if (!ouvert) setPieceAConsulter(null);
+					}}
+				/>
 			) : null}
 		</div>
 	);

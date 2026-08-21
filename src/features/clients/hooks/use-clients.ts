@@ -9,6 +9,7 @@ import {
 	listClients,
 	type ListClientsParams,
 	modifierClient,
+	modifierPiece,
 } from "../api/clients";
 import { clientsKeys } from "../permissions";
 
@@ -85,7 +86,25 @@ export function useCreerPiece() {
 			dateExpiration?: string | null;
 			autoriteDelivrance?: string | null;
 			copieNum?: string | null;
+			copieNumVerso?: string | null;
 		}) => creerPiece(idClient, body),
+		onSuccess: invalider,
+	});
+}
+
+export function useModifierPiece() {
+	const invalider = useInvalidation();
+	return useMutation({
+		mutationFn: ({
+			idClient,
+			idPiece,
+			...body
+		}: {
+			idClient: string;
+			idPiece: string;
+			copieNum?: string | null;
+			copieNumVerso?: string | null;
+		}) => modifierPiece(idClient, idPiece, body),
 		onSuccess: invalider,
 	});
 }

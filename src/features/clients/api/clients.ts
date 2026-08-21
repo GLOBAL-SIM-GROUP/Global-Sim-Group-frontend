@@ -172,8 +172,9 @@ export function creerPiece(
 		dateExpiration?: string | null;
 		autoriteDelivrance?: string | null;
 		copieNum?: string | null;
+		copieNumVerso?: string | null;
 	},
-): Promise<unknown> {
+): Promise<{ id_piece: string }> {
 	const corps = {
 		type_piece: body.typePiece as CreerPieceDto["type_piece"],
 		numero: body.numero,
@@ -183,6 +184,7 @@ export function creerPiece(
 			? { autorite_delivrance: body.autoriteDelivrance }
 			: {}),
 		...(body.copieNum?.trim() ? { copie_num: body.copieNum } : {}),
+		...(body.copieNumVerso?.trim() ? { copie_num_verso: body.copieNumVerso } : {}),
 	} satisfies Omit<
 		CreerPieceDto,
 		"date_delivrance" | "date_expiration" | "autorite_delivrance" | "copie_num"
@@ -191,11 +193,37 @@ export function creerPiece(
 		date_expiration?: string | null;
 		autorite_delivrance?: string | null;
 		copie_num?: string | null;
+		copie_num_verso?: string | null;
 	};
 	return getApiClient().apiFetch(
 		`/client/clients/${idClient}/pieces-identite`,
 		{
 			method: "POST",
+			body: JSON.stringify(corps),
+		},
+	);
+}
+
+/** Modifie une pièce d'identité - attache les scans (PATCH `MajPieceDto`). */
+export function modifierPiece(
+	idClient: string,
+	idPiece: string,
+	body: {
+		copieNum?: string | null;
+		copieNumVerso?: string | null;
+	},
+): Promise<unknown> {
+	const corps: Record<string, string | null> = {};
+	if (body.copieNum !== undefined) {
+		corps.copie_num = body.copieNum;
+	}
+	if (body.copieNumVerso !== undefined) {
+		corps.copie_num_verso = body.copieNumVerso;
+	}
+	return getApiClient().apiFetch(
+		`/client/clients/${idClient}/pieces-identite/${idPiece}`,
+		{
+			method: "PATCH",
 			body: JSON.stringify(corps),
 		},
 	);
