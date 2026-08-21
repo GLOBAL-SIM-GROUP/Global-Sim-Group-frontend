@@ -7,7 +7,7 @@ import {
 	getLogementsDispo,
 	getPointagesAujourdhui,
 	getProduitsCritiques,
-	getReservationsSalle,
+	getReservationsSalleFutures,
 	getSyntheseGlobale,
 	type CommandePressing,
 	type Impaye,
@@ -72,5 +72,12 @@ export function useImpayes(du?: string, au?: string) {
 	return useQuery({
 		queryKey: ["dashboard", "impayes", du, au],
 		queryFn: () => getImpayes(du, au),
+	});
+}
+
+export function useReservationsSalleFutures() {
+	return useQuery({
+		queryKey: ["dashboard", "reservations-salle-futures"],
+		queryFn: () => getReservationsSalleFutures(),
 	});
 }

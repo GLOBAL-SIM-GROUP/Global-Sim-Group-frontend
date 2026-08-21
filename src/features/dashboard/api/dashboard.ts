@@ -1,20 +1,63 @@
 import { getApiClient } from "#/core/api";
 
 export interface SyntheseGlobale {
-	periode: string;
-	recettes_par_activite: Array<{
-		code: string;
-		libelle: string;
-		total_encaisse: number | string;
-	}>;
-	total_recettes: number | string;
-	total_depenses: number | string;
-	solde: number | string;
-	impayes: {
-		nombre: number;
-		montant: number | string;
+	calcule_le: string;
+	residence: {
+		chambres_occupees: number;
+		chambres_disponibles: number;
+		recettes_mois: number | string;
+		impayes: { nombre: number; montant: number | string };
+		reservations_en_attente: number;
 	};
-	masse_salariale: number | string;
+	market: {
+		nombre_ventes_aujourd_hui: number;
+		chiffre_affaires_aujourd_hui: number | string;
+		stock: {
+			total_produits: number;
+			valeur_stock: number | string;
+			en_alerte: number;
+			alertes: Array<{
+				id_produit: string;
+				nom: string;
+				quantite_stock: number | string;
+				seuil_alerte: number | string;
+			}>;
+		};
+	};
+	pressing: {
+		commandes_en_cours: number;
+		commandes_pretes: number;
+		commandes_retirees_aujourd_hui: number;
+		chiffre_affaires_mois: number | string;
+	};
+	restaurant: {
+		nombre_commandes_aujourd_hui: number;
+		chiffre_affaires_aujourd_hui: number | string;
+	};
+	salle_fete: {
+		reservations_a_venir: number;
+		prochaines: Array<{
+			id_reservation: string;
+			date_evenement: string;
+			type_manifestation: string;
+			client: string;
+			statut: string;
+		}>;
+		recettes_mois: number | string;
+	};
+	personnel: {
+		presents_aujourd_hui: number;
+		absents_aujourd_hui: number;
+		retards_aujourd_hui: number;
+		total_pointages_aujourd_hui: number;
+	};
+	finances: {
+		recettes_jour: number | string;
+		depenses_mois: number | string;
+		salaires_a_payer_mois: number | string;
+		solde_mois: number | string;
+		chiffre_affaires_global_mois: number | string;
+	};
 }
 
 export interface IndicateurActivite {
@@ -48,10 +91,14 @@ export interface CommandePressing {
 
 export interface Reservation {
 	id?: string;
-	date: string;
-	heure_debut: string;
-	heure_fin: string;
-	nom_client: string;
+	id_reservation?: string;
+	date?: string;
+	date_evenement?: string;
+	heure_debut?: string;
+	heure_fin?: string;
+	nom_client?: string;
+	client?: string;
+	type_manifestation?: string;
 	statut: string;
 }
 
@@ -80,6 +127,27 @@ export function getSyntheseGlobale(du?: string, au?: string): Promise<SyntheseGl
 	const qs = params.toString();
 	const url = qs ? `/rapports/synthese-globale?${qs}` : "/rapports/synthese-globale";
 	return getApiClient().apiFetch<SyntheseGlobale>(url);
+}
+
+/** Récupère les réservations de la salle de fête (sans filtre de période) */
+export function getReservationsSalleFutures(): Promise<Reservation[]> {
+	const url = `/salle-fete/reservations?limit=10`;
+	return getApiClient()
+		.apiFetch<Reservation[]>(url)
+		.then((reservations) =>
+			reservations
+				.filter((r) => {
+					const date = r.date_evenement || r.date;
+					return date && new Date(date) >= new Date();
+				})
+				.sort((a, b) => {
+					const dateA = a.date_evenement || a.date || "";
+					const dateB = b.date_evenement || b.date || "";
+					return new Date(dateA).getTime() - new Date(dateB).getTime();
+				})
+				.slice(0, 5),
+		)
+		.catch(() => []);
 }
 
 /** Récupère les indicateurs pour une activité spécifique */
@@ -138,23 +206,6 @@ export function getCommandesPressing(du?: string, au?: string): Promise<Commande
 		.then((commandes) =>
 			// Filtre côté client: exclude les retraitées et annulées
 			commandes.filter((c) => c.statut !== "RETIREE" && c.statut !== "ANNULEE"),
-		)
-		.catch(() => []);
-}
-
-/** Récupère les réservations de la salle de fête */
-export function getReservationsSalle(du?: string, au?: string): Promise<Reservation[]> {
-	const params = new URLSearchParams();
-	if (du) params.set("du", du);
-	if (au) params.set("au", au);
-	const qs = params.toString();
-	const url = qs ? `/salle-fete/reservations?${qs}` : "/salle-fete/reservations";
-	return getApiClient()
-		.apiFetch<Reservation[]>(url)
-		.then((reservations) =>
-			reservations
-				.filter((r) => new Date(r.date) >= new Date())
-				.slice(0, 5),
 		)
 		.catch(() => []);
 }

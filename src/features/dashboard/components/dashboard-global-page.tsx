@@ -23,13 +23,10 @@ import { cn } from "#/lib/utils";
 
 import {
 	useSyntheseGlobale,
-	useLogementsDispo,
-	useProduitsCritiques,
-	useCommandesPressing,
-	useReservationsSalle,
-	usePointagesAujourdhui,
+	useReservationsSalleFutures,
 	useImpayes,
 } from "../hooks/use-dashboard";
+import { getReservationsSalleFutures } from "../api/dashboard";
 import { type PeriodeFiltre, getPeriodeDates } from "../models/periodes";
 
 const PERIODES: Record<PeriodeFiltre, string> = {
@@ -55,24 +52,17 @@ export function DashboardGlobalPage() {
 	const dates = getPeriodeDates(periode, customDu, customAu);
 
 	const syntheseQuery = useSyntheseGlobale(dates.du, dates.au);
-	const logementsQuery = useLogementsDispo(dates.du, dates.au);
-	const produitsQuery = useProduitsCritiques(dates.du, dates.au);
-	const commandesQuery = useCommandesPressing(dates.du, dates.au);
-	const reservationsQuery = useReservationsSalle(dates.du, dates.au);
-	const pointagesQuery = usePointagesAujourdhui(dates.du, dates.au);
 	const impayesQuery = useImpayes(dates.du, dates.au);
+	const reservationsQuery = useReservationsSalleFutures();
 
 	const synthese = syntheseQuery.data;
-	const logementsDispo = logementsQuery.data ?? [];
-	const produitsCritiques = produitsQuery.data ?? [];
-	const commandesPressing = commandesQuery.data ?? [];
-	const reservations = reservationsQuery.data ?? [];
-	const pointages = pointagesQuery.data ?? [];
 	const impayes = impayesQuery.data ?? [];
+	const reservations = reservationsQuery.data ?? [];
 
-	// Calcul des statistiques
-	const presentsAujourdhui = pointages.filter((p) => p.statut === "present").length;
-	const retardsAujourdhui = pointages.filter((p) => p.retard).length;
+	const presentsAujourdhui = synthese?.personnel?.presents_aujourd_hui ?? 0;
+	const retardsAujourdhui = synthese?.personnel?.retards_aujourd_hui ?? 0;
+	const produitsCritiques = synthese?.market?.stock?.alertes ?? [];
+	const commandesPressing = synthese?.pressing?.commandes_en_cours ?? 0;
 
 	if (!canVoir) {
 		return (
@@ -234,9 +224,9 @@ export function DashboardGlobalPage() {
 						<div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
 							<InfoCard
 								label="Chambres disponibles"
-								valeur={String(logementsDispo.length)}
+								valeur={String(synthese?.residence?.chambres_disponibles ?? 0)}
 								icon={CheckCircle2}
-								loading={logementsQuery.isLoading}
+								loading={syntheseQuery.isLoading}
 							/>
 							<InfoCard
 								label="Locataires impayés"
@@ -247,7 +237,7 @@ export function DashboardGlobalPage() {
 							/>
 							<InfoCard
 								label="Montant des impayés"
-								valeur={formatMontantFCFA(String(synthese.impayes.montant))}
+								valeur={formatMontantFCFA(String(synthese?.residence?.impayes?.montant ?? 0))}
 								icon={AlertCircle}
 								couleur="text-destructive"
 								loading={syntheseQuery.isLoading}
@@ -256,58 +246,78 @@ export function DashboardGlobalPage() {
 
 						{/* Liste des impayés */}
 						{impayes.length > 0 && (
-							<div className="rounded-lg border border-destructive/40 bg-destructive/10 p-4">
-								<div className="flex items-center justify-between mb-4">
-									<p className="text-sm font-medium text-destructive">
-										Locataires ayant des impayés ({impayes.length})
-									</p>
-									<p className="text-sm font-semibold text-destructive">
-										Total: {formatMontantFCFA(
-											String(
-												impayes.reduce((sum, i: any) => {
-													const montant = Number(i.montant ?? i.montant_dû ?? i.montant_impaye ?? 0);
-													return sum + (isNaN(montant) ? 0 : montant);
-												}, 0)
-											)
-										)}
-									</p>
+							<div className="rounded-lg border border-border overflow-hidden">
+								<div className="overflow-x-auto">
+									<table className="w-full border-collapse text-sm">
+										<thead className="bg-sea-ink text-left text-white">
+											<tr>
+												<th scope="col" className="px-4 py-3 font-medium">CLIENT</th>
+												<th scope="col" className="px-4 py-3 font-medium">RÉFÉRENCE</th>
+												<th scope="col" className="px-4 py-3 text-right font-medium">PAYÉ</th>
+												<th scope="col" className="px-4 py-3 text-right font-medium">RESTE</th>
+												<th scope="col" className="px-4 py-3 font-medium">ÉCHÉANCE</th>
+											</tr>
+										</thead>
+										<tbody>
+											{impayes
+												.sort((a: any, b: any) => {
+													const dateA = new Date(a.date_echeance).getTime();
+													const dateB = new Date(b.date_echeance).getTime();
+													return dateA - dateB;
+												})
+												.slice(0, 10)
+												.map((i: any, idx) => {
+												const montantPaye = Number(i.montant_paye ?? 0);
+												const montantReste = Number(i.montant_impaye ?? i.reste ?? 0);
+												const locataire = i.locataire ?? i.nom_locataire ?? i.client ?? "—";
+												const reference = i.reference ?? i.id ?? "—";
+												return (
+													<tr key={idx} className="relative border-t border-border transition-colors hover:bg-accent/40">
+														<td className="px-4 py-3 font-medium text-foreground">{locataire}</td>
+														<td className="px-4 py-3 text-muted-foreground">{reference}</td>
+														<td className="px-4 py-3 text-right text-emerald-600 font-medium">
+															{montantPaye > 0 ? formatMontantFCFA(String(montantPaye)) : "0 FCFA"}
+														</td>
+														<td className="px-4 py-3 text-right font-semibold text-destructive">
+															{montantReste > 0 ? formatMontantFCFA(String(montantReste)) : "0 FCFA"}
+														</td>
+														<td className="px-4 py-3 text-muted-foreground">
+															{i.date_echeance ? new Date(i.date_echeance).toLocaleDateString("fr-FR") : "—"}
+														</td>
+													</tr>
+												);
+											})}
+											<tr className="border-t border-border bg-sea-ink/5">
+												<td colSpan={2} className="px-4 py-3 font-semibold text-foreground">TOTAL ({impayes.length})</td>
+												<td className="px-4 py-3 text-right font-semibold text-emerald-600">
+													{formatMontantFCFA(
+														String(
+															impayes.reduce((sum, i: any) => {
+																const montant = Number(i.montant_paye ?? 0);
+																return sum + (isNaN(montant) ? 0 : montant);
+															}, 0)
+														)
+													)}
+												</td>
+												<td className="px-4 py-3 text-right font-semibold text-destructive">
+													{formatMontantFCFA(
+														String(
+															impayes.reduce((sum, i: any) => {
+																const montant = Number(i.montant_impaye ?? i.reste ?? 0);
+																return sum + (isNaN(montant) ? 0 : montant);
+															}, 0)
+														)
+													)}
+												</td>
+												<td className="px-4 py-3"></td>
+											</tr>
+										</tbody>
+									</table>
 								</div>
-
-								<div className="space-y-2">
-									{impayes.slice(0, 10).map((i: any, idx) => {
-										const montant = i.montant ?? i.montant_dû ?? i.montant_impaye ?? "—";
-										const locataire = i.locataire ?? i.nom_locataire ?? i.client ?? "—";
-										const statut = i.statut ?? "IMPAYÉ";
-										return (
-											<div
-												key={idx}
-												className="flex items-center justify-between rounded-md border border-destructive/20 bg-background/50 p-3 hover:bg-background transition-colors"
-											>
-												<div className="flex-1 min-w-0">
-													<p className="text-sm font-medium text-foreground truncate">
-														{locataire}
-													</p>
-													<p className="text-xs text-muted-foreground">
-														Échéance: {i.date_echeance ? new Date(i.date_echeance).toLocaleDateString("fr-FR") : "—"}
-													</p>
-												</div>
-												<div className="text-right ml-4">
-													<p className="text-sm font-semibold text-destructive">
-														{montant && montant !== "—" ? formatMontantFCFA(String(montant)) : "—"}
-													</p>
-													<p className="text-xs text-destructive uppercase">
-														{statut}
-													</p>
-												</div>
-											</div>
-										);
-									})}
-								</div>
-
 								{impayes.length > 10 && (
-									<p className="text-xs text-destructive mt-3 pt-3 border-t border-destructive/20">
+									<div className="px-4 py-3 bg-muted/30 text-xs text-muted-foreground border-t border-border">
 										+{impayes.length - 10} autres impayés…
-									</p>
+									</div>
 								)}
 							</div>
 						)}
@@ -324,14 +334,14 @@ export function DashboardGlobalPage() {
 								valeur={String(presentsAujourdhui)}
 								icon={CheckCircle2}
 								couleur="text-emerald-600"
-								loading={pointagesQuery.isLoading}
+								loading={syntheseQuery.isLoading}
 							/>
 							<InfoCard
 								label="Retards aujourd'hui"
 								valeur={String(retardsAujourdhui)}
 								icon={Clock}
 								couleur={retardsAujourdhui > 0 ? "text-amber-600" : "text-muted-foreground"}
-								loading={pointagesQuery.isLoading}
+								loading={syntheseQuery.isLoading}
 							/>
 							<InfoCard
 								label="Masse salariale à payer"
@@ -375,7 +385,7 @@ export function DashboardGlobalPage() {
 								valeur={String(produitsCritiques.length)}
 								icon={AlertTriangle}
 								couleur={produitsCritiques.length > 0 ? "text-destructive" : "text-muted-foreground"}
-								loading={produitsQuery.isLoading}
+								loading={syntheseQuery.isLoading}
 							/>
 						</div>
 						{produitsCritiques.length > 0 && (
@@ -402,38 +412,85 @@ export function DashboardGlobalPage() {
 						<div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
 							<InfoCard
 								label="Commandes en cours"
-								valeur={String(commandesPressing.length)}
+								valeur={String(commandesPressing)}
 								icon={Package}
-								loading={commandesQuery.isLoading}
+								loading={syntheseQuery.isLoading}
 							/>
 						</div>
 					</div>
 
-					{/* Restaurant & Salle */}
+					{/* Services - Salle de fête */}
 					<div className="space-y-3">
 						<h2 className="text-lg font-semibold text-foreground">
 							Services
 						</h2>
-						<div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+
+						<div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+							<InfoCard
+								label="Réservations à venir"
+								valeur={String(reservations.length)}
+								icon={TrendingUp}
+								loading={reservationsQuery.isLoading}
+							/>
+						</div>
+
+						{/* Réservations Salle de Fête */}
+						{reservationsQuery.isLoading ? (
 							<div className="rounded-lg border border-border bg-card p-4 shadow-sm">
-								<p className="text-sm font-medium text-muted-foreground mb-2">
-									Prochaines réservations (Salle de fête)
-								</p>
-								{reservationsQuery.isLoading ? (
-									<p className="text-xs text-muted-foreground">Chargement…</p>
-								) : reservations.length === 0 ? (
-									<p className="text-xs text-muted-foreground">Aucune réservation</p>
-								) : (
-									<ul className="space-y-2 text-xs">
-										{reservations.slice(0, 3).map((r, idx) => (
-											<li key={idx} className="text-foreground">
-												{r.nom_client} - {new Date(r.date).toLocaleDateString("fr-FR")} à {r.heure_debut}
-											</li>
-										))}
-									</ul>
+								<p className="text-xs text-muted-foreground">Chargement des réservations…</p>
+							</div>
+						) : reservations.length === 0 ? (
+							<div className="rounded-lg border border-border bg-card p-4 shadow-sm">
+								<p className="text-sm font-medium text-muted-foreground">Prochaines réservations (Salle de fête)</p>
+								<p className="text-xs text-muted-foreground mt-2">Aucune réservation pour cette période</p>
+							</div>
+						) : (
+							<div className="rounded-lg border border-border overflow-hidden">
+								<div className="overflow-x-auto">
+									<table className="w-full border-collapse text-sm">
+										<thead className="bg-sea-ink text-left text-white">
+											<tr>
+												<th scope="col" className="px-4 py-3 font-medium">CLIENT</th>
+												<th scope="col" className="px-4 py-3 font-medium">DATE</th>
+												<th scope="col" className="px-4 py-3 font-medium">TYPE</th>
+												<th scope="col" className="px-4 py-3 font-medium">STATUT</th>
+											</tr>
+										</thead>
+										<tbody>
+											{reservations
+												.sort((a: any, b: any) => new Date(a.date_evenement || a.date).getTime() - new Date(b.date_evenement || b.date).getTime())
+												.slice(0, 5)
+												.map((r: any, idx) => (
+												<tr key={idx} className="relative border-t border-border transition-colors hover:bg-accent/40">
+													<td className="px-4 py-3 font-medium text-foreground">{r.client ?? r.nom_client ?? r.name ?? r.nom ?? (r.prenom ? `${r.prenom} ${r.nom}` : "—")}</td>
+													<td className="px-4 py-3 text-muted-foreground">
+														{new Date(r.date_evenement || r.date).toLocaleDateString("fr-FR")}
+													</td>
+													<td className="px-4 py-3 text-muted-foreground">
+														{r.type_manifestation}
+													</td>
+													<td className="px-4 py-3">
+														<span className={cn(
+															"inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium",
+															r.statut === "CONFIRMEE" ? "bg-emerald-600/20 text-emerald-600" :
+															r.statut === "RESERVEE" ? "bg-amber-600/20 text-amber-600" :
+															"bg-gray-600/20 text-gray-600"
+														)}>
+															{r.statut}
+														</span>
+													</td>
+												</tr>
+											))}
+										</tbody>
+									</table>
+								</div>
+								{reservations.length > 5 && (
+									<div className="px-4 py-3 bg-muted/30 text-xs text-muted-foreground border-t border-border">
+										+{reservations.length - 5} autres réservations…
+									</div>
 								)}
 							</div>
-						</div>
+						)}
 					</div>
 
 
