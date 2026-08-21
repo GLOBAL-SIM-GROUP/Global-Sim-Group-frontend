@@ -52,7 +52,7 @@ export function StatistiquesPage({
 	);
 
 	return (
-		<div className="mx-auto w-full max-w-5xl space-y-6 p-6">
+		<div className="mx-auto w-full max-w-5xl space-y-4 p-3 sm:space-y-6 sm:p-6">
 			<Breadcrumb
 				items={[
 					{ label: "Accueil", to: "/" },
@@ -61,32 +61,32 @@ export function StatistiquesPage({
 				]}
 			/>
 
-			<div className="flex flex-wrap items-end justify-between gap-4">
+			<div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
 				<section className="space-y-1">
-					<h1 className="text-2xl font-semibold text-foreground">
+					<h1 className="text-lg font-semibold text-foreground sm:text-2xl">
 						Statistiques — Restaurant
 					</h1>
-					<p className="text-muted-foreground">
+					<p className="text-xs text-muted-foreground sm:text-sm">
 						Chiffre d'affaires et plats les plus vendus.
 					</p>
 				</section>
 
-				<div className="flex items-center gap-2">
+				<div className="flex flex-col gap-2 w-full sm:w-auto sm:flex-row sm:items-center sm:gap-2">
 					<Input
 						type="date"
 						value={du}
 						onChange={(event) => changerPeriode({ du: event.target.value })}
 						aria-label="Début de période"
-						className="w-40"
+						className="w-full sm:w-40"
 					/>
 					<Input
 						type="date"
 						value={au}
 						onChange={(event) => changerPeriode({ au: event.target.value })}
 						aria-label="Fin de période"
-						className="w-40"
+						className="w-full sm:w-40"
 					/>
-					<Button variant="outline" size="sm" asChild>
+					<Button variant="outline" size="sm" asChild className="w-full sm:w-auto justify-center">
 						<Link to="/restaurant/commandes">Commandes</Link>
 					</Button>
 				</div>

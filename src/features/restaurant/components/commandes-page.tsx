@@ -154,7 +154,7 @@ export function CommandesPage({
 			: null;
 
 	return (
-		<div className="mx-auto w-full max-w-6xl space-y-6 p-6">
+		<div className="mx-auto w-full max-w-6xl space-y-4 p-3 sm:space-y-6 sm:p-6">
 			<Breadcrumb
 				items={[
 					{ label: "Accueil", to: "/" },
@@ -162,25 +162,25 @@ export function CommandesPage({
 				]}
 			/>
 
-			<div className="flex flex-wrap items-end justify-between gap-4">
+			<div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
 				<section className="space-y-1">
-					<h1 className="text-2xl font-semibold text-foreground">
+					<h1 className="text-lg font-semibold text-foreground sm:text-2xl">
 						Commandes — Restaurant
 					</h1>
-					<p className="text-muted-foreground">
+					<p className="text-xs text-muted-foreground sm:text-sm">
 						Historique des commandes restaurant et leur statut.
 					</p>
 				</section>
 
-				<div className="flex items-center gap-2">
-					<Button variant="outline" size="sm" asChild>
+				<div className="flex flex-col gap-2 w-full sm:w-auto sm:flex-row sm:items-center sm:gap-2">
+					<Button variant="outline" size="sm" asChild className="w-full sm:w-auto justify-center">
 						<Link to="/restaurant/plats">Carte des plats</Link>
 					</Button>
-					<Button variant="outline" size="sm" asChild>
+					<Button variant="outline" size="sm" asChild className="w-full sm:w-auto justify-center">
 						<Link to="/restaurant/statistiques">Statistiques</Link>
 					</Button>
 					{canCreer ? (
-						<Button onClick={() => setFormOuvert(true)}>
+						<Button onClick={() => setFormOuvert(true)} className="w-full sm:w-auto justify-center">
 							<Plus className="size-4" aria-hidden />
 							Nouvelle commande
 						</Button>
@@ -210,7 +210,7 @@ export function CommandesPage({
 				</div>
 			) : null}
 
-			<div className="flex gap-2">
+			<div className="flex flex-col gap-2 sm:flex-row sm:gap-2">
 				<div className="flex-1">
 					<InputField
 						placeholder="Rechercher par numéro, client…"
@@ -220,14 +220,14 @@ export function CommandesPage({
 				</div>
 			</div>
 
-			<div className="flex flex-wrap items-center gap-3 rounded-lg border border-border bg-card p-4 shadow-sm">
+			<div className="flex flex-col gap-3 rounded-lg border border-border bg-card p-3 shadow-sm sm:flex-row sm:items-center sm:flex-wrap sm:p-4">
 				<Select
 					value={statut}
 					onValueChange={(valeur) =>
 						changerFiltre({ statut: valeur as CommandeStatutFiltre })
 					}
 				>
-					<SelectTrigger aria-label="Statut" className="w-44">
+					<SelectTrigger aria-label="Statut" className="w-full sm:w-44">
 						<SelectValue placeholder="Statut" />
 					</SelectTrigger>
 					<SelectContent>
@@ -248,7 +248,7 @@ export function CommandesPage({
 						changerFiltre({ type: valeur as TypeCommandeFiltre })
 					}
 				>
-					<SelectTrigger aria-label="Type" className="w-44">
+					<SelectTrigger aria-label="Type" className="w-full sm:w-44">
 						<SelectValue placeholder="Type" />
 					</SelectTrigger>
 					<SelectContent>
@@ -268,14 +268,14 @@ export function CommandesPage({
 					value={du}
 					onChange={(event) => changerFiltre({ du: event.target.value })}
 					aria-label="Début de période"
-					className="w-40"
+					className="w-full sm:w-40"
 				/>
 				<Input
 					type="date"
 					value={au}
 					onChange={(event) => changerFiltre({ au: event.target.value })}
 					aria-label="Fin de période"
-					className="w-40"
+					className="w-full sm:w-40"
 				/>
 			</div>
 
@@ -312,18 +312,19 @@ export function CommandesPage({
 			{pagination.total > 0 ? (
 				<nav
 					aria-label="Pagination des commandes"
-					className="flex flex-wrap items-center justify-between gap-4"
+					className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4"
 				>
-					<p className="text-sm text-muted-foreground">
+					<p className="text-xs text-muted-foreground sm:text-sm">
 						Affichage de {pagination.start} à {pagination.end} sur{" "}
 						{pagination.total} résultats
 					</p>
-					<div className="flex items-center gap-2">
+					<div className="flex flex-col gap-2 w-full sm:w-auto sm:flex-row sm:gap-2">
 						<Button
 							variant="outline"
 							size="sm"
 							disabled={pagination.page <= 1}
 							onClick={() => allerPage(pagination.page - 1)}
+							className="w-full sm:w-auto"
 						>
 							Précédent
 						</Button>
@@ -332,6 +333,7 @@ export function CommandesPage({
 							size="sm"
 							disabled={pagination.page >= pagination.totalPages}
 							onClick={() => allerPage(pagination.page + 1)}
+							className="w-full sm:w-auto"
 						>
 							Suivant
 						</Button>
