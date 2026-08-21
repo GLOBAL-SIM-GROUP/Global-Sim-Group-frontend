@@ -1,16 +1,13 @@
-import { Download, Loader2, RotateCcw, Save } from "lucide-react";
-import { useState } from "react";
+import { Download, Loader2, Save } from "lucide-react";
 
 import { Breadcrumb } from "#/components/ui/breadcrumb";
 import { Button } from "#/components/ui/button";
 import { cn } from "#/lib/utils";
 
-import { ConfirmDialog } from "#/features/residence/components/confirm-dialog";
 import {
 	useConfigurationSauvegardes,
 	useCreerSauvegardeManuelle,
 	useMajConfigurationSauvegardes,
-	useRestaurerSauvegarde,
 	useSauvegardes,
 } from "../hooks/use-sauvegardes";
 import {
@@ -24,17 +21,14 @@ import {
 /**
  * Page « Sauvegardes — Administration » (M11) : gestion des sauvegardes de
  * la base de données. Affiche l'historique, permet de déclencher une sauvegarde
- * manuelle, de restaurer une sauvegarde, et de configurer la fréquence
- * automatique. Actions sensibles réservées à l'administrateur.
+ * manuelle, et de configurer la fréquence automatique. Actions sensibles
+ * réservées à l'administrateur.
  */
 export function SauvegardesPage() {
 	const sauvegardesQuery = useSauvegardes();
 	const configQuery = useConfigurationSauvegardes();
 	const creerMutation = useCreerSauvegardeManuelle();
 	const majConfigMutation = useMajConfigurationSauvegardes();
-	const restaurerMutation = useRestaurerSauvegarde();
-
-	const [aRestaurer, setARestaurer] = useState<string | null>(null);
 
 	const sauvegardes = sauvegardesQuery.data ?? [];
 	const config = configQuery.data;
@@ -181,9 +175,6 @@ export function SauvegardesPage() {
 										<th className="px-4 py-3 text-left font-semibold">
 											Statut
 										</th>
-										<th className="px-4 py-3 text-right font-semibold">
-											Actions
-										</th>
 									</tr>
 								</thead>
 								<tbody>
@@ -221,24 +212,6 @@ export function SauvegardesPage() {
 													}
 												</span>
 											</td>
-											<td className="px-4 py-3 text-right">
-												<Button
-													variant="ghost"
-													size="sm"
-													onClick={() =>
-														setARestaurer(sauvegarde.id)
-													}
-													disabled={
-														restaurerMutation.isPending
-													}
-													title="Restaurer cette sauvegarde"
-												>
-													<RotateCcw className="size-4" aria-hidden />
-													<span className="sr-only">
-														Restaurer
-													</span>
-												</Button>
-											</td>
 										</tr>
 									))}
 								</tbody>
@@ -247,27 +220,6 @@ export function SauvegardesPage() {
 					)}
 				</div>
 			</div>
-
-			{/* Dialogue de confirmation restauration */}
-			<ConfirmDialog
-				open={aRestaurer !== null}
-				onOpenChange={(ouvert) => {
-					if (!ouvert) setARestaurer(null);
-				}}
-				title="Restaurer une sauvegarde"
-				message="Êtes-vous sûr de vouloir restaurer cette sauvegarde ? Cette action remplacera la base de données actuelle. Cette opération est irréversible."
-				confirmLabel="Restaurer"
-				cancelLabel="Annuler"
-				destructive
-				busy={restaurerMutation.isPending}
-				onConfirm={() => {
-					if (aRestaurer) {
-						restaurerMutation.mutate(aRestaurer, {
-							onSettled: () => setARestaurer(null),
-						});
-					}
-				}}
-			/>
 		</div>
 	);
 }
