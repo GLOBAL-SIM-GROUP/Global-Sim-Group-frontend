@@ -1,5 +1,7 @@
+import { useMemo } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
+import { listClients } from "#/features/clients/api/clients";
 import { listPaiements } from "#/features/finances/api/finances";
 
 import {
@@ -13,15 +15,39 @@ import {
 	type ReservationBody,
 	realiserReservation,
 } from "../api/reservations";
-import type { ReservationStatut } from "../models/reservations";
+import type { ReservationFete, ReservationStatut } from "../models/reservations";
 import { reservationPaiementsKeys, reservationsKeys } from "../permissions";
 
-/** Liste des réservations, avec les filtres serveur portés par la clé. */
+/** Liste des réservations avec noms des clients, avec les filtres serveur portés par la clé. */
 export function useReservations(statut: string, du?: string, au?: string) {
-	return useQuery({
+	const reservationsQuery = useQuery({
 		queryKey: reservationsKeys.list(statut, du, au),
 		queryFn: () => listReservations({ statut, du, au }),
 	});
+
+	const clientsQuery = useQuery({
+		queryKey: ["clients", "list"],
+		queryFn: () => listClients(),
+	});
+
+	const data = useMemo(() => {
+		if (!reservationsQuery.data || !clientsQuery.data) return undefined;
+
+		const clientMap = new Map(
+			clientsQuery.data.map((c) => [String(c.id), c.nom]),
+		);
+
+		return reservationsQuery.data.map((r) => ({
+			...r,
+			nom_client: r.id_client ? clientMap.get(r.id_client) : undefined,
+		})) as ReservationFete[];
+	}, [reservationsQuery.data, clientsQuery.data]);
+
+	return {
+		...reservationsQuery,
+		data,
+		isLoading: reservationsQuery.isLoading || clientsQuery.isLoading,
+	};
 }
 
 /** Détail d'une réservation (fiche). `retry: false` : 404 = introuvable. */

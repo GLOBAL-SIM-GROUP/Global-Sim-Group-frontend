@@ -14,9 +14,7 @@ import {
 } from "#/components/ui/select";
 import { useCan } from "#/core/auth";
 import { ConfirmDialog } from "#/features/residence/components/confirm-dialog";
-import { useClientsDetails } from "#/features/residence/hooks/use-clients";
 import { useMoyensPaiement } from "#/features/residence/hooks/use-moyens-paiement";
-import { nomComplet } from "#/features/residence/models/clients";
 import { formatMontantFCFA } from "#/features/residence/models/format";
 import { cn } from "#/lib/utils";
 
@@ -80,26 +78,6 @@ export function ReservationsPage({
 	const annulerMutation = useAnnulerReservation();
 
 	const reservations = reservationsQuery.data ?? [];
-	const clientIds = useMemo(
-		() =>
-			reservations
-				.map((r) => r.id_client)
-				.filter((id): id is string => Boolean(id)),
-		[reservations],
-	);
-	const clientsDetails = useClientsDetails(clientIds);
-	const clients = useMemo(
-		() =>
-			new Map(
-				(clientsDetails.data
-					? [...clientsDetails.data.entries()].map(([id, client]) => [
-							id,
-							nomComplet(client),
-						])
-					: []) as [string, string][],
-			),
-		[clientsDetails.data],
-	);
 
 	const [statut, setStatut] = useState<ReservationStatutFiltre>(
 		initialSearch.statut ?? "tous",
@@ -280,9 +258,7 @@ export function ReservationsPage({
 											title={`Voir la fiche de la réservation du ${reservation.date_evenement}`}
 											className="font-medium text-lagoon after:absolute after:inset-0 transition-colors hover:underline"
 										>
-											{reservation.id_client
-												? (clients.get(reservation.id_client) ?? "…")
-												: "—"}
+											{reservation.nom_client ?? "—"}
 										</Link>
 									</td>
 									<td className="px-4 py-3 text-muted-foreground">

@@ -13,6 +13,7 @@ export type ReservationStatut =
 export interface ReservationFete {
 	id: string;
 	id_client: string | null;
+	nom_client?: string;
 	date_evenement: string;
 	heure_debut: string;
 	duree: number;
