@@ -145,12 +145,6 @@ export const MODULE_DEFINITIONS: ModuleDefinition[] = [
 				permission: "PRESSING.VOIR",
 				path: "/pressing/commandes",
 			},
-			{
-				id: "statistiques",
-				label: "Statistiques",
-				permission: "PRESSING.VOIR",
-				path: "/pressing/statistiques",
-			},
 		],
 	},
 	{

@@ -53,7 +53,6 @@ const ROUTES_REALLES: Record<
 	},
 	PRESSING: {
 		commandes: { to: "/pressing/commandes", exact: true },
-		statistiques: { to: "/pressing/statistiques", exact: true },
 	},
 	SALLE_FETE: {
 		calendrier: { to: "/salle-fete/calendrier", exact: true },
