@@ -97,12 +97,15 @@ export function CommandeFichePage({ id }: CommandeFichePageProps) {
 	}
 
 	const commande = commandeQuery.data;
+	const nomClient = commande.client_nom ?? commande.nom_client ?? "—";
+	const prenomClient = commande.client_prenoms ?? commande.client_prenom ?? commande.prenom_client ?? "";
+	const nomComplet = `${nomClient} ${prenomClient}`.trim();
 	const aUnReste = Number(commande.reste_a_payer) > 0;
 	const estTerminee =
 		commande.statut === "RETIRE" || commande.statut === "ANNULEE";
 
 	return (
-		<div className="mx-auto w-full max-w-5xl space-y-6 p-6">
+		<div className="mx-auto w-full max-w-5xl space-y-4 p-3 sm:space-y-6 sm:p-6">
 			<Breadcrumb
 				items={[
 					{ label: "Accueil", to: "/" },
@@ -111,18 +114,18 @@ export function CommandeFichePage({ id }: CommandeFichePageProps) {
 				]}
 			/>
 
-			<div className="flex flex-wrap items-end justify-between gap-4">
+			<div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
 				<section className="space-y-1">
-					<h1 className="text-2xl font-semibold text-foreground">
+					<h1 className="text-lg font-semibold text-foreground sm:text-2xl">
 						Fiche commande — {commande.numero_commande}
 					</h1>
-					<p className="text-muted-foreground">
-						{commande.client_nom} {commande.client_prenoms}
+					<p className="text-xs text-muted-foreground sm:text-sm">
+						{nomComplet}
 					</p>
 				</section>
 
-				<div className="flex items-center gap-2">
-					<Button variant="outline" size="sm" asChild>
+				<div className="flex flex-col gap-2 w-full sm:w-auto sm:flex-row sm:items-center sm:gap-2">
+					<Button variant="outline" size="sm" asChild className="w-full sm:w-auto justify-center">
 						<Link to="/pressing/commandes">Retour aux commandes</Link>
 					</Button>
 					{canModifier ? (
@@ -133,6 +136,7 @@ export function CommandeFichePage({ id }: CommandeFichePageProps) {
 									size="sm"
 									disabled={traitementMutation.isPending}
 									onClick={() => traitementMutation.mutate(commande.id)}
+									className="w-full sm:w-auto justify-center"
 								>
 									<RefreshCw className="size-4" aria-hidden />
 									Passer en traitement
@@ -144,12 +148,13 @@ export function CommandeFichePage({ id }: CommandeFichePageProps) {
 									size="sm"
 									disabled={pretMutation.isPending}
 									onClick={() => pretMutation.mutate(commande.id)}
+									className="w-full sm:w-auto justify-center"
 								>
 									<CheckCheck className="size-4" aria-hidden />
 									Passer en « Prêt »
 								</Button>
 							) : null}
-							<Button onClick={() => setAModifier(commande)}>
+							<Button onClick={() => setAModifier(commande)} className="w-full sm:w-auto justify-center">
 								<Pencil className="size-4" aria-hidden />
 								Modifier
 							</Button>
@@ -159,6 +164,7 @@ export function CommandeFichePage({ id }: CommandeFichePageProps) {
 						<Button
 							disabled={retirerMutation.isPending}
 							onClick={() => setRetraitOuvert(true)}
+							className="w-full sm:w-auto justify-center"
 						>
 							<HandCoins className="size-4" aria-hidden />
 							Retirer
@@ -171,7 +177,7 @@ export function CommandeFichePage({ id }: CommandeFichePageProps) {
 				<dl className="grid gap-4 sm:grid-cols-2">
 					<Ligne
 						label="Client"
-						valeur={`${commande.client_nom} ${commande.client_prenoms}`.trim()}
+						valeur={nomComplet}
 					/>
 					<Ligne label="Téléphone" valeur={commande.client_tel ?? "—"} />
 					<Ligne
