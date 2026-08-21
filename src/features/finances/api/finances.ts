@@ -39,6 +39,22 @@ export function listTableauBord(filtres?: {
 	);
 }
 
+/** Récupère le chemin d'export PDF du tableau de bord financier */
+export function getTableauBordPdfPath(periodo?: string): string {
+	const params = new URLSearchParams();
+	params.set("format", "pdf");
+	if (periodo) params.set("periodo", periodo);
+	return `/finances/tableau-de-bord?${params.toString()}`;
+}
+
+/** Récupère le chemin d'export Excel du tableau de bord financier */
+export function getTableauBordExcelPath(periodo?: string): string {
+	const params = new URLSearchParams();
+	params.set("format", "xlsx");
+	if (periodo) params.set("periodo", periodo);
+	return `/finances/tableau-de-bord?${params.toString()}`;
+}
+
 export function listPaiements(filtres?: {
 	du?: string;
 	au?: string;
@@ -194,4 +210,36 @@ export function supprimerDepense(id: string): Promise<unknown> {
 	return getApiClient().apiFetch(`/finances/depenses/${id}`, {
 		method: "DELETE",
 	});
+}
+
+/** Télécharge un rapport du tableau de bord en PDF */
+export async function downloadTableauBordPdf(
+	chemin: string,
+	nomFichier: string,
+): Promise<void> {
+	const blob = await getApiClient().download(chemin);
+	const url = URL.createObjectURL(blob);
+	const lien = document.createElement("a");
+	lien.href = url;
+	lien.download = nomFichier;
+	document.body.appendChild(lien);
+	lien.click();
+	document.body.removeChild(lien);
+	URL.revokeObjectURL(url);
+}
+
+/** Télécharge un rapport du tableau de bord en Excel */
+export async function downloadTableauBordExcel(
+	chemin: string,
+	nomFichier: string,
+): Promise<void> {
+	const blob = await getApiClient().download(chemin);
+	const url = URL.createObjectURL(blob);
+	const lien = document.createElement("a");
+	lien.href = url;
+	lien.download = nomFichier;
+	document.body.appendChild(lien);
+	lien.click();
+	document.body.removeChild(lien);
+	URL.revokeObjectURL(url);
 }

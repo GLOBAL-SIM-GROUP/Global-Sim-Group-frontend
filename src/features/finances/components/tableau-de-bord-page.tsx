@@ -1,6 +1,4 @@
-import { Download, FileText, X } from "lucide-react";
-import { jsPDF } from "jspdf";
-import autoTable from "jspdf-autotable";
+import { Download, FileDown, FileText, Loader2, X } from "lucide-react";
 import { useState } from "react";
 
 import { Breadcrumb } from "#/components/ui/breadcrumb";
@@ -16,6 +14,12 @@ import { useCan } from "#/core/auth";
 import { formatMontantFCFA } from "#/features/residence/models/format";
 import { cn } from "#/lib/utils";
 
+import {
+	downloadTableauBordExcel,
+	downloadTableauBordPdf,
+	getTableauBordExcelPath,
+	getTableauBordPdfPath,
+} from "../api/finances";
 import { useTableauBord } from "../hooks/use-finances";
 
 type PeriodeFiltre =
@@ -63,156 +67,45 @@ export function TableauDeBordPage() {
 	const [periode, setPeriode] = useState<PeriodeFiltre>("ce_mois");
 	const [activite, setActivite] = useState<ActiviteFiltre>("global");
 	const [detailsOuvert, setDetailsOuvert] = useState(false);
+	const [exportPdfLoading, setExportPdfLoading] = useState(false);
+	const [exportExcelLoading, setExportExcelLoading] = useState(false);
+	const [exportError, setExportError] = useState<string | null>(null);
 
 	// Map période filtre to backend parameter
 	const periodeParam = periode !== "personnalisee" ? periode : undefined;
 
 	const tableauBordQuery = useTableauBord(periodeParam);
 
-	// Fonction d'export PDF
-	const handleExport = () => {
-		const doc = new jsPDF();
-		const pageWidth = doc.internal.pageSize.getWidth();
-		const pageHeight = doc.internal.pageSize.getHeight();
-		let yPosition = 20;
+	// Fonction d'export PDF via le backend
+	const handleExportPdf = async () => {
+		setExportPdfLoading(true);
+		setExportError(null);
+		try {
+			const chemin = getTableauBordPdfPath(periodeParam);
+			const nomFichier = `tableau-de-bord-financier-${new Date().toISOString().split("T")[0]}.pdf`;
+			await downloadTableauBordPdf(chemin, nomFichier);
+		} catch (error) {
+			setExportError("Impossible de générer le PDF");
+			console.error(error);
+		} finally {
+			setExportPdfLoading(false);
+		}
+	};
 
-		// En-tête
-		doc.setFontSize(16);
-		doc.text("Tableau de Bord Financier", pageWidth / 2, yPosition, {
-			align: "center",
-		});
-		yPosition += 10;
-
-		doc.setFontSize(10);
-		doc.setTextColor(128, 128, 128);
-		doc.text(
-			`Généré le ${new Date().toLocaleDateString("fr-FR")}`,
-			pageWidth / 2,
-			yPosition,
-			{ align: "center" },
-		);
-		yPosition += 15;
-
-		// Indicateurs principaux
-		doc.setTextColor(0, 0, 0);
-		doc.setFontSize(11);
-		doc.text("INDICATEURS PRINCIPAUX", 20, yPosition);
-		yPosition += 8;
-
-		doc.setFontSize(9);
-		const indicateurs = [
-			[
-				"Recettes totales:",
-				formatMontantFCFA(
-					String(
-						lignes.reduce((sum, l) => sum + Number(l.encaissements), 0),
-					),
-				),
-			],
-			[
-				"Dépenses totales:",
-				formatMontantFCFA(
-					String(
-						lignes.reduce((sum, l) => sum + Number(l.decaissements), 0),
-					),
-				),
-			],
-			[
-				"Solde:",
-				formatMontantFCFA(
-					String(
-						lignes.reduce((sum, l) => sum + Number(l.encaissements), 0) -
-							lignes.reduce((sum, l) => sum + Number(l.decaissements), 0),
-					),
-				),
-			],
-			[
-				"Bénéfice estimatif:",
-				formatMontantFCFA(
-					String(
-						lignes.reduce((sum, l) => sum + Number(l.marge_nette), 0),
-					),
-				),
-			],
-		];
-
-		indicateurs.forEach(([label, value]) => {
-			doc.text(`${label} ${value}`, 25, yPosition);
-			yPosition += 6;
-		});
-
-		yPosition += 5;
-
-		// Tableau des périodes
-		doc.setFontSize(11);
-		doc.text("DÉTAIL PAR PÉRIODE", 20, yPosition);
-		yPosition += 8;
-
-		const tableData = lignes.map((ligne) => {
-			const encaissementsNum = Number(ligne.encaissements);
-			const depensesNum = Number(ligne.decaissements);
-			const margeNum = Number(ligne.marge_nette);
-			const marge = encaissementsNum > 0
-				? ((margeNum / encaissementsNum) * 100).toFixed(1)
-				: "0";
-
-			return [
-				ligne.periode,
-				encaissementsNum.toLocaleString("fr-FR"),
-				depensesNum.toLocaleString("fr-FR"),
-				(encaissementsNum - depensesNum).toLocaleString("fr-FR"),
-				`${marge}%`,
-			];
-		});
-
-		// Ajouter totaux
-		const totalRecettes = lignes.reduce(
-			(sum, l) => sum + Number(l.encaissements),
-			0,
-		);
-		const totalDepenses = lignes.reduce(
-			(sum, l) => sum + Number(l.decaissements),
-			0,
-		);
-		const totalBenefit = lignes.reduce(
-			(sum, l) => sum + Number(l.marge_nette),
-			0,
-		);
-		const totalMargePct = totalRecettes > 0
-			? ((totalBenefit / totalRecettes) * 100).toFixed(1)
-			: "0";
-
-		tableData.push([
-			"TOTAL",
-			totalRecettes.toLocaleString("fr-FR"),
-			totalDepenses.toLocaleString("fr-FR"),
-			(totalRecettes - totalDepenses).toLocaleString("fr-FR"),
-			`${totalMargePct}%`,
-		]);
-
-		// Créer le tableau PDF
-		autoTable(doc, {
-			head: [["Période", "Recettes", "Dépenses", "Solde", "% Marge"]],
-			body: tableData,
-			startY: yPosition,
-			margin: 20,
-			headStyles: {
-				fillColor: [41, 128, 185],
-				textColor: 255,
-				fontStyle: "bold",
-			},
-			bodyStyles: {
-				textColor: 0,
-			},
-			alternateRowStyles: {
-				fillColor: [245, 245, 245],
-			},
-		});
-
-		// Télécharger
-		doc.save(
-			`tableau-de-bord-financier-${new Date().toISOString().split("T")[0]}.pdf`,
-		);
+	// Fonction d'export Excel via le backend
+	const handleExportExcel = async () => {
+		setExportExcelLoading(true);
+		setExportError(null);
+		try {
+			const chemin = getTableauBordExcelPath(periodeParam);
+			const nomFichier = `tableau-de-bord-financier-${new Date().toISOString().split("T")[0]}.xlsx`;
+			await downloadTableauBordExcel(chemin, nomFichier);
+		} catch (error) {
+			setExportError("Impossible de générer l'Excel");
+			console.error(error);
+		} finally {
+			setExportExcelLoading(false);
+		}
 	};
 
 	if (!canVoir) {
@@ -299,26 +192,52 @@ export function TableauDeBordPage() {
 					</div>
 				</div>
 
-				<div className="flex flex-wrap gap-2">
+				<div className="flex flex-col gap-2 w-full sm:w-auto sm:flex-row sm:items-center sm:gap-2">
 					<Button
 						variant="outline"
 						size="sm"
-						onClick={handleExport}
-						disabled={lignes.length === 0}
+						onClick={handleExportPdf}
+						disabled={lignes.length === 0 || exportPdfLoading}
+						className="w-full sm:w-auto"
 					>
-						<Download className="mr-2 size-4" aria-hidden />
-						Exporter PDF
+						{exportPdfLoading ? (
+							<Loader2 className="mr-2 size-4 animate-spin" aria-hidden />
+						) : (
+							<FileText className="mr-2 size-4" aria-hidden />
+						)}
+						PDF
+					</Button>
+					<Button
+						variant="outline"
+						size="sm"
+						onClick={handleExportExcel}
+						disabled={lignes.length === 0 || exportExcelLoading}
+						className="w-full sm:w-auto"
+					>
+						{exportExcelLoading ? (
+							<Loader2 className="mr-2 size-4 animate-spin" aria-hidden />
+						) : (
+							<FileDown className="mr-2 size-4" aria-hidden />
+						)}
+						Excel
 					</Button>
 					<Button
 						variant="outline"
 						size="sm"
 						onClick={() => setDetailsOuvert(true)}
 						disabled={lignes.length === 0}
+						className="w-full sm:w-auto"
 					>
 						<FileText className="mr-2 size-4" aria-hidden />
 						Détails par activité
 					</Button>
 				</div>
+
+				{exportError && (
+					<p role="alert" className="text-sm text-destructive font-medium">
+						{exportError}
+					</p>
+				)}
 			</div>
 
 			{/* Indicateurs principaux */}
