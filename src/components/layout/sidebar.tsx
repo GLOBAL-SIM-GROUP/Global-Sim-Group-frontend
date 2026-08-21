@@ -51,6 +51,10 @@ const ROUTES_REALLES: Record<
 		commandes: { to: "/restaurant/commandes", exact: true },
 		statistiques: { to: "/restaurant/statistiques", exact: true },
 	},
+	PRESSING: {
+		commandes: { to: "/pressing/commandes", exact: true },
+		statistiques: { to: "/pressing/statistiques", exact: true },
+	},
 	SALLE_FETE: {
 		calendrier: { to: "/salle-fete/calendrier", exact: true },
 		reservations: { to: "/salle-fete/reservations", exact: false },
