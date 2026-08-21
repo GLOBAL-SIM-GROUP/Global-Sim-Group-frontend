@@ -39,18 +39,12 @@ const ROUTES_REALLES: Record<
 		echeances: { to: "/residence/echeances", exact: true },
 		sejours_courts: { to: "/residence/sejours-courts", exact: true },
 		charges: { to: "/residence/charges", exact: true },
-		// `exact: false` garde le lien actif sur échéances/paiements/caution.
-		portail: { to: "/residence/portail", exact: false },
 	},
 	MARCHANDISE: {
 		produits: { to: "/marchandise/produits", exact: true },
 		mouvements: { to: "/marchandise/mouvements", exact: true },
 		ventes: { to: "/marchandise/ventes", exact: true },
 		statistiques: { to: "/marchandise/statistiques", exact: true },
-	},
-	// Le dépôt et le retrait sont des modales depuis la liste des commandes.
-	PRESSING: {
-		commandes: { to: "/pressing/commandes", exact: false },
 	},
 	RESTAURANT: {
 		plats: { to: "/restaurant/plats", exact: true },
@@ -207,23 +201,6 @@ export function Sidebar({ onClose }: { onClose?: () => void } = {}) {
 							</li>
 						) : null}
 
-						{user?.role === "RESIDENT" ? (
-							<li>
-								{/* M2.5 : le portail résident est réservé aux comptes dont le
-								    rôle est RESIDENT (les admins ont aussi RESIDENT.VOIR mais
-								    ne sont pas liés à un dossier client). */}
-								<Link
-									to="/residence/portail"
-									activeOptions={{ exact: false }}
-									activeProps={{ className: "bg-lagoon/25 text-white" }}
-									className={linkClassName}
-									onClick={() => onClose?.()}
-								>
-									<Home className="size-4 text-lagoon" aria-hidden />
-									Mon espace résident
-								</Link>
-							</li>
-						) : null}
 
 						{accessibleModules.map((module) => {
 							const isOpen = openModule === module.code;

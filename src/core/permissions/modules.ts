@@ -1,13 +1,10 @@
 import type { LucideIcon } from "lucide-react";
 import {
 	Building2,
-	ClipboardList,
 	Package,
 	PartyPopper,
 	Receipt,
-	Settings,
 	ShieldCheck,
-	Shirt,
 	Users,
 	Users2,
 	UtensilsCrossed,
@@ -102,30 +99,6 @@ export const MODULE_DEFINITIONS: ModuleDefinition[] = [
 				label: "Charges et abonnements",
 				permission: "RESIDENCE.VOIR",
 				path: "/residence/charges",
-			},
-			{
-				id: "portail",
-				label: "Portail résident",
-				permission: "RESIDENCE.VOIR",
-				path: "/residence/portail",
-			},
-		],
-	},
-	{
-		code: "PRESSING",
-		title: "Blanchisserie",
-		description: "Suivi des articles, commandes et livraisons de pressing.",
-		icon: Shirt,
-		path: "/pressing",
-		permission: "PRESSING.VOIR",
-		subItems: [
-			// Le dépôt et le retrait d'une commande sont des modales ouvertes
-			// depuis la liste des commandes — pas des pages de la sidebar.
-			{
-				id: "commandes",
-				label: "Commandes",
-				permission: "PRESSING.VOIR",
-				path: "/pressing/commandes",
 			},
 		],
 	},
@@ -364,22 +337,6 @@ export const MODULE_DEFINITIONS: ModuleDefinition[] = [
 				path: "/admin/sauvegardes",
 			},
 		],
-	},
-	{
-		code: "AUDIT",
-		title: "Audit",
-		description: "Consultation des journaux d'activité.",
-		icon: ClipboardList,
-		path: "/audit",
-		permission: "AUDIT.VOIR",
-	},
-	{
-		code: "CORE",
-		title: "Système",
-		description: "Configuration technique de la plateforme.",
-		icon: Settings,
-		path: "/core",
-		permission: "CORE.VOIR",
 	},
 ] as const;
 
