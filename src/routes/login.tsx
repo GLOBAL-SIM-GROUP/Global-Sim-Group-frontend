@@ -60,6 +60,39 @@ const loginAnimationStyles = `
 		}
 	}
 
+	@keyframes slideUpFadeIn {
+		0% {
+			opacity: 0;
+			transform: translateY(20px);
+		}
+		100% {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+
+	@keyframes slideInLeft {
+		0% {
+			opacity: 0;
+			transform: translateX(-30px);
+		}
+		100% {
+			opacity: 1;
+			transform: translateX(0);
+		}
+	}
+
+	@keyframes slideInRight {
+		0% {
+			opacity: 0;
+			transform: translateX(30px);
+		}
+		100% {
+			opacity: 1;
+			transform: translateX(0);
+		}
+	}
+
 	.login-animated-bg {
 		animation: gradientSlide 14s ease-in-out infinite;
 		background-size: 300% 300%;
@@ -77,6 +110,18 @@ const loginAnimationStyles = `
 	.login-blob-3 {
 		animation: blobBreathe3 7s ease-in-out infinite;
 		animation-delay: 1s;
+	}
+
+	.login-container {
+		animation: slideUpFadeIn 0.8s ease-out;
+	}
+
+	.login-branding {
+		animation: slideInLeft 0.8s ease-out 0.1s both;
+	}
+
+	.login-form {
+		animation: slideInRight 0.8s ease-out 0.2s both;
 	}
 `;
 
@@ -211,9 +256,9 @@ export function LoginPage() {
 				}}
 			/>
 
-			<div className="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-2 gap-0 overflow-hidden rounded-2xl shadow-2xl relative z-10">
+			<div className="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-2 gap-0 overflow-hidden rounded-2xl shadow-2xl relative z-10 login-container">
 				{/* Section gauche : Branding */}
-				<div className="hidden lg:flex flex-col items-center justify-center bg-gradient-to-br from-sea-ink via-sea-ink/90 to-lagoon/30 p-12 text-white relative overflow-hidden">
+				<div className="hidden lg:flex flex-col items-center justify-center bg-gradient-to-br from-sea-ink via-sea-ink/90 to-lagoon/30 p-12 text-white relative overflow-hidden login-branding">
 					{/* Blobs internes */}
 					<div className="absolute inset-0 overflow-hidden pointer-events-none">
 						<div className="absolute -top-20 -right-20 w-64 h-64 bg-lagoon/10 rounded-full blur-3xl" />
@@ -232,7 +277,7 @@ export function LoginPage() {
 				</div>
 
 				{/* Section droite : Formulaire */}
-				<div className="flex flex-col justify-center bg-card p-8 sm:p-12 lg:p-10">
+				<div className="flex flex-col justify-center bg-card p-8 sm:p-12 lg:p-10 login-form">
 					<div className="space-y-8 max-w-md mx-auto w-full">
 						{/* En-tête mobile */}
 						<div className="lg:hidden space-y-2 text-center">
