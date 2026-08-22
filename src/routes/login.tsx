@@ -14,6 +14,67 @@ import { InputField } from "#/components/ui/input-field";
 import { PasswordInput } from "#/components/ui/password-input";
 import { getErrorMessageForCode, getFieldErrors, toApiError } from "#/core/api";
 
+const loginAnimationStyles = `
+	@keyframes gradientShift {
+		0%, 100% {
+			background-position: 0% 50%;
+		}
+		50% {
+			background-position: 100% 50%;
+		}
+	}
+
+	@keyframes blobFloat1 {
+		0%, 100% {
+			transform: translate(0, 0);
+			opacity: 0.5;
+		}
+		50% {
+			transform: translate(20px, -20px);
+			opacity: 0.6;
+		}
+	}
+
+	@keyframes blobFloat2 {
+		0%, 100% {
+			transform: translate(0, 0);
+			opacity: 0.5;
+		}
+		50% {
+			transform: translate(-20px, 20px);
+			opacity: 0.6;
+		}
+	}
+
+	@keyframes blobFloat3 {
+		0%, 100% {
+			transform: translate(-50%, -50%);
+			opacity: 0.3;
+		}
+		50% {
+			transform: translate(-50%, -45%);
+			opacity: 0.4;
+		}
+	}
+
+	.login-animated-bg {
+		animation: gradientShift 8s ease-in-out infinite;
+		background-size: 200% 200%;
+	}
+
+	.login-blob-1 {
+		animation: blobFloat1 6s ease-in-out infinite;
+	}
+
+	.login-blob-2 {
+		animation: blobFloat2 7s ease-in-out infinite;
+	}
+
+	.login-blob-3 {
+		animation: blobFloat3 5s ease-in-out infinite;
+	}
+`;
+
 type LoginField = "login" | "motDePasse";
 
 const FIELD_PROPERTY_TO_FORM: Record<string, LoginField> = {
@@ -113,7 +174,9 @@ export function LoginPage() {
 	}
 
 	return (
-		<main className="flex min-h-dvh items-center justify-center bg-gradient-to-br from-background via-lagoon/5 to-sea-ink/10 p-4 sm:p-6 relative overflow-hidden"
+		<>
+			<style>{loginAnimationStyles}</style>
+			<main className="flex min-h-dvh items-center justify-center bg-gradient-to-br from-background via-lagoon/5 to-sea-ink/10 p-4 sm:p-6 relative overflow-hidden login-animated-bg"
 			style={{
 				backgroundImage: `
 					linear-gradient(45deg, transparent 48%, rgba(88, 192, 180, 0.03) 49%, rgba(88, 192, 180, 0.03) 51%, transparent 52%),
@@ -124,13 +187,13 @@ export function LoginPage() {
 			}}
 		>
 			{/* Blob décoratif 1 - Haut gauche */}
-			<div className="absolute -top-40 -left-40 w-80 h-80 bg-gradient-to-br from-lagoon/20 to-palm/10 rounded-full blur-3xl opacity-50 pointer-events-none" />
+			<div className="absolute -top-40 -left-40 w-80 h-80 bg-gradient-to-br from-lagoon/20 to-palm/10 rounded-full blur-3xl opacity-50 pointer-events-none login-blob-1" />
 
 			{/* Blob décoratif 2 - Bas droite */}
-			<div className="absolute -bottom-40 -right-40 w-80 h-80 bg-gradient-to-tl from-sea-ink/20 to-lagoon/10 rounded-full blur-3xl opacity-50 pointer-events-none" />
+			<div className="absolute -bottom-40 -right-40 w-80 h-80 bg-gradient-to-tl from-sea-ink/20 to-lagoon/10 rounded-full blur-3xl opacity-50 pointer-events-none login-blob-2" />
 
 			{/* Blob décoratif 3 - Centre */}
-			<div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-r from-lagoon/10 via-transparent to-palm/10 rounded-full blur-3xl opacity-30 pointer-events-none" />
+			<div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-r from-lagoon/10 via-transparent to-palm/10 rounded-full blur-3xl opacity-30 pointer-events-none login-blob-3" />
 
 			{/* Overlay pattern subtil */}
 			<div className="absolute inset-0 opacity-40 pointer-events-none"
@@ -275,5 +338,6 @@ export function LoginPage() {
 				</div>
 			</div>
 		</main>
+		</>
 	);
 }
