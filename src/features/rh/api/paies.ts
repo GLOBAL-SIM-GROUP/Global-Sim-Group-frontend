@@ -67,7 +67,7 @@ export function ajouterElementPaie(
 		libelle: body.libelle,
 		montant: body.montant,
 	} satisfies AjouterElementSalaireDto;
-	return getApiClient().apiFetch(`/rh/paies/${id}/elements`, {
+	return getApiClient().apiFetch(`/api/v1/rh/paies/${id}/elements`, {
 		method: "POST",
 		body: JSON.stringify(corps),
 	});
@@ -75,21 +75,21 @@ export function ajouterElementPaie(
 
 /** Recalcule le bulletin (totaux et montant à payer). */
 export function recalculerPaie(id: string): Promise<unknown> {
-	return getApiClient().apiFetch(`/rh/paies/${id}/recalculer`, {
+	return getApiClient().apiFetch(`/api/v1/rh/paies/${id}/recalculer`, {
 		method: "POST",
 	});
 }
 
 /** Valide un bulletin (PATCH, statut VALIDÉE). */
 export function validerPaie(id: string): Promise<unknown> {
-	return getApiClient().apiFetch(`/rh/paies/${id}/valider`, {
+	return getApiClient().apiFetch(`/api/v1/rh/paies/${id}/valider`, {
 		method: "PATCH",
 	});
 }
 
 /** Annule un bulletin. */
 export function annulerPaie(id: string): Promise<unknown> {
-	return getApiClient().apiFetch(`/rh/paies/${id}/annuler`, {
+	return getApiClient().apiFetch(`/api/v1/rh/paies/${id}/annuler`, {
 		method: "POST",
 	});
 }
@@ -97,7 +97,7 @@ export function annulerPaie(id: string): Promise<unknown> {
 /** Paye un bulletin (crée l'encaissement, statut PAYÉE). */
 export function payerPaie(id: string, idMoyen: string): Promise<unknown> {
 	const corps = { id_moyen: idMoyen } satisfies PayerPaieDto;
-	return getApiClient().apiFetch(`/rh/paies/${id}/payer`, {
+	return getApiClient().apiFetch(`/api/v1/rh/paies/${id}/payer`, {
 		method: "POST",
 		body: JSON.stringify(corps),
 	});

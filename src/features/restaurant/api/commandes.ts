@@ -98,7 +98,7 @@ export function majStatutCommande(
 	statut: CommandeRestaurantStatut,
 ): Promise<unknown> {
 	const corps = { statut } satisfies MajStatutCommandeDto;
-	return getApiClient().apiFetch(`/restaurant/commandes/${id}/statut`, {
+	return getApiClient().apiFetch(`/api/v1/restaurant/commandes/${id}/statut`, {
 		method: "POST",
 		body: JSON.stringify(corps),
 	});
@@ -106,7 +106,7 @@ export function majStatutCommande(
 
 /** Annule une commande (POST `/commandes/{id}/annuler`). */
 export function annulerCommande(id: string): Promise<unknown> {
-	return getApiClient().apiFetch(`/restaurant/commandes/${id}/annuler`, {
+	return getApiClient().apiFetch(`/api/v1/restaurant/commandes/${id}/annuler`, {
 		method: "POST",
 	});
 }

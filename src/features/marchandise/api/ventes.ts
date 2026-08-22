@@ -84,7 +84,7 @@ export function creerVente(body: VenteBody): Promise<unknown> {
 
 /** Annule une vente (POST `/market/ventes/{id}/annuler`). */
 export function annulerVente(id: string): Promise<unknown> {
-	return getApiClient().apiFetch(`/market/ventes/${id}/annuler`, {
+	return getApiClient().apiFetch(`/api/v1/market/ventes/${id}/annuler`, {
 		method: "POST",
 	});
 }

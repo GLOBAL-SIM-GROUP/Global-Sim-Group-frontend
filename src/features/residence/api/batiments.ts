@@ -76,7 +76,7 @@ export function modifierBatiment(
 		actif: body.actif,
 		adresse: adresseBody(body.adresse),
 	} satisfies Omit<MajBatimentDto, "adresse"> & { adresse?: string | null };
-	return getApiClient().apiFetch(`/residence/batiments/${id}`, {
+	return getApiClient().apiFetch(`/api/v1/residence/batiments/${id}`, {
 		method: "PATCH",
 		body: JSON.stringify(corps),
 	});
@@ -88,7 +88,7 @@ export function basculerBatimentActif(
 	actif: boolean,
 ): Promise<unknown> {
 	const corps: Pick<MajBatimentDto, "actif"> = { actif };
-	return getApiClient().apiFetch(`/residence/batiments/${id}`, {
+	return getApiClient().apiFetch(`/api/v1/residence/batiments/${id}`, {
 		method: "PATCH",
 		body: JSON.stringify(corps),
 	});
@@ -96,7 +96,7 @@ export function basculerBatimentActif(
 
 /** Supprime un bâtiment (DELETE par id). */
 export function supprimerBatiment(id: string): Promise<unknown> {
-	return getApiClient().apiFetch(`/residence/batiments/${id}`, {
+	return getApiClient().apiFetch(`/api/v1/residence/batiments/${id}`, {
 		method: "DELETE",
 	});
 }

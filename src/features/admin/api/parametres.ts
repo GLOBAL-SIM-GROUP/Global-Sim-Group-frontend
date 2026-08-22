@@ -19,7 +19,7 @@ export function listParametres(): Promise<Parametre[]> {
 /** Met à jour la valeur d'un paramètre (PUT `MajParametreDto`). */
 export function majParametre(cle: string, valeur: string): Promise<unknown> {
 	const corps = { valeur } satisfies MajParametreDto;
-	return getApiClient().apiFetch(`/core/parametres/${cle}`, {
+	return getApiClient().apiFetch(`/api/v1/core/parametres/${cle}`, {
 		method: "PUT",
 		body: JSON.stringify(corps),
 	});

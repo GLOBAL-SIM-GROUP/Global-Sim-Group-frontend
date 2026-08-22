@@ -113,7 +113,7 @@ export function modifierSejour(
 	} satisfies Omit<MajSejourDto, "date_heure_depart_prevue"> & {
 		date_heure_depart_prevue?: string | null;
 	};
-	return getApiClient().apiFetch(`/residence/sejours/${id}`, {
+	return getApiClient().apiFetch(`/api/v1/residence/sejours/${id}`, {
 		method: "PATCH",
 		body: JSON.stringify(corps),
 	});
@@ -128,7 +128,7 @@ export function payerSejour(
 		montant: body.montant,
 		id_moyen: body.idMoyen,
 	} satisfies PayerSejourDto;
-	return getApiClient().apiFetch(`/residence/sejours/${id}/payer`, {
+	return getApiClient().apiFetch(`/api/v1/residence/sejours/${id}/payer`, {
 		method: "POST",
 		body: JSON.stringify(corps),
 	});

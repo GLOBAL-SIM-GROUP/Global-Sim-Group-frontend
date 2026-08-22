@@ -46,7 +46,7 @@ export function pointerArrivee(body: {
 
 /** Pointe le départ d'un pointage (POST `/pointages/{id}/depart`). */
 export function pointerDepart(id: string): Promise<unknown> {
-	return getApiClient().apiFetch(`/rh/pointages/${id}/depart`, {
+	return getApiClient().apiFetch(`/api/v1/rh/pointages/${id}/depart`, {
 		method: "POST",
 	});
 }
@@ -72,7 +72,7 @@ export function modifierPointage(
 	if (corps.statut !== undefined) payload.statut = corps.statut;
 	if (corps.heuresSup !== undefined) payload.heures_sup = corps.heuresSup ?? "";
 	if (corps.note !== undefined) payload.note = corps.note ?? "";
-	return getApiClient().apiFetch(`/rh/pointages/${id}`, {
+	return getApiClient().apiFetch(`/api/v1/rh/pointages/${id}`, {
 		method: "PATCH",
 		body: JSON.stringify(payload),
 	});

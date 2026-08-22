@@ -90,7 +90,7 @@ export function modifierAbonnement(
 	> & {
 		date_fin?: string | null;
 	};
-	return getApiClient().apiFetch(`/residence/abonnements/${id}`, {
+	return getApiClient().apiFetch(`/api/v1/residence/abonnements/${id}`, {
 		method: "PATCH",
 		body: JSON.stringify(corps),
 	});
@@ -98,7 +98,7 @@ export function modifierAbonnement(
 
 /** Résilie un abonnement (POST `/abonnements/{id}/resilier`). */
 export function resilierAbonnement(id: string): Promise<unknown> {
-	return getApiClient().apiFetch(`/residence/abonnements/${id}/resilier`, {
+	return getApiClient().apiFetch(`/api/v1/residence/abonnements/${id}/resilier`, {
 		method: "POST",
 	});
 }

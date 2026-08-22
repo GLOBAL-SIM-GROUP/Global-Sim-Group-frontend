@@ -20,14 +20,14 @@ export function getSyntheseGlobale(
 	du: string,
 	au: string,
 ): Promise<SyntheseGlobale> {
-	return getApiClient().apiFetch(`/rapports/synthese-globale${params(du, au)}`);
+	return getApiClient().apiFetch(`/api/v1/rapports/synthese-globale${params(du, au)}`);
 }
 
 export function getRapportFinancier(
 	du: string,
 	au: string,
 ): Promise<RapportFinancier> {
-	return getApiClient().apiFetch(`/rapports/financier${params(du, au)}`);
+	return getApiClient().apiFetch(`/api/v1/rapports/financier${params(du, au)}`);
 }
 
 export function getRapportActivite(
@@ -41,7 +41,7 @@ export function getRapportActivite(
 }
 
 export function getRapportRh(du: string, au: string): Promise<RapportRh> {
-	return getApiClient().apiFetch(`/rapports/rh${params(du, au)}`);
+	return getApiClient().apiFetch(`/api/v1/rapports/rh${params(du, au)}`);
 }
 
 /**

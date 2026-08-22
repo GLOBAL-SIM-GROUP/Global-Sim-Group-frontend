@@ -104,7 +104,7 @@ export function creerContrat(body: ContratBody): Promise<unknown> {
 
 /** Active un contrat en attente (POST /contrats/{id}/activer). */
 export function activerContrat(id: string): Promise<unknown> {
-	return getApiClient().apiFetch(`/residence/contrats/${id}/activer`, {
+	return getApiClient().apiFetch(`/api/v1/residence/contrats/${id}/activer`, {
 		method: "POST",
 	});
 }

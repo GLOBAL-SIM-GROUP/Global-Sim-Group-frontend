@@ -126,7 +126,7 @@ export function modifierLogement(
 		equipements?: string | null;
 		etat?: string | null;
 	};
-	return getApiClient().apiFetch(`/residence/logements/${id}`, {
+	return getApiClient().apiFetch(`/api/v1/residence/logements/${id}`, {
 		method: "PATCH",
 		body: JSON.stringify(corps),
 	});

@@ -82,7 +82,7 @@ export function modifierPlat(id: string, body: PlatBody): Promise<unknown> {
 		description?: string | null;
 		image_url?: string | null;
 	};
-	return getApiClient().apiFetch(`/restaurant/plats/${id}`, {
+	return getApiClient().apiFetch(`/api/v1/restaurant/plats/${id}`, {
 		method: "PATCH",
 		body: JSON.stringify(corps),
 	});

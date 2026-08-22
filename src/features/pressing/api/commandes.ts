@@ -127,7 +127,7 @@ export function modifierCommande(
 			tarif: ligne.tarif,
 		})),
 	} satisfies MajCommandePressingDto;
-	return getApiClient().apiFetch(`/pressing/commandes/${id}`, {
+	return getApiClient().apiFetch(`/api/v1/pressing/commandes/${id}`, {
 		method: "PATCH",
 		body: JSON.stringify(corps),
 	});
@@ -135,14 +135,14 @@ export function modifierCommande(
 
 /** Passe la commande en traitement (POST `/commandes/{id}/traitement`). */
 export function traitementCommande(id: string): Promise<unknown> {
-	return getApiClient().apiFetch(`/pressing/commandes/${id}/traitement`, {
+	return getApiClient().apiFetch(`/api/v1/pressing/commandes/${id}/traitement`, {
 		method: "POST",
 	});
 }
 
 /** Passe la commande en « Prêt » (POST `/commandes/{id}/pret`). */
 export function pretCommande(id: string): Promise<unknown> {
-	return getApiClient().apiFetch(`/pressing/commandes/${id}/pret`, {
+	return getApiClient().apiFetch(`/api/v1/pressing/commandes/${id}/pret`, {
 		method: "POST",
 	});
 }
@@ -156,7 +156,7 @@ export function retirerCommande(
 		solde: body.solde,
 		id_moyen: body.idMoyen,
 	} satisfies EncaisserSoldePressingDto;
-	return getApiClient().apiFetch(`/pressing/commandes/${id}/retirer`, {
+	return getApiClient().apiFetch(`/api/v1/pressing/commandes/${id}/retirer`, {
 		method: "POST",
 		body: JSON.stringify(corps),
 	});
@@ -164,7 +164,7 @@ export function retirerCommande(
 
 /** Annule une commande (POST `/commandes/{id}/annuler`). */
 export function annulerCommande(id: string): Promise<unknown> {
-	return getApiClient().apiFetch(`/pressing/commandes/${id}/annuler`, {
+	return getApiClient().apiFetch(`/api/v1/pressing/commandes/${id}/annuler`, {
 		method: "POST",
 	});
 }

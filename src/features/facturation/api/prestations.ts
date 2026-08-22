@@ -77,7 +77,7 @@ export function modifierPrestation(
 		description?: string | null;
 		id_activite?: string | null;
 	};
-	return getApiClient().apiFetch(`/facturation/prestations/${id}`, {
+	return getApiClient().apiFetch(`/api/v1/facturation/prestations/${id}`, {
 		method: "PATCH",
 		body: JSON.stringify(corps),
 	});

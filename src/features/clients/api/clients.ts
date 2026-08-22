@@ -115,7 +115,7 @@ export function creerClient(body: ClientBody): Promise<unknown> {
 
 /** Modifie un client (PATCH `MajClientDto`, champs définis seulement). */
 export function modifierClient(id: string, body: ClientBody): Promise<unknown> {
-	return getApiClient().apiFetch(`/client/clients/${id}`, {
+	return getApiClient().apiFetch(`/api/v1/client/clients/${id}`, {
 		method: "PATCH",
 		body: JSON.stringify(corpsClient(body, "update")),
 	});

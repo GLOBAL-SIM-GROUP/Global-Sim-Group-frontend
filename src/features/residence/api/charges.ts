@@ -107,7 +107,7 @@ export function modifierCategorieCharge(
 		...(body.libelle !== undefined ? { libelle: body.libelle } : {}),
 		...(body.actif !== undefined ? { actif: body.actif } : {}),
 	} satisfies MajCategorieChargeDto;
-	return getApiClient().apiFetch(`/residence/categories-charges/${id}`, {
+	return getApiClient().apiFetch(`/api/v1/residence/categories-charges/${id}`, {
 		method: "PATCH",
 		body: JSON.stringify(corps),
 	});
@@ -122,7 +122,7 @@ export function payerCharge(
 		montant: body.montant,
 		id_moyen: body.idMoyen,
 	} satisfies PayerChargeDto;
-	return getApiClient().apiFetch(`/residence/charges/${id}/payer`, {
+	return getApiClient().apiFetch(`/api/v1/residence/charges/${id}/payer`, {
 		method: "POST",
 		body: JSON.stringify(corps),
 	});

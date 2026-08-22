@@ -122,7 +122,7 @@ export function creerCategorieDepense(body: {
 }
 
 export function supprimerCategorieDepense(id: string): Promise<unknown> {
-	return getApiClient().apiFetch(`/finances/categories-depenses/${id}`, {
+	return getApiClient().apiFetch(`/api/v1/finances/categories-depenses/${id}`, {
 		method: "DELETE",
 	});
 }
@@ -157,7 +157,7 @@ export function modifierMoyenPaiement(
 		...(body.libelle !== undefined ? { libelle: body.libelle } : {}),
 		...(body.actif !== undefined ? { actif: body.actif } : {}),
 	} satisfies MajMoyenPaiementDto;
-	return getApiClient().apiFetch(`/finances/moyens-paiement/${id}`, {
+	return getApiClient().apiFetch(`/api/v1/finances/moyens-paiement/${id}`, {
 		method: "PATCH",
 		body: JSON.stringify(corps),
 	});
@@ -200,14 +200,14 @@ export function modifierDepense(
 	} satisfies Omit<MajDepenseDto, "id_activite" | "justificatif"> & {
 		justificatif?: string | null;
 	};
-	return getApiClient().apiFetch(`/finances/depenses/${id}`, {
+	return getApiClient().apiFetch(`/api/v1/finances/depenses/${id}`, {
 		method: "PATCH",
 		body: JSON.stringify(corps),
 	});
 }
 
 export function supprimerDepense(id: string): Promise<unknown> {
-	return getApiClient().apiFetch(`/finances/depenses/${id}`, {
+	return getApiClient().apiFetch(`/api/v1/finances/depenses/${id}`, {
 		method: "DELETE",
 	});
 }

@@ -91,7 +91,7 @@ export function modifierEmploye(
 		payload.id_service = corps.idService || undefined;
 	if (corps.autresInfos !== undefined)
 		payload.autres_infos = corps.autresInfos?.trim() || undefined;
-	return getApiClient().apiFetch(`/rh/employes/${id}`, {
+	return getApiClient().apiFetch(`/api/v1/rh/employes/${id}`, {
 		method: "PATCH",
 		body: JSON.stringify(payload),
 	});

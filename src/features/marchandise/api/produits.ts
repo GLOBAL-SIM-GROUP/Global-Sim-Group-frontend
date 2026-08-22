@@ -147,7 +147,7 @@ export function modifierProduit(
 		id_fournisseur?: string | null;
 		seuil_alerte?: string | null;
 	};
-	return getApiClient().apiFetch(`/market/produits/${id}`, {
+	return getApiClient().apiFetch(`/api/v1/market/produits/${id}`, {
 		method: "PATCH",
 		body: JSON.stringify(corps),
 	});

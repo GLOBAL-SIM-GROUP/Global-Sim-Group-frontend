@@ -45,7 +45,7 @@ export function encaisserEcheance(
 		id_moyen: body.idMoyen,
 		...(body.date ? { date: body.date } : {}),
 	} satisfies EncaisserLoyerDto;
-	return getApiClient().apiFetch(`/residence/echeances/${id}/encaisser`, {
+	return getApiClient().apiFetch(`/api/v1/residence/echeances/${id}/encaisser`, {
 		method: "POST",
 		body: JSON.stringify(corps),
 	});
