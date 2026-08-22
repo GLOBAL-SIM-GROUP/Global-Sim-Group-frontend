@@ -15,63 +15,68 @@ import { PasswordInput } from "#/components/ui/password-input";
 import { getErrorMessageForCode, getFieldErrors, toApiError } from "#/core/api";
 
 const loginAnimationStyles = `
-	@keyframes gradientShift {
-		0%, 100% {
+	@keyframes gradientSlide {
+		0% {
+			background-position: -200% 50%;
+		}
+		50% {
 			background-position: 0% 50%;
 		}
-		50% {
-			background-position: 100% 50%;
+		100% {
+			background-position: 200% 50%;
 		}
 	}
 
-	@keyframes blobFloat1 {
+	@keyframes blobBreathe1 {
 		0%, 100% {
-			transform: translate(0, 0);
+			transform: scale(1);
 			opacity: 0.5;
 		}
 		50% {
-			transform: translate(20px, -20px);
-			opacity: 0.6;
+			transform: scale(1.08);
+			opacity: 0.65;
 		}
 	}
 
-	@keyframes blobFloat2 {
+	@keyframes blobBreathe2 {
 		0%, 100% {
-			transform: translate(0, 0);
+			transform: scale(1);
 			opacity: 0.5;
 		}
 		50% {
-			transform: translate(-20px, 20px);
-			opacity: 0.6;
+			transform: scale(1.08);
+			opacity: 0.65;
 		}
 	}
 
-	@keyframes blobFloat3 {
+	@keyframes blobBreathe3 {
 		0%, 100% {
-			transform: translate(-50%, -50%);
+			transform: translate(-50%, -50%) scale(1);
 			opacity: 0.3;
 		}
 		50% {
-			transform: translate(-50%, -45%);
+			transform: translate(-50%, -50%) scale(1.06);
 			opacity: 0.4;
 		}
 	}
 
 	.login-animated-bg {
-		animation: gradientShift 8s ease-in-out infinite;
-		background-size: 200% 200%;
+		animation: gradientSlide 14s ease-in-out infinite;
+		background-size: 300% 300%;
 	}
 
 	.login-blob-1 {
-		animation: blobFloat1 6s ease-in-out infinite;
+		animation: blobBreathe1 8s ease-in-out infinite;
 	}
 
 	.login-blob-2 {
-		animation: blobFloat2 7s ease-in-out infinite;
+		animation: blobBreathe2 9s ease-in-out infinite;
+		animation-delay: 0.5s;
 	}
 
 	.login-blob-3 {
-		animation: blobFloat3 5s ease-in-out infinite;
+		animation: blobBreathe3 7s ease-in-out infinite;
+		animation-delay: 1s;
 	}
 `;
 
