@@ -84,7 +84,7 @@ export function creerSejour(body: CreerSejourBody): Promise<unknown> {
 		id_client?: string | null;
 		date_heure_depart_prevue?: string | null;
 	};
-	return getApiClient().apiFetch("/residence/sejours", {
+	return getApiClient().apiFetch("/api/v1/residence/sejours", {
 		method: "POST",
 		body: JSON.stringify(corps),
 	});

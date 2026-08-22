@@ -76,7 +76,7 @@ export function creerVente(body: VenteBody): Promise<unknown> {
 			id_moyen: body.paiement.idMoyen,
 		},
 	} satisfies Omit<CreerVenteDto, "id_client"> & { id_client?: string | null };
-	return getApiClient().apiFetch("/market/ventes", {
+	return getApiClient().apiFetch("/api/v1/market/ventes", {
 		method: "POST",
 		body: JSON.stringify(corps),
 	});

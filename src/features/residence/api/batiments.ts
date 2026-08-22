@@ -59,7 +59,7 @@ export function creerBatiment(body: BatimentBody): Promise<unknown> {
 		actif: body.actif,
 		adresse: adresseBody(body.adresse),
 	} satisfies Omit<CreerBatimentDto, "adresse"> & { adresse?: string | null };
-	return getApiClient().apiFetch("/residence/batiments", {
+	return getApiClient().apiFetch("/api/v1/residence/batiments", {
 		method: "POST",
 		body: JSON.stringify(corps),
 	});

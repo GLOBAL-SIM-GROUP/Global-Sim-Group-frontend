@@ -72,7 +72,7 @@ export function creerReservation(body: ReservationBody): Promise<unknown> {
 		id_client?: string | null;
 		observations?: string | null;
 	};
-	return getApiClient().apiFetch("/salle-fete/reservations", {
+	return getApiClient().apiFetch("/api/v1/salle-fete/reservations", {
 		method: "POST",
 		body: JSON.stringify(corps),
 	});

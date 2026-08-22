@@ -99,7 +99,7 @@ export function creerCommande(body: CommandeBody): Promise<unknown> {
 				}
 			: {}),
 	} satisfies CreerCommandePressingDto;
-	return getApiClient().apiFetch("/pressing/commandes", {
+	return getApiClient().apiFetch("/api/v1/pressing/commandes", {
 		method: "POST",
 		body: JSON.stringify(corps),
 	});

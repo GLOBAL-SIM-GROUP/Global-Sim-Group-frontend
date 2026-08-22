@@ -107,7 +107,7 @@ export function getClient(id: string): Promise<ClientDetail> {
 
 /** Crée un client (POST `CreerClientDto`). */
 export function creerClient(body: ClientBody): Promise<unknown> {
-	return getApiClient().apiFetch("/client/clients", {
+	return getApiClient().apiFetch("/api/v1/client/clients", {
 		method: "POST",
 		body: JSON.stringify(corpsClient(body, "create")),
 	});

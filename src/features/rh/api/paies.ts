@@ -51,7 +51,7 @@ export function creerPaie(body: {
 		periode: body.periode,
 		salaire_base: body.salaireBase,
 	} satisfies CreerPaieDto;
-	return getApiClient().apiFetch("/rh/paies", {
+	return getApiClient().apiFetch("/api/v1/rh/paies", {
 		method: "POST",
 		body: JSON.stringify(corps),
 	});

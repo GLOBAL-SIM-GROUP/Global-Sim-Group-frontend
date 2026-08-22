@@ -115,7 +115,7 @@ export function creerCategorieDepense(body: {
 	libelle: string;
 }): Promise<unknown> {
 	const corps = { libelle: body.libelle } satisfies CreerCategorieDepenseDto;
-	return getApiClient().apiFetch("/finances/categories-depenses", {
+	return getApiClient().apiFetch("/api/v1/finances/categories-depenses", {
 		method: "POST",
 		body: JSON.stringify(corps),
 	});
@@ -143,7 +143,7 @@ export function creerMoyenPaiement(body: {
 		libelle: body.libelle,
 		actif: body.actif ?? true,
 	} satisfies CreerMoyenPaiementDto;
-	return getApiClient().apiFetch("/finances/moyens-paiement", {
+	return getApiClient().apiFetch("/api/v1/finances/moyens-paiement", {
 		method: "POST",
 		body: JSON.stringify(corps),
 	});
@@ -181,7 +181,7 @@ export function creerDepense(body: DepenseBody): Promise<unknown> {
 	} satisfies Omit<CreerDepenseDto, "id_activite" | "justificatif"> & {
 		justificatif?: string | null;
 	};
-	return getApiClient().apiFetch("/finances/depenses", {
+	return getApiClient().apiFetch("/api/v1/finances/depenses", {
 		method: "POST",
 		body: JSON.stringify(corps),
 	});

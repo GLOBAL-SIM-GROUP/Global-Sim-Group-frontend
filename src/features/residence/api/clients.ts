@@ -48,7 +48,7 @@ export function creerClient(body: CreerClientBody): Promise<unknown> {
 		tel_principal: body.telPrincipal,
 		type_client: body.typeClient,
 	} satisfies CreerClientDto;
-	return getApiClient().apiFetch("/client/clients", {
+	return getApiClient().apiFetch("/api/v1/client/clients", {
 		method: "POST",
 		body: JSON.stringify(corps),
 	});

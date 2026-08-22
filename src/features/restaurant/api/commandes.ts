@@ -86,7 +86,7 @@ export function creerCommande(body: CommandeBody): Promise<unknown> {
 	} satisfies Omit<CreerCommandeRestaurantDto, "id_client"> & {
 		id_client?: string | null;
 	};
-	return getApiClient().apiFetch("/restaurant/commandes", {
+	return getApiClient().apiFetch("/api/v1/restaurant/commandes", {
 		method: "POST",
 		body: JSON.stringify(corps),
 	});

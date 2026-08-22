@@ -38,7 +38,7 @@ export interface ApiClient {
  * comme protégé par JWT ; le wrapper ne doit pas attacher de token sur ces
  * endpoints, sinon le login casse.
  */
-const NO_AUTH_PATHS = ["/auth/login", "/auth/refresh"];
+const NO_AUTH_PATHS = ["/api/v1/auth/login", "/api/v1/auth/refresh"];
 
 const DEFAULT_TIMEOUT_MS = 15_000;
 

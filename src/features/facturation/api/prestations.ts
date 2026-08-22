@@ -51,7 +51,7 @@ export function creerPrestation(body: PrestationBody): Promise<unknown> {
 		description?: string | null;
 		id_activite?: string | null;
 	};
-	return getApiClient().apiFetch("/facturation/prestations", {
+	return getApiClient().apiFetch("/api/v1/facturation/prestations", {
 		method: "POST",
 		body: JSON.stringify(corps),
 	});

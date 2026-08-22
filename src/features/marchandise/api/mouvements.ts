@@ -46,7 +46,7 @@ export function creerMouvement(body: MouvementBody): Promise<unknown> {
 		motif?: string | null;
 		document_ref?: string | null;
 	};
-	return getApiClient().apiFetch("/market/mouvements", {
+	return getApiClient().apiFetch("/api/v1/market/mouvements", {
 		method: "POST",
 		body: JSON.stringify(corps),
 	});

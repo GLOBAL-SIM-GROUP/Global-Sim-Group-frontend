@@ -56,7 +56,7 @@ export function creerAbonnement(body: AbonnementBody): Promise<unknown> {
 	} satisfies Omit<CreerAbonnementDto, "id_logement" | "date_fin"> & {
 		date_fin?: string | null;
 	};
-	return getApiClient().apiFetch("/residence/abonnements", {
+	return getApiClient().apiFetch("/api/v1/residence/abonnements", {
 		method: "POST",
 		body: JSON.stringify(corps),
 	});

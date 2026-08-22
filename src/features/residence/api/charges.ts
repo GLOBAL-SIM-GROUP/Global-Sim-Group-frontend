@@ -77,7 +77,7 @@ export function creerCharge(body: ChargeBody): Promise<unknown> {
 		lecture_fin?: string | null;
 		consommation?: string | null;
 	};
-	return getApiClient().apiFetch("/residence/charges", {
+	return getApiClient().apiFetch("/api/v1/residence/charges", {
 		method: "POST",
 		body: JSON.stringify(corps),
 	});
@@ -92,7 +92,7 @@ export function creerCategorieCharge(body: {
 		libelle: body.libelle,
 		actif: body.actif ?? true,
 	} satisfies CreerCategorieChargeDto;
-	return getApiClient().apiFetch("/residence/categories-charges", {
+	return getApiClient().apiFetch("/api/v1/residence/categories-charges", {
 		method: "POST",
 		body: JSON.stringify(corps),
 	});

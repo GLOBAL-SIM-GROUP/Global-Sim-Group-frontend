@@ -62,7 +62,7 @@ export function creerPlat(body: PlatBody): Promise<unknown> {
 		description?: string | null;
 		image_url?: string | null;
 	};
-	return getApiClient().apiFetch("/restaurant/plats", {
+	return getApiClient().apiFetch("/api/v1/restaurant/plats", {
 		method: "POST",
 		body: JSON.stringify(corps),
 	});
@@ -93,7 +93,7 @@ export function creerCategoriePlat(body: {
 	libelle: string;
 }): Promise<unknown> {
 	const corps = { libelle: body.libelle } satisfies CreerCategoriePlatDto;
-	return getApiClient().apiFetch("/restaurant/categories", {
+	return getApiClient().apiFetch("/api/v1/restaurant/categories", {
 		method: "POST",
 		body: JSON.stringify(corps),
 	});

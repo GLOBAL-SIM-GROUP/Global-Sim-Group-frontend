@@ -67,7 +67,7 @@ export function creerCategorieProduit(body: {
 	libelle: string;
 }): Promise<unknown> {
 	const corps = { libelle: body.libelle } satisfies CreerCategorieProduitDto;
-	return getApiClient().apiFetch("/market/categories-produits", {
+	return getApiClient().apiFetch("/api/v1/market/categories-produits", {
 		method: "POST",
 		body: JSON.stringify(corps),
 	});
@@ -119,7 +119,7 @@ export function creerProduit(body: ProduitBody): Promise<unknown> {
 		quantite_initiale?: string | null;
 		seuil_alerte?: string | null;
 	};
-	return getApiClient().apiFetch("/market/produits", {
+	return getApiClient().apiFetch("/api/v1/market/produits", {
 		method: "POST",
 		body: JSON.stringify(corps),
 	});

@@ -103,7 +103,7 @@ export function creerLogement(body: LogementBody): Promise<unknown> {
 		equipements?: string | null;
 		etat?: string | null;
 	};
-	return getApiClient().apiFetch("/residence/logements", {
+	return getApiClient().apiFetch("/api/v1/residence/logements", {
 		method: "POST",
 		body: JSON.stringify(corps),
 	});

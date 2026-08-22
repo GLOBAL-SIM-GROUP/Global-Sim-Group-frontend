@@ -96,7 +96,7 @@ export function creerContrat(body: ContratBody): Promise<unknown> {
 		periodicite?: string | null;
 		date_fin_prevue?: string | null;
 	};
-	return getApiClient().apiFetch("/residence/contrats", {
+	return getApiClient().apiFetch("/api/v1/residence/contrats", {
 		method: "POST",
 		body: JSON.stringify(corps),
 	});

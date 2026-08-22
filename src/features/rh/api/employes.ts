@@ -65,7 +65,7 @@ export function creerEmploye(body: EmployeBody): Promise<unknown> {
 		...(body.idService ? { id_service: body.idService } : {}),
 		...(body.autresInfos?.trim() ? { autres_infos: body.autresInfos } : {}),
 	} satisfies CreerEmployeDto;
-	return getApiClient().apiFetch("/rh/employes", {
+	return getApiClient().apiFetch("/api/v1/rh/employes", {
 		method: "POST",
 		body: JSON.stringify(corps),
 	});

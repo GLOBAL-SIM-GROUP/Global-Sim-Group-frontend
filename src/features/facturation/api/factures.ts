@@ -88,7 +88,7 @@ export function creerPaiementFacture(
 		id_moyen: body.idMoyen,
 		id_facture: idFacture,
 	} satisfies CreerPaiementDto;
-	return getApiClient().apiFetch("/finances/paiements", {
+	return getApiClient().apiFetch("/api/v1/finances/paiements", {
 		method: "POST",
 		body: JSON.stringify(corps),
 	});

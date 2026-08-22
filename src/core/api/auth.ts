@@ -17,7 +17,7 @@ type LogoutDto = components["schemas"]["LogoutDto"];
  */
 export const authApi = {
 	login(body: LoginDto): Promise<AuthLoginResponse> {
-		return getApiClient().apiFetch("/auth/login", {
+		return getApiClient().apiFetch("/api/v1/auth/login", {
 			method: "POST",
 			body: JSON.stringify(body),
 		});
@@ -25,7 +25,7 @@ export const authApi = {
 
 	/** Rotation : le backend révoque le refresh utilisé et en émet un nouveau. */
 	refresh(body: RefreshTokenDto): Promise<AuthRefreshResponse> {
-		return getApiClient().apiFetch("/auth/refresh", {
+		return getApiClient().apiFetch("/api/v1/auth/refresh", {
 			method: "POST",
 			body: JSON.stringify(body),
 		});
@@ -33,7 +33,7 @@ export const authApi = {
 
 	/** Exige le bearer + le refresh token à révoquer. */
 	logout(body: LogoutDto): Promise<unknown> {
-		return getApiClient().apiFetch("/auth/logout", {
+		return getApiClient().apiFetch("/api/v1/auth/logout", {
 			method: "POST",
 			body: JSON.stringify(body),
 		});
@@ -41,6 +41,6 @@ export const authApi = {
 
 	/** Utilisateur courant + permissions (chargées par le backend, pas le JWT). */
 	me(): Promise<AuthMeResponse> {
-		return getApiClient().apiFetch("/auth/me");
+		return getApiClient().apiFetch("/api/v1/auth/me");
 	},
 };
