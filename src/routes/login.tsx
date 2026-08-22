@@ -113,11 +113,25 @@ export function LoginPage() {
 	}
 
 	return (
-		<main className="flex min-h-dvh items-center justify-center bg-gradient-to-br from-background via-background to-muted/30 p-4 sm:p-6">
-			<div className="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-2 gap-0 overflow-hidden rounded-2xl shadow-2xl">
+		<main className="flex min-h-dvh items-center justify-center bg-gradient-to-br from-background via-lagoon/5 to-sea-ink/10 p-4 sm:p-6 relative overflow-hidden">
+			{/* Blob décoratif 1 - Haut gauche */}
+			<div className="absolute -top-40 -left-40 w-80 h-80 bg-gradient-to-br from-lagoon/20 to-palm/10 rounded-full blur-3xl opacity-50 pointer-events-none" />
+
+			{/* Blob décoratif 2 - Bas droite */}
+			<div className="absolute -bottom-40 -right-40 w-80 h-80 bg-gradient-to-tl from-sea-ink/20 to-lagoon/10 rounded-full blur-3xl opacity-50 pointer-events-none" />
+
+			{/* Blob décoratif 3 - Centre */}
+			<div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-r from-lagoon/10 via-transparent to-palm/10 rounded-full blur-3xl opacity-30 pointer-events-none" />
+
+			<div className="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-2 gap-0 overflow-hidden rounded-2xl shadow-2xl relative z-10">
 				{/* Section gauche : Branding */}
-				<div className="hidden lg:flex flex-col items-center justify-center bg-linear-to-br from-sea-ink via-sea-ink/95 to-lagoon/20 p-12 text-white">
-					<div className="space-y-6 text-center">
+				<div className="hidden lg:flex flex-col items-center justify-center bg-gradient-to-br from-sea-ink via-sea-ink/90 to-lagoon/30 p-12 text-white relative overflow-hidden">
+					{/* Blobs internes */}
+					<div className="absolute inset-0 overflow-hidden pointer-events-none">
+						<div className="absolute -top-20 -right-20 w-64 h-64 bg-lagoon/10 rounded-full blur-3xl" />
+						<div className="absolute -bottom-20 -left-20 w-64 h-64 bg-palm/10 rounded-full blur-3xl" />
+					</div>
+					<div className="space-y-6 text-center relative z-10">
 						<img
 							src="/logo.png"
 							alt="GLOBAL SIM GROUP"
