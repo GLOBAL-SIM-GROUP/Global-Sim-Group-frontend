@@ -35,7 +35,7 @@ export function listVentes(params?: ListVentesParams): Promise<Vente[]> {
 /** Détail d'une vente : embarque les lignes (Voir la facture). */
 export function getVente(id: string): Promise<VenteDetail> {
 	return getApiClient()
-		.apiFetch<VenteDetailWire>(`/market/ventes/${id}`)
+		.apiFetch<VenteDetailWire>(`/api/v1/market/ventes/${id}`)
 		.then((data) => ({
 			...(() => {
 				const { id_vente: vid, ...reste } = data;

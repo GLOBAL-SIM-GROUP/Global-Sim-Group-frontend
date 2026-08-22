@@ -83,7 +83,7 @@ export function getPortailEcheances(): Promise<PortailEcheances> {
 
 export function getPortailPaiements(): Promise<PortailPaiements> {
 	return getApiClient()
-		.apiFetch<{ paiements: PaiementWire[] }>("/residence/portail/paiements")
+		.apiFetch<{ paiements: PaiementWire[] }>("/api/v1/residence/portail/paiements")
 		.then((data) => ({
 			paiements: data.paiements.map(remapPaiement),
 		}));

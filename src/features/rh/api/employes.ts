@@ -32,7 +32,7 @@ export function listEmployes(params?: ListEmployesParams): Promise<Employe[]> {
 /** Détail d'un employé. */
 export function getEmploye(id: string): Promise<Employe> {
 	return getApiClient()
-		.apiFetch<EmployeWire>(`/rh/employes/${id}`)
+		.apiFetch<EmployeWire>(`/api/v1/rh/employes/${id}`)
 		.then(({ id_employe: idEmploye, ...reste }) => ({
 			id: idEmploye,
 			...reste,

@@ -66,7 +66,7 @@ export function listPaiements(filtres?: {
 	if (filtres?.type) params.set("type", filtres.type);
 	const qs = params.toString();
 	return getApiClient()
-		.apiFetch<PaiementWire[]>(`/finances/paiements${qs ? `?${qs}` : ""}`)
+		.apiFetch<PaiementWire[]>(`/api/v1/finances/paiements${qs ? `?${qs}` : ""}`)
 		.then((data) =>
 			data.map(({ id_paiement: id, ...reste }) => ({ id, ...reste })),
 		);
@@ -81,7 +81,7 @@ export function listDepenses(filtres?: {
 	if (filtres?.au) params.set("au", filtres.au);
 	const qs = params.toString();
 	return getApiClient()
-		.apiFetch<DepenseWire[]>(`/finances/depenses${qs ? `?${qs}` : ""}`)
+		.apiFetch<DepenseWire[]>(`/api/v1/finances/depenses${qs ? `?${qs}` : ""}`)
 		.then((data) =>
 			data.map(({ id_depense: id, ...reste }) => ({ id, ...reste })),
 		);
@@ -105,7 +105,7 @@ export function listImpayes(filtres?: {
 
 export function listCategoriesDepenses(): Promise<CategorieDepense[]> {
 	return getApiClient()
-		.apiFetch<CategorieDepenseWire[]>("/finances/categories-depenses")
+		.apiFetch<CategorieDepenseWire[]>("/api/v1/finances/categories-depenses")
 		.then((data) =>
 			data.map(({ id_categorie_depense: id, ...reste }) => ({ id, ...reste })),
 		);
@@ -129,7 +129,7 @@ export function supprimerCategorieDepense(id: string): Promise<unknown> {
 
 export function listMoyensPaiement(): Promise<MoyenPaiement[]> {
 	return getApiClient()
-		.apiFetch<MoyenPaiementWire[]>("/finances/moyens-paiement")
+		.apiFetch<MoyenPaiementWire[]>("/api/v1/finances/moyens-paiement")
 		.then((data) =>
 			data.map(({ id_moyen: id, ...reste }) => ({ id, ...reste })),
 		);

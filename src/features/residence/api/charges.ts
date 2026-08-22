@@ -30,7 +30,7 @@ const texteOuNull = (valeur: string | null | undefined): string | null =>
  */
 export function listCharges(): Promise<Charge[]> {
 	return getApiClient()
-		.apiFetch<ChargeWire[]>("/residence/charges")
+		.apiFetch<ChargeWire[]>("/api/v1/residence/charges")
 		.then((data) =>
 			data.map(({ id_charge: id, ...reste }) => ({ id, ...reste })),
 		);
@@ -39,7 +39,7 @@ export function listCharges(): Promise<Charge[]> {
 /** Catégories de charges (GET /residence/categories-charges). */
 export function listCategoriesCharges(): Promise<CategorieCharge[]> {
 	return getApiClient()
-		.apiFetch<CategorieChargeWire[]>("/residence/categories-charges")
+		.apiFetch<CategorieChargeWire[]>("/api/v1/residence/categories-charges")
 		.then((data) =>
 			data.map(({ id_categorie_charge: id, ...reste }) => ({ id, ...reste })),
 		);

@@ -40,7 +40,7 @@ export function listCommandes(filtres?: {
 	if (filtres?.recherche) params.set("recherche", filtres.recherche);
 	const qs = params.toString();
 	return getApiClient()
-		.apiFetch<CommandeWire[]>(`/pressing/commandes${qs ? `?${qs}` : ""}`)
+		.apiFetch<CommandeWire[]>(`/api/v1/pressing/commandes${qs ? `?${qs}` : ""}`)
 		.then((data) =>
 			data.map(({ id_commande: id, ...reste }) => ({ id, ...reste })),
 		);
@@ -49,7 +49,7 @@ export function listCommandes(filtres?: {
 /** Détail d'une commande : embarque les lignes d'articles. */
 export function getCommande(id: string): Promise<CommandePressingDetail> {
 	return getApiClient()
-		.apiFetch<DetailWire>(`/pressing/commandes/${id}`)
+		.apiFetch<DetailWire>(`/api/v1/pressing/commandes/${id}`)
 		.then((data) => {
 			const { id_commande: cid, ...reste } = data;
 			return {

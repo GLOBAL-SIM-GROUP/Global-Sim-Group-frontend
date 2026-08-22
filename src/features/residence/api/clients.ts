@@ -28,7 +28,7 @@ export function rechercherClients(terme: string): Promise<Client[]> {
 /** Détail d'un client (GET /client/clients/{id}). */
 export function getClient(id: string): Promise<Client> {
 	return getApiClient()
-		.apiFetch<ClientWire>(`/client/clients/${id}`)
+		.apiFetch<ClientWire>(`/api/v1/client/clients/${id}`)
 		.then(toClient);
 }
 

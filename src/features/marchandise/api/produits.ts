@@ -52,7 +52,7 @@ export function listProduits(params?: ListProduitsParams): Promise<Produit[]> {
 /** Catégories de produits (GET /market/categories-produits). */
 export function listCategoriesProduits(): Promise<CategorieProduit[]> {
 	return getApiClient()
-		.apiFetch<CategorieProduitWire[]>("/market/categories-produits")
+		.apiFetch<CategorieProduitWire[]>("/api/v1/market/categories-produits")
 		.then((data) =>
 			data.map(({ id_categorie_produit: id, ...reste }) => ({ id, ...reste })),
 		);
@@ -76,7 +76,7 @@ export function creerCategorieProduit(body: {
 /** Fournisseurs (GET /market/fournisseurs). */
 export function listFournisseurs(): Promise<Fournisseur[]> {
 	return getApiClient()
-		.apiFetch<FournisseurWire[]>("/market/fournisseurs")
+		.apiFetch<FournisseurWire[]>("/api/v1/market/fournisseurs")
 		.then((data) =>
 			data.map(({ id_fournisseur: id, ...reste }) => ({ id, ...reste })),
 		);

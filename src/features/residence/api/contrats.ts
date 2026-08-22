@@ -42,14 +42,14 @@ const texteOuNull = (valeur: string | null | undefined): string | null =>
  */
 export function listContrats(): Promise<Contrat[]> {
 	return getApiClient()
-		.apiFetch<ContratWire[]>("/residence/contrats")
+		.apiFetch<ContratWire[]>("/api/v1/residence/contrats")
 		.then((data) => data.map(toContrat));
 }
 
 /** Détail d'un contrat : embarque les échéances (avec leurs `id_echeance`). */
 export function getContrat(id: string): Promise<ContratDetail> {
 	return getApiClient()
-		.apiFetch<ContratDetailWire>(`/residence/contrats/${id}`)
+		.apiFetch<ContratDetailWire>(`/api/v1/residence/contrats/${id}`)
 		.then((data) => ({
 			...toContrat(data),
 			echeances: data.echeances.map(({ id_echeance: eid, ...reste }) => ({
@@ -112,7 +112,7 @@ export function activerContrat(id: string): Promise<unknown> {
 /** Caution d'un contrat (GET /contrats/{id}/caution). */
 export function getCaution(idContrat: string): Promise<Caution> {
 	return getApiClient()
-		.apiFetch<CautionWire>(`/residence/contrats/${idContrat}/caution`)
+		.apiFetch<CautionWire>(`/api/v1/residence/contrats/${idContrat}/caution`)
 		.then(({ id_caution: id, ...reste }) => ({ id, ...reste }));
 }
 

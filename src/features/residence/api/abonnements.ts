@@ -27,7 +27,7 @@ const texteOuNull = (valeur: string | null | undefined): string | null =>
  */
 export function listAbonnements(): Promise<Abonnement[]> {
 	return getApiClient()
-		.apiFetch<AbonnementWire[]>("/residence/abonnements")
+		.apiFetch<AbonnementWire[]>("/api/v1/residence/abonnements")
 		.then((data) =>
 			data.map(({ id_abonnement: id, ...reste }) => ({ id, ...reste })),
 		);
