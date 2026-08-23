@@ -21,7 +21,7 @@ export function listRoles(): Promise<Role[]> {
 
 export function listPermissions(): Promise<Permission[]> {
 	return getApiClient()
-		.apiFetch<PermissionWire[]>("/admin/permissions")
+		.apiFetch<PermissionWire[]>("/api/v1/admin/permissions")
 		.then((data) =>
 			data.map(({ id_permission: id, ...reste }) => ({ id, ...reste })),
 		);
