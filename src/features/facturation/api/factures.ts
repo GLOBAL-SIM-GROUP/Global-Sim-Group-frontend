@@ -24,7 +24,7 @@ export interface ResultatFacturation {
 export function listFactures(): Promise<Facture[]> {
 	// Le param `recherche` est ignoré par le backend → filtrage côté client.
 	return getApiClient()
-		.apiFetch<FactureWire[]>("/facturation/factures")
+		.apiFetch<FactureWire[]>("/api/v1/facturation/factures")
 		.then((data) =>
 			data.map(({ id_facture: id, ...reste }) => ({ id, ...reste })),
 		);

@@ -105,7 +105,7 @@ export function listImpayes(filtres?: {
 
 export function listCategoriesDepenses(): Promise<CategorieDepense[]> {
 	return getApiClient()
-		.apiFetch<CategorieDepenseWire[]>("/finances/categories-depenses")
+		.apiFetch<CategorieDepenseWire[]>("/api/v1/finances/categories-depenses")
 		.then((data) =>
 			data.map(({ id_categorie_depense: id, ...reste }) => ({ id, ...reste })),
 		);
@@ -129,7 +129,7 @@ export function supprimerCategorieDepense(id: string): Promise<unknown> {
 
 export function listMoyensPaiement(): Promise<MoyenPaiement[]> {
 	return getApiClient()
-		.apiFetch<MoyenPaiementWire[]>("/finances/moyens-paiement")
+		.apiFetch<MoyenPaiementWire[]>("/api/v1/finances/moyens-paiement")
 		.then((data) =>
 			data.map(({ id_moyen: id, ...reste }) => ({ id, ...reste })),
 		);

@@ -36,7 +36,7 @@ interface BatimentWire {
 
 export async function listBatiments(): Promise<Batiment[]> {
 	const data = await getApiClient().apiFetch<BatimentWire[]>(
-		"/residence/batiments",
+		"/api/v1/residence/batiments",
 	);
 	// Remappé en `id` : le reste du frontend (PATCH/DELETE par `{id}`, lien
 	// « Voir les logements » avec `?batiment=`) utilise cette convention.

@@ -60,7 +60,7 @@ export function getPortailResume(): Promise<PortailResume> {
 				client: ClientWire;
 				contrat_en_cours: ContratWire | null;
 			}
-		>("/residence/portail/resume")
+		>("/api/v1/residence/portail/resume")
 		.then((data) => ({
 			...data,
 			client: remapClient(data.client),
@@ -74,7 +74,7 @@ export function getPortailEcheances(): Promise<PortailEcheances> {
 	return getApiClient()
 		.apiFetch<
 			Omit<PortailEcheances, "echeances"> & { echeances: EcheanceWire[] }
-		>("/residence/portail/echeances")
+		>("/api/v1/residence/portail/echeances")
 		.then((data) => ({
 			...data,
 			echeances: data.echeances.map(remapEcheance),
@@ -94,7 +94,7 @@ export function getPortailCaution(): Promise<PortailCautionResponse> {
 		.apiFetch<{
 			caution: CautionWire | null;
 			historique: PortailCautionResponse["historique"];
-		}>("/residence/portail/caution")
+		}>("/api/v1/residence/portail/caution")
 		.then((data) => ({
 			caution: data.caution ? remapCaution(data.caution) : null,
 			historique: data.historique,

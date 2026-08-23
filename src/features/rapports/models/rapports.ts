@@ -192,7 +192,7 @@ export function construireCsv(
 				.map((cellule) => {
 					const valeur = String(cellule ?? "");
 					return /[";\n]/.test(valeur)
-						? `"${valeur.replace(/"/g, '""')}"`
+						? `"${valeur.replace(/"/api/v1/g, '""')}"`
 						: valeur;
 				})
 				.join(";"),

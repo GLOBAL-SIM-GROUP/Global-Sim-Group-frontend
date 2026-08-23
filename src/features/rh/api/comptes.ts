@@ -31,7 +31,7 @@ export function listRoles(): Promise<Role[]> {
 export function listActivites(): Promise<ActiviteScope[]> {
 	return getApiClient()
 		.apiFetch<(Omit<ActiviteScope, "id"> & { id_activite: string })[]>(
-			"/finances/activites",
+			"/api/v1/finances/activites",
 		)
 		.then((data) =>
 			data.map(({ id_activite: id, ...reste }) => ({ id, ...reste })),

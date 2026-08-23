@@ -16,12 +16,12 @@ const texteOuNull = (valeur: string | null | undefined): string | null =>
 
 /** Appels API du module Marchandise — mouvements de stock (`/api/v1/market/*`). */
 export function listMouvements(): Promise<Mouvement[]> {
-	return getApiClient().apiFetch<Mouvement[]>("/market/stock/historique");
+	return getApiClient().apiFetch<Mouvement[]>("/api/v1/market/stock/historique");
 }
 
 /** Produits en alerte stock (GET /market/stock/alerte). */
 export function listStockAlerte(): Promise<AlerteStock[]> {
-	return getApiClient().apiFetch<AlerteStock[]>("/market/stock/alerte");
+	return getApiClient().apiFetch<AlerteStock[]>("/api/v1/market/stock/alerte");
 }
 
 /** Corps saisi par le formulaire « Ajouter un mouvement ». */
