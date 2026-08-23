@@ -142,9 +142,23 @@ export function Sidebar({ onClose }: { onClose?: () => void } = {}) {
 	const subActiveClassName = "bg-lagoon/25 text-white font-medium";
 
 	return (
-		<aside className="sticky top-0 h-dvh w-60 shrink-0 flex-col justify-between overflow-y-auto border-r border-palm bg-sea-ink px-3 py-4 flex">
+		<aside className="sticky top-0 h-dvh w-60 shrink-0 flex-col justify-between overflow-y-auto border-r border-palm px-3 py-4 flex backdrop-blur-md"
+			style={{
+				background: `linear-gradient(180deg,
+					rgba(15, 23, 42, 0.8) 0%,
+					rgba(30, 58, 138, 0.75) 50%,
+					rgba(15, 23, 42, 0.8) 100%),
+					linear-gradient(90deg,
+					rgba(88, 192, 180, 0.08) 0%,
+					transparent 50%,
+					rgba(88, 192, 180, 0.05) 100%)`,
+				backgroundAttachment: 'fixed',
+			}}
+		>
 			<div className="space-y-6">
-				<div className="flex flex-col items-center gap-2 px-3">
+				<div className="flex flex-col items-center gap-2 px-3 pb-4 backdrop-blur-sm rounded-lg" style={{
+				background: 'linear-gradient(180deg, rgba(88, 192, 180, 0.08) 0%, rgba(88, 192, 180, 0.02) 100%)'
+			}}>
 					{/* Logo de marque servi depuis public/ (sur fond sombre sea-ink). */}
 					<img
 						src="/logo.png"
@@ -275,7 +289,9 @@ export function Sidebar({ onClose }: { onClose?: () => void } = {}) {
 			</div>
 
 			{user ? (
-				<div className="border-t border-palm pt-3">
+				<div className="border-t border-lagoon/20 pt-3 backdrop-blur-sm" style={{
+					background: 'linear-gradient(180deg, rgba(88, 192, 180, 0.05) 0%, rgba(15, 23, 42, 0.3) 100%)'
+				}}>
 					<UserMenu
 						avatar={
 							<div
