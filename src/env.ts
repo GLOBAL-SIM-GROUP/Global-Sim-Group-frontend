@@ -27,7 +27,7 @@ export const env = createEnv({
 			.refine((v) => v.startsWith("/") || /^https?:\/\//.test(v), {
 				message: "URL absolue (https://…) ou chemin même-origine (/api/v1)",
 			})
-			.default("/api/v1"),
+			.default("/"),
 		VITE_APP_TITLE: z.string().min(1).optional(),
 	},
 
