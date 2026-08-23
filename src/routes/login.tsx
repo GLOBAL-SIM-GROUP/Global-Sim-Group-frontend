@@ -315,7 +315,7 @@ export function LoginPage() {
 							<img
 								src="/logo.png"
 								alt="GLOBAL SIM GROUP"
-								className="h-12 w-auto mx-auto object-contain"
+								className="h-20 w-auto mx-auto object-contain"
 							/>
 							<h1 className="text-2xl font-bold text-foreground">
 								GLOBAL SIM GROUP
