@@ -18,7 +18,7 @@ const config = defineConfig({
 	// CORS bloquerait toutes les requêtes du navigateur.
 	server: {
 		proxy: {
-			"/api": {
+			"/api/v1": {
 				target: "https://dev.sim.strife-cyber.org",
 				changeOrigin: true,
 			},
