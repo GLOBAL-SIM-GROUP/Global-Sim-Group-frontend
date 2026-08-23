@@ -53,7 +53,7 @@ export async function uploadImage(
 
 	const client = getApiClient();
 	const data = await client.uploadForm<{ key: string }>(
-		"/uploads",
+		"/api/v1/uploads",
 		{
 			method: "POST",
 			body: formData,
