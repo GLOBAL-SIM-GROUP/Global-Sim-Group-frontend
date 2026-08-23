@@ -26,7 +26,7 @@ export function listVentes(params?: ListVentesParams): Promise<Vente[]> {
 	const path = `/market/ventes${queryString ? `?${queryString}` : ""}`;
 
 	return getApiClient()
-		.apiFetch<VenteWire[]>(path)
+		..apiFetch<VenteWire[]>(path)
 		.then((data) =>
 			data.map(({ id_vente: id, ...reste }) => ({ id, ...reste })),
 		);
@@ -35,7 +35,7 @@ export function listVentes(params?: ListVentesParams): Promise<Vente[]> {
 /** Détail d'une vente : embarque les lignes (Voir la facture). */
 export function getVente(id: string): Promise<VenteDetail> {
 	return getApiClient()
-		.apiFetch<VenteDetailWire>(`/api/v1/market/ventes/${id}`)
+		..apiFetch<VenteDetailWire>(`/api/v1/market/ventes/${id}`)
 		.then((data) => ({
 			...(() => {
 				const { id_vente: vid, ...reste } = data;
@@ -98,7 +98,7 @@ export function listRapportVentes(
 	if (du) params.set("du", du);
 	if (au) params.set("au", au);
 	const qs = params.toString();
-	return getApiClient().apiFetch<RapportVentes>(
+	return getApiClient()..apiFetch<RapportVentes>(
 		`/market/rapports/ventes${qs ? `?${qs}` : ""}`,
 	);
 }

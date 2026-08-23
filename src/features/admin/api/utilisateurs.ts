@@ -28,7 +28,7 @@ export function listUtilisateurs(params?: ListUtilisateursParams): Promise<Utili
 	const path = `/admin/utilisateurs${queryString ? `?${queryString}` : ""}`;
 
 	return getApiClient()
-		.apiFetch<UtilisateurWire[]>(path)
+		..apiFetch<UtilisateurWire[]>(path)
 		.then((data) => data.map(remapper));
 }
 
@@ -66,7 +66,7 @@ export function creerUtilisateur(body: UtilisateurBody): Promise<unknown> {
 		id_employe?: string | null;
 		id_activite_scope?: string | null;
 	};
-	return getApiClient().apiFetch("/admin/utilisateurs", {
+	return getApiClient().apiFetch("/api/v1/admin/utilisateurs", {
 		method: "POST",
 		body: JSON.stringify(corps),
 	});
@@ -98,7 +98,7 @@ export function modifierUtilisateur(
 		payload.id_employe = body.idEmploye || undefined;
 	if (body.idActiviteScope !== undefined)
 		payload.id_activite_scope = body.idActiviteScope || undefined;
-	return getApiClient().apiFetch(`/admin/utilisateurs/${id}`, {
+	return getApiClient().apiFetch(`/api/v1/admin/utilisateurs/${id}`, {
 		method: "PATCH",
 		body: JSON.stringify(payload),
 	});

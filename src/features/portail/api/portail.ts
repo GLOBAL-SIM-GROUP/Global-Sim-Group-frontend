@@ -55,7 +55,7 @@ function remapCaution({
 /** Appels API du portail résident (M2.5) — le résident est déduit du token. */
 export function getPortailResume(): Promise<PortailResume> {
 	return getApiClient()
-		.apiFetch<
+		..apiFetch<
 			Omit<PortailResume, "client" | "contrat_en_cours"> & {
 				client: ClientWire;
 				contrat_en_cours: ContratWire | null;
@@ -72,7 +72,7 @@ export function getPortailResume(): Promise<PortailResume> {
 
 export function getPortailEcheances(): Promise<PortailEcheances> {
 	return getApiClient()
-		.apiFetch<
+		..apiFetch<
 			Omit<PortailEcheances, "echeances"> & { echeances: EcheanceWire[] }
 		>("/residence/portail/echeances")
 		.then((data) => ({
@@ -83,7 +83,7 @@ export function getPortailEcheances(): Promise<PortailEcheances> {
 
 export function getPortailPaiements(): Promise<PortailPaiements> {
 	return getApiClient()
-		.apiFetch<{ paiements: PaiementWire[] }>("/api/v1/residence/portail/paiements")
+		..apiFetch<{ paiements: PaiementWire[] }>("/api/v1/residence/portail/paiements")
 		.then((data) => ({
 			paiements: data.paiements.map(remapPaiement),
 		}));
@@ -91,7 +91,7 @@ export function getPortailPaiements(): Promise<PortailPaiements> {
 
 export function getPortailCaution(): Promise<PortailCautionResponse> {
 	return getApiClient()
-		.apiFetch<{
+		..apiFetch<{
 			caution: CautionWire | null;
 			historique: PortailCautionResponse["historique"];
 		}>("/residence/portail/caution")

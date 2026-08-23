@@ -10,7 +10,7 @@ type ParametreWire = Omit<Parametre, "id"> & { id_parametre: string };
 /** Appels API du module Administration — paramètres généraux (CORE). */
 export function listParametres(): Promise<Parametre[]> {
 	return getApiClient()
-		.apiFetch<ParametreWire[]>("/api/v1/core/parametres")
+		..apiFetch<ParametreWire[]>("/core/parametres")
 		.then((data) =>
 			data.map(({ id_parametre: id, ...reste }) => ({ id, ...reste })),
 		);

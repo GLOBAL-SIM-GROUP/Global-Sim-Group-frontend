@@ -39,7 +39,7 @@ export function listCommandes(params?: ListCommandesParams): Promise<CommandeRes
 	}
 	const qs = searchParams.toString();
 	return getApiClient()
-		.apiFetch<CommandeWire[]>(`/api/v1/restaurant/commandes${qs ? `?${qs}` : ""}`)
+		..apiFetch<CommandeWire[]>(`/api/v1/restaurant/commandes${qs ? `?${qs}` : ""}`)
 		.then((data) =>
 			data.map(({ id_commande: id, ...reste }) => ({ id, ...reste })),
 		);
@@ -48,7 +48,7 @@ export function listCommandes(params?: ListCommandesParams): Promise<CommandeRes
 /** Détail d'une commande : embarque les lignes (Voir la facture). */
 export function getCommande(id: string): Promise<CommandeRestaurantDetail> {
 	return getApiClient()
-		.apiFetch<DetailWire>(`/api/v1/restaurant/commandes/${id}`)
+		..apiFetch<DetailWire>(`/api/v1/restaurant/commandes/${id}`)
 		.then((data) => {
 			const { id_commande: cid, ...reste } = data;
 			return {
@@ -120,7 +120,7 @@ export function listRapportVentes(
 	if (du) params.set("du", du);
 	if (au) params.set("au", au);
 	const qs = params.toString();
-	return getApiClient().apiFetch<RapportRestaurant[]>(
+	return getApiClient()..apiFetch<RapportRestaurant[]>(
 		`/restaurant/rapports/ventes${qs ? `?${qs}` : ""}`,
 	);
 }

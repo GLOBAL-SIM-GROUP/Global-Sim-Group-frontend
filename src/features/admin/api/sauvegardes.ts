@@ -25,7 +25,7 @@ type SauvegardeBackend = {
 /** Liste l'historique des sauvegardes (GET /admin/sauvegardes). */
 export function listSauvegardes(): Promise<Sauvegarde[]> {
 	return getApiClient()
-		.apiFetch<{ total: number; items: SauvegardeBackend[] }>("/admin/sauvegardes")
+		..apiFetch<{ total: number; items: SauvegardeBackend[] }>("/admin/sauvegardes")
 		.then(({ items }) =>
 			items.map((item) => ({
 				id: item.id_sauvegarde,
@@ -45,7 +45,7 @@ export function listSauvegardes(): Promise<Sauvegarde[]> {
 
 /** Récupère la planification des sauvegardes automatiques. */
 export function getConfigurationSauvegardes(): Promise<ConfigurationSauvegardes> {
-	return getApiClient().apiFetch<ConfigurationSauvegardes>(
+	return getApiClient()..apiFetch<ConfigurationSauvegardes>(
 		"/admin/sauvegardes/planification",
 	);
 }
@@ -55,7 +55,7 @@ export function majConfigurationSauvegardes(config: {
 	frequence: "quotidienne" | "hebdomadaire";
 	activee: boolean;
 }): Promise<ConfigurationSauvegardes> {
-	return getApiClient().apiFetch("/admin/sauvegardes/planification", {
+	return getApiClient().apiFetch("/api/v1/admin/sauvegardes/planification", {
 		method: "PUT",
 		body: JSON.stringify(config),
 	});
@@ -64,13 +64,13 @@ export function majConfigurationSauvegardes(config: {
 /** Déclenche une sauvegarde manuelle (POST /admin/sauvegardes/declencher). */
 export function creerSauvegardeManuelle(): Promise<Sauvegarde> {
 	return getApiClient()
-		.apiFetch<SauvegardeWire>("/admin/sauvegardes/declencher", { method: "POST" })
+		..apiFetch<SauvegardeWire>("/admin/sauvegardes/declencher", { method: "POST" })
 		.then(({ id_sauvegarde: id, ...reste }) => ({ id, ...reste }));
 }
 
 /** Restaure une sauvegarde (POST /admin/sauvegardes/{id}/restaurer). */
 export function restaurerSauvegarde(id: string): Promise<unknown> {
-	return getApiClient().apiFetch(`/admin/sauvegardes/${id}/restaurer`, {
+	return getApiClient().apiFetch(`/api/v1/admin/sauvegardes/${id}/restaurer`, {
 		method: "POST",
 		body: JSON.stringify({ confirmation: true }),
 	});

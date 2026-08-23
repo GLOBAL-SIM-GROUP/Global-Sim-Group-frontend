@@ -13,7 +13,7 @@ type PermissionWire = Omit<Permission, "id"> & { id_permission: string };
 /** Appels API du module Administration — rôles et permissions. */
 export function listRoles(): Promise<Role[]> {
 	return getApiClient()
-		.apiFetch<RoleWire[]>("/admin/roles")
+		..apiFetch<RoleWire[]>("/admin/roles")
 		.then((data) =>
 			data.map(({ id_role: id, ...reste }) => ({ id, ...reste })),
 		);
@@ -21,7 +21,7 @@ export function listRoles(): Promise<Role[]> {
 
 export function listPermissions(): Promise<Permission[]> {
 	return getApiClient()
-		.apiFetch<PermissionWire[]>("/admin/permissions")
+		..apiFetch<PermissionWire[]>("/admin/permissions")
 		.then((data) =>
 			data.map(({ id_permission: id, ...reste }) => ({ id, ...reste })),
 		);
@@ -30,7 +30,7 @@ export function listPermissions(): Promise<Permission[]> {
 /** Permissions associées à un rôle (objets complets). */
 export function getRolePermissions(id: string): Promise<Permission[]> {
 	return getApiClient()
-		.apiFetch<PermissionWire[]>(`/admin/roles/${id}/permissions`)
+		..apiFetch<PermissionWire[]>(`/admin/roles/${id}/permissions`)
 		.then((data) =>
 			data.map(({ id_permission: idPermission, ...reste }) => ({
 				id: idPermission,
@@ -47,7 +47,7 @@ export function majRolePermissions(
 	const corps = {
 		id_permissions: idPermissions,
 	} satisfies MajPermissionsRoleDto;
-	return getApiClient().apiFetch(`/admin/roles/${id}/permissions`, {
+	return getApiClient().apiFetch(`/api/v1/admin/roles/${id}/permissions`, {
 		method: "PUT",
 		body: JSON.stringify(corps),
 	});
@@ -66,7 +66,7 @@ export function creerRole(body: {
 	} satisfies Omit<CreerRoleDto, "description"> & {
 		description?: string | null;
 	};
-	return getApiClient().apiFetch("/admin/roles", {
+	return getApiClient().apiFetch("/api/v1/admin/roles", {
 		method: "POST",
 		body: JSON.stringify(corps),
 	});
@@ -83,7 +83,7 @@ export function modifierRole(
 	if (body.libelle !== undefined) payload.libelle = body.libelle;
 	if (body.description !== undefined)
 		payload.description = body.description?.trim() || undefined;
-	return getApiClient().apiFetch(`/admin/roles/${id}`, {
+	return getApiClient().apiFetch(`/api/v1/admin/roles/${id}`, {
 		method: "PATCH",
 		body: JSON.stringify(payload),
 	});
@@ -91,7 +91,7 @@ export function modifierRole(
 
 /** Supprime un rôle (uniquement sans utilisateur associé). */
 export function supprimerRole(id: string): Promise<unknown> {
-	return getApiClient().apiFetch(`/admin/roles/${id}`, {
+	return getApiClient().apiFetch(`/api/v1/admin/roles/${id}`, {
 		method: "DELETE",
 	});
 }

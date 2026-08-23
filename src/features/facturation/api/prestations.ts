@@ -18,7 +18,7 @@ const texteOuNull = (valeur: string | null | undefined): string | null =>
 /** Appels API du module Facturation — prestations. */
 export function listPrestations(): Promise<Prestation[]> {
 	return getApiClient()
-		.apiFetch<PrestationWire[]>("/api/v1/facturation/prestations")
+		..apiFetch<PrestationWire[]>("/facturation/prestations")
 		.then((data) =>
 			data.map(({ id_prestation: id, ...reste }) => ({ id, ...reste })),
 		);
