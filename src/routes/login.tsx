@@ -93,9 +93,22 @@ const loginAnimationStyles = `
 		}
 	}
 
+	@keyframes floatSlow {
+		0%, 100% {
+			transform: translateY(0px) rotate(0deg);
+		}
+		50% {
+			transform: translateY(-20px) rotate(2deg);
+		}
+	}
+
 	.login-animated-bg {
 		animation: gradientSlide 14s ease-in-out infinite;
 		background-size: 300% 300%;
+	}
+
+	.login-logo-bg {
+		animation: floatSlow 12s ease-in-out infinite;
 	}
 
 	.login-blob-1 {
@@ -244,6 +257,24 @@ export function LoginPage() {
 
 			{/* Blob décoratif 3 - Centre */}
 			<div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-r from-lagoon/10 via-transparent to-palm/10 rounded-full blur-3xl opacity-30 pointer-events-none login-blob-3" />
+
+			{/* Logo en arrière-plan - Bas droite */}
+			<div className="absolute bottom-0 right-0 w-96 h-96 pointer-events-none opacity-8 login-logo-bg" style={{
+				backgroundImage: 'url(/logo.png)',
+				backgroundSize: 'contain',
+				backgroundRepeat: 'no-repeat',
+				backgroundPosition: 'bottom right',
+				filter: 'brightness(0.5) saturate(0.3)'
+			}} />
+
+			{/* Logo en arrière-plan - Haut gauche subtle */}
+			<div className="absolute top-0 left-0 w-80 h-80 pointer-events-none opacity-5" style={{
+				backgroundImage: 'url(/logo.png)',
+				backgroundSize: 'contain',
+				backgroundRepeat: 'no-repeat',
+				backgroundPosition: 'top left',
+				filter: 'brightness(0.4) saturate(0.2)'
+			}} />
 
 			{/* Overlay pattern subtil */}
 			<div className="absolute inset-0 opacity-40 pointer-events-none"
