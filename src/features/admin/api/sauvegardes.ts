@@ -46,7 +46,7 @@ export function listSauvegardes(): Promise<Sauvegarde[]> {
 /** Récupère la planification des sauvegardes automatiques. */
 export function getConfigurationSauvegardes(): Promise<ConfigurationSauvegardes> {
 	return getApiClient().apiFetch<ConfigurationSauvegardes>(
-		"/admin/sauvegardes/planification",
+		"/api/v1/admin/sauvegardes/planification",
 	);
 }
 
@@ -64,7 +64,7 @@ export function majConfigurationSauvegardes(config: {
 /** Déclenche une sauvegarde manuelle (POST /admin/sauvegardes/declencher). */
 export function creerSauvegardeManuelle(): Promise<Sauvegarde> {
 	return getApiClient()
-		.apiFetch<SauvegardeWire>("/admin/sauvegardes/declencher", { method: "POST" })
+		.apiFetch<SauvegardeWire>("/api/v1/admin/sauvegardes/declencher", { method: "POST" })
 		.then(({ id_sauvegarde: id, ...reste }) => ({ id, ...reste }));
 }
 
