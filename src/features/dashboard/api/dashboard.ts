@@ -126,14 +126,14 @@ export function getSyntheseGlobale(du?: string, au?: string): Promise<SyntheseGl
 	if (au) params.set("au", au);
 	const qs = params.toString();
 	const url = qs ? `/rapports/synthese-globale?${qs}` : "/rapports/synthese-globale";
-	return getApiClient()..apiFetch<SyntheseGlobale>(url);
+	return getApiClient().apiFetch<SyntheseGlobale>(url);
 }
 
 /** Récupère les réservations de la salle de fête (sans filtre de période) */
 export function getReservationsSalleFutures(): Promise<Reservation[]> {
 	const url = `/salle-fete/reservations?limit=10`;
 	return getApiClient()
-		..apiFetch<Reservation[]>(url)
+		.apiFetch<Reservation[]>(url)
 		.then((reservations) =>
 			reservations
 				.filter((r) => {
@@ -152,7 +152,7 @@ export function getReservationsSalleFutures(): Promise<Reservation[]> {
 
 /** Récupère les indicateurs pour une activité spécifique */
 export function getIndicateurActivite(code: string): Promise<IndicateurActivite> {
-	return getApiClient()..apiFetch<IndicateurActivite>(
+	return getApiClient().apiFetch<IndicateurActivite>(
 		`/rapports/activites/${code}`,
 	);
 }
@@ -165,7 +165,7 @@ export function getLogementsDispo(du?: string, au?: string): Promise<Logement[]>
 	const qs = params.toString();
 	const url = qs ? `/residence/logements?${qs}` : "/residence/logements";
 	return getApiClient()
-		..apiFetch<Array<{ id_logement: string; statut: string; numero: string; id_batiment: string }>>(url)
+		.apiFetch<Array<{ id_logement: string; statut: string; numero: string; id_batiment: string }>>(url)
 		.then((logements) =>
 			logements
 				.filter((l) => l.statut === "disponible")
@@ -187,7 +187,7 @@ export function getProduitsCritiques(du?: string, au?: string): Promise<Produit[
 	const qs = params.toString();
 	const url = qs ? `/market/produits?${qs}` : "/market/produits";
 	return getApiClient()
-		..apiFetch<Array<{ id_produit: string; nom: string; stock: number | string; prix: number | string }>>(url)
+		.apiFetch<Array<{ id_produit: string; nom: string; stock: number | string; prix: number | string }>>(url)
 		.then((produits) =>
 			produits.filter((p) => Number(p.stock) < 10),
 		)
@@ -202,7 +202,7 @@ export function getCommandesPressing(du?: string, au?: string): Promise<Commande
 	const qs = params.toString();
 	const url = qs ? `/pressing/commandes?${qs}` : "/pressing/commandes";
 	return getApiClient()
-		..apiFetch<Array<{ id_commande: string; statut: string; date_depot: string; date_retrait?: string }>>(url)
+		.apiFetch<Array<{ id_commande: string; statut: string; date_depot: string; date_retrait?: string }>>(url)
 		.then((commandes) =>
 			// Filtre côté client: exclude les retraitées et annulées
 			commandes.filter((c) => c.statut !== "RETIREE" && c.statut !== "ANNULEE"),
@@ -218,7 +218,7 @@ export function getPointagesAujourdhui(du?: string, au?: string): Promise<Pointa
 	const qs = params.toString();
 	const url = qs ? `/rh/pointages?${qs}` : "/rh/pointages";
 	return getApiClient()
-		..apiFetch<Pointage[]>(url)
+		.apiFetch<Pointage[]>(url)
 		.catch(() => []);
 }
 
@@ -230,6 +230,6 @@ export function getImpayes(du?: string, au?: string): Promise<Impaye[]> {
 	const qs = params.toString();
 	const url = qs ? `/finances/impayes?${qs}` : "/finances/impayes";
 	return getApiClient()
-		..apiFetch<Impaye[]>(url)
+		.apiFetch<Impaye[]>(url)
 		.catch(() => []);
 }

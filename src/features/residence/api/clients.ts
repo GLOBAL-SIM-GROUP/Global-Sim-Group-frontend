@@ -19,7 +19,7 @@ const toClient = ({ id_client: id, ...reste }: ClientWire): Client => ({
  */
 export function rechercherClients(terme: string): Promise<Client[]> {
 	return getApiClient()
-		..apiFetch<ClientWire[]>(
+		.apiFetch<ClientWire[]>(
 			`/client/clients?recherche=${encodeURIComponent(terme)}`,
 		)
 		.then((data) => data.map(toClient));
@@ -28,7 +28,7 @@ export function rechercherClients(terme: string): Promise<Client[]> {
 /** Détail d'un client (GET /client/clients/{id}). */
 export function getClient(id: string): Promise<Client> {
 	return getApiClient()
-		..apiFetch<ClientWire>(`/api/v1/client/clients/${id}`)
+		.apiFetch<ClientWire>(`/api/v1/client/clients/${id}`)
 		.then(toClient);
 }
 

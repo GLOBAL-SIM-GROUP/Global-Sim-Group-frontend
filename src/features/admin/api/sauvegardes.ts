@@ -25,7 +25,7 @@ type SauvegardeBackend = {
 /** Liste l'historique des sauvegardes (GET /admin/sauvegardes). */
 export function listSauvegardes(): Promise<Sauvegarde[]> {
 	return getApiClient()
-		..apiFetch<{ total: number; items: SauvegardeBackend[] }>("/admin/sauvegardes")
+		.apiFetch<{ total: number; items: SauvegardeBackend[] }>("/admin/sauvegardes")
 		.then(({ items }) =>
 			items.map((item) => ({
 				id: item.id_sauvegarde,
@@ -45,7 +45,7 @@ export function listSauvegardes(): Promise<Sauvegarde[]> {
 
 /** Récupère la planification des sauvegardes automatiques. */
 export function getConfigurationSauvegardes(): Promise<ConfigurationSauvegardes> {
-	return getApiClient()..apiFetch<ConfigurationSauvegardes>(
+	return getApiClient().apiFetch<ConfigurationSauvegardes>(
 		"/admin/sauvegardes/planification",
 	);
 }
@@ -64,7 +64,7 @@ export function majConfigurationSauvegardes(config: {
 /** Déclenche une sauvegarde manuelle (POST /admin/sauvegardes/declencher). */
 export function creerSauvegardeManuelle(): Promise<Sauvegarde> {
 	return getApiClient()
-		..apiFetch<SauvegardeWire>("/admin/sauvegardes/declencher", { method: "POST" })
+		.apiFetch<SauvegardeWire>("/admin/sauvegardes/declencher", { method: "POST" })
 		.then(({ id_sauvegarde: id, ...reste }) => ({ id, ...reste }));
 }
 

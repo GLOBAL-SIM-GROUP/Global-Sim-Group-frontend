@@ -20,7 +20,7 @@ const texteOuNull = (valeur: string | null | undefined): string | null =>
  */
 export function listSejours(): Promise<Sejour[]> {
 	return getApiClient()
-		..apiFetch<SejourWire[]>("/api/v1/residence/sejours")
+		.apiFetch<SejourWire[]>("/api/v1/residence/sejours")
 		.then((data) =>
 			data.map(({ id_sejour: id, ...reste }) => ({ id, ...reste })),
 		);
@@ -29,7 +29,7 @@ export function listSejours(): Promise<Sejour[]> {
 /** Détail d'un séjour (GET /residence/sejours/{id}) — fiche séjour. */
 export function getSejour(id: string): Promise<Sejour> {
 	return getApiClient()
-		..apiFetch<SejourWire>(`/api/v1/residence/sejours/${id}`)
+		.apiFetch<SejourWire>(`/api/v1/residence/sejours/${id}`)
 		.then(({ id_sejour: sid, ...reste }) => ({ id: sid, ...reste }));
 }
 

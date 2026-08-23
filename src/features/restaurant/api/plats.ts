@@ -23,7 +23,7 @@ const texteOuNull = (valeur: string | null | undefined): string | null =>
 /** Appels API du module Restaurant — plats et catégories. */
 export function listPlats(): Promise<Plat[]> {
 	return getApiClient()
-		..apiFetch<PlatWire[]>("/api/v1/restaurant/plats")
+		.apiFetch<PlatWire[]>("/api/v1/restaurant/plats")
 		.then((data) =>
 			data.map(({ id_plat: id, ...reste }) => ({ id, ...reste })),
 		);
@@ -32,7 +32,7 @@ export function listPlats(): Promise<Plat[]> {
 /** Catégories de plats (GET /restaurant/categories). */
 export function listCategoriesPlats(): Promise<CategoriePlat[]> {
 	return getApiClient()
-		..apiFetch<CategoriePlatWire[]>("/api/v1/restaurant/categories")
+		.apiFetch<CategoriePlatWire[]>("/api/v1/restaurant/categories")
 		.then((data) =>
 			data.map(({ id_categorie_plat: id, ...reste }) => ({ id, ...reste })),
 		);

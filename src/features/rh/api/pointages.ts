@@ -22,7 +22,7 @@ export function listPointages(filtres?: {
 	if (filtres?.au) params.set("au", filtres.au);
 	const qs = params.toString();
 	return getApiClient()
-		..apiFetch<PointageWire[]>(`/api/v1/rh/pointages${qs ? `?${qs}` : ""}`)
+		.apiFetch<PointageWire[]>(`/api/v1/rh/pointages${qs ? `?${qs}` : ""}`)
 		.then((data) => data.map(remapper));
 }
 
@@ -37,7 +37,7 @@ export function pointerArrivee(body: {
 		statut: "PRESENT",
 	} satisfies PointerArriveeDto;
 	return getApiClient()
-		..apiFetch<PointageWire>("/api/v1/rh/pointages", {
+		.apiFetch<PointageWire>("/api/v1/rh/pointages", {
 			method: "POST",
 			body: JSON.stringify(corps),
 		})

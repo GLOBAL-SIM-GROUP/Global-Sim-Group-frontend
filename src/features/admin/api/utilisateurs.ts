@@ -28,7 +28,7 @@ export function listUtilisateurs(params?: ListUtilisateursParams): Promise<Utili
 	const path = `/admin/utilisateurs${queryString ? `?${queryString}` : ""}`;
 
 	return getApiClient()
-		..apiFetch<UtilisateurWire[]>(path)
+		.apiFetch<UtilisateurWire[]>(path)
 		.then((data) => data.map(remapper));
 }
 

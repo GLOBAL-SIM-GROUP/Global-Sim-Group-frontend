@@ -34,7 +34,7 @@ export function listTableauBord(filtres?: {
 	const params = new URLSearchParams();
 	if (filtres?.periodo) params.set("periodo", filtres.periodo);
 	const qs = params.toString();
-	return getApiClient()..apiFetch<LigneTableauBord[]>(
+	return getApiClient().apiFetch<LigneTableauBord[]>(
 		`/finances/tableau-de-bord${qs ? `?${qs}` : ""}`,
 	);
 }
@@ -66,7 +66,7 @@ export function listPaiements(filtres?: {
 	if (filtres?.type) params.set("type", filtres.type);
 	const qs = params.toString();
 	return getApiClient()
-		..apiFetch<PaiementWire[]>(`/finances/paiements${qs ? `?${qs}` : ""}`)
+		.apiFetch<PaiementWire[]>(`/finances/paiements${qs ? `?${qs}` : ""}`)
 		.then((data) =>
 			data.map(({ id_paiement: id, ...reste }) => ({ id, ...reste })),
 		);
@@ -81,7 +81,7 @@ export function listDepenses(filtres?: {
 	if (filtres?.au) params.set("au", filtres.au);
 	const qs = params.toString();
 	return getApiClient()
-		..apiFetch<DepenseWire[]>(`/finances/depenses${qs ? `?${qs}` : ""}`)
+		.apiFetch<DepenseWire[]>(`/finances/depenses${qs ? `?${qs}` : ""}`)
 		.then((data) =>
 			data.map(({ id_depense: id, ...reste }) => ({ id, ...reste })),
 		);
@@ -98,14 +98,14 @@ export function listImpayes(filtres?: {
 	if (filtres?.client) params.set("client", filtres.client);
 	if (filtres?.periode) params.set("periode", filtres.periode);
 	const qs = params.toString();
-	return getApiClient()..apiFetch<Impaye[]>(
+	return getApiClient().apiFetch<Impaye[]>(
 		`/finances/impayes${qs ? `?${qs}` : ""}`,
 	);
 }
 
 export function listCategoriesDepenses(): Promise<CategorieDepense[]> {
 	return getApiClient()
-		..apiFetch<CategorieDepenseWire[]>("/finances/categories-depenses")
+		.apiFetch<CategorieDepenseWire[]>("/finances/categories-depenses")
 		.then((data) =>
 			data.map(({ id_categorie_depense: id, ...reste }) => ({ id, ...reste })),
 		);
@@ -129,7 +129,7 @@ export function supprimerCategorieDepense(id: string): Promise<unknown> {
 
 export function listMoyensPaiement(): Promise<MoyenPaiement[]> {
 	return getApiClient()
-		..apiFetch<MoyenPaiementWire[]>("/finances/moyens-paiement")
+		.apiFetch<MoyenPaiementWire[]>("/finances/moyens-paiement")
 		.then((data) =>
 			data.map(({ id_moyen: id, ...reste }) => ({ id, ...reste })),
 		);

@@ -28,7 +28,7 @@ export function listReservations(filtres?: {
 	}
 	const qs = params.toString();
 	return getApiClient()
-		..apiFetch<ReservationWire[]>(
+		.apiFetch<ReservationWire[]>(
 			`/api/v1/salle-fete/reservations${qs ? `?${qs}` : ""}`,
 		)
 		.then((data) =>
@@ -39,7 +39,7 @@ export function listReservations(filtres?: {
 /** Détail d'une réservation (`GET /salle-fete/reservations/{id}`, remap). */
 export function getReservation(id: string): Promise<ReservationFete> {
 	return getApiClient()
-		..apiFetch<ReservationWire>(`/api/v1/salle-fete/reservations/${id}`)
+		.apiFetch<ReservationWire>(`/api/v1/salle-fete/reservations/${id}`)
 		.then(({ id_reservation: idReservation, ...reste }) => ({
 			id: idReservation,
 			...reste,

@@ -74,7 +74,7 @@ export async function listLogements(
 		searchParams.set("statut", params.statut);
 	}
 	const qs = searchParams.toString();
-	const data = await getApiClient()..apiFetch<LogementWire[]>(
+	const data = await getApiClient().apiFetch<LogementWire[]>(
 		`/residence/logements${qs ? `?${qs}` : ""}`,
 	);
 	// Remappé en `id` : key React, PATCH par `{id}` et fiche utilisent cette
@@ -85,7 +85,7 @@ export async function listLogements(
 /** Détail d'un logement (GET /residence/logements/{id}) — fiche logement. */
 export function getLogement(id: string): Promise<Logement> {
 	return getApiClient()
-		..apiFetch<LogementWire>(`/api/v1/residence/logements/${id}`)
+		.apiFetch<LogementWire>(`/api/v1/residence/logements/${id}`)
 		.then(({ id_logement: lid, ...reste }) => ({ id: lid, ...reste }));
 }
 

@@ -11,7 +11,7 @@ type MoyenPaiementWire = Omit<MoyenPaiement, "id"> & { id_moyen: string };
  */
 export function listMoyensPaiement(): Promise<MoyenPaiement[]> {
 	return getApiClient()
-		..apiFetch<MoyenPaiementWire[]>("/api/v1/finances/moyens-paiement")
+		.apiFetch<MoyenPaiementWire[]>("/api/v1/finances/moyens-paiement")
 		.then((data) =>
 			data.map(({ id_moyen: id, ...reste }) => ({ id, ...reste })),
 		);

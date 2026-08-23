@@ -24,7 +24,7 @@ export function listJournal(params?: ListJournalParams): Promise<TraceAudit[]> {
 		searchParams.set("utilisateur", params.utilisateur);
 	const qs = searchParams.toString();
 	return getApiClient()
-		..apiFetch<TraceAuditWire[]>(`/audit/journal${qs ? `?${qs}` : ""}`)
+		.apiFetch<TraceAuditWire[]>(`/audit/journal${qs ? `?${qs}` : ""}`)
 		.then((data) =>
 			data.map(({ id_trace: id, ...reste }) => ({ id, ...reste })),
 		);

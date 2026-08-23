@@ -23,7 +23,7 @@ export function listEmployes(params?: ListEmployesParams): Promise<Employe[]> {
 	const path = `/rh/employes${queryString ? `?${queryString}` : ""}`;
 
 	return getApiClient()
-		..apiFetch<EmployeWire[]>(path)
+		.apiFetch<EmployeWire[]>(path)
 		.then((data) =>
 			data.map(({ id_employe: id, ...reste }) => ({ id, ...reste })),
 		);
@@ -32,7 +32,7 @@ export function listEmployes(params?: ListEmployesParams): Promise<Employe[]> {
 /** Détail d'un employé. */
 export function getEmploye(id: string): Promise<Employe> {
 	return getApiClient()
-		..apiFetch<EmployeWire>(`/api/v1/rh/employes/${id}`)
+		.apiFetch<EmployeWire>(`/api/v1/rh/employes/${id}`)
 		.then(({ id_employe: idEmploye, ...reste }) => ({
 			id: idEmploye,
 			...reste,

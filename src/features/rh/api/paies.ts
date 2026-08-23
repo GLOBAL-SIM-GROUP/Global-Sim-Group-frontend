@@ -14,7 +14,7 @@ type ElementPaieWire = Omit<ElementPaie, "id"> & { id_element: string };
 /** Appels API du module RH — bulletins de salaire (paies). */
 export function listPaies(): Promise<Paie[]> {
 	return getApiClient()
-		..apiFetch<PaieWire[]>("/api/v1/rh/paies")
+		.apiFetch<PaieWire[]>("/api/v1/rh/paies")
 		.then((data) =>
 			data.map(({ id_paie: id, ...reste }) => ({ id, ...reste })),
 		);
@@ -23,7 +23,7 @@ export function listPaies(): Promise<Paie[]> {
 /** Détail d'un bulletin : paie + éléments. */
 export function getPaie(id: string): Promise<PaieDetail> {
 	return getApiClient()
-		..apiFetch<{ paie: PaieWire; elements: ElementPaieWire[] }>(
+		.apiFetch<{ paie: PaieWire; elements: ElementPaieWire[] }>(
 			`/rh/paies/${id}`,
 		)
 		.then(({ paie: paieWire, elements }) => {

@@ -23,7 +23,7 @@ export function listEcheances(filtres?: {
 	if (filtres?.du) params.set("du", filtres.du);
 	if (filtres?.au) params.set("au", filtres.au);
 	const qs = params.toString();
-	return getApiClient()..apiFetch<EcheanceSuivi[]>(
+	return getApiClient().apiFetch<EcheanceSuivi[]>(
 		`/residence/suivi${qs ? `?${qs}` : ""}`,
 	);
 }

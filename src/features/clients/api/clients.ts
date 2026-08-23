@@ -83,14 +83,14 @@ export function listClients(params?: ListClientsParams): Promise<Client[]> {
 		? `?search=${encodeURIComponent(params.search.trim())}`
 		: "";
 	return getApiClient()
-		..apiFetch<ClientWire[]>(`/client/clients${qs}`)
+		.apiFetch<ClientWire[]>(`/client/clients${qs}`)
 		.then((data) => data.map(remapClient));
 }
 
 /** Détail d'un client (contacts et pièces inclus). */
 export function getClient(id: string): Promise<ClientDetail> {
 	return getApiClient()
-		..apiFetch<ClientDetailWire>(`/client/clients/${id}`)
+		.apiFetch<ClientDetailWire>(`/client/clients/${id}`)
 		.then(({ id_client: idClient, contacts, pieces, ...reste }) => ({
 			id: idClient,
 			...reste,
