@@ -33,7 +33,7 @@ export function RapportRhPage({ initialSearch }: RapportRhPageProps) {
 		setPdfError(false);
 		try {
 			await telechargerPdf(
-				rapportPdfPath("/rapports/rh", periode.du, periode.au),
+				rapportPdfPath("/api/v1/rapports/rh", periode.du, periode.au),
 				`rapport-rh-${periode.du}-${periode.au}.pdf`,
 			);
 		} catch {
@@ -45,7 +45,7 @@ export function RapportRhPage({ initialSearch }: RapportRhPageProps) {
 		setPdfError(false);
 		try {
 			await telechargerExcel(
-				rapportExcelPath("/rapports/rh", periode.du, periode.au),
+				rapportExcelPath("/api/v1/rapports/rh", periode.du, periode.au),
 				`rapport-rh-${periode.du}-${periode.au}.xlsx`,
 			);
 		} catch {

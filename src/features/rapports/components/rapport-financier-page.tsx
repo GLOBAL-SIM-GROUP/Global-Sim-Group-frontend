@@ -37,7 +37,7 @@ export function RapportFinancierPage({
 		setPdfError(false);
 		try {
 			await telechargerPdf(
-				rapportPdfPath("/rapports/financier", periode.du, periode.au),
+				rapportPdfPath("/api/v1/rapports/financier", periode.du, periode.au),
 				`rapport-financier-${periode.du}-${periode.au}.pdf`,
 			);
 		} catch {
@@ -49,7 +49,7 @@ export function RapportFinancierPage({
 		setPdfError(false);
 		try {
 			await telechargerExcel(
-				rapportExcelPath("/rapports/financier", periode.du, periode.au),
+				rapportExcelPath("/api/v1/rapports/financier", periode.du, periode.au),
 				`rapport-financier-${periode.du}-${periode.au}.xlsx`,
 			);
 		} catch {

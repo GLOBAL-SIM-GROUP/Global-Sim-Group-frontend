@@ -34,7 +34,7 @@ export function SyntheseGlobalePage({
 		setPdfError(false);
 		try {
 			await telechargerPdf(
-				rapportPdfPath("/rapports/synthese-globale", periode.du, periode.au),
+				rapportPdfPath("/api/v1/rapports/synthese-globale", periode.du, periode.au),
 				`synthese-globale-${periode.du}-${periode.au}.pdf`,
 			);
 		} catch {
@@ -46,7 +46,7 @@ export function SyntheseGlobalePage({
 		setPdfError(false);
 		try {
 			await telechargerExcel(
-				rapportExcelPath("/rapports/synthese-globale", periode.du, periode.au),
+				rapportExcelPath("/api/v1/rapports/synthese-globale", periode.du, periode.au),
 				`synthese-globale-${periode.du}-${periode.au}.xlsx`,
 			);
 		} catch {
