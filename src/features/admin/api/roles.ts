@@ -13,7 +13,7 @@ type PermissionWire = Omit<Permission, "id"> & { id_permission: string };
 /** Appels API du module Administration — rôles et permissions. */
 export function listRoles(): Promise<Role[]> {
 	return getApiClient()
-		.apiFetch<RoleWire[]>("/admin/roles")
+		.apiFetch<RoleWire[]>("/api/v1/admin/roles")
 		.then((data) =>
 			data.map(({ id_role: id, ...reste }) => ({ id, ...reste })),
 		);

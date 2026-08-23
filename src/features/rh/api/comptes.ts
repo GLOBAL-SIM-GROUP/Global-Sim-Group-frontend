@@ -22,7 +22,7 @@ export interface ActiviteScope {
 /** Appels API du module RH — comptes utilisateurs. */
 export function listRoles(): Promise<Role[]> {
 	return getApiClient()
-		.apiFetch<(Omit<Role, "id"> & { id_role: string })[]>("/admin/roles")
+		.apiFetch<(Omit<Role, "id"> & { id_role: string })[]>("/api/v1/admin/roles")
 		.then((data) =>
 			data.map(({ id_role: id, ...reste }) => ({ id, ...reste })),
 		);
