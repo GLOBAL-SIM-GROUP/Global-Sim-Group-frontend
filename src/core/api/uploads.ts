@@ -89,7 +89,7 @@ export async function downloadUploadedFile(key: string | null | undefined): Prom
 
 	const client = getApiClient();
 	try {
-		return await client.download(`/uploads?key=${encodeURIComponent(key)}`);
+		return await client.download(`/api/v1/uploads?key=${encodeURIComponent(key)}`);
 	} catch {
 		// Si le fichier n'existe pas ou permission manque, retourner null
 		// (l'image affichera le placeholder)

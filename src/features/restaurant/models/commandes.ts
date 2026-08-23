@@ -67,7 +67,7 @@ export interface CommandeFiltres {
 }
 
 /**
- * Filtre l'historique. Le lister accepte `du`/`au`/`statut` côté serveur ; on
+ * Filtre l'historique. Le lister accepte `du`/api/v1/`au`/api/v1/`statut` côté serveur ; on
  * ré-applique sans effet et on garde le filtre « type ». Fonction pure.
  */
 export function filtrerCommandes(

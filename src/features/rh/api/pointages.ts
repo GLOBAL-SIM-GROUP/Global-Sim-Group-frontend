@@ -44,7 +44,7 @@ export function pointerArrivee(body: {
 		.then(remapper);
 }
 
-/** Pointe le départ d'un pointage (POST `/pointages/{id}/depart`). */
+/** Pointe le départ d'un pointage (POST `/api/v1/pointages/{id}/depart`). */
 export function pointerDepart(id: string): Promise<unknown> {
 	return getApiClient().apiFetch(`/api/v1/rh/pointages/${id}/depart`, {
 		method: "POST",

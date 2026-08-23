@@ -22,7 +22,7 @@ type DetailWire = Omit<CommandePressingDetail, "id" | "lignes"> & {
 
 /**
  * Appels API du module Pressing — commandes. Le lister documente des params
- * réels (`recherche`/`du`/`au`/`statut`) : envoyés quand définis. Les actions
+ * réels (`recherche`/api/v1/`du`/api/v1/`au`/api/v1/`statut`) : envoyés quand définis. Les actions
  * de statut sont réelles : `traitement`, `pret`, `retirer`, `annuler`.
  */
 export function listCommandes(filtres?: {
@@ -133,21 +133,21 @@ export function modifierCommande(
 	});
 }
 
-/** Passe la commande en traitement (POST `/commandes/{id}/traitement`). */
+/** Passe la commande en traitement (POST `/api/v1/commandes/{id}/traitement`). */
 export function traitementCommande(id: string): Promise<unknown> {
 	return getApiClient().apiFetch(`/api/v1/pressing/commandes/${id}/traitement`, {
 		method: "POST",
 	});
 }
 
-/** Passe la commande en « Prêt » (POST `/commandes/{id}/pret`). */
+/** Passe la commande en « Prêt » (POST `/api/v1/commandes/{id}/pret`). */
 export function pretCommande(id: string): Promise<unknown> {
 	return getApiClient().apiFetch(`/api/v1/pressing/commandes/${id}/pret`, {
 		method: "POST",
 	});
 }
 
-/** Enregistre le retrait + encaisse le solde (POST `/commandes/{id}/retirer`). */
+/** Enregistre le retrait + encaisse le solde (POST `/api/v1/commandes/{id}/retirer`). */
 export function retirerCommande(
 	id: string,
 	body: { solde: string; idMoyen: string },
@@ -162,7 +162,7 @@ export function retirerCommande(
 	});
 }
 
-/** Annule une commande (POST `/commandes/{id}/annuler`). */
+/** Annule une commande (POST `/api/v1/commandes/{id}/annuler`). */
 export function annulerCommande(id: string): Promise<unknown> {
 	return getApiClient().apiFetch(`/api/v1/pressing/commandes/${id}/annuler`, {
 		method: "POST",

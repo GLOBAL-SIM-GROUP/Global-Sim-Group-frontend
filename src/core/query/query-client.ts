@@ -20,7 +20,7 @@ export const queryClient = new QueryClient({
 		queries: {
 			// Aucune query ne tourne en SSR : la session (token) vit en mémoire
 			// client et les pages protégées redirigent vers /login côté serveur.
-			// `VITE_API_URL` peut être relative (`/api/v1`), inutilisable depuis Node.
+			// `VITE_API_URL` peut être relative (`/api/v1/api/v1`), inutilisable depuis Node.
 			retry: (_failureCount, error) => {
 				if (!isApiError(error)) return false;
 				return RETRYABLE_CODES.has(error.code);

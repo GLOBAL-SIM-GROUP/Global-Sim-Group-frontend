@@ -7,14 +7,14 @@ import type { AlerteStock } from "../models/statistiques";
 type AjouterMouvementDto = components["schemas"]["AjouterMouvementDto"];
 
 /**
- * Le schéma généré type `motif`/`document_ref` en objet libre
+ * Le schéma généré type `motif`/api/v1/`document_ref` en objet libre
  * (`Record<string, never> | null`) mais ce sont de vraies valeurs ; on élargit
- * ces champs (même pattern que `equipements`/`etat` côté logements).
+ * ces champs (même pattern que `equipements`/api/v1/`etat` côté logements).
  */
 const texteOuNull = (valeur: string | null | undefined): string | null =>
 	valeur?.trim() ? valeur : null;
 
-/** Appels API du module Marchandise — mouvements de stock (`/market/*`). */
+/** Appels API du module Marchandise — mouvements de stock (`/api/v1/market/*`). */
 export function listMouvements(): Promise<Mouvement[]> {
 	return getApiClient().apiFetch<Mouvement[]>("/market/stock/historique");
 }

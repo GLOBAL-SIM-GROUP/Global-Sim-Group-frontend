@@ -18,13 +18,13 @@ const adresseBody = (adresse: string | null | undefined): string | null =>
 /**
  * Appels API du module Résidence — bâtiments.
  *
- * Chemins relatifs à `${VITE_API_URL}` (`/api/v1`). Réponse du lister
+ * Chemins relatifs à `${VITE_API_URL}` (`/api/v1/api/v1`). Réponse du lister
  * hand-typed (aucun schéma de réponse dans le spec, cf. docs/api.md) : à
  * revalider au smoke test réel. Aucun endpoint inventé : GET lister, PATCH et
  * DELETE par id (pas de GET par id dans le spec).
  */
 /** Forme brute renvoyée par le lister : la clé primaire est `id_batiment` (pas
-    `id`), constatée sur le backend réel (seed `admin`/`motdepasse`, GET
+    `id`), constatée sur le backend réel (seed `admin`/api/v1/`motdepasse`, GET
     /residence/batiments → `{"id_batiment":"2", ...}`). */
 interface BatimentWire {
 	id_batiment: string;

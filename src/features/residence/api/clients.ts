@@ -20,7 +20,7 @@ const toClient = ({ id_client: id, ...reste }: ClientWire): Client => ({
 export function rechercherClients(terme: string): Promise<Client[]> {
 	return getApiClient()
 		.apiFetch<ClientWire[]>(
-			`/client/clients?recherche=${encodeURIComponent(terme)}`,
+			`/api/v1/client/clients?recherche=${encodeURIComponent(terme)}`,
 		)
 		.then((data) => data.map(toClient));
 }

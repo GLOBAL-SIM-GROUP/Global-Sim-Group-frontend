@@ -35,7 +35,7 @@ export function listTableauBord(filtres?: {
 	if (filtres?.periodo) params.set("periodo", filtres.periodo);
 	const qs = params.toString();
 	return getApiClient().apiFetch<LigneTableauBord[]>(
-		`/finances/tableau-de-bord${qs ? `?${qs}` : ""}`,
+		`/api/v1/finances/tableau-de-bord${qs ? `?${qs}` : ""}`,
 	);
 }
 
@@ -44,7 +44,7 @@ export function getTableauBordPdfPath(periodo?: string): string {
 	const params = new URLSearchParams();
 	params.set("format", "pdf");
 	if (periodo) params.set("periodo", periodo);
-	return `/finances/tableau-de-bord?${params.toString()}`;
+	return `/api/v1/finances/tableau-de-bord?${params.toString()}`;
 }
 
 /** Récupère le chemin d'export Excel du tableau de bord financier */
@@ -52,7 +52,7 @@ export function getTableauBordExcelPath(periodo?: string): string {
 	const params = new URLSearchParams();
 	params.set("format", "xlsx");
 	if (periodo) params.set("periodo", periodo);
-	return `/finances/tableau-de-bord?${params.toString()}`;
+	return `/api/v1/finances/tableau-de-bord?${params.toString()}`;
 }
 
 export function listPaiements(filtres?: {
@@ -66,7 +66,7 @@ export function listPaiements(filtres?: {
 	if (filtres?.type) params.set("type", filtres.type);
 	const qs = params.toString();
 	return getApiClient()
-		.apiFetch<PaiementWire[]>(`/finances/paiements${qs ? `?${qs}` : ""}`)
+		.apiFetch<PaiementWire[]>(`/api/v1/finances/paiements${qs ? `?${qs}` : ""}`)
 		.then((data) =>
 			data.map(({ id_paiement: id, ...reste }) => ({ id, ...reste })),
 		);
@@ -81,7 +81,7 @@ export function listDepenses(filtres?: {
 	if (filtres?.au) params.set("au", filtres.au);
 	const qs = params.toString();
 	return getApiClient()
-		.apiFetch<DepenseWire[]>(`/finances/depenses${qs ? `?${qs}` : ""}`)
+		.apiFetch<DepenseWire[]>(`/api/v1/finances/depenses${qs ? `?${qs}` : ""}`)
 		.then((data) =>
 			data.map(({ id_depense: id, ...reste }) => ({ id, ...reste })),
 		);
@@ -99,7 +99,7 @@ export function listImpayes(filtres?: {
 	if (filtres?.periode) params.set("periode", filtres.periode);
 	const qs = params.toString();
 	return getApiClient().apiFetch<Impaye[]>(
-		`/finances/impayes${qs ? `?${qs}` : ""}`,
+		`/api/v1/finances/impayes${qs ? `?${qs}` : ""}`,
 	);
 }
 

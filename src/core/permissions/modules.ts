@@ -29,7 +29,7 @@ import type { ModuleCode, PermissionCode } from "./types";
 /**
  * Sous-page d'un module (menu déroulant de la sidebar). La route métier
  * (`path`) n'existe pas encore : le rendu actuel pointe vers le placeholder
- * partagé `/en-cours?module=…&page=…`. Déclarée ici pour câbler la navigation
+ * partagé `/api/v1/en-cours?module=…&page=…`. Déclarée ici pour câbler la navigation
  * quand la route sera construite.
  */
 export interface SubMenuItem {

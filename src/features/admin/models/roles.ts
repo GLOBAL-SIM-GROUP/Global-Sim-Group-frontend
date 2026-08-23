@@ -1,7 +1,7 @@
 /**
  * Rôles et permissions (module M11, 12.3/12.4). Hand-typed revalidés sur le
  * backend réel (GET /admin/roles, /admin/permissions, /admin/roles/{id}/permissions).
- * Clés primaires wire `id_role`/`id_permission` → `id`.
+ * Clés primaires wire `id_role`/api/v1/`id_permission` → `id`.
  */
 export interface Role {
 	id: string;

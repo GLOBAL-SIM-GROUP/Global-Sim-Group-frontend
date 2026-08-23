@@ -13,7 +13,7 @@ import type { LogementStatut, LogementType } from "../models/logements";
 import { logementsKeys } from "../permissions";
 
 /**
- * Charge les logements d'un bâtiment avec recherche. `type`/`statut`/`search`
+ * Charge les logements d'un bâtiment avec recherche. `type`/api/v1/`statut`/api/v1/`search`
  * sont envoyés au lister (params réels) et portés par la clé de requête →
  * refetch au changement. Sans bâtiment, la requête est désactivée.
  */

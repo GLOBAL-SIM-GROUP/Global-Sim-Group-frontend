@@ -9,9 +9,9 @@ type MajCategorieChargeDto = components["schemas"]["MajCategorieChargeDto"];
 type PayerChargeDto = components["schemas"]["PayerChargeDto"];
 
 /**
- * Le schéma généré type `compteur_numero`/`lecture_*`/`consommation` en objet
+ * Le schéma généré type `compteur_numero`/api/v1/`lecture_*`/api/v1/`consommation` en objet
  * libre (`Record<string, never> | null`) mais ce sont de vraies valeurs ; on
- * élargit ces champs (même pattern que `equipements`/`etat` côté logements).
+ * élargit ces champs (même pattern que `equipements`/api/v1/`etat` côté logements).
  */
 type ChargeWire = Omit<Charge, "id"> & { id_charge: string };
 type CategorieChargeWire = Omit<CategorieCharge, "id"> & {
@@ -113,7 +113,7 @@ export function modifierCategorieCharge(
 	});
 }
 
-/** Enregistre un paiement de charge (POST `/charges/{id}/payer`). */
+/** Enregistre un paiement de charge (POST `/api/v1/charges/{id}/payer`). */
 export function payerCharge(
 	id: string,
 	body: { montant: string; idMoyen: string },

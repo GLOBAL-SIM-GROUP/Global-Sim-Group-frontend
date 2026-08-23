@@ -8,7 +8,7 @@ type EncaisserLoyerDto = components["schemas"]["EncaisserLoyerDto"];
 /**
  * Appels API du module Résidence — suivi des échéances.
  *
- * `GET /residence/suivi` (params `du`/`au`/`statut` optionnels) expose les
+ * `GET /residence/suivi` (params `du`/api/v1/`au`/api/v1/`statut` optionnels) expose les
  * échéances consolidées SANS id d'échéance (pas d'encaissement direct depuis
  * ce listing) ; l'encaissement passe par `POST /echeances/{id}/encaisser` avec
  * un `id_echeance` issu du détail du contrat.
@@ -24,7 +24,7 @@ export function listEcheances(filtres?: {
 	if (filtres?.au) params.set("au", filtres.au);
 	const qs = params.toString();
 	return getApiClient().apiFetch<EcheanceSuivi[]>(
-		`/residence/suivi${qs ? `?${qs}` : ""}`,
+		`/api/v1/residence/suivi${qs ? `?${qs}` : ""}`,
 	);
 }
 

@@ -13,9 +13,9 @@ type CreerCategorieProduitDto =
 	components["schemas"]["CreerCategorieProduitDto"];
 
 /**
- * Le schéma généré type `id_categorie_produit`/`id_fournisseur` en objet libre
+ * Le schéma généré type `id_categorie_produit`/api/v1/`id_fournisseur` en objet libre
  * (`Record<string, never> | null`) mais ce sont de vrais ids ; on élargit ces
- * champs (même pattern que `equipements`/`etat` côté logements).
+ * champs (même pattern que `equipements`/api/v1/`etat` côté logements).
  */
 type ProduitWire = Omit<Produit, "id"> & { id_produit: string };
 type CategorieProduitWire = Omit<CategorieProduit, "id"> & {
@@ -32,7 +32,7 @@ export interface ListProduitsParams {
 	fournisseur?: string;
 }
 
-/** Appels API du module Marchandise — produits (chemins `/market/*`). */
+/** Appels API du module Marchandise — produits (chemins `/api/v1/market/*`). */
 export function listProduits(params?: ListProduitsParams): Promise<Produit[]> {
 	const searchParams = new URLSearchParams();
 	if (params?.search) searchParams.append("search", params.search);
@@ -40,7 +40,7 @@ export function listProduits(params?: ListProduitsParams): Promise<Produit[]> {
 	if (params?.fournisseur) searchParams.append("fournisseur", params.fournisseur);
 
 	const queryString = searchParams.toString();
-	const path = `/market/produits${queryString ? `?${queryString}` : ""}`;
+	const path = `/api/v1/market/produits${queryString ? `?${queryString}` : ""}`;
 
 	return getApiClient()
 		.apiFetch<ProduitWire[]>(path)

@@ -83,14 +83,14 @@ export function listClients(params?: ListClientsParams): Promise<Client[]> {
 		? `?search=${encodeURIComponent(params.search.trim())}`
 		: "";
 	return getApiClient()
-		.apiFetch<ClientWire[]>(`/client/clients${qs}`)
+		.apiFetch<ClientWire[]>(`/api/v1/client/clients${qs}`)
 		.then((data) => data.map(remapClient));
 }
 
 /** Détail d'un client (contacts et pièces inclus). */
 export function getClient(id: string): Promise<ClientDetail> {
 	return getApiClient()
-		.apiFetch<ClientDetailWire>(`/client/clients/${id}`)
+		.apiFetch<ClientDetailWire>(`/api/v1/client/clients/${id}`)
 		.then(({ id_client: idClient, contacts, pieces, ...reste }) => ({
 			id: idClient,
 			...reste,
@@ -154,7 +154,7 @@ export function creerContact(
 		email?: string | null;
 	};
 	return getApiClient().apiFetch(
-		`/client/clients/${idClient}/contacts-urgence`,
+		`/api/v1/client/clients/${idClient}/contacts-urgence`,
 		{
 			method: "POST",
 			body: JSON.stringify(corps),
@@ -196,7 +196,7 @@ export function creerPiece(
 		copie_num_verso?: string | null;
 	};
 	return getApiClient().apiFetch(
-		`/client/clients/${idClient}/pieces-identite`,
+		`/api/v1/client/clients/${idClient}/pieces-identite`,
 		{
 			method: "POST",
 			body: JSON.stringify(corps),
@@ -221,7 +221,7 @@ export function modifierPiece(
 		corps.copie_num_verso = body.copieNumVerso;
 	}
 	return getApiClient().apiFetch(
-		`/client/clients/${idClient}/pieces-identite/${idPiece}`,
+		`/api/v1/client/clients/${idClient}/pieces-identite/${idPiece}`,
 		{
 			method: "PATCH",
 			body: JSON.stringify(corps),

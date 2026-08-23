@@ -18,7 +18,7 @@ export interface ApiDeps {
 export interface ApiClient {
 	/**
 	 * Requête typée vers l'API.
-	 * @param path  chemin relatif à la base (`/api/v1`), ex. `/auth/login`.
+	 * @param path  chemin relatif à la base (`/api/v1/api/v1`), ex. `/api/v1/auth/login`.
 	 */
 	apiFetch<T>(path: string, init?: RequestInit): Promise<T>;
 	/**

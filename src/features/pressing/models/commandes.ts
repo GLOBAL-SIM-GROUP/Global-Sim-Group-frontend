@@ -63,7 +63,7 @@ export interface CommandeFiltres {
 }
 
 /**
- * Filtre la liste côté client. Le lister accepte `recherche`/`du`/`au`/`statut`
+ * Filtre la liste côté client. Le lister accepte `recherche`/api/v1/`du`/api/v1/`au`/api/v1/`statut`
  * côté serveur ; on ré-applique statut/période sans effet et on garde la
  * recherche texte « client ». Fonction pure, sans dépendance React.
  */

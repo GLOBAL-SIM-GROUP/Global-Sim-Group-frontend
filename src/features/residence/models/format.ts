@@ -9,7 +9,7 @@ export function formatMontantFCFA(montant: string): string {
 	return `${valeur.toLocaleString("fr-FR").replace(/\s/g, " ")} FCFA`;
 }
 
-/** Formate une date `YYYY-MM-DD` en français ; `null`/vide → « — ». */
+/** Formate une date `YYYY-MM-DD` en français ; `null`/api/v1/vide → « — ». */
 export function formatDateISO(date: string | null | undefined): string {
 	if (!date) return "—";
 	const valeur = new Date(`${date}T00:00:00`);

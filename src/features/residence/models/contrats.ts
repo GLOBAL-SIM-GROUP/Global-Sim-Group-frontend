@@ -3,7 +3,7 @@
  *
  * Types hand-typed revalidés sur le backend réel (GET /residence/contrats).
  * La clé primaire wire `id_contrat` est remappée en `id` par la couche API ;
- * les FK `id_client`/`id_logement` restent en snake_case (comme `id_batiment`
+ * les FK `id_client`/api/v1/`id_logement` restent en snake_case (comme `id_batiment`
  * côté logements). Ids bigint transportés en string.
  */
 export type TypeLocation = "MENSUEL" | "ANNUEL";
@@ -102,7 +102,7 @@ export interface ContratJoin extends Contrat {
 
 /**
  * Filtre la liste. Statut, texte « locataire » (nom complet) et « logement »
- * (numéro), période `du`/`au` (comparaison lexicographique sur `date_debut`
+ * (numéro), période `du`/api/v1/`au` (comparaison lexicographique sur `date_debut`
  * `YYYY-MM-DD`). Fonction pure, sans dépendance React.
  */
 export function filtrerContrats(

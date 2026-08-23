@@ -102,7 +102,7 @@ export type CibleImpaye =
 
 /**
  * Résout la page correspondante d'un impayé : la référence `LOYER` est un
- * numéro de contrat, `FACTURE` un numéro de facture ; `CHARGE`/`SEJOUR`
+ * numéro de contrat, `FACTURE` un numéro de facture ; `CHARGE`/api/v1/`SEJOUR`
  * renvoient vers leur liste. Les cartes sont numéro → id. Fonction pure.
  */
 export function cibleImpaye(

@@ -30,7 +30,7 @@ export function listPermissions(): Promise<Permission[]> {
 /** Permissions associées à un rôle (objets complets). */
 export function getRolePermissions(id: string): Promise<Permission[]> {
 	return getApiClient()
-		.apiFetch<PermissionWire[]>(`/admin/roles/${id}/permissions`)
+		.apiFetch<PermissionWire[]>(`/api/v1/admin/roles/${id}/permissions`)
 		.then((data) =>
 			data.map(({ id_permission: idPermission, ...reste }) => ({
 				id: idPermission,

@@ -1,6 +1,6 @@
 /**
  * Client / locataire (module 3.1/3.2). Hand-typed revalidé sur le backend réel
- * (GET /client/clients). Clés primaires wire `id_client`/`id_contact`/`id_piece`
+ * (GET /client/clients). Clés primaires wire `id_client`/api/v1/`id_contact`/api/v1/`id_piece`
  * → `id`.
  */
 export type TypeClient = "LOCATAIRE" | "PASSAGE" | "AUTRE";

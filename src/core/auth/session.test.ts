@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { createAuthSession } from "./session";
 import type { StoredTokens } from "./token-store";
 
-/** Mock fetch : seul `/auth/refresh` répond 200 (rotation réussie). */
+/** Mock fetch : seul `/api/v1/auth/refresh` répond 200 (rotation réussie). */
 function stubFetch() {
 	vi.stubGlobal(
 		"fetch",

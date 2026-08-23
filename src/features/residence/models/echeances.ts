@@ -1,7 +1,7 @@
 /**
  * Échéances de loyer — vue consolidée `GET /residence/suivi`.
  *
- * Les lignes de `/suivi` n'exposent AUCUN id d'échéance : l'encaissement se
+ * Les lignes de `/api/v1/suivi` n'exposent AUCUN id d'échéance : l'encaissement se
  * fait depuis la fiche contrat (dont `echeances[]` porte `id_echeance`). Le
  * suivi sert à la consultation + filtrage.
  */
@@ -46,8 +46,8 @@ export interface EcheancesFiltres {
 }
 
 /**
- * Filtre le suivi. `statut`/`du`/`au` sont aussi envoyés au serveur (params
- * réels du lister `/suivi`) : ré-appliqués ici sans effet — ce filtre garde la
+ * Filtre le suivi. `statut`/api/v1/`du`/api/v1/`au` sont aussi envoyés au serveur (params
+ * réels du lister `/api/v1/suivi`) : ré-appliqués ici sans effet — ce filtre garde la
  * recherche texte « locataire ». Fonction pure, sans dépendance React.
  */
 export function filtrerEcheances(
@@ -81,7 +81,7 @@ export interface PageEcheances {
 }
 
 /**
- * Pagination client (le lister `/suivi` ne documente aucune pagination serveur).
+ * Pagination client (le lister `/api/v1/suivi` ne documente aucune pagination serveur).
  * Page bornée à [1, totalPages].
  */
 export function paginerEcheances(

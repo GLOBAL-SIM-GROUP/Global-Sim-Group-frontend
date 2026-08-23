@@ -19,7 +19,7 @@ export const env = createEnv({
 		 *
 		 * Deux formes acceptées :
 		 * - absolue (`https://host/api/v1`) — frontend hébergé séparément ;
-		 * - relative (`/api/v1`) — même origine que l'app (dev : proxy Vite vers
+		 * - relative (`/api/v1/api/v1`) — même origine que l'app (dev : proxy Vite vers
 		 *   le backend, le CORS du backend refusant `localhost:*`).
 		 */
 		VITE_API_URL: z

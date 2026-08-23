@@ -14,9 +14,9 @@ type CreerContratDto = components["schemas"]["CreerContratDto"];
 type RestituerCautionDto = components["schemas"]["RestituerCautionDto"];
 
 /**
- * Le schéma généré type `duree_mois`/`periodicite`/`date_fin_prevue` en objet
+ * Le schéma généré type `duree_mois`/api/v1/`periodicite`/api/v1/`date_fin_prevue` en objet
  * libre (`Record<string, never> | null`) mais ce sont de vraies valeurs ; on
- * élargit ces champs (même pattern que `equipements`/`etat` côté logements).
+ * élargit ces champs (même pattern que `equipements`/api/v1/`etat` côté logements).
  */
 type ContratWire = Omit<Contrat, "id"> & { id_contrat: string };
 type EcheanceWire = Omit<Echeance, "id"> & { id_echeance: string };
@@ -129,7 +129,7 @@ export function restituerCaution(
 		motif_retenue?: string | null;
 	};
 	return getApiClient().apiFetch(
-		`/residence/contrats/${idContrat}/caution/restitution`,
+		`/api/v1/residence/contrats/${idContrat}/caution/restitution`,
 		{ method: "POST", body: JSON.stringify(corps) },
 	);
 }

@@ -17,13 +17,13 @@ export interface ListVentesParams {
 	search?: string;
 }
 
-/** Appels API du module Marchandise — ventes (chemins `/market/*`). */
+/** Appels API du module Marchandise — ventes (chemins `/api/v1/market/*`). */
 export function listVentes(params?: ListVentesParams): Promise<Vente[]> {
 	const searchParams = new URLSearchParams();
 	if (params?.search) searchParams.append("search", params.search);
 
 	const queryString = searchParams.toString();
-	const path = `/market/ventes${queryString ? `?${queryString}` : ""}`;
+	const path = `/api/v1/market/ventes${queryString ? `?${queryString}` : ""}`;
 
 	return getApiClient()
 		.apiFetch<VenteWire[]>(path)
@@ -82,7 +82,7 @@ export function creerVente(body: VenteBody): Promise<unknown> {
 	});
 }
 
-/** Annule une vente (POST `/market/ventes/{id}/annuler`). */
+/** Annule une vente (POST `/api/v1/market/ventes/{id}/annuler`). */
 export function annulerVente(id: string): Promise<unknown> {
 	return getApiClient().apiFetch(`/api/v1/market/ventes/${id}/annuler`, {
 		method: "POST",
@@ -99,6 +99,6 @@ export function listRapportVentes(
 	if (au) params.set("au", au);
 	const qs = params.toString();
 	return getApiClient().apiFetch<RapportVentes>(
-		`/market/rapports/ventes${qs ? `?${qs}` : ""}`,
+		`/api/v1/market/rapports/ventes${qs ? `?${qs}` : ""}`,
 	);
 }

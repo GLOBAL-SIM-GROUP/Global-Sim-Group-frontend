@@ -7,7 +7,7 @@ type CreerPrestationDto = components["schemas"]["CreerPrestationDto"];
 type MajPrestationDto = components["schemas"]["MajPrestationDto"];
 
 /**
- * Le schéma généré type `categorie`/`description`/`id_activite` en objet libre
+ * Le schéma généré type `categorie`/api/v1/`description`/api/v1/`id_activite` en objet libre
  * (`Record<string, never> | null`) mais ce sont de vraies valeurs ; on élargit.
  */
 type PrestationWire = Omit<Prestation, "id"> & { id_prestation: string };

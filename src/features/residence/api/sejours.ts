@@ -119,7 +119,7 @@ export function modifierSejour(
 	});
 }
 
-/** Enregistre un paiement de séjour (POST `/sejours/{id}/payer`). */
+/** Enregistre un paiement de séjour (POST `/api/v1/sejours/{id}/payer`). */
 export function payerSejour(
 	id: string,
 	body: { montant: string; idMoyen: string },

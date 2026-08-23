@@ -6,7 +6,7 @@
  * (ni enveloppe d'erreur, ni noms de permissions, ni types brandés
  * BigIntStr/Money/DateStr). Ces types reproduisent les contrats réels décrits
  * dans `prompt-adapted.md` (§8, §20, §22) et le seeding backend, à revalider
- * contre `/auth/login` et `/auth/me` réels lors du smoke test.
+ * contre `/api/v1/auth/login` et `/api/v1/auth/me` réels lors du smoke test.
  *
  * Conventions backend (à conserver telles quelles, voir docs/api.md) :
  * - noms de champs en snake_case (`mot_de_passe`, `id_utilisateur`) ;
@@ -37,7 +37,7 @@ export type AuthRefreshResponse = AuthLoginResponse;
 
 /**
  * Réponse de `GET /auth/me` (prompt-adapted.md §8).
- * Le spec ne déclare aucun schéma de réponse pour `/me`.
+ * Le spec ne déclare aucun schéma de réponse pour `/api/v1/me`.
  */
 export interface AuthMeResponse {
 	/** bigint, transporté en string. */
@@ -70,7 +70,7 @@ export interface ApiErrorEnvelope {
 	timestamp?: string;
 }
 
-/** État de santé renvoyé par `/health/live` et `/health/ready`. */
+/** État de santé renvoyé par `/api/v1/health/live` et `/api/v1/health/ready`. */
 export interface HealthStatus {
 	status: "ok" | "error";
 }

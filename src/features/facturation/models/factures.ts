@@ -1,7 +1,7 @@
 /**
  * Facture et facturation ponctuelle (module M7). Types hand-typed revalidés sur
  * le backend réel (GET /facturation/factures et /facturation/factures/{id}).
- * Clés primaires wire `id_facture`/`id_ligne` → `id`.
+ * Clés primaires wire `id_facture`/api/v1/`id_ligne` → `id`.
  */
 export type FactureStatut = "PAYEE" | "PARTIELLE" | "IMPAYEE";
 

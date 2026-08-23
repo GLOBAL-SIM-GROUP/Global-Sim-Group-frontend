@@ -25,7 +25,7 @@ export function listUtilisateurs(params?: ListUtilisateursParams): Promise<Utili
 	if (params?.search) searchParams.append("search", params.search);
 
 	const queryString = searchParams.toString();
-	const path = `/admin/utilisateurs${queryString ? `?${queryString}` : ""}`;
+	const path = `/api/v1/admin/utilisateurs${queryString ? `?${queryString}` : ""}`;
 
 	return getApiClient()
 		.apiFetch<UtilisateurWire[]>(path)
@@ -113,7 +113,7 @@ export function reinitialiserMotDePasse(
 		nouveau_mot_de_passe: nouveauMotDePasse,
 	} satisfies ReinitialiserMotDePasseDto;
 	return getApiClient().apiFetch(
-		`/admin/utilisateurs/${id}/reinitialiser-mot-de-passe`,
+		`/api/v1/admin/utilisateurs/${id}/reinitialiser-mot-de-passe`,
 		{
 			method: "POST",
 			body: JSON.stringify(corps),

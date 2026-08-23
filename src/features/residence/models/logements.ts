@@ -88,7 +88,7 @@ export interface LogementFiltres {
 }
 
 /**
- * Filtre la liste. `type`/`statut` sont aussi envoyés au lister (params réels
+ * Filtre la liste. `type`/api/v1/`statut` sont aussi envoyés au lister (params réels
  * du spec) : ré-appliqués ici sans effet — ce filtre garde le cas « disponible
  * uniquement » (`dispo`). Fonction pure, sans dépendance React.
  */

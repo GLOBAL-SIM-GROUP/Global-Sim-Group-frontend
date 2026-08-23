@@ -7,7 +7,7 @@
  *
  * ⚠️ Écart avec `prompt-adapted.md` §9 : le spec décrit 13 modules et 3 verbes
  * « sans DELETE », mais le backend réel renvoie **pas de `MARKET`** et
- * **4 verbes** dont `SUPPRIMER`. La réponse réelle de `/me` fait foi : si le
+ * **4 verbes** dont `SUPPRIMER`. La réponse réelle de `/api/v1/me` fait foi : si le
  * seeding du backend évolue, mettre à jour cette union **et**
  * `permissions.test.ts`.
  */

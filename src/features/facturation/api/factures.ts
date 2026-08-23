@@ -33,7 +33,7 @@ export function listFactures(): Promise<Facture[]> {
 /** Détail d'une facture (facture + lignes). */
 export function getFacture(id: string): Promise<FactureDetail> {
 	return getApiClient()
-		.apiFetch<FactureDetailWire>(`/facturation/factures/${id}`)
+		.apiFetch<FactureDetailWire>(`/api/v1/facturation/factures/${id}`)
 		.then(({ id_facture: idFacture, lignes, ...reste }) => ({
 			id: idFacture,
 			...reste,
@@ -70,7 +70,7 @@ export function facturerPrestation(
 		remise?: string | null;
 	};
 	return getApiClient().apiFetch(
-		`/facturation/prestations/${idPrestation}/facturer`,
+		`/api/v1/facturation/prestations/${idPrestation}/facturer`,
 		{
 			method: "POST",
 			body: JSON.stringify(corps),

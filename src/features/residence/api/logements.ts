@@ -11,7 +11,7 @@ type CreerLogementDto = components["schemas"]["CreerLogementDto"];
 type MajLogementDto = components["schemas"]["MajLogementDto"];
 
 /**
- * Le schéma généré type `equipements`/`etat` en objet libre
+ * Le schéma généré type `equipements`/api/v1/`etat` en objet libre
  * (`Record<string, never> | null`) mais la description est du texte libre ; le
  * model Logement les traite en `string | null`. On les envoie donc en string
  * non vide ou `null` — le type du DTO est écarté pour ces seuls champs.
@@ -33,10 +33,10 @@ export interface LogementBody {
 /**
  * Appels API du module Résidence — logements.
  *
- * Chemins relatifs à `${VITE_API_URL}` (`/api/v1`). Le lister documente des
- * paramètres `batiment`/`type`/`statut` marqués `required` à tort (cf.
+ * Chemins relatifs à `${VITE_API_URL}` (`/api/v1/api/v1`). Le lister documente des
+ * paramètres `batiment`/api/v1/`type`/api/v1/`statut` marqués `required` à tort (cf.
  * docs/api.md) : `batiment` seul suffit (vérifié sur le backend réel) —
- * `type`/`statut` seulement quand ils sont définis. Réponse du lister
+ * `type`/api/v1/`statut` seulement quand ils sont définis. Réponse du lister
  * hand-typed et revalidée sur le backend réel (GET /residence/logements) :
  * la clé primaire est `id_logement` (remappée en `id`). Aucun endpoint
  * inventé : GET lister, POST et PATCH par id — pas de DELETE ni de résiliation
@@ -75,7 +75,7 @@ export async function listLogements(
 	}
 	const qs = searchParams.toString();
 	const data = await getApiClient().apiFetch<LogementWire[]>(
-		`/residence/logements${qs ? `?${qs}` : ""}`,
+		`/api/v1/residence/logements${qs ? `?${qs}` : ""}`,
 	);
 	// Remappé en `id` : key React, PATCH par `{id}` et fiche utilisent cette
 	// convention. `id_batiment` (FK) est conservé tel quel.

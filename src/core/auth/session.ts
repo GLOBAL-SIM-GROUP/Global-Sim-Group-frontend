@@ -27,7 +27,7 @@ export interface AuthSession {
 	refresh(): Promise<boolean>;
 	/**
 	 * Restaure la session depuis les tokens persistés (au démarrage du client) :
-	 * refresh + `/auth/me` → utilisateur rétabli sans reconnexion manuelle.
+	 * refresh + `/api/v1/auth/me` → utilisateur rétabli sans reconnexion manuelle.
 	 */
 	restore(): Promise<void>;
 	handleSessionExpired(): void;
@@ -43,7 +43,7 @@ export interface CreateAuthSessionOptions {
  * Machine à états de session (non-React, pour les guards et le wrapper HTTP).
  *
  * Responsabilités (prompt-adapted.md §8) :
- * - login → `POST /auth/login` + chargement de `/auth/me` ;
+ * - login → `POST /auth/login` + chargement de `/api/v1/auth/me` ;
  * - refresh silencieux planifié sur `accessExpiresIn` (seuil -30 s, réarmé) ;
  * - rotation : le refresh token consommé est remplacé (jamais rejoué) ;
  * - logout → révocation best-effort + purge locale ;

@@ -20,7 +20,7 @@ export function listEmployes(params?: ListEmployesParams): Promise<Employe[]> {
 	if (params?.sansCompte) searchParams.append("sans_compte", "true");
 
 	const queryString = searchParams.toString();
-	const path = `/rh/employes${queryString ? `?${queryString}` : ""}`;
+	const path = `/api/v1/rh/employes${queryString ? `?${queryString}` : ""}`;
 
 	return getApiClient()
 		.apiFetch<EmployeWire[]>(path)

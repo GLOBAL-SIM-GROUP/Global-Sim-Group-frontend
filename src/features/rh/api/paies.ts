@@ -24,7 +24,7 @@ export function listPaies(): Promise<Paie[]> {
 export function getPaie(id: string): Promise<PaieDetail> {
 	return getApiClient()
 		.apiFetch<{ paie: PaieWire; elements: ElementPaieWire[] }>(
-			`/rh/paies/${id}`,
+			`/api/v1/rh/paies/${id}`,
 		)
 		.then(({ paie: paieWire, elements }) => {
 			const { id_paie, ...reste } = paieWire;

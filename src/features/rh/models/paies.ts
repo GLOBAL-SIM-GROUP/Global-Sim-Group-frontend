@@ -1,7 +1,7 @@
 /**
  * Bulletins de salaire (module M9, M9.3) — wire `paie`. Hand-typed revalidé sur
  * le backend réel (GET /rh/paies et /rh/paies/{id}). Clés primaires wire
- * `id_paie`/`id_element` → `id`.
+ * `id_paie`/api/v1/`id_element` → `id`.
  */
 export type PaieStatut = "CALCULEE" | "VALIDEE" | "PAYEE" | "ANNULEE";
 export type ElementPaieType =

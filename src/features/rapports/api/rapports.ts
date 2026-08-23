@@ -36,7 +36,7 @@ export function getRapportActivite(
 	au: string,
 ): Promise<ActiviteRapport> {
 	return getApiClient().apiFetch(
-		`/rapports/activites/${code}${params(du, au)}`,
+		`/api/v1/rapports/activites/${code}${params(du, au)}`,
 	);
 }
 

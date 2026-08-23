@@ -13,7 +13,7 @@ type MajAbonnementDto = components["schemas"]["MajAbonnementDto"];
 /**
  * Le schéma généré type `date_fin` en objet libre (`Record<string, never> |
  * null`) mais c'est une vraie date ; on élargit ce champ (même pattern que
- * `equipements`/`etat` côté logements).
+ * `equipements`/api/v1/`etat` côté logements).
  */
 type AbonnementWire = Omit<Abonnement, "id"> & { id_abonnement: string };
 
@@ -96,7 +96,7 @@ export function modifierAbonnement(
 	});
 }
 
-/** Résilie un abonnement (POST `/abonnements/{id}/resilier`). */
+/** Résilie un abonnement (POST `/api/v1/abonnements/{id}/resilier`). */
 export function resilierAbonnement(id: string): Promise<unknown> {
 	return getApiClient().apiFetch(`/api/v1/residence/abonnements/${id}/resilier`, {
 		method: "POST",

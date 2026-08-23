@@ -1,7 +1,7 @@
 /**
  * Produit du Market (module M3). Types hand-typed revalidés sur le backend réel
  * (GET /market/produits). Clé primaire wire `id_produit` → `id` ; les FK
- * `id_categorie_produit`/`id_fournisseur` restent en snake_case.
+ * `id_categorie_produit`/api/v1/`id_fournisseur` restent en snake_case.
  */
 export interface Produit {
 	id: string;

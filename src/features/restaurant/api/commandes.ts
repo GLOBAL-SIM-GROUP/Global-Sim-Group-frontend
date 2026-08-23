@@ -92,7 +92,7 @@ export function creerCommande(body: CommandeBody): Promise<unknown> {
 	});
 }
 
-/** Modifie le statut d'une commande (POST `/commandes/{id}/statut`). */
+/** Modifie le statut d'une commande (POST `/api/v1/commandes/{id}/statut`). */
 export function majStatutCommande(
 	id: string,
 	statut: CommandeRestaurantStatut,
@@ -104,7 +104,7 @@ export function majStatutCommande(
 	});
 }
 
-/** Annule une commande (POST `/commandes/{id}/annuler`). */
+/** Annule une commande (POST `/api/v1/commandes/{id}/annuler`). */
 export function annulerCommande(id: string): Promise<unknown> {
 	return getApiClient().apiFetch(`/api/v1/restaurant/commandes/${id}/annuler`, {
 		method: "POST",
@@ -121,6 +121,6 @@ export function listRapportVentes(
 	if (au) params.set("au", au);
 	const qs = params.toString();
 	return getApiClient().apiFetch<RapportRestaurant[]>(
-		`/restaurant/rapports/ventes${qs ? `?${qs}` : ""}`,
+		`/api/v1/restaurant/rapports/ventes${qs ? `?${qs}` : ""}`,
 	);
 }

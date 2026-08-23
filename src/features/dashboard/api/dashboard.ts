@@ -125,13 +125,13 @@ export function getSyntheseGlobale(du?: string, au?: string): Promise<SyntheseGl
 	if (du) params.set("du", du);
 	if (au) params.set("au", au);
 	const qs = params.toString();
-	const url = qs ? `/rapports/synthese-globale?${qs}` : "/rapports/synthese-globale";
+	const url = qs ? `/api/v1/rapports/synthese-globale?${qs}` : "/api/v1/rapports/synthese-globale";
 	return getApiClient().apiFetch<SyntheseGlobale>(url);
 }
 
 /** Récupère les réservations de la salle de fête (sans filtre de période) */
 export function getReservationsSalleFutures(): Promise<Reservation[]> {
-	const url = `/salle-fete/reservations?limit=10`;
+	const url = `/api/v1/salle-fete/reservations?limit=10`;
 	return getApiClient()
 		.apiFetch<Reservation[]>(url)
 		.then((reservations) =>
@@ -153,7 +153,7 @@ export function getReservationsSalleFutures(): Promise<Reservation[]> {
 /** Récupère les indicateurs pour une activité spécifique */
 export function getIndicateurActivite(code: string): Promise<IndicateurActivite> {
 	return getApiClient().apiFetch<IndicateurActivite>(
-		`/rapports/activites/${code}`,
+		`/api/v1/rapports/activites/${code}`,
 	);
 }
 
@@ -163,7 +163,7 @@ export function getLogementsDispo(du?: string, au?: string): Promise<Logement[]>
 	if (du) params.set("du", du);
 	if (au) params.set("au", au);
 	const qs = params.toString();
-	const url = qs ? `/residence/logements?${qs}` : "/residence/logements";
+	const url = qs ? `/api/v1/residence/logements?${qs}` : "/api/v1/residence/logements";
 	return getApiClient()
 		.apiFetch<Array<{ id_logement: string; statut: string; numero: string; id_batiment: string }>>(url)
 		.then((logements) =>
@@ -185,7 +185,7 @@ export function getProduitsCritiques(du?: string, au?: string): Promise<Produit[
 	if (du) params.set("du", du);
 	if (au) params.set("au", au);
 	const qs = params.toString();
-	const url = qs ? `/market/produits?${qs}` : "/market/produits";
+	const url = qs ? `/api/v1/market/produits?${qs}` : "/api/v1/market/produits";
 	return getApiClient()
 		.apiFetch<Array<{ id_produit: string; nom: string; stock: number | string; prix: number | string }>>(url)
 		.then((produits) =>
@@ -200,7 +200,7 @@ export function getCommandesPressing(du?: string, au?: string): Promise<Commande
 	if (du) params.set("du", du);
 	if (au) params.set("au", au);
 	const qs = params.toString();
-	const url = qs ? `/pressing/commandes?${qs}` : "/pressing/commandes";
+	const url = qs ? `/api/v1/pressing/commandes?${qs}` : "/api/v1/pressing/commandes";
 	return getApiClient()
 		.apiFetch<Array<{ id_commande: string; statut: string; date_depot: string; date_retrait?: string }>>(url)
 		.then((commandes) =>
@@ -216,7 +216,7 @@ export function getPointagesAujourdhui(du?: string, au?: string): Promise<Pointa
 	if (du) params.set("du", du);
 	if (au) params.set("au", au);
 	const qs = params.toString();
-	const url = qs ? `/rh/pointages?${qs}` : "/rh/pointages";
+	const url = qs ? `/api/v1/rh/pointages?${qs}` : "/api/v1/rh/pointages";
 	return getApiClient()
 		.apiFetch<Pointage[]>(url)
 		.catch(() => []);
@@ -228,7 +228,7 @@ export function getImpayes(du?: string, au?: string): Promise<Impaye[]> {
 	if (du) params.set("du", du);
 	if (au) params.set("au", au);
 	const qs = params.toString();
-	const url = qs ? `/finances/impayes?${qs}` : "/finances/impayes";
+	const url = qs ? `/api/v1/finances/impayes?${qs}` : "/api/v1/finances/impayes";
 	return getApiClient()
 		.apiFetch<Impaye[]>(url)
 		.catch(() => []);

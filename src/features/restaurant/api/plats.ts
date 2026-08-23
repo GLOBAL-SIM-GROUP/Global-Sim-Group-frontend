@@ -8,9 +8,9 @@ type MajPlatDto = components["schemas"]["MajPlatDto"];
 type CreerCategoriePlatDto = components["schemas"]["CreerCategoriePlatDto"];
 
 /**
- * Le schéma généré type `id_categorie_plat`/`description` en objet libre
+ * Le schéma généré type `id_categorie_plat`/api/v1/`description` en objet libre
  * (`Record<string, never> | null`) mais ce sont de vraies valeurs ; on élargit
- * ces champs (même pattern que `equipements`/`etat` côté logements).
+ * ces champs (même pattern que `equipements`/api/v1/`etat` côté logements).
  */
 type PlatWire = Omit<Plat, "id"> & { id_plat: string };
 type CategoriePlatWire = Omit<CategoriePlat, "id"> & {
