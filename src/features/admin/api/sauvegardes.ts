@@ -25,7 +25,7 @@ type SauvegardeBackend = {
 /** Liste l'historique des sauvegardes (GET /admin/sauvegardes). */
 export function listSauvegardes(): Promise<Sauvegarde[]> {
 	return getApiClient()
-		.apiFetch<{ total: number; items: SauvegardeBackend[] }>("/admin/sauvegardes")
+		.apiFetch<{ total: number; items: SauvegardeBackend[] }>("/api/v1/admin/sauvegardes")
 		.then(({ items }) =>
 			items.map((item) => ({
 				id: item.id_sauvegarde,
