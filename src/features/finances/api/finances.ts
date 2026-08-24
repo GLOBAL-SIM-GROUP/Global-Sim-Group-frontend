@@ -173,18 +173,18 @@ export interface DepenseBody {
 	idCategorieDepense: string;
 	libelle: string;
 	justificatif?: string | null;
+	idCaisse?: string | null;
 }
 
 export function creerDepense(body: DepenseBody): Promise<unknown> {
-	const corps = {
+	const corps: Record<string, unknown> = {
 		date: body.date,
 		montant: body.montant,
 		id_categorie_depense: body.idCategorieDepense,
 		libelle: body.libelle,
 		justificatif: texteOuNull(body.justificatif),
-	} satisfies Omit<CreerDepenseDto, "id_activite" | "justificatif"> & {
-		justificatif?: string | null;
 	};
+	if (body.idCaisse) corps.id_caisse = body.idCaisse;
 	return getApiClient().apiFetch("/api/v1/finances/depenses", {
 		method: "POST",
 		body: JSON.stringify(corps),
@@ -195,15 +195,14 @@ export function modifierDepense(
 	id: string,
 	body: DepenseBody,
 ): Promise<unknown> {
-	const corps = {
+	const corps: Record<string, unknown> = {
 		date: body.date,
 		montant: body.montant,
 		id_categorie_depense: body.idCategorieDepense,
 		libelle: body.libelle,
 		justificatif: texteOuNull(body.justificatif),
-	} satisfies Omit<MajDepenseDto, "id_activite" | "justificatif"> & {
-		justificatif?: string | null;
 	};
+	if (body.idCaisse) corps.id_caisse = body.idCaisse;
 	return getApiClient().apiFetch(`/api/v1/finances/depenses/${id}`, {
 		method: "PATCH",
 		body: JSON.stringify(corps),
