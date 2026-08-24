@@ -2,7 +2,6 @@ import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 
 import { Button } from "#/components/ui/button";
-import { Input } from "#/components/ui/input";
 import { Breadcrumb } from "#/components/ui/breadcrumb";
 import { formatMontantFCFA } from "#/features/residence/models/format";
 
@@ -76,21 +75,19 @@ export function RevenusUtilisateurPage() {
 					</select>
 				)}
 
-				<Input
+				<input
 					type="date"
 					value={du}
 					onChange={(e) => setDu(e.target.value)}
 					aria-label="Début de période"
-					className="w-40"
-					placeholder="Du"
+					className="h-9 rounded-md border border-input bg-background px-3 text-sm w-40"
 				/>
-				<Input
+				<input
 					type="date"
 					value={au}
 					onChange={(e) => setAu(e.target.value)}
 					aria-label="Fin de période"
-					className="w-40"
-					placeholder="Au"
+					className="h-9 rounded-md border border-input bg-background px-3 text-sm w-40"
 				/>
 			</div>
 
