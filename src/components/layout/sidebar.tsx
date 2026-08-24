@@ -70,6 +70,7 @@ const ROUTES_REALLES: Record<
 		impayes: { to: "/finances/impayes", exact: true },
 		moyens_paiement: { to: "/finances/moyens-paiement", exact: true },
 		categories_depenses: { to: "/finances/categories-depenses", exact: true },
+		caisses: { to: "/finances/caisses", exact: true },
 	},
 	RH: {
 		employes: { to: "/rh/employes", exact: true },

@@ -13,6 +13,7 @@ import {
 import { useCan } from "#/core/auth";
 import { formatMontantFCFA } from "#/features/residence/models/format";
 import { cn } from "#/lib/utils";
+import { useCurrentCaisse } from "../hooks/use-current-caisse";
 
 import {
 	downloadTableauBordExcel,
@@ -64,6 +65,7 @@ const ACTIVITES: Record<ActiviteFiltre, string> = {
  */
 export function TableauDeBordPage() {
 	const canVoir = useCan("FINANCES.VOIR");
+	const userCaisse = useCurrentCaisse();
 	const [periode, setPeriode] = useState<PeriodeFiltre>("ce_mois");
 	const [activite, setActivite] = useState<ActiviteFiltre>("global");
 	const [detailsOuvert, setDetailsOuvert] = useState(false);
@@ -151,6 +153,12 @@ export function TableauDeBordPage() {
 					Vue consolidée de la situation financière de GLOBAL SIM GROUP.
 				</p>
 			</section>
+
+			{userCaisse && (
+				<div className="rounded-lg bg-blue-50 border border-blue-200 p-3 text-sm text-blue-900 dark:bg-blue-950 dark:border-blue-800 dark:text-blue-100">
+					Données filtrées par votre caisse assignée
+				</div>
+			)}
 
 			{/* Filtres */}
 			<div className="space-y-3 rounded-lg border border-border bg-card p-4">
