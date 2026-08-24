@@ -235,6 +235,18 @@ export const MODULE_DEFINITIONS: ModuleDefinition[] = [
 				permission: "FINANCES.VOIR",
 				path: "/finances/categories-depenses",
 			},
+			{
+				id: "caisses",
+				label: "Caisses",
+				permission: "FINANCES.MODIFIER",
+				path: "/finances/caisses",
+			},
+			{
+				id: "revenus_utilisateur",
+				label: "Revenus par utilisateur",
+				permission: "FINANCES.VOIR",
+				path: "/finances/revenus-utilisateur",
+			},
 		],
 	},
 	{
