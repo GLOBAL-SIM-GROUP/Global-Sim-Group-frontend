@@ -65,6 +65,9 @@ export function createAuthSession(
 	// partagent la même promesse — le backend RÉVOQUE la session si un refresh
 	// token est rejoué, un double refresh concurrent déconnecterait l'utilisateur.
 	let refreshInFlight: Promise<boolean> | null = null;
+	// Anti-course : évite les restaurations dupliquées au démarrage (beforeLoad
+	// appelé sur chaque navigation protégée — on réutilise la promesse précédente).
+	let restoreInFlight: Promise<void> | null = null;
 	// Snapshot référentiellement stable (indispensable à useSyncExternalStore).
 	let snapshot: AuthSessionSnapshot = { isAuthenticated: false, user: null };
 
@@ -143,19 +146,27 @@ export function createAuthSession(
 
 	async function restore(): Promise<void> {
 		if (currentUser) return;
+		if (restoreInFlight) return restoreInFlight;
 		// SSR : pas de localStorage ni de tokens — la restauration est côté client.
 		if (typeof window === "undefined") return;
 		const tokens = tokenStorage.get();
 		if (!tokens) return;
-		try {
-			const refreshed = await refresh();
-			if (refreshed) {
-				const me = await authApi.me();
-				setUser(me);
+
+		restoreInFlight = (async () => {
+			try {
+				const refreshed = await refresh();
+				if (refreshed) {
+					const me = await authApi.me();
+					setUser(me);
+				}
+			} catch {
+				handleSessionExpired();
 			}
-		} catch {
-			handleSessionExpired();
-		}
+		})().finally(() => {
+			restoreInFlight = null;
+		});
+
+		return restoreInFlight;
 	}
 
 	async function logout(): Promise<void> {
