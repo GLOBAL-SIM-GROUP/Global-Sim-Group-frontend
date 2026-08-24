@@ -1,4 +1,4 @@
-import { Download, FileDown, FileText, Loader2, X } from "lucide-react";
+import { FileDown, FileText, Loader2, X } from "lucide-react";
 import { useState } from "react";
 
 import { Breadcrumb } from "#/components/ui/breadcrumb";
@@ -263,22 +263,22 @@ export function TableauDeBordPage() {
 					<div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
 						<Indicateur
 							label="Recettes totales"
-							valeur={formatMontantFCFA(totalRecettes)}
+							valeur={formatMontantFCFA(totalRecettes.toString())}
 							couleur="text-[#27AE60]"
 						/>
 						<Indicateur
 							label="Dépenses totales"
-							valeur={formatMontantFCFA(totalDepenses)}
+							valeur={formatMontantFCFA(totalDepenses.toString())}
 							couleur="text-destructive"
 						/>
 						<Indicateur
 							label="Solde"
-							valeur={formatMontantFCFA(solde)}
+							valeur={formatMontantFCFA(solde.toString())}
 							couleur={solde >= 0 ? "text-[#27AE60]" : "text-destructive"}
 						/>
 						<Indicateur
 							label="Bénéfice estimatif"
-							valeur={formatMontantFCFA(beneficeEstimatif)}
+							valeur={formatMontantFCFA(beneficeEstimatif.toString())}
 							couleur={beneficeEstimatif >= 0 ? "text-[#27AE60]" : "text-destructive"}
 						/>
 					</div>
