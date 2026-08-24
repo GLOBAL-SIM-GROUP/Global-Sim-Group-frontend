@@ -69,6 +69,7 @@ function DepenseFormDialog({
 	const editMutation = useModifierDepense();
 	const categoriesQuery = useCategoriesDepenses();
 	const categories = categoriesQuery.data ?? [];
+	const userCaisse = useCurrentCaisse();
 	const [globalError, setGlobalError] = useState<string | null>(null);
 	const form = useForm({
 		defaultValues: {
@@ -77,6 +78,7 @@ function DepenseFormDialog({
 			idCategorieDepense: depense?.id_categorie_depense ?? "",
 			libelle: depense?.libelle ?? "",
 			justificatif: depense?.justificatif ?? "",
+			idCaisse: depense?.id_caisse ?? userCaisse ?? "",
 		},
 		validators: {
 			onSubmit: ({ value }) => {
