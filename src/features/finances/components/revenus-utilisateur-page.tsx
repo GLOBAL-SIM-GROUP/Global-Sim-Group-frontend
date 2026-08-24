@@ -80,14 +80,20 @@ export function RevenusUtilisateurPage() {
 				<input
 					type="date"
 					value={du}
-					onChange={(e) => setDu(e.target.value)}
+					onChange={(e) => {
+						console.log("Du changed:", e.target.value);
+						setDu(e.target.value);
+					}}
 					aria-label="Début de période"
 					className="h-9 rounded-md border border-input bg-background px-3 text-sm w-40"
 				/>
 				<input
 					type="date"
 					value={au}
-					onChange={(e) => setAu(e.target.value)}
+					onChange={(e) => {
+						console.log("Au changed:", e.target.value);
+						setAu(e.target.value);
+					}}
 					aria-label="Fin de période"
 					className="h-9 rounded-md border border-input bg-background px-3 text-sm w-40"
 				/>
