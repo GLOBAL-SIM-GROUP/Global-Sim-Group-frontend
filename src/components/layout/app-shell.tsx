@@ -2,12 +2,14 @@ import { useState, type ReactNode } from "react";
 import { Menu, X } from "lucide-react";
 
 import { Sidebar } from "./sidebar";
+import { AppBackground } from "./app-background";
 
 export function AppShell({ children }: { children: ReactNode }) {
 	const [sidebarOpen, setSidebarOpen] = useState(false);
 
 	return (
-		<div className="flex min-h-dvh">
+		<div className="flex min-h-dvh relative">
+			<AppBackground />
 			{/* Desktop: sidebar always visible */}
 			<div className="hidden lg:block">
 				<Sidebar />
@@ -31,7 +33,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 				<Sidebar onClose={() => setSidebarOpen(false)} />
 			</div>
 
-			<div className="flex min-w-0 flex-1 flex-col">
+			<div className="flex min-w-0 flex-1 flex-col relative z-10">
 				<header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur">
 					<div className="flex h-14 w-full items-center gap-2 sm:gap-4 px-2 sm:px-4">
 						<button
@@ -51,7 +53,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 					</div>
 				</header>
 				<main
-					className="min-w-0 flex-1"
+					className="min-w-0 flex-1 relative"
 					onClick={() => sidebarOpen && setSidebarOpen(false)}
 				>
 					{children}
