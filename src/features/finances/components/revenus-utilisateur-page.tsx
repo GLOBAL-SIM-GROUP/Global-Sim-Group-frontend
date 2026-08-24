@@ -25,8 +25,10 @@ export function RevenusUtilisateurPage() {
 
 	const { data: revenus = [], isLoading } = useQuery({
 		queryKey: ["revenus-utilisateur", idCaisse || userCaisse, du, au],
-		queryFn: () =>
-			obtenirRevenusParUtilisateur(idCaisse || userCaisse, du, au),
+		queryFn: () => {
+			console.log("Filtres:", { idCaisse, userCaisse, du, au });
+			return obtenirRevenusParUtilisateur(idCaisse || userCaisse, du, au);
+		},
 		enabled: !!(idCaisse || userCaisse),
 	});
 
