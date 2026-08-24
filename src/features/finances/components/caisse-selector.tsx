@@ -2,16 +2,8 @@ import { useQuery } from "@tanstack/react-query";
 import { AlertCircle, Plus } from "lucide-react";
 import { useState } from "react";
 import { Button } from "#/components/ui/button";
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "#/components/ui/select";
 import { useCurrentCaisse } from "../hooks/use-current-caisse";
 import { listerCaisses } from "../api/caisses";
-import type { Caisse } from "../models/caisses";
 
 interface CaisseSelectorProps {
 	value?: string | null;
@@ -58,22 +50,34 @@ export function CaisseSelector({
 	}
 
 	// Admin: sélecteur dropdown
+	if (caisses.length === 0) {
+		return (
+			<div className="space-y-2">
+				<label className="text-sm font-medium text-foreground">Caisse</label>
+				<div className="rounded-md border border-input bg-background px-3 py-2 text-sm text-muted-foreground">
+					Aucune caisse disponible. Créez-en une d'abord.
+				</div>
+			</div>
+		);
+	}
+
 	return (
 		<div className="space-y-2">
 			<label className="text-sm font-medium text-foreground">Caisse</label>
 			<div className="flex gap-2">
-				<Select value={value ?? ""} onValueChange={onChange} disabled={disabled}>
-					<SelectTrigger className="flex-1">
-						<SelectValue placeholder="Sélectionner une caisse..." />
-					</SelectTrigger>
-					<SelectContent>
-						{caisses.map((caisse) => (
-							<SelectItem key={caisse.id_caisse} value={caisse.id_caisse}>
-								{caisse.libelle}
-							</SelectItem>
-						))}
-					</SelectContent>
-				</Select>
+				<select
+					value={value ?? ""}
+					onChange={(e) => onChange?.(e.target.value)}
+					disabled={disabled}
+					className="flex-1 h-9 rounded-md border border-input bg-background px-3 text-sm disabled:opacity-50"
+				>
+					<option value="">Sélectionner une caisse...</option>
+					{caisses.map((caisse) => (
+						<option key={caisse.id_caisse} value={caisse.id_caisse}>
+							{caisse.libelle}
+						</option>
+					))}
+				</select>
 
 				{showCreateQuick && (
 					<Button
