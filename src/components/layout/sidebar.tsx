@@ -73,6 +73,10 @@ const ROUTES_REALLES: Record<
 		caisses: { to: "/finances/caisses", exact: true },
 		revenus_utilisateur: { to: "/finances/revenus-utilisateur", exact: true },
 	},
+	CAISSIER: {
+		dashboard: { to: "/finances/caissier/dashboard", exact: true },
+		tirages: { to: "/finances/caissier/tirages", exact: true },
+	},
 	RH: {
 		employes: { to: "/rh/employes", exact: true },
 		// `exact: false` garde la fiche employé active.

@@ -26,6 +26,8 @@ import { Route as AuthenticatedFacturationFacturesIndexRouteImport } from './rou
 import { Route as AuthenticatedFacturationFacturesIdRouteImport } from './routes/_authenticated/facturation/factures/$id'
 import { Route as AuthenticatedFacturationPrestationsIndexRouteImport } from './routes/_authenticated/facturation/prestations/index'
 import { Route as AuthenticatedFinancesCaissesIndexRouteImport } from './routes/_authenticated/finances/caisses/index'
+import { Route as AuthenticatedFinancesCaissierDashboardRouteImport } from './routes/_authenticated/finances/caissier/dashboard'
+import { Route as AuthenticatedFinancesCaissierTiragesRouteImport } from './routes/_authenticated/finances/caissier/tirages'
 import { Route as AuthenticatedFinancesCategoriesDepensesIndexRouteImport } from './routes/_authenticated/finances/categories-depenses/index'
 import { Route as AuthenticatedFinancesDepensesIndexRouteImport } from './routes/_authenticated/finances/depenses/index'
 import { Route as AuthenticatedFinancesEncaissementsIndexRouteImport } from './routes/_authenticated/finances/encaissements/index'
@@ -170,6 +172,18 @@ const AuthenticatedFinancesCaissesIndexRoute =
   AuthenticatedFinancesCaissesIndexRouteImport.update({
     id: '/finances/caisses/',
     path: '/finances/caisses/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFinancesCaissierDashboardRoute =
+  AuthenticatedFinancesCaissierDashboardRouteImport.update({
+    id: '/finances/caissier/dashboard',
+    path: '/finances/caissier/dashboard',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFinancesCaissierTiragesRoute =
+  AuthenticatedFinancesCaissierTiragesRouteImport.update({
+    id: '/finances/caissier/tirages',
+    path: '/finances/caissier/tirages',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedFinancesCategoriesDepensesIndexRoute =
@@ -469,6 +483,8 @@ export interface FileRoutesByFullPath {
   '/rapports/': typeof AuthenticatedRapportsIndexRoute
   '/client/clients/$id': typeof AuthenticatedClientClientsIdRoute
   '/facturation/factures/$id': typeof AuthenticatedFacturationFacturesIdRoute
+  '/finances/caissier/dashboard': typeof AuthenticatedFinancesCaissierDashboardRoute
+  '/finances/caissier/tirages': typeof AuthenticatedFinancesCaissierTiragesRoute
   '/pressing/commandes/$id': typeof AuthenticatedPressingCommandesIdRoute
   '/rapports/activites/$code': typeof AuthenticatedRapportsActivitesCodeRoute
   '/residence/contrats/$id': typeof AuthenticatedResidenceContratsIdRoute
@@ -535,6 +551,8 @@ export interface FileRoutesByTo {
   '/rapports': typeof AuthenticatedRapportsIndexRoute
   '/client/clients/$id': typeof AuthenticatedClientClientsIdRoute
   '/facturation/factures/$id': typeof AuthenticatedFacturationFacturesIdRoute
+  '/finances/caissier/dashboard': typeof AuthenticatedFinancesCaissierDashboardRoute
+  '/finances/caissier/tirages': typeof AuthenticatedFinancesCaissierTiragesRoute
   '/pressing/commandes/$id': typeof AuthenticatedPressingCommandesIdRoute
   '/rapports/activites/$code': typeof AuthenticatedRapportsActivitesCodeRoute
   '/residence/contrats/$id': typeof AuthenticatedResidenceContratsIdRoute
@@ -603,6 +621,8 @@ export interface FileRoutesById {
   '/_authenticated/rapports/': typeof AuthenticatedRapportsIndexRoute
   '/_authenticated/client/clients/$id': typeof AuthenticatedClientClientsIdRoute
   '/_authenticated/facturation/factures/$id': typeof AuthenticatedFacturationFacturesIdRoute
+  '/_authenticated/finances/caissier/dashboard': typeof AuthenticatedFinancesCaissierDashboardRoute
+  '/_authenticated/finances/caissier/tirages': typeof AuthenticatedFinancesCaissierTiragesRoute
   '/_authenticated/pressing/commandes/$id': typeof AuthenticatedPressingCommandesIdRoute
   '/_authenticated/rapports/activites/$code': typeof AuthenticatedRapportsActivitesCodeRoute
   '/_authenticated/residence/contrats/$id': typeof AuthenticatedResidenceContratsIdRoute
@@ -671,6 +691,8 @@ export interface FileRouteTypes {
     | '/rapports/'
     | '/client/clients/$id'
     | '/facturation/factures/$id'
+    | '/finances/caissier/dashboard'
+    | '/finances/caissier/tirages'
     | '/pressing/commandes/$id'
     | '/rapports/activites/$code'
     | '/residence/contrats/$id'
@@ -737,6 +759,8 @@ export interface FileRouteTypes {
     | '/rapports'
     | '/client/clients/$id'
     | '/facturation/factures/$id'
+    | '/finances/caissier/dashboard'
+    | '/finances/caissier/tirages'
     | '/pressing/commandes/$id'
     | '/rapports/activites/$code'
     | '/residence/contrats/$id'
@@ -804,6 +828,8 @@ export interface FileRouteTypes {
     | '/_authenticated/rapports/'
     | '/_authenticated/client/clients/$id'
     | '/_authenticated/facturation/factures/$id'
+    | '/_authenticated/finances/caissier/dashboard'
+    | '/_authenticated/finances/caissier/tirages'
     | '/_authenticated/pressing/commandes/$id'
     | '/_authenticated/rapports/activites/$code'
     | '/_authenticated/residence/contrats/$id'
@@ -987,6 +1013,20 @@ declare module '@tanstack/react-router' {
       path: '/finances/caisses'
       fullPath: '/finances/caisses/'
       preLoaderRoute: typeof AuthenticatedFinancesCaissesIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/finances/caissier/dashboard': {
+      id: '/_authenticated/finances/caissier/dashboard'
+      path: '/finances/caissier/dashboard'
+      fullPath: '/finances/caissier/dashboard'
+      preLoaderRoute: typeof AuthenticatedFinancesCaissierDashboardRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/finances/caissier/tirages': {
+      id: '/_authenticated/finances/caissier/tirages'
+      path: '/finances/caissier/tirages'
+      fullPath: '/finances/caissier/tirages'
+      preLoaderRoute: typeof AuthenticatedFinancesCaissierTiragesRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/finances/categories-depenses/': {
@@ -1335,6 +1375,8 @@ interface AuthenticatedRouteChildren {
   AuthenticatedRapportsIndexRoute: typeof AuthenticatedRapportsIndexRoute
   AuthenticatedClientClientsIdRoute: typeof AuthenticatedClientClientsIdRoute
   AuthenticatedFacturationFacturesIdRoute: typeof AuthenticatedFacturationFacturesIdRoute
+  AuthenticatedFinancesCaissierDashboardRoute: typeof AuthenticatedFinancesCaissierDashboardRoute
+  AuthenticatedFinancesCaissierTiragesRoute: typeof AuthenticatedFinancesCaissierTiragesRoute
   AuthenticatedPressingCommandesIdRoute: typeof AuthenticatedPressingCommandesIdRoute
   AuthenticatedRapportsActivitesCodeRoute: typeof AuthenticatedRapportsActivitesCodeRoute
   AuthenticatedResidenceContratsIdRoute: typeof AuthenticatedResidenceContratsIdRoute
@@ -1402,6 +1444,10 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedClientClientsIdRoute: AuthenticatedClientClientsIdRoute,
   AuthenticatedFacturationFacturesIdRoute:
     AuthenticatedFacturationFacturesIdRoute,
+  AuthenticatedFinancesCaissierDashboardRoute:
+    AuthenticatedFinancesCaissierDashboardRoute,
+  AuthenticatedFinancesCaissierTiragesRoute:
+    AuthenticatedFinancesCaissierTiragesRoute,
   AuthenticatedPressingCommandesIdRoute: AuthenticatedPressingCommandesIdRoute,
   AuthenticatedRapportsActivitesCodeRoute:
     AuthenticatedRapportsActivitesCodeRoute,
