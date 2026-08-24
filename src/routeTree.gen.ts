@@ -25,11 +25,13 @@ import { Route as AuthenticatedClientClientsIdRouteImport } from './routes/_auth
 import { Route as AuthenticatedFacturationFacturesIndexRouteImport } from './routes/_authenticated/facturation/factures/index'
 import { Route as AuthenticatedFacturationFacturesIdRouteImport } from './routes/_authenticated/facturation/factures/$id'
 import { Route as AuthenticatedFacturationPrestationsIndexRouteImport } from './routes/_authenticated/facturation/prestations/index'
+import { Route as AuthenticatedFinancesCaissesIndexRouteImport } from './routes/_authenticated/finances/caisses/index'
 import { Route as AuthenticatedFinancesCategoriesDepensesIndexRouteImport } from './routes/_authenticated/finances/categories-depenses/index'
 import { Route as AuthenticatedFinancesDepensesIndexRouteImport } from './routes/_authenticated/finances/depenses/index'
 import { Route as AuthenticatedFinancesEncaissementsIndexRouteImport } from './routes/_authenticated/finances/encaissements/index'
 import { Route as AuthenticatedFinancesImpayesIndexRouteImport } from './routes/_authenticated/finances/impayes/index'
 import { Route as AuthenticatedFinancesMoyensPaiementIndexRouteImport } from './routes/_authenticated/finances/moyens-paiement/index'
+import { Route as AuthenticatedFinancesRevenusUtilisateurIndexRouteImport } from './routes/_authenticated/finances/revenus-utilisateur/index'
 import { Route as AuthenticatedFinancesTableauDeBordIndexRouteImport } from './routes/_authenticated/finances/tableau-de-bord/index'
 import { Route as AuthenticatedMarchandiseCategoriesProduitsIndexRouteImport } from './routes/_authenticated/marchandise/categories-produits/index'
 import { Route as AuthenticatedMarchandiseMouvementsIndexRouteImport } from './routes/_authenticated/marchandise/mouvements/index'
@@ -66,6 +68,7 @@ import { Route as AuthenticatedRhPointageIndexRouteImport } from './routes/_auth
 import { Route as AuthenticatedSalleFeteCalendrierIndexRouteImport } from './routes/_authenticated/salle-fete/calendrier/index'
 import { Route as AuthenticatedSalleFeteReservationsIndexRouteImport } from './routes/_authenticated/salle-fete/reservations/index'
 import { Route as AuthenticatedSalleFeteReservationsIdRouteImport } from './routes/_authenticated/salle-fete/reservations/$id'
+import { Route as AuthenticatedFinancesCaissesIdDashboardRouteImport } from './routes/_authenticated/finances/caisses/$id/dashboard'
 import { Route as AuthenticatedResidencePortailCautionIndexRouteImport } from './routes/_authenticated/residence/portail/caution/index'
 import { Route as AuthenticatedResidencePortailEcheancesIndexRouteImport } from './routes/_authenticated/residence/portail/echeances/index'
 import { Route as AuthenticatedResidencePortailPaiementsIndexRouteImport } from './routes/_authenticated/residence/portail/paiements/index'
@@ -163,6 +166,12 @@ const AuthenticatedFacturationPrestationsIndexRoute =
     path: '/facturation/prestations/',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedFinancesCaissesIndexRoute =
+  AuthenticatedFinancesCaissesIndexRouteImport.update({
+    id: '/finances/caisses/',
+    path: '/finances/caisses/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedFinancesCategoriesDepensesIndexRoute =
   AuthenticatedFinancesCategoriesDepensesIndexRouteImport.update({
     id: '/finances/categories-depenses/',
@@ -191,6 +200,12 @@ const AuthenticatedFinancesMoyensPaiementIndexRoute =
   AuthenticatedFinancesMoyensPaiementIndexRouteImport.update({
     id: '/finances/moyens-paiement/',
     path: '/finances/moyens-paiement/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFinancesRevenusUtilisateurIndexRoute =
+  AuthenticatedFinancesRevenusUtilisateurIndexRouteImport.update({
+    id: '/finances/revenus-utilisateur/',
+    path: '/finances/revenus-utilisateur/',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedFinancesTableauDeBordIndexRoute =
@@ -409,6 +424,12 @@ const AuthenticatedSalleFeteReservationsIdRoute =
     path: '/salle-fete/reservations/$id',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedFinancesCaissesIdDashboardRoute =
+  AuthenticatedFinancesCaissesIdDashboardRouteImport.update({
+    id: '/finances/caisses/$id/dashboard',
+    path: '/finances/caisses/$id/dashboard',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedResidencePortailCautionIndexRoute =
   AuthenticatedResidencePortailCautionIndexRouteImport.update({
     id: '/residence/portail/caution/',
@@ -464,11 +485,13 @@ export interface FileRoutesByFullPath {
   '/client/clients/': typeof AuthenticatedClientClientsIndexRoute
   '/facturation/factures/': typeof AuthenticatedFacturationFacturesIndexRoute
   '/facturation/prestations/': typeof AuthenticatedFacturationPrestationsIndexRoute
+  '/finances/caisses/': typeof AuthenticatedFinancesCaissesIndexRoute
   '/finances/categories-depenses/': typeof AuthenticatedFinancesCategoriesDepensesIndexRoute
   '/finances/depenses/': typeof AuthenticatedFinancesDepensesIndexRoute
   '/finances/encaissements/': typeof AuthenticatedFinancesEncaissementsIndexRoute
   '/finances/impayes/': typeof AuthenticatedFinancesImpayesIndexRoute
   '/finances/moyens-paiement/': typeof AuthenticatedFinancesMoyensPaiementIndexRoute
+  '/finances/revenus-utilisateur/': typeof AuthenticatedFinancesRevenusUtilisateurIndexRoute
   '/finances/tableau-de-bord/': typeof AuthenticatedFinancesTableauDeBordIndexRoute
   '/marchandise/categories-produits/': typeof AuthenticatedMarchandiseCategoriesProduitsIndexRoute
   '/marchandise/mouvements/': typeof AuthenticatedMarchandiseMouvementsIndexRoute
@@ -497,6 +520,7 @@ export interface FileRoutesByFullPath {
   '/rh/pointage/': typeof AuthenticatedRhPointageIndexRoute
   '/salle-fete/calendrier/': typeof AuthenticatedSalleFeteCalendrierIndexRoute
   '/salle-fete/reservations/': typeof AuthenticatedSalleFeteReservationsIndexRoute
+  '/finances/caisses/$id/dashboard': typeof AuthenticatedFinancesCaissesIdDashboardRoute
   '/residence/portail/caution/': typeof AuthenticatedResidencePortailCautionIndexRoute
   '/residence/portail/echeances/': typeof AuthenticatedResidencePortailEcheancesIndexRoute
   '/residence/portail/paiements/': typeof AuthenticatedResidencePortailPaiementsIndexRoute
@@ -527,11 +551,13 @@ export interface FileRoutesByTo {
   '/client/clients': typeof AuthenticatedClientClientsIndexRoute
   '/facturation/factures': typeof AuthenticatedFacturationFacturesIndexRoute
   '/facturation/prestations': typeof AuthenticatedFacturationPrestationsIndexRoute
+  '/finances/caisses': typeof AuthenticatedFinancesCaissesIndexRoute
   '/finances/categories-depenses': typeof AuthenticatedFinancesCategoriesDepensesIndexRoute
   '/finances/depenses': typeof AuthenticatedFinancesDepensesIndexRoute
   '/finances/encaissements': typeof AuthenticatedFinancesEncaissementsIndexRoute
   '/finances/impayes': typeof AuthenticatedFinancesImpayesIndexRoute
   '/finances/moyens-paiement': typeof AuthenticatedFinancesMoyensPaiementIndexRoute
+  '/finances/revenus-utilisateur': typeof AuthenticatedFinancesRevenusUtilisateurIndexRoute
   '/finances/tableau-de-bord': typeof AuthenticatedFinancesTableauDeBordIndexRoute
   '/marchandise/categories-produits': typeof AuthenticatedMarchandiseCategoriesProduitsIndexRoute
   '/marchandise/mouvements': typeof AuthenticatedMarchandiseMouvementsIndexRoute
@@ -560,6 +586,7 @@ export interface FileRoutesByTo {
   '/rh/pointage': typeof AuthenticatedRhPointageIndexRoute
   '/salle-fete/calendrier': typeof AuthenticatedSalleFeteCalendrierIndexRoute
   '/salle-fete/reservations': typeof AuthenticatedSalleFeteReservationsIndexRoute
+  '/finances/caisses/$id/dashboard': typeof AuthenticatedFinancesCaissesIdDashboardRoute
   '/residence/portail/caution': typeof AuthenticatedResidencePortailCautionIndexRoute
   '/residence/portail/echeances': typeof AuthenticatedResidencePortailEcheancesIndexRoute
   '/residence/portail/paiements': typeof AuthenticatedResidencePortailPaiementsIndexRoute
@@ -592,11 +619,13 @@ export interface FileRoutesById {
   '/_authenticated/client/clients/': typeof AuthenticatedClientClientsIndexRoute
   '/_authenticated/facturation/factures/': typeof AuthenticatedFacturationFacturesIndexRoute
   '/_authenticated/facturation/prestations/': typeof AuthenticatedFacturationPrestationsIndexRoute
+  '/_authenticated/finances/caisses/': typeof AuthenticatedFinancesCaissesIndexRoute
   '/_authenticated/finances/categories-depenses/': typeof AuthenticatedFinancesCategoriesDepensesIndexRoute
   '/_authenticated/finances/depenses/': typeof AuthenticatedFinancesDepensesIndexRoute
   '/_authenticated/finances/encaissements/': typeof AuthenticatedFinancesEncaissementsIndexRoute
   '/_authenticated/finances/impayes/': typeof AuthenticatedFinancesImpayesIndexRoute
   '/_authenticated/finances/moyens-paiement/': typeof AuthenticatedFinancesMoyensPaiementIndexRoute
+  '/_authenticated/finances/revenus-utilisateur/': typeof AuthenticatedFinancesRevenusUtilisateurIndexRoute
   '/_authenticated/finances/tableau-de-bord/': typeof AuthenticatedFinancesTableauDeBordIndexRoute
   '/_authenticated/marchandise/categories-produits/': typeof AuthenticatedMarchandiseCategoriesProduitsIndexRoute
   '/_authenticated/marchandise/mouvements/': typeof AuthenticatedMarchandiseMouvementsIndexRoute
@@ -625,6 +654,7 @@ export interface FileRoutesById {
   '/_authenticated/rh/pointage/': typeof AuthenticatedRhPointageIndexRoute
   '/_authenticated/salle-fete/calendrier/': typeof AuthenticatedSalleFeteCalendrierIndexRoute
   '/_authenticated/salle-fete/reservations/': typeof AuthenticatedSalleFeteReservationsIndexRoute
+  '/_authenticated/finances/caisses/$id/dashboard': typeof AuthenticatedFinancesCaissesIdDashboardRoute
   '/_authenticated/residence/portail/caution/': typeof AuthenticatedResidencePortailCautionIndexRoute
   '/_authenticated/residence/portail/echeances/': typeof AuthenticatedResidencePortailEcheancesIndexRoute
   '/_authenticated/residence/portail/paiements/': typeof AuthenticatedResidencePortailPaiementsIndexRoute
@@ -657,11 +687,13 @@ export interface FileRouteTypes {
     | '/client/clients/'
     | '/facturation/factures/'
     | '/facturation/prestations/'
+    | '/finances/caisses/'
     | '/finances/categories-depenses/'
     | '/finances/depenses/'
     | '/finances/encaissements/'
     | '/finances/impayes/'
     | '/finances/moyens-paiement/'
+    | '/finances/revenus-utilisateur/'
     | '/finances/tableau-de-bord/'
     | '/marchandise/categories-produits/'
     | '/marchandise/mouvements/'
@@ -690,6 +722,7 @@ export interface FileRouteTypes {
     | '/rh/pointage/'
     | '/salle-fete/calendrier/'
     | '/salle-fete/reservations/'
+    | '/finances/caisses/$id/dashboard'
     | '/residence/portail/caution/'
     | '/residence/portail/echeances/'
     | '/residence/portail/paiements/'
@@ -720,11 +753,13 @@ export interface FileRouteTypes {
     | '/client/clients'
     | '/facturation/factures'
     | '/facturation/prestations'
+    | '/finances/caisses'
     | '/finances/categories-depenses'
     | '/finances/depenses'
     | '/finances/encaissements'
     | '/finances/impayes'
     | '/finances/moyens-paiement'
+    | '/finances/revenus-utilisateur'
     | '/finances/tableau-de-bord'
     | '/marchandise/categories-produits'
     | '/marchandise/mouvements'
@@ -753,6 +788,7 @@ export interface FileRouteTypes {
     | '/rh/pointage'
     | '/salle-fete/calendrier'
     | '/salle-fete/reservations'
+    | '/finances/caisses/$id/dashboard'
     | '/residence/portail/caution'
     | '/residence/portail/echeances'
     | '/residence/portail/paiements'
@@ -784,11 +820,13 @@ export interface FileRouteTypes {
     | '/_authenticated/client/clients/'
     | '/_authenticated/facturation/factures/'
     | '/_authenticated/facturation/prestations/'
+    | '/_authenticated/finances/caisses/'
     | '/_authenticated/finances/categories-depenses/'
     | '/_authenticated/finances/depenses/'
     | '/_authenticated/finances/encaissements/'
     | '/_authenticated/finances/impayes/'
     | '/_authenticated/finances/moyens-paiement/'
+    | '/_authenticated/finances/revenus-utilisateur/'
     | '/_authenticated/finances/tableau-de-bord/'
     | '/_authenticated/marchandise/categories-produits/'
     | '/_authenticated/marchandise/mouvements/'
@@ -817,6 +855,7 @@ export interface FileRouteTypes {
     | '/_authenticated/rh/pointage/'
     | '/_authenticated/salle-fete/calendrier/'
     | '/_authenticated/salle-fete/reservations/'
+    | '/_authenticated/finances/caisses/$id/dashboard'
     | '/_authenticated/residence/portail/caution/'
     | '/_authenticated/residence/portail/echeances/'
     | '/_authenticated/residence/portail/paiements/'
@@ -943,6 +982,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedFacturationPrestationsIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/finances/caisses/': {
+      id: '/_authenticated/finances/caisses/'
+      path: '/finances/caisses'
+      fullPath: '/finances/caisses/'
+      preLoaderRoute: typeof AuthenticatedFinancesCaissesIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/finances/categories-depenses/': {
       id: '/_authenticated/finances/categories-depenses/'
       path: '/finances/categories-depenses'
@@ -976,6 +1022,13 @@ declare module '@tanstack/react-router' {
       path: '/finances/moyens-paiement'
       fullPath: '/finances/moyens-paiement/'
       preLoaderRoute: typeof AuthenticatedFinancesMoyensPaiementIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/finances/revenus-utilisateur/': {
+      id: '/_authenticated/finances/revenus-utilisateur/'
+      path: '/finances/revenus-utilisateur'
+      fullPath: '/finances/revenus-utilisateur/'
+      preLoaderRoute: typeof AuthenticatedFinancesRevenusUtilisateurIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/finances/tableau-de-bord/': {
@@ -1230,6 +1283,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSalleFeteReservationsIdRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/finances/caisses/$id/dashboard': {
+      id: '/_authenticated/finances/caisses/$id/dashboard'
+      path: '/finances/caisses/$id/dashboard'
+      fullPath: '/finances/caisses/$id/dashboard'
+      preLoaderRoute: typeof AuthenticatedFinancesCaissesIdDashboardRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/residence/portail/caution/': {
       id: '/_authenticated/residence/portail/caution/'
       path: '/residence/portail/caution'
@@ -1291,11 +1351,13 @@ interface AuthenticatedRouteChildren {
   AuthenticatedClientClientsIndexRoute: typeof AuthenticatedClientClientsIndexRoute
   AuthenticatedFacturationFacturesIndexRoute: typeof AuthenticatedFacturationFacturesIndexRoute
   AuthenticatedFacturationPrestationsIndexRoute: typeof AuthenticatedFacturationPrestationsIndexRoute
+  AuthenticatedFinancesCaissesIndexRoute: typeof AuthenticatedFinancesCaissesIndexRoute
   AuthenticatedFinancesCategoriesDepensesIndexRoute: typeof AuthenticatedFinancesCategoriesDepensesIndexRoute
   AuthenticatedFinancesDepensesIndexRoute: typeof AuthenticatedFinancesDepensesIndexRoute
   AuthenticatedFinancesEncaissementsIndexRoute: typeof AuthenticatedFinancesEncaissementsIndexRoute
   AuthenticatedFinancesImpayesIndexRoute: typeof AuthenticatedFinancesImpayesIndexRoute
   AuthenticatedFinancesMoyensPaiementIndexRoute: typeof AuthenticatedFinancesMoyensPaiementIndexRoute
+  AuthenticatedFinancesRevenusUtilisateurIndexRoute: typeof AuthenticatedFinancesRevenusUtilisateurIndexRoute
   AuthenticatedFinancesTableauDeBordIndexRoute: typeof AuthenticatedFinancesTableauDeBordIndexRoute
   AuthenticatedMarchandiseCategoriesProduitsIndexRoute: typeof AuthenticatedMarchandiseCategoriesProduitsIndexRoute
   AuthenticatedMarchandiseMouvementsIndexRoute: typeof AuthenticatedMarchandiseMouvementsIndexRoute
@@ -1324,6 +1386,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedRhPointageIndexRoute: typeof AuthenticatedRhPointageIndexRoute
   AuthenticatedSalleFeteCalendrierIndexRoute: typeof AuthenticatedSalleFeteCalendrierIndexRoute
   AuthenticatedSalleFeteReservationsIndexRoute: typeof AuthenticatedSalleFeteReservationsIndexRoute
+  AuthenticatedFinancesCaissesIdDashboardRoute: typeof AuthenticatedFinancesCaissesIdDashboardRoute
   AuthenticatedResidencePortailCautionIndexRoute: typeof AuthenticatedResidencePortailCautionIndexRoute
   AuthenticatedResidencePortailEcheancesIndexRoute: typeof AuthenticatedResidencePortailEcheancesIndexRoute
   AuthenticatedResidencePortailPaiementsIndexRoute: typeof AuthenticatedResidencePortailPaiementsIndexRoute
@@ -1364,6 +1427,8 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
     AuthenticatedFacturationFacturesIndexRoute,
   AuthenticatedFacturationPrestationsIndexRoute:
     AuthenticatedFacturationPrestationsIndexRoute,
+  AuthenticatedFinancesCaissesIndexRoute:
+    AuthenticatedFinancesCaissesIndexRoute,
   AuthenticatedFinancesCategoriesDepensesIndexRoute:
     AuthenticatedFinancesCategoriesDepensesIndexRoute,
   AuthenticatedFinancesDepensesIndexRoute:
@@ -1374,6 +1439,8 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
     AuthenticatedFinancesImpayesIndexRoute,
   AuthenticatedFinancesMoyensPaiementIndexRoute:
     AuthenticatedFinancesMoyensPaiementIndexRoute,
+  AuthenticatedFinancesRevenusUtilisateurIndexRoute:
+    AuthenticatedFinancesRevenusUtilisateurIndexRoute,
   AuthenticatedFinancesTableauDeBordIndexRoute:
     AuthenticatedFinancesTableauDeBordIndexRoute,
   AuthenticatedMarchandiseCategoriesProduitsIndexRoute:
@@ -1425,6 +1492,8 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
     AuthenticatedSalleFeteCalendrierIndexRoute,
   AuthenticatedSalleFeteReservationsIndexRoute:
     AuthenticatedSalleFeteReservationsIndexRoute,
+  AuthenticatedFinancesCaissesIdDashboardRoute:
+    AuthenticatedFinancesCaissesIdDashboardRoute,
   AuthenticatedResidencePortailCautionIndexRoute:
     AuthenticatedResidencePortailCautionIndexRoute,
   AuthenticatedResidencePortailEcheancesIndexRoute:

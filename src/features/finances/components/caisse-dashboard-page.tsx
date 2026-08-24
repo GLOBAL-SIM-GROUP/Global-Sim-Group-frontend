@@ -1,26 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { ArrowLeft, Users } from "lucide-react";
+
 import { Button } from "#/components/ui/button";
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from "#/components/ui/card";
-import {
-	Table,
-	TableBody,
-	TableCell,
-	TableHead,
-	TableHeader,
-	TableRow,
-} from "#/components/ui/table";
 import {
 	formatDateHeureISO,
 	formatMontantFCFA,
 } from "#/features/residence/models/format";
+
 import {
 	obtenirDashboardCaisse,
 	obtenirRevenusParUtilisateur,
@@ -63,7 +50,7 @@ export function CaisseDashboardPage({ id }: CaisseDashboardPageProps) {
 	}
 
 	return (
-		<div className="space-y-6 p-6">
+		<div className="mx-auto w-full max-w-6xl space-y-6 p-6">
 			{/* Header */}
 			<div className="flex items-center gap-4">
 				<Button
@@ -88,142 +75,158 @@ export function CaisseDashboardPage({ id }: CaisseDashboardPageProps) {
 
 			{/* KPIs */}
 			<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-				<Card>
-					<CardHeader className="pb-2">
-						<CardTitle className="text-sm font-medium text-muted-foreground">
-							Revenus aujourd'hui
-						</CardTitle>
-					</CardHeader>
-					<CardContent>
-						<div className="text-2xl font-bold text-foreground">
-							{formatMontantFCFA(dashboard.revenus_jour)}
-						</div>
-					</CardContent>
-				</Card>
+				<div className="rounded-lg border border-border bg-card p-4 shadow-sm">
+					<div className="text-sm font-medium text-muted-foreground mb-2">
+						Revenus aujourd'hui
+					</div>
+					<div className="text-2xl font-bold text-foreground">
+						{formatMontantFCFA(dashboard.revenus_jour)}
+					</div>
+				</div>
 
-				<Card>
-					<CardHeader className="pb-2">
-						<CardTitle className="text-sm font-medium text-muted-foreground">
-							Total paiements
-						</CardTitle>
-					</CardHeader>
-					<CardContent>
-						<div className="text-2xl font-bold text-foreground">
-							{formatMontantFCFA(dashboard.total_paiements)}
-						</div>
-					</CardContent>
-				</Card>
+				<div className="rounded-lg border border-border bg-card p-4 shadow-sm">
+					<div className="text-sm font-medium text-muted-foreground mb-2">
+						Total paiements
+					</div>
+					<div className="text-2xl font-bold text-foreground">
+						{formatMontantFCFA(dashboard.total_paiements)}
+					</div>
+				</div>
 
-				<Card>
-					<CardHeader className="pb-2">
-						<CardTitle className="text-sm font-medium text-muted-foreground">
-							Total dépenses
-						</CardTitle>
-					</CardHeader>
-					<CardContent>
-						<div className="text-2xl font-bold text-destructive">
-							{formatMontantFCFA(dashboard.total_depenses)}
-						</div>
-					</CardContent>
-				</Card>
+				<div className="rounded-lg border border-border bg-card p-4 shadow-sm">
+					<div className="text-sm font-medium text-muted-foreground mb-2">
+						Total dépenses
+					</div>
+					<div className="text-2xl font-bold text-destructive">
+						{formatMontantFCFA(dashboard.total_depenses)}
+					</div>
+				</div>
 			</div>
 
 			{/* Revenus par utilisateur */}
-			<Card>
-				<CardHeader>
-					<CardTitle className="flex items-center gap-2">
+			<div className="rounded-lg border border-border bg-card shadow-sm">
+				<div className="border-b border-border px-6 py-4">
+					<h2 className="text-base font-semibold text-foreground flex items-center gap-2">
 						<Users className="size-5" />
 						Revenus par employé
-					</CardTitle>
-					<CardDescription>
+					</h2>
+					<p className="text-sm text-muted-foreground mt-1">
 						Montant total encaissé par chaque utilisateur
-					</CardDescription>
-				</CardHeader>
-				<CardContent>
+					</p>
+				</div>
+				<div className="px-6 py-4">
 					{revenusParUser.length > 0 ? (
-						<Table>
-							<TableHeader>
-								<TableRow>
-									<TableHead>Employé</TableHead>
-									<TableHead className="text-right">
-										Montant total
-									</TableHead>
-									<TableHead className="text-right">
-										Nombre de paiements
-									</TableHead>
-								</TableRow>
-							</TableHeader>
-							<TableBody>
-								{revenusParUser.map((rev) => (
-									<TableRow key={rev.id_utilisateur}>
-										<TableCell className="font-medium">
-											{rev.login}
-										</TableCell>
-										<TableCell className="text-right">
-											{formatMontantFCFA(rev.montant_total)}
-										</TableCell>
-										<TableCell className="text-right text-muted-foreground">
-											{rev.nombre_paiements}
-										</TableCell>
-									</TableRow>
-								))}
-							</TableBody>
-						</Table>
+						<div className="overflow-x-auto">
+							<table className="w-full border-collapse text-sm">
+								<thead className="bg-sea-ink text-left text-white">
+									<tr>
+										<th scope="col" className="px-4 py-3 font-medium">
+											EMPLOYÉ
+										</th>
+										<th scope="col" className="px-4 py-3 text-right font-medium">
+											MONTANT TOTAL
+										</th>
+										<th scope="col" className="px-4 py-3 text-right font-medium">
+											NB PAIEMENTS
+										</th>
+									</tr>
+								</thead>
+								<tbody>
+									{revenusParUser.map((rev) => (
+										<tr
+											key={rev.id_utilisateur}
+											className="border-t border-border transition-colors hover:bg-accent/40"
+										>
+											<td className="px-4 py-3 font-medium text-foreground">
+												{rev.login}
+											</td>
+											<td className="px-4 py-3 text-right font-semibold text-foreground">
+												{formatMontantFCFA(rev.montant_total)}
+											</td>
+											<td className="px-4 py-3 text-right text-muted-foreground">
+												{rev.nombre_paiements}
+											</td>
+										</tr>
+									))}
+								</tbody>
+							</table>
+						</div>
 					) : (
 						<div className="text-center py-8 text-muted-foreground">
 							Aucun paiement pour cette caisse
 						</div>
 					)}
-				</CardContent>
-			</Card>
+				</div>
+			</div>
 
 			{/* Paiements bruts */}
-			<Card>
-				<CardHeader>
-					<CardTitle>Tous les paiements</CardTitle>
-					<CardDescription>
+			<div className="rounded-lg border border-border bg-card shadow-sm">
+				<div className="border-b border-border px-6 py-4">
+					<h2 className="text-base font-semibold text-foreground">
+						Tous les paiements
+					</h2>
+					<p className="text-sm text-muted-foreground mt-1">
 						Liste détaillée de tous les paiements de cette caisse
-					</CardDescription>
-				</CardHeader>
-				<CardContent>
+					</p>
+				</div>
+				<div className="px-6 py-4">
 					{dashboard.paiements_details && dashboard.paiements_details.length > 0 ? (
-						<Table>
-							<TableHeader>
-								<TableRow>
-									<TableHead>Date</TableHead>
-									<TableHead>Référence</TableHead>
-									<TableHead>Montant</TableHead>
-									<TableHead>Type</TableHead>
-									<TableHead>Motif</TableHead>
-								</TableRow>
-							</TableHeader>
-							<TableBody>
-								{dashboard.paiements_details.map((paiement) => (
-									<TableRow key={paiement.id}>
-										<TableCell className="text-sm">
-											{formatDateHeureISO(paiement.date)}
-										</TableCell>
-										<TableCell>{paiement.reference ?? "—"}</TableCell>
-										<TableCell className="font-medium">
-											{formatMontantFCFA(paiement.montant)}
-										</TableCell>
-										<TableCell>
-											<span className="text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300">
-												{paiement.type}
-											</span>
-										</TableCell>
-										<TableCell>{paiement.motif ?? "—"}</TableCell>
-									</TableRow>
-								))}
-							</TableBody>
-						</Table>
+						<div className="overflow-x-auto">
+							<table className="w-full border-collapse text-sm">
+								<thead className="bg-sea-ink text-left text-white">
+									<tr>
+										<th scope="col" className="px-4 py-3 font-medium">
+											DATE
+										</th>
+										<th scope="col" className="px-4 py-3 font-medium">
+											RÉFÉRENCE
+										</th>
+										<th scope="col" className="px-4 py-3 font-medium">
+											MONTANT
+										</th>
+										<th scope="col" className="px-4 py-3 font-medium">
+											TYPE
+										</th>
+										<th scope="col" className="px-4 py-3 font-medium">
+											MOTIF
+										</th>
+									</tr>
+								</thead>
+								<tbody>
+									{dashboard.paiements_details.map((paiement) => (
+										<tr
+											key={paiement.id}
+											className="border-t border-border transition-colors hover:bg-accent/40"
+										>
+											<td className="px-4 py-3 text-muted-foreground">
+												{formatDateHeureISO(paiement.date)}
+											</td>
+											<td className="px-4 py-3 font-medium">
+												{paiement.reference ?? "—"}
+											</td>
+											<td className="px-4 py-3 font-semibold text-foreground">
+												{formatMontantFCFA(paiement.montant)}
+											</td>
+											<td className="px-4 py-3">
+												<span className="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300">
+													{paiement.type}
+												</span>
+											</td>
+											<td className="px-4 py-3 text-muted-foreground">
+												{paiement.motif ?? "—"}
+											</td>
+										</tr>
+									))}
+								</tbody>
+							</table>
+						</div>
 					) : (
 						<div className="text-center py-8 text-muted-foreground">
 							Aucun paiement trouvé
 						</div>
 					)}
-				</CardContent>
-			</Card>
+				</div>
+			</div>
 		</div>
 	);
 }
