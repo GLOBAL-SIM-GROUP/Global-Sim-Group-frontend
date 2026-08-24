@@ -6,12 +6,25 @@ export interface Caisse {
 	actif: boolean;
 }
 
+/** Détail d'un paiement au sein du dashboard. */
+export interface PaiementDetail {
+	id: string;
+	date: string;
+	montant: number;
+	type: string;
+	motif?: string | null;
+	reference?: string | null;
+	id_utilisateur?: string | null;
+	login?: string;
+}
+
 /** Caisse avec stats pour le tableau de bord. */
 export interface CaisseDashboard extends Caisse {
 	revenus_jour: number;
 	total_paiements: number;
 	total_depenses: number;
 	nombre_employes: number;
+	paiements_details?: PaiementDetail[];
 }
 
 /** Agrégation des revenus par utilisateur au sein d'une caisse. */

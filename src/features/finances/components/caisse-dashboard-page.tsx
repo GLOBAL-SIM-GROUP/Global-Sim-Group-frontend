@@ -10,7 +10,7 @@ import {
 
 import {
 	obtenirDashboardCaisse,
-	obtenirRevenusParUtilisateur,
+	calculerRevenusParUtilisateur,
 } from "../api/caisses";
 
 interface CaisseDashboardPageProps {
@@ -27,11 +27,9 @@ export function CaisseDashboardPage({ id }: CaisseDashboardPageProps) {
 		queryFn: () => obtenirDashboardCaisse(id),
 	});
 
-	const { data: revenusParUser = [] } = useQuery({
-		queryKey: ["revenus-utilisateur", id],
-		queryFn: () => obtenirRevenusParUtilisateur(id),
-		enabled: !!dashboard,
-	});
+	const revenusParUser = dashboard
+		? calculerRevenusParUtilisateur(dashboard)
+		: [];
 
 	if (isLoading) {
 		return (

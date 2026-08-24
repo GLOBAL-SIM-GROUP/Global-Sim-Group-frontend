@@ -52,18 +52,31 @@ export async function obtenirDashboardCaisse(
 	return getApiClient().apiFetch(`/api/v1/finances/caisses/${id}/dashboard`);
 }
 
-/** Obtenir l'agrégation des revenus par utilisateur pour une caisse. */
-export async function obtenirRevenusParUtilisateur(
-	id_caisse: string,
-	du?: string,
-	au?: string,
-): Promise<RevenusUtilisateur[]> {
-	const query = new URLSearchParams();
-	query.set("id_caisse", id_caisse);
-	if (du) query.set("du", du);
-	if (au) query.set("au", au);
+/** Calcule les revenus par utilisateur à partir du dashboard. */
+export function calculerRevenusParUtilisateur(
+	dashboard: CaisseDashboard,
+): RevenusUtilisateur[] {
+	if (!dashboard.paiements_details) return [];
 
-	return getApiClient().apiFetch(
-		`/api/v1/finances/paiements-par-utilisateur?${query.toString()}`,
-	);
+	const revenus = new Map<string, RevenusUtilisateur>();
+
+	dashboard.paiements_details.forEach((paiement) => {
+		const userId = paiement.id_utilisateur || "unknown";
+		const login = paiement.login || userId;
+
+		if (!revenus.has(userId)) {
+			revenus.set(userId, {
+				id_utilisateur: userId,
+				login,
+				montant_total: 0,
+				nombre_paiements: 0,
+			});
+		}
+
+		const rev = revenus.get(userId)!;
+		rev.montant_total += Number(paiement.montant);
+		rev.nombre_paiements += 1;
+	});
+
+	return Array.from(revenus.values());
 }
