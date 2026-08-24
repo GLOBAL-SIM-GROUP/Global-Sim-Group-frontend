@@ -4,6 +4,8 @@ export interface Caisse {
 	libelle: string;
 	id_activite: string;
 	actif: boolean;
+	activite_code?: string;
+	activite_libelle?: string;
 }
 
 /** Détail d'un paiement au sein du dashboard. */

@@ -16,19 +16,6 @@ import {
 } from "../api/caisses";
 import type { Caisse, CreerCaisseDto } from "../models/caisses";
 
-const ACTIVITES: Record<string, string> = {
-	restaurant: "Restaurant",
-	pressing: "Pressing",
-	residence: "Résidence",
-	salle_fete: "Salle de Fête",
-	market: "Marché",
-};
-
-const getActiviteLabel = (id: string | null): string => {
-	if (!id) return "—";
-	return ACTIVITES[id] || id;
-};
-
 /**
  * Page de gestion des caisses (liste + CRUD).
  * Admins uniquement.
@@ -256,7 +243,7 @@ export function CaissesPage() {
 										{caisse.libelle}
 									</td>
 									<td className="px-4 py-3 text-muted-foreground">
-										{getActiviteLabel(caisse.id_activite)}
+										{caisse.activite_libelle || caisse.id_activite || "—"}
 									</td>
 									<td className="px-4 py-3">
 										<span
