@@ -30,6 +30,8 @@ import {
 	useModifierDepense,
 	useSupprimerDepense,
 } from "../hooks/use-finances";
+import { CaisseSelector } from "./caisse-selector";
+import { useCurrentCaisse } from "../hooks/use-current-caisse";
 import type { Depense } from "../models/finances";
 import { paginer } from "../models/finances";
 import { DEPENSES_PAGE_SIZE } from "../permissions";
@@ -38,6 +40,7 @@ import { DEPENSES_PAGE_SIZE } from "../permissions";
 export interface DepensesSearch {
 	du?: string;
 	au?: string;
+	id_caisse?: string;
 	page?: number;
 }
 
@@ -270,9 +273,11 @@ export function DepensesPage({
 	const canModifier = useCan("FINANCES.MODIFIER");
 	const canSupprimer = useCan("FINANCES.SUPPRIMER");
 	const canVoir = useCan("FINANCES.VOIR");
+	const userCaisse = useCurrentCaisse();
 
 	const [du, setDu] = useState(initialSearch.du ?? "");
 	const [au, setAu] = useState(initialSearch.au ?? "");
+	const [idCaisse, setIdCaisse] = useState(initialSearch.id_caisse ?? userCaisse ?? "");
 	const [page, setPage] = useState(initialSearch.page ?? 1);
 	const [formOuvert, setFormOuvert] = useState(false);
 	const [aModifier, setAModifier] = useState<Depense | null>(null);
@@ -281,6 +286,7 @@ export function DepensesPage({
 	const depensesQuery = useDepenses(
 		initialSearch.du ?? "",
 		initialSearch.au ?? "",
+		idCaisse || userCaisse || undefined,
 	);
 	const categoriesQuery = useCategoriesDepenses();
 	const supprimerMutation = useSupprimerDepense();
@@ -297,9 +303,10 @@ export function DepensesPage({
 		(categoriesQuery.data ?? []).map((c) => [c.id, c.libelle]),
 	);
 
-	const changerFiltre = (patch: { du?: string; au?: string }) => {
+	const changerFiltre = (patch: { du?: string; au?: string; id_caisse?: string }) => {
 		setDu(patch.du ?? du);
 		setAu(patch.au ?? au);
+		if (patch.id_caisse !== undefined) setIdCaisse(patch.id_caisse);
 		setPage(1);
 		onSearchChange((prev) => ({ ...prev, ...patch, page: 1 }));
 	};
@@ -338,21 +345,29 @@ export function DepensesPage({
 				) : null}
 			</div>
 
-			<div className="flex flex-wrap items-center gap-3 rounded-lg border border-border bg-card p-4 shadow-sm">
-				<Input
-					type="date"
-					value={du}
-					onChange={(event) => changerFiltre({ du: event.target.value })}
-					aria-label="Début de période"
-					className="w-40"
-				/>
-				<Input
-					type="date"
-					value={au}
-					onChange={(event) => changerFiltre({ au: event.target.value })}
-					aria-label="Fin de période"
-					className="w-40"
-				/>
+			<div className="space-y-3 rounded-lg border border-border bg-card p-4 shadow-sm">
+				<div className="flex flex-wrap items-center gap-3">
+					<Input
+						type="date"
+						value={du}
+						onChange={(event) => changerFiltre({ du: event.target.value })}
+						aria-label="Début de période"
+						className="w-40"
+					/>
+					<Input
+						type="date"
+						value={au}
+						onChange={(event) => changerFiltre({ au: event.target.value })}
+						aria-label="Fin de période"
+						className="w-40"
+					/>
+				</div>
+				{!userCaisse && (
+					<CaisseSelector
+						value={idCaisse}
+						onChange={(id) => changerFiltre({ id_caisse: id })}
+					/>
+				)}
 			</div>
 
 			{supprimerMutation.isError ? (

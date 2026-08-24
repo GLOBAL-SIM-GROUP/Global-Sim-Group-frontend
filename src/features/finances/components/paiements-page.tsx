@@ -17,6 +17,8 @@ import {
 } from "#/features/residence/models/format";
 
 import { usePaiements } from "../hooks/use-finances";
+import { CaisseSelector } from "./caisse-selector";
+import { useCurrentCaisse } from "../hooks/use-current-caisse";
 import type { Paiement } from "../models/finances";
 import { paginer } from "../models/finances";
 import { PAIEMENTS_PAGE_SIZE } from "../permissions";
@@ -26,6 +28,7 @@ export interface PaiementsSearch {
 	du?: string;
 	au?: string;
 	type?: string;
+	id_caisse?: string;
 	page?: number;
 }
 
@@ -43,9 +46,11 @@ export function PaiementsPage({
 	onSearchChange,
 }: PaiementsPageProps) {
 	const canVoir = useCan("FINANCES.VOIR");
+	const userCaisse = useCurrentCaisse();
 	const [du, setDu] = useState(initialSearch.du ?? "");
 	const [au, setAu] = useState(initialSearch.au ?? "");
 	const [type, setType] = useState(initialSearch.type ?? "tous");
+	const [idCaisse, setIdCaisse] = useState(initialSearch.id_caisse ?? userCaisse ?? "");
 	const [page, setPage] = useState(initialSearch.page ?? 1);
 
 	const paiementsQuery = usePaiements(
@@ -54,6 +59,7 @@ export function PaiementsPage({
 		initialSearch.type && initialSearch.type !== "tous"
 			? initialSearch.type
 			: undefined,
+		idCaisse || userCaisse || undefined,
 	);
 
 	if (!canVoir) {
@@ -68,10 +74,12 @@ export function PaiementsPage({
 		du?: string;
 		au?: string;
 		type?: string;
+		id_caisse?: string;
 	}) => {
 		setDu(patch.du ?? du);
 		setAu(patch.au ?? au);
 		setType(patch.type ?? type);
+		if (patch.id_caisse !== undefined) setIdCaisse(patch.id_caisse);
 		setPage(1);
 		onSearchChange((prev) => ({ ...prev, ...patch, page: 1 }));
 	};
@@ -99,34 +107,42 @@ export function PaiementsPage({
 				</p>
 			</section>
 
-			<div className="flex flex-wrap items-center gap-3 rounded-lg border border-border bg-card p-4 shadow-sm">
-				<Select
-					value={type}
-					onValueChange={(valeur) => changerFiltre({ type: valeur })}
-				>
-					<SelectTrigger aria-label="Type de paiement" className="w-48">
-						<SelectValue placeholder="Type de paiement" />
-					</SelectTrigger>
-					<SelectContent>
-						<SelectItem value="tous">Tous les types</SelectItem>
-						<SelectItem value="ENCAISSEMENT">Encaissement</SelectItem>
-						<SelectItem value="DECAISSEMENT">Décaissement</SelectItem>
-					</SelectContent>
-				</Select>
-				<Input
-					type="date"
-					value={du}
-					onChange={(event) => changerFiltre({ du: event.target.value })}
-					aria-label="Début de période"
-					className="w-40"
-				/>
-				<Input
-					type="date"
-					value={au}
-					onChange={(event) => changerFiltre({ au: event.target.value })}
-					aria-label="Fin de période"
-					className="w-40"
-				/>
+			<div className="space-y-3 rounded-lg border border-border bg-card p-4 shadow-sm">
+				<div className="flex flex-wrap items-center gap-3">
+					<Select
+						value={type}
+						onValueChange={(valeur) => changerFiltre({ type: valeur })}
+					>
+						<SelectTrigger aria-label="Type de paiement" className="w-48">
+							<SelectValue placeholder="Type de paiement" />
+						</SelectTrigger>
+						<SelectContent>
+							<SelectItem value="tous">Tous les types</SelectItem>
+							<SelectItem value="ENCAISSEMENT">Encaissement</SelectItem>
+							<SelectItem value="DECAISSEMENT">Décaissement</SelectItem>
+						</SelectContent>
+					</Select>
+					<Input
+						type="date"
+						value={du}
+						onChange={(event) => changerFiltre({ du: event.target.value })}
+						aria-label="Début de période"
+						className="w-40"
+					/>
+					<Input
+						type="date"
+						value={au}
+						onChange={(event) => changerFiltre({ au: event.target.value })}
+						aria-label="Fin de période"
+						className="w-40"
+					/>
+				</div>
+				{!userCaisse && (
+					<CaisseSelector
+						value={idCaisse}
+						onChange={(id) => changerFiltre({ id_caisse: id })}
+					/>
+				)}
 			</div>
 
 			{paiementsQuery.isLoading ? (

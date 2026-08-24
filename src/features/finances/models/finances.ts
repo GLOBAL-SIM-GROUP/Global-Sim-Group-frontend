@@ -17,6 +17,7 @@ export interface Paiement {
 	montant: string;
 	id_moyen: string | null;
 	id_activite: string | null;
+	id_caisse: string | null;
 	type: string;
 	motif: string | null;
 	id_utilisateur: string | null;
@@ -29,6 +30,7 @@ export interface Depense {
 	montant: string;
 	id_categorie_depense: string;
 	id_activite: string | null;
+	id_caisse: string | null;
 	libelle: string;
 	justificatif: string | null;
 	id_utilisateur: string | null;

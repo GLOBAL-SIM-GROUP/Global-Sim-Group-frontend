@@ -59,11 +59,13 @@ export function listPaiements(filtres?: {
 	du?: string;
 	au?: string;
 	type?: string;
+	id_caisse?: string;
 }): Promise<Paiement[]> {
 	const params = new URLSearchParams();
 	if (filtres?.du) params.set("du", filtres.du);
 	if (filtres?.au) params.set("au", filtres.au);
 	if (filtres?.type) params.set("type", filtres.type);
+	if (filtres?.id_caisse) params.set("id_caisse", filtres.id_caisse);
 	const qs = params.toString();
 	return getApiClient()
 		.apiFetch<PaiementWire[]>(`/api/v1/finances/paiements${qs ? `?${qs}` : ""}`)
@@ -75,10 +77,12 @@ export function listPaiements(filtres?: {
 export function listDepenses(filtres?: {
 	du?: string;
 	au?: string;
+	id_caisse?: string;
 }): Promise<Depense[]> {
 	const params = new URLSearchParams();
 	if (filtres?.du) params.set("du", filtres.du);
 	if (filtres?.au) params.set("au", filtres.au);
+	if (filtres?.id_caisse) params.set("id_caisse", filtres.id_caisse);
 	const qs = params.toString();
 	return getApiClient()
 		.apiFetch<DepenseWire[]>(`/api/v1/finances/depenses${qs ? `?${qs}` : ""}`)

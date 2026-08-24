@@ -32,17 +32,17 @@ export function useTableauBord(periodo?: string) {
 	});
 }
 
-export function usePaiements(du?: string, au?: string, type?: string) {
+export function usePaiements(du?: string, au?: string, type?: string, idCaisse?: string) {
 	return useQuery({
-		queryKey: paiementsKeys.list(du, au, type),
-		queryFn: () => listPaiements({ du, au, type }),
+		queryKey: paiementsKeys.list(du, au, type, idCaisse),
+		queryFn: () => listPaiements({ du, au, type, id_caisse: idCaisse }),
 	});
 }
 
-export function useDepenses(du?: string, au?: string) {
+export function useDepenses(du?: string, au?: string, idCaisse?: string) {
 	return useQuery({
-		queryKey: depensesKeys.list(du, au),
-		queryFn: () => listDepenses({ du, au }),
+		queryKey: depensesKeys.list(du, au, idCaisse),
+		queryFn: () => listDepenses({ du, au, id_caisse: idCaisse }),
 	});
 }
 
