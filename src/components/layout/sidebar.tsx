@@ -144,8 +144,8 @@ export function Sidebar({ onClose }: { onClose?: () => void } = {}) {
 		);
 
 	const subLinkClassName =
-		"block rounded-lg px-3 py-2 text-sm text-gray-400 transition-all duration-200 hover:bg-sea-ink/50 hover:text-white pl-6";
-	const subActiveClassName = "bg-lagoon/20 text-lagoon font-medium before:absolute before:left-3 before:w-1 before:h-1 before:bg-lagoon before:rounded-full relative";
+		"block rounded-lg px-3 py-2 text-sm text-gray-400 transition-all duration-200 hover:bg-sea-ink/50 hover:text-white relative";
+	const subActiveClassName = "bg-lagoon/20 text-lagoon font-medium before:absolute before:left-4 before:top-1/2 before:-translate-y-1/2 before:w-1.5 before:h-1.5 before:bg-lagoon before:rounded-full";
 
 	return (
 		<aside className="sticky top-0 h-dvh w-60 shrink-0 flex-col justify-between overflow-y-auto border-r border-palm bg-sea-ink px-3 py-4 flex">

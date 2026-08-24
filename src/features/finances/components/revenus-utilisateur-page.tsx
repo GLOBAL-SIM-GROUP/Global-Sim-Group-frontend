@@ -6,11 +6,7 @@ import { Input } from "#/components/ui/input";
 import { Breadcrumb } from "#/components/ui/breadcrumb";
 import { formatMontantFCFA } from "#/features/residence/models/format";
 
-import {
-	listerCaisses,
-	obtenirDashboardCaisse,
-	calculerRevenusParUtilisateur,
-} from "../api/caisses";
+import { listerCaisses, obtenirRevenusParUtilisateur } from "../api/caisses";
 import { useCurrentCaisse } from "../hooks/use-current-caisse";
 
 /**
@@ -28,14 +24,12 @@ export function RevenusUtilisateurPage() {
 		queryFn: () => listerCaisses(),
 	});
 
-	const { data: dashboard, isLoading } = useQuery({
-		queryKey: ["caisse-dashboard", idCaisse || userCaisse],
+	const { data: revenus = [], isLoading } = useQuery({
+		queryKey: ["revenus-utilisateur", idCaisse || userCaisse, du, au],
 		queryFn: () =>
-			obtenirDashboardCaisse(idCaisse || userCaisse || ""),
+			obtenirRevenusParUtilisateur(idCaisse || userCaisse, du, au),
 		enabled: !!(idCaisse || userCaisse),
 	});
-
-	const revenus = dashboard ? calculerRevenusParUtilisateur(dashboard) : [];
 
 	const totalMontant = revenus.reduce(
 		(sum, rev) => sum + Number(rev.montant_total),
