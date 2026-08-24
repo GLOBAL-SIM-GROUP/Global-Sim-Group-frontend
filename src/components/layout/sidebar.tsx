@@ -134,13 +134,18 @@ export function Sidebar({ onClose }: { onClose?: () => void } = {}) {
 		setOpenModule((current) => (current === code ? null : code));
 
 	const linkClassName =
-		"flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-gray-300 transition-colors hover:bg-lagoon/20 hover:text-white";
+		"flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-gray-400 transition-all duration-200 hover:bg-sea-ink/50 hover:text-white";
+	const linkActiveClassName = "bg-lagoon/15 text-lagoon before:absolute before:left-0 before:top-0 before:bottom-0 before:w-1 before:bg-lagoon before:rounded-r relative";
 	const headerClassName = (isOpen: boolean) =>
-		cn(linkClassName, "w-full text-left", isOpen && "bg-lagoon/20 text-white");
+		cn(
+			linkClassName,
+			"w-full text-left relative",
+			isOpen && "text-lagoon bg-sea-ink/70 before:absolute before:left-0 before:top-0 before:bottom-0 before:w-1 before:bg-lagoon before:rounded-r"
+		);
 
 	const subLinkClassName =
-		"block rounded-lg px-3 py-2 text-sm text-gray-300 transition-colors hover:bg-lagoon/20 hover:text-white";
-	const subActiveClassName = "bg-lagoon/25 text-white font-medium";
+		"block rounded-lg px-3 py-2 text-sm text-gray-400 transition-all duration-200 hover:bg-sea-ink/50 hover:text-white pl-6";
+	const subActiveClassName = "bg-lagoon/20 text-lagoon font-medium before:absolute before:left-3 before:w-1 before:h-1 before:bg-lagoon before:rounded-full relative";
 
 	return (
 		<aside className="sticky top-0 h-dvh w-60 shrink-0 flex-col justify-between overflow-y-auto border-r border-palm bg-sea-ink px-3 py-4 flex">
@@ -164,11 +169,11 @@ export function Sidebar({ onClose }: { onClose?: () => void } = {}) {
 							<Link
 								to="/"
 								activeOptions={{ exact: true }}
-								activeProps={{ className: "bg-lagoon/25 text-white" }}
+								activeProps={{ className: linkActiveClassName }}
 								className={linkClassName}
 								onClick={() => onClose?.()}
 							>
-								<LayoutGrid className="size-4 text-lagoon" aria-hidden />
+								<LayoutGrid className="size-4 text-gray-400 transition-colors" aria-hidden />
 								Accueil
 							</Link>
 						</li>
@@ -178,11 +183,11 @@ export function Sidebar({ onClose }: { onClose?: () => void } = {}) {
 								<Link
 									to="/dashboard"
 									activeOptions={{ exact: false }}
-									activeProps={{ className: "bg-lagoon/25 text-white" }}
+									activeProps={{ className: linkActiveClassName }}
 									className={linkClassName}
 									onClick={() => onClose?.()}
 								>
-									<BarChart2 className="size-4 text-lagoon" aria-hidden />
+									<BarChart2 className="size-4 text-gray-400 transition-colors" aria-hidden />
 									Tableau de bord global
 								</Link>
 							</li>
@@ -195,11 +200,11 @@ export function Sidebar({ onClose }: { onClose?: () => void } = {}) {
 								<Link
 									to="/rapports"
 									activeOptions={{ exact: false }}
-									activeProps={{ className: "bg-lagoon/25 text-white" }}
+									activeProps={{ className: linkActiveClassName }}
 									className={linkClassName}
 									onClick={() => onClose?.()}
 								>
-									<BarChart3 className="size-4 text-lagoon" aria-hidden />
+									<BarChart3 className="size-4 text-gray-400 transition-colors" aria-hidden />
 									Rapports
 								</Link>
 							</li>
@@ -217,13 +222,19 @@ export function Sidebar({ onClose }: { onClose?: () => void } = {}) {
 										onClick={() => toggleModule(module.code)}
 										className={headerClassName(isOpen)}
 									>
-										<module.icon className="size-4 text-lagoon" aria-hidden />
+										<module.icon
+											className={cn(
+												"size-4 transition-colors",
+												isOpen ? "text-lagoon" : "text-gray-400"
+											)}
+											aria-hidden
+										/>
 										<span className="flex-1 text-left">{module.title}</span>
 										{subItems.length > 0 && (
 											<ChevronDown
 												className={cn(
-													"size-4 text-lagoon transition-transform duration-200",
-													isOpen && "rotate-180",
+													"size-4 text-gray-400 transition-all duration-200",
+													isOpen && "rotate-180 text-lagoon",
 												)}
 												aria-hidden
 											/>
@@ -276,12 +287,12 @@ export function Sidebar({ onClose }: { onClose?: () => void } = {}) {
 			</div>
 
 			{user ? (
-				<div className="border-t border-palm pt-3">
+				<div className="border-t border-palm/40 bg-sea-ink/50 -mx-3 px-3 py-4 mt-4 rounded-lg">
 					<UserMenu
 						avatar={
 							<div
 								aria-hidden
-								className="grid size-10 shrink-0 place-items-center rounded-full bg-lagoon/20 text-sm font-semibold text-lagoon ring-1 ring-palm"
+								className="grid size-11 shrink-0 place-items-center rounded-full bg-gradient-to-br from-lagoon/40 to-lagoon/20 text-sm font-semibold text-lagoon ring-2 ring-lagoon/30 shadow-lg"
 							>
 								{initialsOf(user.login)}
 							</div>
