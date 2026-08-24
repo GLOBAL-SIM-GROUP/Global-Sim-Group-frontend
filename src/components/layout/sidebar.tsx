@@ -71,6 +71,7 @@ const ROUTES_REALLES: Record<
 		moyens_paiement: { to: "/finances/moyens-paiement", exact: true },
 		categories_depenses: { to: "/finances/categories-depenses", exact: true },
 		caisses: { to: "/finances/caisses", exact: true },
+		revenus_utilisateur: { to: "/finances/revenus-utilisateur", exact: true },
 	},
 	RH: {
 		employes: { to: "/rh/employes", exact: true },
