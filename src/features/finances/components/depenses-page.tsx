@@ -233,6 +233,12 @@ function DepenseFormDialog({
 								/>
 							)}
 						</form.Field>
+						{!userCaisse && (
+							<CaisseSelector
+								value={form.getFieldValue("idCaisse") as string | undefined}
+								onChange={(id) => form.setFieldValue("idCaisse", id)}
+							/>
+						)}
 						{globalError ? (
 							<p role="alert" className="text-sm font-medium text-destructive">
 								{globalError}
