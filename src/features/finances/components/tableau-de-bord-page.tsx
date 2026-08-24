@@ -294,7 +294,7 @@ export function TableauDeBordPage() {
 								<thead className="bg-muted">
 									<tr>
 										<th className="px-4 py-3 text-left font-semibold">
-											Activité
+											Période
 										</th>
 										<th className="px-4 py-3 text-right font-semibold">
 											Recettes
