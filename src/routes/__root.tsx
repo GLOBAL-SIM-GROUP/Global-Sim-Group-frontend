@@ -7,11 +7,13 @@ import {
 	Link,
 	Outlet,
 	Scripts,
+	useRouteContext,
 } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import type { ReactNode } from "react";
 import { Button } from "#/components/ui/button";
 import type { AuthSession } from "#/core/auth";
+import { AuthProvider } from "#/core/auth/auth-context";
 import TanStackQueryDevtools from "../integrations/tanstack-query/devtools";
 
 // Import CSS sans `?url` : Vite/TanStack Start injectent la feuille de style
@@ -43,8 +45,12 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 });
 
 function RootComponent() {
-	// La route racine doit rendre les routes filles (login, _authenticated…).
-	return <Outlet />;
+	const { auth } = useRouteContext();
+	return (
+		<AuthProvider session={auth}>
+			<Outlet />
+		</AuthProvider>
+	);
 }
 
 function ErrorComponent({ error, reset }: ErrorComponentProps) {
