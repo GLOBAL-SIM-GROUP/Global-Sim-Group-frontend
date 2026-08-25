@@ -25,14 +25,19 @@ import {
 	tableauBordKeys,
 } from "../permissions";
 
-export function useTableauBord(periodo?: string) {
+export function useTableauBord(periodo?: string, idCaisse?: string) {
 	return useQuery({
-		queryKey: tableauBordKeys.list(periodo),
-		queryFn: () => listTableauBord({ periodo }),
+		queryKey: tableauBordKeys.list(periodo, idCaisse),
+		queryFn: () => listTableauBord({ periodo, id_caisse: idCaisse }),
 	});
 }
 
-export function usePaiements(du?: string, au?: string, type?: string, idCaisse?: string) {
+export function usePaiements(
+	du?: string,
+	au?: string,
+	type?: string,
+	idCaisse?: string,
+) {
 	return useQuery({
 		queryKey: paiementsKeys.list(du, au, type, idCaisse),
 		queryFn: () => listPaiements({ du, au, type, id_caisse: idCaisse }),

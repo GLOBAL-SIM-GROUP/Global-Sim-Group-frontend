@@ -13,15 +13,15 @@ import {
 import { useCan } from "#/core/auth";
 import { formatMontantFCFA } from "#/features/residence/models/format";
 import { cn } from "#/lib/utils";
-import { useCurrentCaisse } from "../hooks/use-current-caisse";
-
 import {
 	downloadTableauBordExcel,
 	downloadTableauBordPdf,
 	getTableauBordExcelPath,
 	getTableauBordPdfPath,
 } from "../api/finances";
+import { useCurrentCaisse } from "../hooks/use-current-caisse";
 import { useTableauBord } from "../hooks/use-finances";
+import { useMesCaisses } from "../hooks/use-mes-caisses";
 
 type PeriodeFiltre =
 	| "aujourd_hui"
@@ -66,8 +66,10 @@ const ACTIVITES: Record<ActiviteFiltre, string> = {
 export function TableauDeBordPage() {
 	const canVoir = useCan("FINANCES.VOIR");
 	const userCaisse = useCurrentCaisse();
+	const { data: caisses = [] } = useMesCaisses();
 	const [periode, setPeriode] = useState<PeriodeFiltre>("ce_mois");
 	const [activite, setActivite] = useState<ActiviteFiltre>("global");
+	const [idCaisseFiltre, setIdCaisseFiltre] = useState<string>("");
 	const [detailsOuvert, setDetailsOuvert] = useState(false);
 	const [exportPdfLoading, setExportPdfLoading] = useState(false);
 	const [exportExcelLoading, setExportExcelLoading] = useState(false);
@@ -76,7 +78,10 @@ export function TableauDeBordPage() {
 	// Map période filtre to backend parameter
 	const periodeParam = periode !== "personnalisee" ? periode : undefined;
 
-	const tableauBordQuery = useTableauBord(periodeParam);
+	const tableauBordQuery = useTableauBord(
+		periodeParam,
+		idCaisseFiltre || undefined,
+	);
 
 	// Fonction d'export PDF via le backend
 	const handleExportPdf = async () => {
@@ -167,7 +172,10 @@ export function TableauDeBordPage() {
 						<label className="block text-xs font-medium text-muted-foreground mb-1">
 							Période
 						</label>
-						<Select value={periode} onValueChange={(v) => setPeriode(v as PeriodeFiltre)}>
+						<Select
+							value={periode}
+							onValueChange={(v) => setPeriode(v as PeriodeFiltre)}
+						>
 							<SelectTrigger>
 								<SelectValue />
 							</SelectTrigger>
@@ -185,7 +193,10 @@ export function TableauDeBordPage() {
 						<label className="block text-xs font-medium text-muted-foreground mb-1">
 							Activité
 						</label>
-						<Select value={activite} onValueChange={(v) => setActivite(v as ActiviteFiltre)}>
+						<Select
+							value={activite}
+							onValueChange={(v) => setActivite(v as ActiviteFiltre)}
+						>
 							<SelectTrigger>
 								<SelectValue />
 							</SelectTrigger>
@@ -193,6 +204,25 @@ export function TableauDeBordPage() {
 								{Object.entries(ACTIVITES).map(([key, label]) => (
 									<SelectItem key={key} value={key}>
 										{label}
+									</SelectItem>
+								))}
+							</SelectContent>
+						</Select>
+					</div>
+
+					<div>
+						<label className="block text-xs font-medium text-muted-foreground mb-1">
+							Caisse
+						</label>
+						<Select value={idCaisseFiltre} onValueChange={setIdCaisseFiltre}>
+							<SelectTrigger>
+								<SelectValue />
+							</SelectTrigger>
+							<SelectContent>
+								<SelectItem value="">Toutes les caisses</SelectItem>
+								{caisses.map((caisse) => (
+									<SelectItem key={caisse.id_caisse} value={caisse.id_caisse}>
+										{caisse.libelle}
 									</SelectItem>
 								))}
 							</SelectContent>
@@ -279,7 +309,9 @@ export function TableauDeBordPage() {
 						<Indicateur
 							label="Bénéfice estimatif"
 							valeur={formatMontantFCFA(beneficeEstimatif.toString())}
-							couleur={beneficeEstimatif >= 0 ? "text-[#27AE60]" : "text-destructive"}
+							couleur={
+								beneficeEstimatif >= 0 ? "text-[#27AE60]" : "text-destructive"
+							}
 						/>
 					</div>
 
@@ -314,9 +346,10 @@ export function TableauDeBordPage() {
 									{lignes.map((ligne) => {
 										const encaissementsNum = Number(ligne.encaissements);
 										const margeNum = Number(ligne.marge_nette);
-										const marge = encaissementsNum > 0
-											? ((margeNum / encaissementsNum) * 100).toFixed(1)
-											: "0";
+										const marge =
+											encaissementsNum > 0
+												? ((margeNum / encaissementsNum) * 100).toFixed(1)
+												: "0";
 
 										return (
 											<tr
@@ -342,9 +375,7 @@ export function TableauDeBordPage() {
 												>
 													{formatMontantFCFA(ligne.marge_nette)}
 												</td>
-												<td className="px-4 py-3 text-right">
-													{marge}%
-												</td>
+												<td className="px-4 py-3 text-right">{marge}%</td>
 											</tr>
 										);
 									})}
@@ -385,21 +416,14 @@ function DetailsParActiviteModal({
 		(sum, l) => sum + Number(l.decaissements),
 		0,
 	);
-	const totalMarge = lignes.reduce(
-		(sum, l) => sum + Number(l.marge_nette),
-		0,
-	);
+	const totalMarge = lignes.reduce((sum, l) => sum + Number(l.marge_nette), 0);
 
 	return (
 		<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
 			<div className="rounded-lg border border-border bg-card p-6 shadow-lg max-w-2xl max-h-[90vh] overflow-y-auto w-full mx-4">
 				<div className="flex items-center justify-between mb-4">
 					<h2 className="text-xl font-semibold">Détails par activité</h2>
-					<Button
-						variant="ghost"
-						size="sm"
-						onClick={fermer}
-					>
+					<Button variant="ghost" size="sm" onClick={fermer}>
 						<X className="size-4" aria-hidden />
 						<span className="sr-only">Fermer</span>
 					</Button>
@@ -436,9 +460,7 @@ function DetailsParActiviteModal({
 										<span
 											className={cn(
 												"font-medium",
-												totalMarge >= 0
-													? "text-[#27AE60]"
-													: "text-destructive",
+												totalMarge >= 0 ? "text-[#27AE60]" : "text-destructive",
 											)}
 										>
 											{formatMontantFCFA(String(totalMarge))}
@@ -451,7 +473,8 @@ function DetailsParActiviteModal({
 
 					<div className="border-t border-border pt-4">
 						<p className="text-xs text-muted-foreground">
-							💡 Le filtrage détaillé par activité sera disponible une fois que le backend API supportera cette fonctionnalité.
+							💡 Le filtrage détaillé par activité sera disponible une fois que
+							le backend API supportera cette fonctionnalité.
 						</p>
 					</div>
 				</div>
@@ -474,7 +497,9 @@ function Indicateur({
 			<p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
 				{label}
 			</p>
-			<p className={`mt-2 text-lg sm:text-2xl font-bold ${couleur} break-words overflow-hidden`}>
+			<p
+				className={`mt-2 text-lg sm:text-2xl font-bold ${couleur} break-words overflow-hidden`}
+			>
 				{valeur}
 			</p>
 		</div>
