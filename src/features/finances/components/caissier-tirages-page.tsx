@@ -1,5 +1,4 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useParams } from "@tanstack/react-router";
 import { Dialog } from "radix-ui";
 import { useState } from "react";
 import { Plus } from "lucide-react";
@@ -14,9 +13,11 @@ import { useTirages, useCreerTirage } from "../hooks/use-tirages";
 import { obtenirDashboardCaisse } from "../api/caisses";
 import type { CreerTirageDto } from "../models/tirages";
 
-export function CaissierTiragesPage() {
-	const params = useParams({ from: "/_authenticated/finances/caissier/$id/tirages" });
-	const idCaisse = params.id;
+interface CaissierTiragesPageProps {
+	id: string;
+}
+
+export function CaissierTiragesPage({ id: idCaisse }: CaissierTiragesPageProps) {
 	const queryClient = useQueryClient();
 	const [openCreate, setOpenCreate] = useState(false);
 	const [formData, setFormData] = useState<CreerTirageDto>({

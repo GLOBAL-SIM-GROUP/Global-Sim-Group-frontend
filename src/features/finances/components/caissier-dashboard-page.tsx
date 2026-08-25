@@ -1,17 +1,15 @@
 import { useQuery } from "@tanstack/react-query";
-import { useParams } from "@tanstack/react-router";
 import { Breadcrumb } from "#/components/ui/breadcrumb";
 import { Button } from "#/components/ui/button";
 import { formatMontantFCFA } from "#/features/residence/models/format";
 import { obtenirDashboardCaisse } from "../api/caisses";
 import { cn } from "#/lib/utils";
 
-export function CaissierDashboardPage() {
-	const params = useParams({ from: "/_authenticated/finances/caissier/$id/dashboard" });
-	const id = params.id;
+interface CaissierDashboardPageProps {
+	id: string;
+}
 
-	console.log("Params:", params);
-	console.log("ID extrait:", id);
+export function CaissierDashboardPage({ id }: CaissierDashboardPageProps) {
 
 	const { data: dashboard, isLoading, error } = useQuery({
 		queryKey: ["caisse-dashboard", id],
