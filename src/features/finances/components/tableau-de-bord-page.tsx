@@ -21,7 +21,6 @@ import {
 } from "../api/finances";
 import { useCurrentCaisse } from "../hooks/use-current-caisse";
 import { useTableauBord } from "../hooks/use-finances";
-import { useMesCaisses } from "../hooks/use-mes-caisses";
 
 type PeriodeFiltre =
 	| "aujourd_hui"
@@ -68,10 +67,8 @@ const ITEMS_PER_PAGE = 10;
 export function TableauDeBordPage() {
 	const canVoir = useCan("FINANCES.VOIR");
 	const userCaisse = useCurrentCaisse();
-	const { data: caisses = [] } = useMesCaisses();
 	const [periode, setPeriode] = useState<PeriodeFiltre>("ce_mois");
 	const [activite, setActivite] = useState<ActiviteFiltre>("global");
-	const [idCaisseFiltre, setIdCaisseFiltre] = useState<string>("");
 	const [currentPage, setCurrentPage] = useState(1);
 	const [detailsOuvert, setDetailsOuvert] = useState(false);
 	const [exportPdfLoading, setExportPdfLoading] = useState(false);
@@ -81,15 +78,12 @@ export function TableauDeBordPage() {
 	// Map période filtre to backend parameter
 	const periodeParam = periode !== "personnalisee" ? periode : undefined;
 
-	const tableauBordQuery = useTableauBord(
-		periodeParam,
-		idCaisseFiltre || undefined,
-	);
+	const tableauBordQuery = useTableauBord(periodeParam);
 
 	// Reset page quand les filtres changent
 	useEffect(() => {
 		setCurrentPage(1);
-	}, [periodeParam, idCaisseFiltre]);
+	}, [periodeParam]);
 
 	// Fonction d'export PDF via le backend
 	const handleExportPdf = async () => {
@@ -223,24 +217,6 @@ export function TableauDeBordPage() {
 						</Select>
 					</div>
 
-					<div>
-						<label className="block text-xs font-medium text-muted-foreground mb-1">
-							Caisse
-						</label>
-						<Select value={idCaisseFiltre} onValueChange={setIdCaisseFiltre}>
-							<SelectTrigger>
-								<SelectValue />
-							</SelectTrigger>
-							<SelectContent>
-								<SelectItem value="">Toutes les caisses</SelectItem>
-								{caisses.map((caisse) => (
-									<SelectItem key={caisse.id_caisse} value={caisse.id_caisse}>
-										{caisse.libelle}
-									</SelectItem>
-								))}
-							</SelectContent>
-						</Select>
-					</div>
 				</div>
 
 				<div className="flex flex-col gap-2 w-full sm:w-auto sm:flex-row sm:items-center sm:gap-2">
