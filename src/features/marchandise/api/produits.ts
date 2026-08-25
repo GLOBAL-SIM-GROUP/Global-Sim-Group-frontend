@@ -93,6 +93,7 @@ export interface ProduitBody {
 	seuilAlerte?: string | null;
 	idFournisseur?: string | null;
 	actif?: boolean;
+	imageUrl?: string | null;
 }
 
 /** Crée un produit (POST `CreerProduitDto` — date d'entrée auto backend). */
@@ -107,17 +108,20 @@ export function creerProduit(body: ProduitBody): Promise<unknown> {
 		seuil_alerte: texteOuNull(body.seuilAlerte),
 		id_fournisseur: texteOuNull(body.idFournisseur),
 		actif: body.actif ?? true,
+		image_url: texteOuNull(body.imageUrl),
 	} satisfies Omit<
 		CreerProduitDto,
 		| "id_categorie_produit"
 		| "id_fournisseur"
 		| "quantite_initiale"
 		| "seuil_alerte"
+		| "image_url"
 	> & {
 		id_categorie_produit?: string | null;
 		id_fournisseur?: string | null;
 		quantite_initiale?: string | null;
 		seuil_alerte?: string | null;
+		image_url?: string | null;
 	};
 	return getApiClient().apiFetch("/api/v1/market/produits", {
 		method: "POST",
@@ -139,13 +143,15 @@ export function modifierProduit(
 		seuil_alerte: texteOuNull(body.seuilAlerte),
 		id_fournisseur: texteOuNull(body.idFournisseur),
 		actif: body.actif ?? true,
+		image_url: texteOuNull(body.imageUrl),
 	} satisfies Omit<
 		MajProduitDto,
-		"id_categorie_produit" | "id_fournisseur" | "seuil_alerte"
+		"id_categorie_produit" | "id_fournisseur" | "seuil_alerte" | "image_url"
 	> & {
 		id_categorie_produit?: string | null;
 		id_fournisseur?: string | null;
 		seuil_alerte?: string | null;
+		image_url?: string | null;
 	};
 	return getApiClient().apiFetch(`/api/v1/market/produits/${id}`, {
 		method: "PATCH",

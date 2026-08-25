@@ -22,7 +22,7 @@ import {
 import { PRODUITS_PAGE_SIZE } from "../permissions";
 import { ProduitFilters } from "./produit-filters";
 import { ProduitFormDialog } from "./produit-form-dialog";
-import { ProduitTable } from "./produit-table";
+import { ProduitCardsGrid } from "./produit-cards-grid";
 
 /** Filtres/pagination reflétés dans l'URL (liens partageables). */
 export interface ProduitsSearch {
@@ -188,7 +188,7 @@ export function ProduitsPage({
 					</Button>
 				</div>
 			) : (
-				<ProduitTable
+				<ProduitCardsGrid
 					produits={pagination.items}
 					categories={categoriesQuery.data ?? []}
 					fournisseurs={fournisseursQuery.data ?? []}

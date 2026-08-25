@@ -15,6 +15,7 @@ export interface Produit {
 	id_fournisseur: string | null;
 	date_entree: string | null;
 	actif: boolean;
+	image_url?: string | null;
 }
 
 /** Catégorie de produit (GET /market/categories-produits). */
