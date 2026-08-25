@@ -4,11 +4,11 @@ export function LandingFooter() {
 	const currentYear = new Date().getFullYear();
 
 	return (
-		<footer className="bg-sea-ink text-white py-12 px-4 sm:px-6 lg:px-8">
+		<footer className="bg-sea-ink text-white py-6 px-2 sm:px-3 lg:px-4">
 			<div className="max-w-7xl mx-auto">
-				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
+				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
 					{/* Company info */}
-					<div className="space-y-4">
+					<div className="space-y-2">
 						<div className="flex items-center gap-2">
 							<img
 								src="/logo.png"
@@ -24,7 +24,7 @@ export function LandingFooter() {
 					</div>
 
 					{/* Quick links */}
-					<div className="space-y-4">
+					<div className="space-y-2">
 						<h3 className="font-semibold">Navigation</h3>
 						<ul className="space-y-2 text-sm">
 							<li>
@@ -63,7 +63,7 @@ export function LandingFooter() {
 					</div>
 
 					{/* Services */}
-					<div className="space-y-4">
+					<div className="space-y-2">
 						<h3 className="font-semibold">Services</h3>
 						<ul className="space-y-2 text-sm text-white/70">
 							<li>Résidence</li>
@@ -74,7 +74,7 @@ export function LandingFooter() {
 					</div>
 
 					{/* Contact */}
-					<div className="space-y-4">
+					<div className="space-y-2">
 						<h3 className="font-semibold">Contact</h3>
 						<div className="space-y-2 text-sm text-white/70">
 							<p>
@@ -91,10 +91,10 @@ export function LandingFooter() {
 				</div>
 
 				{/* Divider */}
-				<div className="border-t border-white/10 pt-8">
-					<div className="flex flex-col sm:flex-row justify-between items-center gap-4 text-sm text-white/70">
+				<div className="border-t border-white/10 pt-4">
+					<div className="flex flex-col sm:flex-row justify-between items-center gap-2 text-sm text-white/70">
 						<p>© {currentYear} GLOBAL SIM GROUP. Tous droits réservés.</p>
-						<div className="flex gap-6">
+						<div className="flex gap-3">
 							<a href="#" className="hover:text-white transition-colors">
 								Politique de confidentialité
 							</a>
