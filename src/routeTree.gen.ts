@@ -15,6 +15,8 @@ import { Route as InscriptionRouteImport } from './routes/inscription'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthenticatedEnCoursRouteImport } from './routes/_authenticated/en-cours'
 import { Route as AuthenticatedHomeRouteImport } from './routes/_authenticated/home'
+import { Route as MarchandiseProduitsRouteImport } from './routes/marchandise/produits'
+import { Route as RestaurantPlatsRouteImport } from './routes/restaurant/plats'
 import { Route as AuthenticatedDashboardIndexRouteImport } from './routes/_authenticated/dashboard/index'
 import { Route as AuthenticatedRapportsIndexRouteImport } from './routes/_authenticated/rapports/index'
 import { Route as AuthenticatedAdminJournalIndexRouteImport } from './routes/_authenticated/admin/journal/index'
@@ -107,6 +109,16 @@ const AuthenticatedHomeRoute = AuthenticatedHomeRouteImport.update({
   id: '/home',
   path: '/home',
   getParentRoute: () => AuthenticatedRoute,
+} as any)
+const MarchandiseProduitsRoute = MarchandiseProduitsRouteImport.update({
+  id: '/marchandise/produits',
+  path: '/marchandise/produits',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RestaurantPlatsRoute = RestaurantPlatsRouteImport.update({
+  id: '/restaurant/plats',
+  path: '/restaurant/plats',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedDashboardIndexRoute =
   AuthenticatedDashboardIndexRouteImport.update({
@@ -493,6 +505,8 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/en-cours': typeof AuthenticatedEnCoursRoute
   '/home': typeof AuthenticatedHomeRoute
+  '/marchandise/produits': typeof MarchandiseProduitsRoute
+  '/restaurant/plats': typeof RestaurantPlatsRoute
   '/dashboard/': typeof AuthenticatedDashboardIndexRoute
   '/rapports/': typeof AuthenticatedRapportsIndexRoute
   '/client/clients/$id': typeof AuthenticatedClientClientsIdRoute
@@ -563,6 +577,8 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/en-cours': typeof AuthenticatedEnCoursRoute
   '/home': typeof AuthenticatedHomeRoute
+  '/marchandise/produits': typeof AuthenticatedMarchandiseProduitsIndexRoute
+  '/restaurant/plats': typeof AuthenticatedRestaurantPlatsIndexRoute
   '/dashboard': typeof AuthenticatedDashboardIndexRoute
   '/rapports': typeof AuthenticatedRapportsIndexRoute
   '/client/clients/$id': typeof AuthenticatedClientClientsIdRoute
@@ -595,7 +611,6 @@ export interface FileRoutesByTo {
   '/finances/tableau-de-bord': typeof AuthenticatedFinancesTableauDeBordIndexRoute
   '/marchandise/categories-produits': typeof AuthenticatedMarchandiseCategoriesProduitsIndexRoute
   '/marchandise/mouvements': typeof AuthenticatedMarchandiseMouvementsIndexRoute
-  '/marchandise/produits': typeof AuthenticatedMarchandiseProduitsIndexRoute
   '/marchandise/statistiques': typeof AuthenticatedMarchandiseStatistiquesIndexRoute
   '/marchandise/ventes': typeof AuthenticatedMarchandiseVentesIndexRoute
   '/pressing/commandes': typeof AuthenticatedPressingCommandesIndexRoute
@@ -612,7 +627,6 @@ export interface FileRoutesByTo {
   '/residence/portail': typeof AuthenticatedResidencePortailIndexRoute
   '/residence/sejours-courts': typeof AuthenticatedResidenceSejoursCourtsIndexRoute
   '/restaurant/commandes': typeof AuthenticatedRestaurantCommandesIndexRoute
-  '/restaurant/plats': typeof AuthenticatedRestaurantPlatsIndexRoute
   '/restaurant/statistiques': typeof AuthenticatedRestaurantStatistiquesIndexRoute
   '/rh/bulletins': typeof AuthenticatedRhBulletinsIndexRoute
   '/rh/comptes': typeof AuthenticatedRhComptesIndexRoute
@@ -635,6 +649,8 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/_authenticated/en-cours': typeof AuthenticatedEnCoursRoute
   '/_authenticated/home': typeof AuthenticatedHomeRoute
+  '/marchandise/produits': typeof MarchandiseProduitsRoute
+  '/restaurant/plats': typeof RestaurantPlatsRoute
   '/_authenticated/dashboard/': typeof AuthenticatedDashboardIndexRoute
   '/_authenticated/rapports/': typeof AuthenticatedRapportsIndexRoute
   '/_authenticated/client/clients/$id': typeof AuthenticatedClientClientsIdRoute
@@ -707,6 +723,8 @@ export interface FileRouteTypes {
     | '/login'
     | '/en-cours'
     | '/home'
+    | '/marchandise/produits'
+    | '/restaurant/plats'
     | '/dashboard/'
     | '/rapports/'
     | '/client/clients/$id'
@@ -777,6 +795,8 @@ export interface FileRouteTypes {
     | '/login'
     | '/en-cours'
     | '/home'
+    | '/marchandise/produits'
+    | '/restaurant/plats'
     | '/dashboard'
     | '/rapports'
     | '/client/clients/$id'
@@ -809,7 +829,6 @@ export interface FileRouteTypes {
     | '/finances/tableau-de-bord'
     | '/marchandise/categories-produits'
     | '/marchandise/mouvements'
-    | '/marchandise/produits'
     | '/marchandise/statistiques'
     | '/marchandise/ventes'
     | '/pressing/commandes'
@@ -826,7 +845,6 @@ export interface FileRouteTypes {
     | '/residence/portail'
     | '/residence/sejours-courts'
     | '/restaurant/commandes'
-    | '/restaurant/plats'
     | '/restaurant/statistiques'
     | '/rh/bulletins'
     | '/rh/comptes'
@@ -848,6 +866,8 @@ export interface FileRouteTypes {
     | '/login'
     | '/_authenticated/en-cours'
     | '/_authenticated/home'
+    | '/marchandise/produits'
+    | '/restaurant/plats'
     | '/_authenticated/dashboard/'
     | '/_authenticated/rapports/'
     | '/_authenticated/client/clients/$id'
@@ -918,6 +938,8 @@ export interface RootRouteChildren {
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   InscriptionRoute: typeof InscriptionRoute
   LoginRoute: typeof LoginRoute
+  MarchandiseProduitsRoute: typeof MarchandiseProduitsRoute
+  RestaurantPlatsRoute: typeof RestaurantPlatsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -963,6 +985,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/home'
       preLoaderRoute: typeof AuthenticatedHomeRouteImport
       parentRoute: typeof AuthenticatedRoute
+    }
+    '/marchandise/produits': {
+      id: '/marchandise/produits'
+      path: '/marchandise/produits'
+      fullPath: '/marchandise/produits'
+      preLoaderRoute: typeof MarchandiseProduitsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/restaurant/plats': {
+      id: '/restaurant/plats'
+      path: '/restaurant/plats'
+      fullPath: '/restaurant/plats'
+      preLoaderRoute: typeof RestaurantPlatsRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_authenticated/dashboard/': {
       id: '/_authenticated/dashboard/'
@@ -1601,16 +1637,9 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   InscriptionRoute: InscriptionRoute,
   LoginRoute: LoginRoute,
+  MarchandiseProduitsRoute: MarchandiseProduitsRoute,
+  RestaurantPlatsRoute: RestaurantPlatsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}

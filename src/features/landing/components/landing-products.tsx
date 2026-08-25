@@ -108,7 +108,7 @@ export function LandingProducts() {
 								<CardFooter className="pt-0">
 									<Button
 										className="w-full bg-lagoon hover:bg-lagoon/90"
-										onClick={() => navigate({ to: "/login" })}
+										onClick={() => navigate({ to: "/marchandise/produits" })}
 									>
 										Voir détails
 									</Button>
