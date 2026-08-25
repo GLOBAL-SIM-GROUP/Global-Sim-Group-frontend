@@ -125,7 +125,10 @@ export function createApiClient(deps: ApiDeps): ApiClient {
 		}
 	}
 
-	async function uploadForm<T>(path: string, init: RequestInit = {}): Promise<T> {
+	async function uploadForm<T>(
+		path: string,
+		init: RequestInit = {},
+	): Promise<T> {
 		const requiresAuth = !NO_AUTH_PATHS.some((p) => path.startsWith(p));
 		const { signal, timedOut, timeoutId } = prepareRequete(init);
 		try {
@@ -227,7 +230,10 @@ async function unwrap<T>(response: Response): Promise<T> {
 			// Si JSON parse échoue, récupère le texte brut pour debug
 			try {
 				const text = await response.text();
-				console.error("[unwrap] JSON parse failed, raw response:", text.slice(0, 200));
+				console.error(
+					"[unwrap] JSON parse failed, raw response:",
+					text.slice(0, 200),
+				);
 			} catch {
 				// Ignore
 			}

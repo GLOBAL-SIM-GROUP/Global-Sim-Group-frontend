@@ -69,10 +69,7 @@ class UploadCache {
 		const ttl = 5 * 60 * 1000; // 5 minutes
 
 		for (const [key, entry] of this.cache.entries()) {
-			if (
-				entry.refCount === 0 &&
-				now - entry.lastUsed > ttl
-			) {
+			if (entry.refCount === 0 && now - entry.lastUsed > ttl) {
 				URL.revokeObjectURL(entry.blobUrl);
 				this.cache.delete(key);
 			}
@@ -135,9 +132,12 @@ class UploadCache {
 export const uploadCache = new UploadCache();
 
 // Nettoyage automatique toutes les 5 minutes
-setInterval(() => {
-	uploadCache.cleanExpired();
-}, 5 * 60 * 1000);
+setInterval(
+	() => {
+		uploadCache.cleanExpired();
+	},
+	5 * 60 * 1000,
+);
 
 // Nettoyage au déchargement de la page
 if (typeof window !== "undefined") {

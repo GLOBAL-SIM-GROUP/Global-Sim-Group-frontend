@@ -42,9 +42,7 @@ export async function uploadImage(
 		"application/pdf",
 	];
 	if (!allowedMimes.includes(file.type)) {
-		throw new Error(
-			"Format non supporté. Utilisez JPG, PNG, WebP ou PDF.",
-		);
+		throw new Error("Format non supporté. Utilisez JPG, PNG, WebP ou PDF.");
 	}
 
 	const formData = new FormData();
@@ -52,13 +50,10 @@ export async function uploadImage(
 	formData.append("categorie", categorie);
 
 	const client = getApiClient();
-	const data = await client.uploadForm<{ key: string }>(
-		"/api/v1/uploads",
-		{
-			method: "POST",
-			body: formData,
-		},
-	);
+	const data = await client.uploadForm<{ key: string }>("/api/v1/uploads", {
+		method: "POST",
+		body: formData,
+	});
 
 	return data.key;
 }
@@ -84,12 +79,16 @@ export async function uploadImage(
  * @returns Promise<Blob> — image binary prêt pour createObjectURL() → <img src>
  * @throws ApiError 403 si CLIENT.VOIR manque, 400 si key invalide, 404 si fichier absent
  */
-export async function downloadUploadedFile(key: string | null | undefined): Promise<Blob | null> {
+export async function downloadUploadedFile(
+	key: string | null | undefined,
+): Promise<Blob | null> {
 	if (!key) return null;
 
 	const client = getApiClient();
 	try {
-		return await client.download(`/api/v1/uploads?key=${encodeURIComponent(key)}`);
+		return await client.download(
+			`/api/v1/uploads?key=${encodeURIComponent(key)}`,
+		);
 	} catch {
 		// Si le fichier n'existe pas ou permission manque, retourner null
 		// (l'image affichera le placeholder)
@@ -109,7 +108,9 @@ export async function downloadUploadedFile(key: string | null | undefined): Prom
  * @param key - Clé MinIO retournée par uploadImage() (e.g. "plat-photo/3-<uuid>.jpg")
  * @returns Promise<string | null> — blob URL prêt pour <img src>, ou null si échec
  */
-export async function getUploadBlobUrl(key: string | null | undefined): Promise<string | null> {
+export async function getUploadBlobUrl(
+	key: string | null | undefined,
+): Promise<string | null> {
 	if (!key) return null;
 
 	const blob = await downloadUploadedFile(key);
