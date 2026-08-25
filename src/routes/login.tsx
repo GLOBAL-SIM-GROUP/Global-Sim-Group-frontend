@@ -423,7 +423,6 @@ export function LoginPage() {
 								</p>
 							</form>
 
-						</div>
 
 						{/* Footer mobile */}
 						<div className="lg:hidden text-center mt-8 text-xs text-muted-foreground">

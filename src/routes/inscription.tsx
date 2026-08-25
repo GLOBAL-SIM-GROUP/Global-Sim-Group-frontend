@@ -508,8 +508,6 @@ export function InscriptionPage() {
 								</p>
 							</form>
 
-							{/* Navigation links */}
-							<div className="space-y-3 pt-6 border-t">
 
 						{/* Footer mobile */}
 						<div className="lg:hidden text-center mt-8 text-xs text-muted-foreground">
