@@ -211,7 +211,22 @@ function mapperErreur(error: unknown, timedOut: boolean): never {
 async function unwrap<T>(response: Response): Promise<T> {
 	const contentType = response.headers.get("content-type") ?? "";
 	const isJson = contentType.includes("application/json");
-	const body = isJson ? await response.json().catch(() => null) : null;
+	let body = null;
+
+	if (isJson) {
+		try {
+			body = await response.json();
+		} catch {
+			// Si JSON parse échoue, récupère le texte brut pour debug
+			try {
+				const text = await response.text();
+				console.error("[unwrap] JSON parse failed, raw response:", text.slice(0, 200));
+			} catch {
+				// Ignore
+			}
+			body = null;
+		}
+	}
 
 	if (!response.ok) {
 		throw buildApiError(response.status, body);
