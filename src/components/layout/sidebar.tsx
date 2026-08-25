@@ -1,5 +1,11 @@
 import { Link, useLocation } from "@tanstack/react-router";
-import { BarChart2, BarChart3, ChevronDown, Home, LayoutGrid } from "lucide-react";
+import {
+	BarChart2,
+	BarChart3,
+	ChevronDown,
+	Home,
+	LayoutGrid,
+} from "lucide-react";
 import { useState } from "react";
 
 import { useCan, useCurrentUser, usePermissions } from "#/core/auth";
@@ -72,10 +78,8 @@ const ROUTES_REALLES: Record<
 		categories_depenses: { to: "/finances/categories-depenses", exact: true },
 		caisses: { to: "/finances/caisses", exact: true },
 		revenus_utilisateur: { to: "/finances/revenus-utilisateur", exact: true },
-	},
-	CAISSIER: {
-		dashboard: { to: "/finances/caissier/:id/dashboard", exact: true },
-		tirages: { to: "/finances/caissier/:id/tirages", exact: true },
+		ma_caisse: { to: "/finances/caissier/dashboard", exact: true },
+		mes_tirages: { to: "/finances/caissier/tirages", exact: true },
 	},
 	RH: {
 		employes: { to: "/rh/employes", exact: true },
@@ -140,12 +144,14 @@ export function Sidebar({ onClose }: { onClose?: () => void } = {}) {
 
 	const linkClassName =
 		"flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-gray-400 transition-all duration-200 hover:bg-sea-ink/50 hover:text-white";
-	const linkActiveClassName = "bg-lagoon/15 text-lagoon before:absolute before:left-0 before:top-0 before:bottom-0 before:w-1 before:bg-lagoon before:rounded-r relative";
+	const linkActiveClassName =
+		"bg-lagoon/15 text-lagoon before:absolute before:left-0 before:top-0 before:bottom-0 before:w-1 before:bg-lagoon before:rounded-r relative";
 	const headerClassName = (isOpen: boolean) =>
 		cn(
 			linkClassName,
 			"w-full text-left relative",
-			isOpen && "text-lagoon bg-sea-ink/70 before:absolute before:left-0 before:top-0 before:bottom-0 before:w-1 before:bg-lagoon before:rounded-r"
+			isOpen &&
+				"text-lagoon bg-sea-ink/70 before:absolute before:left-0 before:top-0 before:bottom-0 before:w-1 before:bg-lagoon before:rounded-r",
 		);
 
 	const subLinkClassName =
@@ -178,7 +184,10 @@ export function Sidebar({ onClose }: { onClose?: () => void } = {}) {
 								className={linkClassName}
 								onClick={() => onClose?.()}
 							>
-								<LayoutGrid className="size-4 text-gray-400 transition-colors" aria-hidden />
+								<LayoutGrid
+									className="size-4 text-gray-400 transition-colors"
+									aria-hidden
+								/>
 								Accueil
 							</Link>
 						</li>
@@ -192,7 +201,10 @@ export function Sidebar({ onClose }: { onClose?: () => void } = {}) {
 									className={linkClassName}
 									onClick={() => onClose?.()}
 								>
-									<BarChart2 className="size-4 text-gray-400 transition-colors" aria-hidden />
+									<BarChart2
+										className="size-4 text-gray-400 transition-colors"
+										aria-hidden
+									/>
 									Tableau de bord global
 								</Link>
 							</li>
@@ -209,12 +221,14 @@ export function Sidebar({ onClose }: { onClose?: () => void } = {}) {
 									className={linkClassName}
 									onClick={() => onClose?.()}
 								>
-									<BarChart3 className="size-4 text-gray-400 transition-colors" aria-hidden />
+									<BarChart3
+										className="size-4 text-gray-400 transition-colors"
+										aria-hidden
+									/>
 									Rapports
 								</Link>
 							</li>
 						) : null}
-
 
 						{accessibleModules.map((module) => {
 							const isOpen = openModule === module.code;
@@ -230,7 +244,7 @@ export function Sidebar({ onClose }: { onClose?: () => void } = {}) {
 										<module.icon
 											className={cn(
 												"size-4 transition-colors",
-												isOpen ? "text-lagoon" : "text-gray-400"
+												isOpen ? "text-lagoon" : "text-gray-400",
 											)}
 											aria-hidden
 										/>

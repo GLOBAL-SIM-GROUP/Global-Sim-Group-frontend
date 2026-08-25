@@ -247,6 +247,18 @@ export const MODULE_DEFINITIONS: ModuleDefinition[] = [
 				permission: "FINANCES.VOIR",
 				path: "/finances/revenus-utilisateur",
 			},
+			{
+				id: "ma_caisse",
+				label: "Ma caisse",
+				permission: "FINANCES.VOIR",
+				path: "/finances/caissier/dashboard",
+			},
+			{
+				id: "mes_tirages",
+				label: "Mes tirages",
+				permission: "FINANCES.VOIR",
+				path: "/finances/caissier/tirages",
+			},
 		],
 	},
 	{
@@ -364,28 +376,6 @@ export const MODULE_DEFINITIONS: ModuleDefinition[] = [
 				label: "Sauvegardes",
 				permission: "ADMIN.VOIR",
 				path: "/admin/sauvegardes",
-			},
-		],
-	},
-	{
-		code: "CAISSIER",
-		title: "Ma caisse",
-		description: "Consultation et tirage de votre caisse.",
-		icon: Wallet,
-		path: "/finances/caissier/dashboard",
-		permission: "FINANCES.VOIR",
-		subItems: [
-			{
-				id: "dashboard",
-				label: "Dashboard",
-				permission: "FINANCES.VOIR",
-				path: "/finances/caissier/dashboard",
-			},
-			{
-				id: "tirages",
-				label: "Tirages",
-				permission: "FINANCES.VOIR",
-				path: "/finances/caissier/tirages",
 			},
 		],
 	},

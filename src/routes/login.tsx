@@ -181,7 +181,7 @@ export function LoginPage() {
 		return () => {
 			cancelled = true;
 		};
-	}, [auth, navigate, search.next]);
+	}, []);
 
 	const form = useForm({
 		defaultValues: {

@@ -1,70 +1,103 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Plus } from "lucide-react";
 import { Dialog } from "radix-ui";
 import { useState } from "react";
-import { Plus } from "lucide-react";
 
 import { Breadcrumb } from "#/components/ui/breadcrumb";
 import { Button } from "#/components/ui/button";
 import { Input } from "#/components/ui/input";
+import { useCan } from "#/core/auth";
 import { formatMontantFCFA } from "#/features/residence/models/format";
 import { cn } from "#/lib/utils";
-
-import { useTirages, useCreerTirage } from "../hooks/use-tirages";
-import { obtenirDashboardCaisse } from "../api/caisses";
+import { useMesCaisses } from "../hooks/use-mes-caisses";
+import { useCreerTirage, useTirages } from "../hooks/use-tirages";
 import type { CreerTirageDto } from "../models/tirages";
 
-interface CaissierTiragesPageProps {
-	id: string;
-}
-
-export function CaissierTiragesPage({ id: idCaisse }: CaissierTiragesPageProps) {
-	const queryClient = useQueryClient();
+/**
+ * Tirages (fermetures de caisse) du caissier connecté (M8). Même résolution
+ * de caisse que le dashboard — pas d'ID dans l'URL, `GET /finances/caisses`
+ * scopé par le backend.
+ */
+export function CaissierTiragesPage() {
+	const canVoir = useCan("FINANCES.VOIR");
+	const canCreer = useCan("FINANCES.CREER");
+	const { data: caisses, isLoading: caissesLoading } = useMesCaisses();
 	const [openCreate, setOpenCreate] = useState(false);
+
+	const idCaisse = caisses?.length === 1 ? caisses[0].id_caisse : null;
+
 	const [formData, setFormData] = useState<CreerTirageDto>({
 		montant_compte: "",
 		date: new Date().toISOString().split("T")[0],
-		id_caisse: idCaisse,
+		id_caisse: "",
 		note: "",
 	});
 
-	const { data: dashboard } = useQuery({
-		queryKey: ["caisse-dashboard", idCaisse],
-		queryFn: () => obtenirDashboardCaisse(idCaisse),
-		enabled: !!idCaisse,
-	});
-
-	const { data: tirages = [], isLoading } = useTirages(
-		idCaisse ? { id_caisse: idCaisse, limit: 50 } : undefined
+	const { data: tirages = [], isLoading: tiragesLoading } = useTirages(
+		idCaisse ? { id_caisse: idCaisse, limit: 50 } : undefined,
 	);
 
 	const createMut = useCreerTirage();
 
-	if (!idCaisse) {
+	if (!canVoir) {
 		return (
 			<div className="p-6 text-sm text-muted-foreground">
-				ID de caisse manquant
+				Vous n'avez pas accès aux caisses.
 			</div>
 		);
 	}
 
-	const handleCreate = async () => {
-		if (!formData.montant_compte) return;
-		createMut.mutate(formData, {
-			onSuccess: () => {
-				setFormData({
-					montant_compte: "",
-					date: new Date().toISOString().split("T")[0],
-					id_caisse: userCaisse,
-					note: "",
-				});
-				setOpenCreate(false);
-			},
+	if (caissesLoading) {
+		return (
+			<div className="p-6 text-center text-sm text-muted-foreground">
+				Chargement…
+			</div>
+		);
+	}
+
+	if (!caisses || caisses.length === 0) {
+		return (
+			<div className="mx-auto w-full max-w-6xl space-y-6 p-6">
+				<Breadcrumb
+					items={[{ label: "Accueil", to: "/" }, { label: "Tirages" }]}
+				/>
+				<div className="rounded-lg border border-border bg-card p-8 text-center text-sm text-muted-foreground">
+					Aucune caisse ne vous est assignée.
+				</div>
+			</div>
+		);
+	}
+
+	if (caisses.length > 1) {
+		return (
+			<div className="mx-auto w-full max-w-6xl space-y-6 p-6">
+				<Breadcrumb
+					items={[{ label: "Accueil", to: "/" }, { label: "Tirages" }]}
+				/>
+				<div className="rounded-lg border border-border bg-card p-8 text-center text-sm text-muted-foreground">
+					Plusieurs caisses accessibles — ouvrez le tableau de bord pour en
+					choisir une d'abord.
+				</div>
+			</div>
+		);
+	}
+
+	const handleOpenCreate = () => {
+		setFormData({
+			montant_compte: "",
+			date: new Date().toISOString().split("T")[0],
+			id_caisse: idCaisse ?? "",
+			note: "",
 		});
+		setOpenCreate(true);
 	};
 
-	const montantAttendu = dashboard?.total_paiements ?? 0;
-	const montantCompte = Number(formData.montant_compte) || 0;
-	const ecart = montantCompte - montantAttendu;
+	const handleCreate = () => {
+		if (!formData.montant_compte || !idCaisse) return;
+		createMut.mutate(
+			{ ...formData, id_caisse: idCaisse },
+			{ onSuccess: () => setOpenCreate(false) },
+		);
+	};
 
 	return (
 		<div className="mx-auto w-full max-w-6xl space-y-6 p-6">
@@ -85,7 +118,6 @@ export function CaissierTiragesPage({ id: idCaisse }: CaissierTiragesPageProps) 
 				</p>
 			</section>
 
-			{/* Create Dialog */}
 			<Dialog.Root open={openCreate} onOpenChange={setOpenCreate}>
 				<Dialog.Portal>
 					<Dialog.Overlay className="fixed inset-0 z-40 bg-black/50" />
@@ -98,8 +130,11 @@ export function CaissierTiragesPage({ id: idCaisse }: CaissierTiragesPageProps) 
 						</Dialog.Description>
 						<div className="mt-6 space-y-4">
 							<div>
-								<label className="text-sm font-medium">Date du tirage</label>
+								<label htmlFor="tirage-date" className="text-sm font-medium">
+									Date du tirage
+								</label>
 								<input
+									id="tirage-date"
 									type="date"
 									value={formData.date}
 									onChange={(e) =>
@@ -108,10 +143,12 @@ export function CaissierTiragesPage({ id: idCaisse }: CaissierTiragesPageProps) 
 									className="w-full h-9 rounded-md border border-input bg-background px-3 text-sm"
 								/>
 							</div>
-
 							<div>
-								<label className="text-sm font-medium">Montant compté</label>
+								<label htmlFor="tirage-montant" className="text-sm font-medium">
+									Montant compté
+								</label>
 								<Input
+									id="tirage-montant"
 									type="number"
 									value={formData.montant_compte}
 									onChange={(e) =>
@@ -121,37 +158,12 @@ export function CaissierTiragesPage({ id: idCaisse }: CaissierTiragesPageProps) 
 									step="0.01"
 								/>
 							</div>
-
-							{montantAttendu > 0 && (
-								<div className="rounded-lg bg-muted p-3 space-y-2">
-									<div className="flex justify-between text-sm">
-										<span className="text-muted-foreground">Montant attendu:</span>
-										<span className="font-medium">
-											{formatMontantFCFA(montantAttendu.toString())}
-										</span>
-									</div>
-									<div
-										className={cn(
-											"flex justify-between text-sm",
-											ecart === 0
-												? "text-green-700 dark:text-green-400"
-												: ecart > 0
-													? "text-blue-700 dark:text-blue-400"
-													: "text-red-700 dark:text-red-400"
-										)}
-									>
-										<span className="font-medium">Écart:</span>
-										<span className="font-bold">
-											{formatMontantFCFA(Math.abs(ecart).toString())}
-											{ecart > 0 ? " (surplus)" : ecart < 0 ? " (manque)" : ""}
-										</span>
-									</div>
-								</div>
-							)}
-
 							<div>
-								<label className="text-sm font-medium">Note (optionnel)</label>
+								<label htmlFor="tirage-note" className="text-sm font-medium">
+									Note (optionnel)
+								</label>
 								<textarea
+									id="tirage-note"
 									value={formData.note || ""}
 									onChange={(e) =>
 										setFormData({ ...formData, note: e.target.value })
@@ -160,18 +172,11 @@ export function CaissierTiragesPage({ id: idCaisse }: CaissierTiragesPageProps) 
 									className="w-full h-20 rounded-md border border-input bg-background px-3 py-2 text-sm resize-none"
 								/>
 							</div>
-
 							<div className="flex gap-2 justify-end pt-2">
-								<Button
-									variant="outline"
-									onClick={() => setOpenCreate(false)}
-								>
+								<Button variant="outline" onClick={() => setOpenCreate(false)}>
 									Annuler
 								</Button>
-								<Button
-									onClick={handleCreate}
-									disabled={createMut.isPending}
-								>
+								<Button onClick={handleCreate} disabled={createMut.isPending}>
 									{createMut.isPending ? "Enregistrement…" : "Enregistrer"}
 								</Button>
 							</div>
@@ -180,19 +185,17 @@ export function CaissierTiragesPage({ id: idCaisse }: CaissierTiragesPageProps) 
 				</Dialog.Portal>
 			</Dialog.Root>
 
-			{/* Create button */}
-			<div className="flex justify-end">
-				<Button onClick={() => setOpenCreate(true)}>
-					<Plus className="size-4 mr-2" />
-					Nouveau tirage
-				</Button>
-			</div>
-
-			{/* Tirages list */}
-			{isLoading ? (
-				<div className="p-6 text-center text-muted-foreground">
-					Chargement…
+			{canCreer && (
+				<div className="flex justify-end">
+					<Button onClick={handleOpenCreate}>
+						<Plus className="size-4 mr-2" />
+						Nouveau tirage
+					</Button>
 				</div>
+			)}
+
+			{tiragesLoading ? (
+				<div className="p-6 text-center text-muted-foreground">Chargement…</div>
 			) : tirages.length === 0 ? (
 				<div className="rounded-lg border border-border bg-card p-8 text-center text-sm text-muted-foreground">
 					Aucun tirage enregistré. Créez-en un pour commencer.
@@ -221,7 +224,7 @@ export function CaissierTiragesPage({ id: idCaisse }: CaissierTiragesPageProps) 
 						</thead>
 						<tbody>
 							{tirages.map((tirage) => {
-								const ecartVal = (tirage.ecart || 0);
+								const ecartVal = tirage.ecart || 0;
 								return (
 									<tr
 										key={tirage.id}
@@ -232,7 +235,7 @@ export function CaissierTiragesPage({ id: idCaisse }: CaissierTiragesPageProps) 
 										</td>
 										<td className="px-6 py-3 text-right">
 											{formatMontantFCFA(
-												(tirage.montant_attendu ?? 0).toString()
+												(tirage.montant_attendu ?? 0).toString(),
 											)}
 										</td>
 										<td className="px-6 py-3 text-right font-semibold">
@@ -245,15 +248,11 @@ export function CaissierTiragesPage({ id: idCaisse }: CaissierTiragesPageProps) 
 													? "text-green-700 dark:text-green-400"
 													: ecartVal > 0
 														? "text-blue-700 dark:text-blue-400"
-														: "text-red-700 dark:text-red-400"
+														: "text-red-700 dark:text-red-400",
 											)}
 										>
 											{formatMontantFCFA(Math.abs(ecartVal).toString())}
-											{ecartVal > 0
-												? " +"
-												: ecartVal < 0
-													? " -"
-													: ""}
+											{ecartVal > 0 ? " +" : ecartVal < 0 ? " -" : ""}
 										</td>
 										<td className="px-6 py-3 text-muted-foreground">
 											{tirage.note || "—"}
