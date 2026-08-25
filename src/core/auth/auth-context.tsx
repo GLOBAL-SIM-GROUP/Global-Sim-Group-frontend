@@ -13,11 +13,11 @@ export function AuthProvider({
 	session,
 	children,
 }: {
-	session: AuthSession;
+	session: AuthSession | undefined;
 	children: ReactNode;
 }) {
 	return (
-		<AuthContext.Provider value={session}>{children}</AuthContext.Provider>
+		<AuthContext.Provider value={session ?? null}>{children}</AuthContext.Provider>
 	);
 }
 

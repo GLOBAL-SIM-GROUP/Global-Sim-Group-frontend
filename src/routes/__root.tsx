@@ -45,7 +45,18 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 });
 
 function RootComponent() {
-	const { auth } = useRouteContext<RouterContext>();
+	// En SSR, useRouteContext() lance une erreur car le routeur n'est pas hydraté.
+	// Côté client, il retourne le contexte créé dans router.tsx.
+	let auth: AuthSession | undefined;
+	if (typeof window !== "undefined") {
+		try {
+			const context = useRouteContext({ from: "__root__" }) as RouterContext;
+			auth = context?.auth;
+		} catch {
+			// Cas rare : client hydration sans contexte
+			auth = undefined;
+		}
+	}
 	return (
 		<AuthProvider session={auth}>
 			<Outlet />
