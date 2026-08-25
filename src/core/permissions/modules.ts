@@ -367,6 +367,28 @@ export const MODULE_DEFINITIONS: ModuleDefinition[] = [
 			},
 		],
 	},
+	{
+		code: "CAISSIER",
+		title: "Ma caisse",
+		description: "Consultation et tirage de votre caisse.",
+		icon: Wallet,
+		path: "/finances/caissier/dashboard",
+		permission: "FINANCES.VOIR",
+		subItems: [
+			{
+				id: "dashboard",
+				label: "Dashboard",
+				permission: "FINANCES.VOIR",
+				path: "/finances/caissier/dashboard",
+			},
+			{
+				id: "tirages",
+				label: "Tirages",
+				permission: "FINANCES.VOIR",
+				path: "/finances/caissier/tirages",
+			},
+		],
+	},
 ] as const;
 
 /**
