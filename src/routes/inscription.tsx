@@ -1,6 +1,7 @@
 import { useForm } from "@tanstack/react-form";
 import {
 	createFileRoute,
+	Link,
 	redirect,
 	useNavigate,
 	useRouteContext,
@@ -500,14 +501,24 @@ export function InscriptionPage() {
 
 								<p className="text-xs text-center text-muted-foreground pt-2">
 									Vous avez déjà un compte ?{" "}
-									<a
-										href="/login"
-										className="text-lagoon hover:underline font-semibold"
+									<Link
+										to="/login"
+										className="text-lagoon hover:underline font-semibold transition-colors"
 									>
 										Se connecter
-									</a>
+									</Link>
 								</p>
 							</form>
+
+							{/* Navigation links */}
+							<div className="space-y-3 pt-6 border-t">
+								<Link
+									to="/"
+									className="block text-center text-sm text-muted-foreground hover:text-foreground transition-colors"
+								>
+									← Retour à l'accueil
+								</Link>
+							</div>
 						</div>
 
 						{/* Footer mobile */}

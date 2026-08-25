@@ -36,6 +36,22 @@ export function LandingFooter() {
 								</Link>
 							</li>
 							<li>
+								<Link
+									to="/inscription"
+									className="text-white/70 hover:text-white transition-colors"
+								>
+									S'inscrire
+								</Link>
+							</li>
+							<li>
+								<Link
+									to="/login"
+									className="text-white/70 hover:text-white transition-colors"
+								>
+									Se connecter
+								</Link>
+							</li>
+							<li>
 								<a
 									href="#services"
 									className="text-white/70 hover:text-white transition-colors"
