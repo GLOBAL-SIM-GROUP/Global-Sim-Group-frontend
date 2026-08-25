@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 import { LandingDishes } from "#/features/landing/components/landing-dishes";
 import { LandingFooter } from "#/features/landing/components/landing-footer";
 import { LandingHeader } from "#/features/landing/components/landing-header";
@@ -7,6 +7,9 @@ import { LandingProducts } from "#/features/landing/components/landing-products"
 import { LandingServices } from "#/features/landing/components/landing-services";
 
 export const Route = createFileRoute("/")({
+	beforeLoad: () => {
+		throw redirect({ to: "/login" });
+	},
 	head: () => ({
 		meta: [
 			{

@@ -159,10 +159,8 @@ export const Route = createFileRoute("/inscription")({
 	validateSearch: z.object({
 		next: z.string().optional(),
 	}),
-	beforeLoad: ({ context }) => {
-		if (context.auth.isAuthenticated) {
-			throw redirect({ href: "/home" });
-		}
+	beforeLoad: () => {
+		throw redirect({ to: "/login" });
 	},
 	component: InscriptionPage,
 });
@@ -512,14 +510,6 @@ export function InscriptionPage() {
 
 							{/* Navigation links */}
 							<div className="space-y-3 pt-6 border-t">
-								<Link
-									to="/"
-									className="block text-center text-sm text-muted-foreground hover:text-foreground transition-colors"
-								>
-									← Retour à l'accueil
-								</Link>
-							</div>
-						</div>
 
 						{/* Footer mobile */}
 						<div className="lg:hidden text-center mt-8 text-xs text-muted-foreground">

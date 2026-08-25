@@ -423,24 +423,6 @@ export function LoginPage() {
 								</p>
 							</form>
 
-							{/* Navigation links */}
-							<div className="space-y-3 pt-6 border-t">
-								<Link
-									to="/"
-									className="block text-center text-sm text-muted-foreground hover:text-foreground transition-colors"
-								>
-									← Retour à l'accueil
-								</Link>
-								<p className="text-center text-sm text-muted-foreground">
-									Pas encore de compte ?{" "}
-									<Link
-										to="/inscription"
-										className="text-lagoon hover:text-lagoon/80 font-semibold transition-colors"
-									>
-										S'inscrire
-									</Link>
-								</p>
-							</div>
 						</div>
 
 						{/* Footer mobile */}
