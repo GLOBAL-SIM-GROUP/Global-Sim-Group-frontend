@@ -74,8 +74,8 @@ const ROUTES_REALLES: Record<
 		revenus_utilisateur: { to: "/finances/revenus-utilisateur", exact: true },
 	},
 	CAISSIER: {
-		dashboard: { to: "/finances/caissier/dashboard", exact: true },
-		tirages: { to: "/finances/caissier/tirages", exact: true },
+		dashboard: { to: "/finances/caissier/:id/dashboard", exact: true },
+		tirages: { to: "/finances/caissier/:id/tirages", exact: true },
 	},
 	RH: {
 		employes: { to: "/rh/employes", exact: true },
