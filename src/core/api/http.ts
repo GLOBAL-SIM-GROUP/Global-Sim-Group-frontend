@@ -132,11 +132,9 @@ export function createApiClient(deps: ApiDeps): ApiClient {
 		const requiresAuth = !NO_AUTH_PATHS.some((p) => path.startsWith(p));
 		const { signal, timedOut, timeoutId } = prepareRequete(init);
 		try {
-			// Pour FormData, on n'ajoute PAS content-type JSON — le navigateur ajoute
-			// multipart/form-data + boundary automatiquement.
-			const headers = new Headers(init.headers);
-			// ⚠️ NE PAS ajouter content-type pour FormData!
-			headers.delete("content-type");
+			// Pour FormData, ne JAMAIS passer de headers — le navigateur ajoute automatiquement
+			// multipart/form-data + boundary. Seul le Bearer est ajouté.
+			const headers = new Headers();
 			if (requiresAuth) {
 				const token = deps.getAccessToken();
 				if (token) headers.set("authorization", `Bearer ${token}`);
@@ -144,7 +142,7 @@ export function createApiClient(deps: ApiDeps): ApiClient {
 
 			const executer = () =>
 				fetch(`${baseUrl}${path}`, {
-					method: init.method,
+					method: init.method || "POST",
 					body: init.body,
 					headers,
 					signal,
