@@ -9,6 +9,13 @@ import type {
 type LoginDto = components["schemas"]["LoginDto"];
 type RefreshTokenDto = components["schemas"]["RefreshTokenDto"];
 type LogoutDto = components["schemas"]["LogoutDto"];
+type InscriptionDto = {
+	nom: string;
+	prenoms: string;
+	tel_principal: string;
+	login: string;
+	mot_de_passe: string;
+};
 
 /**
  * Couche API d'authentification (JWT custom). Aucune logique de session ici —
@@ -42,5 +49,13 @@ export const authApi = {
 	/** Utilisateur courant + permissions (chargées par le backend, pas le JWT). */
 	me(): Promise<AuthMeResponse> {
 		return getApiClient().apiFetch("/api/v1/auth/me");
+	},
+
+	/** Inscription (auto-signup, sans authentification préalable). */
+	signup(body: InscriptionDto): Promise<AuthLoginResponse> {
+		return getApiClient().apiFetch("/api/v1/auth/inscription", {
+			method: "POST",
+			body: JSON.stringify(body),
+		});
 	},
 };
