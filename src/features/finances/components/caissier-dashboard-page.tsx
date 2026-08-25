@@ -9,16 +9,20 @@ import { cn } from "#/lib/utils";
 export function CaissierDashboardPage() {
 	const userCaisse = useCurrentCaisse();
 
-	const { data: dashboard } = useQuery({
+	console.log("CaissierDashboard - userCaisse:", userCaisse);
+
+	const { data: dashboard, isLoading, error } = useQuery({
 		queryKey: ["caisse-dashboard", userCaisse],
 		queryFn: () => obtenirDashboardCaisse(userCaisse!),
 		enabled: !!userCaisse,
 	});
 
+	console.log("CaissierDashboard - dashboard:", dashboard, "error:", error);
+
 	if (!userCaisse || !dashboard) {
 		return (
 			<div className="p-6 text-sm text-muted-foreground">
-				Pas de caisse assignée
+				{!userCaisse ? "Pas de caisse assignée (userCaisse null)" : "Chargement du dashboard…"}
 			</div>
 		);
 	}

@@ -25,22 +25,26 @@ export function CaissierTiragesPage() {
 		note: "",
 	});
 
-	const { data: dashboard } = useQuery({
+	console.log("CaissierTirages - userCaisse:", userCaisse);
+
+	const { data: dashboard, error: dashboardError } = useQuery({
 		queryKey: ["caisse-dashboard", userCaisse],
 		queryFn: () => obtenirDashboardCaisse(userCaisse!),
 		enabled: !!userCaisse,
 	});
 
-	const { data: tirages = [], isLoading } = useTirages(
+	const { data: tirages = [], isLoading, error: tiragesError } = useTirages(
 		userCaisse ? { id_caisse: userCaisse, limit: 50 } : undefined
 	);
+
+	console.log("CaissierTirages - tirages:", tirages, "dashboardError:", dashboardError, "tiragesError:", tiragesError);
 
 	const createMut = useCreerTirage();
 
 	if (!userCaisse) {
 		return (
 			<div className="p-6 text-sm text-muted-foreground">
-				Pas de caisse assignée
+				Pas de caisse assignée (userCaisse null)
 			</div>
 		);
 	}
