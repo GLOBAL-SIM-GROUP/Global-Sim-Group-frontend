@@ -7,7 +7,8 @@ import { obtenirDashboardCaisse } from "../api/caisses";
 import { cn } from "#/lib/utils";
 
 export function CaissierDashboardPage() {
-	const { id } = useParams({ from: "/_authenticated/finances/caissier/$id/dashboard" });
+	const params = useParams({ from: "/_authenticated/finances/caissier/$id/dashboard" });
+	const id = params.id;
 
 	const { data: dashboard, isLoading, error } = useQuery({
 		queryKey: ["caisse-dashboard", id],

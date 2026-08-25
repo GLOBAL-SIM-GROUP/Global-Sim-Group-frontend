@@ -15,7 +15,8 @@ import { obtenirDashboardCaisse } from "../api/caisses";
 import type { CreerTirageDto } from "../models/tirages";
 
 export function CaissierTiragesPage() {
-	const { id: idCaisse } = useParams({ from: "/_authenticated/finances/caissier/$id/tirages" });
+	const params = useParams({ from: "/_authenticated/finances/caissier/$id/tirages" });
+	const idCaisse = params.id;
 	const queryClient = useQueryClient();
 	const [openCreate, setOpenCreate] = useState(false);
 	const [formData, setFormData] = useState<CreerTirageDto>({
