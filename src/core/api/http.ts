@@ -132,13 +132,20 @@ export function createApiClient(deps: ApiDeps): ApiClient {
 			// Pour FormData, on n'ajoute PAS content-type JSON — le navigateur ajoute
 			// multipart/form-data + boundary automatiquement.
 			const headers = new Headers(init.headers);
+			// ⚠️ NE PAS ajouter content-type pour FormData!
+			headers.delete("content-type");
 			if (requiresAuth) {
 				const token = deps.getAccessToken();
 				if (token) headers.set("authorization", `Bearer ${token}`);
 			}
 
 			const executer = () =>
-				fetch(`${baseUrl}${path}`, { ...init, headers, signal });
+				fetch(`${baseUrl}${path}`, {
+					method: init.method,
+					body: init.body,
+					headers,
+					signal,
+				});
 
 			let response = await executer();
 			if (response.status === 401 && requiresAuth) {
