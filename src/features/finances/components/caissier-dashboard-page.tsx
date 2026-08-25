@@ -10,6 +10,9 @@ export function CaissierDashboardPage() {
 	const params = useParams({ from: "/_authenticated/finances/caissier/$id/dashboard" });
 	const id = params.id;
 
+	console.log("Params:", params);
+	console.log("ID extrait:", id);
+
 	const { data: dashboard, isLoading, error } = useQuery({
 		queryKey: ["caisse-dashboard", id],
 		queryFn: () => obtenirDashboardCaisse(id),
