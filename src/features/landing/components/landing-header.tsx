@@ -1,10 +1,46 @@
 import { Link, useNavigate } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { Button } from "#/components/ui/button";
 import { useCurrentUser } from "#/core/auth";
 
-export function LandingHeader() {
+function HeaderContent() {
 	const currentUser = useCurrentUser();
 	const navigate = useNavigate();
+
+	return (
+		<nav className="flex items-center gap-4">
+			{currentUser ? (
+				<>
+					<span className="text-sm text-muted-foreground">
+						Bienvenue, {currentUser.login}
+					</span>
+					<Button
+						variant="outline"
+						size="sm"
+						onClick={() => navigate({ to: "/home" })}
+					>
+						Tableau de bord
+					</Button>
+				</>
+			) : (
+				<Button
+					size="sm"
+					className="bg-lagoon hover:bg-lagoon/90"
+					onClick={() => navigate({ to: "/login" })}
+				>
+					Connexion
+				</Button>
+			)}
+		</nav>
+	);
+}
+
+export function LandingHeader() {
+	const [mounted, setMounted] = useState(false);
+
+	useEffect(() => {
+		setMounted(true);
+	}, []);
 
 	return (
 		<header className="sticky top-0 z-50 bg-background/95 backdrop-blur border-b">
@@ -20,30 +56,7 @@ export function LandingHeader() {
 					</span>
 				</Link>
 
-				<nav className="flex items-center gap-4">
-					{currentUser ? (
-						<>
-							<span className="text-sm text-muted-foreground">
-								Bienvenue, {currentUser.login}
-							</span>
-							<Button
-								variant="outline"
-								size="sm"
-								onClick={() => navigate({ to: "/home" })}
-							>
-								Tableau de bord
-							</Button>
-						</>
-					) : (
-						<Button
-							size="sm"
-							className="bg-lagoon hover:bg-lagoon/90"
-							onClick={() => navigate({ to: "/login" })}
-						>
-							Connexion
-						</Button>
-					)}
-				</nav>
+				{mounted ? <HeaderContent /> : <div />}
 			</div>
 		</header>
 	);

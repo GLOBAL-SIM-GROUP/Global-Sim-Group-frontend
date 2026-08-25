@@ -15,6 +15,7 @@ export function LandingProducts() {
 	} = useQuery({
 		queryKey: ["market", "produits", "public"],
 		queryFn: () => listProduits(),
+		enabled: typeof window !== "undefined",
 	});
 
 	if (isLoading) {

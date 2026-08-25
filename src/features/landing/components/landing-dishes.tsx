@@ -15,6 +15,7 @@ export function LandingDishes() {
 	} = useQuery({
 		queryKey: ["restaurant", "plats", "public"],
 		queryFn: () => listPlats(),
+		enabled: typeof window !== "undefined",
 	});
 
 	if (isLoading) {
