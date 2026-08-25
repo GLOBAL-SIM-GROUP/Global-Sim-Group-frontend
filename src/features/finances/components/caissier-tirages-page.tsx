@@ -38,6 +38,10 @@ export function CaissierTiragesPage() {
 
 	const createMut = useCreerTirage();
 
+	// Vérif : un seul tirage par caisse et par jour (règle métier Swagger)
+	const aujourdHui = new Date().toISOString().split("T")[0];
+	const tirageDuJourExiste = tirages.some((t) => t.date === aujourdHui);
+
 	if (!canVoir) {
 		return (
 			<div className="p-6 text-sm text-muted-foreground">
@@ -186,11 +190,27 @@ export function CaissierTiragesPage() {
 			</Dialog.Root>
 
 			{canCreer && (
-				<div className="flex justify-end">
-					<Button onClick={handleOpenCreate}>
-						<Plus className="size-4 mr-2" />
-						Nouveau tirage
-					</Button>
+				<div className="space-y-2">
+					<div className="flex justify-end">
+						<Button
+							onClick={handleOpenCreate}
+							disabled={tirageDuJourExiste}
+							title={
+								tirageDuJourExiste
+									? "Un tirage a déjà été effectué aujourd'hui"
+									: ""
+							}
+						>
+							<Plus className="size-4 mr-2" />
+							Nouveau tirage
+						</Button>
+					</div>
+					{tirageDuJourExiste && (
+						<div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-100">
+							Un tirage a déjà été enregistré aujourd'hui. Un seul tirage par
+							caisse et par jour est autorisé.
+						</div>
+					)}
 				</div>
 			)}
 
