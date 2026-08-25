@@ -175,7 +175,7 @@ export function LoginPage() {
 			if (cancelled) return;
 			setVerification(false);
 			if (auth.isAuthenticated) {
-				await navigate({ href: search.next ?? "/" });
+				await navigate({ href: search.next ?? "/home" });
 			}
 		})();
 		return () => {
@@ -200,7 +200,7 @@ export function LoginPage() {
 			setGlobalError(null);
 			try {
 				await auth.login(value.login.trim(), value.motDePasse);
-				await navigate({ href: search.next ?? "/" });
+				await navigate({ href: search.next ?? "/home" });
 			} catch (error) {
 				let mappedFields = 0;
 				for (const detail of getFieldErrors(error)) {

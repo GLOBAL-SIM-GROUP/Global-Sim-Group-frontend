@@ -9,10 +9,11 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as LoginRouteImport } from './routes/login'
-import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
 import { Route as AuthenticatedEnCoursRouteImport } from './routes/_authenticated/en-cours'
+import { Route as AuthenticatedHomeRouteImport } from './routes/_authenticated/home'
 import { Route as AuthenticatedDashboardIndexRouteImport } from './routes/_authenticated/dashboard/index'
 import { Route as AuthenticatedRapportsIndexRouteImport } from './routes/_authenticated/rapports/index'
 import { Route as AuthenticatedAdminJournalIndexRouteImport } from './routes/_authenticated/admin/journal/index'
@@ -77,6 +78,11 @@ import { Route as AuthenticatedResidencePortailPaiementsIndexRouteImport } from 
 import { Route as AuthenticatedRhPointageConsultationIndexRouteImport } from './routes/_authenticated/rh/pointage/consultation/index'
 import { Route as AuthenticatedAdminRolesIdPermissionsIndexRouteImport } from './routes/_authenticated/admin/roles/$id/permissions/index'
 
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedRoute = AuthenticatedRouteImport.update({
   id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
@@ -86,14 +92,14 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => AuthenticatedRoute,
-} as any)
 const AuthenticatedEnCoursRoute = AuthenticatedEnCoursRouteImport.update({
   id: '/en-cours',
   path: '/en-cours',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedHomeRoute = AuthenticatedHomeRouteImport.update({
+  id: '/home',
+  path: '/home',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedDashboardIndexRoute =
@@ -476,9 +482,10 @@ const AuthenticatedAdminRolesIdPermissionsIndexRoute =
   } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof AuthenticatedIndexRoute
+  '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/en-cours': typeof AuthenticatedEnCoursRoute
+  '/home': typeof AuthenticatedHomeRoute
   '/dashboard/': typeof AuthenticatedDashboardIndexRoute
   '/rapports/': typeof AuthenticatedRapportsIndexRoute
   '/client/clients/$id': typeof AuthenticatedClientClientsIdRoute
@@ -544,9 +551,10 @@ export interface FileRoutesByFullPath {
   '/admin/roles/$id/permissions/': typeof AuthenticatedAdminRolesIdPermissionsIndexRoute
 }
 export interface FileRoutesByTo {
+  '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/en-cours': typeof AuthenticatedEnCoursRoute
-  '/': typeof AuthenticatedIndexRoute
+  '/home': typeof AuthenticatedHomeRoute
   '/dashboard': typeof AuthenticatedDashboardIndexRoute
   '/rapports': typeof AuthenticatedRapportsIndexRoute
   '/client/clients/$id': typeof AuthenticatedClientClientsIdRoute
@@ -613,10 +621,11 @@ export interface FileRoutesByTo {
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
+  '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/login': typeof LoginRoute
   '/_authenticated/en-cours': typeof AuthenticatedEnCoursRoute
-  '/_authenticated/': typeof AuthenticatedIndexRoute
+  '/_authenticated/home': typeof AuthenticatedHomeRoute
   '/_authenticated/dashboard/': typeof AuthenticatedDashboardIndexRoute
   '/_authenticated/rapports/': typeof AuthenticatedRapportsIndexRoute
   '/_authenticated/client/clients/$id': typeof AuthenticatedClientClientsIdRoute
@@ -687,6 +696,7 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/en-cours'
+    | '/home'
     | '/dashboard/'
     | '/rapports/'
     | '/client/clients/$id'
@@ -752,9 +762,10 @@ export interface FileRouteTypes {
     | '/admin/roles/$id/permissions/'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/'
     | '/login'
     | '/en-cours'
-    | '/'
+    | '/home'
     | '/dashboard'
     | '/rapports'
     | '/client/clients/$id'
@@ -820,10 +831,11 @@ export interface FileRouteTypes {
     | '/admin/roles/$id/permissions'
   id:
     | '__root__'
+    | '/'
     | '/_authenticated'
     | '/login'
     | '/_authenticated/en-cours'
-    | '/_authenticated/'
+    | '/_authenticated/home'
     | '/_authenticated/dashboard/'
     | '/_authenticated/rapports/'
     | '/_authenticated/client/clients/$id'
@@ -890,12 +902,20 @@ export interface FileRouteTypes {
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
+  IndexRoute: typeof IndexRoute
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   LoginRoute: typeof LoginRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated': {
       id: '/_authenticated'
       path: ''
@@ -910,18 +930,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/': {
-      id: '/_authenticated/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof AuthenticatedIndexRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
     '/_authenticated/en-cours': {
       id: '/_authenticated/en-cours'
       path: '/en-cours'
       fullPath: '/en-cours'
       preLoaderRoute: typeof AuthenticatedEnCoursRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/home': {
+      id: '/_authenticated/home'
+      path: '/home'
+      fullPath: '/home'
+      preLoaderRoute: typeof AuthenticatedHomeRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/dashboard/': {
@@ -1370,7 +1390,7 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteChildren {
   AuthenticatedEnCoursRoute: typeof AuthenticatedEnCoursRoute
-  AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
+  AuthenticatedHomeRoute: typeof AuthenticatedHomeRoute
   AuthenticatedDashboardIndexRoute: typeof AuthenticatedDashboardIndexRoute
   AuthenticatedRapportsIndexRoute: typeof AuthenticatedRapportsIndexRoute
   AuthenticatedClientClientsIdRoute: typeof AuthenticatedClientClientsIdRoute
@@ -1438,7 +1458,7 @@ interface AuthenticatedRouteChildren {
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedEnCoursRoute: AuthenticatedEnCoursRoute,
-  AuthenticatedIndexRoute: AuthenticatedIndexRoute,
+  AuthenticatedHomeRoute: AuthenticatedHomeRoute,
   AuthenticatedDashboardIndexRoute: AuthenticatedDashboardIndexRoute,
   AuthenticatedRapportsIndexRoute: AuthenticatedRapportsIndexRoute,
   AuthenticatedClientClientsIdRoute: AuthenticatedClientClientsIdRoute,
@@ -1557,9 +1577,19 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
 )
 
 const rootRouteChildren: RootRouteChildren = {
+  IndexRoute: IndexRoute,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   LoginRoute: LoginRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}

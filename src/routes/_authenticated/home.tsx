@@ -13,7 +13,7 @@ import {
  * permissions réelles (`MODULE.VOIR`). Chaque tuile mène au placeholder
  * `/en-cours` tant que les routes métier n'existent pas.
  */
-export const Route = createFileRoute("/_authenticated/")({
+export const Route = createFileRoute("/_authenticated/home")({
 	component: HomePage,
 });
 

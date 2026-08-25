@@ -29,7 +29,7 @@ export function LandingHeader() {
 							<Button
 								variant="outline"
 								size="sm"
-								onClick={() => navigate({ to: "/dashboard" })}
+								onClick={() => navigate({ to: "/home" })}
 							>
 								Tableau de bord
 							</Button>
