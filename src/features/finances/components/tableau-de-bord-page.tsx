@@ -1,5 +1,5 @@
 import { FileDown, FileText, Loader2, X } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { Breadcrumb } from "#/components/ui/breadcrumb";
 import { Button } from "#/components/ui/button";
@@ -63,6 +63,8 @@ const ACTIVITES: Record<ActiviteFiltre, string> = {
  * Page « Tableau de bord financier » (module Finances, M8) : vue consolidée
  * de la situation financière avec indicateurs, tableaux par activité et filtres.
  */
+const ITEMS_PER_PAGE = 10;
+
 export function TableauDeBordPage() {
 	const canVoir = useCan("FINANCES.VOIR");
 	const userCaisse = useCurrentCaisse();
@@ -70,6 +72,7 @@ export function TableauDeBordPage() {
 	const [periode, setPeriode] = useState<PeriodeFiltre>("ce_mois");
 	const [activite, setActivite] = useState<ActiviteFiltre>("global");
 	const [idCaisseFiltre, setIdCaisseFiltre] = useState<string>("");
+	const [currentPage, setCurrentPage] = useState(1);
 	const [detailsOuvert, setDetailsOuvert] = useState(false);
 	const [exportPdfLoading, setExportPdfLoading] = useState(false);
 	const [exportExcelLoading, setExportExcelLoading] = useState(false);
@@ -82,6 +85,11 @@ export function TableauDeBordPage() {
 		periodeParam,
 		idCaisseFiltre || undefined,
 	);
+
+	// Reset page quand les filtres changent
+	useEffect(() => {
+		setCurrentPage(1);
+	}, [periodeParam, idCaisseFiltre]);
 
 	// Fonction d'export PDF via le backend
 	const handleExportPdf = async () => {
@@ -123,22 +131,27 @@ export function TableauDeBordPage() {
 		);
 	}
 
-	const lignes = tableauBordQuery.data ?? [];
+	const toutesLignes = tableauBordQuery.data ?? [];
 
-	// Calcul des indicateurs globaux (convertir strings en nombres)
-	const totalRecettes = lignes.reduce(
+	// Calcul des indicateurs globaux (sur TOUTES les données, pas juste la page actuelle)
+	const totalRecettes = toutesLignes.reduce(
 		(sum, l) => sum + Number(l.encaissements),
 		0,
 	);
-	const totalDepenses = lignes.reduce(
+	const totalDepenses = toutesLignes.reduce(
 		(sum, l) => sum + Number(l.decaissements),
 		0,
 	);
 	const solde = totalRecettes - totalDepenses;
-	const beneficeEstimatif = lignes.reduce(
+	const beneficeEstimatif = toutesLignes.reduce(
 		(sum, l) => sum + Number(l.marge_nette),
 		0,
 	);
+
+	// Pagination
+	const totalPages = Math.ceil(toutesLignes.length / ITEMS_PER_PAGE);
+	const startIdx = (currentPage - 1) * ITEMS_PER_PAGE;
+	const lignes = toutesLignes.slice(startIdx, startIdx + ITEMS_PER_PAGE);
 
 	return (
 		<div className="mx-auto w-full max-w-6xl space-y-6 p-6">
@@ -381,6 +394,51 @@ export function TableauDeBordPage() {
 									})}
 								</tbody>
 							</table>
+						</div>
+					)}
+
+					{/* Pagination */}
+					{totalPages > 1 && lignes.length > 0 && (
+						<div className="flex justify-center gap-2 mt-6 pb-4">
+							<button
+								onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+								disabled={currentPage === 1}
+								className="px-3 py-2 h-9 rounded-md border border-input bg-background text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:bg-accent"
+								aria-label="Page précédente"
+							>
+								Précédent
+							</button>
+
+							<div className="flex items-center gap-1">
+								{Array.from({ length: totalPages }, (_, i) => i + 1).map(
+									(page) => (
+										<button
+											key={page}
+											onClick={() => setCurrentPage(page)}
+											className={`px-3 py-2 h-9 rounded-md text-sm font-medium transition-colors ${
+												page === currentPage
+													? "bg-sea-ink text-white"
+													: "border border-input bg-background hover:bg-accent"
+											}`}
+											aria-label={`Page ${page}`}
+											aria-current={
+												page === currentPage ? "page" : undefined
+											}
+										>
+											{page}
+										</button>
+									),
+								)}
+							</div>
+
+							<button
+								onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+								disabled={currentPage === totalPages}
+								className="px-3 py-2 h-9 rounded-md border border-input bg-background text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:bg-accent"
+								aria-label="Page suivante"
+							>
+								Suivant
+							</button>
 						</div>
 					)}
 				</>
