@@ -1,10 +1,10 @@
 import {
-	Home,
-	ShoppingCart,
-	UtensilsCrossed,
-	Users,
 	DollarSign,
 	FileText,
+	Home,
+	ShoppingCart,
+	Users,
+	UtensilsCrossed,
 } from "lucide-react";
 import { Card } from "#/components/ui/card";
 
@@ -65,8 +65,8 @@ export function LandingServices() {
 						Nos Services
 					</h2>
 					<p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-						Découvrez tous les services offerts par GLOBAL SIM GROUP pour
-						gérer votre plateforme efficacement.
+						Découvrez tous les services offerts par GLOBAL SIM GROUP pour gérer
+						votre plateforme efficacement.
 					</p>
 				</div>
 
@@ -83,9 +83,7 @@ export function LandingServices() {
 									<h3 className="text-xl font-semibold text-foreground">
 										{service.name}
 									</h3>
-									<p className="text-muted-foreground">
-										{service.description}
-									</p>
+									<p className="text-muted-foreground">{service.description}</p>
 								</div>
 							</Card>
 						);

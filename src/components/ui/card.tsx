@@ -1,10 +1,7 @@
-import { type HTMLAttributes } from "react";
+import type { HTMLAttributes } from "react";
 import { cn } from "#/lib/utils";
 
-export function Card({
-	className,
-	...props
-}: HTMLAttributes<HTMLDivElement>) {
+export function Card({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
 	return (
 		<div
 			className={cn(
@@ -33,10 +30,7 @@ export function CardFooter({
 	...props
 }: HTMLAttributes<HTMLDivElement>) {
 	return (
-		<div
-			className={cn("flex items-center p-6 pt-0", className)}
-			{...props}
-		/>
+		<div className={cn("flex items-center p-6 pt-0", className)} {...props} />
 	);
 }
 
@@ -60,10 +54,7 @@ export function CardDescription({
 	...props
 }: HTMLAttributes<HTMLParagraphElement>) {
 	return (
-		<p
-			className={cn("text-sm text-muted-foreground", className)}
-			{...props}
-		/>
+		<p className={cn("text-sm text-muted-foreground", className)} {...props} />
 	);
 }
 

@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
-import { Loader2, AlertCircle } from "lucide-react";
+import { AlertCircle, Loader2 } from "lucide-react";
 import { Button } from "#/components/ui/button";
 import { Card, CardContent, CardFooter } from "#/components/ui/card";
 import { formatMontantFCFA } from "#/features/residence/models/format";
@@ -8,7 +8,11 @@ import { listPlats } from "#/features/restaurant/api/plats";
 
 export function LandingDishes() {
 	const navigate = useNavigate();
-	const { data: plats, isLoading, error } = useQuery({
+	const {
+		data: plats,
+		isLoading,
+		error,
+	} = useQuery({
 		queryKey: ["restaurant", "plats", "public"],
 		queryFn: () => listPlats(),
 	});
@@ -76,7 +80,10 @@ export function LandingDishes() {
 				) : (
 					<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
 						{platsDisponibles.slice(0, 6).map((plat) => (
-							<Card key={plat.id} className="overflow-hidden flex flex-col hover:shadow-lg transition-shadow">
+							<Card
+								key={plat.id}
+								className="overflow-hidden flex flex-col hover:shadow-lg transition-shadow"
+							>
 								{plat.image_url && (
 									<div className="h-48 overflow-hidden bg-muted flex items-center justify-center">
 										<img

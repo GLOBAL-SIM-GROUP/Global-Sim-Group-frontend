@@ -1,17 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { LandingHeader } from "#/features/landing/components/landing-header";
-import { LandingHero } from "#/features/landing/components/landing-hero";
-import { LandingServices } from "#/features/landing/components/landing-services";
-import { LandingProducts } from "#/features/landing/components/landing-products";
 import { LandingDishes } from "#/features/landing/components/landing-dishes";
 import { LandingFooter } from "#/features/landing/components/landing-footer";
+import { LandingHeader } from "#/features/landing/components/landing-header";
+import { LandingHero } from "#/features/landing/components/landing-hero";
+import { LandingProducts } from "#/features/landing/components/landing-products";
+import { LandingServices } from "#/features/landing/components/landing-services";
 
 export const Route = createFileRoute("/")({
 	head: () => ({
 		meta: [
 			{
-				title:
-					"GLOBAL SIM GROUP — Plateforme de gestion complète",
+				title: "GLOBAL SIM GROUP — Plateforme de gestion complète",
 			},
 			{
 				name: "description",

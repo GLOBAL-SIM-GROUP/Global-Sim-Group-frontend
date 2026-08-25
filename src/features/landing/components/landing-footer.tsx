@@ -18,7 +18,8 @@ export function LandingFooter() {
 							<span className="font-bold">GLOBAL SIM GROUP</span>
 						</div>
 						<p className="text-sm text-white/70">
-							Une plateforme complète pour gérer tous vos services en un seul endroit.
+							Une plateforme complète pour gérer tous vos services en un seul
+							endroit.
 						</p>
 					</div>
 

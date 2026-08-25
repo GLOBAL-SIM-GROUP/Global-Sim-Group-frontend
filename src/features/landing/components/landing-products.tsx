@@ -1,14 +1,18 @@
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
-import { Loader2, AlertCircle } from "lucide-react";
+import { AlertCircle, Loader2 } from "lucide-react";
 import { Button } from "#/components/ui/button";
 import { Card, CardContent, CardFooter } from "#/components/ui/card";
-import { formatMontantFCFA } from "#/features/residence/models/format";
 import { listProduits } from "#/features/marchandise/api/produits";
+import { formatMontantFCFA } from "#/features/residence/models/format";
 
 export function LandingProducts() {
 	const navigate = useNavigate();
-	const { data: produits, isLoading, error } = useQuery({
+	const {
+		data: produits,
+		isLoading,
+		error,
+	} = useQuery({
 		queryKey: ["market", "produits", "public"],
 		queryFn: () => listProduits(),
 	});
@@ -76,7 +80,10 @@ export function LandingProducts() {
 				) : (
 					<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
 						{produitsActifs.slice(0, 6).map((produit) => (
-							<Card key={produit.id} className="overflow-hidden flex flex-col hover:shadow-lg transition-shadow">
+							<Card
+								key={produit.id}
+								className="overflow-hidden flex flex-col hover:shadow-lg transition-shadow"
+							>
 								{produit.image_url && (
 									<div className="h-48 overflow-hidden bg-muted flex items-center justify-center">
 										<img
