@@ -1,4 +1,4 @@
-import { apiClient } from "./client";
+import { getApiClient } from "./client";
 
 export interface Signalement {
 	id: string;
@@ -46,24 +46,24 @@ export async function listSignalements(params: SignalementListParams = {}) {
 	if (params.id_utilisateur_declarant)
 		queryParams.append("id_utilisateur_declarant", params.id_utilisateur_declarant);
 
-	const response = await apiClient.get<Signalement[]>(
+	const response = await getApiClient().get<Signalement[]>(
 		`/signalements?${queryParams.toString()}`,
 	);
 	return response;
 }
 
 export async function getSignalement(id: string) {
-	const response = await apiClient.get<Signalement>(`/signalements/${id}`);
+	const response = await getApiClient().get<Signalement>(`/signalements/${id}`);
 	return response;
 }
 
 export async function createSignalement(payload: SignalementCreatePayload) {
-	const response = await apiClient.post<Signalement>("/signalements", payload);
+	const response = await getApiClient().post<Signalement>("/signalements", payload);
 	return response;
 }
 
 export async function prendre_en_charge_signalement(id: string) {
-	const response = await apiClient.post<void>(
+	const response = await getApiClient().post<void>(
 		`/signalements/${id}/prendre-en-charge`,
 		{},
 	);
@@ -74,7 +74,7 @@ export async function resoudre_signalement(
 	id: string,
 	payload: SignalementResolutionPayload,
 ) {
-	const response = await apiClient.post<void>(
+	const response = await getApiClient().post<void>(
 		`/signalements/${id}/resoudre`,
 		payload,
 	);
@@ -85,7 +85,7 @@ export async function rejeter_signalement(
 	id: string,
 	payload: SignalementResolutionPayload,
 ) {
-	const response = await apiClient.post<void>(
+	const response = await getApiClient().post<void>(
 		`/signalements/${id}/rejeter`,
 		payload,
 	);
