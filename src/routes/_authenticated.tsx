@@ -17,14 +17,18 @@ import { AuthProvider, requireAuth } from "#/core/auth";
  */
 export const Route = createFileRoute("/_authenticated")({
 	beforeLoad: async ({ context, location }) => {
+		console.log("[beforeLoad] _authenticated - starting, isAuthenticated:", context.auth.isAuthenticated);
 		await context.auth.restore();
+		console.log("[beforeLoad] _authenticated - after restore(), isAuthenticated:", context.auth.isAuthenticated);
 		if (!context.auth.isAuthenticated) {
+			console.log("[beforeLoad] _authenticated - redirecting to login");
 			// Sur le serveur, `restore()` ne fait rien (pas de localStorage) : la
 			// redirection vers /login garde l'URL d'origine pour le retour.
 			throw redirect({
 				href: `/login?next=${encodeURIComponent(location.href)}`,
 			});
 		}
+		console.log("[beforeLoad] _authenticated - allowing access");
 		requireAuth(context.auth);
 	},
 	component: AuthenticatedLayout,

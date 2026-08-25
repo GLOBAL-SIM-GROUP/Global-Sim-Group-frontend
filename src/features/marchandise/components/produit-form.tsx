@@ -1,6 +1,6 @@
 import { useForm } from "@tanstack/react-form";
-import { Loader2 } from "lucide-react";
-import { useState } from "react";
+import { Image as ImageIcon, Loader2, Upload, X } from "lucide-react";
+import { useRef, useState } from "react";
 
 import { Button } from "#/components/ui/button";
 import { InputField } from "#/components/ui/input-field";
@@ -14,6 +14,9 @@ import {
 } from "#/components/ui/select";
 import { Switch } from "#/components/ui/switch";
 import { getErrorMessageForCode, getFieldErrors, toApiError } from "#/core/api";
+import { useUploadImage } from "#/core/api/use-upload-image";
+import { useUploadBlobUrl } from "#/core/api/use-upload-blob";
+import { cn } from "#/lib/utils";
 
 import { useCreerProduit, useModifierProduit } from "../hooks/use-produits";
 import type {
@@ -32,7 +35,8 @@ type ProduitField =
 	| "stockInitial"
 	| "seuilAlerte"
 	| "idFournisseur"
-	| "actif";
+	| "actif"
+	| "imageUrl";
 
 /** Propriétés backend (snake_case) → champs du formulaire. */
 const FIELD_PROPERTY_TO_FORM: Record<string, ProduitField> = {
@@ -45,6 +49,7 @@ const FIELD_PROPERTY_TO_FORM: Record<string, ProduitField> = {
 	seuil_alerte: "seuilAlerte",
 	id_fournisseur: "idFournisseur",
 	actif: "actif",
+	image_url: "imageUrl",
 };
 
 interface ProduitFormProps {
@@ -97,7 +102,9 @@ export function ProduitForm({
 }: ProduitFormProps) {
 	const createMutation = useCreerProduit();
 	const editMutation = useModifierProduit();
+	const uploadMutation = useUploadImage();
 	const [globalError, setGlobalError] = useState<string | null>(null);
+	const fileInputRef = useRef<HTMLInputElement>(null);
 
 	const form = useForm({
 		defaultValues: {
@@ -110,6 +117,7 @@ export function ProduitForm({
 			seuilAlerte: produit?.seuil_alerte ?? "",
 			idFournisseur: produit?.id_fournisseur ?? "",
 			actif: produit?.actif ?? true,
+			imageUrl: produit?.image_url ?? "",
 		},
 		validators: {
 			onSubmit: ({ value }) => {
@@ -149,6 +157,7 @@ export function ProduitForm({
 					seuilAlerte: value.seuilAlerte.trim() || null,
 					idFournisseur: value.idFournisseur || null,
 					actif: value.actif,
+					imageUrl: value.imageUrl || null,
 				};
 				if (produit) {
 					await editMutation.mutateAsync({ id: produit.id, ...corps });
@@ -338,6 +347,18 @@ export function ProduitForm({
 				)}
 			</form.Field>
 
+			<form.Field name="imageUrl">
+				{(field) => (
+					<ImageUploadField
+						label="Image du produit"
+						imageKey={field.state.value}
+						onImageKeyChange={field.handleChange}
+						uploadMutation={uploadMutation}
+						fileInputRef={fileInputRef}
+					/>
+				)}
+			</form.Field>
+
 			{globalError ? (
 				<p role="alert" className="text-sm font-medium text-destructive">
 					{globalError}
@@ -365,5 +386,105 @@ export function ProduitForm({
 				)}
 			</form.Subscribe>
 		</form>
+	);
+}
+
+/** Composant pour uploader une image de produit */
+function ImageUploadField({
+	label,
+	imageKey,
+	onImageKeyChange,
+	uploadMutation,
+	fileInputRef,
+}: {
+	label: string;
+	imageKey: string;
+	onImageKeyChange: (key: string) => void;
+	uploadMutation: ReturnType<typeof useUploadImage>;
+	fileInputRef: React.RefObject<HTMLInputElement>;
+}) {
+	const { blobUrl, isLoading } = useUploadBlobUrl(imageKey || undefined);
+
+	const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+		const file = e.target.files?.[0];
+		if (!file) return;
+
+		try {
+			const result = await uploadMutation.mutateAsync(file);
+			onImageKeyChange(result.key);
+		} catch (error) {
+			console.error("Erreur lors de l'upload :", error);
+		}
+	};
+
+	const handleRemoveImage = () => {
+		onImageKeyChange("");
+		if (fileInputRef.current) {
+			fileInputRef.current.value = "";
+		}
+	};
+
+	return (
+		<div className="space-y-2">
+			<Label>{label}</Label>
+			<input
+				ref={fileInputRef}
+				type="file"
+				accept="image/*"
+				onChange={handleFileChange}
+				disabled={uploadMutation.isPending}
+				className="hidden"
+			/>
+
+			<div className="rounded-lg border border-border bg-card p-4">
+				{isLoading ? (
+					<div className="h-32 w-full flex items-center justify-center bg-muted rounded">
+						<div className="text-xs text-muted-foreground">Chargement…</div>
+					</div>
+				) : blobUrl ? (
+					<div className="space-y-3">
+						<img
+							src={blobUrl}
+							alt="Aperçu du produit"
+							className="h-32 w-full object-cover rounded"
+						/>
+						<Button
+							type="button"
+							variant="outline"
+							size="sm"
+							onClick={handleRemoveImage}
+							disabled={uploadMutation.isPending}
+							className="w-full"
+						>
+							<X className="size-4 mr-2" aria-hidden />
+							Supprimer l'image
+						</Button>
+					</div>
+				) : (
+					<button
+						type="button"
+						onClick={() => fileInputRef.current?.click()}
+						disabled={uploadMutation.isPending}
+						className={cn(
+							"w-full h-32 rounded flex flex-col items-center justify-center gap-2",
+							"border-2 border-dashed border-muted-foreground/30 hover:border-muted-foreground/50",
+							"transition-colors cursor-pointer",
+							uploadMutation.isPending && "opacity-50 cursor-not-allowed"
+						)}
+					>
+						{uploadMutation.isPending ? (
+							<Loader2 className="size-6 text-muted-foreground animate-spin" aria-hidden />
+						) : (
+							<>
+								<Upload className="size-6 text-muted-foreground/50" aria-hidden />
+								<span className="text-xs text-muted-foreground text-center">
+									Cliquez pour uploader une image
+								</span>
+							</>
+						)}
+					</button>
+				)}
+			</div>
+		</div>
 	);
 }
