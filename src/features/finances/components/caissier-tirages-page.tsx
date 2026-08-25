@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useParams } from "@tanstack/react-router";
 import { Dialog } from "radix-ui";
 import { useState } from "react";
 import { Plus } from "lucide-react";
@@ -9,42 +10,37 @@ import { Input } from "#/components/ui/input";
 import { formatMontantFCFA } from "#/features/residence/models/format";
 import { cn } from "#/lib/utils";
 
-import { useCurrentCaisse } from "../hooks/use-current-caisse";
 import { useTirages, useCreerTirage } from "../hooks/use-tirages";
 import { obtenirDashboardCaisse } from "../api/caisses";
 import type { CreerTirageDto } from "../models/tirages";
 
 export function CaissierTiragesPage() {
-	const userCaisse = useCurrentCaisse();
+	const { id: idCaisse } = useParams({ from: "/_authenticated/finances/caissier/$id/tirages" });
 	const queryClient = useQueryClient();
 	const [openCreate, setOpenCreate] = useState(false);
 	const [formData, setFormData] = useState<CreerTirageDto>({
 		montant_compte: "",
 		date: new Date().toISOString().split("T")[0],
-		id_caisse: userCaisse || "",
+		id_caisse: idCaisse,
 		note: "",
 	});
 
-	console.log("CaissierTirages - userCaisse:", userCaisse);
-
-	const { data: dashboard, error: dashboardError } = useQuery({
-		queryKey: ["caisse-dashboard", userCaisse],
-		queryFn: () => obtenirDashboardCaisse(userCaisse!),
-		enabled: !!userCaisse,
+	const { data: dashboard } = useQuery({
+		queryKey: ["caisse-dashboard", idCaisse],
+		queryFn: () => obtenirDashboardCaisse(idCaisse),
+		enabled: !!idCaisse,
 	});
 
-	const { data: tirages = [], isLoading, error: tiragesError } = useTirages(
-		userCaisse ? { id_caisse: userCaisse, limit: 50 } : undefined
+	const { data: tirages = [], isLoading } = useTirages(
+		idCaisse ? { id_caisse: idCaisse, limit: 50 } : undefined
 	);
-
-	console.log("CaissierTirages - tirages:", tirages, "dashboardError:", dashboardError, "tiragesError:", tiragesError);
 
 	const createMut = useCreerTirage();
 
-	if (!userCaisse) {
+	if (!idCaisse) {
 		return (
 			<div className="p-6 text-sm text-muted-foreground">
-				Pas de caisse assignée (userCaisse null)
+				ID de caisse manquant
 			</div>
 		);
 	}

@@ -1,28 +1,24 @@
 import { useQuery } from "@tanstack/react-query";
+import { useParams } from "@tanstack/react-router";
 import { Breadcrumb } from "#/components/ui/breadcrumb";
 import { Button } from "#/components/ui/button";
 import { formatMontantFCFA } from "#/features/residence/models/format";
-import { useCurrentCaisse } from "../hooks/use-current-caisse";
 import { obtenirDashboardCaisse } from "../api/caisses";
 import { cn } from "#/lib/utils";
 
 export function CaissierDashboardPage() {
-	const userCaisse = useCurrentCaisse();
-
-	console.log("CaissierDashboard - userCaisse:", userCaisse);
+	const { id } = useParams({ from: "/_authenticated/finances/caissier/$id/dashboard" });
 
 	const { data: dashboard, isLoading, error } = useQuery({
-		queryKey: ["caisse-dashboard", userCaisse],
-		queryFn: () => obtenirDashboardCaisse(userCaisse!),
-		enabled: !!userCaisse,
+		queryKey: ["caisse-dashboard", id],
+		queryFn: () => obtenirDashboardCaisse(id),
+		enabled: !!id,
 	});
 
-	console.log("CaissierDashboard - dashboard:", dashboard, "error:", error);
-
-	if (!userCaisse || !dashboard) {
+	if (!dashboard) {
 		return (
 			<div className="p-6 text-sm text-muted-foreground">
-				{!userCaisse ? "Pas de caisse assignée (userCaisse null)" : "Chargement du dashboard…"}
+				{isLoading ? "Chargement du dashboard…" : "Impossible de charger le dashboard"}
 			</div>
 		);
 	}
@@ -78,7 +74,7 @@ export function CaissierDashboardPage() {
 			{/* Actions rapides */}
 			<div className="flex flex-wrap gap-2">
 				<Button asChild>
-					<a href={`/finances/caissier/tirages`}>
+					<a href={`/finances/caissier/${id}/tirages`}>
 						Faire un tirage
 					</a>
 				</Button>
