@@ -19,6 +19,9 @@ import { Route as MarchandiseProduitsRouteImport } from './routes/marchandise/pr
 import { Route as RestaurantPlatsRouteImport } from './routes/restaurant/plats'
 import { Route as AuthenticatedDashboardIndexRouteImport } from './routes/_authenticated/dashboard/index'
 import { Route as AuthenticatedRapportsIndexRouteImport } from './routes/_authenticated/rapports/index'
+import { Route as AuthenticatedSignalementsIndexRouteImport } from './routes/_authenticated/signalements/index'
+import { Route as AuthenticatedSignalementsIdRouteImport } from './routes/_authenticated/signalements/$id'
+import { Route as AuthenticatedSignalementsCreerRouteImport } from './routes/_authenticated/signalements/creer'
 import { Route as AuthenticatedAdminJournalIndexRouteImport } from './routes/_authenticated/admin/journal/index'
 import { Route as AuthenticatedAdminParametresIndexRouteImport } from './routes/_authenticated/admin/parametres/index'
 import { Route as AuthenticatedAdminRolesIndexRouteImport } from './routes/_authenticated/admin/roles/index'
@@ -130,6 +133,24 @@ const AuthenticatedRapportsIndexRoute =
   AuthenticatedRapportsIndexRouteImport.update({
     id: '/rapports/',
     path: '/rapports/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedSignalementsIndexRoute =
+  AuthenticatedSignalementsIndexRouteImport.update({
+    id: '/signalements/',
+    path: '/signalements/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedSignalementsIdRoute =
+  AuthenticatedSignalementsIdRouteImport.update({
+    id: '/signalements/$id',
+    path: '/signalements/$id',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedSignalementsCreerRoute =
+  AuthenticatedSignalementsCreerRouteImport.update({
+    id: '/signalements/creer',
+    path: '/signalements/creer',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedAdminJournalIndexRoute =
@@ -507,8 +528,11 @@ export interface FileRoutesByFullPath {
   '/home': typeof AuthenticatedHomeRoute
   '/marchandise/produits': typeof MarchandiseProduitsRoute
   '/restaurant/plats': typeof RestaurantPlatsRoute
+  '/signalements/$id': typeof AuthenticatedSignalementsIdRoute
+  '/signalements/creer': typeof AuthenticatedSignalementsCreerRoute
   '/dashboard/': typeof AuthenticatedDashboardIndexRoute
   '/rapports/': typeof AuthenticatedRapportsIndexRoute
+  '/signalements/': typeof AuthenticatedSignalementsIndexRoute
   '/client/clients/$id': typeof AuthenticatedClientClientsIdRoute
   '/facturation/factures/$id': typeof AuthenticatedFacturationFacturesIdRoute
   '/finances/caissier/dashboard': typeof AuthenticatedFinancesCaissierDashboardRoute
@@ -579,8 +603,11 @@ export interface FileRoutesByTo {
   '/home': typeof AuthenticatedHomeRoute
   '/marchandise/produits': typeof AuthenticatedMarchandiseProduitsIndexRoute
   '/restaurant/plats': typeof AuthenticatedRestaurantPlatsIndexRoute
+  '/signalements/$id': typeof AuthenticatedSignalementsIdRoute
+  '/signalements/creer': typeof AuthenticatedSignalementsCreerRoute
   '/dashboard': typeof AuthenticatedDashboardIndexRoute
   '/rapports': typeof AuthenticatedRapportsIndexRoute
+  '/signalements': typeof AuthenticatedSignalementsIndexRoute
   '/client/clients/$id': typeof AuthenticatedClientClientsIdRoute
   '/facturation/factures/$id': typeof AuthenticatedFacturationFacturesIdRoute
   '/finances/caissier/dashboard': typeof AuthenticatedFinancesCaissierDashboardRoute
@@ -651,8 +678,11 @@ export interface FileRoutesById {
   '/_authenticated/home': typeof AuthenticatedHomeRoute
   '/marchandise/produits': typeof MarchandiseProduitsRoute
   '/restaurant/plats': typeof RestaurantPlatsRoute
+  '/_authenticated/signalements/$id': typeof AuthenticatedSignalementsIdRoute
+  '/_authenticated/signalements/creer': typeof AuthenticatedSignalementsCreerRoute
   '/_authenticated/dashboard/': typeof AuthenticatedDashboardIndexRoute
   '/_authenticated/rapports/': typeof AuthenticatedRapportsIndexRoute
+  '/_authenticated/signalements/': typeof AuthenticatedSignalementsIndexRoute
   '/_authenticated/client/clients/$id': typeof AuthenticatedClientClientsIdRoute
   '/_authenticated/facturation/factures/$id': typeof AuthenticatedFacturationFacturesIdRoute
   '/_authenticated/finances/caissier/dashboard': typeof AuthenticatedFinancesCaissierDashboardRoute
@@ -725,8 +755,11 @@ export interface FileRouteTypes {
     | '/home'
     | '/marchandise/produits'
     | '/restaurant/plats'
+    | '/signalements/$id'
+    | '/signalements/creer'
     | '/dashboard/'
     | '/rapports/'
+    | '/signalements/'
     | '/client/clients/$id'
     | '/facturation/factures/$id'
     | '/finances/caissier/dashboard'
@@ -797,8 +830,11 @@ export interface FileRouteTypes {
     | '/home'
     | '/marchandise/produits'
     | '/restaurant/plats'
+    | '/signalements/$id'
+    | '/signalements/creer'
     | '/dashboard'
     | '/rapports'
+    | '/signalements'
     | '/client/clients/$id'
     | '/facturation/factures/$id'
     | '/finances/caissier/dashboard'
@@ -868,8 +904,11 @@ export interface FileRouteTypes {
     | '/_authenticated/home'
     | '/marchandise/produits'
     | '/restaurant/plats'
+    | '/_authenticated/signalements/$id'
+    | '/_authenticated/signalements/creer'
     | '/_authenticated/dashboard/'
     | '/_authenticated/rapports/'
+    | '/_authenticated/signalements/'
     | '/_authenticated/client/clients/$id'
     | '/_authenticated/facturation/factures/$id'
     | '/_authenticated/finances/caissier/dashboard'
@@ -1012,6 +1051,27 @@ declare module '@tanstack/react-router' {
       path: '/rapports'
       fullPath: '/rapports/'
       preLoaderRoute: typeof AuthenticatedRapportsIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/signalements/': {
+      id: '/_authenticated/signalements/'
+      path: '/signalements'
+      fullPath: '/signalements/'
+      preLoaderRoute: typeof AuthenticatedSignalementsIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/signalements/$id': {
+      id: '/_authenticated/signalements/$id'
+      path: '/signalements/$id'
+      fullPath: '/signalements/$id'
+      preLoaderRoute: typeof AuthenticatedSignalementsIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/signalements/creer': {
+      id: '/_authenticated/signalements/creer'
+      path: '/signalements/creer'
+      fullPath: '/signalements/creer'
+      preLoaderRoute: typeof AuthenticatedSignalementsCreerRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/admin/journal/': {
@@ -1447,8 +1507,11 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedRouteChildren {
   AuthenticatedEnCoursRoute: typeof AuthenticatedEnCoursRoute
   AuthenticatedHomeRoute: typeof AuthenticatedHomeRoute
+  AuthenticatedSignalementsIdRoute: typeof AuthenticatedSignalementsIdRoute
+  AuthenticatedSignalementsCreerRoute: typeof AuthenticatedSignalementsCreerRoute
   AuthenticatedDashboardIndexRoute: typeof AuthenticatedDashboardIndexRoute
   AuthenticatedRapportsIndexRoute: typeof AuthenticatedRapportsIndexRoute
+  AuthenticatedSignalementsIndexRoute: typeof AuthenticatedSignalementsIndexRoute
   AuthenticatedClientClientsIdRoute: typeof AuthenticatedClientClientsIdRoute
   AuthenticatedFacturationFacturesIdRoute: typeof AuthenticatedFacturationFacturesIdRoute
   AuthenticatedFinancesCaissierDashboardRoute: typeof AuthenticatedFinancesCaissierDashboardRoute
@@ -1515,8 +1578,11 @@ interface AuthenticatedRouteChildren {
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedEnCoursRoute: AuthenticatedEnCoursRoute,
   AuthenticatedHomeRoute: AuthenticatedHomeRoute,
+  AuthenticatedSignalementsIdRoute: AuthenticatedSignalementsIdRoute,
+  AuthenticatedSignalementsCreerRoute: AuthenticatedSignalementsCreerRoute,
   AuthenticatedDashboardIndexRoute: AuthenticatedDashboardIndexRoute,
   AuthenticatedRapportsIndexRoute: AuthenticatedRapportsIndexRoute,
+  AuthenticatedSignalementsIndexRoute: AuthenticatedSignalementsIndexRoute,
   AuthenticatedClientClientsIdRoute: AuthenticatedClientClientsIdRoute,
   AuthenticatedFacturationFacturesIdRoute:
     AuthenticatedFacturationFacturesIdRoute,
@@ -1643,12 +1709,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}
