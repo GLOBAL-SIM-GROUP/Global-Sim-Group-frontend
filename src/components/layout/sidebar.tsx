@@ -5,6 +5,7 @@ import {
 	ChevronDown,
 	Home,
 	LayoutGrid,
+	AlertCircle,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -115,6 +116,7 @@ export function Sidebar({ onClose }: { onClose?: () => void } = {}) {
 	const user = useCurrentUser();
 	const permissions = usePermissions();
 	const canVoirRapports = useCan("ADMIN.VOIR");
+	const canVoirSignalements = useCan("SIGNALEMENT.VOIR");
 	const accessibleModules = getAccessibleModules(permissions);
 	const { pathname, search } = useLocation();
 	const activeModule = (search as { module?: string } | undefined)?.module;
@@ -124,6 +126,7 @@ export function Sidebar({ onClose }: { onClose?: () => void } = {}) {
 	// routes métier construites (ex. /residence/*) ouvrent leur module.
 	const moduleDeLaRoute = (chemin: string): string | null => {
 		if (chemin.startsWith("/dashboard")) return null; // Pas de module, lien top-level
+		if (chemin.startsWith("/signalements")) return null; // Pas de module, lien top-level
 		if (chemin.startsWith("/residence")) return "RESIDENCE";
 		if (chemin.startsWith("/marchandise")) return "MARCHANDISE";
 		if (chemin.startsWith("/pressing")) return "PRESSING";
@@ -206,6 +209,24 @@ export function Sidebar({ onClose }: { onClose?: () => void } = {}) {
 										aria-hidden
 									/>
 									Tableau de bord global
+								</Link>
+							</li>
+						) : null}
+
+						{canVoirSignalements ? (
+							<li>
+								<Link
+									to="/signalements"
+									activeOptions={{ exact: false }}
+									activeProps={{ className: linkActiveClassName }}
+									className={linkClassName}
+									onClick={() => onClose?.()}
+								>
+									<AlertCircle
+										className="size-4 text-gray-400 transition-colors"
+										aria-hidden
+									/>
+									Signalements
 								</Link>
 							</li>
 						) : null}
