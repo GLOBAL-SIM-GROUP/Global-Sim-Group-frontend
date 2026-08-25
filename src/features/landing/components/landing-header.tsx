@@ -23,13 +23,22 @@ function HeaderContent() {
 					</Button>
 				</>
 			) : (
-				<Button
-					size="sm"
-					className="bg-lagoon hover:bg-lagoon/90"
-					onClick={() => navigate({ to: "/login" })}
-				>
-					Connexion
-				</Button>
+				<div className="flex gap-2">
+					<Button
+						size="sm"
+						variant="outline"
+						onClick={() => navigate({ to: "/inscription" })}
+					>
+						S'inscrire
+					</Button>
+					<Button
+						size="sm"
+						className="bg-lagoon hover:bg-lagoon/90"
+						onClick={() => navigate({ to: "/login" })}
+					>
+						Connexion
+					</Button>
+				</div>
 			)}
 		</nav>
 	);

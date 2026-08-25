@@ -46,13 +46,22 @@ export function LandingHero() {
 								<ArrowRight className="ml-2 size-5" />
 							</Button>
 							{!currentUser && (
-								<Button
-									size="lg"
-									variant="outline"
-									onClick={() => navigate({ to: "/login" })}
-								>
-									Connexion rapide
-								</Button>
+								<>
+									<Button
+										size="lg"
+										variant="outline"
+										onClick={() => navigate({ to: "/inscription" })}
+									>
+										S'inscrire
+									</Button>
+									<Button
+										size="lg"
+										variant="outline"
+										onClick={() => navigate({ to: "/login" })}
+									>
+										Connexion rapide
+									</Button>
+								</>
 							)}
 						</div>
 					</div>
