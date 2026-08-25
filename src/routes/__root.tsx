@@ -45,7 +45,7 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 });
 
 function RootComponent() {
-	const { auth } = useRouteContext();
+	const { auth } = useRouteContext<RouterContext>();
 	return (
 		<AuthProvider session={auth}>
 			<Outlet />

@@ -16,7 +16,10 @@ interface ModuleTileProps {
 	/** Description courte localisée. */
 	description: string;
 	/** Destination du clic (route + paramètre du module concerné). */
-	linkProps: { to: "/en-cours"; search: { module: ModuleCode } };
+	linkProps: {
+		to: string;
+		search?: { module: ModuleCode };
+	};
 }
 
 function ModuleTile({
