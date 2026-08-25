@@ -3,8 +3,8 @@ import tailwindcss from "@tailwindcss/vite";
 import { devtools } from "@tanstack/devtools-vite";
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 import viteReact, { reactCompilerPreset } from "@vitejs/plugin-react";
-import { defineConfig } from "vite";
 import { nitro } from "nitro/vite";
+import { defineConfig } from "vite";
 
 // Nitro pour Vercel seulement (optimise SSR serverless).
 // Docker utilise le hôte custom prod-server.mjs.

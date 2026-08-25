@@ -1,11 +1,11 @@
 import {
 	AlertCircle,
+	AlertTriangle,
 	CheckCircle2,
 	Clock,
 	Package,
 	TrendingUp,
 	Users,
-	AlertTriangle,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -20,14 +20,13 @@ import {
 import { useCan } from "#/core/auth";
 import { formatMontantFCFA } from "#/features/residence/models/format";
 import { cn } from "#/lib/utils";
-
-import {
-	useSyntheseGlobale,
-	useReservationsSalleFutures,
-	useImpayes,
-} from "../hooks/use-dashboard";
 import { getReservationsSalleFutures } from "../api/dashboard";
-import { type PeriodeFiltre, getPeriodeDates } from "../models/periodes";
+import {
+	useImpayes,
+	useReservationsSalleFutures,
+	useSyntheseGlobale,
+} from "../hooks/use-dashboard";
+import { getPeriodeDates, type PeriodeFiltre } from "../models/periodes";
 
 const PERIODES: Record<PeriodeFiltre, string> = {
 	aujourd_hui: "Aujourd'hui",
@@ -98,7 +97,10 @@ export function DashboardGlobalPage() {
 							<label className="block text-xs font-medium text-muted-foreground mb-1">
 								Période
 							</label>
-							<Select value={periode} onValueChange={(v) => setPeriode(v as PeriodeFiltre)}>
+							<Select
+								value={periode}
+								onValueChange={(v) => setPeriode(v as PeriodeFiltre)}
+							>
 								<SelectTrigger>
 									<SelectValue />
 								</SelectTrigger>
@@ -143,7 +145,9 @@ export function DashboardGlobalPage() {
 
 					{/* Affichage des dates appliquées */}
 					<div className="text-xs text-muted-foreground bg-muted/50 rounded px-3 py-2">
-						<span className="font-medium">Période appliquée:</span> {new Date(dates.du).toLocaleDateString("fr-FR")} au {new Date(dates.au).toLocaleDateString("fr-FR")}
+						<span className="font-medium">Période appliquée:</span>{" "}
+						{new Date(dates.du).toLocaleDateString("fr-FR")} au{" "}
+						{new Date(dates.au).toLocaleDateString("fr-FR")}
 					</div>
 				</div>
 			</div>
@@ -181,7 +185,11 @@ export function DashboardGlobalPage() {
 							<KPICard
 								label="Solde"
 								valeur={formatMontantFCFA(String(synthese.solde))}
-								couleur={Number(synthese.solde) >= 0 ? "text-emerald-600" : "text-destructive"}
+								couleur={
+									Number(synthese.solde) >= 0
+										? "text-emerald-600"
+										: "text-destructive"
+								}
 								icon={TrendingUp}
 							/>
 							<KPICard
@@ -218,9 +226,7 @@ export function DashboardGlobalPage() {
 
 					{/* Résidence */}
 					<div className="space-y-3">
-						<h2 className="text-lg font-semibold text-foreground">
-							Résidence
-						</h2>
+						<h2 className="text-lg font-semibold text-foreground">Résidence</h2>
 						<div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
 							<InfoCard
 								label="Chambres disponibles"
@@ -237,7 +243,9 @@ export function DashboardGlobalPage() {
 							/>
 							<InfoCard
 								label="Montant des impayés"
-								valeur={formatMontantFCFA(String(synthese?.residence?.impayes?.montant ?? 0))}
+								valeur={formatMontantFCFA(
+									String(synthese?.residence?.impayes?.montant ?? 0),
+								)}
 								icon={AlertCircle}
 								couleur="text-destructive"
 								loading={syntheseQuery.isLoading}
@@ -251,11 +259,27 @@ export function DashboardGlobalPage() {
 									<table className="w-full border-collapse text-sm">
 										<thead className="bg-sea-ink text-left text-white">
 											<tr>
-												<th scope="col" className="px-4 py-3 font-medium">CLIENT</th>
-												<th scope="col" className="px-4 py-3 font-medium">RÉFÉRENCE</th>
-												<th scope="col" className="px-4 py-3 text-right font-medium">PAYÉ</th>
-												<th scope="col" className="px-4 py-3 text-right font-medium">RESTE</th>
-												<th scope="col" className="px-4 py-3 font-medium">ÉCHÉANCE</th>
+												<th scope="col" className="px-4 py-3 font-medium">
+													CLIENT
+												</th>
+												<th scope="col" className="px-4 py-3 font-medium">
+													RÉFÉRENCE
+												</th>
+												<th
+													scope="col"
+													className="px-4 py-3 text-right font-medium"
+												>
+													PAYÉ
+												</th>
+												<th
+													scope="col"
+													className="px-4 py-3 text-right font-medium"
+												>
+													RESTE
+												</th>
+												<th scope="col" className="px-4 py-3 font-medium">
+													ÉCHÉANCE
+												</th>
 											</tr>
 										</thead>
 										<tbody>
@@ -267,46 +291,71 @@ export function DashboardGlobalPage() {
 												})
 												.slice(0, 10)
 												.map((i: any, idx) => {
-												const montantPaye = Number(i.montant_paye ?? 0);
-												const montantReste = Number(i.montant_impaye ?? i.reste ?? 0);
-												const locataire = i.locataire ?? i.nom_locataire ?? i.client ?? "—";
-												const reference = i.reference ?? i.id ?? "—";
-												return (
-													<tr key={idx} className="relative border-t border-border transition-colors hover:bg-accent/40">
-														<td className="px-4 py-3 font-medium text-foreground">{locataire}</td>
-														<td className="px-4 py-3 text-muted-foreground">{reference}</td>
-														<td className="px-4 py-3 text-right text-emerald-600 font-medium">
-															{montantPaye > 0 ? formatMontantFCFA(String(montantPaye)) : "0 FCFA"}
-														</td>
-														<td className="px-4 py-3 text-right font-semibold text-destructive">
-															{montantReste > 0 ? formatMontantFCFA(String(montantReste)) : "0 FCFA"}
-														</td>
-														<td className="px-4 py-3 text-muted-foreground">
-															{i.date_echeance ? new Date(i.date_echeance).toLocaleDateString("fr-FR") : "—"}
-														</td>
-													</tr>
-												);
-											})}
+													const montantPaye = Number(i.montant_paye ?? 0);
+													const montantReste = Number(
+														i.montant_impaye ?? i.reste ?? 0,
+													);
+													const locataire =
+														i.locataire ?? i.nom_locataire ?? i.client ?? "—";
+													const reference = i.reference ?? i.id ?? "—";
+													return (
+														<tr
+															key={idx}
+															className="relative border-t border-border transition-colors hover:bg-accent/40"
+														>
+															<td className="px-4 py-3 font-medium text-foreground">
+																{locataire}
+															</td>
+															<td className="px-4 py-3 text-muted-foreground">
+																{reference}
+															</td>
+															<td className="px-4 py-3 text-right text-emerald-600 font-medium">
+																{montantPaye > 0
+																	? formatMontantFCFA(String(montantPaye))
+																	: "0 FCFA"}
+															</td>
+															<td className="px-4 py-3 text-right font-semibold text-destructive">
+																{montantReste > 0
+																	? formatMontantFCFA(String(montantReste))
+																	: "0 FCFA"}
+															</td>
+															<td className="px-4 py-3 text-muted-foreground">
+																{i.date_echeance
+																	? new Date(
+																			i.date_echeance,
+																		).toLocaleDateString("fr-FR")
+																	: "—"}
+															</td>
+														</tr>
+													);
+												})}
 											<tr className="border-t border-border bg-sea-ink/5">
-												<td colSpan={2} className="px-4 py-3 font-semibold text-foreground">TOTAL ({impayes.length})</td>
+												<td
+													colSpan={2}
+													className="px-4 py-3 font-semibold text-foreground"
+												>
+													TOTAL ({impayes.length})
+												</td>
 												<td className="px-4 py-3 text-right font-semibold text-emerald-600">
 													{formatMontantFCFA(
 														String(
 															impayes.reduce((sum, i: any) => {
 																const montant = Number(i.montant_paye ?? 0);
 																return sum + (isNaN(montant) ? 0 : montant);
-															}, 0)
-														)
+															}, 0),
+														),
 													)}
 												</td>
 												<td className="px-4 py-3 text-right font-semibold text-destructive">
 													{formatMontantFCFA(
 														String(
 															impayes.reduce((sum, i: any) => {
-																const montant = Number(i.montant_impaye ?? i.reste ?? 0);
+																const montant = Number(
+																	i.montant_impaye ?? i.reste ?? 0,
+																);
 																return sum + (isNaN(montant) ? 0 : montant);
-															}, 0)
-														)
+															}, 0),
+														),
 													)}
 												</td>
 												<td className="px-4 py-3"></td>
@@ -340,7 +389,11 @@ export function DashboardGlobalPage() {
 								label="Retards aujourd'hui"
 								valeur={String(retardsAujourdhui)}
 								icon={Clock}
-								couleur={retardsAujourdhui > 0 ? "text-amber-600" : "text-muted-foreground"}
+								couleur={
+									retardsAujourdhui > 0
+										? "text-amber-600"
+										: "text-muted-foreground"
+								}
 								loading={syntheseQuery.isLoading}
 							/>
 							<InfoCard
@@ -362,10 +415,18 @@ export function DashboardGlobalPage() {
 										.filter((p) => p.retard)
 										.slice(0, 10)
 										.map((p, idx) => (
-											<li key={idx} className="flex items-center justify-between text-foreground">
+											<li
+												key={idx}
+												className="flex items-center justify-between text-foreground"
+											>
 												<span>{p.nom}</span>
 												<span className="text-muted-foreground">
-													{p.heure_arrivee ? new Date(p.heure_arrivee).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }) : "—"}
+													{p.heure_arrivee
+														? new Date(p.heure_arrivee).toLocaleTimeString(
+																"fr-FR",
+																{ hour: "2-digit", minute: "2-digit" },
+															)
+														: "—"}
 												</span>
 											</li>
 										))}
@@ -384,7 +445,11 @@ export function DashboardGlobalPage() {
 								label="Produits en stock critique"
 								valeur={String(produitsCritiques.length)}
 								icon={AlertTriangle}
-								couleur={produitsCritiques.length > 0 ? "text-destructive" : "text-muted-foreground"}
+								couleur={
+									produitsCritiques.length > 0
+										? "text-destructive"
+										: "text-muted-foreground"
+								}
 								loading={syntheseQuery.isLoading}
 							/>
 						</div>
@@ -421,9 +486,7 @@ export function DashboardGlobalPage() {
 
 					{/* Services - Salle de fête */}
 					<div className="space-y-3">
-						<h2 className="text-lg font-semibold text-foreground">
-							Services
-						</h2>
+						<h2 className="text-lg font-semibold text-foreground">Services</h2>
 
 						<div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
 							<InfoCard
@@ -437,12 +500,18 @@ export function DashboardGlobalPage() {
 						{/* Réservations Salle de Fête */}
 						{reservationsQuery.isLoading ? (
 							<div className="rounded-lg border border-border bg-card p-4 shadow-sm">
-								<p className="text-xs text-muted-foreground">Chargement des réservations…</p>
+								<p className="text-xs text-muted-foreground">
+									Chargement des réservations…
+								</p>
 							</div>
 						) : reservations.length === 0 ? (
 							<div className="rounded-lg border border-border bg-card p-4 shadow-sm">
-								<p className="text-sm font-medium text-muted-foreground">Prochaines réservations (Salle de fête)</p>
-								<p className="text-xs text-muted-foreground mt-2">Aucune réservation pour cette période</p>
+								<p className="text-sm font-medium text-muted-foreground">
+									Prochaines réservations (Salle de fête)
+								</p>
+								<p className="text-xs text-muted-foreground mt-2">
+									Aucune réservation pour cette période
+								</p>
 							</div>
 						) : (
 							<div className="rounded-lg border border-border overflow-hidden">
@@ -450,37 +519,64 @@ export function DashboardGlobalPage() {
 									<table className="w-full border-collapse text-sm">
 										<thead className="bg-sea-ink text-left text-white">
 											<tr>
-												<th scope="col" className="px-4 py-3 font-medium">CLIENT</th>
-												<th scope="col" className="px-4 py-3 font-medium">DATE</th>
-												<th scope="col" className="px-4 py-3 font-medium">TYPE</th>
-												<th scope="col" className="px-4 py-3 font-medium">STATUT</th>
+												<th scope="col" className="px-4 py-3 font-medium">
+													CLIENT
+												</th>
+												<th scope="col" className="px-4 py-3 font-medium">
+													DATE
+												</th>
+												<th scope="col" className="px-4 py-3 font-medium">
+													TYPE
+												</th>
+												<th scope="col" className="px-4 py-3 font-medium">
+													STATUT
+												</th>
 											</tr>
 										</thead>
 										<tbody>
 											{reservations
-												.sort((a: any, b: any) => new Date(a.date_evenement || a.date).getTime() - new Date(b.date_evenement || b.date).getTime())
+												.sort(
+													(a: any, b: any) =>
+														new Date(a.date_evenement || a.date).getTime() -
+														new Date(b.date_evenement || b.date).getTime(),
+												)
 												.slice(0, 5)
 												.map((r: any, idx) => (
-												<tr key={idx} className="relative border-t border-border transition-colors hover:bg-accent/40">
-													<td className="px-4 py-3 font-medium text-foreground">{r.client ?? r.nom_client ?? r.name ?? r.nom ?? (r.prenom ? `${r.prenom} ${r.nom}` : "—")}</td>
-													<td className="px-4 py-3 text-muted-foreground">
-														{new Date(r.date_evenement || r.date).toLocaleDateString("fr-FR")}
-													</td>
-													<td className="px-4 py-3 text-muted-foreground">
-														{r.type_manifestation}
-													</td>
-													<td className="px-4 py-3">
-														<span className={cn(
-															"inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium",
-															r.statut === "CONFIRMEE" ? "bg-emerald-600/20 text-emerald-600" :
-															r.statut === "RESERVEE" ? "bg-amber-600/20 text-amber-600" :
-															"bg-gray-600/20 text-gray-600"
-														)}>
-															{r.statut}
-														</span>
-													</td>
-												</tr>
-											))}
+													<tr
+														key={idx}
+														className="relative border-t border-border transition-colors hover:bg-accent/40"
+													>
+														<td className="px-4 py-3 font-medium text-foreground">
+															{r.client ??
+																r.nom_client ??
+																r.name ??
+																r.nom ??
+																(r.prenom ? `${r.prenom} ${r.nom}` : "—")}
+														</td>
+														<td className="px-4 py-3 text-muted-foreground">
+															{new Date(
+																r.date_evenement || r.date,
+															).toLocaleDateString("fr-FR")}
+														</td>
+														<td className="px-4 py-3 text-muted-foreground">
+															{r.type_manifestation}
+														</td>
+														<td className="px-4 py-3">
+															<span
+																className={cn(
+																	"inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium",
+																	r.statut === "CONFIRMEE"
+																		? "bg-emerald-600/20 text-emerald-600"
+																		: r.statut === "RESERVEE"
+																			? "bg-amber-600/20 text-amber-600"
+																			: "bg-gray-600/20 text-gray-600",
+																)}
+															>
+																{r.statut}
+															</span>
+														</td>
+													</tr>
+												))}
 										</tbody>
 									</table>
 								</div>
@@ -492,8 +588,6 @@ export function DashboardGlobalPage() {
 							</div>
 						)}
 					</div>
-
-
 				</>
 			) : null}
 		</div>
@@ -520,7 +614,12 @@ function KPICard({
 					<p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
 						{label}
 					</p>
-					<p className={cn("mt-2 text-lg font-bold sm:text-2xl break-words", couleur)}>
+					<p
+						className={cn(
+							"mt-2 text-lg font-bold sm:text-2xl break-words",
+							couleur,
+						)}
+					>
 						{valeur}
 					</p>
 					{subtext && (
@@ -559,9 +658,7 @@ function InfoCard({
 						<p className="mt-2 text-sm text-muted-foreground">Chargement…</p>
 					) : (
 						<>
-							<p className={cn("mt-2 text-2xl font-bold", couleur)}>
-								{valeur}
-							</p>
+							<p className={cn("mt-2 text-2xl font-bold", couleur)}>{valeur}</p>
 							{subtext && (
 								<p className="mt-1 text-xs text-muted-foreground">{subtext}</p>
 							)}

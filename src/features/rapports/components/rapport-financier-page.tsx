@@ -9,9 +9,13 @@ import {
 	formatMontantFCFA,
 } from "#/features/residence/models/format";
 
-import { rapportPdfPath, rapportExcelPath } from "../api/rapports";
+import { rapportExcelPath, rapportPdfPath } from "../api/rapports";
 import { useRapportFinancier } from "../hooks/use-rapports";
-import { telechargerPdf, telechargerTexte, telechargerExcel } from "../lib/export";
+import {
+	telechargerExcel,
+	telechargerPdf,
+	telechargerTexte,
+} from "../lib/export";
 import {
 	construireCsv,
 	periodeParDefaut,
@@ -124,7 +128,12 @@ export function RapportFinancierPage({
 					</p>
 				</section>
 				<div className="flex flex-col gap-2 w-full sm:w-auto sm:flex-row sm:items-center sm:gap-2">
-					<Button variant="outline" size="sm" asChild className="w-full sm:w-auto justify-center">
+					<Button
+						variant="outline"
+						size="sm"
+						asChild
+						className="w-full sm:w-auto justify-center"
+					>
 						<Link to="/rapports">Nouveau rapport</Link>
 					</Button>
 					<Button

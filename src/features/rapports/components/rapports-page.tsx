@@ -91,7 +91,9 @@ export function RapportsPage() {
 			/>
 
 			<section className="space-y-1">
-				<h1 className="text-xl font-semibold text-foreground sm:text-2xl">Rapports</h1>
+				<h1 className="text-xl font-semibold text-foreground sm:text-2xl">
+					Rapports
+				</h1>
 				<p className="text-xs text-muted-foreground sm:text-sm">
 					Génération des rapports de synthèse, financiers, par activité et RH.
 				</p>

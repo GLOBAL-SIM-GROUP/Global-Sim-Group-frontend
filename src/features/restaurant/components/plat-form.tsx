@@ -64,7 +64,9 @@ export function PlatForm({
 	const createMutation = useCreerPlat();
 	const editMutation = useModifierPlat();
 	const [globalError, setGlobalError] = useState<string | null>(null);
-	const [imagePreview, setImagePreview] = useState<string | null>(plat?.image_url ?? null);
+	const [imagePreview, setImagePreview] = useState<string | null>(
+		plat?.image_url ?? null,
+	);
 	const [uploadedFile, setUploadedFile] = useState<File | null>(null);
 	const fileInputRef = useRef<HTMLInputElement>(null);
 

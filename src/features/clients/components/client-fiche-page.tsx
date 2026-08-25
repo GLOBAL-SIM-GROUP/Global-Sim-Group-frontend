@@ -1,6 +1,14 @@
 import { useForm } from "@tanstack/react-form";
 import { Link } from "@tanstack/react-router";
-import { Image as ImageIcon, Loader2, Pencil, Phone, Plus, UserRound, X } from "lucide-react";
+import {
+	Image as ImageIcon,
+	Loader2,
+	Pencil,
+	Phone,
+	Plus,
+	UserRound,
+	X,
+} from "lucide-react";
 import { Dialog } from "radix-ui";
 import { useEffect, useState } from "react";
 
@@ -39,7 +47,9 @@ import { ClientFormDialog } from "./client-form-dialog";
 function Ligne({ label, valeur }: { label: string; valeur: string }) {
 	return (
 		<div className="space-y-1">
-			<dt className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{label}</dt>
+			<dt className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+				{label}
+			</dt>
 			<dd className="text-sm text-foreground break-words">{valeur}</dd>
 		</div>
 	);
@@ -131,7 +141,10 @@ function PiecePhotosDialog({
 
 					{hasNoPhotos ? (
 						<div className="rounded-lg border border-border bg-muted/30 p-8 text-center">
-							<ImageIcon className="mx-auto mb-2 size-8 text-muted-foreground" aria-hidden />
+							<ImageIcon
+								className="mx-auto mb-2 size-8 text-muted-foreground"
+								aria-hidden
+							/>
 							<p className="text-sm text-muted-foreground">
 								Aucune photo n'a été enregistrée pour cette pièce.
 							</p>
@@ -144,7 +157,10 @@ function PiecePhotosDialog({
 									<div className="rounded-lg border border-border bg-muted overflow-hidden">
 										{loadingRecto ? (
 											<div className="flex h-64 items-center justify-center">
-												<Loader2 className="size-5 animate-spin text-muted-foreground" aria-hidden />
+												<Loader2
+													className="size-5 animate-spin text-muted-foreground"
+													aria-hidden
+												/>
 											</div>
 										) : rectoUrl ? (
 											<img
@@ -169,7 +185,10 @@ function PiecePhotosDialog({
 									<div className="rounded-lg border border-border bg-muted overflow-hidden">
 										{loadingVerso ? (
 											<div className="flex h-64 items-center justify-center">
-												<Loader2 className="size-5 animate-spin text-muted-foreground" aria-hidden />
+												<Loader2
+													className="size-5 animate-spin text-muted-foreground"
+													aria-hidden
+												/>
 											</div>
 										) : versoUrl ? (
 											<img
@@ -449,7 +468,10 @@ function PieceDialog({
 
 				// 2. Upload les fichiers si présents et attacher les clés
 				if (fileRecto || fileVerso) {
-					const updates: { copieNum?: string | null; copieNumVerso?: string | null } = {};
+					const updates: {
+						copieNum?: string | null;
+						copieNumVerso?: string | null;
+					} = {};
 
 					if (fileRecto) {
 						const keyRecto = await uploadImage(fileRecto, "piece-identite");
@@ -482,7 +504,8 @@ function PieceDialog({
 		},
 	});
 
-	const isPending = creerMutation.isPending || modifierMutation.isPending || uploading;
+	const isPending =
+		creerMutation.isPending || modifierMutation.isPending || uploading;
 
 	return (
 		<Dialog.Root open onOpenChange={onOpenChange}>
@@ -559,12 +582,18 @@ function PieceDialog({
 									<div className="flex h-20 items-center justify-center rounded-md border border-dashed border-input bg-muted/30 text-center">
 										{fileRecto ? (
 											<div className="text-xs text-foreground">
-												<ImageIcon className="mx-auto mb-1 size-4" aria-hidden />
+												<ImageIcon
+													className="mx-auto mb-1 size-4"
+													aria-hidden
+												/>
 												{fileRecto.name.substring(0, 20)}
 											</div>
 										) : (
 											<div className="text-xs text-muted-foreground">
-												<ImageIcon className="mx-auto mb-1 size-4" aria-hidden />
+												<ImageIcon
+													className="mx-auto mb-1 size-4"
+													aria-hidden
+												/>
 												Choisir une image
 											</div>
 										)}
@@ -585,12 +614,18 @@ function PieceDialog({
 									<div className="flex h-20 items-center justify-center rounded-md border border-dashed border-input bg-muted/30 text-center">
 										{fileVerso ? (
 											<div className="text-xs text-foreground">
-												<ImageIcon className="mx-auto mb-1 size-4" aria-hidden />
+												<ImageIcon
+													className="mx-auto mb-1 size-4"
+													aria-hidden
+												/>
 												{fileVerso.name.substring(0, 20)}
 											</div>
 										) : (
 											<div className="text-xs text-muted-foreground">
-												<ImageIcon className="mx-auto mb-1 size-4" aria-hidden />
+												<ImageIcon
+													className="mx-auto mb-1 size-4"
+													aria-hidden
+												/>
 												Choisir une image
 											</div>
 										)}
@@ -690,7 +725,9 @@ export function ClientFichePage({ id }: ClientFichePageProps) {
 	const [formOuvert, setFormOuvert] = useState(false);
 	const [contactOuvert, setContactOuvert] = useState(false);
 	const [pieceOuverte, setPieceOuverte] = useState(false);
-	const [pieceAConsulter, setPieceAConsulter] = useState<PieceIdentite | null>(null);
+	const [pieceAConsulter, setPieceAConsulter] = useState<PieceIdentite | null>(
+		null,
+	);
 
 	if (clientQuery.isLoading) {
 		return (

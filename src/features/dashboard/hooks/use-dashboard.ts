@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 
 import {
+	type CommandePressing,
 	getCommandesPressing,
 	getImpayes,
 	getIndicateurActivite,
@@ -9,7 +10,6 @@ import {
 	getProduitsCritiques,
 	getReservationsSalleFutures,
 	getSyntheseGlobale,
-	type CommandePressing,
 	type Impaye,
 	type IndicateurActivite,
 	type Pointage,

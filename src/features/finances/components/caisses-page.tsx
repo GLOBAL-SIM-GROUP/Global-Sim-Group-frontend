@@ -2,18 +2,13 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Edit, Plus, Trash2 } from "lucide-react";
 import { Dialog } from "radix-ui";
 import { useState } from "react";
-
+import { Breadcrumb } from "#/components/ui/breadcrumb";
 import { Button } from "#/components/ui/button";
 import { Input } from "#/components/ui/input";
-import { Breadcrumb } from "#/components/ui/breadcrumb";
 import { useCan } from "#/core/auth";
 import { cn } from "#/lib/utils";
 
-import {
-	creerCaisse,
-	listerCaisses,
-	modifierCaisse,
-} from "../api/caisses";
+import { creerCaisse, listerCaisses, modifierCaisse } from "../api/caisses";
 import type { Caisse, CreerCaisseDto } from "../models/caisses";
 
 /**
@@ -83,7 +78,9 @@ export function CaissesPage() {
 	}
 
 	if (isLoading) {
-		return <div className="p-6 text-center text-muted-foreground">Chargement…</div>;
+		return (
+			<div className="p-6 text-center text-muted-foreground">Chargement…</div>
+		);
 	}
 
 	return (
@@ -143,16 +140,10 @@ export function CaissesPage() {
 								</select>
 							</div>
 							<div className="flex gap-2 justify-end pt-2">
-								<Button
-									variant="outline"
-									onClick={() => setOpenCreate(false)}
-								>
+								<Button variant="outline" onClick={() => setOpenCreate(false)}>
 									Annuler
 								</Button>
-								<Button
-									onClick={handleCreate}
-									disabled={createMut.isPending}
-								>
+								<Button onClick={handleCreate} disabled={createMut.isPending}>
 									{createMut.isPending ? "Création…" : "Créer"}
 								</Button>
 							</div>
@@ -162,7 +153,10 @@ export function CaissesPage() {
 			</Dialog.Root>
 
 			{/* Edit Dialog */}
-			<Dialog.Root open={openEdit !== null} onOpenChange={(open) => !open && setOpenEdit(null)}>
+			<Dialog.Root
+				open={openEdit !== null}
+				onOpenChange={(open) => !open && setOpenEdit(null)}
+			>
 				<Dialog.Portal>
 					<Dialog.Overlay className="fixed inset-0 z-40 bg-black/50" />
 					<Dialog.Content className="fixed top-1/2 left-1/2 z-50 w-[calc(100vw-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-lg border border-border bg-card p-6 shadow-lg">
@@ -183,16 +177,10 @@ export function CaissesPage() {
 								/>
 							</div>
 							<div className="flex gap-2 justify-end pt-2">
-								<Button
-									variant="outline"
-									onClick={() => setOpenEdit(null)}
-								>
+								<Button variant="outline" onClick={() => setOpenEdit(null)}>
 									Annuler
 								</Button>
-								<Button
-									onClick={handleSaveEdit}
-									disabled={editMut.isPending}
-								>
+								<Button onClick={handleSaveEdit} disabled={editMut.isPending}>
 									{editMut.isPending ? "Modification…" : "Modifier"}
 								</Button>
 							</div>
@@ -251,7 +239,7 @@ export function CaissesPage() {
 												"inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium",
 												caisse.actif
 													? "bg-green-100/50 text-green-700 dark:bg-green-900/30 dark:text-green-400"
-													: "bg-gray-100/50 text-gray-700 dark:bg-gray-900/30 dark:text-gray-400"
+													: "bg-gray-100/50 text-gray-700 dark:bg-gray-900/30 dark:text-gray-400",
 											)}
 										>
 											{caisse.actif ? "Active" : "Inactive"}

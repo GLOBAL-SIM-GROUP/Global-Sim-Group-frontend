@@ -2,8 +2,8 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import {
 	creerUtilisateur,
-	listUtilisateurs,
 	type ListUtilisateursParams,
+	listUtilisateurs,
 	modifierUtilisateur,
 	reinitialiserMotDePasse,
 	type UtilisateurBody,

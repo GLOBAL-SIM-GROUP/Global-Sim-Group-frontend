@@ -22,7 +22,7 @@ import {
 	formatDateISO,
 	formatMontantFCFA,
 } from "#/features/residence/models/format";
-
+import { useCurrentCaisse } from "../hooks/use-current-caisse";
 import {
 	useCategoriesDepenses,
 	useCreerDepense,
@@ -30,11 +30,10 @@ import {
 	useModifierDepense,
 	useSupprimerDepense,
 } from "../hooks/use-finances";
-import { CaisseSelector } from "./caisse-selector";
-import { useCurrentCaisse } from "../hooks/use-current-caisse";
 import type { Depense } from "../models/finances";
 import { paginer } from "../models/finances";
 import { DEPENSES_PAGE_SIZE } from "../permissions";
+import { CaisseSelector } from "./caisse-selector";
 
 /** Filtres/pagination reflétés dans l'URL. */
 export interface DepensesSearch {
@@ -285,7 +284,9 @@ export function DepensesPage({
 
 	const [du, setDu] = useState(initialSearch.du ?? "");
 	const [au, setAu] = useState(initialSearch.au ?? "");
-	const [idCaisse, setIdCaisse] = useState(initialSearch.id_caisse ?? userCaisse ?? "");
+	const [idCaisse, setIdCaisse] = useState(
+		initialSearch.id_caisse ?? userCaisse ?? "",
+	);
 	const [page, setPage] = useState(initialSearch.page ?? 1);
 	const [formOuvert, setFormOuvert] = useState(false);
 	const [aModifier, setAModifier] = useState<Depense | null>(null);
@@ -311,7 +312,11 @@ export function DepensesPage({
 		(categoriesQuery.data ?? []).map((c) => [c.id, c.libelle]),
 	);
 
-	const changerFiltre = (patch: { du?: string; au?: string; id_caisse?: string }) => {
+	const changerFiltre = (patch: {
+		du?: string;
+		au?: string;
+		id_caisse?: string;
+	}) => {
 		setDu(patch.du ?? du);
 		setAu(patch.au ?? au);
 		if (patch.id_caisse !== undefined) setIdCaisse(patch.id_caisse);

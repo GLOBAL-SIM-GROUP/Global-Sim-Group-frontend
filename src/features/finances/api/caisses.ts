@@ -9,7 +9,9 @@ import type {
 } from "../models/caisses";
 
 /** Lister les caisses (filtrées par activité et statut). */
-export async function listerCaisses(filtres?: CaisseFiltres): Promise<Caisse[]> {
+export async function listerCaisses(
+	filtres?: CaisseFiltres,
+): Promise<Caisse[]> {
 	const query = new URLSearchParams();
 	if (filtres?.id_activite) query.set("id_activite", filtres.id_activite);
 	if (filtres?.actif !== undefined)

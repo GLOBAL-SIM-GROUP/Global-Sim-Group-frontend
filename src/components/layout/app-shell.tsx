@@ -1,8 +1,7 @@
-import { useState, type ReactNode } from "react";
 import { Menu, X } from "lucide-react";
-
-import { Sidebar } from "./sidebar";
+import { type ReactNode, useState } from "react";
 import { AppBackground } from "./app-background";
+import { Sidebar } from "./sidebar";
 
 export function AppShell({ children }: { children: ReactNode }) {
 	const [sidebarOpen, setSidebarOpen] = useState(false);

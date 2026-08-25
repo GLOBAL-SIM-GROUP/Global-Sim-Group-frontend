@@ -106,12 +106,15 @@ export function confirmerReservation(
 	id: string,
 	body: { montant: string; idMoyen: string },
 ): Promise<unknown> {
-	return getApiClient().apiFetch(`/api/v1/salle-fete/reservations/${id}/confirmer`, {
-		method: "POST",
-		body: JSON.stringify({
-			paiement: { montant: body.montant, id_moyen: body.idMoyen },
-		}),
-	});
+	return getApiClient().apiFetch(
+		`/api/v1/salle-fete/reservations/${id}/confirmer`,
+		{
+			method: "POST",
+			body: JSON.stringify({
+				paiement: { montant: body.montant, id_moyen: body.idMoyen },
+			}),
+		},
+	);
 }
 
 /** Marque une réservation comme réalisée (POST realiser, paiement du solde). */
@@ -119,19 +122,25 @@ export function realiserReservation(
 	id: string,
 	body: { montant: string; idMoyen: string },
 ): Promise<unknown> {
-	return getApiClient().apiFetch(`/api/v1/salle-fete/reservations/${id}/realiser`, {
-		method: "POST",
-		body: JSON.stringify({
-			paiement: { montant: body.montant, id_moyen: body.idMoyen },
-		}),
-	});
+	return getApiClient().apiFetch(
+		`/api/v1/salle-fete/reservations/${id}/realiser`,
+		{
+			method: "POST",
+			body: JSON.stringify({
+				paiement: { montant: body.montant, id_moyen: body.idMoyen },
+			}),
+		},
+	);
 }
 
 /** Annule une réservation (POST annuler). */
 export function annulerReservation(id: string): Promise<unknown> {
-	return getApiClient().apiFetch(`/api/v1/salle-fete/reservations/${id}/annuler`, {
-		method: "POST",
-	});
+	return getApiClient().apiFetch(
+		`/api/v1/salle-fete/reservations/${id}/annuler`,
+		{
+			method: "POST",
+		},
+	);
 }
 
 /** Met à jour le statut seul (PATCH partiel). */

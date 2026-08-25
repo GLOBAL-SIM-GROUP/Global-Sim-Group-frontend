@@ -16,7 +16,9 @@ const texteOuNull = (valeur: string | null | undefined): string | null =>
 
 /** Appels API du module Marchandise — mouvements de stock (`/api/v1/market/*`). */
 export function listMouvements(): Promise<Mouvement[]> {
-	return getApiClient().apiFetch<Mouvement[]>("/api/v1/market/stock/historique");
+	return getApiClient().apiFetch<Mouvement[]>(
+		"/api/v1/market/stock/historique",
+	);
 }
 
 /** Produits en alerte stock (GET /market/stock/alerte). */

@@ -1,7 +1,7 @@
-import { useState, type ReactNode } from "react";
+import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { useRouter } from "@tanstack/react-router";
 import { LogOut } from "lucide-react";
-import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
+import { type ReactNode, useState } from "react";
 
 import { useAuth } from "#/core/auth";
 
@@ -34,9 +34,7 @@ export function UserMenu({
 				>
 					{avatar}
 					<div className="min-w-0">
-						<p className="truncate text-sm font-medium text-white">
-							{login}
-						</p>
+						<p className="truncate text-sm font-medium text-white">{login}</p>
 						{role ? (
 							<p className="truncate text-sm text-gray-400">{role}</p>
 						) : null}
@@ -52,9 +50,7 @@ export function UserMenu({
 				>
 					<div className="px-4 py-3 border-b border-palm text-center">
 						<p className="text-sm font-medium text-white">{login}</p>
-						{role ? (
-							<p className="text-xs text-gray-400">{role}</p>
-						) : null}
+						{role ? <p className="text-xs text-gray-400">{role}</p> : null}
 					</div>
 
 					<DropdownMenu.Item asChild>

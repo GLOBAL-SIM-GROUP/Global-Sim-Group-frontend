@@ -6,8 +6,8 @@ import {
 	creerContact,
 	creerPiece,
 	getClient,
-	listClients,
 	type ListClientsParams,
+	listClients,
 	modifierClient,
 	modifierPiece,
 } from "../api/clients";

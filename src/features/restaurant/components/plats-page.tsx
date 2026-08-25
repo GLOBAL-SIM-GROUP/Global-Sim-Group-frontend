@@ -1,5 +1,11 @@
 import { Link } from "@tanstack/react-router";
-import { Image as ImageIcon, Pencil, Plus, Power, PowerOff } from "lucide-react";
+import {
+	Image as ImageIcon,
+	Pencil,
+	Plus,
+	Power,
+	PowerOff,
+} from "lucide-react";
 import { useState } from "react";
 
 import { Breadcrumb } from "#/components/ui/breadcrumb";
@@ -11,8 +17,8 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "#/components/ui/select";
-import { useCan } from "#/core/auth";
 import { useUploadBlobUrl } from "#/core/api/use-upload-blob";
+import { useCan } from "#/core/auth";
 import { formatMontantFCFA } from "#/features/residence/models/format";
 import { cn } from "#/lib/utils";
 
@@ -99,14 +105,27 @@ export function PlatsPage({ initialSearch, onSearchChange }: PlatsPageProps) {
 				</section>
 
 				<div className="flex flex-col gap-2 w-full sm:w-auto sm:flex-row sm:items-center sm:gap-2">
-					<Button variant="outline" size="sm" asChild className="w-full sm:w-auto justify-center">
+					<Button
+						variant="outline"
+						size="sm"
+						asChild
+						className="w-full sm:w-auto justify-center"
+					>
 						<Link to="/restaurant/commandes">Commandes</Link>
 					</Button>
-					<Button variant="outline" size="sm" asChild className="w-full sm:w-auto justify-center">
+					<Button
+						variant="outline"
+						size="sm"
+						asChild
+						className="w-full sm:w-auto justify-center"
+					>
 						<Link to="/restaurant/statistiques">Statistiques</Link>
 					</Button>
 					{canCreer ? (
-						<Button onClick={() => setFormOuvert(true)} className="w-full sm:w-auto justify-center">
+						<Button
+							onClick={() => setFormOuvert(true)}
+							className="w-full sm:w-auto justify-center"
+						>
 							<Plus className="size-4" aria-hidden />
 							Ajouter un plat
 						</Button>
@@ -180,9 +199,7 @@ export function PlatsPage({ initialSearch, onSearchChange }: PlatsPageProps) {
 
 							<div className="space-y-3 p-4">
 								<div>
-									<h3 className="font-semibold text-foreground">
-										{plat.nom}
-									</h3>
+									<h3 className="font-semibold text-foreground">{plat.nom}</h3>
 									<p className="text-xs text-muted-foreground">
 										{categorieParId.get(plat.id_categorie_plat ?? "") ?? "—"}
 									</p>
@@ -316,9 +333,7 @@ function PlatImageDisplay({
 			)}
 			{indisponible && (
 				<div className="absolute inset-0 flex items-center justify-center bg-black/40">
-					<span className="text-sm font-semibold text-white">
-						Indisponible
-					</span>
+					<span className="text-sm font-semibold text-white">Indisponible</span>
 				</div>
 			)}
 		</div>

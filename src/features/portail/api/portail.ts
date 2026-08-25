@@ -83,7 +83,9 @@ export function getPortailEcheances(): Promise<PortailEcheances> {
 
 export function getPortailPaiements(): Promise<PortailPaiements> {
 	return getApiClient()
-		.apiFetch<{ paiements: PaiementWire[] }>("/api/v1/residence/portail/paiements")
+		.apiFetch<{ paiements: PaiementWire[] }>(
+			"/api/v1/residence/portail/paiements",
+		)
 		.then((data) => ({
 			paiements: data.paiements.map(remapPaiement),
 		}));
@@ -103,10 +105,14 @@ export function getPortailCaution(): Promise<PortailCautionResponse> {
 
 /** Reçu d'une échéance payée. */
 export function getRecuEcheance(id: string): Promise<RecuEcheance> {
-	return getApiClient().apiFetch(`/api/v1/residence/portail/echeances/${id}/recu`);
+	return getApiClient().apiFetch(
+		`/api/v1/residence/portail/echeances/${id}/recu`,
+	);
 }
 
 /** Reçu d'un paiement. */
 export function getRecuPaiement(id: string): Promise<RecuPaiement> {
-	return getApiClient().apiFetch(`/api/v1/residence/portail/paiements/${id}/recu`);
+	return getApiClient().apiFetch(
+		`/api/v1/residence/portail/paiements/${id}/recu`,
+	);
 }

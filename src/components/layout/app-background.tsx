@@ -8,12 +8,12 @@ export function AppBackground() {
 			<div
 				className="absolute bottom-0 right-0 w-96 h-96 pointer-events-none"
 				style={{
-					backgroundImage: 'url(/logo.png)',
-					backgroundSize: 'contain',
-					backgroundRepeat: 'no-repeat',
-					backgroundPosition: 'bottom right',
+					backgroundImage: "url(/logo.png)",
+					backgroundSize: "contain",
+					backgroundRepeat: "no-repeat",
+					backgroundPosition: "bottom right",
 					opacity: 0.06,
-					filter: 'brightness(0.6) saturate(0.2)',
+					filter: "brightness(0.6) saturate(0.2)",
 				}}
 			/>
 
@@ -21,12 +21,12 @@ export function AppBackground() {
 			<div
 				className="absolute top-0 left-0 w-80 h-80 pointer-events-none"
 				style={{
-					backgroundImage: 'url(/logo.png)',
-					backgroundSize: 'contain',
-					backgroundRepeat: 'no-repeat',
-					backgroundPosition: 'top left',
+					backgroundImage: "url(/logo.png)",
+					backgroundSize: "contain",
+					backgroundRepeat: "no-repeat",
+					backgroundPosition: "top left",
 					opacity: 0.03,
-					filter: 'brightness(0.5) saturate(0.15)',
+					filter: "brightness(0.5) saturate(0.15)",
 				}}
 			/>
 

@@ -173,14 +173,27 @@ export function CommandesPage({
 				</section>
 
 				<div className="flex flex-col gap-2 w-full sm:w-auto sm:flex-row sm:items-center sm:gap-2">
-					<Button variant="outline" size="sm" asChild className="w-full sm:w-auto justify-center">
+					<Button
+						variant="outline"
+						size="sm"
+						asChild
+						className="w-full sm:w-auto justify-center"
+					>
 						<Link to="/restaurant/plats">Carte des plats</Link>
 					</Button>
-					<Button variant="outline" size="sm" asChild className="w-full sm:w-auto justify-center">
+					<Button
+						variant="outline"
+						size="sm"
+						asChild
+						className="w-full sm:w-auto justify-center"
+					>
 						<Link to="/restaurant/statistiques">Statistiques</Link>
 					</Button>
 					{canCreer ? (
-						<Button onClick={() => setFormOuvert(true)} className="w-full sm:w-auto justify-center">
+						<Button
+							onClick={() => setFormOuvert(true)}
+							className="w-full sm:w-auto justify-center"
+						>
 							<Plus className="size-4" aria-hidden />
 							Nouvelle commande
 						</Button>

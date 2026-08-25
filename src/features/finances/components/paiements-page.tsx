@@ -15,13 +15,12 @@ import {
 	formatDateHeureISO,
 	formatMontantFCFA,
 } from "#/features/residence/models/format";
-
-import { usePaiements } from "../hooks/use-finances";
-import { CaisseSelector } from "./caisse-selector";
 import { useCurrentCaisse } from "../hooks/use-current-caisse";
+import { usePaiements } from "../hooks/use-finances";
 import type { Paiement } from "../models/finances";
 import { paginer } from "../models/finances";
 import { PAIEMENTS_PAGE_SIZE } from "../permissions";
+import { CaisseSelector } from "./caisse-selector";
 
 /** Filtres/pagination reflétés dans l'URL. */
 export interface PaiementsSearch {
@@ -50,7 +49,9 @@ export function PaiementsPage({
 	const [du, setDu] = useState(initialSearch.du ?? "");
 	const [au, setAu] = useState(initialSearch.au ?? "");
 	const [type, setType] = useState(initialSearch.type ?? "tous");
-	const [idCaisse, setIdCaisse] = useState(initialSearch.id_caisse ?? userCaisse ?? "");
+	const [idCaisse, setIdCaisse] = useState(
+		initialSearch.id_caisse ?? userCaisse ?? "",
+	);
 	const [page, setPage] = useState(initialSearch.page ?? 1);
 
 	const paiementsQuery = usePaiements(

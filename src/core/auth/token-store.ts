@@ -53,7 +53,10 @@ export function createLocalStorageTokenStore(
 				typeof localStorage === "undefined"
 					? null
 					: localStorage.getItem(storageKey);
-			console.log(`[TokenStore] get("${storageKey}"):`, raw ? "tokens found" : "no tokens");
+			console.log(
+				`[TokenStore] get("${storageKey}"):`,
+				raw ? "tokens found" : "no tokens",
+			);
 			if (!raw) return null;
 			try {
 				return JSON.parse(raw) as StoredTokens;
@@ -63,7 +66,10 @@ export function createLocalStorageTokenStore(
 			}
 		},
 		set: (tokens) => {
-			console.log(`[TokenStore] set("${storageKey}"):`, tokens ? "saving tokens" : "clearing tokens");
+			console.log(
+				`[TokenStore] set("${storageKey}"):`,
+				tokens ? "saving tokens" : "clearing tokens",
+			);
 			localStorage.setItem(storageKey, JSON.stringify(tokens));
 		},
 		clear: () => {

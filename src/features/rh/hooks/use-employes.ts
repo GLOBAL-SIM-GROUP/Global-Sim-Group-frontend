@@ -4,8 +4,8 @@ import {
 	creerEmploye,
 	type EmployeBody,
 	getEmploye,
-	listEmployes,
 	type ListEmployesParams,
+	listEmployes,
 	modifierEmploye,
 } from "../api/employes";
 import type { EmployeStatut } from "../models/employes";

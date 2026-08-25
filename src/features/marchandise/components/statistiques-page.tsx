@@ -90,7 +90,12 @@ export function StatistiquesPage({
 						aria-label="Fin de période"
 						className="w-full sm:w-40"
 					/>
-					<Button variant="outline" size="sm" asChild className="w-full sm:w-auto justify-center">
+					<Button
+						variant="outline"
+						size="sm"
+						asChild
+						className="w-full sm:w-auto justify-center"
+					>
 						<Link to="/marchandise/ventes">Ventes</Link>
 					</Button>
 				</div>

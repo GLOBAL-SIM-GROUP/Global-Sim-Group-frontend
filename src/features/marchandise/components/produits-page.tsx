@@ -20,9 +20,9 @@ import {
 	paginerProduits,
 } from "../models/produits";
 import { PRODUITS_PAGE_SIZE } from "../permissions";
+import { ProduitCardsGrid } from "./produit-cards-grid";
 import { ProduitFilters } from "./produit-filters";
 import { ProduitFormDialog } from "./produit-form-dialog";
-import { ProduitCardsGrid } from "./produit-cards-grid";
 
 /** Filtres/pagination reflétés dans l'URL (liens partageables). */
 export interface ProduitsSearch {
@@ -127,20 +127,43 @@ export function ProduitsPage({
 				</section>
 
 				<div className="flex flex-col gap-2 w-full sm:w-auto sm:flex-row sm:items-center sm:gap-2">
-					<Button variant="outline" size="sm" asChild className="w-full sm:w-auto justify-center">
+					<Button
+						variant="outline"
+						size="sm"
+						asChild
+						className="w-full sm:w-auto justify-center"
+					>
 						<Link to="/marchandise/mouvements">Mouvements</Link>
 					</Button>
-					<Button variant="outline" size="sm" asChild className="w-full sm:w-auto justify-center">
+					<Button
+						variant="outline"
+						size="sm"
+						asChild
+						className="w-full sm:w-auto justify-center"
+					>
 						<Link to="/marchandise/ventes">Ventes</Link>
 					</Button>
-					<Button variant="outline" size="sm" asChild className="w-full sm:w-auto justify-center">
+					<Button
+						variant="outline"
+						size="sm"
+						asChild
+						className="w-full sm:w-auto justify-center"
+					>
 						<Link to="/marchandise/statistiques">Statistiques</Link>
 					</Button>
-					<Button variant="outline" size="sm" asChild className="w-full sm:w-auto justify-center">
+					<Button
+						variant="outline"
+						size="sm"
+						asChild
+						className="w-full sm:w-auto justify-center"
+					>
 						<Link to="/marchandise/categories-produits">Catégories</Link>
 					</Button>
 					{canCreer ? (
-						<Button onClick={() => setFormOuvert(true)} className="w-full sm:w-auto justify-center">
+						<Button
+							onClick={() => setFormOuvert(true)}
+							className="w-full sm:w-auto justify-center"
+						>
 							<Plus className="size-4" aria-hidden />
 							Ajouter un produit
 						</Button>

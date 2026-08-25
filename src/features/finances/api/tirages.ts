@@ -2,7 +2,9 @@ import { getApiClient } from "#/core/api";
 import type { CreerTirageDto, Tirage, TirageFiltres } from "../models/tirages";
 
 /** Lister les tirages (filtrés par caisse, période, etc.) */
-export async function listerTirages(filtres?: TirageFiltres): Promise<Tirage[]> {
+export async function listerTirages(
+	filtres?: TirageFiltres,
+): Promise<Tirage[]> {
 	const query = new URLSearchParams();
 	if (filtres?.du) query.set("du", filtres.du);
 	if (filtres?.au) query.set("au", filtres.au);

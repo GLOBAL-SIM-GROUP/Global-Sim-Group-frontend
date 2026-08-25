@@ -44,9 +44,7 @@ export function SauvegardesPage() {
 			/>
 
 			<section className="space-y-2">
-				<h1 className="text-2xl font-semibold text-foreground">
-					Sauvegardes
-				</h1>
+				<h1 className="text-2xl font-semibold text-foreground">Sauvegardes</h1>
 				<p className="text-muted-foreground">
 					Gestion des sauvegardes de la base de données : consultation de
 					l'historique, déclenchement manuel et planification.
@@ -57,15 +55,11 @@ export function SauvegardesPage() {
 				{/* Configuration automatique */}
 				{config && (
 					<div className="space-y-4 rounded-lg border border-border bg-card p-6 shadow-sm">
-						<h2 className="text-lg font-semibold">
-							Sauvegardes automatiques
-						</h2>
+						<h2 className="text-lg font-semibold">Sauvegardes automatiques</h2>
 
 						<div className="space-y-3">
 							<div className="flex items-center justify-between">
-								<span className="text-sm text-muted-foreground">
-									État :
-								</span>
+								<span className="text-sm text-muted-foreground">État :</span>
 								<span
 									className={cn(
 										"inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium",
@@ -163,12 +157,8 @@ export function SauvegardesPage() {
 							<table className="w-full text-sm">
 								<thead className="bg-muted">
 									<tr>
-										<th className="px-4 py-3 text-left font-semibold">
-											Date
-										</th>
-										<th className="px-4 py-3 text-left font-semibold">
-											Type
-										</th>
+										<th className="px-4 py-3 text-left font-semibold">Date</th>
+										<th className="px-4 py-3 text-left font-semibold">Type</th>
 										<th className="px-4 py-3 text-left font-semibold">
 											Taille
 										</th>
@@ -187,11 +177,7 @@ export function SauvegardesPage() {
 												{formatDateSauvegarde(sauvegarde.date)}
 											</td>
 											<td className="px-4 py-3">
-												{
-													SAUVEGARDE_TYPE_LABELS[
-														sauvegarde.type
-													]
-												}
+												{SAUVEGARDE_TYPE_LABELS[sauvegarde.type]}
 											</td>
 											<td className="px-4 py-3">
 												{formatTailleSauvegarde(sauvegarde.taille)}
@@ -200,16 +186,10 @@ export function SauvegardesPage() {
 												<span
 													className={cn(
 														"inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium",
-														SAUVEGARDE_STATUT_COULEURS[
-															sauvegarde.statut
-														],
+														SAUVEGARDE_STATUT_COULEURS[sauvegarde.statut],
 													)}
 												>
-													{
-														SAUVEGARDE_STATUT_LABELS[
-															sauvegarde.statut
-														]
-													}
+													{SAUVEGARDE_STATUT_LABELS[sauvegarde.statut]}
 												</span>
 											</td>
 										</tr>

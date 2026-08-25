@@ -4,8 +4,8 @@ import { Home } from "lucide-react";
 import { ModuleTile } from "#/components/ui/module-tile";
 import { useCurrentUser, usePermissions } from "#/core/auth";
 import {
-	getAccessibleModules,
 	getAccessibleModuleSubItems,
+	getAccessibleModules,
 } from "#/core/permissions/modules";
 
 /**
@@ -60,14 +60,9 @@ function HomePage() {
 							usePermissions(),
 						);
 						// Pointe vers la première sous-page, ou le placeholder si aucune
-						const href =
-							subItems.length > 0
-								? subItems[0].path
-								: "/en-cours";
+						const href = subItems.length > 0 ? subItems[0].path : "/en-cours";
 						const search =
-							subItems.length === 0
-								? { module: module.code }
-								: undefined;
+							subItems.length === 0 ? { module: module.code } : undefined;
 
 						return (
 							<ModuleTile

@@ -1,8 +1,7 @@
 import { Image as ImageIcon } from "lucide-react";
-
-import { cn } from "#/lib/utils";
-import { formatMontantFCFA } from "#/features/residence/models/format";
 import { useUploadBlobUrl } from "#/core/api/use-upload-blob";
+import { formatMontantFCFA } from "#/features/residence/models/format";
+import { cn } from "#/lib/utils";
 import type {
 	CategorieProduit,
 	Fournisseur,
@@ -66,7 +65,8 @@ export function ProduitCardsGrid({
 									{produit.nom}
 								</h3>
 								<p className="text-xs text-muted-foreground">
-									{categorieParId.get(produit.id_categorie_produit ?? "") ?? "—"}
+									{categorieParId.get(produit.id_categorie_produit ?? "") ??
+										"—"}
 								</p>
 							</div>
 

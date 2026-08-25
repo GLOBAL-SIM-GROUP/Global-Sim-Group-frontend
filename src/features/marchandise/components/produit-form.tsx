@@ -14,8 +14,8 @@ import {
 } from "#/components/ui/select";
 import { Switch } from "#/components/ui/switch";
 import { getErrorMessageForCode, getFieldErrors, toApiError } from "#/core/api";
-import { useUploadImage } from "#/core/api/use-upload-image";
 import { useUploadBlobUrl } from "#/core/api/use-upload-blob";
+import { useUploadImage } from "#/core/api/use-upload-image";
 import { cn } from "#/lib/utils";
 
 import { useCreerProduit, useModifierProduit } from "../hooks/use-produits";
@@ -469,14 +469,20 @@ function ImageUploadField({
 							"w-full h-32 rounded flex flex-col items-center justify-center gap-2",
 							"border-2 border-dashed border-muted-foreground/30 hover:border-muted-foreground/50",
 							"transition-colors cursor-pointer",
-							uploadMutation.isPending && "opacity-50 cursor-not-allowed"
+							uploadMutation.isPending && "opacity-50 cursor-not-allowed",
 						)}
 					>
 						{uploadMutation.isPending ? (
-							<Loader2 className="size-6 text-muted-foreground animate-spin" aria-hidden />
+							<Loader2
+								className="size-6 text-muted-foreground animate-spin"
+								aria-hidden
+							/>
 						) : (
 							<>
-								<Upload className="size-6 text-muted-foreground/50" aria-hidden />
+								<Upload
+									className="size-6 text-muted-foreground/50"
+									aria-hidden
+								/>
 								<span className="text-xs text-muted-foreground text-center">
 									Cliquez pour uploader une image
 								</span>

@@ -3,11 +3,11 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
 	creerCategorieProduit,
 	creerProduit,
+	type ListProduitsParams,
 	listCategoriesProduits,
 	listFournisseurs,
 	listProduits,
 	modifierProduit,
-	type ListProduitsParams,
 	type ProduitBody,
 } from "../api/produits";
 import {
@@ -19,7 +19,11 @@ import {
 /** Catalogue des produits avec filtres côté backend. */
 export function useProduits(params?: ListProduitsParams) {
 	return useQuery({
-		queryKey: produitsKeys.list(params?.search, params?.categorie, params?.fournisseur),
+		queryKey: produitsKeys.list(
+			params?.search,
+			params?.categorie,
+			params?.fournisseur,
+		),
 		queryFn: () => listProduits(params),
 	});
 }

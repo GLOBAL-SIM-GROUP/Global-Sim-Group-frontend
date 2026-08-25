@@ -29,7 +29,9 @@ export interface ListCommandesParams {
 }
 
 /** Appels API du module Restaurant — commandes et rapports. */
-export function listCommandes(params?: ListCommandesParams): Promise<CommandeRestaurant[]> {
+export function listCommandes(
+	params?: ListCommandesParams,
+): Promise<CommandeRestaurant[]> {
 	const searchParams = new URLSearchParams();
 	if (params?.search) searchParams.set("search", params.search);
 	if (params?.du) searchParams.set("du", params.du);
@@ -39,7 +41,9 @@ export function listCommandes(params?: ListCommandesParams): Promise<CommandeRes
 	}
 	const qs = searchParams.toString();
 	return getApiClient()
-		.apiFetch<CommandeWire[]>(`/api/v1/restaurant/commandes${qs ? `?${qs}` : ""}`)
+		.apiFetch<CommandeWire[]>(
+			`/api/v1/restaurant/commandes${qs ? `?${qs}` : ""}`,
+		)
 		.then((data) =>
 			data.map(({ id_commande: id, ...reste }) => ({ id, ...reste })),
 		);

@@ -16,7 +16,7 @@ export function useUploadImage() {
 				{
 					method: "POST",
 					body: formData,
-				}
+				},
 			);
 
 			return response;

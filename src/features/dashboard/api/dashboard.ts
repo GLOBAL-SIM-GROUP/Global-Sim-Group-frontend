@@ -120,12 +120,17 @@ export interface Impaye {
 }
 
 /** Récupère la synthèse globale du tableau de bord */
-export function getSyntheseGlobale(du?: string, au?: string): Promise<SyntheseGlobale> {
+export function getSyntheseGlobale(
+	du?: string,
+	au?: string,
+): Promise<SyntheseGlobale> {
 	const params = new URLSearchParams();
 	if (du) params.set("du", du);
 	if (au) params.set("au", au);
 	const qs = params.toString();
-	const url = qs ? `/api/v1/rapports/synthese-globale?${qs}` : "/api/v1/rapports/synthese-globale";
+	const url = qs
+		? `/api/v1/rapports/synthese-globale?${qs}`
+		: "/api/v1/rapports/synthese-globale";
 	return getApiClient().apiFetch<SyntheseGlobale>(url);
 }
 
@@ -151,21 +156,35 @@ export function getReservationsSalleFutures(): Promise<Reservation[]> {
 }
 
 /** Récupère les indicateurs pour une activité spécifique */
-export function getIndicateurActivite(code: string): Promise<IndicateurActivite> {
+export function getIndicateurActivite(
+	code: string,
+): Promise<IndicateurActivite> {
 	return getApiClient().apiFetch<IndicateurActivite>(
 		`/api/v1/rapports/activites/${code}`,
 	);
 }
 
 /** Récupère les logements (tous) - filtre côté client par statut */
-export function getLogementsDispo(du?: string, au?: string): Promise<Logement[]> {
+export function getLogementsDispo(
+	du?: string,
+	au?: string,
+): Promise<Logement[]> {
 	const params = new URLSearchParams();
 	if (du) params.set("du", du);
 	if (au) params.set("au", au);
 	const qs = params.toString();
-	const url = qs ? `/api/v1/residence/logements?${qs}` : "/api/v1/residence/logements";
+	const url = qs
+		? `/api/v1/residence/logements?${qs}`
+		: "/api/v1/residence/logements";
 	return getApiClient()
-		.apiFetch<Array<{ id_logement: string; statut: string; numero: string; id_batiment: string }>>(url)
+		.apiFetch<
+			Array<{
+				id_logement: string;
+				statut: string;
+				numero: string;
+				id_batiment: string;
+			}>
+		>(url)
 		.then((logements) =>
 			logements
 				.filter((l) => l.statut === "disponible")
@@ -180,29 +199,49 @@ export function getLogementsDispo(du?: string, au?: string): Promise<Logement[]>
 }
 
 /** Récupère les produits avec stock faible */
-export function getProduitsCritiques(du?: string, au?: string): Promise<Produit[]> {
+export function getProduitsCritiques(
+	du?: string,
+	au?: string,
+): Promise<Produit[]> {
 	const params = new URLSearchParams();
 	if (du) params.set("du", du);
 	if (au) params.set("au", au);
 	const qs = params.toString();
 	const url = qs ? `/api/v1/market/produits?${qs}` : "/api/v1/market/produits";
 	return getApiClient()
-		.apiFetch<Array<{ id_produit: string; nom: string; stock: number | string; prix: number | string }>>(url)
-		.then((produits) =>
-			produits.filter((p) => Number(p.stock) < 10),
-		)
+		.apiFetch<
+			Array<{
+				id_produit: string;
+				nom: string;
+				stock: number | string;
+				prix: number | string;
+			}>
+		>(url)
+		.then((produits) => produits.filter((p) => Number(p.stock) < 10))
 		.catch(() => []);
 }
 
 /** Récupère les commandes au pressing (en cours) */
-export function getCommandesPressing(du?: string, au?: string): Promise<CommandePressing[]> {
+export function getCommandesPressing(
+	du?: string,
+	au?: string,
+): Promise<CommandePressing[]> {
 	const params = new URLSearchParams();
 	if (du) params.set("du", du);
 	if (au) params.set("au", au);
 	const qs = params.toString();
-	const url = qs ? `/api/v1/pressing/commandes?${qs}` : "/api/v1/pressing/commandes";
+	const url = qs
+		? `/api/v1/pressing/commandes?${qs}`
+		: "/api/v1/pressing/commandes";
 	return getApiClient()
-		.apiFetch<Array<{ id_commande: string; statut: string; date_depot: string; date_retrait?: string }>>(url)
+		.apiFetch<
+			Array<{
+				id_commande: string;
+				statut: string;
+				date_depot: string;
+				date_retrait?: string;
+			}>
+		>(url)
 		.then((commandes) =>
 			// Filtre côté client: exclude les retraitées et annulées
 			commandes.filter((c) => c.statut !== "RETIREE" && c.statut !== "ANNULEE"),
@@ -211,7 +250,10 @@ export function getCommandesPressing(du?: string, au?: string): Promise<Commande
 }
 
 /** Récupère les pointages */
-export function getPointagesAujourdhui(du?: string, au?: string): Promise<Pointage[]> {
+export function getPointagesAujourdhui(
+	du?: string,
+	au?: string,
+): Promise<Pointage[]> {
 	const params = new URLSearchParams();
 	if (du) params.set("du", du);
 	if (au) params.set("au", au);
@@ -228,7 +270,9 @@ export function getImpayes(du?: string, au?: string): Promise<Impaye[]> {
 	if (du) params.set("du", du);
 	if (au) params.set("au", au);
 	const qs = params.toString();
-	const url = qs ? `/api/v1/finances/impayes?${qs}` : "/api/v1/finances/impayes";
+	const url = qs
+		? `/api/v1/finances/impayes?${qs}`
+		: "/api/v1/finances/impayes";
 	return getApiClient()
 		.apiFetch<Impaye[]>(url)
 		.catch(() => []);

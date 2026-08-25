@@ -25,20 +25,20 @@ type SauvegardeBackend = {
 /** Liste l'historique des sauvegardes (GET /admin/sauvegardes). */
 export function listSauvegardes(): Promise<Sauvegarde[]> {
 	return getApiClient()
-		.apiFetch<{ total: number; items: SauvegardeBackend[] }>("/api/v1/admin/sauvegardes")
+		.apiFetch<{ total: number; items: SauvegardeBackend[] }>(
+			"/api/v1/admin/sauvegardes",
+		)
 		.then(({ items }) =>
 			items.map((item) => ({
 				id: item.id_sauvegarde,
 				date: item.date_creation,
 				type: item.type.toLowerCase() as SauvegardeType,
 				taille: item.taille_octets ? Number(item.taille_octets) : 0,
-				statut: (
-					item.statut === "SUCCES"
-						? "succes"
-						: item.statut === "ERREUR"
-							? "echec"
-							: "en_cours"
-				) as SauvegardeStatut,
+				statut: (item.statut === "SUCCES"
+					? "succes"
+					: item.statut === "ERREUR"
+						? "echec"
+						: "en_cours") as SauvegardeStatut,
 			})),
 		);
 }
@@ -64,7 +64,9 @@ export function majConfigurationSauvegardes(config: {
 /** Déclenche une sauvegarde manuelle (POST /admin/sauvegardes/declencher). */
 export function creerSauvegardeManuelle(): Promise<Sauvegarde> {
 	return getApiClient()
-		.apiFetch<SauvegardeWire>("/api/v1/admin/sauvegardes/declencher", { method: "POST" })
+		.apiFetch<SauvegardeWire>("/api/v1/admin/sauvegardes/declencher", {
+			method: "POST",
+		})
 		.then(({ id_sauvegarde: id, ...reste }) => ({ id, ...reste }));
 }
 

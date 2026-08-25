@@ -115,7 +115,10 @@ export function MouvementsPage({
 						Alerte stock
 					</Button>
 					{canCreer ? (
-						<Button onClick={() => setFormOuvert(true)} className="w-full sm:w-auto justify-center">
+						<Button
+							onClick={() => setFormOuvert(true)}
+							className="w-full sm:w-auto justify-center"
+						>
 							<Plus className="size-4" aria-hidden />
 							Ajouter un mouvement
 						</Button>

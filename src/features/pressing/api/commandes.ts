@@ -135,9 +135,12 @@ export function modifierCommande(
 
 /** Passe la commande en traitement (POST `/api/v1/commandes/{id}/traitement`). */
 export function traitementCommande(id: string): Promise<unknown> {
-	return getApiClient().apiFetch(`/api/v1/pressing/commandes/${id}/traitement`, {
-		method: "POST",
-	});
+	return getApiClient().apiFetch(
+		`/api/v1/pressing/commandes/${id}/traitement`,
+		{
+			method: "POST",
+		},
+	);
 }
 
 /** Passe la commande en « Prêt » (POST `/api/v1/commandes/{id}/pret`). */

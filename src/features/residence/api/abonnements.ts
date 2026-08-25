@@ -98,7 +98,10 @@ export function modifierAbonnement(
 
 /** Résilie un abonnement (POST `/api/v1/abonnements/{id}/resilier`). */
 export function resilierAbonnement(id: string): Promise<unknown> {
-	return getApiClient().apiFetch(`/api/v1/residence/abonnements/${id}/resilier`, {
-		method: "POST",
-	});
+	return getApiClient().apiFetch(
+		`/api/v1/residence/abonnements/${id}/resilier`,
+		{
+			method: "POST",
+		},
+	);
 }

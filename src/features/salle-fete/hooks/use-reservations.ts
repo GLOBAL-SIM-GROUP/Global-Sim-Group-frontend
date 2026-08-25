@@ -1,5 +1,5 @@
-import { useMemo } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMemo } from "react";
 
 import { listClients } from "#/features/clients/api/clients";
 import { listPaiements } from "#/features/finances/api/finances";
@@ -15,7 +15,10 @@ import {
 	type ReservationBody,
 	realiserReservation,
 } from "../api/reservations";
-import type { ReservationFete, ReservationStatut } from "../models/reservations";
+import type {
+	ReservationFete,
+	ReservationStatut,
+} from "../models/reservations";
 import { reservationPaiementsKeys, reservationsKeys } from "../permissions";
 
 /** Liste des réservations avec noms des clients, avec les filtres serveur portés par la clé. */

@@ -2,8 +2,8 @@ import { useQuery } from "@tanstack/react-query";
 import { AlertCircle, Plus } from "lucide-react";
 import { useState } from "react";
 import { Button } from "#/components/ui/button";
-import { useCurrentCaisse } from "../hooks/use-current-caisse";
 import { listerCaisses } from "../api/caisses";
+import { useCurrentCaisse } from "../hooks/use-current-caisse";
 
 interface CaisseSelectorProps {
 	value?: string | null;

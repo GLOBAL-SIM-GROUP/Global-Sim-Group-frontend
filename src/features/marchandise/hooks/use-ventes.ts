@@ -4,9 +4,9 @@ import {
 	annulerVente,
 	creerVente,
 	getVente,
+	type ListVentesParams,
 	listRapportVentes,
 	listVentes,
-	type ListVentesParams,
 	type VenteBody,
 } from "../api/ventes";
 import { produitsKeys, rapportVentesKeys, ventesKeys } from "../permissions";

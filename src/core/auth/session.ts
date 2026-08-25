@@ -151,7 +151,9 @@ export function createAuthSession(
 			return;
 		}
 		if (restoreInFlight) {
-			console.log("[Auth] restore() - restoration already in flight, waiting...");
+			console.log(
+				"[Auth] restore() - restoration already in flight, waiting...",
+			);
 			return await restoreInFlight;
 		}
 		// SSR : pas de localStorage ni de tokens — la restauration est côté client.

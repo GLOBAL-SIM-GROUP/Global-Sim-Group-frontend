@@ -216,7 +216,6 @@ export function TableauDeBordPage() {
 							</SelectContent>
 						</Select>
 					</div>
-
 				</div>
 
 				<div className="flex flex-col gap-2 w-full sm:w-auto sm:flex-row sm:items-center sm:gap-2">
@@ -397,9 +396,7 @@ export function TableauDeBordPage() {
 													: "border border-input bg-background hover:bg-accent"
 											}`}
 											aria-label={`Page ${page}`}
-											aria-current={
-												page === currentPage ? "page" : undefined
-											}
+											aria-current={page === currentPage ? "page" : undefined}
 										>
 											{page}
 										</button>
@@ -408,7 +405,9 @@ export function TableauDeBordPage() {
 							</div>
 
 							<button
-								onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+								onClick={() =>
+									setCurrentPage((p) => Math.min(totalPages, p + 1))
+								}
 								disabled={currentPage === totalPages}
 								className="px-3 py-2 h-9 rounded-md border border-input bg-background text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:bg-accent"
 								aria-label="Page suivante"

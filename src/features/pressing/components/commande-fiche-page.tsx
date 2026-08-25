@@ -98,7 +98,11 @@ export function CommandeFichePage({ id }: CommandeFichePageProps) {
 
 	const commande = commandeQuery.data;
 	const nomClient = commande.client_nom ?? commande.nom_client ?? "—";
-	const prenomClient = commande.client_prenoms ?? commande.client_prenom ?? commande.prenom_client ?? "";
+	const prenomClient =
+		commande.client_prenoms ??
+		commande.client_prenom ??
+		commande.prenom_client ??
+		"";
 	const nomComplet = `${nomClient} ${prenomClient}`.trim();
 	const aUnReste = Number(commande.reste_a_payer) > 0;
 	const estTerminee =
@@ -125,7 +129,12 @@ export function CommandeFichePage({ id }: CommandeFichePageProps) {
 				</section>
 
 				<div className="flex flex-col gap-2 w-full sm:w-auto sm:flex-row sm:items-center sm:gap-2">
-					<Button variant="outline" size="sm" asChild className="w-full sm:w-auto justify-center">
+					<Button
+						variant="outline"
+						size="sm"
+						asChild
+						className="w-full sm:w-auto justify-center"
+					>
 						<Link to="/pressing/commandes">Retour aux commandes</Link>
 					</Button>
 					{canModifier ? (
@@ -154,7 +163,10 @@ export function CommandeFichePage({ id }: CommandeFichePageProps) {
 									Passer en « Prêt »
 								</Button>
 							) : null}
-							<Button onClick={() => setAModifier(commande)} className="w-full sm:w-auto justify-center">
+							<Button
+								onClick={() => setAModifier(commande)}
+								className="w-full sm:w-auto justify-center"
+							>
 								<Pencil className="size-4" aria-hidden />
 								Modifier
 							</Button>
@@ -175,10 +187,7 @@ export function CommandeFichePage({ id }: CommandeFichePageProps) {
 
 			<section className="rounded-lg border border-border bg-card p-5 shadow-sm">
 				<dl className="grid gap-4 sm:grid-cols-2">
-					<Ligne
-						label="Client"
-						valeur={nomComplet}
-					/>
+					<Ligne label="Client" valeur={nomComplet} />
 					<Ligne label="Téléphone" valeur={commande.client_tel ?? "—"} />
 					<Ligne
 						label="Date de dépôt"

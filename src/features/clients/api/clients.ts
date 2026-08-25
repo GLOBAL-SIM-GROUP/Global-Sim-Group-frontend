@@ -184,7 +184,9 @@ export function creerPiece(
 			? { autorite_delivrance: body.autoriteDelivrance }
 			: {}),
 		...(body.copieNum?.trim() ? { copie_num: body.copieNum } : {}),
-		...(body.copieNumVerso?.trim() ? { copie_num_verso: body.copieNumVerso } : {}),
+		...(body.copieNumVerso?.trim()
+			? { copie_num_verso: body.copieNumVerso }
+			: {}),
 	} satisfies Omit<
 		CreerPieceDto,
 		"date_delivrance" | "date_expiration" | "autorite_delivrance" | "copie_num"

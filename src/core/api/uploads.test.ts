@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { uploadImage, downloadUploadedFile } from "./uploads";
-import { createApiClient } from "./http";
 import type { ApiClient } from "./http";
+import { createApiClient } from "./http";
+import { downloadUploadedFile, uploadImage } from "./uploads";
 
 // Mock de l'API client
 let mockApiClient: Partial<ApiClient>;
@@ -27,23 +27,21 @@ describe("uploadImage", () => {
 			const largeFile = new File(
 				[new ArrayBuffer(6 * 1024 * 1024)],
 				"large.jpg",
-				{ type: "image/jpeg" }
+				{ type: "image/jpeg" },
 			);
 
 			await expect(uploadImage(largeFile, "client-photo")).rejects.toThrow(
-				"L'image ne doit pas dépasser 5 Mo"
+				"L'image ne doit pas dépasser 5 Mo",
 			);
 		});
 
 		it("rejette les formats invalides", async () => {
-			const invalidFile = new File(
-				[new ArrayBuffer(1000)],
-				"invalid.exe",
-				{ type: "application/octet-stream" }
-			);
+			const invalidFile = new File([new ArrayBuffer(1000)], "invalid.exe", {
+				type: "application/octet-stream",
+			});
 
 			await expect(uploadImage(invalidFile, "client-photo")).rejects.toThrow(
-				"Format non supporté"
+				"Format non supporté",
 			);
 		});
 
@@ -88,7 +86,7 @@ describe("uploadImage", () => {
 				"/api/v1/uploads",
 				expect.objectContaining({
 					method: "POST",
-				})
+				}),
 			);
 		});
 
@@ -166,13 +164,13 @@ describe("downloadUploadedFile", () => {
 
 		expect(result).toBe(mockBlob);
 		expect(mockApiClient.download).toHaveBeenCalledWith(
-			expect.stringContaining("client-photo%2F3-uuid.jpg")
+			expect.stringContaining("client-photo%2F3-uuid.jpg"),
 		);
 	});
 
 	it("retourne null si le téléchargement échoue (404 ou permission)", async () => {
 		(mockApiClient.download as any).mockRejectedValueOnce(
-			new Error("404 Not Found")
+			new Error("404 Not Found"),
 		);
 
 		const result = await downloadUploadedFile("client-photo/3-uuid.jpg");

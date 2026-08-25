@@ -6,9 +6,13 @@ import { Breadcrumb } from "#/components/ui/breadcrumb";
 import { Button } from "#/components/ui/button";
 import { formatMontantFCFA } from "#/features/residence/models/format";
 
-import { rapportPdfPath, rapportExcelPath } from "../api/rapports";
+import { rapportExcelPath, rapportPdfPath } from "../api/rapports";
 import { useSyntheseGlobale } from "../hooks/use-rapports";
-import { telechargerPdf, telechargerTexte, telechargerExcel } from "../lib/export";
+import {
+	telechargerExcel,
+	telechargerPdf,
+	telechargerTexte,
+} from "../lib/export";
 import {
 	construireCsv,
 	periodeParDefaut,
@@ -34,7 +38,11 @@ export function SyntheseGlobalePage({
 		setPdfError(false);
 		try {
 			await telechargerPdf(
-				rapportPdfPath("/api/v1/rapports/synthese-globale", periode.du, periode.au),
+				rapportPdfPath(
+					"/api/v1/rapports/synthese-globale",
+					periode.du,
+					periode.au,
+				),
 				`synthese-globale-${periode.du}-${periode.au}.pdf`,
 			);
 		} catch {
@@ -46,7 +54,11 @@ export function SyntheseGlobalePage({
 		setPdfError(false);
 		try {
 			await telechargerExcel(
-				rapportExcelPath("/api/v1/rapports/synthese-globale", periode.du, periode.au),
+				rapportExcelPath(
+					"/api/v1/rapports/synthese-globale",
+					periode.du,
+					periode.au,
+				),
 				`synthese-globale-${periode.du}-${periode.au}.xlsx`,
 			);
 		} catch {
@@ -112,7 +124,12 @@ export function SyntheseGlobalePage({
 					</p>
 				</section>
 				<div className="flex flex-col gap-2 w-full sm:w-auto sm:flex-row sm:items-center sm:gap-2">
-					<Button variant="outline" size="sm" asChild className="w-full sm:w-auto justify-center">
+					<Button
+						variant="outline"
+						size="sm"
+						asChild
+						className="w-full sm:w-auto justify-center"
+					>
 						<Link to="/rapports">Nouveau rapport</Link>
 					</Button>
 					<Button

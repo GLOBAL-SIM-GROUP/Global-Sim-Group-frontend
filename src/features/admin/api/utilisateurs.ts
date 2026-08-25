@@ -20,7 +20,9 @@ export interface ListUtilisateursParams {
 }
 
 /** Appels API du module Administration — utilisateurs. */
-export function listUtilisateurs(params?: ListUtilisateursParams): Promise<Utilisateur[]> {
+export function listUtilisateurs(
+	params?: ListUtilisateursParams,
+): Promise<Utilisateur[]> {
 	const searchParams = new URLSearchParams();
 	if (params?.search) searchParams.append("search", params.search);
 
