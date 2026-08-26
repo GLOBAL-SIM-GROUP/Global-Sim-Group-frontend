@@ -1,0 +1,15 @@
+name: Tester le runner
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: self-hosted
+    steps:
+      - name: Afficher les informations du runner
+        run: |
+          echo "🏷️ Runner : $(hostname)"
+          echo "📂 Utilisateur : $(whoami)"
+          echo "🐧 Système : $(uname -a)"
+          echo "✅ Le runner fonctionne parfaitement !"
