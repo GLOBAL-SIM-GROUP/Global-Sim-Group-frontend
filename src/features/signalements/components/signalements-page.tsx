@@ -102,6 +102,16 @@ export function SignalementsPage({
 		return labels[statut] || statut;
 	};
 
+	const getStatusBadge = (statut: string) => {
+		const styles: Record<string, string> = {
+			OUVERT: "bg-yellow-100 text-yellow-800",
+			EN_COURS: "bg-blue-100 text-blue-800",
+			RESOLU: "bg-green-100 text-green-800",
+			REJETE: "bg-red-100 text-red-800",
+		};
+		return styles[statut] || "bg-gray-100 text-gray-800";
+	};
+
 	return (
 		<div className="space-y-6">
 			{/* Header */}
@@ -231,7 +241,7 @@ export function SignalementsPage({
 										</p>
 									</div>
 									<div className="flex-shrink-0 text-right">
-										<span className="inline-block px-2.5 py-1 rounded-full text-xs font-semibold bg-muted text-muted-foreground">
+										<span className={`inline-block px-2.5 py-1 rounded-full text-xs font-semibold ${getStatusBadge(signalement.statut)}`}>
 											{getStatusLabel(signalement.statut)}
 										</span>
 									</div>
