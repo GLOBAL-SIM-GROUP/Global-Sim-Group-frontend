@@ -7,7 +7,7 @@ describe("ApiClient HTTP methods", () => {
 
 	beforeEach(() => {
 		mockFetch = vi.fn();
-		global.fetch = mockFetch;
+		global.fetch = mockFetch as any;
 
 		apiClient = createApiClient({
 			getAccessToken: () => "test-token",
