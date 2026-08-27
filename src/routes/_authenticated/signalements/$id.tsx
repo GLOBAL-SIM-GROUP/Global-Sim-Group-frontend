@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import {
 	ArrowLeft,
@@ -34,6 +34,7 @@ export const Route = createFileRoute("/_authenticated/signalements/$id")({
 function DetailSignalementPage() {
 	const { id } = Route.useParams();
 	const navigate = useNavigate();
+	const queryClient = useQueryClient();
 	const [actionNote, setActionNote] = useState("");
 	const [selectedAction, setSelectedAction] = useState<
 		"prendre-en-charge" | "resoudre" | "rejeter" | null
@@ -48,6 +49,9 @@ function DetailSignalementPage() {
 	const { mutate: prendreEnCharge, isPending: isPendingCharge } = useMutation({
 		mutationFn: () => prendre_en_charge_signalement(id),
 		onSuccess: async () => {
+			// Invalider le cache pour refléter le changement de statut
+			await queryClient.invalidateQueries({ queryKey: ["signalements"] });
+			await queryClient.invalidateQueries({ queryKey: ["signalement", id] });
 			await navigate({ to: "/signalements" });
 		},
 	});
@@ -56,6 +60,9 @@ function DetailSignalementPage() {
 		mutationFn: () =>
 			resoudre_signalement(id, { note_resolution: actionNote.trim() }),
 		onSuccess: async () => {
+			// Invalider le cache pour refléter le changement de statut
+			await queryClient.invalidateQueries({ queryKey: ["signalements"] });
+			await queryClient.invalidateQueries({ queryKey: ["signalement", id] });
 			await navigate({ to: "/signalements" });
 		},
 	});
@@ -64,6 +71,9 @@ function DetailSignalementPage() {
 		mutationFn: () =>
 			rejeter_signalement(id, { note_resolution: actionNote.trim() }),
 		onSuccess: async () => {
+			// Invalider le cache pour refléter le changement de statut
+			await queryClient.invalidateQueries({ queryKey: ["signalements"] });
+			await queryClient.invalidateQueries({ queryKey: ["signalement", id] });
 			await navigate({ to: "/signalements" });
 		},
 	});
