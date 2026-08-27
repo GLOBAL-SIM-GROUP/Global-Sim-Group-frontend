@@ -47,24 +47,24 @@ export async function listSignalements(params: SignalementListParams = {}) {
 		queryParams.append("id_utilisateur_declarant", params.id_utilisateur_declarant);
 
 	const response = await getApiClient().get<Signalement[]>(
-		`/signalements?${queryParams.toString()}`,
+		`/api/v1/signalements?${queryParams.toString()}`,
 	);
 	return response;
 }
 
 export async function getSignalement(id: string) {
-	const response = await getApiClient().get<Signalement>(`/signalements/${id}`);
+	const response = await getApiClient().get<Signalement>(`/api/v1/signalements/${id}`);
 	return response;
 }
 
 export async function createSignalement(payload: SignalementCreatePayload) {
-	const response = await getApiClient().post<Signalement>("/signalements", payload);
+	const response = await getApiClient().post<Signalement>("/api/v1/signalements", payload);
 	return response;
 }
 
 export async function prendre_en_charge_signalement(id: string) {
 	const response = await getApiClient().post<void>(
-		`/signalements/${id}/prendre-en-charge`,
+		`/api/v1/signalements/${id}/prendre-en-charge`,
 		{},
 	);
 	return response;
@@ -75,7 +75,7 @@ export async function resoudre_signalement(
 	payload: SignalementResolutionPayload,
 ) {
 	const response = await getApiClient().post<void>(
-		`/signalements/${id}/resoudre`,
+		`/api/v1/signalements/${id}/resoudre`,
 		payload,
 	);
 	return response;
@@ -86,7 +86,7 @@ export async function rejeter_signalement(
 	payload: SignalementResolutionPayload,
 ) {
 	const response = await getApiClient().post<void>(
-		`/signalements/${id}/rejeter`,
+		`/api/v1/signalements/${id}/rejeter`,
 		payload,
 	);
 	return response;
