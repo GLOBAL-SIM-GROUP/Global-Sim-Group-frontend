@@ -1,15 +1,21 @@
 import { getApiClient } from "./client";
 
 export interface Signalement {
-	id: string;
+	id_signalement: string;
 	titre: string;
 	description: string;
-	id_activite: string;
+	id_activite: string | null;
 	statut: "OUVERT" | "EN_COURS" | "RESOLU" | "REJETE";
 	id_utilisateur_declarant: string;
-	note_resolution?: string;
-	created_at?: string;
-	updated_at?: string;
+	id_utilisateur_traitant?: string | null;
+	note_resolution?: string | null;
+	date_signalement: string;
+	date_resolution?: string | null;
+	activite_code?: string | null;
+	activite_libelle?: string | null;
+	declarant_nom: string;
+	declarant_prenom: string;
+	declarant_login: string;
 }
 
 export interface SignalementListParams {

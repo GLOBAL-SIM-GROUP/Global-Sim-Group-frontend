@@ -127,7 +127,7 @@ function DetailSignalementPage() {
 							{signalement.statut}
 						</span>
 					</div>
-					<p className="text-muted-foreground">ID: {signalement.id}</p>
+					<p className="text-muted-foreground">ID: {signalement.id_signalement}</p>
 				</div>
 
 				<Card>

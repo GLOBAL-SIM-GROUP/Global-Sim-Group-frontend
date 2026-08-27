@@ -211,10 +211,10 @@ export function SignalementsPage({
 				<div className="space-y-3">
 					{signalements.map((signalement) => (
 						<Card
-							key={signalement.id}
+							key={signalement.id_signalement}
 							className="cursor-pointer hover:shadow-md transition-shadow"
 							onClick={() =>
-								navigate({ to: `/signalements/${signalement.id}` })
+								navigate({ to: `/signalements/${signalement.id_signalement}` })
 							}
 						>
 							<CardContent className="pt-6">
