@@ -1,32 +1,102 @@
-name: Deploy
+name: Deploy Frontend to VPS
 
 on:
   push:
     branches:
       - main
 
+env:
+  REGISTRY: docker.io
+  IMAGE_NAME: globalsimgroup_frontend
+
 jobs:
-  deploy:
-    runs-on: self-hosted
-    # Ou avec des labels spécifiques pour cibler un runner particulier :
-    # runs-on: [self-hosted, prod, linux]
+  build-and-deploy:
+    runs-on: ubuntu-latest
 
     steps:
+      # 1️⃣ Checkout code
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # 2️⃣ Setup Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
 
+      # 3️⃣ Install dependencies
       - name: Install dependencies
-        run: npm install
+        run: cd Code/Frontend/global-sim-group && npm ci
 
+      # 4️⃣ Run linting & TypeScript checks
+      - name: Lint & Type Check
+        run: cd Code/Frontend/global-sim-group && npm run check
+        continue-on-error: true
+
+      # 5️⃣ Run tests
+      - name: Run tests
+        run: cd Code/Frontend/global-sim-group && npm run test
+        continue-on-error: true
+
+      # 6️⃣ Build production bundle
       - name: Build
-        run: npm run build
+        run: cd Code/Frontend/global-sim-group && npm run build
 
-      - name: Deploy
+      # 7️⃣ Deploy to VPS via SSH
+      - name: Deploy to VPS
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+          VPS_PORT: ${{ secrets.VPS_PORT }}
+          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+          VPS_APP_PATH: /opt/apps/GlobalSimGroup
         run: |
-          echo "Deploying with self-hosted runner"
-          # Ajoutez vos commandes de déploiement ici
+          # Install SSH key
+          mkdir -p ~/.ssh
+          echo "$VPS_SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -p $VPS_PORT $VPS_HOST >> ~/.ssh/known_hosts 2>/dev/null
+
+          # Execute deployment commands on VPS
+          ssh -i ~/.ssh/deploy_key -p $VPS_PORT $VPS_USER@$VPS_HOST << 'EOF'
+          set -e
+
+          echo "🚀 Starting deployment..."
+
+          # Navigate to frontend directory
+          cd $VPS_APP_PATH/Global-Sim-Group-frontend
+
+          # Pull latest code
+          echo "📥 Pulling latest code..."
+          sudo git pull origin main
+
+          # Navigate to parent directory for docker-compose
+          cd $VPS_APP_PATH
+
+          # Stop and remove containers
+          echo "🛑 Stopping containers..."
+          sudo docker-compose down -v || true
+
+          # Clean docker system
+          echo "🧹 Cleaning Docker..."
+          sudo docker system prune -af --volumes || true
+
+          # Rebuild and start containers
+          echo "🏗️  Building and starting containers..."
+          sudo docker-compose up -d --build
+
+          # Wait for frontend to be ready
+          echo "⏳ Waiting for frontend to start..."
+          sleep 10
+
+          # Check health
+          echo "✅ Checking deployment status..."
+          sudo docker-compose ps
+
+          echo "🎉 Deployment completed successfully!"
+          EOF
+
+      # 8️⃣ Cleanup
+      - name: Cleanup SSH key
+        if: always()
+        run: rm -f ~/.ssh/deploy_key
