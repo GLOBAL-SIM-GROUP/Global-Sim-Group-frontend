@@ -21,6 +21,14 @@ export interface ApiClient {
 	 * @param path  chemin relatif à la base (`/api/v1/api/v1`), ex. `/api/v1/auth/login`.
 	 */
 	apiFetch<T>(path: string, init?: RequestInit): Promise<T>;
+	/** GET request. */
+	get<T>(path: string, init?: RequestInit): Promise<T>;
+	/** POST request. */
+	post<T>(path: string, body?: unknown, init?: RequestInit): Promise<T>;
+	/** PATCH request. */
+	patch<T>(path: string, body?: unknown, init?: RequestInit): Promise<T>;
+	/** DELETE request. */
+	delete<T>(path: string, init?: RequestInit): Promise<T>;
 	/**
 	 * Télécharge une réponse binaire (ex. rapport `format=pdf`) avec le même
 	 * bearer + rafraîchissement sur 401.
@@ -168,7 +176,39 @@ export function createApiClient(deps: ApiDeps): ApiClient {
 		}
 	}
 
-	return { apiFetch, download, uploadForm };
+	async function get<T>(path: string, init: RequestInit = {}): Promise<T> {
+		return apiFetch<T>(path, { ...init, method: "GET" });
+	}
+
+	async function post<T>(
+		path: string,
+		body?: unknown,
+		init: RequestInit = {},
+	): Promise<T> {
+		return apiFetch<T>(path, {
+			...init,
+			method: "POST",
+			body: body ? JSON.stringify(body) : undefined,
+		});
+	}
+
+	async function patch<T>(
+		path: string,
+		body?: unknown,
+		init: RequestInit = {},
+	): Promise<T> {
+		return apiFetch<T>(path, {
+			...init,
+			method: "PATCH",
+			body: body ? JSON.stringify(body) : undefined,
+		});
+	}
+
+	async function del<T>(path: string, init: RequestInit = {}): Promise<T> {
+		return apiFetch<T>(path, { ...init, method: "DELETE" });
+	}
+
+	return { apiFetch, get, post, patch, delete: del, download, uploadForm };
 }
 
 /**
