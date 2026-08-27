@@ -25,6 +25,7 @@ export const MODULES = [
 	"ADMIN",
 	"AUDIT",
 	"CORE",
+	"SIGNALEMENT",
 ] as const;
 
 export type ModuleCode = (typeof MODULES)[number];

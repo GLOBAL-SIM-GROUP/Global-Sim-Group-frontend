@@ -57,8 +57,8 @@ describe("hasAllPermissions", () => {
 });
 
 describe("modèle de permissions (réel, pas inventé)", () => {
-	it("expose les 13 modules renvoyés par GET /auth/me (smoke tests 2026-08-17/20)", () => {
-		expect(MODULES).toHaveLength(13);
+	it("expose les 14 modules renvoyés par GET /auth/me (smoke tests 2026-08-17/20)", () => {
+		expect(MODULES).toHaveLength(14);
 		expect(MODULES).toEqual(
 			expect.arrayContaining([
 				"RESIDENCE",
@@ -74,6 +74,7 @@ describe("modèle de permissions (réel, pas inventé)", () => {
 				"ADMIN",
 				"AUDIT",
 				"CORE",
+				"SIGNALEMENT",
 			]),
 		);
 		// Le spec (§9) liste `MARKET` ; la réponse réelle de /me ne le contient

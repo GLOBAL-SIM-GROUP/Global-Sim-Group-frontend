@@ -38,7 +38,7 @@ function DetailSignalementPage() {
 	const { data: signalement, isLoading, error } = useQuery({
 		queryKey: ["signalement", id],
 		queryFn: () => getSignalement(id),
-		enabled: typeof window !== "undefined",
+		enabled: typeof window !== "undefined" && !!id,
 	});
 
 	const { mutate: prendreEnCharge, isPending: isPendingCharge } = useMutation({
