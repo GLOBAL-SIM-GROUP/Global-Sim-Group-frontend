@@ -238,7 +238,7 @@ export const MODULE_DEFINITIONS: ModuleDefinition[] = [
 			{
 				id: "caisses",
 				label: "Caisses",
-				permission: "FINANCES.MODIFIER",
+				permission: "FINANCES.VOIR",
 				path: "/finances/caisses",
 			},
 			{

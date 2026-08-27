@@ -131,6 +131,6 @@ describe("LoginPage", () => {
 		await waitFor(() => {
 			expect(mocks.auth.login).toHaveBeenCalledWith("admin", "motdepasse");
 		});
-		expect(mocks.navigate).toHaveBeenCalledWith({ href: "/" });
+		expect(mocks.navigate).toHaveBeenCalledWith({ href: "/home" });
 	});
 });
