@@ -14,35 +14,35 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ Checkout code
+      # 1. Checkout code
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # 2️⃣ Setup Node.js
+      # 2. Setup Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '22'
 
-      # 3️⃣ Install dependencies
+      # 3. Install dependencies
       - name: Install dependencies
-        run: cd Code/Frontend/global-sim-group && npm ci
+        run: npm ci
 
-      # 4️⃣ Run linting & TypeScript checks
+      # 4. Run linting & TypeScript checks
       - name: Lint & Type Check
-        run: cd Code/Frontend/global-sim-group && npm run check
+        run: npm run check
         continue-on-error: true
 
-      # 5️⃣ Run tests
+      # 5. Run tests
       - name: Run tests
-        run: cd Code/Frontend/global-sim-group && npm run test
+        run: npm run test
         continue-on-error: true
 
-      # 6️⃣ Build production bundle
+      # 6. Build production bundle
       - name: Build
-        run: cd Code/Frontend/global-sim-group && npm run build
+        run: npm run build
 
-      # 7️⃣ Deploy to VPS via SSH
+      # 7. Deploy to VPS via SSH
       - name: Deploy to VPS
         env:
           VPS_HOST: ${{ secrets.VPS_HOST }}
@@ -61,42 +61,42 @@ jobs:
           ssh -i ~/.ssh/deploy_key -p $VPS_PORT $VPS_USER@$VPS_HOST << 'EOF'
           set -e
 
-          echo "🚀 Starting deployment..."
+          echo "Starting deployment..."
 
           # Navigate to frontend directory
           cd $VPS_APP_PATH/Global-Sim-Group-frontend
 
           # Pull latest code
-          echo "📥 Pulling latest code..."
+          echo "Pulling latest code..."
           sudo git pull origin main
 
           # Navigate to parent directory for docker-compose
           cd $VPS_APP_PATH
 
           # Stop and remove containers
-          echo "🛑 Stopping containers..."
+          echo "Stopping containers..."
           sudo docker-compose down -v || true
 
           # Clean docker system
-          echo "🧹 Cleaning Docker..."
+          echo "Cleaning Docker..."
           sudo docker system prune -af --volumes || true
 
           # Rebuild and start containers
-          echo "🏗️  Building and starting containers..."
+          echo "Building and starting containers..."
           sudo docker-compose up -d --build
 
           # Wait for frontend to be ready
-          echo "⏳ Waiting for frontend to start..."
+          echo "Waiting for frontend to start..."
           sleep 10
 
           # Check health
-          echo "✅ Checking deployment status..."
+          echo "Checking deployment status..."
           sudo docker-compose ps
 
-          echo "🎉 Deployment completed successfully!"
+          echo "Deployment completed successfully!"
           EOF
 
-      # 8️⃣ Cleanup
+      # 8. Cleanup
       - name: Cleanup SSH key
         if: always()
         run: rm -f ~/.ssh/deploy_key
