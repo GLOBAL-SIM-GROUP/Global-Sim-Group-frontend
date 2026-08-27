@@ -53,6 +53,9 @@ export async function listSignalements(params: SignalementListParams = {}) {
 }
 
 export async function getSignalement(id: string) {
+	if (!id || id === "undefined") {
+		throw new Error("Signal ID must be a valid string");
+	}
 	const response = await getApiClient().get<Signalement>(`/api/v1/signalements/${id}`);
 	return response;
 }

@@ -21,8 +21,12 @@ import {
 } from "#/core/api/signalements";
 
 export const Route = createFileRoute("/_authenticated/signalements/$id")({
-	beforeLoad: ({ context }) => {
+	beforeLoad: ({ context, params, navigate }) => {
 		requirePermissions(context.auth, "SIGNALEMENT.VOIR");
+		// Rediriger vers la liste si l'ID est invalide
+		if (!params.id || params.id === "undefined") {
+			navigate({ to: "/signalements" });
+		}
 	},
 	component: DetailSignalementPage,
 });
