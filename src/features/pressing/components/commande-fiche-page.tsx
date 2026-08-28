@@ -98,12 +98,8 @@ export function CommandeFichePage({ id }: CommandeFichePageProps) {
 	}
 
 	const commande = commandeQuery.data;
-	const nomClient = commande.client_nom ?? commande.nom_client ?? "—";
-	const prenomClient =
-		commande.client_prenoms ??
-		commande.client_prenom ??
-		commande.prenom_client ??
-		"";
+	const nomClient = commande.client_nom ?? "—";
+	const prenomClient = commande.client_prenoms ?? "";
 	const nomComplet = `${nomClient} ${prenomClient}`.trim();
 	const aUnReste = Number(commande.reste_a_payer) > 0;
 	const estTerminee =
