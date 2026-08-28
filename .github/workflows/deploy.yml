@@ -58,7 +58,10 @@ jobs:
           ssh-keyscan -p $VPS_PORT $VPS_HOST >> ~/.ssh/known_hosts 2>/dev/null
 
           # Execute deployment commands on VPS
-          ssh -i ~/.ssh/deploy_key -p $VPS_PORT $VPS_USER@$VPS_HOST << 'EOF'
+          # NOTE: unquoted EOF on purpose — $VPS_APP_PATH must be expanded locally
+          # (by the runner, which has it from `env:` above) before being sent over
+          # SSH, since the remote shell doesn't have that variable set.
+          ssh -i ~/.ssh/deploy_key -p $VPS_PORT $VPS_USER@$VPS_HOST << EOF
           set -e
 
           echo "Starting deployment..."
@@ -66,9 +69,16 @@ jobs:
           # Navigate to frontend directory
           cd $VPS_APP_PATH/Global-Sim-Group-frontend
 
+          # Ensure git trusts this directory when invoked via sudo (root) or as
+          # the deploy user — otherwise "detected dubious ownership" aborts the
+          # script under set -e before the pull even runs.
+          git config --global --add safe.directory $VPS_APP_PATH/Global-Sim-Group-frontend
+          sudo git config --global --add safe.directory $VPS_APP_PATH/Global-Sim-Group-frontend
+
           # Pull latest code
           echo "Pulling latest code..."
-          sudo git pull origin main
+          sudo git fetch origin
+          sudo git reset --hard origin/main
 
           # Navigate to parent directory for docker-compose
           cd $VPS_APP_PATH
