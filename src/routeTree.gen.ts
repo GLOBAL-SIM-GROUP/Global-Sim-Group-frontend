@@ -81,6 +81,8 @@ import { Route as AuthenticatedFinancesCaissesIdDashboardRouteImport } from './r
 import { Route as AuthenticatedResidencePortailCautionIndexRouteImport } from './routes/_authenticated/residence/portail/caution/index'
 import { Route as AuthenticatedResidencePortailEcheancesIndexRouteImport } from './routes/_authenticated/residence/portail/echeances/index'
 import { Route as AuthenticatedResidencePortailPaiementsIndexRouteImport } from './routes/_authenticated/residence/portail/paiements/index'
+import { Route as AuthenticatedResidencePortailPressingIndexRouteImport } from './routes/_authenticated/residence/portail/pressing/index'
+import { Route as AuthenticatedResidencePortailPressingIdRouteImport } from './routes/_authenticated/residence/portail/pressing/$id'
 import { Route as AuthenticatedRhPointageConsultationIndexRouteImport } from './routes/_authenticated/rh/pointage/consultation/index'
 import { Route as AuthenticatedAdminRolesIdPermissionsIndexRouteImport } from './routes/_authenticated/admin/roles/$id/permissions/index'
 
@@ -507,6 +509,18 @@ const AuthenticatedResidencePortailPaiementsIndexRoute =
     path: '/residence/portail/paiements/',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedResidencePortailPressingIndexRoute =
+  AuthenticatedResidencePortailPressingIndexRouteImport.update({
+    id: '/residence/portail/pressing/',
+    path: '/residence/portail/pressing/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedResidencePortailPressingIdRoute =
+  AuthenticatedResidencePortailPressingIdRouteImport.update({
+    id: '/residence/portail/pressing/$id',
+    path: '/residence/portail/pressing/$id',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedRhPointageConsultationIndexRoute =
   AuthenticatedRhPointageConsultationIndexRouteImport.update({
     id: '/rh/pointage/consultation/',
@@ -589,9 +603,11 @@ export interface FileRoutesByFullPath {
   '/salle-fete/calendrier/': typeof AuthenticatedSalleFeteCalendrierIndexRoute
   '/salle-fete/reservations/': typeof AuthenticatedSalleFeteReservationsIndexRoute
   '/finances/caisses/$id/dashboard': typeof AuthenticatedFinancesCaissesIdDashboardRoute
+  '/residence/portail/pressing/$id': typeof AuthenticatedResidencePortailPressingIdRoute
   '/residence/portail/caution/': typeof AuthenticatedResidencePortailCautionIndexRoute
   '/residence/portail/echeances/': typeof AuthenticatedResidencePortailEcheancesIndexRoute
   '/residence/portail/paiements/': typeof AuthenticatedResidencePortailPaiementsIndexRoute
+  '/residence/portail/pressing/': typeof AuthenticatedResidencePortailPressingIndexRoute
   '/rh/pointage/consultation/': typeof AuthenticatedRhPointageConsultationIndexRoute
   '/admin/roles/$id/permissions/': typeof AuthenticatedAdminRolesIdPermissionsIndexRoute
 }
@@ -662,9 +678,11 @@ export interface FileRoutesByTo {
   '/salle-fete/calendrier': typeof AuthenticatedSalleFeteCalendrierIndexRoute
   '/salle-fete/reservations': typeof AuthenticatedSalleFeteReservationsIndexRoute
   '/finances/caisses/$id/dashboard': typeof AuthenticatedFinancesCaissesIdDashboardRoute
+  '/residence/portail/pressing/$id': typeof AuthenticatedResidencePortailPressingIdRoute
   '/residence/portail/caution': typeof AuthenticatedResidencePortailCautionIndexRoute
   '/residence/portail/echeances': typeof AuthenticatedResidencePortailEcheancesIndexRoute
   '/residence/portail/paiements': typeof AuthenticatedResidencePortailPaiementsIndexRoute
+  '/residence/portail/pressing': typeof AuthenticatedResidencePortailPressingIndexRoute
   '/rh/pointage/consultation': typeof AuthenticatedRhPointageConsultationIndexRoute
   '/admin/roles/$id/permissions': typeof AuthenticatedAdminRolesIdPermissionsIndexRoute
 }
@@ -739,9 +757,11 @@ export interface FileRoutesById {
   '/_authenticated/salle-fete/calendrier/': typeof AuthenticatedSalleFeteCalendrierIndexRoute
   '/_authenticated/salle-fete/reservations/': typeof AuthenticatedSalleFeteReservationsIndexRoute
   '/_authenticated/finances/caisses/$id/dashboard': typeof AuthenticatedFinancesCaissesIdDashboardRoute
+  '/_authenticated/residence/portail/pressing/$id': typeof AuthenticatedResidencePortailPressingIdRoute
   '/_authenticated/residence/portail/caution/': typeof AuthenticatedResidencePortailCautionIndexRoute
   '/_authenticated/residence/portail/echeances/': typeof AuthenticatedResidencePortailEcheancesIndexRoute
   '/_authenticated/residence/portail/paiements/': typeof AuthenticatedResidencePortailPaiementsIndexRoute
+  '/_authenticated/residence/portail/pressing/': typeof AuthenticatedResidencePortailPressingIndexRoute
   '/_authenticated/rh/pointage/consultation/': typeof AuthenticatedRhPointageConsultationIndexRoute
   '/_authenticated/admin/roles/$id/permissions/': typeof AuthenticatedAdminRolesIdPermissionsIndexRoute
 }
@@ -816,9 +836,11 @@ export interface FileRouteTypes {
     | '/salle-fete/calendrier/'
     | '/salle-fete/reservations/'
     | '/finances/caisses/$id/dashboard'
+    | '/residence/portail/pressing/$id'
     | '/residence/portail/caution/'
     | '/residence/portail/echeances/'
     | '/residence/portail/paiements/'
+    | '/residence/portail/pressing/'
     | '/rh/pointage/consultation/'
     | '/admin/roles/$id/permissions/'
   fileRoutesByTo: FileRoutesByTo
@@ -889,9 +911,11 @@ export interface FileRouteTypes {
     | '/salle-fete/calendrier'
     | '/salle-fete/reservations'
     | '/finances/caisses/$id/dashboard'
+    | '/residence/portail/pressing/$id'
     | '/residence/portail/caution'
     | '/residence/portail/echeances'
     | '/residence/portail/paiements'
+    | '/residence/portail/pressing'
     | '/rh/pointage/consultation'
     | '/admin/roles/$id/permissions'
   id:
@@ -965,9 +989,11 @@ export interface FileRouteTypes {
     | '/_authenticated/salle-fete/calendrier/'
     | '/_authenticated/salle-fete/reservations/'
     | '/_authenticated/finances/caisses/$id/dashboard'
+    | '/_authenticated/residence/portail/pressing/$id'
     | '/_authenticated/residence/portail/caution/'
     | '/_authenticated/residence/portail/echeances/'
     | '/_authenticated/residence/portail/paiements/'
+    | '/_authenticated/residence/portail/pressing/'
     | '/_authenticated/rh/pointage/consultation/'
     | '/_authenticated/admin/roles/$id/permissions/'
   fileRoutesById: FileRoutesById
@@ -1487,6 +1513,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedResidencePortailPaiementsIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/residence/portail/pressing/': {
+      id: '/_authenticated/residence/portail/pressing/'
+      path: '/residence/portail/pressing'
+      fullPath: '/residence/portail/pressing/'
+      preLoaderRoute: typeof AuthenticatedResidencePortailPressingIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/residence/portail/pressing/$id': {
+      id: '/_authenticated/residence/portail/pressing/$id'
+      path: '/residence/portail/pressing/$id'
+      fullPath: '/residence/portail/pressing/$id'
+      preLoaderRoute: typeof AuthenticatedResidencePortailPressingIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/rh/pointage/consultation/': {
       id: '/_authenticated/rh/pointage/consultation/'
       path: '/rh/pointage/consultation'
@@ -1568,9 +1608,11 @@ interface AuthenticatedRouteChildren {
   AuthenticatedSalleFeteCalendrierIndexRoute: typeof AuthenticatedSalleFeteCalendrierIndexRoute
   AuthenticatedSalleFeteReservationsIndexRoute: typeof AuthenticatedSalleFeteReservationsIndexRoute
   AuthenticatedFinancesCaissesIdDashboardRoute: typeof AuthenticatedFinancesCaissesIdDashboardRoute
+  AuthenticatedResidencePortailPressingIdRoute: typeof AuthenticatedResidencePortailPressingIdRoute
   AuthenticatedResidencePortailCautionIndexRoute: typeof AuthenticatedResidencePortailCautionIndexRoute
   AuthenticatedResidencePortailEcheancesIndexRoute: typeof AuthenticatedResidencePortailEcheancesIndexRoute
   AuthenticatedResidencePortailPaiementsIndexRoute: typeof AuthenticatedResidencePortailPaiementsIndexRoute
+  AuthenticatedResidencePortailPressingIndexRoute: typeof AuthenticatedResidencePortailPressingIndexRoute
   AuthenticatedRhPointageConsultationIndexRoute: typeof AuthenticatedRhPointageConsultationIndexRoute
   AuthenticatedAdminRolesIdPermissionsIndexRoute: typeof AuthenticatedAdminRolesIdPermissionsIndexRoute
 }
@@ -1682,12 +1724,16 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
     AuthenticatedSalleFeteReservationsIndexRoute,
   AuthenticatedFinancesCaissesIdDashboardRoute:
     AuthenticatedFinancesCaissesIdDashboardRoute,
+  AuthenticatedResidencePortailPressingIdRoute:
+    AuthenticatedResidencePortailPressingIdRoute,
   AuthenticatedResidencePortailCautionIndexRoute:
     AuthenticatedResidencePortailCautionIndexRoute,
   AuthenticatedResidencePortailEcheancesIndexRoute:
     AuthenticatedResidencePortailEcheancesIndexRoute,
   AuthenticatedResidencePortailPaiementsIndexRoute:
     AuthenticatedResidencePortailPaiementsIndexRoute,
+  AuthenticatedResidencePortailPressingIndexRoute:
+    AuthenticatedResidencePortailPressingIndexRoute,
   AuthenticatedRhPointageConsultationIndexRoute:
     AuthenticatedRhPointageConsultationIndexRoute,
   AuthenticatedAdminRolesIdPermissionsIndexRoute:

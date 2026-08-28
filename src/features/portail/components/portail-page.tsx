@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { CalendarDays, CreditCard, ShieldCheck } from "lucide-react";
+import { CalendarDays, CreditCard, ShieldCheck, Shirt } from "lucide-react";
 import type { ReactNode } from "react";
 
 import { Breadcrumb } from "#/components/ui/breadcrumb";
@@ -173,6 +173,12 @@ export function PortailPage() {
 						label="Ma caution"
 						description="Suivi de votre caution"
 					/>
+					<LienCarte
+						to="/residence/portail/pressing"
+						icone={<Shirt className="size-5" aria-hidden />}
+						label="Suivi Pressing"
+						description="État de vos habits"
+					/>
 				</div>
 			</section>
 		</div>
@@ -188,7 +194,8 @@ function LienCarte({
 	to:
 		| "/residence/portail/echeances"
 		| "/residence/portail/paiements"
-		| "/residence/portail/caution";
+		| "/residence/portail/caution"
+		| "/residence/portail/pressing";
 	icone: ReactNode;
 	label: string;
 	description: string;
