@@ -6,20 +6,16 @@ import { genererRecuEcheance } from "../lib/recu-pdf";
 import type { Echeance } from "../models/contrats";
 
 interface EcheanceRecuButtonProps {
-	idContrat: string;
 	echeance: Echeance;
 }
 
-export function EcheanceRecuButton({
-	idContrat,
-	echeance,
-}: EcheanceRecuButtonProps) {
+export function EcheanceRecuButton({ echeance }: EcheanceRecuButtonProps) {
 	const [isLoading, setIsLoading] = useState(false);
 
 	const handleDownloadRecu = async () => {
 		try {
 			setIsLoading(true);
-			const recu = await getRecuEcheance(idContrat, echeance.id);
+			const recu = await getRecuEcheance(echeance.id);
 			genererRecuEcheance(recu);
 		} catch (error) {
 			console.error("Erreur lors du téléchargement du reçu", error);

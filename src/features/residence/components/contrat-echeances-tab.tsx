@@ -98,7 +98,7 @@ export function ContratEcheancesTab({ idContrat, echeances }: ContratEcheancesTa
 								</td>
 								<td className="px-4 py-3">
 									<div className="flex items-center justify-end gap-2">
-										<EcheanceRecuButton idContrat={idContrat} echeance={echeance} />
+										<EcheanceRecuButton echeance={echeance} />
 										{canCreer &&
 										canFinancesVoir &&
 										echeance.statut !== "PAYE" ? (

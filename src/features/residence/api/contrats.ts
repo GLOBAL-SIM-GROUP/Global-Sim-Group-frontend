@@ -136,28 +136,29 @@ export function restituerCaution(
 
 /** Reçu d'une échéance (données pour génération PDF). */
 export interface RecuEcheance {
-	id_echeance: string;
-	numero_contrat: string;
-	mois: number;
-	annee: number;
-	montant_echeance: string;
-	montant_paye: string;
-	statut: string;
-	date_echeance: string;
-	date_paiement: string | null;
-	locataire_nom: string;
-	locataire_prenom: string;
-	logement_numero: string;
-	montant_total_paye: string;
-	montant_total_reste: string;
+	type: string;
+	reference: string;
+	date: string;
+	montant: string;
+	mode_paiement: string;
+	echeance: {
+		mois: number;
+		annee: number;
+		montant: string;
+		date_echeance: string;
+		statut: string;
+		numero_contrat: string;
+	};
+	client: {
+		nom: string;
+		prenoms: string;
+	};
+	logement: string;
 }
 
 /** Récupère le reçu d'une échéance (données JSON pour génération PDF client). */
-export function getRecuEcheance(
-	idContrat: string,
-	idEcheance: string,
-): Promise<RecuEcheance> {
+export function getRecuEcheance(idEcheance: string): Promise<RecuEcheance> {
 	return getApiClient().apiFetch<RecuEcheance>(
-		`/api/v1/residence/contrats/${idContrat}/echeances/${idEcheance}/recu`,
+		`/api/v1/residence/portail/echeances/${idEcheance}/recu`,
 	);
 }

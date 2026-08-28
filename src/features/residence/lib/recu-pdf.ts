@@ -2,32 +2,32 @@ import { construirePdf, telechargerPdf } from "#/lib/pdf";
 import type { RecuEcheance } from "../api/contrats";
 
 /**
- * Génère un PDF de reçu d'échéance avec bilan de paiement.
- * Inclut : montant payé, reste à payer, statut.
+ * Génère un PDF de reçu d'échéance.
+ * Inclut : montant payé, mode de paiement, statut, date de paiement.
  */
 export function genererRecuEcheance(recu: RecuEcheance): void {
 	const moisLibelle = new Intl.DateTimeFormat("fr-FR", {
 		month: "long",
 		year: "numeric",
-	}).format(new Date(recu.annee, recu.mois - 1));
+	}).format(new Date(recu.echeance.annee, recu.echeance.mois - 1));
 
 	const lignes: (string | number)[][] = [
 		[""],
-		["CONTRAT", recu.numero_contrat],
-		["LOCATAIRE", `${recu.locataire_prenom} ${recu.locataire_nom}`],
-		["LOGEMENT", recu.logement_numero],
+		["CONTRAT", recu.echeance.numero_contrat],
+		["LOCATAIRE", `${recu.client.prenoms} ${recu.client.nom}`],
+		["LOGEMENT", recu.logement],
 		[""],
 		["ECHÉANCE", moisLibelle],
-		["Date d'échéance", recu.date_echeance],
+		["Date d'échéance", recu.echeance.date_echeance],
 		[""],
-		["Montant écheance", recu.montant_echeance, "FCFA"],
-		["Montant payé", recu.montant_paye, "FCFA"],
-		["Statut", recu.statut],
-		...(recu.date_paiement ? [["Date paiement", recu.date_paiement]] : []),
+		["Type de paiement", recu.type],
+		["Mode de paiement", recu.mode_paiement],
+		["Montant écheance", recu.echeance.montant, "FCFA"],
+		["Montant payé", recu.montant, "FCFA"],
+		["Statut", recu.echeance.statut],
+		["Date paiement", recu.date],
 		[""],
-		["--- BILAN ---", ""],
-		["Total payé (contrat)", recu.montant_total_paye, "FCFA"],
-		["Reste à payer", recu.montant_total_reste, "FCFA"],
+		["Référence", recu.reference],
 		[""],
 		[
 			"Date génération",
@@ -42,6 +42,6 @@ export function genererRecuEcheance(recu: RecuEcheance): void {
 	const pdf = construirePdf(lignes, "REÇU D'ÉCHÉANCE DE LOYER");
 	telechargerPdf(
 		pdf,
-		`recu-${recu.numero_contrat}-${recu.annee}-${String(recu.mois).padStart(2, "0")}.pdf`,
+		`recu-${recu.echeance.numero_contrat}-${recu.echeance.annee}-${String(recu.echeance.mois).padStart(2, "0")}.pdf`,
 	);
 }
