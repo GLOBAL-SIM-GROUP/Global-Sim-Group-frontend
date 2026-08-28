@@ -20,7 +20,7 @@ import { useCreerClient, useModifierClient } from "../hooks/use-clients";
 import type { Client, TypeClient } from "../models/clients";
 import { TYPE_CLIENT_LABELS } from "../models/clients";
 
-const TYPES: TypeClient[] = ["LOCATAIRE", "PASSAGE", "AUTRE"];
+const TYPES: TypeClient[] = ["AUTRE"];
 
 interface ClientFormDialogProps {
 	open: boolean;
