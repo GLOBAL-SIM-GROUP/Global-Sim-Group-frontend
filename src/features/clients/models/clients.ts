@@ -47,6 +47,7 @@ export interface PieceIdentite {
 	date_expiration: string | null;
 	autorite_delivrance: string | null;
 	copie_num: string | null;
+	copie_num_verso: string | null;
 }
 
 /** Détail d'un client : contacts d'urgence et pièces d'identité inclus. */

@@ -4,7 +4,7 @@ import { DashboardGlobalPage } from "#/features/dashboard/components/dashboard-g
 
 export const Route = createFileRoute("/_authenticated/dashboard/")({
 	component: DashboardGlobalPageComponent,
-	meta: () => [{ title: "Tableau de bord global" }],
+	head: () => ({ meta: [{ title: "Tableau de bord global" }] }),
 });
 
 function DashboardGlobalPageComponent() {

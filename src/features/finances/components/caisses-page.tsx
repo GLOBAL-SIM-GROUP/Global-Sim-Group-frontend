@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Edit, Plus, Trash2 } from "lucide-react";
+import { Edit, Plus } from "lucide-react";
 import { Dialog } from "radix-ui";
 import { useState } from "react";
 import { Breadcrumb } from "#/components/ui/breadcrumb";

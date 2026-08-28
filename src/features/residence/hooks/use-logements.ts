@@ -4,7 +4,6 @@ import { useMemo } from "react";
 import {
 	creerLogement,
 	getLogement,
-	type ListLogementsParams,
 	type LogementBody,
 	listLogements,
 	modifierLogement,

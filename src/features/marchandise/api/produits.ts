@@ -118,6 +118,10 @@ export function creerProduit(body: ProduitBody): Promise<unknown> {
 		| "seuil_alerte"
 		| "image_url"
 	> & {
+		/** Absent du schéma généré (même écart que `id_categorie_produit`
+		 *  etc. ci-dessus) mais bien accepté par le backend — voir GET
+		 *  `/market/produits` qui le renvoie systématiquement. */
+		reference: string;
 		id_categorie_produit?: string | null;
 		id_fournisseur?: string | null;
 		quantite_initiale?: string | null;
@@ -149,6 +153,9 @@ export function modifierProduit(
 		MajProduitDto,
 		"id_categorie_produit" | "id_fournisseur" | "seuil_alerte" | "image_url"
 	> & {
+		/** Absent du schéma généré mais bien accepté par le backend — voir
+		 *  `creerProduit` ci-dessus. */
+		reference: string;
 		id_categorie_produit?: string | null;
 		id_fournisseur?: string | null;
 		seuil_alerte?: string | null;

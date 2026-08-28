@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "#/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "#/components/ui/card";
+import { Card, CardContent } from "#/components/ui/card";
 import { InputField } from "#/components/ui/input-field";
 import {
 	Select,
@@ -36,7 +36,9 @@ export function SignalementsPage({
 	onSearchChange,
 }: {
 	initialSearch?: SignalementsSearch;
-	onSearchChange?: (update: (prev: SignalementsSearch) => SignalementsSearch) => void;
+	onSearchChange?: (
+		update: (prev: SignalementsSearch) => SignalementsSearch,
+	) => void;
 }) {
 	const navigate = useNavigate();
 	const [search, setSearch] = useState<SignalementsSearch>(initialSearch);
@@ -241,7 +243,9 @@ export function SignalementsPage({
 										</p>
 									</div>
 									<div className="flex-shrink-0 text-right">
-										<span className={`inline-block px-2.5 py-1 rounded-full text-xs font-semibold ${getStatusBadge(signalement.statut)}`}>
+										<span
+											className={`inline-block px-2.5 py-1 rounded-full text-xs font-semibold ${getStatusBadge(signalement.statut)}`}
+										>
 											{getStatusLabel(signalement.statut)}
 										</span>
 									</div>

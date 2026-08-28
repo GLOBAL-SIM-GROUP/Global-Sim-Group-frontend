@@ -1,24 +1,23 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import {
+	AlertCircle,
 	ArrowLeft,
 	CheckCircle2,
 	Clock,
 	Loader2,
 	XCircle,
-	AlertCircle,
 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "#/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "#/components/ui/card";
-import { InputField } from "#/components/ui/input-field";
-import { requirePermissions } from "#/core/auth";
 import {
 	getSignalement,
 	prendre_en_charge_signalement,
-	resoudre_signalement,
 	rejeter_signalement,
+	resoudre_signalement,
 } from "#/core/api/signalements";
+import { requirePermissions } from "#/core/auth";
 
 export const Route = createFileRoute("/_authenticated/signalements/$id")({
 	beforeLoad: ({ context, params, navigate }) => {
@@ -40,7 +39,11 @@ function DetailSignalementPage() {
 		"prendre-en-charge" | "resoudre" | "rejeter" | null
 	>(null);
 
-	const { data: signalement, isLoading, error } = useQuery({
+	const {
+		data: signalement,
+		isLoading,
+		error,
+	} = useQuery({
 		queryKey: ["signalement", id],
 		queryFn: () => getSignalement(id),
 		enabled: typeof window !== "undefined" && !!id,
@@ -99,7 +102,10 @@ function DetailSignalementPage() {
 	if (error || !signalement) {
 		return (
 			<div className="space-y-4">
-				<Button variant="outline" onClick={() => navigate({ to: "/signalements" })}>
+				<Button
+					variant="outline"
+					onClick={() => navigate({ to: "/signalements" })}
+				>
 					<ArrowLeft className="size-4 mr-2" />
 					Retour
 				</Button>
@@ -122,7 +128,10 @@ function DetailSignalementPage() {
 
 	return (
 		<div className="space-y-6">
-			<Button variant="outline" onClick={() => navigate({ to: "/signalements" })}>
+			<Button
+				variant="outline"
+				onClick={() => navigate({ to: "/signalements" })}
+			>
 				<ArrowLeft className="size-4 mr-2" />
 				Retour
 			</Button>
@@ -133,11 +142,15 @@ function DetailSignalementPage() {
 						<h1 className="text-3xl font-bold text-foreground">
 							{signalement.titre}
 						</h1>
-						<span className={`px-3 py-1 rounded-full text-sm font-semibold ${getStatusBadge(signalement.statut)}`}>
+						<span
+							className={`px-3 py-1 rounded-full text-sm font-semibold ${getStatusBadge(signalement.statut)}`}
+						>
 							{signalement.statut}
 						</span>
 					</div>
-					<p className="text-muted-foreground">ID: {signalement.id_signalement}</p>
+					<p className="text-muted-foreground">
+						ID: {signalement.id_signalement}
+					</p>
 				</div>
 
 				<Card>
@@ -210,7 +223,10 @@ function DetailSignalementPage() {
 								<div className="space-y-4">
 									<div>
 										<label className="text-sm font-medium text-foreground block mb-2">
-											Note de {selectedAction === "prendre-en-charge" ? "prise en charge" : selectedAction}
+											Note de{" "}
+											{selectedAction === "prendre-en-charge"
+												? "prise en charge"
+												: selectedAction}
 										</label>
 										<textarea
 											className="flex min-h-[100px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-base shadow-xs placeholder:text-muted-foreground focus-visible:outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
@@ -242,7 +258,9 @@ function DetailSignalementPage() {
 												isPendingCharge || isPendingResoudre || isPendingRejeter
 											}
 										>
-											{isPendingCharge || isPendingResoudre || isPendingRejeter ? (
+											{isPendingCharge ||
+											isPendingResoudre ||
+											isPendingRejeter ? (
 												<>
 													<Loader2 className="size-4 mr-2 animate-spin" />
 													En cours…

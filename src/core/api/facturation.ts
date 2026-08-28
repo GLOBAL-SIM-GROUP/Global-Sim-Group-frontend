@@ -29,6 +29,7 @@ interface ListFacturesParams {
 	statut?: FactureStatut;
 	id_client?: string;
 	montant_total?: string;
+	recherche?: string;
 	limit?: number;
 	offset?: number;
 	du?: string;
@@ -85,9 +86,7 @@ export async function downloadFacturePdf(factureId: string): Promise<void> {
  * Récupère le détail d'une facture.
  */
 export async function getFacture(id: string): Promise<Facture> {
-	return getApiClient().apiFetch<Facture>(
-		`/api/v1/facturation/factures/${id}`,
-	);
+	return getApiClient().apiFetch<Facture>(`/api/v1/facturation/factures/${id}`);
 }
 
 /**

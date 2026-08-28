@@ -20,7 +20,6 @@ import {
 import { useUploadBlobUrl } from "#/core/api/use-upload-blob";
 import { useCan } from "#/core/auth";
 import { formatMontantFCFA } from "#/features/residence/models/format";
-import { cn } from "#/lib/utils";
 
 import {
 	useCategoriesPlats,

@@ -1,5 +1,5 @@
 import { useForm } from "@tanstack/react-form";
-import { Image as ImageIcon, Loader2, Upload, X } from "lucide-react";
+import { Loader2, Upload, X } from "lucide-react";
 import { useRef, useState } from "react";
 
 import { Button } from "#/components/ui/button";
@@ -401,7 +401,7 @@ function ImageUploadField({
 	imageKey: string;
 	onImageKeyChange: (key: string) => void;
 	uploadMutation: ReturnType<typeof useUploadImage>;
-	fileInputRef: React.RefObject<HTMLInputElement>;
+	fileInputRef: React.RefObject<HTMLInputElement | null>;
 }) {
 	const { blobUrl, isLoading } = useUploadBlobUrl(imageKey || undefined);
 

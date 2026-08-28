@@ -138,7 +138,7 @@ export function RevenusUtilisateurPage() {
 						Montant total
 					</div>
 					<div className="text-2xl font-bold text-foreground">
-						{formatMontantFCFA(totalMontant)}
+						{formatMontantFCFA(String(totalMontant))}
 					</div>
 					<p className="text-xs text-muted-foreground mt-2">
 						agrégé par utilisateur
@@ -234,7 +234,7 @@ export function RevenusUtilisateurPage() {
 													)}
 												</td>
 												<td className="px-6 py-3 text-right font-semibold text-foreground">
-													{formatMontantFCFA(rev.montant_total)}
+													{formatMontantFCFA(String(rev.montant_total))}
 												</td>
 												<td className="px-6 py-3 text-right text-muted-foreground">
 													{rev.nombre_paiements}

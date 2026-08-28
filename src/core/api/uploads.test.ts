@@ -1,6 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { ApiClient } from "./http";
-import { createApiClient } from "./http";
 import { downloadUploadedFile, uploadImage } from "./uploads";
 
 // Mock de l'API client

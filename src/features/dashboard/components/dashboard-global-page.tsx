@@ -20,9 +20,12 @@ import {
 import { useCan } from "#/core/auth";
 import { formatMontantFCFA } from "#/features/residence/models/format";
 import { cn } from "#/lib/utils";
-import { getReservationsSalleFutures } from "../api/dashboard";
 import {
+	useCommandesPressing,
 	useImpayes,
+	useLogementsDispo,
+	usePointagesAujourdhui,
+	useProduitsCritiques,
 	useReservationsSalleFutures,
 	useSyntheseGlobale,
 } from "../hooks/use-dashboard";
@@ -53,15 +56,29 @@ export function DashboardGlobalPage() {
 	const syntheseQuery = useSyntheseGlobale(dates.du, dates.au);
 	const impayesQuery = useImpayes(dates.du, dates.au);
 	const reservationsQuery = useReservationsSalleFutures();
+	const pointagesQuery = usePointagesAujourdhui(dates.du, dates.au);
+	const produitsCritiquesQuery = useProduitsCritiques(dates.du, dates.au);
+	const commandesPressingQuery = useCommandesPressing(dates.du, dates.au);
+	const logementsDispoQuery = useLogementsDispo(dates.du, dates.au);
 
 	const synthese = syntheseQuery.data;
 	const impayes = impayesQuery.data ?? [];
 	const reservations = reservationsQuery.data ?? [];
+	const pointages = pointagesQuery.data ?? [];
+	const produitsCritiques = produitsCritiquesQuery.data ?? [];
+	const commandesPressing = commandesPressingQuery.data ?? [];
+	const logementsDispo = logementsDispoQuery.data ?? [];
 
-	const presentsAujourdhui = synthese?.personnel?.presents_aujourd_hui ?? 0;
-	const retardsAujourdhui = synthese?.personnel?.retards_aujourd_hui ?? 0;
-	const produitsCritiques = synthese?.market?.stock?.alertes ?? [];
-	const commandesPressing = synthese?.pressing?.commandes_en_cours ?? 0;
+	const presentsAujourdhui = pointages.filter(
+		(p) => p.statut === "PRESENT",
+	).length;
+	const retardsAujourdhui = pointages.filter(
+		(p) => p.statut === "RETARD",
+	).length;
+	const montantImpayes = impayes.reduce((sum, i: any) => {
+		const montant = Number(i.montant_impaye ?? i.reste ?? 0);
+		return sum + (Number.isNaN(montant) ? 0 : montant);
+	}, 0);
 
 	if (!canVoir) {
 		return (
@@ -230,9 +247,9 @@ export function DashboardGlobalPage() {
 						<div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
 							<InfoCard
 								label="Chambres disponibles"
-								valeur={String(synthese?.residence?.chambres_disponibles ?? 0)}
+								valeur={String(logementsDispo.length)}
 								icon={CheckCircle2}
-								loading={syntheseQuery.isLoading}
+								loading={logementsDispoQuery.isLoading}
 							/>
 							<InfoCard
 								label="Locataires impayés"
@@ -243,12 +260,10 @@ export function DashboardGlobalPage() {
 							/>
 							<InfoCard
 								label="Montant des impayés"
-								valeur={formatMontantFCFA(
-									String(synthese?.residence?.impayes?.montant ?? 0),
-								)}
+								valeur={formatMontantFCFA(String(montantImpayes))}
 								icon={AlertCircle}
 								couleur="text-destructive"
-								loading={syntheseQuery.isLoading}
+								loading={impayesQuery.isLoading}
 							/>
 						</div>
 
@@ -383,7 +398,7 @@ export function DashboardGlobalPage() {
 								valeur={String(presentsAujourdhui)}
 								icon={CheckCircle2}
 								couleur="text-emerald-600"
-								loading={syntheseQuery.isLoading}
+								loading={pointagesQuery.isLoading}
 							/>
 							<InfoCard
 								label="Retards aujourd'hui"
@@ -394,7 +409,7 @@ export function DashboardGlobalPage() {
 										? "text-amber-600"
 										: "text-muted-foreground"
 								}
-								loading={syntheseQuery.isLoading}
+								loading={pointagesQuery.isLoading}
 							/>
 							<InfoCard
 								label="Masse salariale à payer"
@@ -405,21 +420,23 @@ export function DashboardGlobalPage() {
 						</div>
 
 						{/* Liste des retards */}
-						{retardsAujourdhui > 0 && pointages.some((p) => p.retard) && (
+						{retardsAujourdhui > 0 && (
 							<div className="rounded-lg border border-amber-600/40 bg-amber-600/10 p-4">
 								<p className="text-sm font-medium text-amber-600 mb-3">
 									Employés arrivés en retard:
 								</p>
 								<ul className="space-y-2 text-xs">
 									{pointages
-										.filter((p) => p.retard)
+										.filter((p) => p.statut === "RETARD")
 										.slice(0, 10)
-										.map((p, idx) => (
+										.map((p) => (
 											<li
-												key={idx}
+												key={p.id_employe}
 												className="flex items-center justify-between text-foreground"
 											>
-												<span>{p.nom}</span>
+												<span>
+													{p.employe_prenom} {p.employe_nom}
+												</span>
 												<span className="text-muted-foreground">
 													{p.heure_arrivee
 														? new Date(p.heure_arrivee).toLocaleTimeString(
@@ -450,7 +467,7 @@ export function DashboardGlobalPage() {
 										? "text-destructive"
 										: "text-muted-foreground"
 								}
-								loading={syntheseQuery.isLoading}
+								loading={produitsCritiquesQuery.isLoading}
 							/>
 						</div>
 						{produitsCritiques.length > 0 && (
@@ -461,7 +478,7 @@ export function DashboardGlobalPage() {
 								<ul className="space-y-1 text-xs">
 									{produitsCritiques.slice(0, 5).map((p) => (
 										<li key={p.id_produit}>
-											{p.nom} (stock: {p.stock})
+											{p.nom} (stock: {p.quantite_stock})
 										</li>
 									))}
 								</ul>
@@ -477,9 +494,9 @@ export function DashboardGlobalPage() {
 						<div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
 							<InfoCard
 								label="Commandes en cours"
-								valeur={String(commandesPressing)}
+								valeur={String(commandesPressing.length)}
 								icon={Package}
-								loading={syntheseQuery.isLoading}
+								loading={commandesPressingQuery.isLoading}
 							/>
 						</div>
 					</div>

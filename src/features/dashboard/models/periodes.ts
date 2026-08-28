@@ -27,7 +27,6 @@ export function getPeriodeDates(
 	const today = new Date();
 	const year = today.getFullYear();
 	const month = today.getMonth();
-	const date = today.getDate();
 
 	switch (periode) {
 		case "aujourd_hui":

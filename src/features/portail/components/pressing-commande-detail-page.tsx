@@ -1,16 +1,22 @@
-import { ArrowLeft, AlertCircle, CheckCircle2, Loader2, Clock } from "lucide-react";
+import {
+	AlertCircle,
+	ArrowLeft,
+	CheckCircle2,
+	Clock,
+	Loader2,
+} from "lucide-react";
 import { Button } from "#/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "#/components/ui/card";
+import { DownloadReceiptButton } from "#/features/facturation/components/download-receipt-button";
 import { cn } from "#/lib/utils";
 import { usePressingCommande } from "../hooks/use-pressing";
 import {
+	calculerProgression,
+	getEtapeActuelle,
 	PRESSING_STATUT_COLORS,
 	PRESSING_STATUT_LABELS,
 	PROGRESSION_ETAPES,
-	calculerProgression,
-	getEtapeActuelle,
 } from "../models/pressing";
-import { DownloadReceiptButton } from "#/features/facturation/components/download-receipt-button";
 
 interface PressingCommandeDetailPageProps {
 	id: string;
@@ -124,9 +130,7 @@ export function PressingCommandeDetailPage({
 					</Card>
 					<Card>
 						<CardContent className="pt-6">
-							<p className="text-sm text-muted-foreground mb-1">
-								Montant payé
-							</p>
+							<p className="text-sm text-muted-foreground mb-1">Montant payé</p>
 							<p className="text-xl font-semibold text-foreground">
 								{commande.montant_paye} FCFA
 							</p>
@@ -160,10 +164,8 @@ export function PressingCommandeDetailPage({
 					{/* Steps */}
 					<div className="space-y-4 mt-8">
 						{PROGRESSION_ETAPES.map((statut, index) => {
-							const isCompleted =
-								index < etape.actuelle - 1;
-							const isCurrent =
-								index === etape.actuelle - 1;
+							const isCompleted = index < etape.actuelle - 1;
+							const isCurrent = index === etape.actuelle - 1;
 
 							return (
 								<div key={statut} className="flex gap-4">
@@ -176,9 +178,9 @@ export function PressingCommandeDetailPage({
 													isCompleted || isCurrent
 														? "bg-green-600"
 														: "bg-gray-300",
-												isCurrent && "bg-lagoon",
-											)}
-											style={{ minHeight: "3rem" }}
+													isCurrent && "bg-lagoon",
+												)}
+												style={{ minHeight: "3rem" }}
 											/>
 										)}
 									</div>
@@ -227,14 +229,11 @@ export function PressingCommandeDetailPage({
 										<span
 											className={cn(
 												"inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium mt-1",
-												PRESSING_STATUT_COLORS[
-													article.statut as any
-												] ?? "bg-gray-100 text-gray-800",
+												PRESSING_STATUT_COLORS[article.statut] ??
+													"bg-gray-100 text-gray-800",
 											)}
 										>
-											{PRESSING_STATUT_LABELS[
-												article.statut as any
-											] ?? article.statut}
+											{PRESSING_STATUT_LABELS[article.statut] ?? article.statut}
 										</span>
 									</div>
 								</div>

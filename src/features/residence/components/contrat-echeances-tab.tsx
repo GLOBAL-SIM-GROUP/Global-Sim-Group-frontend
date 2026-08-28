@@ -9,8 +9,8 @@ import { useMoyensPaiement } from "../hooks/use-moyens-paiement";
 import type { Echeance } from "../models/contrats";
 import { echanceStatutLabel } from "../models/echeances";
 import { formatDateISO, formatMontantFCFA } from "../models/format";
-import { EncaisserFormDialog } from "./encaisser-form-dialog";
 import { EcheanceRecuButton } from "./echeance-recu-button";
+import { EncaisserFormDialog } from "./encaisser-form-dialog";
 
 const ECHANCE_STATUT_BADGE: Record<string, string> = {
 	PAYE: "bg-[#27AE60] text-white",
@@ -21,8 +21,6 @@ const ECHANCE_STATUT_BADGE: Record<string, string> = {
 };
 
 interface ContratEcheancesTabProps {
-	/** ID du contrat. */
-	idContrat: string;
 	/** Échéances du contrat (embarquées par le GET détail). */
 	echeances: Echeance[];
 }
@@ -33,7 +31,7 @@ interface ContratEcheancesTabProps {
  * les lignes non payées, gated par `RESIDENCE.CREER` && `FINANCES.VOIR`.
  * + bouton « Reçu » pour télécharger le PDF du reçu.
  */
-export function ContratEcheancesTab({ idContrat, echeances }: ContratEcheancesTabProps) {
+export function ContratEcheancesTab({ echeances }: ContratEcheancesTabProps) {
 	const canCreer = useCan("RESIDENCE.CREER");
 	const canFinancesVoir = useCan("FINANCES.VOIR");
 	const moyensQuery = useMoyensPaiement();

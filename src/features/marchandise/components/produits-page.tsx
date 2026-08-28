@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Plus, Search, X } from "lucide-react";
+import { Plus } from "lucide-react";
 import { useState } from "react";
 
 import { Breadcrumb } from "#/components/ui/breadcrumb";

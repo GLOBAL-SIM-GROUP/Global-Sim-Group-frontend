@@ -1,4 +1,3 @@
-import { env } from "#/env";
 import { getApiClient } from "./client";
 
 export type UploadCategorie = "client-photo" | "piece-identite" | "plat-photo";

@@ -5,7 +5,6 @@ import {
 	getAccessibleModules,
 	MODULE_DEFINITIONS,
 } from "./modules";
-import { MODULES } from "./types";
 
 const residence = MODULE_DEFINITIONS.find((def) => def.code === "RESIDENCE");
 if (!residence) throw new Error("RESIDENCE attendu dans le registre");

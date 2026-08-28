@@ -57,7 +57,10 @@ export function creerPlat(body: PlatBody): Promise<unknown> {
 		disponible: body.disponible ?? true,
 		description: texteOuNull(body.description),
 		image_url: texteOuNull(body.image_url),
-	} satisfies Omit<CreerPlatDto, "id_categorie_plat" | "description"> & {
+	} satisfies Omit<
+		CreerPlatDto,
+		"id_categorie_plat" | "description" | "image_url"
+	> & {
 		id_categorie_plat?: string | null;
 		description?: string | null;
 		image_url?: string | null;
@@ -77,7 +80,10 @@ export function modifierPlat(id: string, body: PlatBody): Promise<unknown> {
 		disponible: body.disponible ?? true,
 		description: texteOuNull(body.description),
 		image_url: texteOuNull(body.image_url),
-	} satisfies Omit<MajPlatDto, "id_categorie_plat" | "description"> & {
+	} satisfies Omit<
+		MajPlatDto,
+		"id_categorie_plat" | "description" | "image_url"
+	> & {
 		id_categorie_plat?: string | null;
 		description?: string | null;
 		image_url?: string | null;

@@ -1,63 +1,22 @@
 import { getApiClient } from "#/core/api";
 
+/**
+ * Réponse réelle de `GET /rapports/synthese-globale` (revalidée en direct le
+ * 2026-08-28 avec un token admin — le spec `/docs-json` ne documente pas cet
+ * endpoint). Structure plate, pas de sous-objets par module métier.
+ */
 export interface SyntheseGlobale {
-	calcule_le: string;
-	residence: {
-		chambres_occupees: number;
-		chambres_disponibles: number;
-		recettes_mois: number | string;
-		impayes: { nombre: number; montant: number | string };
-		reservations_en_attente: number;
-	};
-	market: {
-		nombre_ventes_aujourd_hui: number;
-		chiffre_affaires_aujourd_hui: number | string;
-		stock: {
-			total_produits: number;
-			valeur_stock: number | string;
-			en_alerte: number;
-			alertes: Array<{
-				id_produit: string;
-				nom: string;
-				quantite_stock: number | string;
-				seuil_alerte: number | string;
-			}>;
-		};
-	};
-	pressing: {
-		commandes_en_cours: number;
-		commandes_pretes: number;
-		commandes_retirees_aujourd_hui: number;
-		chiffre_affaires_mois: number | string;
-	};
-	restaurant: {
-		nombre_commandes_aujourd_hui: number;
-		chiffre_affaires_aujourd_hui: number | string;
-	};
-	salle_fete: {
-		reservations_a_venir: number;
-		prochaines: Array<{
-			id_reservation: string;
-			date_evenement: string;
-			type_manifestation: string;
-			client: string;
-			statut: string;
-		}>;
-		recettes_mois: number | string;
-	};
-	personnel: {
-		presents_aujourd_hui: number;
-		absents_aujourd_hui: number;
-		retards_aujourd_hui: number;
-		total_pointages_aujourd_hui: number;
-	};
-	finances: {
-		recettes_jour: number | string;
-		depenses_mois: number | string;
-		salaires_a_payer_mois: number | string;
-		solde_mois: number | string;
-		chiffre_affaires_global_mois: number | string;
-	};
+	periode: { du: string | null; au: string | null };
+	recettes_par_activite: Array<{
+		code: string;
+		libelle: string;
+		total_encaisse: string;
+	}>;
+	total_recettes: string;
+	total_depenses: string;
+	solde: string;
+	impayes: { nombre: number; montant: string };
+	masse_salariale: string;
 }
 
 export interface IndicateurActivite {
@@ -78,8 +37,8 @@ export interface Logement {
 export interface Produit {
 	id_produit: string;
 	nom: string;
-	stock: number | string;
-	prix: number | string;
+	quantite_stock: number | string;
+	seuil_alerte: number | string;
 }
 
 export interface CommandePressing {
@@ -104,11 +63,11 @@ export interface Reservation {
 
 export interface Pointage {
 	id_employe: string;
-	nom: string;
+	employe_nom: string;
+	employe_prenom: string;
 	statut: string;
-	heure_arrivee?: string;
-	heure_depart?: string;
-	retard?: boolean;
+	heure_arrivee?: string | null;
+	heure_depart?: string | null;
 }
 
 export interface Impaye {
@@ -187,7 +146,7 @@ export function getLogementsDispo(
 		>(url)
 		.then((logements) =>
 			logements
-				.filter((l) => l.statut === "disponible")
+				.filter((l) => l.statut === "DISPONIBLE")
 				.map((l) => ({
 					id_logement: l.id_logement,
 					numero: l.numero,
@@ -213,11 +172,15 @@ export function getProduitsCritiques(
 			Array<{
 				id_produit: string;
 				nom: string;
-				stock: number | string;
-				prix: number | string;
+				quantite_stock: number | string;
+				seuil_alerte: number | string;
 			}>
 		>(url)
-		.then((produits) => produits.filter((p) => Number(p.stock) < 10))
+		.then((produits) =>
+			produits.filter(
+				(p) => Number(p.quantite_stock) <= Number(p.seuil_alerte),
+			),
+		)
 		.catch(() => []);
 }
 

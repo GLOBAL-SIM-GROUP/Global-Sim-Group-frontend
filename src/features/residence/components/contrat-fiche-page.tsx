@@ -1,11 +1,11 @@
 import { Link } from "@tanstack/react-router";
-import { useState } from "react";
 import { FileText, Loader2 } from "lucide-react";
+import { useState } from "react";
 
 import { Breadcrumb } from "#/components/ui/breadcrumb";
 import { Button } from "#/components/ui/button";
-import { cn } from "#/lib/utils";
 import { getApiClient } from "#/core/api/client";
+import { cn } from "#/lib/utils";
 
 import { useClientsDetails } from "../hooks/use-clients";
 import { useContratDetail } from "../hooks/use-contrats";
@@ -64,7 +64,9 @@ export function ContratFichePage({ id }: ContratFichePageProps) {
 		try {
 			setIsDownloadingPDF(true);
 			const client = getApiClient();
-			const blob = await client.download(`/api/v1/residence/contrats/${id}/pdf`);
+			const blob = await client.download(
+				`/api/v1/residence/contrats/${id}/pdf`,
+			);
 
 			const url = window.URL.createObjectURL(blob);
 			const link = document.createElement("a");
@@ -238,7 +240,7 @@ export function ContratFichePage({ id }: ContratFichePageProps) {
 			</div>
 
 			{onglet === "echeances" ? (
-				<ContratEcheancesTab idContrat={contrat.id} echeances={contrat.echeances} />
+				<ContratEcheancesTab echeances={contrat.echeances} />
 			) : (
 				<CautionTab idContrat={contrat.id} />
 			)}

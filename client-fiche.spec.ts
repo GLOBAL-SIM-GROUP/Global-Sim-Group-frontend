@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test } from '@playwright/test';
 
 test.describe('Client Fiche - Responsive Design', () => {
 	// Test sur mobile

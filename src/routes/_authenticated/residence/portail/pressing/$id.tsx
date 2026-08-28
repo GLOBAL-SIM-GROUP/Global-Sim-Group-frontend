@@ -24,7 +24,7 @@ function PressingCommandeDetailRoutePage() {
 		<PressingCommandeDetailPage
 			id={id}
 			onBack={() => {
-				void navigate({ to: "/residence/portail/pressing/" });
+				void navigate({ to: "/residence/portail/pressing" });
 			}}
 		/>
 	);

@@ -1,13 +1,12 @@
 import { Link } from "@tanstack/react-router";
 import { AlertCircle, ChevronRight, Loader2 } from "lucide-react";
-import { Button } from "#/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "#/components/ui/card";
+import { Card, CardContent } from "#/components/ui/card";
 import { cn } from "#/lib/utils";
 import { usePressingCommandes } from "../hooks/use-pressing";
 import {
+	calculerProgression,
 	PRESSING_STATUT_COLORS,
 	PRESSING_STATUT_LABELS,
-	calculerProgression,
 } from "../models/pressing";
 
 /**
@@ -66,7 +65,8 @@ export function PressingCommandesPage() {
 						return (
 							<Link
 								key={commande.id}
-								to={`/residence/portail/pressing/commandes/${commande.id}`}
+								to="/residence/portail/pressing/$id"
+								params={{ id: commande.id }}
 							>
 								<Card className="cursor-pointer hover:shadow-md transition-shadow">
 									<CardContent className="pt-6">
@@ -125,9 +125,7 @@ export function PressingCommandesPage() {
 													</p>
 												</div>
 												<div className="text-right">
-													<p className="text-muted-foreground">
-														Payé
-													</p>
+													<p className="text-muted-foreground">Payé</p>
 													<p className="font-medium text-foreground">
 														{commande.montant_paye} FCFA
 													</p>

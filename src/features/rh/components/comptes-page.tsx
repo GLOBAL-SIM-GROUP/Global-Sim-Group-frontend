@@ -33,7 +33,7 @@ export function ComptesPage() {
 	const canAdminVoir = useCan("ADMIN.VOIR");
 	const canAdminCreer = useCan("ADMIN.CREER");
 
-	const employesQuery = useEmployes(true);
+	const employesQuery = useEmployes({ sansCompte: true });
 	const rolesQuery = useRoles(canAdminVoir);
 	const activitesQuery = useActivites(canAdminVoir);
 	const creerMutation = useCreerUtilisateur();

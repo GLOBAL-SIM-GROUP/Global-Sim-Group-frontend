@@ -189,7 +189,11 @@ export function creerPiece(
 			: {}),
 	} satisfies Omit<
 		CreerPieceDto,
-		"date_delivrance" | "date_expiration" | "autorite_delivrance" | "copie_num"
+		| "date_delivrance"
+		| "date_expiration"
+		| "autorite_delivrance"
+		| "copie_num"
+		| "copie_num_verso"
 	> & {
 		date_delivrance?: string | null;
 		date_expiration?: string | null;

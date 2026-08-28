@@ -10,8 +10,6 @@ import type {
 	Paiement,
 } from "../models/finances";
 
-type CreerDepenseDto = components["schemas"]["CreerDepenseDto"];
-type MajDepenseDto = components["schemas"]["MajDepenseDto"];
 type CreerCategorieDepenseDto =
 	components["schemas"]["CreerCategorieDepenseDto"];
 type CreerMoyenPaiementDto = components["schemas"]["CreerMoyenPaiementDto"];

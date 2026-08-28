@@ -177,7 +177,7 @@ export function CaisseDashboardPage({ id }: CaisseDashboardPageProps) {
 							Revenus aujourd'hui
 						</div>
 						<div className="text-2xl font-bold text-foreground">
-							{formatMontantFCFA(dashboard.revenus_jour)}
+							{formatMontantFCFA(String(dashboard.revenus_jour))}
 						</div>
 					</div>
 
@@ -186,7 +186,7 @@ export function CaisseDashboardPage({ id }: CaisseDashboardPageProps) {
 							Total paiements
 						</div>
 						<div className="text-2xl font-bold text-foreground">
-							{formatMontantFCFA(dashboard.total_paiements)}
+							{formatMontantFCFA(String(dashboard.total_paiements))}
 						</div>
 					</div>
 
@@ -195,7 +195,7 @@ export function CaisseDashboardPage({ id }: CaisseDashboardPageProps) {
 							Total dépenses
 						</div>
 						<div className="text-2xl font-bold text-destructive">
-							{formatMontantFCFA(dashboard.total_depenses)}
+							{formatMontantFCFA(String(dashboard.total_depenses))}
 						</div>
 					</div>
 				</div>
@@ -244,7 +244,7 @@ export function CaisseDashboardPage({ id }: CaisseDashboardPageProps) {
 													{rev.login}
 												</td>
 												<td className="px-4 py-3 text-right font-semibold text-foreground">
-													{formatMontantFCFA(rev.montant_total)}
+													{formatMontantFCFA(String(rev.montant_total))}
 												</td>
 												<td className="px-4 py-3 text-right text-muted-foreground">
 													{rev.nombre_paiements}
@@ -309,7 +309,7 @@ export function CaisseDashboardPage({ id }: CaisseDashboardPageProps) {
 													{paiement.reference ?? "—"}
 												</td>
 												<td className="px-4 py-3 font-semibold text-foreground">
-													{formatMontantFCFA(paiement.montant)}
+													{formatMontantFCFA(String(paiement.montant))}
 												</td>
 												<td className="px-4 py-3">
 													<span className="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300">
@@ -390,11 +390,11 @@ export function CaisseDashboardPage({ id }: CaisseDashboardPageProps) {
 													{formatDateHeureISO(tirage.date)}
 												</td>
 												<td className="px-4 py-3 text-right font-semibold text-foreground">
-													{formatMontantFCFA(tirage.montant_compte)}
+													{formatMontantFCFA(String(tirage.montant_compte))}
 												</td>
 												<td className="px-4 py-3 text-right text-muted-foreground">
 													{tirage.montant_attendu
-														? formatMontantFCFA(tirage.montant_attendu)
+														? formatMontantFCFA(String(tirage.montant_attendu))
 														: "—"}
 												</td>
 												<td className="px-4 py-3 text-right">
@@ -407,7 +407,7 @@ export function CaisseDashboardPage({ id }: CaisseDashboardPageProps) {
 															}
 														>
 															{tirage.ecart >= 0 ? "+" : ""}
-															{formatMontantFCFA(tirage.ecart)}
+															{formatMontantFCFA(String(tirage.ecart))}
 														</span>
 													) : (
 														"—"

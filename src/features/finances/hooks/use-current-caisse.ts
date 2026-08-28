@@ -1,13 +1,16 @@
-import { useCurrentUser } from "#/core/auth";
-
 /**
  * Hook pour accéder à la caisse actuelle de l'utilisateur.
- * - Si l'utilisateur est scopé à une caisse: retourne son id_caisse
- * - Sinon: retourne null (admin, voit tout)
+ *
+ * Toujours `null` pour l'instant : `GET /auth/me` ne renvoie pas `id_caisse`
+ * même pour un compte caissier scopé (vérifié en direct sur le backend dev —
+ * `admin/utilisateurs` liste bien un `id_caisse` par utilisateur, mais `/me`
+ * ne l'expose pas, et le JWT ne porte que `{ sub, login, role, jti }`). Un
+ * caissier n'a donc aujourd'hui aucun moyen de découvrir sa propre caisse
+ * côté frontend — écart backend à combler avant de pouvoir implémenter le
+ * scoping réel (le sélecteur retombe sur le mode admin/dropdown en attendant).
  */
 export function useCurrentCaisse() {
-	const user = useCurrentUser();
-	return user?.id_caisse ?? null;
+	return null;
 }
 
 /**

@@ -11,7 +11,6 @@ interface CaisseSelectorProps {
 	disabled?: boolean;
 	filtreActivite?: string;
 	showCreateQuick?: boolean;
-	onCreateQuick?: () => void;
 }
 
 /**
@@ -25,7 +24,6 @@ export function CaisseSelector({
 	disabled = false,
 	filtreActivite,
 	showCreateQuick = false,
-	onCreateQuick,
 }: CaisseSelectorProps) {
 	const userCaisse = useCurrentCaisse();
 	const [showCreate, setShowCreate] = useState(false);

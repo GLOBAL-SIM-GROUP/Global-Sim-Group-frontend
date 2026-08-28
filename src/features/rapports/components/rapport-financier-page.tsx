@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { FileDown, FileText } from "lucide-react";
+import { FileDown, FileSpreadsheet, FileText } from "lucide-react";
 import { type ReactNode, useState } from "react";
 
 import { Breadcrumb } from "#/components/ui/breadcrumb";
@@ -155,6 +155,16 @@ export function RapportFinancierPage({
 					>
 						<FileDown className="size-4" aria-hidden />
 						Excel
+					</Button>
+					<Button
+						size="sm"
+						variant="outline"
+						onClick={exporter}
+						disabled={!rapportQuery.data}
+						className="w-full sm:w-auto justify-center"
+					>
+						<FileSpreadsheet className="size-4" aria-hidden />
+						CSV
 					</Button>
 				</div>
 			</div>

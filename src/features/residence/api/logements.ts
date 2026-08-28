@@ -99,7 +99,10 @@ export function creerLogement(body: LogementBody): Promise<unknown> {
 		id_batiment: body.idBatiment,
 		equipements: texteOuNull(body.equipements),
 		etat: texteOuNull(body.etat),
-	} satisfies Omit<CreerLogementDto, "equipements" | "etat"> & {
+	} satisfies Omit<CreerLogementDto, "equipements" | "etat" | "numero"> & {
+		/** Absent du schéma généré (même écart que `equipements`/`etat`
+		 *  ci-dessus) mais bien un champ réel — voir `LogementWire.numero`. */
+		numero: string;
 		equipements?: string | null;
 		etat?: string | null;
 	};
@@ -122,7 +125,8 @@ export function modifierLogement(
 		id_batiment: body.idBatiment,
 		equipements: texteOuNull(body.equipements),
 		etat: texteOuNull(body.etat),
-	} satisfies Omit<MajLogementDto, "equipements" | "etat"> & {
+	} satisfies Omit<MajLogementDto, "equipements" | "etat" | "numero"> & {
+		numero: string;
 		equipements?: string | null;
 		etat?: string | null;
 	};

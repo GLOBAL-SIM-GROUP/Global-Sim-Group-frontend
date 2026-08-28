@@ -1,7 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 
 import {
-	type CommandePressing,
 	getCommandesPressing,
 	getImpayes,
 	getIndicateurActivite,
@@ -10,12 +9,6 @@ import {
 	getProduitsCritiques,
 	getReservationsSalleFutures,
 	getSyntheseGlobale,
-	type Impaye,
-	type IndicateurActivite,
-	type Pointage,
-	type Produit,
-	type Reservation,
-	type SyntheseGlobale,
 } from "../api/dashboard";
 
 export function useSyntheseGlobale(du?: string, au?: string) {
@@ -51,13 +44,6 @@ export function useCommandesPressing(du?: string, au?: string) {
 	return useQuery({
 		queryKey: ["dashboard", "commandes-pressing", du, au],
 		queryFn: () => getCommandesPressing(du, au),
-	});
-}
-
-export function useReservationsSalle(du?: string, au?: string) {
-	return useQuery({
-		queryKey: ["dashboard", "reservations-salle", du, au],
-		queryFn: () => getReservationsSalle(du, au),
 	});
 }
 

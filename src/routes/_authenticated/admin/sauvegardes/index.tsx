@@ -4,7 +4,7 @@ import { SauvegardesPage } from "#/features/admin/components/sauvegardes-page";
 
 export const Route = createFileRoute("/_authenticated/admin/sauvegardes/")({
 	component: SauvegardesPageComponent,
-	meta: () => [{ title: "Sauvegardes — Administration" }],
+	head: () => ({ meta: [{ title: "Sauvegardes — Administration" }] }),
 });
 
 function SauvegardesPageComponent() {

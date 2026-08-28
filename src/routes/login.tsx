@@ -1,7 +1,6 @@
 import { useForm } from "@tanstack/react-form";
 import {
 	createFileRoute,
-	Link,
 	redirect,
 	useNavigate,
 	useRouteContext,
@@ -422,8 +421,6 @@ export function LoginPage() {
 									Identifiants de test : admin / motdepasse
 								</p>
 							</form>
-
-
 						</div>
 
 						{/* Footer mobile */}

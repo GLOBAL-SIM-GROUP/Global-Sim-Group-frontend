@@ -57,7 +57,11 @@ export function creerEmploye(body: EmployeBody): Promise<unknown> {
 	const corps = {
 		nom: body.nom,
 		prenom: body.prenom,
-		fonction: body.fonction,
+		// `fonction` est un champ texte libre côté formulaire, mais le DTO généré
+		// le type en union stricte (ex. "CUISINIER", "SERVEUR"...). Le backend
+		// valide la valeur à la réception (erreur 400 affichée sur le champ) —
+		// voir docs/forms.md. Pas de <select> dédié pour l'instant.
+		fonction: body.fonction as CreerEmployeDto["fonction"],
 		date_embauche: body.dateEmbauche,
 		type_contrat: body.typeContrat,
 		salaire_base: body.salaireBase,
@@ -79,7 +83,8 @@ export function modifierEmploye(
 	const payload: Partial<MajEmployeDto> = {};
 	if (corps.nom !== undefined) payload.nom = corps.nom;
 	if (corps.prenom !== undefined) payload.prenom = corps.prenom;
-	if (corps.fonction !== undefined) payload.fonction = corps.fonction;
+	if (corps.fonction !== undefined)
+		payload.fonction = corps.fonction as MajEmployeDto["fonction"];
 	if (corps.dateEmbauche !== undefined)
 		payload.date_embauche = corps.dateEmbauche;
 	if (corps.typeContrat !== undefined) payload.type_contrat = corps.typeContrat;

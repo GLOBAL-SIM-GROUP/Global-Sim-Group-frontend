@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { creerTirage, listerTirages } from "../api/tirages";
-import type { CreerTirageDto, TirageFiltres } from "../models/tirages";
+import type { TirageFiltres } from "../models/tirages";
 
 export function useTirages(filtres?: TirageFiltres) {
 	return useQuery({

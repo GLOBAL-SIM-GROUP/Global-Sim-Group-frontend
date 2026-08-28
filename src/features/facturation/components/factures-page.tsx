@@ -1,13 +1,7 @@
+import { AlertCircle, Download, Loader2, Search } from "lucide-react";
 import { useState } from "react";
-import {
-	AlertCircle,
-	ChevronRight,
-	Download,
-	Loader2,
-	Search,
-} from "lucide-react";
 import { Button } from "#/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "#/components/ui/card";
+import { Card, CardContent } from "#/components/ui/card";
 import { Input } from "#/components/ui/input";
 import {
 	Select,
@@ -16,13 +10,13 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "#/components/ui/select";
-import { cn } from "#/lib/utils";
-import { useListFactures } from "#/core/api/hooks/use-factures";
 import {
 	downloadFacturePdf,
 	type FactureSourceType,
 	type FactureStatut,
 } from "#/core/api/facturation";
+import { useListFactures } from "#/core/api/hooks/use-factures";
+import { cn } from "#/lib/utils";
 
 const SOURCE_TYPES: { value: FactureSourceType; label: string }[] = [
 	{ value: "VENTE", label: "Vente (Boutique)" },
@@ -57,7 +51,11 @@ export function FacturesPage() {
 	const [recherche, setRecherche] = useState("");
 	const [downloadingId, setDownloadingId] = useState<string | null>(null);
 
-	const { data: factures, isLoading, error } = useListFactures({
+	const {
+		data: factures,
+		isLoading,
+		error,
+	} = useListFactures({
 		sourceType,
 		statut,
 		recherche: recherche || undefined,
@@ -118,7 +116,10 @@ export function FacturesPage() {
 							<label className="text-sm font-medium text-muted-foreground">
 								Type
 							</label>
-							<Select value={sourceType || ""} onValueChange={(v) => setSourceType(v as FactureSourceType)}>
+							<Select
+								value={sourceType || ""}
+								onValueChange={(v) => setSourceType(v as FactureSourceType)}
+							>
 								<SelectTrigger>
 									<SelectValue placeholder="Tous les types" />
 								</SelectTrigger>
@@ -138,7 +139,10 @@ export function FacturesPage() {
 							<label className="text-sm font-medium text-muted-foreground">
 								Statut
 							</label>
-							<Select value={statut || ""} onValueChange={(v) => setStatut(v as FactureStatut)}>
+							<Select
+								value={statut || ""}
+								onValueChange={(v) => setStatut(v as FactureStatut)}
+							>
 								<SelectTrigger>
 									<SelectValue placeholder="Tous les statuts" />
 								</SelectTrigger>
@@ -206,7 +210,10 @@ export function FacturesPage() {
 						const isDownloading = downloadingId === facture.id;
 
 						return (
-							<Card key={facture.id} className="hover:shadow-md transition-shadow">
+							<Card
+								key={facture.id}
+								className="hover:shadow-md transition-shadow"
+							>
 								<CardContent className="pt-6">
 									<div className="flex items-start justify-between gap-4">
 										<div className="flex-1 space-y-2">
