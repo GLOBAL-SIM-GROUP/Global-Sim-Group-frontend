@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router";
 import {
 	AlertCircle,
 	AlertTriangle,
@@ -7,7 +8,7 @@ import {
 	TrendingUp,
 	Users,
 } from "lucide-react";
-import { useState } from "react";
+import { type ComponentProps, useState } from "react";
 
 import { Breadcrumb } from "#/components/ui/breadcrumb";
 import {
@@ -496,6 +497,7 @@ export function DashboardGlobalPage() {
 								label="Commandes en cours"
 								valeur={String(commandesPressing.length)}
 								icon={Package}
+								to="/pressing/commandes"
 								loading={commandesPressingQuery.isLoading}
 							/>
 						</div>
@@ -658,6 +660,7 @@ function InfoCard({
 	couleur = "text-foreground",
 	loading = false,
 	subtext,
+	to,
 }: {
 	label: string;
 	valeur: string;
@@ -665,27 +668,44 @@ function InfoCard({
 	couleur?: string;
 	loading?: boolean;
 	subtext?: string;
+	/** Rend la carte cliquable, vers la page métier concernée. */
+	to?: ComponentProps<typeof Link>["to"];
 }) {
+	const contenu = (
+		<div className="flex items-start justify-between">
+			<div>
+				<p className="text-xs font-medium text-muted-foreground">{label}</p>
+				{loading ? (
+					<p className="mt-2 text-sm text-muted-foreground">Chargement…</p>
+				) : (
+					<>
+						<p className={cn("mt-2 text-2xl font-bold", couleur)}>{valeur}</p>
+						{subtext && (
+							<p className="mt-1 text-xs text-muted-foreground">{subtext}</p>
+						)}
+					</>
+				)}
+			</div>
+			<div className="flex size-10 items-center justify-center rounded-lg bg-muted">
+				<Icon className="size-5 text-muted-foreground" />
+			</div>
+		</div>
+	);
+
+	if (to) {
+		return (
+			<Link
+				to={to}
+				className="block rounded-lg border border-border bg-card p-4 shadow-sm transition-colors hover:bg-accent/40"
+			>
+				{contenu}
+			</Link>
+		);
+	}
+
 	return (
 		<div className="rounded-lg border border-border bg-card p-4 shadow-sm">
-			<div className="flex items-start justify-between">
-				<div>
-					<p className="text-xs font-medium text-muted-foreground">{label}</p>
-					{loading ? (
-						<p className="mt-2 text-sm text-muted-foreground">Chargement…</p>
-					) : (
-						<>
-							<p className={cn("mt-2 text-2xl font-bold", couleur)}>{valeur}</p>
-							{subtext && (
-								<p className="mt-1 text-xs text-muted-foreground">{subtext}</p>
-							)}
-						</>
-					)}
-				</div>
-				<div className="flex size-10 items-center justify-center rounded-lg bg-muted">
-					<Icon className="size-5 text-muted-foreground" />
-				</div>
-			</div>
+			{contenu}
 		</div>
 	);
 }
