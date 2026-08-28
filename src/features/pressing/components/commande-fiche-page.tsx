@@ -25,6 +25,7 @@ import {
 } from "../models/commandes";
 import { CommandeFormDialog } from "./commande-form-dialog";
 import { RetirerCommandeDialog } from "./retirer-commande-dialog";
+import { DownloadReceiptButton } from "#/features/facturation/components/download-receipt-button";
 
 const PRESSING_STATUT_BADGE: Record<CommandePressingStatut, string> = {
 	DEPOSE: "bg-[#2980B9] text-white",
@@ -137,6 +138,15 @@ export function CommandeFichePage({ id }: CommandeFichePageProps) {
 					>
 						<Link to="/pressing/commandes">Retour aux commandes</Link>
 					</Button>
+					<DownloadReceiptButton
+						sourceType="COMMANDE_PRESSING"
+						idClient={commande.id_client ?? null}
+						montantTotal={commande.montant_total}
+						isPaid={Number(commande.reste_a_payer) === 0}
+						variant="outline"
+						size="sm"
+						showLabel={true}
+					/>
 					{canModifier ? (
 						<>
 							{commande.statut === "DEPOSE" ? (

@@ -89,3 +89,41 @@ export async function getFacture(id: string): Promise<Facture> {
 		`/api/v1/facturation/factures/${id}`,
 	);
 }
+
+/**
+ * Liste les factures avec filtres.
+ */
+export async function listFactures(
+	params?: ListFacturesParams,
+): Promise<Facture[]> {
+	const queryParams = new URLSearchParams();
+
+	if (params?.source_type) {
+		queryParams.append("source_type", params.source_type);
+	}
+	if (params?.statut) {
+		queryParams.append("statut", params.statut);
+	}
+	if (params?.id_client) {
+		queryParams.append("id_client", params.id_client);
+	}
+	if (params?.recherche) {
+		queryParams.append("recherche", params.recherche);
+	}
+	if (params?.du) {
+		queryParams.append("du", params.du);
+	}
+	if (params?.au) {
+		queryParams.append("au", params.au);
+	}
+	if (params?.limit) {
+		queryParams.append("limit", params.limit.toString());
+	}
+	if (params?.offset) {
+		queryParams.append("offset", params.offset.toString());
+	}
+
+	return getApiClient().apiFetch<Facture[]>(
+		`/api/v1/facturation/factures?${queryParams.toString()}`,
+	);
+}

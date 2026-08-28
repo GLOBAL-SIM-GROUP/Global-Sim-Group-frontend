@@ -1,8 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
 import {
 	type FactureSourceType,
+	type FactureStatut,
 	findFacture,
 	type Facture,
+	listFactures,
 } from "../facturation";
 
 /**
@@ -23,5 +25,25 @@ export function useFindFacture(
 			return findFacture(sourceType, idClient, montantTotal);
 		},
 		enabled: !!idClient,
+	});
+}
+
+/**
+ * Liste les factures avec filtres.
+ * Utilisé par la page d'admin pour afficher toutes les factures.
+ */
+export function useListFactures(params?: {
+	sourceType?: FactureSourceType;
+	statut?: FactureStatut;
+	idClient?: string;
+	recherche?: string;
+	du?: string;
+	au?: string;
+	limit?: number;
+	offset?: number;
+}) {
+	return useQuery({
+		queryKey: ["factures", params],
+		queryFn: () => listFactures(params),
 	});
 }
