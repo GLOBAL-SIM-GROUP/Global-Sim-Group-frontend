@@ -476,7 +476,7 @@ export function DashboardGlobalPage() {
 									Produits à réapprovisionner:
 								</p>
 								<ul className="space-y-1 text-xs">
-									{produitsCritiques.slice(0, 5).map((p) => (
+									{produitsCritiques.map((p) => (
 										<li key={p.id_produit}>
 											{p.nom} (stock: {p.quantite_stock})
 										</li>
