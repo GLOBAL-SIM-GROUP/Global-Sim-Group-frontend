@@ -10,6 +10,7 @@ import type { Echeance } from "../models/contrats";
 import { echanceStatutLabel } from "../models/echeances";
 import { formatDateISO, formatMontantFCFA } from "../models/format";
 import { EncaisserFormDialog } from "./encaisser-form-dialog";
+import { EcheanceRecuButton } from "./echeance-recu-button";
 
 const ECHANCE_STATUT_BADGE: Record<string, string> = {
 	PAYE: "bg-[#27AE60] text-white",
@@ -20,6 +21,8 @@ const ECHANCE_STATUT_BADGE: Record<string, string> = {
 };
 
 interface ContratEcheancesTabProps {
+	/** ID du contrat. */
+	idContrat: string;
 	/** Échéances du contrat (embarquées par le GET détail). */
 	echeances: Echeance[];
 }
@@ -28,8 +31,9 @@ interface ContratEcheancesTabProps {
  * Onglet « Échéances » de la fiche contrat : tableau des échéances mensuelles
  * + bouton « Enregistrer un paiement » (POST `/echeances/{id}/encaisser`) sur
  * les lignes non payées, gated par `RESIDENCE.CREER` && `FINANCES.VOIR`.
+ * + bouton « Reçu » pour télécharger le PDF du reçu.
  */
-export function ContratEcheancesTab({ echeances }: ContratEcheancesTabProps) {
+export function ContratEcheancesTab({ idContrat, echeances }: ContratEcheancesTabProps) {
 	const canCreer = useCan("RESIDENCE.CREER");
 	const canFinancesVoir = useCan("FINANCES.VOIR");
 	const moyensQuery = useMoyensPaiement();
@@ -93,7 +97,8 @@ export function ContratEcheancesTab({ echeances }: ContratEcheancesTabProps) {
 									{formatDateISO(echeance.date_echeance)}
 								</td>
 								<td className="px-4 py-3">
-									<div className="flex items-center justify-end">
+									<div className="flex items-center justify-end gap-2">
+										<EcheanceRecuButton idContrat={idContrat} echeance={echeance} />
 										{canCreer &&
 										canFinancesVoir &&
 										echeance.statut !== "PAYE" ? (

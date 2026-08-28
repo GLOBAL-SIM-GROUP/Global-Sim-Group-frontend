@@ -1,9 +1,11 @@
 import { Link } from "@tanstack/react-router";
 import { useState } from "react";
+import { FileText, Loader2 } from "lucide-react";
 
 import { Breadcrumb } from "#/components/ui/breadcrumb";
 import { Button } from "#/components/ui/button";
 import { cn } from "#/lib/utils";
+import { getApiClient } from "#/core/api/client";
 
 import { useClientsDetails } from "../hooks/use-clients";
 import { useContratDetail } from "../hooks/use-contrats";
@@ -48,6 +50,7 @@ interface ContratFichePageProps {
  */
 export function ContratFichePage({ id }: ContratFichePageProps) {
 	const [onglet, setOnglet] = useState<"echeances" | "caution">("echeances");
+	const [isDownloadingPDF, setIsDownloadingPDF] = useState(false);
 
 	const contratQuery = useContratDetail(id);
 	const clientsDetails = useClientsDetails(
@@ -56,6 +59,27 @@ export function ContratFichePage({ id }: ContratFichePageProps) {
 	const logementsDetails = useLogementsParId(
 		contratQuery.data ? [contratQuery.data.id_logement] : [],
 	);
+
+	const handleDownloadPDF = async () => {
+		try {
+			setIsDownloadingPDF(true);
+			const client = getApiClient();
+			const blob = await client.download(`/api/v1/residence/contrats/${id}/pdf`);
+
+			const url = window.URL.createObjectURL(blob);
+			const link = document.createElement("a");
+			link.href = url;
+			link.download = `contrat-${contratQuery.data?.numero_contrat || id}.pdf`;
+			document.body.appendChild(link);
+			link.click();
+			document.body.removeChild(link);
+			window.URL.revokeObjectURL(url);
+		} catch (error) {
+			console.error("Erreur lors du téléchargement du PDF", error);
+		} finally {
+			setIsDownloadingPDF(false);
+		}
+	};
 
 	if (contratQuery.isLoading) {
 		return (
@@ -109,9 +133,28 @@ export function ContratFichePage({ id }: ContratFichePageProps) {
 					</p>
 				</section>
 
-				<Button variant="outline" asChild>
-					<Link to="/residence/contrats">Retour aux contrats</Link>
-				</Button>
+				<div className="flex gap-3">
+					<Button
+						onClick={handleDownloadPDF}
+						disabled={isDownloadingPDF}
+						className="bg-lagoon hover:bg-lagoon/90"
+					>
+						{isDownloadingPDF ? (
+							<>
+								<Loader2 className="size-4 mr-2 animate-spin" />
+								Téléchargement…
+							</>
+						) : (
+							<>
+								<FileText className="size-4 mr-2" />
+								PDF Contrat
+							</>
+						)}
+					</Button>
+					<Button variant="outline" asChild>
+						<Link to="/residence/contrats">Retour aux contrats</Link>
+					</Button>
+				</div>
 			</div>
 
 			<section className="rounded-lg border border-border bg-card p-5 shadow-sm">
@@ -195,7 +238,7 @@ export function ContratFichePage({ id }: ContratFichePageProps) {
 			</div>
 
 			{onglet === "echeances" ? (
-				<ContratEcheancesTab echeances={contrat.echeances} />
+				<ContratEcheancesTab idContrat={contrat.id} echeances={contrat.echeances} />
 			) : (
 				<CautionTab idContrat={contrat.id} />
 			)}
