@@ -130,6 +130,58 @@ export function RecuDialog({ open, kind, id, onOpenChange }: RecuDialogProps) {
 										</>
 									) : null}
 								</div>
+
+								{!estRecuEcheance(recu) && recu.facture ? (
+									<div className="space-y-2 rounded-lg border border-border bg-sea-ink/5 p-4">
+										<p className="text-sm font-semibold text-foreground">
+											Facture {recu.facture.numero}
+										</p>
+										<Ligne
+											label="Date"
+											valeur={formatDateHeureISO(recu.facture.date)}
+										/>
+										<Ligne
+											label="Montant total"
+											valeur={formatMontantFCFA(recu.facture.montant_total)}
+										/>
+										<Ligne
+											label="Montant payé"
+											valeur={formatMontantFCFA(recu.facture.montant_paye)}
+										/>
+										<table className="mt-2 w-full text-xs">
+											<thead>
+												<tr className="border-b border-border text-left text-muted-foreground">
+													<th className="py-1 font-medium">Libellé</th>
+													<th className="py-1 text-right font-medium">Qté</th>
+													<th className="py-1 text-right font-medium">P.U.</th>
+													<th className="py-1 text-right font-medium">Total</th>
+												</tr>
+											</thead>
+											<tbody>
+												{recu.facture.lignes.map((ligne) => (
+													<tr
+														key={`${ligne.libelle}-${ligne.total}`}
+														className="border-b border-border/50"
+													>
+														<td className="py-1 text-foreground">
+															{ligne.libelle}
+														</td>
+														<td className="py-1 text-right text-foreground">
+															{ligne.quantite}
+														</td>
+														<td className="py-1 text-right text-foreground">
+															{formatMontantFCFA(ligne.prix_unitaire)}
+														</td>
+														<td className="py-1 text-right text-foreground">
+															{formatMontantFCFA(ligne.total)}
+														</td>
+													</tr>
+												))}
+											</tbody>
+										</table>
+									</div>
+								) : null}
+
 								<div className="flex items-center justify-end gap-2">
 									<Button
 										type="button"

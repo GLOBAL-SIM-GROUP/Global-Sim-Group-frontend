@@ -60,6 +60,23 @@ export function recuPaiementEnLignes(
 			["Numéro de contrat", recu.echeance.numero_contrat],
 		);
 	}
+	if (recu.facture) {
+		lignes.push(
+			[],
+			["Facture", recu.facture.numero],
+			["Date facture", recu.facture.date],
+			["Montant total", recu.facture.montant_total],
+			["Montant payé", recu.facture.montant_paye],
+			[],
+			["Libellé", "Quantité", "Prix unitaire", "Total"],
+			...recu.facture.lignes.map((ligne) => [
+				ligne.libelle,
+				ligne.quantite,
+				ligne.prix_unitaire,
+				ligne.total,
+			]),
+		);
+	}
 	return lignes;
 }
 

@@ -153,18 +153,47 @@ export interface RecuEcheance {
 	logement: string;
 }
 
-/** Reçu d'un paiement (GET /portail/paiements/{id}/recu). */
+/**
+ * Ligne d'une facture (détail du reçu de paiement).
+ * `quantite` : vérifié en direct sur le backend dev — renvoyé en `number`
+ * malgré l'exemple du spec (`"1"`), contrairement à `prix_unitaire`/`total`
+ * qui sont bien des `Money` string-encodées.
+ */
+export interface RecuFactureLigne {
+	libelle: string;
+	quantite: string | number;
+	prix_unitaire: string;
+	total: string;
+}
+
+/** Facture rattachée à un paiement (absente pour un paiement sans facture). */
+export interface RecuFacture {
+	numero: string;
+	date: string;
+	montant_total: string;
+	montant_paye: string;
+	lignes: RecuFactureLigne[];
+}
+
+/**
+ * Reçu d'un paiement (GET /portail/paiements/{id}/recu).
+ * `echeance` et `facture` sont mutuellement (quasi) exclusifs et **absents**
+ * (pas `null`) selon le type du paiement — vérifié en direct : un paiement
+ * `LOYER` renvoie `echeance` sans `facture`, un paiement `AUTRE` renvoie
+ * `facture` sans `echeance`.
+ */
 export interface RecuPaiement {
 	type: string;
 	reference: string;
 	date: string;
 	montant: string;
 	mode_paiement: string;
-	echeance: {
+	echeance?: {
 		mois: number;
 		annee: number;
 		numero_contrat: string;
-	} | null;
+	};
+	facture?: RecuFacture;
 	client: { nom: string; prenoms: string };
 }
 
