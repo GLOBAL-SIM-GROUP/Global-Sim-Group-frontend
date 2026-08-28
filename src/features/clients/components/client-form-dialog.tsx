@@ -68,6 +68,16 @@ export function ClientFormDialog({
 				if (!value.telPrincipal.trim())
 					fields.telPrincipal = "Ce champ est requis.";
 				if (!value.typeClient) fields.typeClient = "Sélectionnez un type.";
+				if (!value.dateNaissance) fields.dateNaissance = "Ce champ est requis.";
+				if (!value.lieuNaissance.trim()) fields.lieuNaissance = "Ce champ est requis.";
+				if (!value.sexe) fields.sexe = "Sélectionnez une option.";
+				if (!value.nationalite.trim()) fields.nationalite = "Ce champ est requis.";
+				if (!value.profession.trim()) fields.profession = "Ce champ est requis.";
+				if (!value.telSecondaire.trim()) fields.telSecondaire = "Ce champ est requis.";
+				if (!value.email.trim()) fields.email = "Ce champ est requis.";
+				if (!value.adresse.trim()) fields.adresse = "Ce champ est requis.";
+				if (!value.ville.trim()) fields.ville = "Ce champ est requis.";
+				if (!value.pays.trim()) fields.pays = "Ce champ est requis.";
 				return { fields };
 			},
 		},
@@ -214,7 +224,13 @@ export function ClientFormDialog({
 											onChange={(event) =>
 												field.handleChange(event.target.value)
 											}
+											aria-invalid={field.state.meta.errors.length > 0}
 										/>
+										{field.state.meta.errors[0] ? (
+											<p className="text-xs text-destructive">
+												{field.state.meta.errors[0]}
+											</p>
+										) : null}
 									</div>
 								)}
 							</form.Field>
@@ -255,6 +271,11 @@ export function ClientFormDialog({
 												<SelectItem value="AUTRE">Autre</SelectItem>
 											</SelectContent>
 										</Select>
+										{field.state.meta.errors[0] ? (
+											<p className="text-xs text-destructive">
+												{field.state.meta.errors[0]}
+											</p>
+										) : null}
 									</div>
 								)}
 							</form.Field>
