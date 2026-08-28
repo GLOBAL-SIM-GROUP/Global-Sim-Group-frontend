@@ -50,6 +50,7 @@ const MIME = {
 	".ttf": "font/ttf",
 	".txt": "text/plain",
 	".map": "application/json",
+	".webmanifest": "application/manifest+json",
 };
 
 /** Sert un fichier de `dist/client`. `false` si absent ou hors racine. */

@@ -1,0 +1,15 @@
+{
+  "name": "GLOBAL SIM GROUP — SIM",
+  "short_name": "SIM",
+  "description": "Plateforme de gestion multiservice GLOBAL SIM GROUP — résidence, market, pressing, restaurant, salle de fête, facturation, finances, RH.",
+  "lang": "fr",
+  "start_url": "/home",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#1A2B4C",
+  "theme_color": "#1A2B4C",
+  "icons": [
+    { "src": "/logo.png", "sizes": "500x500", "type": "image/png", "purpose": "any" },
+    { "src": "/logo.png", "sizes": "500x500", "type": "image/png", "purpose": "maskable" }
+  ]
+}

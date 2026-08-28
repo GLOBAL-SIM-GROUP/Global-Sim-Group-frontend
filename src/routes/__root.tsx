@@ -10,7 +10,7 @@ import {
 	useRouteContext,
 } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
-import type { ReactNode } from "react";
+import { type ReactNode, useEffect } from "react";
 import { Button } from "#/components/ui/button";
 import type { AuthSession } from "#/core/auth";
 import { AuthProvider } from "#/core/auth/auth-context";
@@ -32,10 +32,26 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 			{ charSet: "utf-8" },
 			{ name: "viewport", content: "width=device-width, initial-scale=1" },
 			{ title: "GLOBAL SIM GROUP — SIM" },
+			// PWA : couleur de la barre du navigateur / de la barre de statut.
+			{ name: "theme-color", content: "#1A2B4C" },
+			// PWA iOS : Safari ignore le Web App Manifest pour l'icône/le mode
+			// plein écran — ces balises sont le seul moyen d'obtenir un
+			// comportement d'app installée (via « Sur l'écran d'accueil »).
+			{ name: "apple-mobile-web-app-capable", content: "yes" },
+			{
+				name: "apple-mobile-web-app-status-bar-style",
+				content: "black-translucent",
+			},
+			{ name: "apple-mobile-web-app-title", content: "SIM" },
 		],
 		links: [
 			// Favicon de l'onglet — logo servis depuis public/ (idem /login).
 			{ rel: "icon", type: "image/png", href: "/logo.png" },
+			// PWA : icône affichée par iOS quand l'app est ajoutée à l'écran
+			// d'accueil (Safari ne lit pas `manifest.icons`).
+			{ rel: "apple-touch-icon", href: "/logo.png" },
+			// PWA : manifeste statique (public/manifest.webmanifest).
+			{ rel: "manifest", href: "/manifest.webmanifest" },
 		],
 	}),
 	component: RootComponent,
@@ -57,6 +73,15 @@ function RootComponent() {
 			auth = undefined;
 		}
 	}
+
+	// Enregistrement du service worker (PWA), écrit à la main dans public/sw.js
+	// — client uniquement, l'API `navigator.serviceWorker` n'existe pas en SSR.
+	useEffect(() => {
+		if ("serviceWorker" in navigator) {
+			navigator.serviceWorker.register("/sw.js").catch(() => {});
+		}
+	}, []);
+
 	return (
 		<AuthProvider session={auth}>
 			<Outlet />
