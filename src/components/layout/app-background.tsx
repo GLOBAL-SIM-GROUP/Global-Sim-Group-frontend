@@ -1,6 +1,6 @@
 export function AppBackground() {
 	return (
-		<div className="fixed inset-0 -z-10 overflow-hidden">
+		<div className="fixed inset-0 -z-10 overflow-hidden px-6">
 			{/* Gradient de base */}
 			<div className="absolute inset-0 bg-gradient-to-br from-background via-lagoon/3 to-sea-ink/5" />
 
