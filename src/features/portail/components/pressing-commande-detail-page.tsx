@@ -10,6 +10,7 @@ import {
 	calculerProgression,
 	getEtapeActuelle,
 } from "../models/pressing";
+import { DownloadReceiptButton } from "#/features/facturation/components/download-receipt-button";
 
 interface PressingCommandeDetailPageProps {
 	id: string;
@@ -72,10 +73,20 @@ export function PressingCommandeDetailPage({
 	return (
 		<div className="space-y-6">
 			{/* Header */}
-			<Button variant="outline" onClick={onBack}>
-				<ArrowLeft className="size-4 mr-2" />
-				Retour
-			</Button>
+			<div className="flex items-center justify-between gap-2">
+				<Button variant="outline" onClick={onBack}>
+					<ArrowLeft className="size-4 mr-2" />
+					Retour
+				</Button>
+				<DownloadReceiptButton
+					sourceType="COMMANDE_PRESSING"
+					idClient={commande.id_client}
+					montantTotal={commande.montant_total}
+					isPaid={commande.montant_paye === commande.montant_total}
+					variant="outline"
+					size="sm"
+				/>
+			</div>
 
 			{/* Title and status */}
 			<div className="space-y-4">
