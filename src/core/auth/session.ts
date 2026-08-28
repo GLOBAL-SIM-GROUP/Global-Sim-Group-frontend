@@ -145,40 +145,29 @@ export function createAuthSession(
 	}
 
 	async function restore(): Promise<void> {
-		console.log("[Auth] restore() called");
 		if (currentUser) {
-			console.log("[Auth] restore() - user already loaded, skipping");
 			return;
 		}
 		if (restoreInFlight) {
-			console.log(
-				"[Auth] restore() - restoration already in flight, waiting...",
-			);
 			return await restoreInFlight;
 		}
 		// SSR : pas de localStorage ni de tokens — la restauration est côté client.
 		if (typeof window === "undefined") {
-			console.log("[Auth] restore() - SSR context, skipping");
 			return;
 		}
 		const tokens = tokenStorage.get();
 		if (!tokens) {
-			console.log("[Auth] restore() - no tokens in storage, skipping");
 			return;
 		}
 
-		console.log("[Auth] restore() - starting restoration...");
 		restoreInFlight = (async () => {
 			try {
 				const refreshed = await refresh();
-				console.log("[Auth] restore() - refresh result:", refreshed);
 				if (refreshed) {
 					const me = await authApi.me();
-					console.log("[Auth] restore() - user loaded:", me.login);
 					setUser(me);
 				}
-			} catch (error) {
-				console.error("[Auth] restore() - error:", error);
+			} catch {
 				handleSessionExpired();
 			}
 		})().finally(() => {
