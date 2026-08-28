@@ -7,8 +7,13 @@ import { LandingProducts } from "#/features/landing/components/landing-products"
 import { LandingServices } from "#/features/landing/components/landing-services";
 
 export const Route = createFileRoute("/")({
-	beforeLoad: () => {
-		throw redirect({ to: "/login" });
+	beforeLoad: async ({ context }) => {
+		// Restaure la session depuis les tokens persistés (rechargement de page
+		// direct sur "/") avant de décider où rediriger — sinon un utilisateur
+		// authentifié atterrissant ici sans être jamais passé par `_authenticated`
+		// serait vu comme non connecté.
+		await context.auth.restore();
+		throw redirect({ to: context.auth.isAuthenticated ? "/home" : "/login" });
 	},
 	head: () => ({
 		meta: [
