@@ -1,7 +1,3 @@
-import { Link } from "@tanstack/react-router";
-import { CalendarDays, CreditCard, ShieldCheck, Shirt } from "lucide-react";
-import type { ReactNode } from "react";
-
 import { Breadcrumb } from "#/components/ui/breadcrumb";
 import { Button } from "#/components/ui/button";
 import {
@@ -65,8 +61,7 @@ export function PortailPage() {
 		);
 	}
 
-	const { client, contrat_en_cours, prochaine_echeance, total_impayes } =
-		resumeQuery.data;
+	const { client, contrat_en_cours, prochaine_echeance } = resumeQuery.data;
 
 	return (
 		<div className="mx-auto w-full max-w-4xl space-y-6 p-6">
@@ -143,73 +138,6 @@ export function PortailPage() {
 					</div>
 				</section>
 			) : null}
-
-			<section className="rounded-lg border border-border bg-card p-5 shadow-sm">
-				<h2 className="text-lg font-semibold text-foreground">Résumé</h2>
-				<div className="mt-3 flex flex-wrap items-center gap-4">
-					<div className="rounded-lg border border-border bg-sea-ink/5 px-4 py-3">
-						<p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-							Total impayés
-						</p>
-						<p className="mt-1 text-lg font-semibold text-destructive">
-							{formatMontantFCFA(total_impayes)}
-						</p>
-					</div>
-					<LienCarte
-						to="/residence/portail/echeances"
-						icone={<CalendarDays className="size-5" aria-hidden />}
-						label="Mes échéances"
-						description="État de vos loyers"
-					/>
-					<LienCarte
-						to="/residence/portail/paiements"
-						icone={<CreditCard className="size-5" aria-hidden />}
-						label="Mon historique"
-						description="Vos paiements"
-					/>
-					<LienCarte
-						to="/residence/portail/caution"
-						icone={<ShieldCheck className="size-5" aria-hidden />}
-						label="Ma caution"
-						description="Suivi de votre caution"
-					/>
-					<LienCarte
-						to="/residence/portail/pressing"
-						icone={<Shirt className="size-5" aria-hidden />}
-						label="Suivi Pressing"
-						description="État de vos habits"
-					/>
-				</div>
-			</section>
 		</div>
-	);
-}
-
-function LienCarte({
-	to,
-	icone,
-	label,
-	description,
-}: {
-	to:
-		| "/residence/portail/echeances"
-		| "/residence/portail/paiements"
-		| "/residence/portail/caution"
-		| "/residence/portail/pressing";
-	icone: ReactNode;
-	label: string;
-	description: string;
-}) {
-	return (
-		<Link
-			to={to}
-			className="flex min-w-44 flex-col gap-1 rounded-lg border border-border bg-sea-ink/5 p-4 transition-colors hover:bg-accent/40"
-		>
-			<span className="text-lagoon">{icone}</span>
-			<span className="mt-1 text-sm font-semibold text-foreground">
-				{label}
-			</span>
-			<span className="text-xs text-muted-foreground">{description}</span>
-		</Link>
 	);
 }

@@ -1,11 +1,15 @@
 import { Link, useLocation } from "@tanstack/react-router";
 import {
+	AlertCircle,
 	BarChart2,
 	BarChart3,
+	CalendarDays,
 	ChevronDown,
+	CreditCard,
 	Home,
 	LayoutGrid,
-	AlertCircle,
+	ShieldCheck,
+	Shirt,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -14,6 +18,8 @@ import {
 	getAccessibleModuleSubItems,
 	getAccessibleModules,
 } from "#/core/permissions/modules";
+import { usePortailResume } from "#/features/portail/hooks/use-portail";
+import { formatMontantFCFA } from "#/features/residence/models/format";
 import { cn } from "#/lib/utils";
 
 import { UserMenu } from "./user-menu";
@@ -117,6 +123,9 @@ export function Sidebar({ onClose }: { onClose?: () => void } = {}) {
 	const permissions = usePermissions();
 	const canVoirRapports = useCan("ADMIN.VOIR");
 	const canVoirSignalements = useCan("SIGNALEMENT.VOIR");
+	const estResident = user?.role === "RESIDENT";
+	const portailResumeQuery = usePortailResume(estResident);
+	const totalImpayes = portailResumeQuery.data?.total_impayes;
 	const accessibleModules = getAccessibleModules(permissions);
 	const { pathname, search } = useLocation();
 	const activeModule = (search as { module?: string } | undefined)?.module;
@@ -194,6 +203,95 @@ export function Sidebar({ onClose }: { onClose?: () => void } = {}) {
 								Accueil
 							</Link>
 						</li>
+
+						{estResident ? (
+							<li>
+								<Link
+									to="/residence/portail"
+									activeOptions={{ exact: true }}
+									activeProps={{ className: linkActiveClassName }}
+									className={linkClassName}
+									onClick={() => onClose?.()}
+								>
+									<Home
+										className="size-4 text-gray-400 transition-colors"
+										aria-hidden
+									/>
+									Mon espace résident
+								</Link>
+
+								<ul className="ml-5 mt-1 space-y-1 border-l border-palm pl-2">
+									<li>
+										<Link
+											to="/residence/portail/echeances"
+											activeOptions={{ exact: true }}
+											activeProps={{ className: subActiveClassName }}
+											className={subLinkClassName}
+											onClick={() => onClose?.()}
+										>
+											<span className="inline-flex items-center gap-2">
+												<CalendarDays className="size-3.5" aria-hidden />
+												Mes échéances
+											</span>
+										</Link>
+									</li>
+									<li>
+										<Link
+											to="/residence/portail/paiements"
+											activeOptions={{ exact: true }}
+											activeProps={{ className: subActiveClassName }}
+											className={subLinkClassName}
+											onClick={() => onClose?.()}
+										>
+											<span className="inline-flex items-center gap-2">
+												<CreditCard className="size-3.5" aria-hidden />
+												Mon historique
+											</span>
+										</Link>
+									</li>
+									<li>
+										<Link
+											to="/residence/portail/caution"
+											activeOptions={{ exact: true }}
+											activeProps={{ className: subActiveClassName }}
+											className={subLinkClassName}
+											onClick={() => onClose?.()}
+										>
+											<span className="inline-flex items-center gap-2">
+												<ShieldCheck className="size-3.5" aria-hidden />
+												Ma caution
+											</span>
+										</Link>
+									</li>
+									<li>
+										{/* `exact: false` garde le lien actif sur le détail d'une commande. */}
+										<Link
+											to="/residence/portail/pressing"
+											activeOptions={{ exact: false }}
+											activeProps={{ className: subActiveClassName }}
+											className={subLinkClassName}
+											onClick={() => onClose?.()}
+										>
+											<span className="inline-flex items-center gap-2">
+												<Shirt className="size-3.5" aria-hidden />
+												Suivi Pressing
+											</span>
+										</Link>
+									</li>
+								</ul>
+
+								{totalImpayes !== undefined ? (
+									<div className="mx-1 mt-2 rounded-lg bg-sea-ink/70 px-3 py-2">
+										<p className="text-[0.65rem] font-medium uppercase tracking-wide text-gray-400">
+											Total impayés
+										</p>
+										<p className="text-sm font-semibold text-destructive">
+											{formatMontantFCFA(totalImpayes)}
+										</p>
+									</div>
+								) : null}
+							</li>
+						) : null}
 
 						{canVoirRapports ? (
 							<li>

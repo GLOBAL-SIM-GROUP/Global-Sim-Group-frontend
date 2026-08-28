@@ -17,9 +17,17 @@ import {
 	resumeKeys,
 } from "../permissions";
 
-/** Portail résident (M2.5) — le résident est déduit du token (403 sinon). */
-export function usePortailResume() {
-	return useQuery({ queryKey: resumeKeys.list(), queryFn: getPortailResume });
+/**
+ * Portail résident (M2.5) — le résident est déduit du token (403 sinon).
+ * `enabled` (défaut `true`) : la sidebar le passe à `false` pour les
+ * utilisateurs non-résidents, pour qui l'appel échouerait systématiquement.
+ */
+export function usePortailResume(enabled = true) {
+	return useQuery({
+		queryKey: resumeKeys.list(),
+		queryFn: getPortailResume,
+		enabled,
+	});
 }
 
 export function usePortailEcheances() {
