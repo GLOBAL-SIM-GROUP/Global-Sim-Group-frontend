@@ -159,6 +159,6 @@ export interface RecuEcheance {
 /** Récupère le reçu d'une échéance (données JSON pour génération PDF client). */
 export function getRecuEcheance(idEcheance: string): Promise<RecuEcheance> {
 	return getApiClient().apiFetch<RecuEcheance>(
-		`/api/v1/residence/portail/echeances/${idEcheance}/recu`,
+		`/api/v1/residence/echeances/${idEcheance}/recu`,
 	);
 }
