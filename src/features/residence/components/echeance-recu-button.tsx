@@ -22,7 +22,13 @@ export function EcheanceRecuButton({ echeance }: EcheanceRecuButtonProps) {
 			);
 
 			if (!response.ok) {
-				setError("Aucun reçu n'est émis tant que le paiement n'est pas encore effectué.");
+				if (response.status === 404) {
+					setError("Aucun reçu n'est disponible pour cette échéance.");
+				} else if (response.status === 403) {
+					setError("Vous n'avez pas accès à ce reçu.");
+				} else {
+					setError("Aucun reçu n'est émis tant que le paiement n'est pas encore effectué.");
+				}
 				return;
 			}
 
