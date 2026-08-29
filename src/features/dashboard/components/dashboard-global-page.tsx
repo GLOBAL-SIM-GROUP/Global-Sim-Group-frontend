@@ -19,8 +19,12 @@ import {
 	SelectValue,
 } from "#/components/ui/select";
 import { useCan } from "#/core/auth";
+import { useClientsDetails } from "#/features/residence/hooks/use-clients";
+import type { Client } from "#/features/residence/models/clients";
+import { nomComplet } from "#/features/residence/models/clients";
 import { formatMontantFCFA } from "#/features/residence/models/format";
 import { cn } from "#/lib/utils";
+import type { Reservation } from "../api/dashboard";
 import {
 	useCommandesPressing,
 	useImpayes,
@@ -69,6 +73,14 @@ export function DashboardGlobalPage() {
 	const produitsCritiques = produitsCritiquesQuery.data ?? [];
 	const commandesPressing = commandesPressingQuery.data ?? [];
 	const logementsDispo = logementsDispoQuery.data ?? [];
+
+	// Le lister salle de fête ne renvoie que `id_client` — le nom est résolu
+	// séparément (même pattern que la fiche réservation), sinon la colonne
+	// CLIENT affiche systématiquement « — ».
+	const reservationsClientIds = reservations
+		.map((r) => r.id_client)
+		.filter((id): id is string => Boolean(id));
+	const reservationsClientsQuery = useClientsDetails(reservationsClientIds);
 
 	const presentsAujourdhui = pointages.filter(
 		(p) => p.statut === "PRESENT",
@@ -566,11 +578,10 @@ export function DashboardGlobalPage() {
 														className="relative border-t border-border transition-colors hover:bg-accent/40"
 													>
 														<td className="px-4 py-3 font-medium text-foreground">
-															{r.client ??
-																r.nom_client ??
-																r.name ??
-																r.nom ??
-																(r.prenom ? `${r.prenom} ${r.nom}` : "—")}
+															{nomClientReservation(
+																r,
+																reservationsClientsQuery.data,
+															)}
 														</td>
 														<td className="px-4 py-3 text-muted-foreground">
 															{new Date(
@@ -610,6 +621,37 @@ export function DashboardGlobalPage() {
 				</>
 			) : null}
 		</div>
+	);
+}
+
+/**
+ * Nom du client d'une réservation salle de fête. Le lister backend ne renvoie
+ * que `id_client` (jamais de nom embarqué) — résolu séparément via
+ * `useClientsDetails` (même pattern que la fiche réservation). Repli sur les
+ * champs spéculatifs de `Reservation` pour les cas où l'id manque encore.
+ */
+function nomClientReservation(
+	reservation: Reservation,
+	clients: Map<string, Client> | undefined,
+): string {
+	const client = reservation.id_client
+		? clients?.get(reservation.id_client)
+		: undefined;
+	if (client) return nomComplet(client);
+
+	const brut = reservation as {
+		client?: string;
+		nom_client?: string;
+		name?: string;
+		nom?: string;
+		prenom?: string;
+	};
+	return (
+		brut.client ??
+		brut.nom_client ??
+		brut.name ??
+		brut.nom ??
+		(brut.prenom ? `${brut.prenom} ${brut.nom}` : "—")
 	);
 }
 

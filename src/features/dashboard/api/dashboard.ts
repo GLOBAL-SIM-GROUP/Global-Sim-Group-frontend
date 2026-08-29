@@ -51,6 +51,7 @@ export interface CommandePressing {
 export interface Reservation {
 	id?: string;
 	id_reservation?: string;
+	id_client?: string | null;
 	date?: string;
 	date_evenement?: string;
 	heure_debut?: string;
