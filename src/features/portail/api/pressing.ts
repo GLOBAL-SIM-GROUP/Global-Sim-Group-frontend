@@ -29,8 +29,8 @@ const toCommande = ({
 });
 
 /**
- * Récupère la liste des commandes de pressing du résident.
- * Endpoint: GET /api/v1/pressing/commandes (filtré par résident du token)
+ * Récupère la liste des commandes de pressing du résident connecté.
+ * Endpoint portail (RESIDENT.VOIR) : GET /api/v1/pressing/portail/commandes
  */
 export async function listPressingCommandes(
 	params: ListCommandesParams = {},
@@ -47,14 +47,14 @@ export async function listPressingCommandes(
 	if (params.au) queryParams.append("au", params.au);
 
 	const response = await getApiClient().apiFetch<CommandeWire[]>(
-		`/api/v1/pressing/commandes?${queryParams.toString()}`,
+		`/api/v1/pressing/portail/commandes?${queryParams.toString()}`,
 	);
 	return response.map(toCommande);
 }
 
 /**
- * Récupère le détail d'une commande de pressing.
- * Endpoint: GET /api/v1/pressing/commandes/{id}
+ * Récupère le détail d'une commande de pressing du résident connecté.
+ * Endpoint portail (RESIDENT.VOIR) : GET /api/v1/pressing/portail/commandes/{id}
  */
 export async function getPressingCommande(
 	id: string,
@@ -63,11 +63,22 @@ export async function getPressingCommande(
 		throw new Error("Commande ID must be a valid string");
 	}
 	const response = await getApiClient().apiFetch<CommandeDetailWire>(
-		`/api/v1/pressing/commandes/${id}`,
+		`/api/v1/pressing/portail/commandes/${id}`,
 	);
 	return {
 		...toCommande(response),
 		articles: response.articles,
 		notes: response.notes,
 	};
+}
+
+/**
+ * Télécharge le reçu PDF d'une commande de pressing du résident connecté.
+ * Endpoint portail (RESIDENT.VOIR) :
+ * GET /api/v1/pressing/portail/commandes/{id}/recu
+ */
+export function telechargerRecuCommandePressing(id: string): Promise<Blob> {
+	return getApiClient().download(
+		`/api/v1/pressing/portail/commandes/${id}/recu`,
+	);
 }

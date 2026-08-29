@@ -7,9 +7,9 @@ import {
 } from "lucide-react";
 import { Button } from "#/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "#/components/ui/card";
-import { DownloadReceiptButton } from "#/features/facturation/components/download-receipt-button";
 import { cn } from "#/lib/utils";
 import { usePressingCommande } from "../hooks/use-pressing";
+import { PressingRecuButton } from "./pressing-recu-button";
 import {
 	calculerProgression,
 	getEtapeActuelle,
@@ -84,13 +84,10 @@ export function PressingCommandeDetailPage({
 					<ArrowLeft className="size-4 mr-2" />
 					Retour
 				</Button>
-				<DownloadReceiptButton
-					sourceType="COMMANDE_PRESSING"
-					idClient={commande.id_client}
-					montantTotal={commande.montant_total}
+				<PressingRecuButton
+					idCommande={commande.id}
+					numeroCommande={commande.numero_commande}
 					isPaid={commande.montant_paye === commande.montant_total}
-					variant="outline"
-					size="sm"
 				/>
 			</div>
 
