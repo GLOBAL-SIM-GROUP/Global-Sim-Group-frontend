@@ -18,44 +18,21 @@ export function EcheanceRecuButton({ echeance }: EcheanceRecuButtonProps) {
 			setError(null);
 
 			const url = `/api/v1/residence/echeances/${echeance.id}/recu`;
-			console.log("[EcheanceRecuButton] Début téléchargement reçu");
-			console.log("[EcheanceRecuButton] ID écheance:", echeance.id);
-			console.log("[EcheanceRecuButton] Statut écheance:", echeance.statut);
-			console.log("[EcheanceRecuButton] Montant:", echeance.montant);
-			console.log("[EcheanceRecuButton] Mois/Année:", `${echeance.mois}/${echeance.annee}`);
-			console.log("[EcheanceRecuButton] Date écheance:", echeance.date_echeance);
-			console.log("[EcheanceRecuButton] URL endpoint:", url);
 
-			// Télécharger le PDF directement depuis l'API (avec authentification)
-			console.log("[EcheanceRecuButton] Appel download() avec authentification");
 			const blob = await getApiClient().download(url);
-			console.log("[EcheanceRecuButton] Blob reçu, taille:", blob.size);
-			console.log("[EcheanceRecuButton] Type blob:", blob.type);
 
 			const objectUrl = URL.createObjectURL(blob);
-			console.log("[EcheanceRecuButton] Object URL créée:", objectUrl);
 
 			const lien = document.createElement("a");
 			lien.href = objectUrl;
 			lien.download = `recu-echeance-${echeance.id}.pdf`;
-			console.log("[EcheanceRecuButton] Lien créé, download filename:", lien.download);
 
 			document.body.appendChild(lien);
-			console.log("[EcheanceRecuButton] Lien ajouté au DOM");
-
 			lien.click();
-			console.log("[EcheanceRecuButton] Click déclenché");
-
 			document.body.removeChild(lien);
-			console.log("[EcheanceRecuButton] Lien retiré du DOM");
 
 			URL.revokeObjectURL(objectUrl);
-			console.log("[EcheanceRecuButton] Object URL révoquée");
-			console.log("[EcheanceRecuButton] ✓ Téléchargement réussi");
 		} catch (err) {
-			console.error("[EcheanceRecuButton] ✗ Exception complète:", err);
-			console.error("[EcheanceRecuButton] Message:", err instanceof Error ? err.message : String(err));
-			console.error("[EcheanceRecuButton] Stack:", err instanceof Error ? err.stack : "N/A");
 			setError("Erreur lors du téléchargement du reçu");
 		} finally {
 			setIsLoading(false);
