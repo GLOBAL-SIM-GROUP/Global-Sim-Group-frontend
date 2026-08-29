@@ -24,6 +24,14 @@ export interface Facture {
 	date_emission: string;
 }
 
+/** Clé primaire wire du backend (`id_facture`) → remappée en `id`. */
+type FactureWire = Omit<Facture, "id"> & { id_facture: string };
+
+const toFacture = ({ id_facture: id, ...reste }: FactureWire): Facture => ({
+	id,
+	...reste,
+});
+
 interface ListFacturesParams {
 	source_type?: FactureSourceType;
 	statut?: FactureStatut;
@@ -55,10 +63,10 @@ export async function findFacture(
 	queryParams.append("limit", "10");
 
 	try {
-		const factures = await getApiClient().apiFetch<Facture[]>(
+		const factures = await getApiClient().apiFetch<FactureWire[]>(
 			`/api/v1/facturation/factures?${queryParams.toString()}`,
 		);
-		return factures.length > 0 ? factures[0] : null;
+		return factures.length > 0 ? toFacture(factures[0]) : null;
 	} catch {
 		return null;
 	}
@@ -107,7 +115,9 @@ export async function downloadFactureTicket(
  * Récupère le détail d'une facture.
  */
 export async function getFacture(id: string): Promise<Facture> {
-	return getApiClient().apiFetch<Facture>(`/api/v1/facturation/factures/${id}`);
+	return getApiClient()
+		.apiFetch<FactureWire>(`/api/v1/facturation/factures/${id}`)
+		.then(toFacture);
 }
 
 /**
@@ -143,7 +153,9 @@ export async function listFactures(
 		queryParams.append("offset", params.offset.toString());
 	}
 
-	return getApiClient().apiFetch<Facture[]>(
-		`/api/v1/facturation/factures?${queryParams.toString()}`,
-	);
+	return getApiClient()
+		.apiFetch<FactureWire[]>(
+			`/api/v1/facturation/factures?${queryParams.toString()}`,
+		)
+		.then((data) => data.map(toFacture));
 }

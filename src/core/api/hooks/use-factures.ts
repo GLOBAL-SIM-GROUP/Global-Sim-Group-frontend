@@ -44,6 +44,16 @@ export function useListFactures(params?: {
 }) {
 	return useQuery({
 		queryKey: ["factures", params],
-		queryFn: () => listFactures(params),
+		queryFn: () =>
+			listFactures({
+				source_type: params?.sourceType,
+				statut: params?.statut,
+				id_client: params?.idClient,
+				recherche: params?.recherche,
+				du: params?.du,
+				au: params?.au,
+				limit: params?.limit,
+				offset: params?.offset,
+			}),
 	});
 }
