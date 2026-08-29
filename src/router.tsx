@@ -1,6 +1,7 @@
 import { createRouter as createTanStackRouter } from "@tanstack/react-router";
 import { setupRouterSsrQueryIntegration } from "@tanstack/react-router-ssr-query";
 import { createAuthSession, createLocalStorageTokenStore } from "#/core/auth";
+import { createNotificationsClient } from "#/core/notifications";
 import { getContext } from "./integrations/tanstack-query/root-provider";
 import { routeTree } from "./routeTree.gen";
 
@@ -13,10 +14,15 @@ export function getRouter() {
 	const auth = createAuthSession({
 		tokenStorage: createLocalStorageTokenStore(),
 	});
+	// Client de notifications temps réel, lié à la même session (connecte/
+	// déconnecte le socket selon `auth.isAuthenticated`, reconnecte sur
+	// rotation du token). Créé ici pour la même raison que `auth` : une seule
+	// instance partagée par tout l'arbre de routes.
+	const notifications = createNotificationsClient(auth);
 
 	const router = createTanStackRouter({
 		routeTree,
-		context: { ...context, auth },
+		context: { ...context, auth, notifications },
 		scrollRestoration: true,
 		defaultPreload: "intent",
 		defaultPreloadStaleTime: 0,

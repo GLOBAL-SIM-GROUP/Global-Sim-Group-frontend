@@ -33,6 +33,18 @@ export interface AuthSession {
 	handleSessionExpired(): void;
 	subscribe(listener: () => void): () => void;
 	getSnapshot(): AuthSessionSnapshot;
+	/**
+	 * Lecture synchrone de l'access token courant (ex. handshake `auth` d'un
+	 * WebSocket). Ne JAMAIS logger la valeur retournée.
+	 */
+	getAccessToken(): string | null;
+	/**
+	 * S'abonne à chaque rotation de l'access token (login ET refresh silencieux
+	 * réussi) — contrairement à `subscribe`, qui ne notifie que les transitions
+	 * authentifié/non-authentifié. Utile pour reconnecter un WebSocket avec un
+	 * token frais sans attendre une déconnexion.
+	 */
+	subscribeTokenChange(listener: () => void): () => void;
 }
 
 export interface CreateAuthSessionOptions {
@@ -58,6 +70,7 @@ export function createAuthSession(
 ): AuthSession {
 	const tokenStorage = options.tokenStorage ?? createMemoryTokenStore();
 	const listeners = new Set<() => void>();
+	const tokenListeners = new Set<() => void>();
 
 	let currentUser: AuthMeResponse | null = null;
 	let refreshTimer: ReturnType<typeof setTimeout> | null = null;
@@ -83,6 +96,7 @@ export function createAuthSession(
 
 	function storeTokens(tokens: StoredTokens): void {
 		tokenStorage.set(tokens);
+		for (const listener of tokenListeners) listener();
 	}
 
 	function scheduleRefresh(accessExpiresIn: number): void {
@@ -210,6 +224,15 @@ export function createAuthSession(
 		},
 		getSnapshot(): AuthSessionSnapshot {
 			return snapshot;
+		},
+		getAccessToken(): string | null {
+			return tokenStorage.get()?.accessToken ?? null;
+		},
+		subscribeTokenChange(listener: () => void): () => void {
+			tokenListeners.add(listener);
+			return () => {
+				tokenListeners.delete(listener);
+			};
 		},
 	};
 

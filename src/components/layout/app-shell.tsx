@@ -1,6 +1,7 @@
 import { Menu, X } from "lucide-react";
 import { type ReactNode, useState } from "react";
 import { AppBackground } from "./app-background";
+import { NotificationBell } from "./notification-bell";
 import { Sidebar } from "./sidebar";
 
 export function AppShell({ children }: { children: ReactNode }) {
@@ -49,6 +50,9 @@ export function AppShell({ children }: { children: ReactNode }) {
 						<span className="text-xs sm:text-lg font-semibold lg:hidden truncate">
 							GLOBAL SIM GROUP
 						</span>
+						<div className="ml-auto flex items-center">
+							<NotificationBell />
+						</div>
 					</div>
 				</header>
 				<main

@@ -6,6 +6,7 @@ import {
 } from "@tanstack/react-router";
 import { AppShell } from "#/components/layout/app-shell";
 import { AuthProvider, requireAuth } from "#/core/auth";
+import { NotificationsProvider } from "#/core/notifications";
 
 /**
  * Layout protégé : avant tout rendu, le guard redirige vers /login si la
@@ -13,7 +14,9 @@ import { AuthProvider, requireAuth } from "#/core/auth";
  * les tokens persistés (rechargement de page) ; en cas d'échec, la redirection
  * vers /login porte l'URL d'origine (`?next=`) pour y revenir après connexion.
  * `AuthProvider` est monté ici (pas à la racine) — la page de login, publique,
- * accède à la session via le contexte route.
+ * accède à la session via le contexte route. `NotificationsProvider` est monté
+ * juste après : le socket temps réel ne se connecte que pour une session
+ * authentifiée.
  */
 export const Route = createFileRoute("/_authenticated")({
 	beforeLoad: async ({ context, location }) => {
@@ -31,13 +34,15 @@ export const Route = createFileRoute("/_authenticated")({
 });
 
 function AuthenticatedLayout() {
-	const { auth } = useRouteContext({ from: "/_authenticated" });
+	const { auth, notifications } = useRouteContext({ from: "/_authenticated" });
 
 	return (
 		<AuthProvider session={auth}>
-			<AppShell>
-				<Outlet />
-			</AppShell>
+			<NotificationsProvider client={notifications}>
+				<AppShell>
+					<Outlet />
+				</AppShell>
+			</NotificationsProvider>
 		</AuthProvider>
 	);
 }

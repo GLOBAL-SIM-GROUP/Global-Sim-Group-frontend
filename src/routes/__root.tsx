@@ -14,6 +14,7 @@ import { type ReactNode, useEffect } from "react";
 import { Button } from "#/components/ui/button";
 import type { AuthSession } from "#/core/auth";
 import { AuthProvider } from "#/core/auth/auth-context";
+import type { NotificationsClient } from "#/core/notifications";
 import TanStackQueryDevtools from "../integrations/tanstack-query/devtools";
 
 // Import CSS sans `?url` : Vite/TanStack Start injectent la feuille de style
@@ -24,6 +25,7 @@ import "../styles.css";
 interface RouterContext {
 	queryClient: QueryClient;
 	auth: AuthSession;
+	notifications: NotificationsClient;
 }
 
 export const Route = createRootRouteWithContext<RouterContext>()({
