@@ -2,6 +2,7 @@ import { Eye, X } from "lucide-react";
 
 import { Button } from "#/components/ui/button";
 import { useCan } from "#/core/auth";
+import { DownloadReceiptIconButton } from "#/features/facturation/components/download-receipt-icon-button";
 
 import type { VenteJoin } from "../models/ventes";
 
@@ -37,6 +38,13 @@ export function VenteActions({
 				<Eye className="size-4" aria-hidden />
 				<span className="sr-only">Voir la facture</span>
 			</Button>
+
+			<DownloadReceiptIconButton
+				sourceType="VENTE"
+				idClient={vente.id_client}
+				montantTotal={vente.total}
+				isPaid={vente.statut === "PAYEE"}
+			/>
 
 			{canSupprimer && vente.statut !== "ANNULEE" ? (
 				<Button

@@ -1,6 +1,7 @@
 import { BadgeCheck, CheckCheck, Eye, RefreshCw, X } from "lucide-react";
 
 import { Button } from "#/components/ui/button";
+import { DownloadReceiptIconButton } from "#/features/facturation/components/download-receipt-icon-button";
 
 import type { CommandeRestaurant } from "../models/commandes";
 
@@ -56,6 +57,13 @@ export function CommandeActions({
 				<Eye className="size-4" aria-hidden />
 				<span className="sr-only">Voir la facture</span>
 			</Button>
+
+			<DownloadReceiptIconButton
+				sourceType="COMMANDE_RESTAURANT"
+				idClient={commande.id_client}
+				montantTotal={commande.total}
+				isPaid={commande.statut === "PAYEE"}
+			/>
 
 			{canModifier && prochaineEtape ? (
 				<Button
