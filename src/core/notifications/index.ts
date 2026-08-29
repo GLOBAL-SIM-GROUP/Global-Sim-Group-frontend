@@ -17,6 +17,8 @@ export {
 	NotificationsProvider,
 	useNotifications,
 } from "./notifications-context";
+export type { NotificationRoute } from "./route-for";
+export { routeFor } from "./route-for";
 export type {
 	NotificationConnectionOk,
 	NotificationConnectionUser,

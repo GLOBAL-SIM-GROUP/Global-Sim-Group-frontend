@@ -1,4 +1,5 @@
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
+import { useNavigate } from "@tanstack/react-router";
 import { Bell, CheckCheck, Loader2, RefreshCw } from "lucide-react";
 import { useState } from "react";
 
@@ -6,6 +7,7 @@ import { Button } from "#/components/ui/button";
 import {
 	type NotificationEnvelope,
 	type NotificationPriority,
+	routeFor,
 	useNotifications,
 } from "#/core/notifications";
 import { cn } from "#/lib/utils";
@@ -37,22 +39,20 @@ function formatHeure(iso: string): string {
 function NotificationItem({
 	item,
 	isRead,
-	onRead,
+	onActivate,
 }: {
 	item: NotificationEnvelope;
 	isRead: boolean;
-	onRead: () => void;
+	/** Marque comme lu, et navigue si une destination existe pour cet événement. */
+	onActivate: () => void;
 }) {
-	return (
-		<button
-			type="button"
-			onClick={onRead}
-			className={cn(
-				"flex w-full flex-col gap-1 border-l-4 px-4 py-3 text-left transition-colors hover:bg-accent/50",
-				PRIORITY_BORDER[item.priority],
-				isRead ? "opacity-60" : "bg-accent/20",
-			)}
-		>
+	// Pas de destination connue (événement inconnu, id manquant, ou pas encore
+	// de vue self-service pour ce type — ex. `rh.paie.payee`) : l'item reste
+	// affiché mais n'a plus l'affordance cliquable (pas de curseur pointeur).
+	const clickable = routeFor(item) !== null;
+
+	const contenu = (
+		<>
 			<div className="flex items-center gap-2">
 				<span
 					className={cn(
@@ -76,6 +76,34 @@ function NotificationItem({
 			<span className="text-[0.65rem] text-muted-foreground">
 				{formatHeure(item.timestamp)}
 			</span>
+		</>
+	);
+
+	if (!clickable) {
+		return (
+			<div
+				className={cn(
+					"flex w-full cursor-default flex-col gap-1 border-l-4 px-4 py-3 text-left",
+					PRIORITY_BORDER[item.priority],
+					isRead ? "opacity-60" : "bg-accent/20",
+				)}
+			>
+				{contenu}
+			</div>
+		);
+	}
+
+	return (
+		<button
+			type="button"
+			onClick={onActivate}
+			className={cn(
+				"flex w-full cursor-pointer flex-col gap-1 border-l-4 px-4 py-3 text-left transition-colors hover:bg-accent/50",
+				PRIORITY_BORDER[item.priority],
+				isRead ? "opacity-60" : "bg-accent/20",
+			)}
+		>
+			{contenu}
 		</button>
 	);
 }
@@ -86,6 +114,7 @@ function NotificationItem({
  */
 export function NotificationBell({ className }: { className?: string }) {
 	const [open, setOpen] = useState(false);
+	const navigate = useNavigate();
 	const {
 		status,
 		notifications,
@@ -95,6 +124,15 @@ export function NotificationBell({ className }: { className?: string }) {
 		markAllAsRead,
 		refreshHistory,
 	} = useNotifications();
+
+	const handleActivate = (item: NotificationEnvelope) => {
+		markAsRead(item.id);
+		const route = routeFor(item);
+		if (route) {
+			setOpen(false);
+			void navigate(route);
+		}
+	};
 
 	return (
 		<DropdownMenu.Root open={open} onOpenChange={setOpen}>
@@ -167,7 +205,7 @@ export function NotificationBell({ className }: { className?: string }) {
 										<NotificationItem
 											item={item}
 											isRead={isRead(item.id)}
-											onRead={() => markAsRead(item.id)}
+											onActivate={() => handleActivate(item)}
 										/>
 									</li>
 								))}
