@@ -103,16 +103,30 @@ export function getPortailCaution(): Promise<PortailCautionResponse> {
 		}));
 }
 
-/** Reçu d'une échéance payée. */
+/** Reçu d'une échéance payée (JSON, affiché dans la modale). */
 export function getRecuEcheance(id: string): Promise<RecuEcheance> {
 	return getApiClient().apiFetch(
 		`/api/v1/residence/portail/echeances/${id}/recu`,
 	);
 }
 
-/** Reçu d'un paiement. */
+/** Reçu d'un paiement (JSON, affiché dans la modale). */
 export function getRecuPaiement(id: string): Promise<RecuPaiement> {
 	return getApiClient().apiFetch(
 		`/api/v1/residence/portail/paiements/${id}/recu`,
+	);
+}
+
+/** PDF du reçu d'une échéance, généré côté backend. */
+export function telechargerRecuEcheancePdf(id: string): Promise<Blob> {
+	return getApiClient().download(
+		`/api/v1/residence/portail/echeances/${id}/recu/pdf`,
+	);
+}
+
+/** PDF du reçu d'un paiement, généré côté backend. */
+export function telechargerRecuPaiementPdf(id: string): Promise<Blob> {
+	return getApiClient().download(
+		`/api/v1/residence/portail/paiements/${id}/recu/pdf`,
 	);
 }

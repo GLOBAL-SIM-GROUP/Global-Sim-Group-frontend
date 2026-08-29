@@ -1,5 +1,3 @@
-import { construirePdf, telechargerPdf } from "#/lib/pdf";
-
 import {
 	construireCsv,
 	libelleMoisAnnee,
@@ -88,20 +86,4 @@ export function recuEcheanceEnCsv(recu: RecuEcheance): string {
 /** CSV d'un reçu de paiement. */
 export function recuPaiementEnCsv(recu: RecuPaiement): string {
 	return construireCsv(recuPaiementEnLignes(recu));
-}
-
-/** Télécharge le reçu d'une échéance en PDF (client-side). */
-export function telechargerRecuEcheancePdf(recu: RecuEcheance): void {
-	telechargerPdf(
-		construirePdf(recuEcheanceEnLignes(recu), "Reçu de paiement"),
-		`recu-echeance-${recu.reference}.pdf`,
-	);
-}
-
-/** Télécharge le reçu d'un paiement en PDF (client-side). */
-export function telechargerRecuPaiementPdf(recu: RecuPaiement): void {
-	telechargerPdf(
-		construirePdf(recuPaiementEnLignes(recu), "Reçu de paiement"),
-		`recu-paiement-${recu.reference}.pdf`,
-	);
 }

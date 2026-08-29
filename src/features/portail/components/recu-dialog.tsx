@@ -1,5 +1,6 @@
 import { FileDown, FileText, Loader2 } from "lucide-react";
 import { Dialog } from "radix-ui";
+import { useState } from "react";
 
 import { Button } from "#/components/ui/button";
 import {
@@ -7,12 +8,14 @@ import {
 	formatMontantFCFA,
 } from "#/features/residence/models/format";
 
+import {
+	telechargerRecuEcheancePdf,
+	telechargerRecuPaiementPdf,
+} from "../api/portail";
 import { useRecuEcheance, useRecuPaiement } from "../hooks/use-portail";
 import {
 	recuEcheanceEnCsv,
 	recuPaiementEnCsv,
-	telechargerRecuEcheancePdf,
-	telechargerRecuPaiementPdf,
 	telechargerTexte,
 } from "../lib/export";
 import {
@@ -55,6 +58,8 @@ export function RecuDialog({ open, kind, id, onOpenChange }: RecuDialogProps) {
 	const recuPaiementQuery = useRecuPaiement(kind === "paiement" ? id : null);
 	const query = kind === "echeance" ? recuEcheanceQuery : recuPaiementQuery;
 	const recu = query.data;
+	const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
+	const [erreurPdf, setErreurPdf] = useState<string | null>(null);
 
 	const getErrorMessage = () => {
 		if (!query.error) return null;
@@ -83,12 +88,28 @@ export function RecuDialog({ open, kind, id, onOpenChange }: RecuDialogProps) {
 		}
 	};
 
-	const telechargerPdf = () => {
-		if (!recu) return;
-		if (estRecuEcheance(recu)) {
-			telechargerRecuEcheancePdf(recu);
-		} else {
-			telechargerRecuPaiementPdf(recu);
+	const telechargerPdf = async () => {
+		if (!id || !recu) return;
+		try {
+			setIsDownloadingPdf(true);
+			setErreurPdf(null);
+			const blob = estRecuEcheance(recu)
+				? await telechargerRecuEcheancePdf(id)
+				: await telechargerRecuPaiementPdf(id);
+
+			const url = URL.createObjectURL(blob);
+			const lien = document.createElement("a");
+			lien.href = url;
+			lien.download = `recu-${kind}-${id}.pdf`;
+			document.body.appendChild(lien);
+			lien.click();
+			document.body.removeChild(lien);
+			URL.revokeObjectURL(url);
+		} catch (err) {
+			setErreurPdf("Impossible de télécharger le PDF pour le moment.");
+			console.error("Erreur téléchargement PDF reçu:", err);
+		} finally {
+			setIsDownloadingPdf(false);
 		}
 	};
 
@@ -227,11 +248,24 @@ export function RecuDialog({ open, kind, id, onOpenChange }: RecuDialogProps) {
 										<FileDown className="size-4" aria-hidden />
 										Télécharger (CSV)
 									</Button>
-									<Button type="button" onClick={telechargerPdf}>
-										<FileText className="size-4" aria-hidden />
+									<Button
+										type="button"
+										onClick={telechargerPdf}
+										disabled={isDownloadingPdf}
+									>
+										{isDownloadingPdf ? (
+											<Loader2 className="size-4 animate-spin" aria-hidden />
+										) : (
+											<FileText className="size-4" aria-hidden />
+										)}
 										Télécharger (PDF)
 									</Button>
 								</div>
+								{erreurPdf ? (
+									<p className="text-right text-xs text-destructive">
+										{erreurPdf}
+									</p>
+								) : null}
 							</div>
 						)}
 					</div>
