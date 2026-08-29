@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Download, Loader2 } from "lucide-react";
 import { Button } from "#/components/ui/button";
+import { getApiClient } from "#/core/api";
 import type { Echeance } from "../models/contrats";
 
 interface EcheanceRecuButtonProps {
@@ -25,31 +26,9 @@ export function EcheanceRecuButton({ echeance }: EcheanceRecuButtonProps) {
 			console.log("[EcheanceRecuButton] Date écheance:", echeance.date_echeance);
 			console.log("[EcheanceRecuButton] URL endpoint:", url);
 
-			// Télécharger le PDF directement depuis l'API
-			const response = await fetch(url, { credentials: "include" });
-
-			console.log("[EcheanceRecuButton] Réponse reçue");
-			console.log("[EcheanceRecuButton] Status code:", response.status);
-			console.log("[EcheanceRecuButton] Status OK:", response.ok);
-			console.log("[EcheanceRecuButton] Content-Type:", response.headers.get("content-type"));
-			console.log("[EcheanceRecuButton] Content-Length:", response.headers.get("content-length"));
-
-			if (!response.ok) {
-				console.error("[EcheanceRecuButton] Erreur HTTP:", response.status);
-				const errorText = await response.text();
-				console.error("[EcheanceRecuButton] Réponse d'erreur:", errorText);
-
-				if (response.status === 404) {
-					setError("Aucun reçu n'est disponible pour cette échéance.");
-				} else if (response.status === 403) {
-					setError("Vous n'avez pas accès à ce reçu.");
-				} else {
-					setError("Aucun reçu n'est émis tant que le paiement n'est pas encore effectué.");
-				}
-				return;
-			}
-
-			const blob = await response.blob();
+			// Télécharger le PDF directement depuis l'API (avec authentification)
+			console.log("[EcheanceRecuButton] Appel download() avec authentification");
+			const blob = await getApiClient().download(url);
 			console.log("[EcheanceRecuButton] Blob reçu, taille:", blob.size);
 			console.log("[EcheanceRecuButton] Type blob:", blob.type);
 
