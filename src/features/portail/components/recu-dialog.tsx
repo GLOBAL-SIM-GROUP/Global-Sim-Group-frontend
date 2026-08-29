@@ -56,6 +56,23 @@ export function RecuDialog({ open, kind, id, onOpenChange }: RecuDialogProps) {
 	const query = kind === "echeance" ? recuEcheanceQuery : recuPaiementQuery;
 	const recu = query.data;
 
+	const getErrorMessage = () => {
+		if (!query.error) return null;
+		const error = query.error as unknown;
+		// Vérifie si c'est une erreur API avec un code de statut
+		if (
+			typeof error === "object" &&
+			error !== null &&
+			"statusCode" in error
+		) {
+			const statusCode = (error as Record<string, unknown>).statusCode;
+			if (statusCode === 404 || statusCode === 400) {
+				return "Aucun reçu n'est encore disponible. Assurez-vous que le paiement a été effectué.";
+			}
+		}
+		return "Aucun reçu n'est émis tant que le paiement n'est pas encore effectué.";
+	};
+
 	const telechargerCsv = () => {
 		if (!recu) return;
 		const nom = `recu-${kind}-${id}.csv`;
@@ -94,9 +111,21 @@ export function RecuDialog({ open, kind, id, onOpenChange }: RecuDialogProps) {
 								Chargement…
 							</p>
 						) : query.isError || !recu ? (
-							<p role="alert" className="text-sm text-destructive">
-								Impossible de charger le reçu.
-							</p>
+							<div
+								role="alert"
+								className="space-y-3 rounded-lg border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive"
+							>
+								<p>
+									{getErrorMessage()}
+								</p>
+								<Button
+									variant="outline"
+									size="sm"
+									onClick={() => onOpenChange(false)}
+								>
+									Fermer
+								</Button>
+							</div>
 						) : (
 							<div className="space-y-4">
 								<div className="space-y-2 rounded-lg border border-border bg-sea-ink/5 p-4">

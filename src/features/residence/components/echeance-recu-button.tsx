@@ -11,39 +11,57 @@ interface EcheanceRecuButtonProps {
 
 export function EcheanceRecuButton({ echeance }: EcheanceRecuButtonProps) {
 	const [isLoading, setIsLoading] = useState(false);
+	const [error, setError] = useState<string | null>(null);
 
 	const handleDownloadRecu = async () => {
 		try {
 			setIsLoading(true);
+			setError(null);
 			const recu = await getRecuEcheance(echeance.id);
 			genererRecuEcheance(recu);
-		} catch (error) {
-			console.error("Erreur lors du téléchargement du reçu", error);
+		} catch (err) {
+			const message =
+				err instanceof Error
+					? err.message
+					: "Impossible de télécharger le reçu";
+			setError(message);
+			console.error("Erreur lors du téléchargement du reçu", err);
 		} finally {
 			setIsLoading(false);
 		}
 	};
 
 	return (
-		<Button
-			onClick={handleDownloadRecu}
-			disabled={isLoading}
-			variant="outline"
-			size="sm"
-			className="text-blue-600 border-blue-200 hover:bg-blue-50"
-			title="Télécharger le reçu PDF"
-		>
-			{isLoading ? (
-				<>
-					<Loader2 className="size-4 mr-2 animate-spin" />
-					Génération…
-				</>
-			) : (
-				<>
-					<Download className="size-4 mr-2" />
-					Reçu
-				</>
+		<div className="flex flex-col gap-2">
+			<Button
+				onClick={handleDownloadRecu}
+				disabled={isLoading || error !== null}
+				variant="outline"
+				size="sm"
+				className="text-blue-600 border-blue-200 hover:bg-blue-50"
+				title={
+					error
+						? "Impossible de télécharger le reçu pour le moment"
+						: "Télécharger le reçu PDF"
+				}
+			>
+				{isLoading ? (
+					<>
+						<Loader2 className="size-4 mr-2 animate-spin" />
+						Génération…
+					</>
+				) : (
+					<>
+						<Download className="size-4 mr-2" />
+						Reçu
+					</>
+				)}
+			</Button>
+			{error && (
+				<p className="text-xs text-destructive">
+					Aucun reçu n'est émis tant que le paiement n'est pas encore effectué.
+				</p>
 			)}
-		</Button>
+		</div>
 	);
 }
