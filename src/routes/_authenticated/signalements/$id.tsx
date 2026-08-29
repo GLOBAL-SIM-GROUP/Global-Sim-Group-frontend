@@ -17,7 +17,7 @@ import {
 	rejeter_signalement,
 	resoudre_signalement,
 } from "#/core/api/signalements";
-import { requirePermissions } from "#/core/auth";
+import { requirePermissions, useCan } from "#/core/auth";
 
 export const Route = createFileRoute("/_authenticated/signalements/$id")({
 	beforeLoad: ({ context, params, navigate }) => {
@@ -34,6 +34,7 @@ function DetailSignalementPage() {
 	const { id } = Route.useParams();
 	const navigate = useNavigate();
 	const queryClient = useQueryClient();
+	const canModifier = useCan("SIGNALEMENT.MODIFIER");
 	const [actionNote, setActionNote] = useState("");
 	const [selectedAction, setSelectedAction] = useState<
 		"prendre-en-charge" | "resoudre" | "rejeter" | null
@@ -124,7 +125,8 @@ function DetailSignalementPage() {
 	}
 
 	const canModify =
-		signalement.statut === "OUVERT" || signalement.statut === "EN_COURS";
+		canModifier &&
+		(signalement.statut === "OUVERT" || signalement.statut === "EN_COURS");
 
 	return (
 		<div className="space-y-6">
