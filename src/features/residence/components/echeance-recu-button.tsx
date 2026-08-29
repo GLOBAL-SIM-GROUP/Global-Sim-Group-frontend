@@ -16,12 +16,29 @@ export function EcheanceRecuButton({ echeance }: EcheanceRecuButtonProps) {
 			setIsLoading(true);
 			setError(null);
 
+			const url = `/api/v1/residence/echeances/${echeance.id}/recu`;
+			console.log("[EcheanceRecuButton] Début téléchargement reçu");
+			console.log("[EcheanceRecuButton] ID écheance:", echeance.id);
+			console.log("[EcheanceRecuButton] Statut écheance:", echeance.statut);
+			console.log("[EcheanceRecuButton] Montant:", echeance.montant);
+			console.log("[EcheanceRecuButton] Mois/Année:", `${echeance.mois}/${echeance.annee}`);
+			console.log("[EcheanceRecuButton] Date écheance:", echeance.date_echeance);
+			console.log("[EcheanceRecuButton] URL endpoint:", url);
+
 			// Télécharger le PDF directement depuis l'API
-			const response = await fetch(
-				`/api/v1/residence/echeances/${echeance.id}/recu`,
-			);
+			const response = await fetch(url);
+
+			console.log("[EcheanceRecuButton] Réponse reçue");
+			console.log("[EcheanceRecuButton] Status code:", response.status);
+			console.log("[EcheanceRecuButton] Status OK:", response.ok);
+			console.log("[EcheanceRecuButton] Content-Type:", response.headers.get("content-type"));
+			console.log("[EcheanceRecuButton] Content-Length:", response.headers.get("content-length"));
 
 			if (!response.ok) {
+				console.error("[EcheanceRecuButton] Erreur HTTP:", response.status);
+				const errorText = await response.text();
+				console.error("[EcheanceRecuButton] Réponse d'erreur:", errorText);
+
 				if (response.status === 404) {
 					setError("Aucun reçu n'est disponible pour cette échéance.");
 				} else if (response.status === 403) {
@@ -33,16 +50,33 @@ export function EcheanceRecuButton({ echeance }: EcheanceRecuButtonProps) {
 			}
 
 			const blob = await response.blob();
-			const url = URL.createObjectURL(blob);
+			console.log("[EcheanceRecuButton] Blob reçu, taille:", blob.size);
+			console.log("[EcheanceRecuButton] Type blob:", blob.type);
+
+			const objectUrl = URL.createObjectURL(blob);
+			console.log("[EcheanceRecuButton] Object URL créée:", objectUrl);
+
 			const lien = document.createElement("a");
-			lien.href = url;
+			lien.href = objectUrl;
 			lien.download = `recu-echeance-${echeance.id}.pdf`;
+			console.log("[EcheanceRecuButton] Lien créé, download filename:", lien.download);
+
 			document.body.appendChild(lien);
+			console.log("[EcheanceRecuButton] Lien ajouté au DOM");
+
 			lien.click();
+			console.log("[EcheanceRecuButton] Click déclenché");
+
 			document.body.removeChild(lien);
-			URL.revokeObjectURL(url);
+			console.log("[EcheanceRecuButton] Lien retiré du DOM");
+
+			URL.revokeObjectURL(objectUrl);
+			console.log("[EcheanceRecuButton] Object URL révoquée");
+			console.log("[EcheanceRecuButton] ✓ Téléchargement réussi");
 		} catch (err) {
-			console.error("Erreur lors du téléchargement du reçu", err);
+			console.error("[EcheanceRecuButton] ✗ Exception complète:", err);
+			console.error("[EcheanceRecuButton] Message:", err instanceof Error ? err.message : String(err));
+			console.error("[EcheanceRecuButton] Stack:", err instanceof Error ? err.stack : "N/A");
 			setError("Erreur lors du téléchargement du reçu");
 		} finally {
 			setIsLoading(false);
