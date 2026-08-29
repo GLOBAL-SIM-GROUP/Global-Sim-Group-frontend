@@ -1,12 +1,12 @@
-import { useMutation } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
+import { Breadcrumb } from "#/components/ui/breadcrumb";
 import { Button } from "#/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "#/components/ui/card";
 import { InputField } from "#/components/ui/input-field";
 import { requirePermissions } from "#/core/auth";
-import { createSignalement } from "#/core/api/signalements";
+import { useCreerSignalement } from "#/features/signalements/hooks/use-signalements";
 
 export const Route = createFileRoute("/_authenticated/signalements/creer")({
 	beforeLoad: ({ context }) => {
@@ -21,20 +21,7 @@ function CreerSignalementPage() {
 	const [description, setDescription] = useState("");
 	const [globalError, setGlobalError] = useState<string | null>(null);
 
-	const { mutate: creer, isPending } = useMutation({
-		mutationFn: () =>
-			createSignalement({
-				titre: titre.trim(),
-				description: description.trim(),
-			}),
-		onSuccess: async () => {
-			await navigate({ to: "/signalements" });
-		},
-		onError: (error) => {
-			setGlobalError("Erreur lors de la création du signalement");
-			console.error(error);
-		},
-	});
+	const { mutate: creer, isPending } = useCreerSignalement();
 
 	const handleSubmit = (e: React.FormEvent) => {
 		e.preventDefault();
@@ -42,21 +29,38 @@ function CreerSignalementPage() {
 			setGlobalError("Tous les champs sont requis");
 			return;
 		}
-		creer();
+		creer(
+			{ titre: titre.trim(), description: description.trim() },
+			{
+				onSuccess: () => navigate({ to: "/signalements" }),
+				onError: (error) => {
+					setGlobalError("Erreur lors de la création du signalement");
+					console.error(error);
+				},
+			},
+		);
 	};
 
 	return (
-		<div className="space-y-6">
+		<div className="mx-auto w-full max-w-2xl space-y-6 p-6">
+			<Breadcrumb
+				items={[
+					{ label: "Accueil", to: "/" },
+					{ label: "Signalements", to: "/signalements" },
+					{ label: "Nouveau signalement" },
+				]}
+			/>
+
 			<div>
-				<h1 className="text-3xl font-bold text-foreground">
+				<h1 className="text-2xl font-semibold text-foreground">
 					Nouveau signalement
 				</h1>
 				<p className="mt-1 text-muted-foreground">
-					Décrivez le problème ou le signalement
+					Décrivez le problème ou le signalement.
 				</p>
 			</div>
 
-			<Card className="max-w-2xl">
+			<Card>
 				<CardHeader>
 					<CardTitle>Créer un signalement</CardTitle>
 				</CardHeader>
@@ -74,10 +78,14 @@ function CreerSignalementPage() {
 						/>
 
 						<div>
-							<label className="text-sm font-medium text-foreground block mb-2">
+							<label
+								htmlFor="signalement-description"
+								className="text-sm font-medium text-foreground block mb-2"
+							>
 								Description
 							</label>
 							<textarea
+								id="signalement-description"
 								className="flex min-h-[120px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-base shadow-xs placeholder:text-muted-foreground focus-visible:outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50"
 								placeholder="Décrivez le problème en détail"
 								value={description}
@@ -96,11 +104,7 @@ function CreerSignalementPage() {
 						)}
 
 						<div className="flex gap-3 pt-4">
-							<Button
-								type="submit"
-								className="bg-lagoon hover:bg-lagoon/90"
-								disabled={isPending}
-							>
+							<Button type="submit" disabled={isPending}>
 								{isPending ? (
 									<>
 										<Loader2 className="size-4 mr-2 animate-spin" />

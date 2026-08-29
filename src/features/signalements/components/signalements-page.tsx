@@ -1,17 +1,10 @@
-import { useQuery } from "@tanstack/react-query";
-import { useNavigate } from "@tanstack/react-router";
-import {
-	AlertCircle,
-	CheckCircle2,
-	Clock,
-	Loader2,
-	Plus,
-	XCircle,
-} from "lucide-react";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { AlertCircle, Plus } from "lucide-react";
 import { useState } from "react";
+
+import { Breadcrumb } from "#/components/ui/breadcrumb";
 import { Button } from "#/components/ui/button";
-import { Card, CardContent } from "#/components/ui/card";
-import { InputField } from "#/components/ui/input-field";
+import { Input } from "#/components/ui/input";
 import {
 	Select,
 	SelectContent,
@@ -19,252 +12,242 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "#/components/ui/select";
-import { listSignalements } from "#/core/api/signalements";
 import { useCan } from "#/core/auth";
+import { formatDateHeureISO } from "#/features/residence/models/format";
+import { cn } from "#/lib/utils";
+
+import { useSignalements } from "../hooks/use-signalements";
+import {
+	filtrerSignalements,
+	nomDeclarant,
+	paginerSignalements,
+	rechercherSignalements,
+	SIGNALEMENT_STATUT_BADGE,
+	SIGNALEMENT_STATUT_LABELS,
+	type SignalementStatut,
+} from "../models/signalements";
+import { SIGNALEMENTS_PAGE_SIZE } from "../permissions";
 
 export interface SignalementsSearch {
 	recherche?: string;
 	statut?: string;
-	sort?: string;
-	order?: "asc" | "desc";
 	page?: number;
 }
 
-const LIMIT = 10;
-
-export function SignalementsPage({
-	initialSearch = {},
-	onSearchChange,
-}: {
+interface SignalementsPageProps {
 	initialSearch?: SignalementsSearch;
 	onSearchChange?: (
 		update: (prev: SignalementsSearch) => SignalementsSearch,
 	) => void;
-}) {
+}
+
+/**
+ * Page « Signalements » : liste (recherche + statut filtrés côté client,
+ * pagination client) et lien « Nouveau signalement ». Mêmes conventions que
+ * les autres listes de l'app (tableau, badge de statut, pagination).
+ */
+export function SignalementsPage({
+	initialSearch = {},
+	onSearchChange,
+}: SignalementsPageProps) {
 	const navigate = useNavigate();
 	const canCreer = useCan("SIGNALEMENT.CREER");
-	const [search, setSearch] = useState<SignalementsSearch>(initialSearch);
 
-	const page = search.page ?? 1;
-	const offset = (page - 1) * LIMIT;
+	const [recherche, setRecherche] = useState(initialSearch.recherche ?? "");
+	const [statut, setStatut] = useState(initialSearch.statut ?? "tous");
+	const [page, setPage] = useState(initialSearch.page ?? 1);
 
-	const {
-		data: signalements,
-		isLoading,
-		error,
-	} = useQuery({
-		queryKey: [
-			"signalements",
-			search.recherche,
-			search.statut,
-			search.sort,
-			search.order,
-			page,
-		],
-		queryFn: () =>
-			listSignalements({
-				recherche: search.recherche,
-				statut: search.statut as any,
-				sort: search.sort,
-				order: search.order,
-				limit: LIMIT,
-				offset,
-			}),
-		enabled: typeof window !== "undefined",
-	});
+	const signalementsQuery = useSignalements();
+	const signalements = signalementsQuery.data ?? [];
 
-	const handleSearchChange = (
-		update: (prev: SignalementsSearch) => SignalementsSearch,
-	) => {
-		const newSearch = update(search);
-		setSearch(newSearch);
-		onSearchChange?.(update);
+	const changerFiltre = (patch: { statut?: string }) => {
+		setStatut(patch.statut ?? statut);
+		setPage(1);
+		onSearchChange?.((prev) => ({ ...prev, ...patch, page: 1 }));
 	};
 
-	const getStatusIcon = (statut: string) => {
-		switch (statut) {
-			case "OUVERT":
-				return <AlertCircle className="size-4 text-yellow-500" />;
-			case "EN_COURS":
-				return <Clock className="size-4 text-blue-500" />;
-			case "RESOLU":
-				return <CheckCircle2 className="size-4 text-green-500" />;
-			case "REJETE":
-				return <XCircle className="size-4 text-red-500" />;
-			default:
-				return null;
-		}
+	const changerRecherche = (terme: string) => {
+		setRecherche(terme);
+		setPage(1);
+		onSearchChange?.((prev) => ({
+			...prev,
+			recherche: terme || undefined,
+			page: 1,
+		}));
 	};
 
-	const getStatusLabel = (statut: string) => {
-		const labels: Record<string, string> = {
-			OUVERT: "Ouvert",
-			EN_COURS: "En cours",
-			RESOLU: "Résolu",
-			REJETE: "Rejeté",
-		};
-		return labels[statut] || statut;
+	const allerPage = (pageSuivante: number) => {
+		setPage(pageSuivante);
+		onSearchChange?.((prev) => ({ ...prev, page: pageSuivante }));
 	};
 
-	const getStatusBadge = (statut: string) => {
-		const styles: Record<string, string> = {
-			OUVERT: "bg-yellow-100 text-yellow-800",
-			EN_COURS: "bg-blue-100 text-blue-800",
-			RESOLU: "bg-green-100 text-green-800",
-			REJETE: "bg-red-100 text-red-800",
-		};
-		return styles[statut] || "bg-gray-100 text-gray-800";
-	};
+	const recherchees = rechercherSignalements(signalements, recherche);
+	const filtres = filtrerSignalements(recherchees, statut);
+	const pagination = paginerSignalements(filtres, page, SIGNALEMENTS_PAGE_SIZE);
 
 	return (
-		<div className="space-y-6">
-			{/* Header */}
-			<div className="flex items-center justify-between">
-				<div>
-					<h1 className="text-3xl font-bold text-foreground">Signalements</h1>
-					<p className="mt-1 text-muted-foreground">
-						Gérez les signalements et problèmes signalés
+		<div className="mx-auto w-full max-w-6xl space-y-6 p-6">
+			<Breadcrumb
+				items={[{ label: "Accueil", to: "/" }, { label: "Signalements" }]}
+			/>
+
+			<div className="flex flex-wrap items-end justify-between gap-4">
+				<section className="space-y-1">
+					<h1 className="text-2xl font-semibold text-foreground">
+						Signalements
+					</h1>
+					<p className="text-muted-foreground">
+						Problèmes et signalements remontés par les utilisateurs.
 					</p>
-				</div>
+				</section>
 				{canCreer ? (
-					<Button
-						className="bg-lagoon hover:bg-lagoon/90"
-						onClick={() => navigate({ to: "/signalements/creer" })}
-					>
-						<Plus className="size-4 mr-2" />
+					<Button onClick={() => navigate({ to: "/signalements/creer" })}>
+						<Plus className="size-4" aria-hidden />
 						Nouveau signalement
 					</Button>
 				) : null}
 			</div>
 
-			{/* Filtres */}
-			<Card>
-				<CardContent className="pt-6 space-y-4">
-					<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-						<InputField
-							label="Recherche"
-							placeholder="Rechercher..."
-							value={search.recherche ?? ""}
-							onChange={(e) =>
-								handleSearchChange((prev) => ({
-									...prev,
-									recherche: e.target.value || undefined,
-									page: 1,
-								}))
-							}
-						/>
+			<div className="flex flex-wrap items-center gap-3 rounded-lg border border-border bg-card p-4 shadow-sm">
+				<Input
+					value={recherche}
+					onChange={(event) => changerRecherche(event.target.value)}
+					placeholder="Rechercher par titre, description ou déclarant…"
+					aria-label="Rechercher un signalement"
+					className="w-72"
+				/>
+				<Select
+					value={statut}
+					onValueChange={(valeur) => changerFiltre({ statut: valeur })}
+				>
+					<SelectTrigger aria-label="Statut" className="w-44">
+						<SelectValue placeholder="Statut" />
+					</SelectTrigger>
+					<SelectContent>
+						<SelectItem value="tous">Tous les statuts</SelectItem>
+						{(
+							Object.keys(SIGNALEMENT_STATUT_LABELS) as SignalementStatut[]
+						).map((valeur) => (
+							<SelectItem key={valeur} value={valeur}>
+								{SIGNALEMENT_STATUT_LABELS[valeur]}
+							</SelectItem>
+						))}
+					</SelectContent>
+				</Select>
+			</div>
 
-						<div>
-							<label className="text-sm font-medium text-foreground block mb-2">
-								Statut
-							</label>
-							<Select
-								value={search.statut ?? ""}
-								onValueChange={(value) =>
-									handleSearchChange((prev) => ({
-										...prev,
-										statut: value || undefined,
-										page: 1,
-									}))
-								}
-							>
-								<SelectTrigger>
-									<SelectValue placeholder="Tous les statuts" />
-								</SelectTrigger>
-								<SelectContent>
-									<SelectItem value="">Tous les statuts</SelectItem>
-									<SelectItem value="OUVERT">Ouvert</SelectItem>
-									<SelectItem value="EN_COURS">En cours</SelectItem>
-									<SelectItem value="RESOLU">Résolu</SelectItem>
-									<SelectItem value="REJETE">Rejeté</SelectItem>
-								</SelectContent>
-							</Select>
-						</div>
-
-						<div>
-							<label className="text-sm font-medium text-foreground block mb-2">
-								Tri
-							</label>
-							<Select
-								value={search.order ?? ""}
-								onValueChange={(value) =>
-									handleSearchChange((prev) => ({
-										...prev,
-										order: (value as "asc" | "desc") || undefined,
-										page: 1,
-									}))
-								}
-							>
-								<SelectTrigger>
-									<SelectValue placeholder="Tri" />
-								</SelectTrigger>
-								<SelectContent>
-									<SelectItem value="">Par défaut</SelectItem>
-									<SelectItem value="asc">Croissant</SelectItem>
-									<SelectItem value="desc">Décroissant</SelectItem>
-								</SelectContent>
-							</Select>
-						</div>
-					</div>
-				</CardContent>
-			</Card>
-
-			{/* Contenu */}
-			{isLoading ? (
-				<div className="flex justify-center py-12">
-					<Loader2 className="size-8 animate-spin text-lagoon" />
+			{signalementsQuery.isLoading ? (
+				<p className="text-sm text-muted-foreground">Chargement…</p>
+			) : signalementsQuery.isError ? (
+				<div
+					role="alert"
+					className="space-y-3 rounded-lg border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive"
+				>
+					<AlertCircle className="size-5" aria-hidden />
+					<p>Impossible de charger les signalements.</p>
+					<Button
+						variant="outline"
+						size="sm"
+						onClick={() => void signalementsQuery.refetch()}
+					>
+						Réessayer
+					</Button>
 				</div>
-			) : error ? (
-				<Card className="border-destructive/20 bg-destructive/5">
-					<CardContent className="pt-6 flex gap-3">
-						<AlertCircle className="size-5 text-destructive flex-shrink-0 mt-0.5" />
-						<div className="text-sm text-destructive">
-							Erreur lors du chargement des signalements
-						</div>
-					</CardContent>
-				</Card>
-			) : signalements && signalements.length > 0 ? (
-				<div className="space-y-3">
-					{signalements.map((signalement) => (
-						<Card
-							key={signalement.id_signalement}
-							className="cursor-pointer hover:shadow-md transition-shadow"
-							onClick={() =>
-								navigate({ to: `/signalements/${signalement.id_signalement}` })
-							}
-						>
-							<CardContent className="pt-6">
-								<div className="flex items-start justify-between gap-4">
-									<div className="flex-1 space-y-2">
-										<div className="flex items-center gap-3">
-											{getStatusIcon(signalement.statut)}
-											<h3 className="text-lg font-semibold text-foreground">
-												{signalement.titre}
-											</h3>
-										</div>
-										<p className="text-sm text-muted-foreground line-clamp-2">
-											{signalement.description}
-										</p>
-									</div>
-									<div className="flex-shrink-0 text-right">
-										<span
-											className={`inline-block px-2.5 py-1 rounded-full text-xs font-semibold ${getStatusBadge(signalement.statut)}`}
-										>
-											{getStatusLabel(signalement.statut)}
-										</span>
-									</div>
-								</div>
-							</CardContent>
-						</Card>
-					))}
+			) : pagination.total === 0 ? (
+				<div className="rounded-lg border border-border bg-card p-8 text-center text-sm text-muted-foreground">
+					Aucun signalement trouvé.
 				</div>
 			) : (
-				<Card>
-					<CardContent className="pt-6 text-center text-muted-foreground py-12">
-						Aucun signalement trouvé
-					</CardContent>
-				</Card>
+				<div className="overflow-x-auto rounded-lg border border-border bg-card shadow-sm">
+					<table className="w-full border-collapse text-sm">
+						<thead className="bg-sea-ink text-left text-white">
+							<tr>
+								<th scope="col" className="px-4 py-3 font-medium">
+									TITRE
+								</th>
+								<th scope="col" className="px-4 py-3 font-medium">
+									DÉCLARANT
+								</th>
+								<th scope="col" className="px-4 py-3 font-medium">
+									DATE
+								</th>
+								<th scope="col" className="px-4 py-3 font-medium">
+									STATUT
+								</th>
+							</tr>
+						</thead>
+						<tbody>
+							{pagination.items.map((signalement) => (
+								<tr
+									key={signalement.id_signalement}
+									className="relative border-t border-border transition-colors hover:bg-accent/40"
+								>
+									<td className="px-4 py-3">
+										{/* Toute la ligne ouvre la fiche (stretched link). */}
+										<Link
+											to="/signalements/$id"
+											params={{ id: signalement.id_signalement }}
+											title={`Voir le signalement ${signalement.titre}`}
+											className="font-medium text-lagoon after:absolute after:inset-0 transition-colors hover:underline"
+										>
+											{signalement.titre}
+										</Link>
+										<p className="mt-0.5 line-clamp-1 text-xs text-muted-foreground">
+											{signalement.description}
+										</p>
+									</td>
+									<td className="px-4 py-3 text-muted-foreground">
+										{nomDeclarant(signalement)}
+									</td>
+									<td className="px-4 py-3 text-muted-foreground">
+										{formatDateHeureISO(signalement.date_signalement)}
+									</td>
+									<td className="px-4 py-3">
+										<span
+											className={cn(
+												"inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium",
+												SIGNALEMENT_STATUT_BADGE[signalement.statut],
+											)}
+										>
+											{SIGNALEMENT_STATUT_LABELS[signalement.statut]}
+										</span>
+									</td>
+								</tr>
+							))}
+						</tbody>
+					</table>
+				</div>
 			)}
+
+			{pagination.total > 0 ? (
+				<nav
+					aria-label="Pagination des signalements"
+					className="flex flex-wrap items-center justify-between gap-4"
+				>
+					<p className="text-sm text-muted-foreground">
+						Affichage de {pagination.start} à {pagination.end} sur{" "}
+						{pagination.total} résultats
+					</p>
+					<div className="flex items-center gap-2">
+						<Button
+							variant="outline"
+							size="sm"
+							disabled={pagination.page <= 1}
+							onClick={() => allerPage(pagination.page - 1)}
+						>
+							Précédent
+						</Button>
+						<Button
+							variant="outline"
+							size="sm"
+							disabled={pagination.page >= pagination.totalPages}
+							onClick={() => allerPage(pagination.page + 1)}
+						>
+							Suivant
+						</Button>
+					</div>
+				</nav>
+			) : null}
 		</div>
 	);
 }

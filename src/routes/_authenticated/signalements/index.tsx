@@ -13,8 +13,6 @@ export const Route = createFileRoute("/_authenticated/signalements/")({
 	validateSearch: z.object({
 		recherche: z.string().optional(),
 		statut: z.string().optional(),
-		sort: z.string().optional(),
-		order: z.enum(["asc", "desc"]).optional(),
 		page: z.coerce.number().int().positive().optional(),
 	}),
 	component: SignalementsRoutePage,
@@ -23,12 +21,15 @@ export const Route = createFileRoute("/_authenticated/signalements/")({
 function SignalementsRoutePage() {
 	const initialSearch = Route.useSearch();
 	const navigate = Route.useNavigate();
-	const onSearchChange: (maj: (prev: SignalementsSearch) => SignalementsSearch) => void = (
-		maj,
-	) => {
+	const onSearchChange: (
+		maj: (prev: SignalementsSearch) => SignalementsSearch,
+	) => void = (maj) => {
 		void navigate({ search: (prev) => maj(prev) });
 	};
 	return (
-		<SignalementsPage initialSearch={initialSearch} onSearchChange={onSearchChange} />
+		<SignalementsPage
+			initialSearch={initialSearch}
+			onSearchChange={onSearchChange}
+		/>
 	);
 }
