@@ -613,6 +613,22 @@ export function DashboardGlobalPage() {
 	);
 }
 
+/**
+ * Dérive un fond teinté + couleur d'icône à partir de la couleur sémantique
+ * déjà passée à la carte (`couleur`, ex. `text-destructive`) — une seule
+ * source de vérité, pas de prop supplémentaire à chaque site d'appel.
+ */
+function iconTint(couleur: string): string {
+	if (couleur.includes("emerald")) return "bg-emerald-600/15 text-emerald-600";
+	if (couleur.includes("amber")) return "bg-amber-600/15 text-amber-600";
+	if (couleur.includes("destructive"))
+		return "bg-destructive/15 text-destructive";
+	if (couleur.includes("muted-foreground"))
+		return "bg-muted text-muted-foreground";
+	// Défaut (ex. `text-foreground`) : accent de marque plutôt qu'un gris neutre.
+	return "bg-lagoon/15 text-lagoon";
+}
+
 function KPICard({
 	label,
 	valeur,
@@ -645,8 +661,13 @@ function KPICard({
 						<p className="mt-1 text-xs text-muted-foreground">{subtext}</p>
 					)}
 				</div>
-				<div className="ml-4 flex size-10 shrink-0 items-center justify-center rounded-lg bg-muted">
-					<Icon className="size-5 text-muted-foreground" />
+				<div
+					className={cn(
+						"ml-4 flex size-10 shrink-0 items-center justify-center rounded-lg",
+						iconTint(couleur),
+					)}
+				>
+					<Icon className="size-5" />
 				</div>
 			</div>
 		</div>
@@ -686,8 +707,13 @@ function InfoCard({
 					</>
 				)}
 			</div>
-			<div className="flex size-10 items-center justify-center rounded-lg bg-muted">
-				<Icon className="size-5 text-muted-foreground" />
+			<div
+				className={cn(
+					"flex size-10 shrink-0 items-center justify-center rounded-lg",
+					iconTint(couleur),
+				)}
+			>
+				<Icon className="size-5" />
 			</div>
 		</div>
 	);
