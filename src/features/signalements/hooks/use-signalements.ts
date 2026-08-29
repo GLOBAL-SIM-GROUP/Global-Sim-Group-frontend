@@ -4,9 +4,9 @@ import {
 	createSignalement,
 	getSignalement,
 	listSignalements,
-	prendre_en_charge_signalement,
-	rejeter_signalement,
-	resoudre_signalement,
+	prendreEnChargeSignalement,
+	rejeterSignalement,
+	resoudreSignalement,
 	type SignalementCreatePayload,
 } from "#/core/api/signalements";
 
@@ -55,7 +55,7 @@ export function useCreerSignalement() {
 export function usePrendreEnChargeSignalement() {
 	const invalider = useInvalidation();
 	return useMutation({
-		mutationFn: (id: string) => prendre_en_charge_signalement(id),
+		mutationFn: (id: string) => prendreEnChargeSignalement(id),
 		onSuccess: invalider,
 	});
 }
@@ -69,7 +69,7 @@ export function useResoudreSignalement() {
 		}: {
 			id: string;
 			noteResolution: string;
-		}) => resoudre_signalement(id, { note_resolution: noteResolution }),
+		}) => resoudreSignalement(id, { note_resolution: noteResolution }),
 		onSuccess: invalider,
 	});
 }
@@ -83,7 +83,7 @@ export function useRejeterSignalement() {
 		}: {
 			id: string;
 			noteResolution: string;
-		}) => rejeter_signalement(id, { note_resolution: noteResolution }),
+		}) => rejeterSignalement(id, { note_resolution: noteResolution }),
 		onSuccess: invalider,
 	});
 }

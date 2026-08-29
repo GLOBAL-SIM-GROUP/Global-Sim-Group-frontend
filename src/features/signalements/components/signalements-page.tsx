@@ -27,6 +27,7 @@ import {
 	type SignalementStatut,
 } from "../models/signalements";
 import { SIGNALEMENTS_PAGE_SIZE } from "../permissions";
+import { SignalementFormDialog } from "./signalement-form-dialog";
 
 export interface SignalementsSearch {
 	recherche?: string;
@@ -56,6 +57,7 @@ export function SignalementsPage({
 	const [recherche, setRecherche] = useState(initialSearch.recherche ?? "");
 	const [statut, setStatut] = useState(initialSearch.statut ?? "tous");
 	const [page, setPage] = useState(initialSearch.page ?? 1);
+	const [formOuvert, setFormOuvert] = useState(false);
 
 	const signalementsQuery = useSignalements();
 	const signalements = signalementsQuery.data ?? [];
@@ -101,7 +103,7 @@ export function SignalementsPage({
 					</p>
 				</section>
 				{canCreer ? (
-					<Button onClick={() => navigate({ to: "/signalements/creer" })}>
+					<Button onClick={() => setFormOuvert(true)}>
 						<Plus className="size-4" aria-hidden />
 						Nouveau signalement
 					</Button>
@@ -179,14 +181,14 @@ export function SignalementsPage({
 						<tbody>
 							{pagination.items.map((signalement) => (
 								<tr
-									key={signalement.id_signalement}
+									key={signalement.id}
 									className="relative border-t border-border transition-colors hover:bg-accent/40"
 								>
 									<td className="px-4 py-3">
 										{/* Toute la ligne ouvre la fiche (stretched link). */}
 										<Link
 											to="/signalements/$id"
-											params={{ id: signalement.id_signalement }}
+											params={{ id: signalement.id }}
 											title={`Voir le signalement ${signalement.titre}`}
 											className="font-medium text-lagoon after:absolute after:inset-0 transition-colors hover:underline"
 										>
@@ -248,6 +250,17 @@ export function SignalementsPage({
 					</div>
 				</nav>
 			) : null}
+
+			<SignalementFormDialog
+				open={formOuvert}
+				onOpenChange={(ouvert) => {
+					if (!ouvert) setFormOuvert(false);
+				}}
+				onCreated={(id) => {
+					setFormOuvert(false);
+					void navigate({ to: "/signalements/$id", params: { id } });
+				}}
+			/>
 		</div>
 	);
 }

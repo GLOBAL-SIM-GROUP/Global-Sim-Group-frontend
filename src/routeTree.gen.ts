@@ -21,7 +21,6 @@ import { Route as AuthenticatedDashboardIndexRouteImport } from './routes/_authe
 import { Route as AuthenticatedRapportsIndexRouteImport } from './routes/_authenticated/rapports/index'
 import { Route as AuthenticatedSignalementsIndexRouteImport } from './routes/_authenticated/signalements/index'
 import { Route as AuthenticatedSignalementsIdRouteImport } from './routes/_authenticated/signalements/$id'
-import { Route as AuthenticatedSignalementsCreerRouteImport } from './routes/_authenticated/signalements/creer'
 import { Route as AuthenticatedAdminJournalIndexRouteImport } from './routes/_authenticated/admin/journal/index'
 import { Route as AuthenticatedAdminParametresIndexRouteImport } from './routes/_authenticated/admin/parametres/index'
 import { Route as AuthenticatedAdminRolesIndexRouteImport } from './routes/_authenticated/admin/roles/index'
@@ -147,12 +146,6 @@ const AuthenticatedSignalementsIdRoute =
   AuthenticatedSignalementsIdRouteImport.update({
     id: '/signalements/$id',
     path: '/signalements/$id',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedSignalementsCreerRoute =
-  AuthenticatedSignalementsCreerRouteImport.update({
-    id: '/signalements/creer',
-    path: '/signalements/creer',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedAdminJournalIndexRoute =
@@ -543,7 +536,6 @@ export interface FileRoutesByFullPath {
   '/marchandise/produits': typeof MarchandiseProduitsRoute
   '/restaurant/plats': typeof RestaurantPlatsRoute
   '/signalements/$id': typeof AuthenticatedSignalementsIdRoute
-  '/signalements/creer': typeof AuthenticatedSignalementsCreerRoute
   '/dashboard/': typeof AuthenticatedDashboardIndexRoute
   '/rapports/': typeof AuthenticatedRapportsIndexRoute
   '/signalements/': typeof AuthenticatedSignalementsIndexRoute
@@ -620,7 +612,6 @@ export interface FileRoutesByTo {
   '/marchandise/produits': typeof AuthenticatedMarchandiseProduitsIndexRoute
   '/restaurant/plats': typeof AuthenticatedRestaurantPlatsIndexRoute
   '/signalements/$id': typeof AuthenticatedSignalementsIdRoute
-  '/signalements/creer': typeof AuthenticatedSignalementsCreerRoute
   '/dashboard': typeof AuthenticatedDashboardIndexRoute
   '/rapports': typeof AuthenticatedRapportsIndexRoute
   '/signalements': typeof AuthenticatedSignalementsIndexRoute
@@ -697,7 +688,6 @@ export interface FileRoutesById {
   '/marchandise/produits': typeof MarchandiseProduitsRoute
   '/restaurant/plats': typeof RestaurantPlatsRoute
   '/_authenticated/signalements/$id': typeof AuthenticatedSignalementsIdRoute
-  '/_authenticated/signalements/creer': typeof AuthenticatedSignalementsCreerRoute
   '/_authenticated/dashboard/': typeof AuthenticatedDashboardIndexRoute
   '/_authenticated/rapports/': typeof AuthenticatedRapportsIndexRoute
   '/_authenticated/signalements/': typeof AuthenticatedSignalementsIndexRoute
@@ -776,7 +766,6 @@ export interface FileRouteTypes {
     | '/marchandise/produits'
     | '/restaurant/plats'
     | '/signalements/$id'
-    | '/signalements/creer'
     | '/dashboard/'
     | '/rapports/'
     | '/signalements/'
@@ -853,7 +842,6 @@ export interface FileRouteTypes {
     | '/marchandise/produits'
     | '/restaurant/plats'
     | '/signalements/$id'
-    | '/signalements/creer'
     | '/dashboard'
     | '/rapports'
     | '/signalements'
@@ -929,7 +917,6 @@ export interface FileRouteTypes {
     | '/marchandise/produits'
     | '/restaurant/plats'
     | '/_authenticated/signalements/$id'
-    | '/_authenticated/signalements/creer'
     | '/_authenticated/dashboard/'
     | '/_authenticated/rapports/'
     | '/_authenticated/signalements/'
@@ -1091,13 +1078,6 @@ declare module '@tanstack/react-router' {
       path: '/signalements/$id'
       fullPath: '/signalements/$id'
       preLoaderRoute: typeof AuthenticatedSignalementsIdRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/signalements/creer': {
-      id: '/_authenticated/signalements/creer'
-      path: '/signalements/creer'
-      fullPath: '/signalements/creer'
-      preLoaderRoute: typeof AuthenticatedSignalementsCreerRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/admin/journal/': {
@@ -1548,7 +1528,6 @@ interface AuthenticatedRouteChildren {
   AuthenticatedEnCoursRoute: typeof AuthenticatedEnCoursRoute
   AuthenticatedHomeRoute: typeof AuthenticatedHomeRoute
   AuthenticatedSignalementsIdRoute: typeof AuthenticatedSignalementsIdRoute
-  AuthenticatedSignalementsCreerRoute: typeof AuthenticatedSignalementsCreerRoute
   AuthenticatedDashboardIndexRoute: typeof AuthenticatedDashboardIndexRoute
   AuthenticatedRapportsIndexRoute: typeof AuthenticatedRapportsIndexRoute
   AuthenticatedSignalementsIndexRoute: typeof AuthenticatedSignalementsIndexRoute
@@ -1621,7 +1600,6 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedEnCoursRoute: AuthenticatedEnCoursRoute,
   AuthenticatedHomeRoute: AuthenticatedHomeRoute,
   AuthenticatedSignalementsIdRoute: AuthenticatedSignalementsIdRoute,
-  AuthenticatedSignalementsCreerRoute: AuthenticatedSignalementsCreerRoute,
   AuthenticatedDashboardIndexRoute: AuthenticatedDashboardIndexRoute,
   AuthenticatedRapportsIndexRoute: AuthenticatedRapportsIndexRoute,
   AuthenticatedSignalementsIndexRoute: AuthenticatedSignalementsIndexRoute,

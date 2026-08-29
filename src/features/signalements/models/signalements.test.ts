@@ -15,7 +15,7 @@ function signalement(
 	overrides: Partial<Signalement> = {},
 ): Signalement {
 	return {
-		id_signalement: id,
+		id,
 		titre: `Signalement ${id}`,
 		description: "Description du problème",
 		id_activite: null,
