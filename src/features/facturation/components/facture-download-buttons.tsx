@@ -19,7 +19,6 @@ export function FactureDownloadButtons({
 	const [isLoadingPdf, setIsLoadingPdf] = useState(false);
 	const [isLoadingTicket, setIsLoadingTicket] = useState(false);
 	const [showTicketOptions, setShowTicketOptions] = useState(false);
-	const [selectedLargeur, setSelectedLargeur] = useState<58 | 80>(58);
 	const [errorPdf, setErrorPdf] = useState<string | null>(null);
 	const [errorTicket, setErrorTicket] = useState<string | null>(null);
 
