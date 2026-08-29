@@ -11,7 +11,7 @@ export type FactureSourceType =
 	| "PRESTATION"
 	| "AUTRE";
 
-export type FactureStatut = "PAYEE" | "PARTIELLE" | "IMPAYEE" | "ANNULEA";
+export type FactureStatut = "PAYEE" | "PARTIELLE" | "IMPAYEE" | "ANNULEE";
 
 export interface Facture {
 	id: string;

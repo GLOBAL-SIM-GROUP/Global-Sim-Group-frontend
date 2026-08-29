@@ -39,7 +39,7 @@ const STATUTS: { value: FactureStatut; label: string; color: string }[] = [
 	},
 	{ value: "IMPAYEE", label: "Impayée", color: "bg-red-100 text-red-800" },
 	{
-		value: "ANNULEA",
+		value: "ANNULEE",
 		label: "Annulée",
 		color: "bg-gray-100 text-gray-800",
 	},
