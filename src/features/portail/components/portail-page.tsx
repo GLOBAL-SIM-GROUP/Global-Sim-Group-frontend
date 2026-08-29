@@ -1,5 +1,16 @@
+import { Link } from "@tanstack/react-router";
+import {
+	AlertCircle,
+	CalendarDays,
+	ChevronRight,
+	CreditCard,
+	ShieldCheck,
+	Shirt,
+} from "lucide-react";
+
 import { Breadcrumb } from "#/components/ui/breadcrumb";
 import { Button } from "#/components/ui/button";
+import { useCan } from "#/core/auth";
 import {
 	formatDateISO,
 	formatMontantFCFA,
@@ -12,6 +23,42 @@ import {
 	ECHEANCE_STATUT_LABELS,
 	libelleMoisAnnee,
 } from "../models/portail";
+
+/** Lien-carte vers un module accessible au résident. */
+function ModuleCard({
+	to,
+	icon: Icon,
+	titre,
+	description,
+}: {
+	to: string;
+	icon: typeof CalendarDays;
+	titre: string;
+	description: string;
+}) {
+	return (
+		<Link
+			to={to}
+			className="group flex items-center gap-3 rounded-lg border border-border bg-card p-4 shadow-sm transition-colors hover:border-lagoon/50 hover:bg-accent/40"
+		>
+			<span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-sea-ink/10 text-sea-ink">
+				<Icon className="size-5" aria-hidden />
+			</span>
+			<span className="flex-1 min-w-0">
+				<span className="block text-sm font-semibold text-foreground">
+					{titre}
+				</span>
+				<span className="block truncate text-xs text-muted-foreground">
+					{description}
+				</span>
+			</span>
+			<ChevronRight
+				className="size-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5"
+				aria-hidden
+			/>
+		</Link>
+	);
+}
 
 /** Ligne lecture seule. */
 function Ligne({ label, valeur }: { label: string; valeur: string }) {
@@ -29,6 +76,7 @@ function Ligne({ label, valeur }: { label: string; valeur: string }) {
  */
 export function PortailPage() {
 	const resumeQuery = usePortailResume();
+	const canVoirSignalements = useCan("SIGNALEMENT.VOIR");
 
 	if (resumeQuery.isLoading) {
 		return (
@@ -79,6 +127,46 @@ export function PortailPage() {
 				<p className="text-muted-foreground">
 					{client.prenoms} {client.nom} — récapitulatif de votre situation.
 				</p>
+			</section>
+
+			<section className="space-y-3">
+				<h2 className="text-lg font-semibold text-foreground">
+					Mes services
+				</h2>
+				<div className="grid gap-3 sm:grid-cols-2">
+					<ModuleCard
+						to="/residence/portail/echeances"
+						icon={CalendarDays}
+						titre="Mes échéances"
+						description="Suivi de vos loyers, dus et payés."
+					/>
+					<ModuleCard
+						to="/residence/portail/paiements"
+						icon={CreditCard}
+						titre="Mon historique"
+						description="Historique de vos paiements et reçus."
+					/>
+					<ModuleCard
+						to="/residence/portail/caution"
+						icon={ShieldCheck}
+						titre="Ma caution"
+						description="Montant versé et statut de restitution."
+					/>
+					<ModuleCard
+						to="/residence/portail/pressing"
+						icon={Shirt}
+						titre="Suivi Pressing"
+						description="Avancement de vos commandes de pressing."
+					/>
+					{canVoirSignalements ? (
+						<ModuleCard
+							to="/signalements"
+							icon={AlertCircle}
+							titre="Signalements"
+							description="Vos signalements et leur suivi."
+						/>
+					) : null}
+				</div>
 			</section>
 
 			{contrat_en_cours ? (
