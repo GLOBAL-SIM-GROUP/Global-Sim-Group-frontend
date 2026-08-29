@@ -1,5 +1,6 @@
 import { Dialog } from "radix-ui";
 
+import { DownloadReceiptButton } from "#/features/facturation/components/download-receipt-button";
 import {
 	formatDateHeureISO,
 	formatMontantFCFA,
@@ -103,9 +104,17 @@ export function VenteFactureDialog({
 									</table>
 								</div>
 
-								<p className="text-right text-sm font-semibold text-foreground">
-									Total : {formatMontantFCFA(venteQuery.data.total)}
-								</p>
+								<div className="flex items-center justify-between gap-4">
+									<DownloadReceiptButton
+										sourceType="VENTE"
+										idClient={venteQuery.data.id_client}
+										montantTotal={venteQuery.data.total}
+										isPaid={venteQuery.data.statut === "PAYEE"}
+									/>
+									<p className="text-right text-sm font-semibold text-foreground">
+										Total : {formatMontantFCFA(venteQuery.data.total)}
+									</p>
+								</div>
 							</div>
 						)}
 					</div>

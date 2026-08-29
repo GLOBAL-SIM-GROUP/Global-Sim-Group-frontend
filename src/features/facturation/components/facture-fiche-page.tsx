@@ -21,6 +21,7 @@ import {
 	FACTURE_STATUT_BADGE,
 	FACTURE_STATUT_LABELS,
 } from "../models/factures";
+import { FactureDownloadButtons } from "./facture-download-buttons";
 
 /** Ligne lecture seule de la fiche. */
 function Ligne({ label, valeur }: { label: string; valeur: string }) {
@@ -113,9 +114,12 @@ export function FactureFichePage({ id }: FactureFichePageProps) {
 					</p>
 				</section>
 
-				<Button variant="outline" asChild>
-					<Link to="/facturation/factures">Retour à la facturation</Link>
-				</Button>
+				<div className="flex flex-wrap items-center gap-2">
+					<FactureDownloadButtons idFacture={id} />
+					<Button variant="outline" asChild>
+						<Link to="/facturation/factures">Retour à la facturation</Link>
+					</Button>
+				</div>
 			</div>
 
 			<section className="rounded-lg border border-border bg-card p-5 shadow-sm">

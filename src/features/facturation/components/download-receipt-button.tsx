@@ -1,8 +1,8 @@
-import { FileDown, Loader2 } from "lucide-react";
+import { FileDown, Loader2, Printer } from "lucide-react";
 import { useState } from "react";
 import { Button } from "#/components/ui/button";
 import { useFindFacture } from "#/core/api/hooks/use-factures";
-import { downloadFacturePdf } from "#/core/api/facturation";
+import { downloadFacturePdf, downloadFactureTicket } from "#/core/api/facturation";
 import type { FactureSourceType } from "#/core/api/facturation";
 
 interface DownloadReceiptButtonProps {
@@ -17,7 +17,8 @@ interface DownloadReceiptButtonProps {
 
 /**
  * Bouton réutilisable pour télécharger le reçu/facture d'une transaction.
- * Cherche automatiquement la facture PAYEE associée.
+ * Cherche automatiquement la facture PAYEE associée. Propose le PDF complet
+ * ou un ticket de caisse (58/80mm, choix de la largeur au moment du clic).
  */
 export function DownloadReceiptButton({
 	sourceType,
@@ -28,7 +29,9 @@ export function DownloadReceiptButton({
 	size = "sm",
 	showLabel = true,
 }: DownloadReceiptButtonProps) {
-	const [isDownloading, setIsDownloading] = useState(false);
+	const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
+	const [isDownloadingTicket, setIsDownloadingTicket] = useState(false);
+	const [showTicketOptions, setShowTicketOptions] = useState(false);
 	const { data: facture, isLoading } = useFindFacture(
 		sourceType,
 		idClient,
@@ -43,32 +46,89 @@ export function DownloadReceiptButton({
 		return null;
 	}
 
-	const handleDownload = async () => {
-		setIsDownloading(true);
+	const handleDownloadPdf = async () => {
+		setIsDownloadingPdf(true);
 		try {
 			await downloadFacturePdf(facture.id);
 		} catch (error) {
 			console.error("Erreur téléchargement:", error);
 		} finally {
-			setIsDownloading(false);
+			setIsDownloadingPdf(false);
+		}
+	};
+
+	const handleDownloadTicket = async (largeur: 58 | 80) => {
+		setIsDownloadingTicket(true);
+		try {
+			await downloadFactureTicket(facture.id, largeur);
+			setShowTicketOptions(false);
+		} catch (error) {
+			console.error("Erreur téléchargement ticket:", error);
+		} finally {
+			setIsDownloadingTicket(false);
 		}
 	};
 
 	return (
-		<Button
-			onClick={handleDownload}
-			disabled={isLoading || isDownloading}
-			variant={variant}
-			size={size}
-		>
-			{isDownloading ? (
-				<Loader2 className="size-4 animate-spin" />
-			) : (
-				<FileDown className="size-4" />
-			)}
-			{showLabel && (
-				<span className="ml-2">{isDownloading ? "Téléchargement..." : "Reçu PDF"}</span>
-			)}
-		</Button>
+		<div className="flex items-center gap-2">
+			<Button
+				onClick={handleDownloadPdf}
+				disabled={isLoading || isDownloadingPdf || isDownloadingTicket}
+				variant={variant}
+				size={size}
+			>
+				{isDownloadingPdf ? (
+					<Loader2 className="size-4 animate-spin" />
+				) : (
+					<FileDown className="size-4" />
+				)}
+				{showLabel && (
+					<span className="ml-2">
+						{isDownloadingPdf ? "Téléchargement..." : "Reçu PDF"}
+					</span>
+				)}
+			</Button>
+
+			<div className="relative">
+				<Button
+					onClick={() => setShowTicketOptions(!showTicketOptions)}
+					disabled={isLoading || isDownloadingPdf || isDownloadingTicket}
+					variant={variant}
+					size={size}
+				>
+					{isDownloadingTicket ? (
+						<Loader2 className="size-4 animate-spin" />
+					) : (
+						<Printer className="size-4" />
+					)}
+					{showLabel && (
+						<span className="ml-2">
+							{isDownloadingTicket ? "Téléchargement..." : "Ticket"}
+						</span>
+					)}
+				</Button>
+
+				{showTicketOptions && (
+					<div className="absolute top-full right-0 mt-1 z-10 min-w-[8rem] rounded-md border border-border bg-card shadow-md">
+						<button
+							type="button"
+							onClick={() => handleDownloadTicket(58)}
+							disabled={isDownloadingTicket}
+							className="block w-full px-4 py-2 text-left text-sm hover:bg-accent whitespace-nowrap disabled:opacity-50"
+						>
+							58 mm
+						</button>
+						<button
+							type="button"
+							onClick={() => handleDownloadTicket(80)}
+							disabled={isDownloadingTicket}
+							className="block w-full px-4 py-2 text-left text-sm hover:bg-accent border-t border-border whitespace-nowrap disabled:opacity-50"
+						>
+							80 mm
+						</button>
+					</div>
+				)}
+			</div>
+		</div>
 	);
 }

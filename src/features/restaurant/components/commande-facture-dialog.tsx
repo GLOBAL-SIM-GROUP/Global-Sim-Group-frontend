@@ -1,5 +1,6 @@
 import { Dialog } from "radix-ui";
 
+import { DownloadReceiptButton } from "#/features/facturation/components/download-receipt-button";
 import { formatMontantFCFA } from "#/features/residence/models/format";
 import { useCommande } from "../hooks/use-commandes";
 import { COMMANDE_STATUT_LABELS } from "../models/commandes";
@@ -97,9 +98,17 @@ export function CommandeFactureDialog({
 									</table>
 								</div>
 
-								<p className="text-right text-sm font-semibold text-foreground">
-									Total : {formatMontantFCFA(commandeQuery.data.total)}
-								</p>
+								<div className="flex items-center justify-between gap-4">
+									<DownloadReceiptButton
+										sourceType="COMMANDE_RESTAURANT"
+										idClient={commandeQuery.data.id_client}
+										montantTotal={commandeQuery.data.total}
+										isPaid={commandeQuery.data.statut === "PAYEE"}
+									/>
+									<p className="text-right text-sm font-semibold text-foreground">
+										Total : {formatMontantFCFA(commandeQuery.data.total)}
+									</p>
+								</div>
 							</div>
 						)}
 					</div>

@@ -83,6 +83,27 @@ export async function downloadFacturePdf(factureId: string): Promise<void> {
 }
 
 /**
+ * Télécharge le ticket de caisse (58mm ou 80mm) d'une facture.
+ */
+export async function downloadFactureTicket(
+	factureId: string,
+	largeur: 58 | 80 = 58,
+): Promise<void> {
+	const blob = await getApiClient().download(
+		`/api/v1/facturation/factures/${factureId}/ticket?largeur=${largeur}`,
+	);
+
+	const downloadUrl = URL.createObjectURL(blob);
+	const link = document.createElement("a");
+	link.href = downloadUrl;
+	link.download = `ticket-${factureId}-${largeur}mm.pdf`;
+	document.body.appendChild(link);
+	link.click();
+	document.body.removeChild(link);
+	URL.revokeObjectURL(downloadUrl);
+}
+
+/**
  * Récupère le détail d'une facture.
  */
 export async function getFacture(id: string): Promise<Facture> {
