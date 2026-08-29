@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Download, Loader2 } from "lucide-react";
 import { Button } from "#/components/ui/button";
 import { getApiClient } from "#/core/api";
+import { useCurrentUser } from "#/core/auth";
 import type { Echeance } from "../models/contrats";
 
 interface EcheanceRecuButtonProps {
@@ -11,13 +12,18 @@ interface EcheanceRecuButtonProps {
 export function EcheanceRecuButton({ echeance }: EcheanceRecuButtonProps) {
 	const [isLoading, setIsLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
+	const currentUser = useCurrentUser();
 
 	const handleDownloadRecu = async () => {
 		try {
 			setIsLoading(true);
 			setError(null);
 
-			const url = `/api/v1/residence/echeances/${echeance.id}/recu`;
+			// Endpoint différent selon le rôle
+			const isResident = currentUser?.role === "RESIDENT";
+			const url = isResident
+				? `/api/v1/residence/portail/echeances/${echeance.id}/recu/pdf`
+				: `/api/v1/residence/echeances/${echeance.id}/recu`;
 
 			const blob = await getApiClient().download(url);
 
