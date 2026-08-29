@@ -19,11 +19,11 @@ export function EcheanceRecuButton({ echeance }: EcheanceRecuButtonProps) {
 			// Télécharger le PDF directement depuis l'API
 			const response = await fetch(
 				`/api/v1/residence/echeances/${echeance.id}/recu`,
-				{ credentials: "include" },
 			);
 
 			if (!response.ok) {
-				throw new Error("Impossible de télécharger le reçu");
+				setError("Aucun reçu n'est émis tant que le paiement n'est pas encore effectué.");
+				return;
 			}
 
 			const blob = await response.blob();
@@ -36,12 +36,8 @@ export function EcheanceRecuButton({ echeance }: EcheanceRecuButtonProps) {
 			document.body.removeChild(lien);
 			URL.revokeObjectURL(url);
 		} catch (err) {
-			const message =
-				err instanceof Error
-					? err.message
-					: "Impossible de télécharger le reçu";
-			setError(message);
 			console.error("Erreur lors du téléchargement du reçu", err);
+			setError("Erreur lors du téléchargement du reçu");
 		} finally {
 			setIsLoading(false);
 		}
