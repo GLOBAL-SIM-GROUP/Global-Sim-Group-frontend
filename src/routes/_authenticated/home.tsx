@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Home } from "lucide-react";
 
 import { ModuleTile } from "#/components/ui/module-tile";
-import { useCurrentUser, usePermissions } from "#/core/auth";
+import { useCan, useCurrentUser, usePermissions } from "#/core/auth";
 import {
 	getAccessibleModuleSubItems,
 	getAccessibleModules,
@@ -19,6 +19,7 @@ export const Route = createFileRoute("/_authenticated/home")({
 
 function HomePage() {
 	const user = useCurrentUser();
+	const estResident = useCan("RESIDENT.VOIR");
 	const accessibleModules = getAccessibleModules(usePermissions());
 
 	return (
@@ -32,7 +33,7 @@ function HomePage() {
 				</p>
 			</section>
 
-			{user?.role === "RESIDENT" ? (
+			{estResident ? (
 				<Link
 					to="/residence/portail"
 					className="flex items-start gap-3 sm:gap-4 rounded-lg border border-border bg-card p-4 sm:p-6 shadow-sm transition-colors hover:bg-accent/40"

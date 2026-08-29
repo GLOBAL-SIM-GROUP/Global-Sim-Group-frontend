@@ -123,7 +123,7 @@ export function Sidebar({ onClose }: { onClose?: () => void } = {}) {
 	const permissions = usePermissions();
 	const canVoirRapports = useCan("ADMIN.VOIR");
 	const canVoirSignalements = useCan("SIGNALEMENT.VOIR");
-	const estResident = user?.role === "RESIDENT";
+	const estResident = useCan("RESIDENT.VOIR");
 	const portailResumeQuery = usePortailResume(estResident);
 	const totalImpayes = portailResumeQuery.data?.total_impayes;
 	const accessibleModules = getAccessibleModules(permissions);
