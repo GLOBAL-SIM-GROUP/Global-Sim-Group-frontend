@@ -2,6 +2,7 @@ import { Save } from "lucide-react";
 
 import { Breadcrumb } from "#/components/ui/breadcrumb";
 import { Button } from "#/components/ui/button";
+import { useCan } from "#/core/auth";
 import { cn } from "#/lib/utils";
 
 import {
@@ -25,6 +26,7 @@ import {
  * réservées à l'administrateur.
  */
 export function SauvegardesPage() {
+	const canModifier = useCan("ADMIN.MODIFIER");
 	const sauvegardesQuery = useSauvegardes();
 	const configQuery = useConfigurationSauvegardes();
 	const creerMutation = useCreerSauvegardeManuelle();
@@ -86,7 +88,7 @@ export function SauvegardesPage() {
 											activee: config.activee,
 										})
 									}
-									disabled={majConfigMutation.isPending}
+									disabled={!canModifier || majConfigMutation.isPending}
 									className="rounded border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
 								>
 									<option value="quotidienne">Quotidienne</option>
@@ -104,7 +106,7 @@ export function SauvegardesPage() {
 											activee: e.target.checked,
 										})
 									}
-									disabled={majConfigMutation.isPending}
+									disabled={!canModifier || majConfigMutation.isPending}
 									className="h-4 w-4 rounded border-gray-300"
 								/>
 								<span className="text-sm">
@@ -116,17 +118,19 @@ export function SauvegardesPage() {
 				)}
 
 				{/* Actions manuelles */}
-				<div className="flex gap-2">
-					<Button
-						onClick={() => creerMutation.mutate()}
-						disabled={creerMutation.isPending}
-					>
-						<Save className="mr-2 size-4" aria-hidden />
-						{creerMutation.isPending
-							? "Sauvegarde en cours…"
-							: "Sauvegarder maintenant"}
-					</Button>
-				</div>
+				{canModifier ? (
+					<div className="flex gap-2">
+						<Button
+							onClick={() => creerMutation.mutate()}
+							disabled={creerMutation.isPending}
+						>
+							<Save className="mr-2 size-4" aria-hidden />
+							{creerMutation.isPending
+								? "Sauvegarde en cours…"
+								: "Sauvegarder maintenant"}
+						</Button>
+					</div>
+				) : null}
 
 				{/* Historique */}
 				<div className="space-y-4">

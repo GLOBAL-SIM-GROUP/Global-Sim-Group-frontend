@@ -6,6 +6,7 @@ import { useState } from "react";
 
 import { Button } from "#/components/ui/button";
 import { Input } from "#/components/ui/input";
+import { useCan } from "#/core/auth";
 import {
 	formatDateHeureISO,
 	formatMontantFCFA,
@@ -27,6 +28,7 @@ interface CaisseDashboardPageProps {
  * Affiche: revenus du jour, total, paiements bruts, revenus par utilisateur, tirages.
  */
 export function CaisseDashboardPage({ id }: CaisseDashboardPageProps) {
+	const canCreer = useCan("FINANCES.CREER");
 	const [openTirage, setOpenTirage] = useState(false);
 	const [tirageForms, setTirageForms] = useState<CreerTirageDto>({
 		montant_compte: "",
@@ -343,10 +345,12 @@ export function CaisseDashboardPage({ id }: CaisseDashboardPageProps) {
 								Historique des fermetures avec montant compté vs attendu
 							</p>
 						</div>
-						<Button size="sm" onClick={() => setOpenTirage(true)}>
-							<Plus className="size-4 mr-2" />
-							Nouveau tirage
-						</Button>
+						{canCreer ? (
+							<Button size="sm" onClick={() => setOpenTirage(true)}>
+								<Plus className="size-4 mr-2" />
+								Nouveau tirage
+							</Button>
+						) : null}
 					</div>
 					<div className="px-6 py-4">
 						{tirages.length > 0 ? (

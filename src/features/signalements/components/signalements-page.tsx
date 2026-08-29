@@ -20,6 +20,7 @@ import {
 	SelectValue,
 } from "#/components/ui/select";
 import { listSignalements } from "#/core/api/signalements";
+import { useCan } from "#/core/auth";
 
 export interface SignalementsSearch {
 	recherche?: string;
@@ -41,6 +42,7 @@ export function SignalementsPage({
 	) => void;
 }) {
 	const navigate = useNavigate();
+	const canCreer = useCan("SIGNALEMENT.CREER");
 	const [search, setSearch] = useState<SignalementsSearch>(initialSearch);
 
 	const page = search.page ?? 1;
@@ -124,13 +126,15 @@ export function SignalementsPage({
 						Gérez les signalements et problèmes signalés
 					</p>
 				</div>
-				<Button
-					className="bg-lagoon hover:bg-lagoon/90"
-					onClick={() => navigate({ to: "/signalements/creer" })}
-				>
-					<Plus className="size-4 mr-2" />
-					Nouveau signalement
-				</Button>
+				{canCreer ? (
+					<Button
+						className="bg-lagoon hover:bg-lagoon/90"
+						onClick={() => navigate({ to: "/signalements/creer" })}
+					>
+						<Plus className="size-4 mr-2" />
+						Nouveau signalement
+					</Button>
+				) : null}
 			</div>
 
 			{/* Filtres */}
