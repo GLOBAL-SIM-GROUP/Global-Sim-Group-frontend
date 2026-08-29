@@ -26,7 +26,7 @@ export function EcheanceRecuButton({ echeance }: EcheanceRecuButtonProps) {
 			console.log("[EcheanceRecuButton] URL endpoint:", url);
 
 			// Télécharger le PDF directement depuis l'API
-			const response = await fetch(url);
+			const response = await fetch(url, { credentials: "include" });
 
 			console.log("[EcheanceRecuButton] Réponse reçue");
 			console.log("[EcheanceRecuButton] Status code:", response.status);
