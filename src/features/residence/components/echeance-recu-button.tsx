@@ -1,8 +1,6 @@
 import { useState } from "react";
 import { Download, Loader2 } from "lucide-react";
 import { Button } from "#/components/ui/button";
-import { getRecuEcheance } from "../api/contrats";
-import { genererRecuEcheance } from "../lib/recu-pdf";
 import type { Echeance } from "../models/contrats";
 
 interface EcheanceRecuButtonProps {
@@ -17,8 +15,26 @@ export function EcheanceRecuButton({ echeance }: EcheanceRecuButtonProps) {
 		try {
 			setIsLoading(true);
 			setError(null);
-			const recu = await getRecuEcheance(echeance.id);
-			genererRecuEcheance(recu);
+
+			// Télécharger le PDF directement depuis l'API
+			const response = await fetch(
+				`/api/v1/residence/echeances/${echeance.id}/recu`,
+				{ credentials: "include" },
+			);
+
+			if (!response.ok) {
+				throw new Error("Impossible de télécharger le reçu");
+			}
+
+			const blob = await response.blob();
+			const url = URL.createObjectURL(blob);
+			const lien = document.createElement("a");
+			lien.href = url;
+			lien.download = `recu-echeance-${echeance.id}.pdf`;
+			document.body.appendChild(lien);
+			lien.click();
+			document.body.removeChild(lien);
+			URL.revokeObjectURL(url);
 		} catch (err) {
 			const message =
 				err instanceof Error
@@ -48,7 +64,7 @@ export function EcheanceRecuButton({ echeance }: EcheanceRecuButtonProps) {
 				{isLoading ? (
 					<>
 						<Loader2 className="size-4 mr-2 animate-spin" />
-						Génération…
+						Téléchargement…
 					</>
 				) : (
 					<>
