@@ -4,6 +4,7 @@ import {
 	BarChart2,
 	BarChart3,
 	CalendarDays,
+	Camera,
 	ChevronDown,
 	CreditCard,
 	Home,
@@ -275,6 +276,20 @@ export function Sidebar({ onClose }: { onClose?: () => void } = {}) {
 											<span className="inline-flex items-center gap-2">
 												<Shirt className="size-3.5" aria-hidden />
 												Suivi Pressing
+											</span>
+										</Link>
+									</li>
+									<li>
+										<Link
+											to="/residence/portail/etat-des-lieux"
+											activeOptions={{ exact: true }}
+											activeProps={{ className: subActiveClassName }}
+											className={subLinkClassName}
+											onClick={() => onClose?.()}
+										>
+											<span className="inline-flex items-center gap-2">
+												<Camera className="size-3.5" aria-hidden />
+												Mes états des lieux
 											</span>
 										</Link>
 									</li>

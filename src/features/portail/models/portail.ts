@@ -197,6 +197,42 @@ export interface RecuPaiement {
 	client: { nom: string; prenoms: string };
 }
 
+/** Type d'une photo d'état des lieux du portail. */
+export type PortailEtatDesLieuxType = "ENTREE" | "SORTIE";
+
+export const ETAT_DES_LIEUX_TYPE_LABELS: Record<
+	PortailEtatDesLieuxType,
+	string
+> = {
+	ENTREE: "Entrée",
+	SORTIE: "Sortie",
+};
+
+export const ETAT_DES_LIEUX_TYPE_BADGE: Record<
+	PortailEtatDesLieuxType,
+	string
+> = {
+	ENTREE: "bg-[#27AE60] text-white",
+	SORTIE: "bg-[#E67E22] text-white",
+};
+
+/**
+ * Photo d'état des lieux du résident (GET /portail/etat-des-lieux). Contrairement
+ * au flux staff, `numero_contrat` remplace `id_utilisateur` (pas pertinent
+ * côté résident) et l'image est servie par une route dédiée
+ * (`/portail/etat-des-lieux/{id}/photo`), pas la route générique `/uploads`.
+ */
+export interface PortailEtatDesLieuxPhoto {
+	id: string;
+	id_contrat: string;
+	numero_contrat: string;
+	type: PortailEtatDesLieuxType | (string & {});
+	piece: string | null;
+	cle_objet: string;
+	commentaire: string | null;
+	date_ajout: string;
+}
+
 /** Libellé d'une période « mois année » (mois 1-12). */
 export function libelleMoisAnnee(mois: number, annee: number): string {
 	const date = new Date(annee, mois - 1, 1);

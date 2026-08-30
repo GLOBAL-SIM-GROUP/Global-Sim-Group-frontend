@@ -5,8 +5,8 @@ import { useState } from "react";
 import { Breadcrumb } from "#/components/ui/breadcrumb";
 import { Button } from "#/components/ui/button";
 import { getApiClient } from "#/core/api/client";
-import { cn } from "#/lib/utils";
 import { imprimerPdfBlob } from "#/lib/print-pdf";
+import { cn } from "#/lib/utils";
 
 import { useClientsDetails } from "../hooks/use-clients";
 import { useContratDetail } from "../hooks/use-contrats";
@@ -20,6 +20,7 @@ import {
 import { formatDateISO, formatMontantFCFA } from "../models/format";
 import { CautionTab } from "./caution-tab";
 import { ContratEcheancesTab } from "./contrat-echeances-tab";
+import { EtatDesLieuxTab } from "./etat-des-lieux-tab";
 
 const CONTRAT_STATUT_BADGE: Record<ContratStatut, string> = {
 	EN_ATTENTE: "bg-[#E67E22] text-white",
@@ -54,7 +55,9 @@ interface ContratFichePageProps {
  * de bouton Modifier / Résilier / Clôturer / Générer reçu : aucun endpoint réel.
  */
 export function ContratFichePage({ id }: ContratFichePageProps) {
-	const [onglet, setOnglet] = useState<"echeances" | "caution">("echeances");
+	const [onglet, setOnglet] = useState<
+		"echeances" | "caution" | "etatDesLieux"
+	>("echeances");
 	const [isPrintingPDF, setIsPrintingPDF] = useState(false);
 
 	const contratQuery = useContratDetail(id);
@@ -215,6 +218,7 @@ export function ContratFichePage({ id }: ContratFichePageProps) {
 					[
 						["echeances", "Échéances"],
 						["caution", "Caution"],
+						["etatDesLieux", "État des lieux"],
 					] as const
 				).map(([valeur, libelle]) => (
 					<button
@@ -237,8 +241,10 @@ export function ContratFichePage({ id }: ContratFichePageProps) {
 
 			{onglet === "echeances" ? (
 				<ContratEcheancesTab echeances={contrat.echeances} />
-			) : (
+			) : onglet === "caution" ? (
 				<CautionTab idContrat={contrat.id} />
+			) : (
+				<EtatDesLieuxTab idContrat={contrat.id} />
 			)}
 		</div>
 	);

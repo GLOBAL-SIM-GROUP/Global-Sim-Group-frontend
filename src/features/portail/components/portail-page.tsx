@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import {
 	AlertCircle,
 	CalendarDays,
+	Camera,
 	ChevronRight,
 	CreditCard,
 	ShieldCheck,
@@ -130,9 +131,7 @@ export function PortailPage() {
 			</section>
 
 			<section className="space-y-3">
-				<h2 className="text-lg font-semibold text-foreground">
-					Mes services
-				</h2>
+				<h2 className="text-lg font-semibold text-foreground">Mes services</h2>
 				<div className="grid gap-3 sm:grid-cols-2">
 					<ModuleCard
 						to="/residence/portail/echeances"
@@ -157,6 +156,12 @@ export function PortailPage() {
 						icon={Shirt}
 						titre="Suivi Pressing"
 						description="Avancement de vos commandes de pressing."
+					/>
+					<ModuleCard
+						to="/residence/portail/etat-des-lieux"
+						icon={Camera}
+						titre="Mes états des lieux"
+						description="Photos d'entrée et de sortie de vos logements."
 					/>
 					{canVoirSignalements ? (
 						<ModuleCard

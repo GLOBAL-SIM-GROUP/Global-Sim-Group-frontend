@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import {
 	getPortailCaution,
 	getPortailEcheances,
+	getPortailEtatDesLieux,
 	getPortailPaiements,
 	getPortailResume,
 	getRecuEcheance,
@@ -11,6 +12,7 @@ import {
 import {
 	cautionKeys,
 	echeancesKeys,
+	etatDesLieuxKeys,
 	paiementsKeys,
 	recuEcheanceKeys,
 	recuPaiementKeys,
@@ -48,6 +50,14 @@ export function usePortailCaution() {
 	return useQuery({
 		queryKey: cautionKeys.list(),
 		queryFn: getPortailCaution,
+	});
+}
+
+/** Photos d'état des lieux de tous les contrats du résident connecté. */
+export function usePortailEtatDesLieux() {
+	return useQuery({
+		queryKey: etatDesLieuxKeys.list(),
+		queryFn: getPortailEtatDesLieux,
 	});
 }
 

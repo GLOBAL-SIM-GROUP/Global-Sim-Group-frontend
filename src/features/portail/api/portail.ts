@@ -7,6 +7,7 @@ import type {
 	PortailContrat,
 	PortailEcheance,
 	PortailEcheances,
+	PortailEtatDesLieuxPhoto,
 	PortailPaiement,
 	PortailPaiements,
 	PortailResume,
@@ -19,6 +20,9 @@ type ContratWire = Omit<PortailContrat, "id"> & { id_contrat: string };
 type EcheanceWire = Omit<PortailEcheance, "id"> & { id_echeance: string };
 type PaiementWire = Omit<PortailPaiement, "id"> & { id_paiement: string };
 type CautionWire = Omit<PortailCaution, "id"> & { id_caution: string };
+type EtatDesLieuxPhotoWire = Omit<PortailEtatDesLieuxPhoto, "id"> & {
+	id_photo: string;
+};
 
 function remapClient({ id_client: id, ...reste }: ClientWire): PortailClient {
 	return { id, ...reste };
@@ -128,5 +132,26 @@ export function telechargerRecuEcheancePdf(id: string): Promise<Blob> {
 export function telechargerRecuPaiementPdf(id: string): Promise<Blob> {
 	return getApiClient().download(
 		`/api/v1/residence/portail/paiements/${id}/recu/pdf`,
+	);
+}
+
+/** Photos d'état des lieux de tous les contrats du résident connecté. */
+export function getPortailEtatDesLieux(): Promise<PortailEtatDesLieuxPhoto[]> {
+	return getApiClient()
+		.apiFetch<{ photos: EtatDesLieuxPhotoWire[] }>(
+			"/api/v1/residence/portail/etat-des-lieux",
+		)
+		.then((data) =>
+			data.photos.map(({ id_photo: id, ...reste }) => ({ id, ...reste })),
+		);
+}
+
+/**
+ * Octets de l'image d'une photo d'état des lieux (pas une URL publique —
+ * fetch authentifié puis `URL.createObjectURL`).
+ */
+export function getPortailEtatDesLieuxPhoto(id: string): Promise<Blob> {
+	return getApiClient().download(
+		`/api/v1/residence/portail/etat-des-lieux/${id}/photo`,
 	);
 }

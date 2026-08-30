@@ -7,3 +7,4 @@ export const paiementsKeys = createQueryKeys("portail.paiements");
 export const cautionKeys = createQueryKeys("portail.caution");
 export const recuEcheanceKeys = createQueryKeys("portail.recu-echeance");
 export const recuPaiementKeys = createQueryKeys("portail.recu-paiement");
+export const etatDesLieuxKeys = createQueryKeys("portail.etat-des-lieux");

@@ -9,6 +9,9 @@ export const logementsKeys = createQueryKeys("residence.logements");
 /** Clés de requêtes du module Résidence — contrats de location. */
 export const contratsKeys = createQueryKeys("residence.contrats");
 
+/** Clés de requêtes du module Résidence — photos d'état des lieux. */
+export const etatDesLieuxKeys = createQueryKeys("residence.etat-des-lieux");
+
 /** Clés de requêtes du module Résidence — suivi des échéances (/suivi). */
 export const suiviKeys = createQueryKeys("residence.suivi");
 

@@ -1,6 +1,10 @@
 import { getApiClient } from "./client";
 
-export type UploadCategorie = "client-photo" | "piece-identite" | "plat-photo";
+export type UploadCategorie =
+	| "client-photo"
+	| "piece-identite"
+	| "plat-photo"
+	| "etat-lieux";
 
 /**
  * Upload un fichier image vers MinIO via POST /api/v1/uploads.
@@ -13,14 +17,14 @@ export type UploadCategorie = "client-photo" | "piece-identite" | "plat-photo";
  * Validation backend:
  * - MIME whitelist (multer): image/jpeg, image/png, image/webp, application/pdf
  * - Max size: 5 MiB
- * - Catégorie exacte: client-photo | piece-identite | plat-photo
+ * - Catégorie exacte: client-photo | piece-identite | plat-photo | etat-lieux
  *
  * Response: { "key": "categorie/3-<uuid>.<ext>" }
  * La clé est dérivée du MIME, pas du nom de fichier client.
  * À stocker en DB uniquement (jamais les bytes bruts).
  *
  * @param file - Fichier à uploader (JPG/PNG/WebP/PDF — max 5 Mo)
- * @param categorie - Clé exacte: client-photo | piece-identite | plat-photo
+ * @param categorie - Clé exacte: client-photo | piece-identite | plat-photo | etat-lieux
  * @returns Promise<string> — clé MinIO (e.g. "plat-photo/3-<uuid>.jpg")
  * @throws ApiError 403 si CLIENT.MODIFIER manque, 400 si fichier invalide
  */
@@ -66,7 +70,7 @@ export async function uploadImage(
  * - Retourne 403 si l'utilisateur manque la permission
  *
  * Sécurité:
- * - Query param 'key' validé strictement: ^(?:client-photo|piece-identite|plat-photo)\/[A-Za-z0-9._-]+$
+ * - Query param 'key' validé strictement: ^(?:client-photo|piece-identite|plat-photo|etat-lieux)\/[A-Za-z0-9._-]+$
  * - Empêche les attaques path-traversal (pas d'accès arbitraire S3)
  *
  * Response:
