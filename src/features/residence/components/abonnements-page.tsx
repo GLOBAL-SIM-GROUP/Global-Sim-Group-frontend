@@ -117,12 +117,27 @@ export function AbonnementsPage({
 					</p>
 				</section>
 
-				{canCreer ? (
-					<Button onClick={() => setFormOuvert(true)}>
-						<Plus className="size-4" aria-hidden />
-						Nouvel abonnement
+				<div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
+					<Button
+						variant="outline"
+						size="sm"
+						asChild
+						className="w-full sm:w-auto"
+					>
+						<Link to="/residence/categories-abonnements">
+							Catégories d'abonnement
+						</Link>
 					</Button>
-				) : null}
+					{canCreer ? (
+						<Button
+							onClick={() => setFormOuvert(true)}
+							className="w-full sm:w-auto"
+						>
+							<Plus className="size-4" aria-hidden />
+							Nouvel abonnement
+						</Button>
+					) : null}
+				</div>
 			</div>
 
 			{feedback ? (

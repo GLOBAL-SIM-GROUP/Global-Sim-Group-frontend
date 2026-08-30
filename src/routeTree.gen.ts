@@ -54,6 +54,7 @@ import { Route as AuthenticatedRapportsRhIndexRouteImport } from './routes/_auth
 import { Route as AuthenticatedRapportsSyntheseGlobaleIndexRouteImport } from './routes/_authenticated/rapports/synthese-globale/index'
 import { Route as AuthenticatedResidenceAbonnementsIndexRouteImport } from './routes/_authenticated/residence/abonnements/index'
 import { Route as AuthenticatedResidenceBatimentsIndexRouteImport } from './routes/_authenticated/residence/batiments/index'
+import { Route as AuthenticatedResidenceCategoriesAbonnementsIndexRouteImport } from './routes/_authenticated/residence/categories-abonnements/index'
 import { Route as AuthenticatedResidenceCategoriesChargesIndexRouteImport } from './routes/_authenticated/residence/categories-charges/index'
 import { Route as AuthenticatedResidenceChargesIndexRouteImport } from './routes/_authenticated/residence/charges/index'
 import { Route as AuthenticatedResidenceContratsIndexRouteImport } from './routes/_authenticated/residence/contrats/index'
@@ -346,6 +347,12 @@ const AuthenticatedResidenceBatimentsIndexRoute =
     path: '/residence/batiments/',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedResidenceCategoriesAbonnementsIndexRoute =
+  AuthenticatedResidenceCategoriesAbonnementsIndexRouteImport.update({
+    id: '/residence/categories-abonnements/',
+    path: '/residence/categories-abonnements/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedResidenceCategoriesChargesIndexRoute =
   AuthenticatedResidenceCategoriesChargesIndexRouteImport.update({
     id: '/residence/categories-charges/',
@@ -578,6 +585,7 @@ export interface FileRoutesByFullPath {
   '/rapports/synthese-globale/': typeof AuthenticatedRapportsSyntheseGlobaleIndexRoute
   '/residence/abonnements/': typeof AuthenticatedResidenceAbonnementsIndexRoute
   '/residence/batiments/': typeof AuthenticatedResidenceBatimentsIndexRoute
+  '/residence/categories-abonnements/': typeof AuthenticatedResidenceCategoriesAbonnementsIndexRoute
   '/residence/categories-charges/': typeof AuthenticatedResidenceCategoriesChargesIndexRoute
   '/residence/charges/': typeof AuthenticatedResidenceChargesIndexRoute
   '/residence/contrats/': typeof AuthenticatedResidenceContratsIndexRoute
@@ -653,6 +661,7 @@ export interface FileRoutesByTo {
   '/rapports/synthese-globale': typeof AuthenticatedRapportsSyntheseGlobaleIndexRoute
   '/residence/abonnements': typeof AuthenticatedResidenceAbonnementsIndexRoute
   '/residence/batiments': typeof AuthenticatedResidenceBatimentsIndexRoute
+  '/residence/categories-abonnements': typeof AuthenticatedResidenceCategoriesAbonnementsIndexRoute
   '/residence/categories-charges': typeof AuthenticatedResidenceCategoriesChargesIndexRoute
   '/residence/charges': typeof AuthenticatedResidenceChargesIndexRoute
   '/residence/contrats': typeof AuthenticatedResidenceContratsIndexRoute
@@ -730,6 +739,7 @@ export interface FileRoutesById {
   '/_authenticated/rapports/synthese-globale/': typeof AuthenticatedRapportsSyntheseGlobaleIndexRoute
   '/_authenticated/residence/abonnements/': typeof AuthenticatedResidenceAbonnementsIndexRoute
   '/_authenticated/residence/batiments/': typeof AuthenticatedResidenceBatimentsIndexRoute
+  '/_authenticated/residence/categories-abonnements/': typeof AuthenticatedResidenceCategoriesAbonnementsIndexRoute
   '/_authenticated/residence/categories-charges/': typeof AuthenticatedResidenceCategoriesChargesIndexRoute
   '/_authenticated/residence/charges/': typeof AuthenticatedResidenceChargesIndexRoute
   '/_authenticated/residence/contrats/': typeof AuthenticatedResidenceContratsIndexRoute
@@ -808,6 +818,7 @@ export interface FileRouteTypes {
     | '/rapports/synthese-globale/'
     | '/residence/abonnements/'
     | '/residence/batiments/'
+    | '/residence/categories-abonnements/'
     | '/residence/categories-charges/'
     | '/residence/charges/'
     | '/residence/contrats/'
@@ -883,6 +894,7 @@ export interface FileRouteTypes {
     | '/rapports/synthese-globale'
     | '/residence/abonnements'
     | '/residence/batiments'
+    | '/residence/categories-abonnements'
     | '/residence/categories-charges'
     | '/residence/charges'
     | '/residence/contrats'
@@ -959,6 +971,7 @@ export interface FileRouteTypes {
     | '/_authenticated/rapports/synthese-globale/'
     | '/_authenticated/residence/abonnements/'
     | '/_authenticated/residence/batiments/'
+    | '/_authenticated/residence/categories-abonnements/'
     | '/_authenticated/residence/categories-charges/'
     | '/_authenticated/residence/charges/'
     | '/_authenticated/residence/contrats/'
@@ -1311,6 +1324,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedResidenceBatimentsIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/residence/categories-abonnements/': {
+      id: '/_authenticated/residence/categories-abonnements/'
+      path: '/residence/categories-abonnements'
+      fullPath: '/residence/categories-abonnements/'
+      preLoaderRoute: typeof AuthenticatedResidenceCategoriesAbonnementsIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/residence/categories-charges/': {
       id: '/_authenticated/residence/categories-charges/'
       path: '/residence/categories-charges'
@@ -1570,6 +1590,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedRapportsSyntheseGlobaleIndexRoute: typeof AuthenticatedRapportsSyntheseGlobaleIndexRoute
   AuthenticatedResidenceAbonnementsIndexRoute: typeof AuthenticatedResidenceAbonnementsIndexRoute
   AuthenticatedResidenceBatimentsIndexRoute: typeof AuthenticatedResidenceBatimentsIndexRoute
+  AuthenticatedResidenceCategoriesAbonnementsIndexRoute: typeof AuthenticatedResidenceCategoriesAbonnementsIndexRoute
   AuthenticatedResidenceCategoriesChargesIndexRoute: typeof AuthenticatedResidenceCategoriesChargesIndexRoute
   AuthenticatedResidenceChargesIndexRoute: typeof AuthenticatedResidenceChargesIndexRoute
   AuthenticatedResidenceContratsIndexRoute: typeof AuthenticatedResidenceContratsIndexRoute
@@ -1672,6 +1693,8 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
     AuthenticatedResidenceAbonnementsIndexRoute,
   AuthenticatedResidenceBatimentsIndexRoute:
     AuthenticatedResidenceBatimentsIndexRoute,
+  AuthenticatedResidenceCategoriesAbonnementsIndexRoute:
+    AuthenticatedResidenceCategoriesAbonnementsIndexRoute,
   AuthenticatedResidenceCategoriesChargesIndexRoute:
     AuthenticatedResidenceCategoriesChargesIndexRoute,
   AuthenticatedResidenceChargesIndexRoute:
