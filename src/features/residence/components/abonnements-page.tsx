@@ -97,7 +97,7 @@ export function AbonnementsPage({
 			: null;
 
 	return (
-		<div className="mx-auto w-full max-w-5xl space-y-6 p-6">
+		<div className="mx-auto w-full max-w-5xl space-y-6 p-4 sm:p-6">
 			<Breadcrumb
 				items={[
 					{ label: "Accueil", to: "/" },
@@ -144,17 +144,18 @@ export function AbonnementsPage({
 				<div
 					role={feedback.type === "error" ? "alert" : "status"}
 					className={cn(
-						"flex items-center justify-between gap-3 rounded-md border px-4 py-2 text-sm",
+						"flex flex-wrap items-center justify-between gap-3 rounded-md border px-4 py-2 text-sm",
 						feedback.type === "error"
 							? "border-destructive/40 bg-destructive/10 text-destructive"
 							: "border-[#27AE60]/40 bg-[#27AE60]/10 text-[#27AE60]",
 					)}
 				>
-					<span>{feedback.texte}</span>
+					<span className="break-words">{feedback.texte}</span>
 					<Button
 						variant="ghost"
 						size="sm"
 						aria-label="Fermer"
+						className="shrink-0"
 						onClick={() => resilierMutation.reset()}
 					>
 						<X className="size-4" aria-hidden />

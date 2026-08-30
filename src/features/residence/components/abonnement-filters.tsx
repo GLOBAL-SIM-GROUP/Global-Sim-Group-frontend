@@ -42,7 +42,7 @@ export function AbonnementFilters({
 					onStatutChange(value as AbonnementStatutFiltre)
 				}
 			>
-				<SelectTrigger aria-label="Statut" className="w-40">
+				<SelectTrigger aria-label="Statut" className="w-full sm:w-40">
 					<SelectValue placeholder="Statut" />
 				</SelectTrigger>
 				<SelectContent>
@@ -62,7 +62,7 @@ export function AbonnementFilters({
 				onChange={(event) => onLocataireChange(event.target.value)}
 				placeholder="Locataire…"
 				aria-label="Filtrer par locataire"
-				className="w-48"
+				className="w-full sm:w-48"
 			/>
 
 			<Input
@@ -70,7 +70,7 @@ export function AbonnementFilters({
 				onChange={(event) => onServiceChange(event.target.value)}
 				placeholder="Service…"
 				aria-label="Filtrer par service"
-				className="w-44"
+				className="w-full sm:w-44"
 			/>
 		</div>
 	);
