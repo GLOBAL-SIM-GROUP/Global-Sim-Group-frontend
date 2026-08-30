@@ -1,4 +1,4 @@
-import { FileDown, FileText } from "lucide-react";
+import { FileDown, Printer } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { Breadcrumb } from "#/components/ui/breadcrumb";
@@ -12,7 +12,8 @@ import {
 	SelectValue,
 } from "#/components/ui/select";
 import { formatDateHeureISO } from "#/features/residence/models/format";
-import { construirePdf, telechargerPdf } from "#/lib/pdf";
+import { construirePdf } from "#/lib/pdf";
+import { imprimerPdfOctets } from "#/lib/print-pdf";
 
 import { useJournal } from "../hooks/use-audit";
 import { useUtilisateurs } from "../hooks/use-utilisateurs";
@@ -136,13 +137,12 @@ export function AuditPage({ initialSearch, onSearchChange }: AuditPageProps) {
 		);
 	};
 
-	const exporterPdf = () => {
-		telechargerPdf(
+	const imprimerJournalPdf = () => {
+		imprimerPdfOctets(
 			construirePdf(
 				lignesExport(),
 				`Journal d'audit — ${du || "toutes"} → ${au || "dates"}`,
 			),
-			`journal-audit-${du || "toutes"}-${au || "dates"}.pdf`,
 		);
 	};
 
@@ -176,11 +176,11 @@ export function AuditPage({ initialSearch, onSearchChange }: AuditPageProps) {
 					</Button>
 					<Button
 						size="sm"
-						onClick={exporterPdf}
+						onClick={imprimerJournalPdf}
 						disabled={traces.length === 0}
 					>
-						<FileText className="size-4" aria-hidden />
-						Exporter en PDF
+						<Printer className="size-4" aria-hidden />
+						Imprimer en PDF
 					</Button>
 				</div>
 			</div>
