@@ -82,7 +82,7 @@ export function ChargesPage({
 	const pagination = paginerCharges(filtres, page, CHARGES_PAGE_SIZE);
 
 	return (
-		<div className="mx-auto w-full max-w-5xl space-y-6 p-6">
+		<div className="mx-auto w-full max-w-5xl space-y-6 p-4 sm:p-6">
 			<Breadcrumb
 				items={[{ label: "Accueil", to: "/" }, { label: "Charges facturées" }]}
 			/>
@@ -97,17 +97,30 @@ export function ChargesPage({
 					</p>
 				</section>
 
-				<div className="flex items-center gap-2">
-					<Button variant="outline" size="sm" asChild>
+				<div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
+					<Button
+						variant="outline"
+						size="sm"
+						asChild
+						className="w-full sm:w-auto"
+					>
 						<Link to="/residence/categories-charges">
 							Catégories de charges
 						</Link>
 					</Button>
-					<Button variant="outline" size="sm" asChild>
+					<Button
+						variant="outline"
+						size="sm"
+						asChild
+						className="w-full sm:w-auto"
+					>
 						<Link to="/residence/abonnements">Abonnements</Link>
 					</Button>
 					{canCreer ? (
-						<Button onClick={() => setFormOuvert(true)}>
+						<Button
+							onClick={() => setFormOuvert(true)}
+							className="w-full sm:w-auto"
+						>
 							<Plus className="size-4" aria-hidden />
 							Nouvelle charge
 						</Button>
