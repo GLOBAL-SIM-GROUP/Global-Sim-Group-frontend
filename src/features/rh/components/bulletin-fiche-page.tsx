@@ -1,6 +1,6 @@
 import { useForm } from "@tanstack/react-form";
 import { Link } from "@tanstack/react-router";
-import { Check, FileDown, Loader2, Plus, X } from "lucide-react";
+import { Check, Loader2, Plus, Printer, X } from "lucide-react";
 import { Dialog } from "radix-ui";
 import { useState } from "react";
 
@@ -21,6 +21,7 @@ import { ConfirmDialog } from "#/features/residence/components/confirm-dialog";
 import { useMoyensPaiement } from "#/features/residence/hooks/use-moyens-paiement";
 import { formatMontantFCFA } from "#/features/residence/models/format";
 import { PaiementDialog } from "#/features/salle-fete/components/paiement-dialog";
+import { imprimerPdfBlob } from "#/lib/print-pdf";
 import { cn } from "#/lib/utils";
 
 import { telechargerPaiePdf } from "../api/paies";
@@ -240,22 +241,15 @@ export function BulletinFichePage({ id }: BulletinFichePageProps) {
 	const [isDownloading, setIsDownloading] = useState(false);
 	const [downloadError, setDownloadError] = useState<string | null>(null);
 
-	const telechargerPdf = async () => {
+	const imprimerPdf = async () => {
 		try {
 			setIsDownloading(true);
 			setDownloadError(null);
 			const blob = await telechargerPaiePdf(id);
-			const url = URL.createObjectURL(blob);
-			const lien = document.createElement("a");
-			lien.href = url;
-			lien.download = `bulletin-${id}.pdf`;
-			document.body.appendChild(lien);
-			lien.click();
-			document.body.removeChild(lien);
-			URL.revokeObjectURL(url);
+			imprimerPdfBlob(blob);
 		} catch (error) {
-			setDownloadError("Impossible de télécharger le bulletin.");
-			console.error("Erreur téléchargement bulletin PDF", error);
+			setDownloadError("Impossible d'imprimer le bulletin.");
+			console.error("Erreur impression bulletin PDF", error);
 		} finally {
 			setIsDownloading(false);
 		}
@@ -315,15 +309,15 @@ export function BulletinFichePage({ id }: BulletinFichePageProps) {
 				<div className="flex flex-wrap items-center gap-2">
 					<Button
 						variant="outline"
-						onClick={() => void telechargerPdf()}
+						onClick={() => void imprimerPdf()}
 						disabled={isDownloading}
 					>
 						{isDownloading ? (
 							<Loader2 className="size-4 animate-spin" aria-hidden />
 						) : (
-							<FileDown className="size-4" aria-hidden />
+							<Printer className="size-4" aria-hidden />
 						)}
-						Télécharger le PDF
+						Imprimer le PDF
 					</Button>
 					{canCreer && estModifiable ? (
 						<Button variant="outline" onClick={() => setElementOuvert(true)}>

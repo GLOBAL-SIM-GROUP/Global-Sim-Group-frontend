@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { PaieDetail } from "../models/paies";
 import { BulletinFichePage } from "./bulletin-fiche-page";
@@ -61,51 +61,46 @@ vi.mock("../api/paies", () => ({
 	telechargerPaiePdf: (id: string) => telechargerPaiePdfMock(id),
 }));
 
-describe("BulletinFichePage — téléchargement PDF", () => {
+const imprimerPdfBlobMock = vi.fn();
+vi.mock("#/lib/print-pdf", () => ({
+	imprimerPdfBlob: (blob: Blob) => imprimerPdfBlobMock(blob),
+}));
+
+describe("BulletinFichePage — impression PDF", () => {
 	beforeEach(() => {
 		telechargerPaiePdfMock.mockReset();
-		vi.stubGlobal("URL", {
-			...URL,
-			createObjectURL: vi.fn(() => "blob:mock-url"),
-			revokeObjectURL: vi.fn(),
-		});
+		imprimerPdfBlobMock.mockReset();
 	});
 
-	afterEach(() => {
-		vi.unstubAllGlobals();
-	});
-
-	it("propose le bouton « Télécharger le PDF »", () => {
+	it("propose le bouton « Imprimer le PDF »", () => {
 		render(<BulletinFichePage id="1" />);
 
 		expect(
-			screen.getByRole("button", { name: /Télécharger le PDF/ }),
+			screen.getByRole("button", { name: /Imprimer le PDF/ }),
 		).toBeInTheDocument();
 	});
 
-	it("appelle telechargerPaiePdf avec l'id du bulletin au clic", async () => {
-		telechargerPaiePdfMock.mockResolvedValue(new Blob(["%PDF"]));
+	it("récupère le blob puis l'imprime via imprimerPdfBlob au clic", async () => {
+		const blob = new Blob(["%PDF"]);
+		telechargerPaiePdfMock.mockResolvedValue(blob);
 		const user = userEvent.setup();
 		render(<BulletinFichePage id="1" />);
 
-		await user.click(
-			screen.getByRole("button", { name: /Télécharger le PDF/ }),
-		);
+		await user.click(screen.getByRole("button", { name: /Imprimer le PDF/ }));
 
 		expect(telechargerPaiePdfMock).toHaveBeenCalledWith("1");
+		expect(imprimerPdfBlobMock).toHaveBeenCalledWith(blob);
 	});
 
-	it("affiche un message d'erreur si le téléchargement échoue", async () => {
+	it("affiche un message d'erreur si l'impression échoue", async () => {
 		telechargerPaiePdfMock.mockRejectedValue(new Error("boom"));
 		const user = userEvent.setup();
 		render(<BulletinFichePage id="1" />);
 
-		await user.click(
-			screen.getByRole("button", { name: /Télécharger le PDF/ }),
-		);
+		await user.click(screen.getByRole("button", { name: /Imprimer le PDF/ }));
 
 		expect(
-			await screen.findByText("Impossible de télécharger le bulletin."),
+			await screen.findByText("Impossible d'imprimer le bulletin."),
 		).toBeInTheDocument();
 	});
 });
