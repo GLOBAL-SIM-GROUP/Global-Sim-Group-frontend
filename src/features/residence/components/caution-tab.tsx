@@ -13,12 +13,12 @@ interface CautionTabProps {
 	idContrat: string;
 }
 
-/** Ligne lecture seule. */
+/** Ligne lecture seule. Empilée sous `sm` (voir contrat-fiche-page.tsx). */
 function Ligne({ label, valeur }: { label: string; valeur: string }) {
 	return (
-		<div className="grid grid-cols-[10rem_1fr] gap-3 text-sm">
+		<div className="grid grid-cols-1 gap-1 text-sm sm:grid-cols-[10rem_1fr] sm:items-baseline sm:gap-3">
 			<dt className="text-muted-foreground">{label}</dt>
-			<dd className="text-foreground">{valeur}</dd>
+			<dd className="break-words text-foreground">{valeur}</dd>
 		</div>
 	);
 }
@@ -52,14 +52,14 @@ export function CautionTab({ idContrat }: CautionTabProps) {
 	const caution = cautionQuery.data;
 
 	return (
-		<section className="space-y-4 rounded-lg border border-border bg-card p-5 shadow-sm">
+		<section className="space-y-4 rounded-lg border border-border bg-card p-4 shadow-sm sm:p-5">
 			<dl className="grid gap-4 sm:grid-cols-2">
 				<Ligne label="Montant" valeur={formatMontantFCFA(caution.montant)} />
 				<Ligne
 					label="Date de versement"
 					valeur={formatDateISO(caution.date_versement)}
 				/>
-				<div className="grid grid-cols-[10rem_1fr] gap-3 text-sm">
+				<div className="grid grid-cols-1 gap-1 text-sm sm:grid-cols-[10rem_1fr] sm:items-baseline sm:gap-3">
 					<dt className="text-muted-foreground">Statut</dt>
 					<dd>
 						<span
