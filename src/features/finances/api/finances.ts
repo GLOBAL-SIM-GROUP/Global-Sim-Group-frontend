@@ -1,5 +1,6 @@
 import { getApiClient } from "#/core/api";
 import type { components } from "#/core/api/generated/schema";
+import { imprimerPdfBlob } from "#/lib/print-pdf";
 
 import type {
 	CategorieDepense,
@@ -215,20 +216,10 @@ export function supprimerDepense(id: string): Promise<unknown> {
 	});
 }
 
-/** Télécharge un rapport du tableau de bord en PDF */
-export async function downloadTableauBordPdf(
-	chemin: string,
-	nomFichier: string,
-): Promise<void> {
+/** Imprime un rapport du tableau de bord en PDF */
+export async function printTableauBordPdf(chemin: string): Promise<void> {
 	const blob = await getApiClient().download(chemin);
-	const url = URL.createObjectURL(blob);
-	const lien = document.createElement("a");
-	lien.href = url;
-	lien.download = nomFichier;
-	document.body.appendChild(lien);
-	lien.click();
-	document.body.removeChild(lien);
-	URL.revokeObjectURL(url);
+	imprimerPdfBlob(blob);
 }
 
 /** Télécharge un rapport du tableau de bord en Excel */

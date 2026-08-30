@@ -1,4 +1,4 @@
-import { FileDown, FileText, Loader2, X } from "lucide-react";
+import { FileDown, FileText, Loader2, Printer, X } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { Breadcrumb } from "#/components/ui/breadcrumb";
@@ -15,9 +15,9 @@ import { formatMontantFCFA } from "#/features/residence/models/format";
 import { cn } from "#/lib/utils";
 import {
 	downloadTableauBordExcel,
-	downloadTableauBordPdf,
 	getTableauBordExcelPath,
 	getTableauBordPdfPath,
+	printTableauBordPdf,
 } from "../api/finances";
 import { useCurrentCaisse } from "../hooks/use-current-caisse";
 import { useTableauBord } from "../hooks/use-finances";
@@ -85,14 +85,13 @@ export function TableauDeBordPage() {
 		setCurrentPage(1);
 	}, [periodeParam]);
 
-	// Fonction d'export PDF via le backend
-	const handleExportPdf = async () => {
+	// Fonction d'impression PDF via le backend
+	const handlePrintPdf = async () => {
 		setExportPdfLoading(true);
 		setExportError(null);
 		try {
 			const chemin = getTableauBordPdfPath(periodeParam);
-			const nomFichier = `tableau-de-bord-financier-${new Date().toISOString().split("T")[0]}.pdf`;
-			await downloadTableauBordPdf(chemin, nomFichier);
+			await printTableauBordPdf(chemin);
 		} catch (error) {
 			setExportError("Impossible de générer le PDF");
 			console.error(error);
@@ -222,14 +221,14 @@ export function TableauDeBordPage() {
 					<Button
 						variant="outline"
 						size="sm"
-						onClick={handleExportPdf}
+						onClick={() => void handlePrintPdf()}
 						disabled={lignes.length === 0 || exportPdfLoading}
 						className="w-full sm:w-auto"
 					>
 						{exportPdfLoading ? (
 							<Loader2 className="mr-2 size-4 animate-spin" aria-hidden />
 						) : (
-							<FileText className="mr-2 size-4" aria-hidden />
+							<Printer className="mr-2 size-4" aria-hidden />
 						)}
 						PDF
 					</Button>
