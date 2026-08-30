@@ -13,6 +13,25 @@ import {
 /** Marges de sécurité avant l'expiration réelle de l'access token (secondes). */
 const REFRESH_MARGIN_S = 30;
 
+/**
+ * Nom du verrou Web Locks API (partagé par tous les onglets/PWA de même
+ * origine) protégeant le rafraîchissement contre une course INTER-onglets.
+ * `refreshInFlight` ne protège que les appels concurrents dans le MÊME
+ * onglet ; deux onglets peuvent lire le même refresh token en mémoire et
+ * l'envoyer chacun de son côté — le backend révoque alors toute la session
+ * en détectant la réutilisation. `navigator.locks` sérialise l'exécution
+ * entre onglets sans le TOCTOU d'un verrou maison en localStorage.
+ */
+const REFRESH_LOCK_NAME = "sim-auth-refresh";
+
+/** Exécute `fn` sous le verrou inter-onglets si l'API est disponible (repli : exécution directe — SSR, tests, anciens navigateurs). */
+function withCrossTabLock<T>(fn: () => Promise<T>): Promise<T> {
+	if (typeof navigator === "undefined" || !navigator.locks) {
+		return fn();
+	}
+	return navigator.locks.request(REFRESH_LOCK_NAME, () => fn());
+}
+
 export interface AuthSessionSnapshot {
 	isAuthenticated: boolean;
 	user: AuthMeResponse | null;
@@ -116,6 +135,24 @@ export function createAuthSession(
 		setUser(null);
 	}
 
+	/**
+	 * Synchronise cet onglet quand un AUTRE onglet modifie le storage partagé
+	 * (`storage` ne se déclenche jamais dans l'onglet auteur du changement) :
+	 * - tokens purgés ailleurs (logout, session révoquée) → se déconnecte aussi ;
+	 * - tokens renouvelés ailleurs → réarme le minuteur sur la nouvelle
+	 *   expiration, pour éviter que ce même onglet ne tente à son tour un
+	 *   refresh proche dans le temps (réduit la fenêtre de course, en plus du
+	 *   verrou inter-onglets de `doRefresh`).
+	 */
+	function handleStorageEvent(): void {
+		const tokens = tokenStorage.get();
+		if (!tokens) {
+			if (currentUser) handleSessionExpired();
+			return;
+		}
+		scheduleRefresh(tokens.accessExpiresIn);
+	}
+
 	async function login(login: string, motDePasse: string): Promise<void> {
 		const response = await authApi.login({ login, mot_de_passe: motDePasse });
 		storeTokens({
@@ -130,24 +167,38 @@ export function createAuthSession(
 	}
 
 	async function doRefresh(): Promise<boolean> {
-		const tokens = tokenStorage.get();
-		if (!tokens) return false;
-		try {
-			const response = await authApi.refresh({
-				refresh_token: tokens.refreshToken,
-			});
-			storeTokens({
-				accessToken: response.accessToken,
-				accessExpiresIn: response.accessExpiresIn,
-				refreshToken: response.refreshToken,
-				refreshExpiresIn: response.refreshExpiresIn,
-			});
-			scheduleRefresh(response.accessExpiresIn);
-			return true;
-		} catch {
-			handleSessionExpired();
-			return false;
-		}
+		const tokensAvant = tokenStorage.get();
+		if (!tokensAvant) return false;
+		const refreshTokenAvant = tokensAvant.refreshToken;
+
+		return withCrossTabLock(async () => {
+			// Un autre onglet a pu rafraîchir pendant l'attente du verrou : adopter
+			// ses tokens plutôt que de rejouer l'ancien refresh token (rejeté par
+			// le backend comme réutilisation → révocation de toute la session).
+			const tokensActuels = tokenStorage.get();
+			if (!tokensActuels) return false; // session révoquée entre-temps
+			if (tokensActuels.refreshToken !== refreshTokenAvant) {
+				scheduleRefresh(tokensActuels.accessExpiresIn);
+				return true;
+			}
+
+			try {
+				const response = await authApi.refresh({
+					refresh_token: tokensActuels.refreshToken,
+				});
+				storeTokens({
+					accessToken: response.accessToken,
+					accessExpiresIn: response.accessExpiresIn,
+					refreshToken: response.refreshToken,
+					refreshExpiresIn: response.refreshExpiresIn,
+				});
+				scheduleRefresh(response.accessExpiresIn);
+				return true;
+			} catch {
+				handleSessionExpired();
+				return false;
+			}
+		});
 	}
 
 	async function refresh(): Promise<boolean> {
@@ -244,6 +295,12 @@ export function createAuthSession(
 			onSessionExpired: () => session.handleSessionExpired(),
 		}),
 	);
+
+	// Sync inter-onglets — absent en SSR (pas de `window`) ; sans effet quand
+	// `tokenStorage` est en mémoire (rien à recevoir d'un autre onglet).
+	if (typeof window !== "undefined") {
+		window.addEventListener("storage", handleStorageEvent);
+	}
 
 	return session;
 }
