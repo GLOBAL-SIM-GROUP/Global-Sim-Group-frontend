@@ -1,4 +1,5 @@
 import { useForm } from "@tanstack/react-form";
+import { Link } from "@tanstack/react-router";
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
 
@@ -14,6 +15,7 @@ import {
 } from "#/components/ui/select";
 import { getErrorMessageForCode, getFieldErrors, toApiError } from "#/core/api";
 
+import { useAbonnementCategories } from "../hooks/use-abonnement-categories";
 import {
 	useCreerAbonnement,
 	useModifierAbonnement,
@@ -94,6 +96,8 @@ export function AbonnementForm({
 }: AbonnementFormProps) {
 	const createMutation = useCreerAbonnement();
 	const editMutation = useModifierAbonnement();
+	const categoriesQuery = useAbonnementCategories();
+	const categories = categoriesQuery.data ?? [];
 	const [globalError, setGlobalError] = useState<string | null>(null);
 
 	const form = useForm({
@@ -176,9 +180,6 @@ export function AbonnementForm({
 		<form
 			className="space-y-4"
 			onSubmit={(event) => {
-				console.log(
-					"[DEBUG-client] ⚠️ submit reçu par le formulaire PARENT (abonnement) — l'événement de l'inner form a débordé ?",
-				);
 				event.preventDefault();
 				event.stopPropagation();
 				void form.handleSubmit();
@@ -196,19 +197,55 @@ export function AbonnementForm({
 			) : null}
 
 			<form.Field name="service">
-				{(field) => (
-					<InputField
-						id={field.name}
-						name={field.name}
-						label="Service"
-						placeholder="ex : Internet fibre"
-						autoComplete="off"
-						value={field.state.value}
-						onBlur={field.handleBlur}
-						onChange={(event) => field.handleChange(event.target.value)}
-						error={field.state.meta.errors[0]}
-					/>
-				)}
+				{(field) => {
+					// L'abonnement modifié peut porter un service qui ne correspond plus
+					// à aucune catégorie active (catégorie supprimée depuis, ou ancienne
+					// saisie libre d'avant l'introduction des catégories) — on l'ajoute
+					// à la liste pour ne pas vider silencieusement le champ à l'édition.
+					const libellesConnus = new Set(categories.map((c) => c.libelle));
+					const valeurHorsListe =
+						field.state.value && !libellesConnus.has(field.state.value)
+							? field.state.value
+							: null;
+					return (
+						<div className="space-y-2">
+							<SelectField
+								id={field.name}
+								label="Service (catégorie)"
+								value={field.state.value}
+								onValueChange={field.handleChange}
+							>
+								{valeurHorsListe ? (
+									<SelectItem value={valeurHorsListe}>
+										{valeurHorsListe}
+									</SelectItem>
+								) : null}
+								{categories.map((categorie) => (
+									<SelectItem key={categorie.id} value={categorie.libelle}>
+										{categorie.libelle}
+									</SelectItem>
+								))}
+							</SelectField>
+							{field.state.meta.errors[0] ? (
+								<p className="text-xs text-destructive">
+									{field.state.meta.errors[0]}
+								</p>
+							) : null}
+							{!categoriesQuery.isLoading && categories.length === 0 ? (
+								<p className="text-xs text-muted-foreground">
+									Aucune catégorie configurée —{" "}
+									<Link
+										to="/residence/categories-abonnements"
+										className="text-lagoon hover:underline"
+									>
+										ajoutez-en une
+									</Link>{" "}
+									avant de continuer.
+								</p>
+							) : null}
+						</div>
+					);
+				}}
 			</form.Field>
 
 			<div className="grid gap-4 sm:grid-cols-2">
