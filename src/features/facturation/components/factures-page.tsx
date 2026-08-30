@@ -1,4 +1,4 @@
-import { AlertCircle, Download, Loader2, Search } from "lucide-react";
+import { AlertCircle, Loader2, Printer, Search } from "lucide-react";
 import { useState } from "react";
 import { Button } from "#/components/ui/button";
 import { Card, CardContent } from "#/components/ui/card";
@@ -11,7 +11,7 @@ import {
 	SelectValue,
 } from "#/components/ui/select";
 import {
-	downloadFacturePdf,
+	printFacturePdf,
 	type FactureSourceType,
 	type FactureStatut,
 } from "#/core/api/facturation";
@@ -62,12 +62,12 @@ export function FacturesPage() {
 		limit: 100,
 	});
 
-	const handleDownload = async (id: string) => {
+	const handlePrint = async (id: string) => {
 		setDownloadingId(id);
 		try {
-			await downloadFacturePdf(id);
+			await printFacturePdf(id);
 		} catch (err) {
-			console.error("Erreur téléchargement:", err);
+			console.error("Erreur impression:", err);
 		} finally {
 			setDownloadingId(null);
 		}
@@ -255,13 +255,13 @@ export function FacturesPage() {
 											<Button
 												size="sm"
 												variant="ghost"
-												onClick={() => handleDownload(facture.id)}
+												onClick={() => void handlePrint(facture.id)}
 												disabled={isDownloading}
 											>
 												{isDownloading ? (
 													<Loader2 className="size-4 animate-spin" />
 												) : (
-													<Download className="size-4" />
+													<Printer className="size-4" />
 												)}
 												<span className="ml-1">PDF</span>
 											</Button>

@@ -1,4 +1,5 @@
 import { getApiClient } from "#/core/api";
+import { imprimerPdfBlob } from "#/lib/print-pdf";
 
 export type FactureSourceType =
 	| "VENTE"
@@ -73,42 +74,27 @@ export async function findFacture(
 }
 
 /**
- * Télécharge le PDF d'une facture.
+ * Imprime le PDF d'une facture (personnel/admin — pas d'étape de
+ * téléchargement intermédiaire, contrairement au portail résident).
  */
-export async function downloadFacturePdf(factureId: string): Promise<void> {
+export async function printFacturePdf(factureId: string): Promise<void> {
 	const blob = await getApiClient().download(
 		`/api/v1/facturation/factures/${factureId}/pdf`,
 	);
-
-	const downloadUrl = URL.createObjectURL(blob);
-	const link = document.createElement("a");
-	link.href = downloadUrl;
-	link.download = `facture-${factureId}.pdf`;
-	document.body.appendChild(link);
-	link.click();
-	document.body.removeChild(link);
-	URL.revokeObjectURL(downloadUrl);
+	imprimerPdfBlob(blob);
 }
 
 /**
- * Télécharge le ticket de caisse (58mm ou 80mm) d'une facture.
+ * Imprime le ticket de caisse (58mm ou 80mm) d'une facture.
  */
-export async function downloadFactureTicket(
+export async function printFactureTicket(
 	factureId: string,
 	largeur: 58 | 80 = 58,
 ): Promise<void> {
 	const blob = await getApiClient().download(
 		`/api/v1/facturation/factures/${factureId}/ticket?largeur=${largeur}`,
 	);
-
-	const downloadUrl = URL.createObjectURL(blob);
-	const link = document.createElement("a");
-	link.href = downloadUrl;
-	link.download = `ticket-${factureId}-${largeur}mm.pdf`;
-	document.body.appendChild(link);
-	link.click();
-	document.body.removeChild(link);
-	URL.revokeObjectURL(downloadUrl);
+	imprimerPdfBlob(blob);
 }
 
 /**

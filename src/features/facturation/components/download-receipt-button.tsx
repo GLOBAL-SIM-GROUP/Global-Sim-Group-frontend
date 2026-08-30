@@ -2,7 +2,7 @@ import { FileDown, Loader2, Printer } from "lucide-react";
 import { useState } from "react";
 import { Button } from "#/components/ui/button";
 import { useFindFacture } from "#/core/api/hooks/use-factures";
-import { downloadFacturePdf, downloadFactureTicket } from "#/core/api/facturation";
+import { printFacturePdf, printFactureTicket } from "#/core/api/facturation";
 import type { FactureSourceType } from "#/core/api/facturation";
 
 interface DownloadReceiptButtonProps {
@@ -46,24 +46,24 @@ export function DownloadReceiptButton({
 		return null;
 	}
 
-	const handleDownloadPdf = async () => {
+	const handlePrintPdf = async () => {
 		setIsDownloadingPdf(true);
 		try {
-			await downloadFacturePdf(facture.id);
+			await printFacturePdf(facture.id);
 		} catch (error) {
-			console.error("Erreur téléchargement:", error);
+			console.error("Erreur impression:", error);
 		} finally {
 			setIsDownloadingPdf(false);
 		}
 	};
 
-	const handleDownloadTicket = async (largeur: 58 | 80) => {
+	const handlePrintTicket = async (largeur: 58 | 80) => {
 		setIsDownloadingTicket(true);
 		try {
-			await downloadFactureTicket(facture.id, largeur);
+			await printFactureTicket(facture.id, largeur);
 			setShowTicketOptions(false);
 		} catch (error) {
-			console.error("Erreur téléchargement ticket:", error);
+			console.error("Erreur impression ticket:", error);
 		} finally {
 			setIsDownloadingTicket(false);
 		}
@@ -72,7 +72,7 @@ export function DownloadReceiptButton({
 	return (
 		<div className="flex items-center gap-2">
 			<Button
-				onClick={handleDownloadPdf}
+				onClick={() => void handlePrintPdf()}
 				disabled={isLoading || isDownloadingPdf || isDownloadingTicket}
 				variant={variant}
 				size={size}
@@ -84,7 +84,7 @@ export function DownloadReceiptButton({
 				)}
 				{showLabel && (
 					<span className="ml-2">
-						{isDownloadingPdf ? "Téléchargement..." : "Reçu PDF"}
+						{isDownloadingPdf ? "Préparation..." : "Reçu PDF"}
 					</span>
 				)}
 			</Button>
@@ -103,7 +103,7 @@ export function DownloadReceiptButton({
 					)}
 					{showLabel && (
 						<span className="ml-2">
-							{isDownloadingTicket ? "Téléchargement..." : "Ticket"}
+							{isDownloadingTicket ? "Préparation..." : "Ticket"}
 						</span>
 					)}
 				</Button>
@@ -112,7 +112,7 @@ export function DownloadReceiptButton({
 					<div className="absolute top-full right-0 mt-1 z-10 min-w-[8rem] rounded-md border border-border bg-card shadow-md">
 						<button
 							type="button"
-							onClick={() => handleDownloadTicket(58)}
+							onClick={() => void handlePrintTicket(58)}
 							disabled={isDownloadingTicket}
 							className="block w-full px-4 py-2 text-left text-sm hover:bg-accent whitespace-nowrap disabled:opacity-50"
 						>
@@ -120,7 +120,7 @@ export function DownloadReceiptButton({
 						</button>
 						<button
 							type="button"
-							onClick={() => handleDownloadTicket(80)}
+							onClick={() => void handlePrintTicket(80)}
 							disabled={isDownloadingTicket}
 							className="block w-full px-4 py-2 text-left text-sm hover:bg-accent border-t border-border whitespace-nowrap disabled:opacity-50"
 						>
