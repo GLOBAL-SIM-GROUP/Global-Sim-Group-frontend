@@ -28,8 +28,8 @@ vi.mock("@tanstack/react-router", async (importOriginal) => {
 vi.mock("#/core/auth", () => ({ useCan: () => true }));
 
 const categories: AbonnementCategorie[] = [
-	{ id: "1", libelle: "Internet fibre" },
-	{ id: "2", libelle: "Eau" },
+	{ id: "1", code: "INTERNET", libelle: "Internet fibre" },
+	{ id: "2", code: "EAU", libelle: "Eau" },
 ];
 
 const supprimerMock = vi.fn();

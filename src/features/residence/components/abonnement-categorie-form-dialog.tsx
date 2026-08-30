@@ -37,10 +37,14 @@ export function AbonnementCategorieFormDialog({
 	const [globalError, setGlobalError] = useState<string | null>(null);
 
 	const form = useForm({
-		defaultValues: { libelle: categorie?.libelle ?? "" },
+		defaultValues: {
+			code: categorie?.code ?? "",
+			libelle: categorie?.libelle ?? "",
+		},
 		validators: {
 			onSubmit: ({ value }) => {
 				const fields: Partial<Record<string, string>> = {};
+				if (!value.code.trim()) fields.code = "Ce champ est requis.";
 				if (!value.libelle.trim()) fields.libelle = "Ce champ est requis.";
 				return { fields };
 			},
@@ -51,10 +55,14 @@ export function AbonnementCategorieFormDialog({
 				if (categorie) {
 					await editMutation.mutateAsync({
 						id: categorie.id,
+						code: value.code.trim(),
 						libelle: value.libelle.trim(),
 					});
 				} else {
-					await createMutation.mutateAsync({ libelle: value.libelle.trim() });
+					await createMutation.mutateAsync({
+						code: value.code.trim(),
+						libelle: value.libelle.trim(),
+					});
 				}
 				onSaved();
 			} catch (error) {
@@ -86,6 +94,22 @@ export function AbonnementCategorieFormDialog({
 							void form.handleSubmit();
 						}}
 					>
+						<form.Field name="code">
+							{(field) => (
+								<InputField
+									id={field.name}
+									name={field.name}
+									label="Code"
+									placeholder="ex : INTERNET"
+									autoComplete="off"
+									value={field.state.value}
+									onBlur={field.handleBlur}
+									onChange={(event) => field.handleChange(event.target.value)}
+									error={field.state.meta.errors[0]}
+								/>
+							)}
+						</form.Field>
+
 						<form.Field name="libelle">
 							{(field) => (
 								<InputField

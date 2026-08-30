@@ -15,5 +15,7 @@
  */
 export interface AbonnementCategorie {
 	id: string;
+	/** Code technique court (≤ 50 caractères), requis par le backend. */
+	code: string;
 	libelle: string;
 }

@@ -29,7 +29,8 @@ function useInvalidation() {
 export function useCreerAbonnementCategorie() {
 	const invalider = useInvalidation();
 	return useMutation({
-		mutationFn: (body: { libelle: string }) => creerAbonnementCategorie(body),
+		mutationFn: (body: { code: string; libelle: string }) =>
+			creerAbonnementCategorie(body),
 		onSuccess: invalider,
 	});
 }
@@ -37,8 +38,11 @@ export function useCreerAbonnementCategorie() {
 export function useModifierAbonnementCategorie() {
 	const invalider = useInvalidation();
 	return useMutation({
-		mutationFn: (body: { id: string; libelle: string }) =>
-			modifierAbonnementCategorie(body.id, { libelle: body.libelle }),
+		mutationFn: (body: { id: string; code?: string; libelle?: string }) =>
+			modifierAbonnementCategorie(body.id, {
+				...(body.code !== undefined ? { code: body.code } : {}),
+				...(body.libelle !== undefined ? { libelle: body.libelle } : {}),
+			}),
 		onSuccess: invalider,
 	});
 }

@@ -30,6 +30,7 @@ export function listAbonnementCategories(): Promise<AbonnementCategorie[]> {
 
 /** Crée une catégorie d'abonnement (POST). */
 export function creerAbonnementCategorie(body: {
+	code: string;
 	libelle: string;
 }): Promise<AbonnementCategorie> {
 	return getApiClient()
@@ -43,7 +44,7 @@ export function creerAbonnementCategorie(body: {
 /** Modifie une catégorie d'abonnement (PATCH par id). */
 export function modifierAbonnementCategorie(
 	id: string,
-	body: { libelle: string },
+	body: { code?: string; libelle?: string },
 ): Promise<AbonnementCategorie> {
 	return getApiClient()
 		.apiFetch<AbonnementCategorieWire>(`/api/v1/abonnement/categories/${id}`, {

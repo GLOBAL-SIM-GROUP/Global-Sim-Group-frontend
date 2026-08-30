@@ -97,6 +97,9 @@ export function CategoriesAbonnementsPage() {
 						<thead className="bg-sea-ink text-left text-white">
 							<tr>
 								<th scope="col" className="px-4 py-3 font-medium">
+									CODE
+								</th>
+								<th scope="col" className="px-4 py-3 font-medium">
 									LIBELLÉ
 								</th>
 								<th scope="col" className="px-4 py-3 text-right font-medium">
@@ -110,6 +113,9 @@ export function CategoriesAbonnementsPage() {
 									key={categorie.id}
 									className="border-t border-border transition-colors hover:bg-accent/40"
 								>
+									<td className="px-4 py-3 font-semibold text-foreground">
+										{categorie.code}
+									</td>
 									<td className="px-4 py-3 font-medium text-foreground">
 										{categorie.libelle}
 									</td>
