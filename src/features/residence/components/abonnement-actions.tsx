@@ -37,15 +37,17 @@ export function AbonnementActions({
 						<Pencil className="size-4" aria-hidden />
 						<span className="sr-only">Modifier</span>
 					</Button>
-					<Button
-						variant="ghost"
-						size="icon-sm"
-						title="Résilier"
-						onClick={() => onResilier(abonnement)}
-					>
-						<X className="size-4 text-destructive" aria-hidden />
-						<span className="sr-only">Résilier</span>
-					</Button>
+					{abonnement.statut === "ACTIF" ? (
+						<Button
+							variant="ghost"
+							size="icon-sm"
+							title="Résilier"
+							onClick={() => onResilier(abonnement)}
+						>
+							<X className="size-4 text-destructive" aria-hidden />
+							<span className="sr-only">Résilier</span>
+						</Button>
+					) : null}
 				</>
 			) : null}
 		</div>
