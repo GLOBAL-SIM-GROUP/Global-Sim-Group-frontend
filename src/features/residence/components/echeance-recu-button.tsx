@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { Download, Loader2 } from "lucide-react";
+import { Download, Loader2, Printer } from "lucide-react";
 import { Button } from "#/components/ui/button";
 import { getApiClient } from "#/core/api";
 import { useCan } from "#/core/auth";
+import { imprimerPdfBlob } from "#/lib/print-pdf";
 import type { Echeance } from "../models/contrats";
 
 interface EcheanceRecuButtonProps {
@@ -14,7 +15,7 @@ export function EcheanceRecuButton({ echeance }: EcheanceRecuButtonProps) {
 	const [error, setError] = useState<string | null>(null);
 	const isResident = useCan("RESIDENT.VOIR");
 
-	const handleDownloadRecu = async () => {
+	const handleRecu = async () => {
 		try {
 			setIsLoading(true);
 			setError(null);
@@ -26,17 +27,20 @@ export function EcheanceRecuButton({ echeance }: EcheanceRecuButtonProps) {
 
 			const blob = await getApiClient().download(url);
 
-			const objectUrl = URL.createObjectURL(blob);
-
-			const lien = document.createElement("a");
-			lien.href = objectUrl;
-			lien.download = `recu-echeance-${echeance.id}.pdf`;
-
-			document.body.appendChild(lien);
-			lien.click();
-			document.body.removeChild(lien);
-
-			URL.revokeObjectURL(objectUrl);
+			// Le résident garde un téléchargement classique ; le personnel/admin
+			// imprime directement (pas d'étape de téléchargement intermédiaire).
+			if (isResident) {
+				const objectUrl = URL.createObjectURL(blob);
+				const lien = document.createElement("a");
+				lien.href = objectUrl;
+				lien.download = `recu-echeance-${echeance.id}.pdf`;
+				document.body.appendChild(lien);
+				lien.click();
+				document.body.removeChild(lien);
+				URL.revokeObjectURL(objectUrl);
+			} else {
+				imprimerPdfBlob(blob);
+			}
 		} catch (err) {
 			setError("Erreur lors du téléchargement du reçu");
 		} finally {
@@ -47,7 +51,7 @@ export function EcheanceRecuButton({ echeance }: EcheanceRecuButtonProps) {
 	return (
 		<div className="flex flex-col gap-2">
 			<Button
-				onClick={handleDownloadRecu}
+				onClick={() => void handleRecu()}
 				disabled={isLoading || error !== null}
 				variant="outline"
 				size="sm"
@@ -55,17 +59,24 @@ export function EcheanceRecuButton({ echeance }: EcheanceRecuButtonProps) {
 				title={
 					error
 						? "Impossible de télécharger le reçu pour le moment"
-						: "Télécharger le reçu PDF"
+						: isResident
+							? "Télécharger le reçu PDF"
+							: "Imprimer le reçu"
 				}
 			>
 				{isLoading ? (
 					<>
 						<Loader2 className="size-4 mr-2 animate-spin" />
-						Téléchargement…
+						{isResident ? "Téléchargement…" : "Préparation…"}
+					</>
+				) : isResident ? (
+					<>
+						<Download className="size-4 mr-2" />
+						Reçu
 					</>
 				) : (
 					<>
-						<Download className="size-4 mr-2" />
+						<Printer className="size-4 mr-2" />
 						Reçu
 					</>
 				)}

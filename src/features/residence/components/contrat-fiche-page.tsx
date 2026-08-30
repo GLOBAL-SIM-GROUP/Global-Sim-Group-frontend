@@ -1,11 +1,12 @@
 import { Link } from "@tanstack/react-router";
-import { FileText, Loader2 } from "lucide-react";
+import { Loader2, Printer } from "lucide-react";
 import { useState } from "react";
 
 import { Breadcrumb } from "#/components/ui/breadcrumb";
 import { Button } from "#/components/ui/button";
 import { getApiClient } from "#/core/api/client";
 import { cn } from "#/lib/utils";
+import { imprimerPdfBlob } from "#/lib/print-pdf";
 
 import { useClientsDetails } from "../hooks/use-clients";
 import { useContratDetail } from "../hooks/use-contrats";
@@ -54,7 +55,7 @@ interface ContratFichePageProps {
  */
 export function ContratFichePage({ id }: ContratFichePageProps) {
 	const [onglet, setOnglet] = useState<"echeances" | "caution">("echeances");
-	const [isDownloadingPDF, setIsDownloadingPDF] = useState(false);
+	const [isPrintingPDF, setIsPrintingPDF] = useState(false);
 
 	const contratQuery = useContratDetail(id);
 	const clientsDetails = useClientsDetails(
@@ -64,26 +65,17 @@ export function ContratFichePage({ id }: ContratFichePageProps) {
 		contratQuery.data ? [contratQuery.data.id_logement] : [],
 	);
 
-	const handleDownloadPDF = async () => {
+	const handlePrintPDF = async () => {
 		try {
-			setIsDownloadingPDF(true);
-			const client = getApiClient();
-			const blob = await client.download(
+			setIsPrintingPDF(true);
+			const blob = await getApiClient().download(
 				`/api/v1/residence/contrats/${id}/pdf`,
 			);
-
-			const url = window.URL.createObjectURL(blob);
-			const link = document.createElement("a");
-			link.href = url;
-			link.download = `contrat-${contratQuery.data?.numero_contrat || id}.pdf`;
-			document.body.appendChild(link);
-			link.click();
-			document.body.removeChild(link);
-			window.URL.revokeObjectURL(url);
+			imprimerPdfBlob(blob);
 		} catch (error) {
-			console.error("Erreur lors du téléchargement du PDF", error);
+			console.error("Erreur lors de l'impression du PDF", error);
 		} finally {
-			setIsDownloadingPDF(false);
+			setIsPrintingPDF(false);
 		}
 	};
 
@@ -141,19 +133,19 @@ export function ContratFichePage({ id }: ContratFichePageProps) {
 
 				<div className="flex flex-col gap-3 sm:flex-row">
 					<Button
-						onClick={handleDownloadPDF}
-						disabled={isDownloadingPDF}
+						onClick={() => void handlePrintPDF()}
+						disabled={isPrintingPDF}
 						className="w-full bg-lagoon hover:bg-lagoon/90 sm:w-auto"
 					>
-						{isDownloadingPDF ? (
+						{isPrintingPDF ? (
 							<>
 								<Loader2 className="size-4 mr-2 animate-spin" />
-								Téléchargement…
+								Préparation…
 							</>
 						) : (
 							<>
-								<FileText className="size-4 mr-2" />
-								PDF Contrat
+								<Printer className="size-4 mr-2" />
+								Imprimer le contrat
 							</>
 						)}
 					</Button>
