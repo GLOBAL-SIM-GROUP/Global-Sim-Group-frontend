@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { FileDown, FileSpreadsheet, FileText } from "lucide-react";
+import { FileDown, FileSpreadsheet, Printer } from "lucide-react";
 import { type ReactNode, useState } from "react";
 
 import { Breadcrumb } from "#/components/ui/breadcrumb";
@@ -12,8 +12,8 @@ import {
 import { rapportExcelPath, rapportPdfPath } from "../api/rapports";
 import { useRapportFinancier } from "../hooks/use-rapports";
 import {
+	imprimerPdf,
 	telechargerExcel,
-	telechargerPdf,
 	telechargerTexte,
 } from "../lib/export";
 import {
@@ -37,12 +37,11 @@ export function RapportFinancierPage({
 	const rapportQuery = useRapportFinancier(periode.du, periode.au);
 	const [pdfError, setPdfError] = useState(false);
 
-	const exporterPdf = async () => {
+	const imprimerRapportPdf = async () => {
 		setPdfError(false);
 		try {
-			await telechargerPdf(
+			await imprimerPdf(
 				rapportPdfPath("/api/v1/rapports/financier", periode.du, periode.au),
-				`rapport-financier-${periode.du}-${periode.au}.pdf`,
 			);
 		} catch {
 			setPdfError(true);
@@ -139,11 +138,11 @@ export function RapportFinancierPage({
 					<Button
 						size="sm"
 						variant="outline"
-						onClick={exporterPdf}
+						onClick={() => void imprimerRapportPdf()}
 						disabled={!rapportQuery.data}
 						className="w-full sm:w-auto justify-center"
 					>
-						<FileText className="size-4" aria-hidden />
+						<Printer className="size-4" aria-hidden />
 						PDF
 					</Button>
 					<Button
