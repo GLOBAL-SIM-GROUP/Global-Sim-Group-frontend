@@ -37,7 +37,7 @@ export function ChargeFilters({
 	return (
 		<div className="flex flex-wrap items-center gap-3 rounded-lg border border-border bg-card p-4 shadow-sm">
 			<Select value={statut} onValueChange={onStatutChange}>
-				<SelectTrigger aria-label="Statut" className="w-40">
+				<SelectTrigger aria-label="Statut" className="w-full sm:w-40">
 					<SelectValue placeholder="Statut" />
 				</SelectTrigger>
 				<SelectContent>
@@ -56,7 +56,7 @@ export function ChargeFilters({
 				onChange={(event) => onLogementChange(event.target.value)}
 				placeholder="Logement…"
 				aria-label="Filtrer par logement"
-				className="w-40"
+				className="w-full sm:w-40"
 			/>
 
 			<Input
@@ -64,7 +64,7 @@ export function ChargeFilters({
 				value={periode}
 				onChange={(event) => onPeriodeChange(event.target.value)}
 				aria-label="Filtrer par période"
-				className="w-40"
+				className="w-full sm:w-40"
 			/>
 
 			<Input
@@ -72,7 +72,7 @@ export function ChargeFilters({
 				onChange={(event) => onCategorieChange(event.target.value)}
 				placeholder="Catégorie…"
 				aria-label="Filtrer par catégorie"
-				className="w-40"
+				className="w-full sm:w-40"
 			/>
 		</div>
 	);
