@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Plus } from "lucide-react";
+import { Home, UserPlus } from "lucide-react";
 import { useState } from "react";
 
 import { Breadcrumb } from "#/components/ui/breadcrumb";
@@ -26,6 +26,7 @@ import {
 } from "../models/clients";
 import { CLIENTS_PAGE_SIZE } from "../permissions";
 import { ClientFormDialog } from "./client-form-dialog";
+import { ClientSimpleFormDialog } from "./client-simple-form-dialog";
 
 /** Filtres/pagination reflétés dans l'URL. */
 export interface ClientsSearch {
@@ -72,7 +73,10 @@ export function ClientsPage({
 	const [recherche, setRecherche] = useState(initialSearch.recherche ?? "");
 	const [type, setType] = useState(initialSearch.type ?? "tous");
 	const [page, setPage] = useState(initialSearch.page ?? 1);
-	const [formOuvert, setFormOuvert] = useState(false);
+	// "locataire" = formulaire complet ; "client" = formulaire minimal (PASSAGE).
+	const [formulaireOuvert, setFormulaireOuvert] = useState<
+		"locataire" | "client" | null
+	>(null);
 
 	const clientsQuery = useClients({ search: recherche });
 
@@ -111,10 +115,23 @@ export function ClientsPage({
 					</p>
 				</section>
 				{canCreer ? (
-					<Button onClick={() => setFormOuvert(true)}>
-						<Plus className="size-4" aria-hidden />
-						Ajouter un client
-					</Button>
+					<div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
+						<Button
+							variant="outline"
+							onClick={() => setFormulaireOuvert("locataire")}
+							className="w-full sm:w-auto"
+						>
+							<Home className="size-4" aria-hidden />
+							Ajouter un locataire
+						</Button>
+						<Button
+							onClick={() => setFormulaireOuvert("client")}
+							className="w-full sm:w-auto"
+						>
+							<UserPlus className="size-4" aria-hidden />
+							Ajouter un client
+						</Button>
+					</div>
 				) : null}
 			</div>
 
@@ -253,12 +270,21 @@ export function ClientsPage({
 			) : null}
 
 			<ClientFormDialog
-				open={formOuvert}
+				open={formulaireOuvert === "locataire"}
 				client={null}
+				typeClientCree="LOCATAIRE"
 				onOpenChange={(ouvert) => {
-					if (!ouvert) setFormOuvert(false);
+					if (!ouvert) setFormulaireOuvert(null);
 				}}
-				onSaved={() => setFormOuvert(false)}
+				onSaved={() => setFormulaireOuvert(null)}
+			/>
+
+			<ClientSimpleFormDialog
+				open={formulaireOuvert === "client"}
+				onOpenChange={(ouvert) => {
+					if (!ouvert) setFormulaireOuvert(null);
+				}}
+				onSaved={() => setFormulaireOuvert(null)}
 			/>
 		</div>
 	);

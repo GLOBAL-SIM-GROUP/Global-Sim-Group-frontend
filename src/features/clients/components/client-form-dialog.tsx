@@ -15,6 +15,7 @@ import {
 	SelectValue,
 } from "#/components/ui/select";
 import { getErrorMessageForCode, toApiError } from "#/core/api";
+import { cn } from "#/lib/utils";
 
 import { useCreerClient, useModifierClient } from "../hooks/use-clients";
 import type { Client, TypeClient } from "../models/clients";
@@ -25,17 +26,25 @@ const TYPES: TypeClient[] = ["AUTRE"];
 interface ClientFormDialogProps {
 	open: boolean;
 	client: Client | null;
+	/**
+	 * Type imposé à la création (« Ajouter un locataire » vs « Ajouter un
+	 * client ») : le sélecteur de type est alors masqué, implicite au bouton
+	 * cliqué. Ignoré en édition (le type reste modifiable comme avant).
+	 */
+	typeClientCree?: TypeClient;
 	onOpenChange: (open: boolean) => void;
 	onSaved: () => void;
 }
 
 /**
  * Modale « Ajouter / Modifier un client » (3.1) : informations personnelles,
- * coordonnées et type de client.
+ * coordonnées et type de client. En création, le type est imposé par le
+ * bouton d'origine (`typeClientCree`) plutôt que choisi dans le formulaire.
  */
 export function ClientFormDialog({
 	open,
 	client,
+	typeClientCree,
 	onOpenChange,
 	onSaved,
 }: ClientFormDialogProps) {
@@ -43,11 +52,24 @@ export function ClientFormDialog({
 	const editMutation = useModifierClient();
 	const [globalError, setGlobalError] = useState<string | null>(null);
 
+	const titre = client
+		? "Modifier le client"
+		: typeClientCree === "LOCATAIRE"
+			? "Nouveau locataire"
+			: "Nouveau client";
+	const description = client
+		? "Fiche d'un locataire ou client de passage."
+		: typeClientCree === "LOCATAIRE"
+			? "Fiche complète d'un résident locataire."
+			: "Fiche d'un client de passage.";
+	/** Type imposé par le bouton d'origine : sélecteur masqué (implicite). */
+	const typeVerrouille = !client && Boolean(typeClientCree);
+
 	const form = useForm({
 		defaultValues: {
 			nom: client?.nom ?? "",
 			prenoms: client?.prenoms ?? "",
-			typeClient: client?.type_client ?? "",
+			typeClient: client?.type_client ?? typeClientCree ?? "",
 			dateNaissance: client?.date_naissance ?? "",
 			lieuNaissance: client?.lieu_naissance ?? "",
 			sexe: client?.sexe ?? "",
@@ -69,11 +91,15 @@ export function ClientFormDialog({
 					fields.telPrincipal = "Ce champ est requis.";
 				if (!value.typeClient) fields.typeClient = "Sélectionnez un type.";
 				if (!value.dateNaissance) fields.dateNaissance = "Ce champ est requis.";
-				if (!value.lieuNaissance.trim()) fields.lieuNaissance = "Ce champ est requis.";
+				if (!value.lieuNaissance.trim())
+					fields.lieuNaissance = "Ce champ est requis.";
 				if (!value.sexe) fields.sexe = "Sélectionnez une option.";
-				if (!value.nationalite.trim()) fields.nationalite = "Ce champ est requis.";
-				if (!value.profession.trim()) fields.profession = "Ce champ est requis.";
-				if (!value.telSecondaire.trim()) fields.telSecondaire = "Ce champ est requis.";
+				if (!value.nationalite.trim())
+					fields.nationalite = "Ce champ est requis.";
+				if (!value.profession.trim())
+					fields.profession = "Ce champ est requis.";
+				if (!value.telSecondaire.trim())
+					fields.telSecondaire = "Ce champ est requis.";
 				if (!value.email.trim()) fields.email = "Ce champ est requis.";
 				if (!value.adresse.trim()) fields.adresse = "Ce champ est requis.";
 				if (!value.ville.trim()) fields.ville = "Ce champ est requis.";
@@ -121,10 +147,10 @@ export function ClientFormDialog({
 				<Dialog.Overlay className="fixed inset-0 z-50 bg-black/50" />
 				<Dialog.Content className="fixed top-1/2 left-1/2 z-50 max-h-[85dvh] w-[calc(100vw-2rem)] max-w-2xl -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-lg border border-border bg-card p-6 shadow-lg">
 					<Dialog.Title className="text-base font-semibold text-foreground">
-						{client ? "Modifier le client" : "Ajouter un client"}
+						{titre}
 					</Dialog.Title>
 					<Dialog.Description className="mt-1 text-sm text-muted-foreground">
-						Fiche d'un locataire ou client de passage.
+						{description}
 					</Dialog.Description>
 					<form
 						className="mt-4 space-y-4"
@@ -163,38 +189,45 @@ export function ClientFormDialog({
 							</form.Field>
 						</div>
 
-						<div className="grid grid-cols-2 gap-4">
-							<form.Field name="typeClient">
-								{(field) => (
-									<div className="space-y-1.5">
-										<Label htmlFor={field.name}>Type de client</Label>
-										<Select
-											value={field.state.value}
-											onValueChange={field.handleChange}
-										>
-											<SelectTrigger
-												id={field.name}
-												aria-label="Type de client"
-												className="w-full"
+						<div
+							className={cn(
+								"grid gap-4",
+								typeVerrouille ? "grid-cols-1" : "grid-cols-2",
+							)}
+						>
+							{!typeVerrouille ? (
+								<form.Field name="typeClient">
+									{(field) => (
+										<div className="space-y-1.5">
+											<Label htmlFor={field.name}>Type de client</Label>
+											<Select
+												value={field.state.value}
+												onValueChange={field.handleChange}
 											>
-												<SelectValue placeholder="Sélectionner" />
-											</SelectTrigger>
-											<SelectContent>
-												{TYPES.map((type) => (
-													<SelectItem key={type} value={type}>
-														{TYPE_CLIENT_LABELS[type]}
-													</SelectItem>
-												))}
-											</SelectContent>
-										</Select>
-										{field.state.meta.errors[0] ? (
-											<p className="text-xs text-destructive">
-												{field.state.meta.errors[0]}
-											</p>
-										) : null}
-									</div>
-								)}
-							</form.Field>
+												<SelectTrigger
+													id={field.name}
+													aria-label="Type de client"
+													className="w-full"
+												>
+													<SelectValue placeholder="Sélectionner" />
+												</SelectTrigger>
+												<SelectContent>
+													{TYPES.map((type) => (
+														<SelectItem key={type} value={type}>
+															{TYPE_CLIENT_LABELS[type]}
+														</SelectItem>
+													))}
+												</SelectContent>
+											</Select>
+											{field.state.meta.errors[0] ? (
+												<p className="text-xs text-destructive">
+													{field.state.meta.errors[0]}
+												</p>
+											) : null}
+										</div>
+									)}
+								</form.Field>
+							) : null}
 							<form.Field name="telPrincipal">
 								{(field) => (
 									<InputField
