@@ -8,12 +8,7 @@
  */
 export type TypeLocation = "MENSUEL" | "ANNUEL";
 
-export type ContratStatut =
-	| "EN_ATTENTE"
-	| "ACTIF"
-	| "EXPIRE"
-	| "RESILIE"
-	| "TERMINE";
+export type ContratStatut = "EN_ATTENTE" | "ACTIF" | "RESILIE" | "TERMINE";
 
 export interface Contrat {
 	id: string;
@@ -67,7 +62,6 @@ export interface Caution {
 export const CONTRAT_STATUT_LABELS: Record<ContratStatut, string> = {
 	EN_ATTENTE: "En attente",
 	ACTIF: "Actif",
-	EXPIRE: "Expiré",
 	RESILIE: "Résilié",
 	TERMINE: "Terminé",
 };

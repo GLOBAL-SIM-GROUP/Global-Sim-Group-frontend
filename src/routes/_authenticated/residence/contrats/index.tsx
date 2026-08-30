@@ -18,7 +18,7 @@ export const Route = createFileRoute("/_authenticated/residence/contrats/")({
 	},
 	validateSearch: z.object({
 		statut: z
-			.enum(["tous", "EN_ATTENTE", "ACTIF", "EXPIRE", "RESILIE", "TERMINE"])
+			.enum(["tous", "EN_ATTENTE", "ACTIF", "RESILIE", "TERMINE"])
 			.optional(),
 		locataire: z.string().optional(),
 		logement: z.string().optional(),

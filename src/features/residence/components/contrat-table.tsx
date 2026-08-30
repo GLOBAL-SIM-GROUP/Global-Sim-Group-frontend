@@ -13,7 +13,6 @@ import { ContratActions } from "./contrat-actions";
 const CONTRAT_STATUT_BADGE: Record<ContratStatut, string> = {
 	EN_ATTENTE: "bg-[#E67E22] text-white",
 	ACTIF: "bg-[#27AE60] text-white",
-	EXPIRE: "bg-[#95A5A6] text-white",
 	RESILIE: "bg-[#E74C3C] text-white",
 	TERMINE: "bg-[#2980B9] text-white",
 };
