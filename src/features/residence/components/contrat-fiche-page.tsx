@@ -27,12 +27,17 @@ const CONTRAT_STATUT_BADGE: Record<ContratStatut, string> = {
 	TERMINE: "bg-[#2980B9] text-white",
 };
 
-/** Ligne lecture seule. */
+/**
+ * Ligne lecture seule. Empilée (label au-dessus de la valeur) sous `sm` —
+ * la colonne de libellé fixe (10rem) ne laisse quasiment plus de place à la
+ * valeur sur un écran de 320px ; à partir de `sm`, layout habituel en 2
+ * colonnes.
+ */
 function Ligne({ label, valeur }: { label: string; valeur: string }) {
 	return (
-		<div className="grid grid-cols-[10rem_1fr] gap-3 text-sm">
+		<div className="grid grid-cols-1 gap-1 text-sm sm:grid-cols-[10rem_1fr] sm:items-baseline sm:gap-3">
 			<dt className="text-muted-foreground">{label}</dt>
-			<dd className="text-foreground">{valeur}</dd>
+			<dd className="break-words text-foreground">{valeur}</dd>
 		</div>
 	);
 }
@@ -84,7 +89,7 @@ export function ContratFichePage({ id }: ContratFichePageProps) {
 
 	if (contratQuery.isLoading) {
 		return (
-			<div className="mx-auto w-full max-w-5xl space-y-6 p-6">
+			<div className="mx-auto w-full max-w-5xl space-y-6 p-4 sm:p-6">
 				<p className="text-sm text-muted-foreground">Chargement…</p>
 			</div>
 		);
@@ -92,7 +97,7 @@ export function ContratFichePage({ id }: ContratFichePageProps) {
 
 	if (contratQuery.isError || !contratQuery.data) {
 		return (
-			<div className="mx-auto w-full max-w-5xl space-y-3 p-6">
+			<div className="mx-auto w-full max-w-5xl space-y-3 p-4 sm:p-6">
 				<h1 className="text-2xl font-semibold text-foreground">
 					Fiche contrat
 				</h1>
@@ -114,7 +119,7 @@ export function ContratFichePage({ id }: ContratFichePageProps) {
 	const logement = logementsDetails.data?.get(contrat.id_logement);
 
 	return (
-		<div className="mx-auto w-full max-w-5xl space-y-6 p-6">
+		<div className="mx-auto w-full max-w-5xl space-y-6 p-4 sm:p-6">
 			<Breadcrumb
 				items={[
 					{ label: "Accueil", to: "/" },
@@ -134,11 +139,11 @@ export function ContratFichePage({ id }: ContratFichePageProps) {
 					</p>
 				</section>
 
-				<div className="flex gap-3">
+				<div className="flex flex-col gap-3 sm:flex-row">
 					<Button
 						onClick={handleDownloadPDF}
 						disabled={isDownloadingPDF}
-						className="bg-lagoon hover:bg-lagoon/90"
+						className="w-full bg-lagoon hover:bg-lagoon/90 sm:w-auto"
 					>
 						{isDownloadingPDF ? (
 							<>
@@ -152,13 +157,13 @@ export function ContratFichePage({ id }: ContratFichePageProps) {
 							</>
 						)}
 					</Button>
-					<Button variant="outline" asChild>
+					<Button variant="outline" asChild className="w-full sm:w-auto">
 						<Link to="/residence/contrats">Retour aux contrats</Link>
 					</Button>
 				</div>
 			</div>
 
-			<section className="rounded-lg border border-border bg-card p-5 shadow-sm">
+			<section className="rounded-lg border border-border bg-card p-4 shadow-sm sm:p-5">
 				<dl className="grid gap-4 sm:grid-cols-2">
 					<Ligne label="Numéro" valeur={contrat.numero_contrat} />
 					<Ligne label="Locataire" valeur={client ? nomComplet(client) : "…"} />
@@ -193,7 +198,7 @@ export function ContratFichePage({ id }: ContratFichePageProps) {
 						label="Date de signature"
 						valeur={formatDateISO(contrat.date_signature)}
 					/>
-					<div className="grid grid-cols-[10rem_1fr] gap-3 text-sm">
+					<div className="grid grid-cols-1 gap-1 text-sm sm:grid-cols-[10rem_1fr] sm:items-baseline sm:gap-3">
 						<dt className="text-muted-foreground">Statut</dt>
 						<dd>
 							<span
