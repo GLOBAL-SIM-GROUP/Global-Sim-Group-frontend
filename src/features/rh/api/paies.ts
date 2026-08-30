@@ -102,3 +102,8 @@ export function payerPaie(id: string, idMoyen: string): Promise<unknown> {
 		body: JSON.stringify(corps),
 	});
 }
+
+/** Télécharge le PDF du bulletin de salaire. */
+export function telechargerPaiePdf(id: string): Promise<Blob> {
+	return getApiClient().download(`/api/v1/rh/paies/${id}/pdf`);
+}

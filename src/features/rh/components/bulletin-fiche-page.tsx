@@ -1,6 +1,6 @@
 import { useForm } from "@tanstack/react-form";
 import { Link } from "@tanstack/react-router";
-import { Check, Loader2, Plus, X } from "lucide-react";
+import { Check, FileDown, Loader2, Plus, X } from "lucide-react";
 import { Dialog } from "radix-ui";
 import { useState } from "react";
 
@@ -23,6 +23,7 @@ import { formatMontantFCFA } from "#/features/residence/models/format";
 import { PaiementDialog } from "#/features/salle-fete/components/paiement-dialog";
 import { cn } from "#/lib/utils";
 
+import { telechargerPaiePdf } from "../api/paies";
 import {
 	useAjouterElementPaie,
 	useAnnulerPaie,
@@ -236,6 +237,29 @@ export function BulletinFichePage({ id }: BulletinFichePageProps) {
 	const [elementOuvert, setElementOuvert] = useState(false);
 	const [paiementOuvert, setPaiementOuvert] = useState(false);
 	const [aAnnuler, setAAnnuler] = useState(false);
+	const [isDownloading, setIsDownloading] = useState(false);
+	const [downloadError, setDownloadError] = useState<string | null>(null);
+
+	const telechargerPdf = async () => {
+		try {
+			setIsDownloading(true);
+			setDownloadError(null);
+			const blob = await telechargerPaiePdf(id);
+			const url = URL.createObjectURL(blob);
+			const lien = document.createElement("a");
+			lien.href = url;
+			lien.download = `bulletin-${id}.pdf`;
+			document.body.appendChild(lien);
+			lien.click();
+			document.body.removeChild(lien);
+			URL.revokeObjectURL(url);
+		} catch (error) {
+			setDownloadError("Impossible de télécharger le bulletin.");
+			console.error("Erreur téléchargement bulletin PDF", error);
+		} finally {
+			setIsDownloading(false);
+		}
+	};
 
 	if (paieQuery.isLoading) {
 		return (
@@ -289,6 +313,18 @@ export function BulletinFichePage({ id }: BulletinFichePageProps) {
 				</section>
 
 				<div className="flex flex-wrap items-center gap-2">
+					<Button
+						variant="outline"
+						onClick={() => void telechargerPdf()}
+						disabled={isDownloading}
+					>
+						{isDownloading ? (
+							<Loader2 className="size-4 animate-spin" aria-hidden />
+						) : (
+							<FileDown className="size-4" aria-hidden />
+						)}
+						Télécharger le PDF
+					</Button>
 					{canCreer && estModifiable ? (
 						<Button variant="outline" onClick={() => setElementOuvert(true)}>
 							<Plus className="size-4" aria-hidden />
@@ -440,6 +476,15 @@ export function BulletinFichePage({ id }: BulletinFichePageProps) {
 					className="rounded-md border border-destructive/40 bg-destructive/10 px-4 py-2 text-sm text-destructive"
 				>
 					Impossible de mettre à jour le bulletin.
+				</div>
+			) : null}
+
+			{downloadError ? (
+				<div
+					role="alert"
+					className="rounded-md border border-destructive/40 bg-destructive/10 px-4 py-2 text-sm text-destructive"
+				>
+					{downloadError}
 				</div>
 			) : null}
 
