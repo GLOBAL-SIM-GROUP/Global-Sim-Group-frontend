@@ -148,6 +148,11 @@ const FIELD_PROPERTY_TO_FORM: Record<string, LoginField> = {
 export const Route = createFileRoute("/login")({
 	validateSearch: z.object({
 		next: z.string().optional(),
+		/** Posé par `_authenticated.tsx` quand la session expire en arrière-plan
+		 * (refresh token rejeté) pendant que l'utilisateur était déjà sur une
+		 * page protégée — explique la redirection plutôt que de la laisser
+		 * silencieuse. */
+		expired: z.literal("1").optional(),
 	}),
 	beforeLoad: ({ context }) => {
 		if (context.auth.isAuthenticated) {
@@ -339,6 +344,15 @@ export function LoginPage() {
 									Accédez à votre espace de gestion
 								</p>
 							</div>
+
+							{search.expired === "1" ? (
+								<div
+									role="alert"
+									className="rounded-lg bg-[#E67E22]/10 border border-[#E67E22]/30 px-4 py-3 text-sm text-[#E67E22]"
+								>
+									Votre session a expiré. Veuillez vous reconnecter.
+								</div>
+							) : null}
 
 							{/* Formulaire */}
 							<form

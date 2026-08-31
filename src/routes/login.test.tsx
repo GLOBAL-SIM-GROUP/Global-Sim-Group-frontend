@@ -12,6 +12,10 @@ const mocks = vi.hoisted(() => ({
 		restore: vi.fn<() => Promise<void>>(),
 	},
 	navigate: vi.fn<() => Promise<void>>(),
+	search: { next: undefined, expired: undefined } as {
+		next?: string;
+		expired?: "1";
+	},
 }));
 
 // Le formulaire de login est testé hors du routeur complet : on mocke
@@ -24,7 +28,7 @@ vi.mock("@tanstack/react-router", async (importOriginal) => {
 		...actual,
 		useRouteContext: () => ({ auth: mocks.auth }),
 		useNavigate: () => mocks.navigate,
-		useSearch: () => ({ next: undefined }),
+		useSearch: () => mocks.search,
 	};
 });
 
@@ -38,6 +42,8 @@ async function renderLogin() {
 beforeEach(() => {
 	mocks.auth.login.mockReset();
 	mocks.navigate.mockReset();
+	mocks.search.next = undefined;
+	mocks.search.expired = undefined;
 });
 
 describe("LoginPage", () => {
@@ -117,6 +123,25 @@ describe("LoginPage", () => {
 		expect(await screen.findByRole("alert")).toHaveTextContent(
 			"Connexion impossible.",
 		);
+	});
+
+	it("affiche un message quand la session a expiré (?expired=1)", async () => {
+		mocks.search.expired = "1";
+		await renderLogin();
+
+		expect(
+			await screen.findByText(
+				"Votre session a expiré. Veuillez vous reconnecter.",
+			),
+		).toBeInTheDocument();
+	});
+
+	it("n'affiche pas le message d'expiration sans ?expired=1", async () => {
+		await renderLogin();
+
+		expect(
+			screen.queryByText("Votre session a expiré. Veuillez vous reconnecter."),
+		).not.toBeInTheDocument();
 	});
 
 	it("se connecte puis navigue vers l’accueil", async () => {
