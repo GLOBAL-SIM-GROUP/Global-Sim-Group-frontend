@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Button } from "#/components/ui/button";
 import { Input } from "#/components/ui/input";
 import { Label } from "#/components/ui/label";
+import { ClientForm } from "#/features/clients/components/client-form";
 
 import { useRechercherClients } from "../hooks/use-clients";
 import { nomComplet } from "../models/clients";
@@ -33,6 +34,15 @@ interface ClientRechercheFieldProps {
 	value: string;
 	/** Pose l'id (et le libellé affiché) au moment du choix. */
 	onChange: (id: string, label: string) => void;
+	/**
+	 * Si aucun client ne correspond à la recherche, affiche le formulaire
+	 * complet de création d'un locataire (état civil, coordonnées…, type
+	 * imposé à LOCATAIRE) plutôt que le formulaire rapide (nom, prénoms,
+	 * téléphone, type). Utilisé par le formulaire de contrat de location : un
+	 * locataire mérite un dossier complet, pas une fiche minimale pensée pour
+	 * un client de passage au pressing/restaurant/boutique.
+	 */
+	creationLocataireComplete?: boolean;
 }
 
 /**
@@ -44,6 +54,7 @@ interface ClientRechercheFieldProps {
 export function ClientRechercheField({
 	value,
 	onChange,
+	creationLocataireComplete = false,
 }: ClientRechercheFieldProps) {
 	const [terme, setTerme] = useState("");
 	const termeDebounced = useDebouncedValue(terme, 300);
@@ -129,26 +140,30 @@ export function ClientRechercheField({
 							type="button"
 							variant="outline"
 							size="sm"
-							onClick={() => {
-								console.log(
-									"[DEBUG-client] bouton 'Créer un client' cliqué — ouverture du formulaire inline",
-								);
-								setCreationOuverte(true);
-							}}
+							onClick={() => setCreationOuverte(true)}
 						>
 							<Plus className="size-4" aria-hidden />
-							Créer un client
+							{creationLocataireComplete
+								? "Créer un locataire"
+								: "Créer un client"}
 						</Button>
+					) : creationLocataireComplete ? (
+						<ClientForm
+							client={null}
+							typeClientCree="LOCATAIRE"
+							onCancel={() => setCreationOuverte(false)}
+							onSaved={(id, label) => {
+								if (!id) return;
+								setSelectionne({ id, label: label ?? "" });
+								onChange(id, label ?? "");
+								setCreationOuverte(false);
+								setTerme("");
+							}}
+						/>
 					) : (
 						<CreerClientInlineForm
 							onCancel={() => setCreationOuverte(false)}
 							onSaved={(id, label) => {
-								console.log(
-									"[DEBUG-client] 4. onSaved appelé — id =",
-									id,
-									"label =",
-									label,
-								);
 								setSelectionne({ id, label });
 								onChange(id, label);
 								setCreationOuverte(false);

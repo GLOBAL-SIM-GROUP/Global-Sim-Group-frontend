@@ -170,6 +170,7 @@ export function ContratForm({ onCancel, onSaved }: ContratFormProps) {
 					<ClientRechercheField
 						value={field.state.value}
 						onChange={(id) => field.handleChange(id)}
+						creationLocataireComplete
 					/>
 				)}
 			</form.Field>
