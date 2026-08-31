@@ -8,6 +8,9 @@ import { ClientFormDialog } from "./client-form-dialog";
 vi.mock("../hooks/use-clients", () => ({
 	useCreerClient: () => ({ mutateAsync: vi.fn(), isPending: false }),
 	useModifierClient: () => ({ mutateAsync: vi.fn(), isPending: false }),
+	useCreerPiece: () => ({ mutateAsync: vi.fn(), isPending: false }),
+	useModifierPiece: () => ({ mutateAsync: vi.fn(), isPending: false }),
+	useCreerContact: () => ({ mutateAsync: vi.fn(), isPending: false }),
 }));
 
 const clientExistant: Client = {

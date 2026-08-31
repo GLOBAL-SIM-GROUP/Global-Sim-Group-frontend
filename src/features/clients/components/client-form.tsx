@@ -1,5 +1,5 @@
 import { useForm } from "@tanstack/react-form";
-import { Loader2 } from "lucide-react";
+import { Image as ImageIcon, Loader2 } from "lucide-react";
 import { useState } from "react";
 
 import { Button } from "#/components/ui/button";
@@ -14,14 +14,90 @@ import {
 	SelectValue,
 } from "#/components/ui/select";
 import { getErrorMessageForCode, toApiError } from "#/core/api";
+import { uploadImage } from "#/core/api/uploads";
 import { cn } from "#/lib/utils";
 
 import { listClients } from "../api/clients";
-import { useCreerClient, useModifierClient } from "../hooks/use-clients";
-import type { Client, TypeClient } from "../models/clients";
-import { nomComplet, TYPE_CLIENT_LABELS } from "../models/clients";
+import {
+	useCreerClient,
+	useCreerContact,
+	useCreerPiece,
+	useModifierClient,
+	useModifierPiece,
+} from "../hooks/use-clients";
+import type { Client, TypeClient, TypePiece } from "../models/clients";
+import {
+	nomComplet,
+	TYPE_CLIENT_LABELS,
+	TYPE_PIECE_LABELS,
+} from "../models/clients";
 
 const TYPES: TypeClient[] = ["AUTRE"];
+
+interface PieceDraft {
+	typePiece: TypePiece;
+	numero: string;
+	dateDelivrance: string;
+	dateExpiration: string;
+	autoriteDelivrance: string;
+	fileRecto: File | null;
+	fileVerso: File | null;
+}
+
+const PIECE_DRAFT_VIDE: PieceDraft = {
+	typePiece: "CNI",
+	numero: "",
+	dateDelivrance: "",
+	dateExpiration: "",
+	autoriteDelivrance: "",
+	fileRecto: null,
+	fileVerso: null,
+};
+
+interface ContactDraft {
+	nom: string;
+	prenom: string;
+	lien: string;
+	telPrincipal: string;
+	telSecondaire: string;
+	adresse: string;
+	email: string;
+}
+
+const CONTACT_DRAFT_VIDE: ContactDraft = {
+	nom: "",
+	prenom: "",
+	lien: "",
+	telPrincipal: "",
+	telSecondaire: "",
+	adresse: "",
+	email: "",
+};
+
+/** Pièce « touchée » : au moins un champ saisi (numéro, dates, autorité, photo). */
+function pieceEstRenseignee(piece: PieceDraft): boolean {
+	return (
+		piece.numero.trim() !== "" ||
+		piece.dateDelivrance !== "" ||
+		piece.dateExpiration !== "" ||
+		piece.autoriteDelivrance.trim() !== "" ||
+		piece.fileRecto !== null ||
+		piece.fileVerso !== null
+	);
+}
+
+/** Contact « touché » : au moins un champ saisi. */
+function contactEstRenseigne(contact: ContactDraft): boolean {
+	return (
+		contact.nom.trim() !== "" ||
+		contact.prenom.trim() !== "" ||
+		contact.lien.trim() !== "" ||
+		contact.telPrincipal.trim() !== "" ||
+		contact.telSecondaire.trim() !== "" ||
+		contact.adresse.trim() !== "" ||
+		contact.email.trim() !== ""
+	);
+}
 
 interface ClientFormProps {
 	/** Client à modifier (mode édition) ; null = création. */
@@ -46,9 +122,14 @@ interface ClientFormProps {
  * Formulaire « Ajouter / Modifier un client » (3.1) : informations
  * personnelles, coordonnées et type de client. En création, le type est
  * imposé par le contexte d'origine (`typeClientCree`) plutôt que choisi dans
- * le formulaire. Dialog-agnostique : `ClientFormDialog` l'affiche en modale,
- * `ClientRechercheField` peut l'embarquer inline (création d'un locataire
- * depuis un autre formulaire, ex. contrat de location).
+ * le formulaire, et deux sections optionnelles permettent d'ajouter dans la
+ * foulée une pièce d'identité (avec photos recto/verso) et un contact
+ * d'urgence — sous-ressources qui exigent un `id_client` existant, donc
+ * enregistrées juste après la création du client, avant `onSaved`. En
+ * édition, ces sous-ressources restent gérées depuis la fiche client (pas de
+ * duplication ici). Dialog-agnostique : `ClientFormDialog` l'affiche en
+ * modale, `ClientRechercheField` peut l'embarquer inline (création d'un
+ * locataire depuis un autre formulaire, ex. contrat de location).
  */
 export function ClientForm({
 	client,
@@ -58,7 +139,18 @@ export function ClientForm({
 }: ClientFormProps) {
 	const createMutation = useCreerClient();
 	const editMutation = useModifierClient();
+	const creerPieceMutation = useCreerPiece();
+	const modifierPieceMutation = useModifierPiece();
+	const creerContactMutation = useCreerContact();
 	const [globalError, setGlobalError] = useState<string | null>(null);
+
+	const [piece, setPiece] = useState<PieceDraft>(PIECE_DRAFT_VIDE);
+	const [pieceErreur, setPieceErreur] = useState<string | null>(null);
+	const [contact, setContact] = useState<ContactDraft>(CONTACT_DRAFT_VIDE);
+	const [contactErreurs, setContactErreurs] = useState<
+		Partial<Record<keyof ContactDraft, string>>
+	>({});
+	const [enregistrementAnnexes, setEnregistrementAnnexes] = useState(false);
 
 	/** Type imposé par le contexte d'origine : sélecteur masqué (implicite). */
 	const typeVerrouille = !client && Boolean(typeClientCree);
@@ -107,6 +199,33 @@ export function ClientForm({
 		},
 		onSubmit: async ({ value }) => {
 			setGlobalError(null);
+			setPieceErreur(null);
+			setContactErreurs({});
+
+			// Pièce/contact : sous-ressources optionnelles, uniquement à la
+			// création (l'édition les gère depuis la fiche client). Un champ
+			// rempli engage la validation minimale du reste de la section.
+			let pieceValide = true;
+			if (!client && pieceEstRenseignee(piece) && !piece.numero.trim()) {
+				setPieceErreur("Le numéro de la pièce est requis.");
+				pieceValide = false;
+			}
+
+			let contactValide = true;
+			if (!client && contactEstRenseigne(contact)) {
+				const erreurs: Partial<Record<keyof ContactDraft, string>> = {};
+				if (!contact.nom.trim()) erreurs.nom = "Ce champ est requis.";
+				if (!contact.lien.trim()) erreurs.lien = "Ce champ est requis.";
+				if (!contact.telPrincipal.trim())
+					erreurs.telPrincipal = "Ce champ est requis.";
+				if (Object.keys(erreurs).length > 0) {
+					setContactErreurs(erreurs);
+					contactValide = false;
+				}
+			}
+
+			if (!pieceValide || !contactValide) return;
+
 			try {
 				const corps = {
 					nom: value.nom.trim(),
@@ -129,23 +248,94 @@ export function ClientForm({
 					onSaved(client.id, `${corps.prenoms} ${corps.nom}`.trim());
 					return;
 				}
+
 				const resultat = await createMutation.mutateAsync(corps);
 				const idDirect = (resultat as { id_client?: string } | undefined)
 					?.id_client;
 				const label = `${corps.nom} ${corps.prenoms}`.trim();
+
+				let idClientCree: string;
+				let labelClientCree: string;
 				if (idDirect) {
-					onSaved(idDirect, label);
-					return;
-				}
-				const trouves = await listClients({ search: label });
-				const premier = trouves[0];
-				if (premier) {
-					onSaved(premier.id, nomComplet(premier));
+					idClientCree = idDirect;
+					labelClientCree = label;
 				} else {
-					setGlobalError(
-						"Client créé mais introuvable — relancez la recherche.",
-					);
+					// Réponse sans id : re-recherche par nom + prénoms, premier résultat.
+					const trouves = await listClients({ search: label });
+					const premier = trouves[0];
+					if (!premier) {
+						setGlobalError(
+							"Client créé mais introuvable — relancez la recherche.",
+						);
+						return;
+					}
+					idClientCree = premier.id;
+					labelClientCree = nomComplet(premier);
 				}
+
+				try {
+					setEnregistrementAnnexes(true);
+					if (pieceEstRenseignee(piece)) {
+						const pieceResponse = await creerPieceMutation.mutateAsync({
+							idClient: idClientCree,
+							typePiece: piece.typePiece,
+							numero: piece.numero.trim(),
+							dateDelivrance: piece.dateDelivrance || null,
+							dateExpiration: piece.dateExpiration || null,
+							autoriteDelivrance: piece.autoriteDelivrance.trim() || null,
+						});
+						if (piece.fileRecto || piece.fileVerso) {
+							const updates: {
+								copieNum?: string | null;
+								copieNumVerso?: string | null;
+							} = {};
+							if (piece.fileRecto) {
+								updates.copieNum = await uploadImage(
+									piece.fileRecto,
+									"piece-identite",
+								);
+							}
+							if (piece.fileVerso) {
+								updates.copieNumVerso = await uploadImage(
+									piece.fileVerso,
+									"piece-identite",
+								);
+							}
+							await modifierPieceMutation.mutateAsync({
+								idClient: idClientCree,
+								idPiece: pieceResponse.id_piece,
+								...updates,
+							});
+						}
+					}
+					if (contactEstRenseigne(contact)) {
+						await creerContactMutation.mutateAsync({
+							idClient: idClientCree,
+							nom: contact.nom.trim(),
+							lien: contact.lien.trim(),
+							telPrincipal: contact.telPrincipal.trim(),
+							prenom: contact.prenom.trim() || null,
+							telSecondaire: contact.telSecondaire.trim() || null,
+							adresse: contact.adresse.trim() || null,
+							email: contact.email.trim() || null,
+						});
+					}
+				} catch (error) {
+					// Le client est déjà créé : on ne bloque pas le flux, on prévient
+					// juste que la pièce/le contact devra être ajouté depuis la fiche.
+					setGlobalError(
+						`Client créé, mais l'ajout de la pièce/du contact a échoué (${
+							getErrorMessageForCode(toApiError(error).code) ??
+							"erreur inconnue"
+						}). Complétez le dossier depuis la fiche client.`,
+					);
+					onSaved(idClientCree, labelClientCree);
+					return;
+				} finally {
+					setEnregistrementAnnexes(false);
+				}
+
+				onSaved(idClientCree, labelClientCree);
 			} catch (error) {
 				setGlobalError(
 					getErrorMessageForCode(toApiError(error).code) ??
@@ -154,6 +344,9 @@ export function ClientForm({
 			}
 		},
 	});
+
+	const busy =
+		createMutation.isPending || editMutation.isPending || enregistrementAnnexes;
 
 	return (
 		<form
@@ -417,6 +610,24 @@ export function ClientForm({
 				</div>
 			</div>
 
+			{!client ? (
+				<>
+					<SectionPieceIdentite
+						value={piece}
+						onChange={(patch) => setPiece((prev) => ({ ...prev, ...patch }))}
+						disabled={busy}
+						erreurNumero={pieceErreur}
+					/>
+
+					<SectionContactUrgence
+						value={contact}
+						onChange={(patch) => setContact((prev) => ({ ...prev, ...patch }))}
+						disabled={busy}
+						erreurs={contactErreurs}
+					/>
+				</>
+			) : null}
+
 			{globalError ? (
 				<p role="alert" className="text-sm font-medium text-destructive">
 					{globalError}
@@ -424,19 +635,279 @@ export function ClientForm({
 			) : null}
 
 			<div className="flex items-center justify-end gap-2 pt-2">
-				<Button type="button" variant="ghost" onClick={onCancel}>
+				<Button
+					type="button"
+					variant="ghost"
+					onClick={onCancel}
+					disabled={busy}
+				>
 					Annuler
 				</Button>
-				<Button
-					type="submit"
-					disabled={createMutation.isPending || editMutation.isPending}
-				>
-					{createMutation.isPending || editMutation.isPending ? (
+				<Button type="submit" disabled={busy}>
+					{busy ? (
 						<Loader2 className="size-4 animate-spin" aria-hidden />
 					) : null}
 					Enregistrer
 				</Button>
 			</div>
 		</form>
+	);
+}
+
+/** Zone de dépôt de fichier (recto/verso) — même gabarit que la fiche client. */
+function ChampFichier({
+	id,
+	label,
+	fichier,
+	onChange,
+	disabled,
+}: {
+	id: string;
+	label: string;
+	fichier: File | null;
+	onChange: (file: File | null) => void;
+	disabled: boolean;
+}) {
+	return (
+		<div className="space-y-1.5">
+			<Label htmlFor={id}>{label}</Label>
+			<div className="relative">
+				<input
+					id={id}
+					type="file"
+					accept="image/jpeg,image/png,image/webp,application/pdf"
+					onChange={(event) => onChange(event.target.files?.[0] ?? null)}
+					disabled={disabled}
+					className="absolute inset-0 cursor-pointer opacity-0"
+				/>
+				<div className="flex h-20 items-center justify-center rounded-md border border-dashed border-input bg-muted/30 text-center">
+					{fichier ? (
+						<div className="text-xs text-foreground">
+							<ImageIcon className="mx-auto mb-1 size-4" aria-hidden />
+							{fichier.name.substring(0, 20)}
+						</div>
+					) : (
+						<div className="text-xs text-muted-foreground">
+							<ImageIcon className="mx-auto mb-1 size-4" aria-hidden />
+							Choisir une image
+						</div>
+					)}
+				</div>
+			</div>
+		</div>
+	);
+}
+
+/**
+ * Section optionnelle « Pièce d'identité » du formulaire de création : mêmes
+ * champs que la modale dédiée de la fiche client (type, numéro, photos
+ * recto/verso, dates, autorité), enregistrée juste après la création du
+ * client puisqu'elle exige son id.
+ */
+function SectionPieceIdentite({
+	value,
+	onChange,
+	disabled,
+	erreurNumero,
+}: {
+	value: PieceDraft;
+	onChange: (patch: Partial<PieceDraft>) => void;
+	disabled: boolean;
+	erreurNumero: string | null;
+}) {
+	return (
+		<section className="space-y-4 rounded-lg border border-border p-4">
+			<div className="space-y-1">
+				<h3 className="text-sm font-semibold text-foreground">
+					Pièce d'identité (optionnel)
+				</h3>
+				<p className="text-xs text-muted-foreground">
+					Ajoutée au dossier dès la création du locataire.
+				</p>
+			</div>
+
+			<div className="grid grid-cols-2 gap-4">
+				<div className="space-y-1.5">
+					<Label htmlFor="piece-type">Type de pièce</Label>
+					<Select
+						value={value.typePiece}
+						onValueChange={(valeur) =>
+							onChange({ typePiece: valeur as TypePiece })
+						}
+					>
+						<SelectTrigger
+							id="piece-type"
+							aria-label="Type de pièce"
+							className="w-full"
+							disabled={disabled}
+						>
+							<SelectValue />
+						</SelectTrigger>
+						<SelectContent>
+							{Object.entries(TYPE_PIECE_LABELS).map(([valeur, libelle]) => (
+								<SelectItem key={valeur} value={valeur}>
+									{libelle}
+								</SelectItem>
+							))}
+						</SelectContent>
+					</Select>
+				</div>
+				<InputField
+					id="piece-numero"
+					label="Numéro de la pièce"
+					value={value.numero}
+					onChange={(event) => onChange({ numero: event.target.value })}
+					disabled={disabled}
+					error={erreurNumero ?? undefined}
+				/>
+			</div>
+
+			<div className="grid grid-cols-2 gap-4">
+				<ChampFichier
+					id="piece-recto"
+					label="Recto (photo)"
+					fichier={value.fileRecto}
+					onChange={(file) => onChange({ fileRecto: file })}
+					disabled={disabled}
+				/>
+				<ChampFichier
+					id="piece-verso"
+					label="Verso (photo)"
+					fichier={value.fileVerso}
+					onChange={(file) => onChange({ fileVerso: file })}
+					disabled={disabled}
+				/>
+			</div>
+
+			<div className="grid grid-cols-2 gap-4">
+				<div className="space-y-1.5">
+					<Label htmlFor="piece-delivrance">Délivrance</Label>
+					<Input
+						id="piece-delivrance"
+						type="date"
+						value={value.dateDelivrance}
+						onChange={(event) =>
+							onChange({ dateDelivrance: event.target.value })
+						}
+						disabled={disabled}
+					/>
+				</div>
+				<div className="space-y-1.5">
+					<Label htmlFor="piece-expiration">Expiration</Label>
+					<Input
+						id="piece-expiration"
+						type="date"
+						value={value.dateExpiration}
+						onChange={(event) =>
+							onChange({ dateExpiration: event.target.value })
+						}
+						disabled={disabled}
+					/>
+				</div>
+			</div>
+
+			<InputField
+				id="piece-autorite"
+				label="Autorité de délivrance"
+				value={value.autoriteDelivrance}
+				onChange={(event) =>
+					onChange({ autoriteDelivrance: event.target.value })
+				}
+				disabled={disabled}
+			/>
+		</section>
+	);
+}
+
+/**
+ * Section optionnelle « Contact d'urgence » du formulaire de création : mêmes
+ * champs que la modale dédiée de la fiche client, enregistrée juste après la
+ * création du client puisqu'elle exige son id.
+ */
+function SectionContactUrgence({
+	value,
+	onChange,
+	disabled,
+	erreurs,
+}: {
+	value: ContactDraft;
+	onChange: (patch: Partial<ContactDraft>) => void;
+	disabled: boolean;
+	erreurs: Partial<Record<keyof ContactDraft, string>>;
+}) {
+	return (
+		<section className="space-y-4 rounded-lg border border-border p-4">
+			<div className="space-y-1">
+				<h3 className="text-sm font-semibold text-foreground">
+					Contact d'urgence (optionnel)
+				</h3>
+				<p className="text-xs text-muted-foreground">
+					Personne à contacter en cas de besoin.
+				</p>
+			</div>
+
+			<div className="grid grid-cols-2 gap-4">
+				<InputField
+					id="contact-nom"
+					label="Nom du contact"
+					value={value.nom}
+					onChange={(event) => onChange({ nom: event.target.value })}
+					disabled={disabled}
+					error={erreurs.nom}
+				/>
+				<InputField
+					id="contact-prenom"
+					label="Prénom du contact"
+					value={value.prenom}
+					onChange={(event) => onChange({ prenom: event.target.value })}
+					disabled={disabled}
+				/>
+			</div>
+
+			<InputField
+				id="contact-lien"
+				label="Lien avec le locataire"
+				placeholder="ex : Frère, Conjoint…"
+				value={value.lien}
+				onChange={(event) => onChange({ lien: event.target.value })}
+				disabled={disabled}
+				error={erreurs.lien}
+			/>
+
+			<div className="grid grid-cols-2 gap-4">
+				<InputField
+					id="contact-tel-principal"
+					label="Téléphone du contact"
+					value={value.telPrincipal}
+					onChange={(event) => onChange({ telPrincipal: event.target.value })}
+					disabled={disabled}
+					error={erreurs.telPrincipal}
+				/>
+				<InputField
+					id="contact-tel-secondaire"
+					label="Deuxième numéro du contact"
+					value={value.telSecondaire}
+					onChange={(event) => onChange({ telSecondaire: event.target.value })}
+					disabled={disabled}
+				/>
+			</div>
+
+			<InputField
+				id="contact-adresse"
+				label="Adresse du contact"
+				value={value.adresse}
+				onChange={(event) => onChange({ adresse: event.target.value })}
+				disabled={disabled}
+			/>
+
+			<InputField
+				id="contact-email"
+				label="E-mail du contact"
+				type="email"
+				value={value.email}
+				onChange={(event) => onChange({ email: event.target.value })}
+				disabled={disabled}
+			/>
+		</section>
 	);
 }
