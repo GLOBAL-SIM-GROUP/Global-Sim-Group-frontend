@@ -125,9 +125,6 @@ export function VenteForm({
 		<form
 			className="space-y-4"
 			onSubmit={(event) => {
-				console.log(
-					"[DEBUG-client] ⚠️ submit reçu par le formulaire PARENT (vente) — l'événement de l'inner form a débordé ?",
-				);
 				event.preventDefault();
 				event.stopPropagation();
 				void soumettre();

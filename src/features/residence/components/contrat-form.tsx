@@ -157,9 +157,6 @@ export function ContratForm({ onCancel, onSaved }: ContratFormProps) {
 		<form
 			className="space-y-4"
 			onSubmit={(event) => {
-				console.log(
-					"[DEBUG-client] ⚠️ submit reçu par le formulaire PARENT (contrat) — l'événement de l'inner form a débordé ?",
-				);
 				event.preventDefault();
 				event.stopPropagation();
 				void form.handleSubmit();
