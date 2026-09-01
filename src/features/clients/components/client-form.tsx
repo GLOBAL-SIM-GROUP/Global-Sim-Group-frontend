@@ -40,7 +40,6 @@ interface PieceDraft {
 	numero: string;
 	dateDelivrance: string;
 	dateExpiration: string;
-	autoriteDelivrance: string;
 	fileRecto: File | null;
 	fileVerso: File | null;
 }
@@ -50,7 +49,6 @@ const PIECE_DRAFT_VIDE: PieceDraft = {
 	numero: "",
 	dateDelivrance: "",
 	dateExpiration: "",
-	autoriteDelivrance: "",
 	fileRecto: null,
 	fileVerso: null,
 };
@@ -81,7 +79,6 @@ function pieceEstRenseignee(piece: PieceDraft): boolean {
 		piece.numero.trim() !== "" ||
 		piece.dateDelivrance !== "" ||
 		piece.dateExpiration !== "" ||
-		piece.autoriteDelivrance.trim() !== "" ||
 		piece.fileRecto !== null ||
 		piece.fileVerso !== null
 	);
@@ -287,7 +284,6 @@ export function ClientForm({
 							numero: piece.numero.trim(),
 							dateDelivrance: piece.dateDelivrance || null,
 							dateExpiration: piece.dateExpiration || null,
-							autoriteDelivrance: piece.autoriteDelivrance.trim() || null,
 						});
 						if (piece.fileRecto || piece.fileVerso) {
 							const updates: {
@@ -924,16 +920,6 @@ function SectionPieceIdentite({
 					/>
 				</div>
 			</div>
-
-			<InputField
-				id="piece-autorite"
-				label="Autorité de délivrance"
-				value={value.autoriteDelivrance}
-				onChange={(event) =>
-					onChange({ autoriteDelivrance: event.target.value })
-				}
-				disabled={disabled}
-			/>
 		</section>
 	);
 }

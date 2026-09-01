@@ -167,10 +167,8 @@ describe("ClientForm — pièce d'identité et contact d'urgence", () => {
 		const user = userEvent.setup();
 		renderCreation();
 		await remplirChampsObligatoires(user);
-		await user.type(
-			screen.getByLabelText("Autorité de délivrance"),
-			"Préfecture d'Abidjan",
-		);
+		const recto = new File(["r"], "recto.jpg", { type: "image/jpeg" });
+		await user.upload(screen.getByLabelText("Recto (photo)"), recto);
 
 		await user.click(screen.getByRole("button", { name: "Enregistrer" }));
 
