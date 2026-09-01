@@ -142,6 +142,6 @@ const server = createServer(async (req, res) => {
 	}
 });
 
-server.listen(PORT, () => {
+server.listen(PORT, '0.0.0.0', () => {
 	console.log(`SIM frontend (SSR) → http://localhost:${PORT}`);
 });
