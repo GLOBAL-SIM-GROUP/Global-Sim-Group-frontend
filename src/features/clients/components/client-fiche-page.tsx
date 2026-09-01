@@ -461,7 +461,6 @@ function PieceDialog({
 			numero: "",
 			dateDelivrance: "",
 			dateExpiration: "",
-			autoriteDelivrance: "",
 		},
 		validators: {
 			onSubmit: ({ value }) => {
@@ -482,7 +481,6 @@ function PieceDialog({
 					numero: value.numero.trim(),
 					dateDelivrance: value.dateDelivrance || null,
 					dateExpiration: value.dateExpiration || null,
-					autoriteDelivrance: value.autoriteDelivrance.trim() || null,
 				});
 
 				const idPiece = (pieceResponse as { id_piece: string }).id_piece;
@@ -690,19 +688,6 @@ function PieceDialog({
 								)}
 							</form.Field>
 						</div>
-						<form.Field name="autoriteDelivrance">
-							{(field) => (
-								<InputField
-									id={field.name}
-									name={field.name}
-									label="Autorité de délivrance"
-									value={field.state.value}
-									onBlur={field.handleBlur}
-									onChange={(event) => field.handleChange(event.target.value)}
-									error={field.state.meta.errors[0]}
-								/>
-							)}
-						</form.Field>
 						{globalError ? (
 							<p role="alert" className="text-sm font-medium text-destructive">
 								{globalError}
