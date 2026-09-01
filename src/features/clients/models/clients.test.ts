@@ -6,6 +6,7 @@ import { filtrerClients, nomComplet, paginerClients } from "./clients";
 function client(id: string, type: Client["type_client"]): Client {
 	return {
 		id,
+		code: `GSG-CL-${id}`,
 		nom: `Nom${id}`,
 		prenoms: "Awa",
 		date_naissance: null,

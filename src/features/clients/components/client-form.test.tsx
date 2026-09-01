@@ -56,6 +56,7 @@ beforeAll(() => {
 
 const clientExistant: Client = {
 	id: "1",
+	code: "GSG-CL-001",
 	nom: "Kouassi",
 	prenoms: "Awa",
 	date_naissance: "1990-01-01",

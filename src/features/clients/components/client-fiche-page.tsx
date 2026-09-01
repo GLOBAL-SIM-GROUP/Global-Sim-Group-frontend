@@ -820,6 +820,7 @@ export function ClientFichePage({ id }: ClientFichePageProps) {
 						Informations personnelles
 					</h2>
 					<dl className="grid gap-3 sm:gap-4 sm:grid-cols-2">
+						<Ligne label="Code client" valeur={client.code} />
 						<Ligne label="Nom" valeur={client.nom} />
 						<Ligne label="Prénom(s)" valeur={client.prenoms} />
 						<Ligne

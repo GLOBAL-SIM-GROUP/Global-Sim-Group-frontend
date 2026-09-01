@@ -42,6 +42,7 @@ vi.mock("#/core/api/use-upload-blob", () => ({
 
 const clientDetail: ClientDetail = {
 	id: "1",
+	code: "GSG-CL-001",
 	nom: "Kouassi",
 	prenoms: "Awa",
 	date_naissance: null,

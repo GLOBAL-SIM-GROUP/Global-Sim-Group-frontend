@@ -42,8 +42,13 @@ vi.mock("@tanstack/react-router", async (importOriginal) => {
 	};
 });
 
+const useClientsMock = vi.fn(() => ({
+	data: [] as unknown[],
+	isLoading: false,
+	isError: false,
+}));
 vi.mock("../hooks/use-clients", () => ({
-	useClients: () => ({ data: [], isLoading: false, isError: false }),
+	useClients: () => useClientsMock(),
 }));
 
 function renderPage() {
@@ -103,5 +108,34 @@ describe("ClientsPage — deux flux de création", () => {
 			clientFormDialogPropsMock.mock.calls.length - 1
 		][0] as { open: boolean };
 		expect(dernierAppel.open).toBe(false);
+	});
+});
+
+/** Colonne CODE : référence lisible du client (ex. GSG-CL-001, filtrable côté API via `?code=`). */
+describe("ClientsPage — colonne Code", () => {
+	it("affiche le code du client dans le tableau", () => {
+		useClientsMock.mockReturnValueOnce({
+			data: [
+				{
+					id: "1",
+					code: "GSG-CL-001",
+					nom: "Kouassi",
+					prenoms: "Awa",
+					type_client: "LOCATAIRE",
+					tel_principal: "0700000000",
+					ville: "Abidjan",
+					date_enregistrement: "2026-01-01T00:00:00Z",
+				},
+			],
+			isLoading: false,
+			isError: false,
+		});
+
+		renderPage();
+
+		expect(screen.getByText("GSG-CL-001")).toBeInTheDocument();
+		expect(
+			screen.getByRole("columnheader", { name: "CODE" }),
+		).toBeInTheDocument();
 	});
 });

@@ -187,6 +187,9 @@ export function ClientsPage({
 						<thead className="bg-sea-ink text-left text-white">
 							<tr>
 								<th scope="col" className="px-4 py-3 font-medium">
+									CODE
+								</th>
+								<th scope="col" className="px-4 py-3 font-medium">
 									CLIENT
 								</th>
 								<th scope="col" className="px-4 py-3 font-medium">
@@ -209,6 +212,9 @@ export function ClientsPage({
 									key={client.id}
 									className="relative border-t border-border transition-colors hover:bg-accent/40"
 								>
+									<td className="px-4 py-3 font-mono text-xs text-muted-foreground">
+										{client.code}
+									</td>
 									<td className="px-4 py-3">
 										{/* Toute la ligne ouvre la fiche (stretched link). */}
 										<Link

@@ -8,6 +8,8 @@ export type TypePiece = "CNI" | "PASSEPORT" | "CARTE_SEJOUR" | "AUTRE";
 
 export interface Client {
 	id: string;
+	/** Référence lisible générée par le backend (ex. `GSG-CL-001`), filtrable via `?code=`. */
+	code: string;
 	nom: string;
 	prenoms: string;
 	date_naissance: string | null;
