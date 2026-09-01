@@ -25,6 +25,7 @@ import {
 } from "#/components/ui/select";
 import { getErrorMessageForCode, toApiError } from "#/core/api";
 import { downloadUploadedFile, uploadImage } from "#/core/api/uploads";
+import { useUploadBlobUrl } from "#/core/api/use-upload-blob";
 import { useCan } from "#/core/auth";
 import { formatDateISO } from "#/features/residence/models/format";
 
@@ -51,6 +52,26 @@ function Ligne({ label, valeur }: { label: string; valeur: string }) {
 				{label}
 			</dt>
 			<dd className="text-sm text-foreground break-words">{valeur}</dd>
+		</div>
+	);
+}
+
+/** Avatar du client (catégorie MinIO `client-photo`) — silhouette par défaut. */
+function PhotoClientAvatar({ cle, nom }: { cle: string | null; nom: string }) {
+	const { blobUrl, isLoading } = useUploadBlobUrl(cle);
+
+	return (
+		<div className="flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-full bg-muted sm:size-20">
+			{isLoading ? (
+				<Loader2
+					className="size-5 animate-spin text-muted-foreground"
+					aria-hidden
+				/>
+			) : blobUrl ? (
+				<img src={blobUrl} alt={nom} className="size-full object-cover" />
+			) : (
+				<UserRound className="size-8 text-muted-foreground" aria-hidden />
+			)}
 		</div>
 	);
 }
@@ -767,14 +788,17 @@ export function ClientFichePage({ id }: ClientFichePageProps) {
 			/>
 
 			<div className="flex flex-wrap items-end justify-between gap-4">
-				<section className="space-y-1">
-					<h1 className="text-2xl font-semibold text-foreground">
-						Fiche client — {nomComplet(client)}
-					</h1>
-					<p className="text-muted-foreground">
-						{TYPE_CLIENT_LABELS[client.type_client]} ·{" "}
-						{client.profession ?? "profession non renseignée"}.
-					</p>
+				<section className="flex items-center gap-4">
+					<PhotoClientAvatar cle={client.photo} nom={nomComplet(client)} />
+					<div className="space-y-1">
+						<h1 className="text-2xl font-semibold text-foreground">
+							Fiche client — {nomComplet(client)}
+						</h1>
+						<p className="text-muted-foreground">
+							{TYPE_CLIENT_LABELS[client.type_client]} ·{" "}
+							{client.profession ?? "profession non renseignée"}.
+						</p>
+					</div>
 				</section>
 				<div className="flex items-center gap-2">
 					{canModifier ? (

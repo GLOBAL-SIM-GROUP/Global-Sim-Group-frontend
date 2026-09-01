@@ -35,6 +35,14 @@ vi.mock("../api/clients", () => ({
 	listClients: (params: unknown) => listClientsMock(params),
 }));
 
+vi.mock("#/core/api/use-upload-blob", () => ({
+	useUploadBlobUrl: (cle: string | undefined) => ({
+		blobUrl: cle ? `blob:${cle}` : null,
+		isLoading: false,
+		error: null,
+	}),
+}));
+
 // Polyfills requis par les interactions radix Select en jsdom (non
 // implémentées nativement : ni hasPointerCapture ni scrollIntoView).
 beforeAll(() => {
@@ -257,5 +265,87 @@ describe("ClientForm — pièce d'identité et contact d'urgence", () => {
 			await screen.findByText(/Client créé, mais l'ajout de la pièce/),
 		).toBeInTheDocument();
 		expect(onSaved).toHaveBeenCalledWith("42", "Kouassi Awa");
+	});
+});
+
+describe("ClientForm — photo du client", () => {
+	beforeEach(() => {
+		mutateAsyncClient.mockReset().mockResolvedValue({ id_client: "42" });
+		uploadImageMock.mockReset();
+	});
+
+	it("affiche le champ Photo à la création", () => {
+		renderCreation();
+		expect(screen.getByLabelText("Photo (optionnel)")).toBeInTheDocument();
+	});
+
+	it("affiche le champ Photo en édition", () => {
+		render(
+			<ClientForm
+				client={clientExistant}
+				onCancel={vi.fn()}
+				onSaved={vi.fn()}
+			/>,
+		);
+		expect(screen.getByLabelText("Photo (optionnel)")).toBeInTheDocument();
+	});
+
+	it("uploade la photo au choix du fichier et l'envoie avec le formulaire", async () => {
+		uploadImageMock.mockResolvedValue("client-photo/awa.jpg");
+		const user = userEvent.setup();
+		renderCreation();
+		await remplirChampsObligatoires(user);
+
+		const fichier = new File(["p"], "photo.jpg", { type: "image/jpeg" });
+		await user.upload(screen.getByLabelText("Photo (optionnel)"), fichier);
+
+		expect(uploadImageMock).toHaveBeenCalledWith(fichier, "client-photo");
+		expect(await screen.findByAltText("Aperçu")).toBeInTheDocument();
+
+		await user.click(screen.getByRole("button", { name: "Enregistrer" }));
+
+		await vi.waitFor(() =>
+			expect(mutateAsyncClient).toHaveBeenCalledWith(
+				expect.objectContaining({ photo: "client-photo/awa.jpg" }),
+			),
+		);
+	});
+
+	it("envoie photo: null sans fichier choisi", async () => {
+		const user = userEvent.setup();
+		renderCreation();
+		await remplirChampsObligatoires(user);
+
+		await user.click(screen.getByRole("button", { name: "Enregistrer" }));
+
+		await vi.waitFor(() =>
+			expect(mutateAsyncClient).toHaveBeenCalledWith(
+				expect.objectContaining({ photo: null }),
+			),
+		);
+	});
+
+	it("permet de retirer la photo choisie avant l'enregistrement", async () => {
+		uploadImageMock.mockResolvedValue("client-photo/awa.jpg");
+		const user = userEvent.setup();
+		renderCreation();
+		await remplirChampsObligatoires(user);
+
+		const fichier = new File(["p"], "photo.jpg", { type: "image/jpeg" });
+		await user.upload(screen.getByLabelText("Photo (optionnel)"), fichier);
+		await screen.findByAltText("Aperçu");
+
+		await user.click(
+			screen.getByRole("button", { name: "Supprimer la photo" }),
+		);
+		expect(screen.queryByAltText("Aperçu")).not.toBeInTheDocument();
+
+		await user.click(screen.getByRole("button", { name: "Enregistrer" }));
+
+		await vi.waitFor(() =>
+			expect(mutateAsyncClient).toHaveBeenCalledWith(
+				expect.objectContaining({ photo: null }),
+			),
+		);
 	});
 });

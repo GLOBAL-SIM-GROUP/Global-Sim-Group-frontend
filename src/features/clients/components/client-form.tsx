@@ -1,6 +1,6 @@
 import { useForm } from "@tanstack/react-form";
-import { Image as ImageIcon, Loader2 } from "lucide-react";
-import { useState } from "react";
+import { Image as ImageIcon, Loader2, Upload, X } from "lucide-react";
+import { useRef, useState } from "react";
 
 import { Button } from "#/components/ui/button";
 import { Input } from "#/components/ui/input";
@@ -15,6 +15,7 @@ import {
 } from "#/components/ui/select";
 import { getErrorMessageForCode, toApiError } from "#/core/api";
 import { uploadImage } from "#/core/api/uploads";
+import { useUploadBlobUrl } from "#/core/api/use-upload-blob";
 import { cn } from "#/lib/utils";
 
 import { listClients } from "../api/clients";
@@ -144,6 +145,9 @@ export function ClientForm({
 	const creerContactMutation = useCreerContact();
 	const [globalError, setGlobalError] = useState<string | null>(null);
 
+	const [photo, setPhoto] = useState(client?.photo ?? "");
+	const [uploadingPhoto, setUploadingPhoto] = useState(false);
+
 	const [piece, setPiece] = useState<PieceDraft>(PIECE_DRAFT_VIDE);
 	const [pieceErreur, setPieceErreur] = useState<string | null>(null);
 	const [contact, setContact] = useState<ContactDraft>(CONTACT_DRAFT_VIDE);
@@ -242,6 +246,7 @@ export function ClientForm({
 					adresse: value.adresse.trim() || null,
 					ville: value.ville.trim() || null,
 					pays: value.pays.trim() || null,
+					photo: photo || null,
 				};
 				if (client) {
 					await editMutation.mutateAsync({ id: client.id, ...corps });
@@ -346,7 +351,10 @@ export function ClientForm({
 	});
 
 	const busy =
-		createMutation.isPending || editMutation.isPending || enregistrementAnnexes;
+		createMutation.isPending ||
+		editMutation.isPending ||
+		enregistrementAnnexes ||
+		uploadingPhoto;
 
 	return (
 		<form
@@ -357,6 +365,13 @@ export function ClientForm({
 				void form.handleSubmit();
 			}}
 		>
+			<ChampPhoto
+				cle={photo}
+				onChange={setPhoto}
+				disabled={busy}
+				onUploadingChange={setUploadingPhoto}
+			/>
+
 			<div className="grid grid-cols-2 gap-4">
 				<form.Field name="nom">
 					{(field) => (
@@ -651,6 +666,110 @@ export function ClientForm({
 				</Button>
 			</div>
 		</form>
+	);
+}
+
+/**
+ * Photo du client : upload immédiat au choix du fichier (catégorie MinIO
+ * `client-photo`) — contrairement à la pièce d'identité, la photo fait
+ * partie du `CreerClientDto`/`MajClientDto` (champ `photo`), pas d'une
+ * sous-ressource ; elle est donc envoyée avec le reste du formulaire plutôt
+ * qu'après coup. Disponible en création comme en édition.
+ */
+function ChampPhoto({
+	cle,
+	onChange,
+	disabled,
+	onUploadingChange,
+}: {
+	cle: string;
+	onChange: (cle: string) => void;
+	disabled: boolean;
+	onUploadingChange: (uploading: boolean) => void;
+}) {
+	const { blobUrl, isLoading } = useUploadBlobUrl(cle || undefined);
+	const [isUploading, setIsUploading] = useState(false);
+	const fileInputRef = useRef<HTMLInputElement>(null);
+
+	const handleFileChange = async (
+		event: React.ChangeEvent<HTMLInputElement>,
+	) => {
+		const file = event.target.files?.[0];
+		event.target.value = "";
+		if (!file) return;
+		try {
+			setIsUploading(true);
+			onUploadingChange(true);
+			const cleUploadee = await uploadImage(file, "client-photo");
+			onChange(cleUploadee);
+		} catch (error) {
+			console.error("Erreur lors de l'upload de la photo :", error);
+		} finally {
+			setIsUploading(false);
+			onUploadingChange(false);
+		}
+	};
+
+	const desactive = disabled || isUploading;
+
+	return (
+		<div className="space-y-1.5">
+			<Label htmlFor="client-photo">Photo (optionnel)</Label>
+			<input
+				id="client-photo"
+				ref={fileInputRef}
+				type="file"
+				accept="image/jpeg,image/png,image/webp"
+				onChange={(event) => void handleFileChange(event)}
+				disabled={desactive}
+				className="hidden"
+			/>
+			<div className="rounded-lg border border-border bg-card p-3">
+				{isLoading || isUploading ? (
+					<div className="flex h-24 w-24 items-center justify-center rounded-full bg-muted">
+						<Loader2
+							className="size-5 animate-spin text-muted-foreground"
+							aria-hidden
+						/>
+					</div>
+				) : blobUrl ? (
+					<div className="flex items-center gap-4">
+						<img
+							src={blobUrl}
+							alt="Aperçu"
+							className="size-24 rounded-full object-cover"
+						/>
+						<Button
+							type="button"
+							variant="outline"
+							size="sm"
+							onClick={() => onChange("")}
+							disabled={desactive}
+						>
+							<X className="size-4" aria-hidden />
+							Supprimer la photo
+						</Button>
+					</div>
+				) : (
+					<button
+						type="button"
+						onClick={() => fileInputRef.current?.click()}
+						disabled={desactive}
+						className={cn(
+							"flex h-24 w-24 flex-col items-center justify-center gap-1 rounded-full",
+							"border-2 border-dashed border-muted-foreground/30 hover:border-muted-foreground/50",
+							"transition-colors cursor-pointer",
+							desactive && "cursor-not-allowed opacity-50",
+						)}
+					>
+						<Upload className="size-5 text-muted-foreground/50" aria-hidden />
+						<span className="px-1 text-center text-[0.65rem] text-muted-foreground">
+							Ajouter
+						</span>
+					</button>
+				)}
+			</div>
+		</div>
 	);
 }
 
