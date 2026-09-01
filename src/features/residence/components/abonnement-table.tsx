@@ -40,7 +40,7 @@ export function AbonnementTable({
 	}
 
 	return (
-		<div className="overflow-x-auto rounded-lg border border-border bg-card shadow-sm">
+		<div className="w-full min-w-0 overflow-x-auto rounded-lg border border-border bg-card shadow-sm [contain:layout]">
 			<table className="w-full border-collapse text-sm">
 				<thead className="bg-sea-ink text-left text-white">
 					<tr>
