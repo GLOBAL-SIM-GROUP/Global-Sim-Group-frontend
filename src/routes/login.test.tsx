@@ -89,12 +89,16 @@ describe("LoginPage", () => {
 		expect(mocks.auth.login).toHaveBeenCalledWith("admin", "motdepasse");
 	});
 
-	it("traduit le code UNAUTHORIZED en erreur globale", async () => {
+	it("traduit le code UNAUTHORIZED en message propre à l'échec de connexion", async () => {
+		// Le backend renvoie ce même code pour un mot de passe erroné ou un
+		// compte désactivé (impossible à distinguer côté frontend) — le mapping
+		// générique de ce code ("Session expirée, veuillez vous reconnecter.")
+		// n'a pas de sens à ce stade : pas de session existante à expirer.
 		mocks.auth.login.mockRejectedValueOnce(
 			new ApiError({
 				status: 401,
 				code: "UNAUTHORIZED",
-				message: "Non autorisé",
+				message: "Identifiants invalides",
 			}),
 		);
 		const user = userEvent.setup();
@@ -105,7 +109,7 @@ describe("LoginPage", () => {
 		await user.click(screen.getByRole("button", { name: "Se connecter" }));
 
 		expect(await screen.findByRole("alert")).toHaveTextContent(
-			"Session expirée, veuillez vous reconnecter.",
+			"Identifiants invalides, ou compte désactivé. Si le problème persiste, contactez l'administrateur.",
 		);
 	});
 

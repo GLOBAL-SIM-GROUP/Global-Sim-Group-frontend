@@ -222,9 +222,18 @@ export function LoginPage() {
 					}
 				}
 				if (mappedFields === 0) {
+					const code = toApiError(error).code;
+					// Le backend renvoie le même code (`UNAUTHORIZED`, message
+					// "Identifiants invalides") pour un mot de passe erroné ou un
+					// compte désactivé — impossible de distinguer les deux côté
+					// frontend. Le mapping générique de ce code ("Session expirée,
+					// veuillez vous reconnecter.") n'a pas de sens ici : on n'a pas
+					// encore de session à ce stade. On remplace donc le message par
+					// un texte propre à l'échec de connexion, qui couvre les deux cas.
 					setGlobalError(
-						getErrorMessageForCode(toApiError(error).code) ??
-							"Connexion impossible.",
+						code === "UNAUTHORIZED"
+							? "Identifiants invalides, ou compte désactivé. Si le problème persiste, contactez l'administrateur."
+							: (getErrorMessageForCode(code) ?? "Connexion impossible."),
 					);
 				}
 			}
