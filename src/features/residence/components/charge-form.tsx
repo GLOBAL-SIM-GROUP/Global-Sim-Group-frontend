@@ -19,15 +19,7 @@ import type { CategorieCharge } from "../models/charges";
 import { LogementCascadeField } from "./logement-cascade-field";
 
 /** Champs du formulaire (noms cohérents avec le corps API). */
-type ChargeField =
-	| "idLogement"
-	| "idCategorieCharge"
-	| "periode"
-	| "montant"
-	| "compteurNumero"
-	| "lectureDebut"
-	| "lectureFin"
-	| "consommation";
+type ChargeField = "idLogement" | "idCategorieCharge" | "periode" | "montant";
 
 /** Propriétés backend (snake_case) → champs du formulaire. */
 const FIELD_PROPERTY_TO_FORM: Record<string, ChargeField> = {
@@ -35,10 +27,6 @@ const FIELD_PROPERTY_TO_FORM: Record<string, ChargeField> = {
 	id_categorie_charge: "idCategorieCharge",
 	periode: "periode",
 	montant: "montant",
-	compteur_numero: "compteurNumero",
-	lecture_debut: "lectureDebut",
-	lecture_fin: "lectureFin",
-	consommation: "consommation",
 };
 
 interface ChargeFormProps {
@@ -86,8 +74,7 @@ function SelectField({
 
 /**
  * Formulaire « Ajouter une charge » (M2.2), affiché dans une modale au-dessus
- * de la fiche logement. `periode` est un mois (`YYYY-MM`, champ natif), le
- * compteur et les lectures sont optionnels.
+ * de la fiche logement. `periode` est un mois (`YYYY-MM`, champ natif).
  */
 export function ChargeForm({
 	logementIdParDefaut,
@@ -104,10 +91,6 @@ export function ChargeForm({
 			idCategorieCharge: "",
 			periode: new Date().toISOString().slice(0, 7),
 			montant: "",
-			compteurNumero: "",
-			lectureDebut: "",
-			lectureFin: "",
-			consommation: "",
 		},
 		validators: {
 			onSubmit: ({ value }) => {
@@ -133,10 +116,6 @@ export function ChargeForm({
 					idCategorieCharge: value.idCategorieCharge,
 					periode: value.periode,
 					montant: value.montant.trim(),
-					compteurNumero: value.compteurNumero,
-					lectureDebut: value.lectureDebut,
-					lectureFin: value.lectureFin,
-					consommation: value.consommation,
 				});
 				onSaved();
 			} catch (error) {
@@ -236,73 +215,6 @@ export function ChargeForm({
 					/>
 				)}
 			</form.Field>
-
-			<form.Field name="compteurNumero">
-				{(field) => (
-					<InputField
-						id={field.name}
-						name={field.name}
-						label="Compteur (optionnel)"
-						placeholder="ex : CPT-301"
-						autoComplete="off"
-						value={field.state.value}
-						onBlur={field.handleBlur}
-						onChange={(event) => field.handleChange(event.target.value)}
-						error={field.state.meta.errors[0]}
-					/>
-				)}
-			</form.Field>
-
-			<div className="grid grid-cols-3 gap-3">
-				<form.Field name="lectureDebut">
-					{(field) => (
-						<InputField
-							id={field.name}
-							name={field.name}
-							label="Début"
-							placeholder="120.5"
-							inputMode="decimal"
-							autoComplete="off"
-							value={field.state.value}
-							onBlur={field.handleBlur}
-							onChange={(event) => field.handleChange(event.target.value)}
-							error={field.state.meta.errors[0]}
-						/>
-					)}
-				</form.Field>
-				<form.Field name="lectureFin">
-					{(field) => (
-						<InputField
-							id={field.name}
-							name={field.name}
-							label="Fin"
-							placeholder="165.2"
-							inputMode="decimal"
-							autoComplete="off"
-							value={field.state.value}
-							onBlur={field.handleBlur}
-							onChange={(event) => field.handleChange(event.target.value)}
-							error={field.state.meta.errors[0]}
-						/>
-					)}
-				</form.Field>
-				<form.Field name="consommation">
-					{(field) => (
-						<InputField
-							id={field.name}
-							name={field.name}
-							label="Conso."
-							placeholder="44.7"
-							inputMode="decimal"
-							autoComplete="off"
-							value={field.state.value}
-							onBlur={field.handleBlur}
-							onChange={(event) => field.handleChange(event.target.value)}
-							error={field.state.meta.errors[0]}
-						/>
-					)}
-				</form.Field>
-			</div>
 
 			{globalError ? (
 				<p role="alert" className="text-sm font-medium text-destructive">
