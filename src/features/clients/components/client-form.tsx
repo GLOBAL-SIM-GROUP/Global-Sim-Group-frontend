@@ -189,8 +189,6 @@ export function ClientForm({
 					fields.nationalite = "Ce champ est requis.";
 				if (!value.profession.trim())
 					fields.profession = "Ce champ est requis.";
-				if (!value.telSecondaire.trim())
-					fields.telSecondaire = "Ce champ est requis.";
 				if (!value.email.trim()) fields.email = "Ce champ est requis.";
 				if (!value.adresse.trim()) fields.adresse = "Ce champ est requis.";
 				if (!value.ville.trim()) fields.ville = "Ce champ est requis.";
