@@ -252,6 +252,40 @@ body::after {
     );
 }
 
+/* Fond de l'app connectée (AppBackground) — reprend l'ambiance de marque du
+   fond public (halos --hero-a/--hero-b) au lieu de la couvrir d'un aplat
+   `background` uni, mais reste assez doux pour rester lisible sous les
+   tableaux et formulaires denses affichés par-dessus toute la journée. */
+.app-bg-wash {
+  background:
+    radial-gradient(900px 560px at 6% -12%, var(--hero-a), transparent 55%),
+    radial-gradient(820px 560px at 108% -8%, var(--hero-b), transparent 58%),
+    radial-gradient(680px 460px at 60% 112%, rgba(230, 126, 34, 0.06), transparent 68%),
+    linear-gradient(180deg, color-mix(in oklab, var(--sand) 72%, white) 0%, var(--foam) 42%, var(--bg-base) 100%);
+}
+
+/* Dérive très lente des halos décoratifs de l'app connectée — perceptible en
+   vision périphérique seulement (faible amplitude/opacité), pour un rendu
+   vivant sans distraire de la lecture des données. */
+@keyframes appHaloDrift1 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-16px, 18px) scale(1.06); }
+}
+
+@keyframes appHaloDrift2 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(14px, -14px) scale(1.05); }
+}
+
+.app-bg-halo-1 {
+  animation: appHaloDrift1 17s ease-in-out infinite;
+}
+
+.app-bg-halo-2 {
+  animation: appHaloDrift2 20s ease-in-out infinite;
+  animation-delay: 1.4s;
+}
+
 /* Liens globaux — on ne force AUCUNE couleur : une règle non-layée écraserait
    les utilities Tailwind (layered) et noirait en blanc les liens des pages à
    fond clair (nom de bâtiment, tuiles du lanceur…). Les couleurs viennent des
