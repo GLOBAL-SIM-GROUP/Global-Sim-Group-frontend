@@ -4,6 +4,7 @@ import {
 	createApiClient,
 	setApiClient,
 } from "#/core/api";
+import { clearSessionHint, markSessionHint } from "./session-hint";
 import {
 	createMemoryTokenStore,
 	type StoredTokens,
@@ -115,6 +116,7 @@ export function createAuthSession(
 
 	function storeTokens(tokens: StoredTokens): void {
 		tokenStorage.set(tokens);
+		markSessionHint(tokens.refreshExpiresIn);
 		for (const listener of tokenListeners) listener();
 	}
 
@@ -132,6 +134,7 @@ export function createAuthSession(
 			refreshTimer = null;
 		}
 		tokenStorage.clear();
+		clearSessionHint();
 		setUser(null);
 	}
 

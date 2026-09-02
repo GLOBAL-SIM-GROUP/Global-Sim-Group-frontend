@@ -7,7 +7,7 @@ import {
 } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { AppShell } from "#/components/layout/app-shell";
-import { AuthProvider, requireAuth } from "#/core/auth";
+import { AuthProvider, hasSessionHint, requireAuth } from "#/core/auth";
 import { NotificationsProvider } from "#/core/notifications";
 
 /**
@@ -24,8 +24,13 @@ export const Route = createFileRoute("/_authenticated")({
 	beforeLoad: async ({ context, location }) => {
 		await context.auth.restore();
 		if (!context.auth.isAuthenticated) {
-			// Sur le serveur, `restore()` ne fait rien (pas de localStorage) : la
-			// redirection vers /login garde l'URL d'origine pour le retour.
+			// Sur le serveur, `restore()` ne fait rien (pas de localStorage) : sans
+			// le cookie-indice (`hasSessionHint`), un utilisateur bien connecté
+			// serait quand même redirigé vers /login à chaque rechargement — d'où
+			// le flash « Vérification de la session… ». Avec l'indice présent, on
+			// laisse passer ; la vraie vérification a lieu à l'hydratation client
+			// (ce `beforeLoad` s'exécute à nouveau, `localStorage` disponible).
+			if (hasSessionHint()) return;
 			throw redirect({
 				href: `/login?next=${encodeURIComponent(location.href)}`,
 			});

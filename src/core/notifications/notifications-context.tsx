@@ -31,7 +31,16 @@ export function useNotifications() {
 			"useNotifications doit être utilisé dans un <NotificationsProvider>.",
 		);
 	}
-	const snapshot = useSyncExternalStore(client.subscribe, client.getSnapshot);
+	// `getServerSnapshot` (3e argument) obligatoire pour un composant rendu
+	// côté serveur (cf. core/auth/session-hint.ts). `getSnapshot` convient
+	// aussi comme snapshot serveur : lecture pure d'un état par défaut (le
+	// socket ne se connecte jamais en SSR), identique des deux côtés avant
+	// hydratation.
+	const snapshot = useSyncExternalStore(
+		client.subscribe,
+		client.getSnapshot,
+		client.getSnapshot,
+	);
 	return {
 		...snapshot,
 		isRead: client.isRead,

@@ -13,6 +13,7 @@ export {
 	type AuthSessionSnapshot,
 	createAuthSession,
 } from "./session";
+export { hasSessionHint } from "./session-hint";
 export {
 	createLocalStorageTokenStore,
 	createMemoryTokenStore,

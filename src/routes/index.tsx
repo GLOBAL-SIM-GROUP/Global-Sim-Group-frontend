@@ -1,4 +1,5 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
+import { hasSessionHint } from "#/core/auth";
 import { LandingDishes } from "#/features/landing/components/landing-dishes";
 import { LandingFooter } from "#/features/landing/components/landing-footer";
 import { LandingHeader } from "#/features/landing/components/landing-header";
@@ -13,6 +14,13 @@ export const Route = createFileRoute("/")({
 		// authentifié atterrissant ici sans être jamais passé par `_authenticated`
 		// serait vu comme non connecté.
 		await context.auth.restore();
+		if (!context.auth.isAuthenticated && hasSessionHint()) {
+			// SSR : `restore()` ne peut rien lire (pas de localStorage) — sans cet
+			// indice, un utilisateur bien connecté serait envoyé vers /login avant
+			// de revenir ici. On laisse passer (page publique, sans conséquence) ;
+			// l'hydratation client refera ce `beforeLoad` avec la vraie session.
+			return;
+		}
 		throw redirect({ to: context.auth.isAuthenticated ? "/home" : "/login" });
 	},
 	head: () => ({
