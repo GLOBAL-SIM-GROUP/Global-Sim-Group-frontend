@@ -187,7 +187,7 @@ export const MODULE_DEFINITIONS: ModuleDefinition[] = [
 				id: "facturation",
 				label: "Facturation ponctuelle",
 				permission: "FACTURATION.VOIR",
-				path: "/facturation/facturation",
+				path: "/facturation/factures",
 			},
 		],
 	},

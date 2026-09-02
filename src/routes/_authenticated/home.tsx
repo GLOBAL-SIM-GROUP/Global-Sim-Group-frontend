@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { Home } from "lucide-react";
 
 import { ModuleTile } from "#/components/ui/module-tile";
@@ -8,19 +8,55 @@ import {
 	getAccessibleModules,
 } from "#/core/permissions/modules";
 
+/** Sous-pages du portail résident (mêmes libellés/icônes que la page portail). */
+const SOUS_LIENS_RESIDENT = [
+	{
+		id: "echeances",
+		label: "Mes échéances",
+		path: "/residence/portail/echeances",
+	},
+	{
+		id: "paiements",
+		label: "Mon historique",
+		path: "/residence/portail/paiements",
+	},
+	{ id: "caution", label: "Ma caution", path: "/residence/portail/caution" },
+	{
+		id: "pressing",
+		label: "Suivi Pressing",
+		path: "/residence/portail/pressing",
+	},
+	{
+		id: "etat_des_lieux",
+		label: "Mes états des lieux",
+		path: "/residence/portail/etat-des-lieux",
+	},
+] as const;
+
 /**
- * Accueil protégé = lanceur de modules. Les tuiles sont pilotées par les
- * permissions réelles (`MODULE.VOIR`). Chaque tuile mène au placeholder
- * `/en-cours` tant que les routes métier n'existent pas.
+ * Accueil protégé = menu global : chaque module affiche directement la liste
+ * de ses sous-pages accessibles, pour que l'utilisateur choisisse sa page en
+ * un clic sans passer par la sidebar. Les cartes sont pilotées par les
+ * permissions réelles (`MODULE.VOIR` pour la carte, `<CODE>.VOIR` pour
+ * chaque sous-page qu'elle liste).
  */
 export const Route = createFileRoute("/_authenticated/home")({
 	component: HomePage,
 });
 
-function HomePage() {
+export function HomePage() {
 	const user = useCurrentUser();
 	const estResident = useCan("RESIDENT.VOIR");
-	const accessibleModules = getAccessibleModules(usePermissions());
+	const canVoirSignalements = useCan("SIGNALEMENT.VOIR");
+	const permissions = usePermissions();
+	const accessibleModules = getAccessibleModules(permissions);
+
+	const sousLiensResident = canVoirSignalements
+		? [
+				...SOUS_LIENS_RESIDENT,
+				{ id: "signalements", label: "Signalements", path: "/signalements" },
+			]
+		: SOUS_LIENS_RESIDENT;
 
 	return (
 		<div className="mx-auto w-full max-w-5xl space-y-6 p-4 sm:p-6">
@@ -29,59 +65,32 @@ function HomePage() {
 					Bienvenue, {user?.login ?? ""} !
 				</h1>
 				<p className="text-sm sm:text-base text-muted-foreground">
-					Sélectionnez un module pour commencer.
+					Choisissez une page pour commencer.
 				</p>
 			</section>
 
-			{estResident ? (
-				<Link
-					to="/residence/portail"
-					className="flex items-start gap-3 sm:gap-4 rounded-lg border border-border bg-card p-4 sm:p-6 shadow-sm transition-colors hover:bg-accent/40"
-				>
-					<span className="grid size-9 sm:size-10 shrink-0 place-items-center rounded-md bg-lagoon/15 text-lagoon">
-						<Home className="size-4 sm:size-5" aria-hidden />
-					</span>
-					<span className="min-w-0">
-						<span className="block text-base sm:text-lg font-semibold text-foreground">
-							Mon espace résident
-						</span>
-						<span className="block text-xs sm:text-sm text-muted-foreground">
-							Suivi de votre loyer, de vos paiements et de votre caution.
-						</span>
-					</span>
-				</Link>
-			) : null}
+			{estResident || accessibleModules.length > 0 ? (
+				<section className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
+					{estResident ? (
+						<ModuleTile
+							icon={Home}
+							title="Mon espace résident"
+							description="Suivi de votre loyer, de vos paiements et de votre caution."
+							subItems={[...sousLiensResident]}
+							moduleCode="RESIDENT"
+						/>
+					) : null}
 
-			{accessibleModules.length > 0 ? (
-				<section className="grid grid-cols-1 gap-3 sm:gap-4 sm:grid-cols-2 lg:grid-cols-4">
-					{accessibleModules.map((module) => {
-						// Obtient la première sous-page accessible du module
-						const subItems = getAccessibleModuleSubItems(
-							module,
-							usePermissions(),
-						);
-						// Pointe vers la première sous-page, ou le placeholder si aucune
-						const href = subItems.length > 0 ? subItems[0].path : "/en-cours";
-						const search =
-							subItems.length === 0 ? { module: module.code } : undefined;
-
-						return (
-							<ModuleTile
-								key={module.code}
-								icon={module.icon}
-								title={module.title}
-								description={module.description}
-								linkProps={
-									search
-										? {
-												to: href,
-												search,
-											}
-										: { to: href }
-								}
-							/>
-						);
-					})}
+					{accessibleModules.map((module) => (
+						<ModuleTile
+							key={module.code}
+							icon={module.icon}
+							title={module.title}
+							description={module.description}
+							subItems={getAccessibleModuleSubItems(module, permissions)}
+							moduleCode={module.code}
+						/>
+					))}
 				</section>
 			) : (
 				<p className="text-sm text-muted-foreground">
