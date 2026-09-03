@@ -17,13 +17,16 @@ export interface Signalement {
 	note_resolution?: string | null;
 	date_signalement: string;
 	date_resolution?: string | null;
+	// `GET /signalements/:id` (détail) n'inclut PAS ces 5 champs — seule la
+	// liste (`GET /signalements`) les renvoie (join backend fait uniquement
+	// côté liste, vérifié sur l'instance de dev en 2026-09-03). La fiche
+	// détail les complète depuis la liste : voir
+	// `completerSignalementDepuisListe` dans `features/signalements/models`.
 	activite_code?: string | null;
 	activite_libelle?: string | null;
-	// Le backend omet parfois nom/prénom (compte sans profil complet) — jamais
-	// le login. `nomDeclarant()` gère le repli.
 	declarant_nom?: string | null;
 	declarant_prenom?: string | null;
-	declarant_login: string;
+	declarant_login?: string;
 }
 
 type SignalementWire = Omit<Signalement, "id"> & { id_signalement: string };

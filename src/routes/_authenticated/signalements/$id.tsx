@@ -17,8 +17,10 @@ import {
 	useRejeterSignalement,
 	useResoudreSignalement,
 	useSignalement,
+	useSignalements,
 } from "#/features/signalements/hooks/use-signalements";
 import {
+	completerSignalementDepuisListe,
 	nomDeclarant,
 	SIGNALEMENT_STATUT_BADGE,
 	SIGNALEMENT_STATUT_LABELS,
@@ -54,7 +56,10 @@ function DetailSignalementPage() {
 		"resoudre" | "rejeter" | null
 	>(null);
 
-	const { data: signalement, isLoading, error } = useSignalement(id);
+	const { data: signalementBrut, isLoading, error } = useSignalement(id);
+	// Le détail n'inclut pas déclarant_*/activite_* (écart backend, cf.
+	// commentaire sur `Signalement`) : complétés depuis la liste, qui les a.
+	const { data: liste } = useSignalements();
 
 	const { mutate: prendreEnCharge, isPending: isPendingCharge } =
 		usePrendreEnChargeSignalement();
@@ -73,7 +78,7 @@ function DetailSignalementPage() {
 		);
 	}
 
-	if (error || !signalement) {
+	if (error || !signalementBrut) {
 		return (
 			<div className="mx-auto w-full max-w-4xl space-y-4 p-6">
 				<Button
@@ -98,6 +103,8 @@ function DetailSignalementPage() {
 			</div>
 		);
 	}
+
+	const signalement = completerSignalementDepuisListe(signalementBrut, liste);
 
 	const estClos =
 		signalement.statut === "RESOLU" || signalement.statut === "REJETE";

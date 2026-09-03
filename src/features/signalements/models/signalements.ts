@@ -81,5 +81,30 @@ export function nomDeclarant(signalement: Signalement): string {
 	const nom = [signalement.declarant_prenom, signalement.declarant_nom]
 		.filter(Boolean)
 		.join(" ");
-	return nom || signalement.declarant_login;
+	return nom || signalement.declarant_login || "—";
+}
+
+/**
+ * Complète les champs join absents du détail (`GET /signalements/:id` ne
+ * renvoie ni déclarant_*, ni activite_* — cf. commentaire sur `Signalement`)
+ * avec l'entrée correspondante de la liste (`GET /signalements`), qui elle
+ * les a. Repli silencieux si l'élément n'est pas dans la liste chargée
+ * (pagination, liste pas encore arrivée) : le détail reste tel quel.
+ */
+export function completerSignalementDepuisListe(
+	detail: Signalement,
+	liste: readonly Signalement[] | undefined,
+): Signalement {
+	const correspondance = liste?.find((s) => s.id === detail.id);
+	if (!correspondance) return detail;
+	return {
+		...detail,
+		declarant_nom: detail.declarant_nom ?? correspondance.declarant_nom,
+		declarant_prenom:
+			detail.declarant_prenom ?? correspondance.declarant_prenom,
+		declarant_login: detail.declarant_login ?? correspondance.declarant_login,
+		activite_code: detail.activite_code ?? correspondance.activite_code,
+		activite_libelle:
+			detail.activite_libelle ?? correspondance.activite_libelle,
+	};
 }

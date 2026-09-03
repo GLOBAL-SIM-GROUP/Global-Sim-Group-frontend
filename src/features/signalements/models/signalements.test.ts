@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import type { Signalement } from "#/core/api/signalements";
 
 import {
+	completerSignalementDepuisListe,
 	filtrerSignalements,
 	nomDeclarant,
 	paginerSignalements,
@@ -62,6 +63,67 @@ describe("nomDeclarant", () => {
 		expect(
 			nomDeclarant(signalement("1", "OUVERT", { declarant_nom: undefined })),
 		).toBe("Yao");
+	});
+
+	it("affiche un tiret si prénom/nom/login sont tous absents", () => {
+		expect(
+			nomDeclarant(
+				signalement("1", "OUVERT", {
+					declarant_nom: undefined,
+					declarant_prenom: undefined,
+					declarant_login: undefined,
+				}),
+			),
+		).toBe("—");
+	});
+});
+
+describe("completerSignalementDepuisListe", () => {
+	it("complète déclarant/activité absents du détail depuis la liste", () => {
+		const detail = signalement("1", "OUVERT", {
+			declarant_nom: undefined,
+			declarant_prenom: undefined,
+			declarant_login: undefined,
+			activite_code: undefined,
+			activite_libelle: undefined,
+		});
+		const liste = [
+			signalement("1", "OUVERT", {
+				declarant_nom: "KOUASSI",
+				declarant_prenom: "Yao",
+				declarant_login: "y.kouassi",
+				activite_code: "RESIDENCE",
+				activite_libelle: "Résidence",
+			}),
+		];
+
+		const resultat = completerSignalementDepuisListe(detail, liste);
+
+		expect(resultat.declarant_nom).toBe("KOUASSI");
+		expect(resultat.declarant_prenom).toBe("Yao");
+		expect(resultat.declarant_login).toBe("y.kouassi");
+		expect(resultat.activite_libelle).toBe("Résidence");
+	});
+
+	it("ne touche pas aux champs déjà présents sur le détail", () => {
+		const detail = signalement("1", "OUVERT", { declarant_nom: "DÉTAIL" });
+		const liste = [signalement("1", "OUVERT", { declarant_nom: "LISTE" })];
+
+		expect(completerSignalementDepuisListe(detail, liste).declarant_nom).toBe(
+			"DÉTAIL",
+		);
+	});
+
+	it("renvoie le détail tel quel si absent de la liste", () => {
+		const detail = signalement("1", "OUVERT", { declarant_nom: undefined });
+		expect(completerSignalementDepuisListe(detail, []).declarant_nom).toBe(
+			undefined,
+		);
+	});
+
+	it("renvoie le détail tel quel si la liste n'est pas encore chargée", () => {
+		const detail = signalement("1", "OUVERT");
+		expect(completerSignalementDepuisListe(detail, undefined)).toBe(detail);
 	});
 });
 
