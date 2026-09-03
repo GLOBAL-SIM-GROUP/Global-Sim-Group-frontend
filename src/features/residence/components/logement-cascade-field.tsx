@@ -33,6 +33,7 @@ function SelectField({
 	placeholder,
 	value,
 	onValueChange,
+	disabled,
 	children,
 }: {
 	id: string;
@@ -40,12 +41,13 @@ function SelectField({
 	placeholder?: string;
 	value: string;
 	onValueChange: (value: string) => void;
+	disabled?: boolean;
 	children: React.ReactNode;
 }) {
 	return (
 		<div className="space-y-2">
 			<Label htmlFor={id}>{label}</Label>
-			<Select value={value} onValueChange={onValueChange}>
+			<Select value={value} onValueChange={onValueChange} disabled={disabled}>
 				<SelectTrigger id={id} aria-label={label} className="w-full">
 					<SelectValue placeholder={placeholder} />
 				</SelectTrigger>
@@ -60,6 +62,13 @@ function SelectField({
  * exige le paramètre `batiment`, réel). Changer de bâtiment réinitialise le
  * logement choisi. `disponibleUniquement` restreint la liste aux logements
  * DISPONIBLE (cf. `LogementCascadeFieldProps`).
+ *
+ * Le Select « Logement » reste monté en permanence (juste désactivé tant
+ * qu'aucun bâtiment n'est choisi) plutôt que d'apparaître/disparaître
+ * conditionnellement : à l'intérieur d'une Dialog Radix, un Select qui se
+ * (dé)monte pile au moment où un autre Select voisin se ferme peut rester
+ * bloqué (aria-hidden/pointer-events non nettoyés par la pile de calques
+ * Radix), rendant le second Select impossible à ouvrir.
  */
 export function LogementCascadeField({
 	value,
@@ -94,21 +103,24 @@ export function LogementCascadeField({
 				))}
 			</SelectField>
 
-			{batiment ? (
-				<SelectField
-					id="logement-logement"
-					label="Logement"
-					placeholder="Sélectionner un logement"
-					value={value}
-					onValueChange={onChange}
-				>
-					{(logementsQuery.data ?? []).map((logement) => (
-						<SelectItem key={logement.id} value={logement.id}>
-							{logement.numero} — {LOGEMENT_TYPE_LABELS[logement.type]}
-						</SelectItem>
-					))}
-				</SelectField>
-			) : null}
+			<SelectField
+				id="logement-logement"
+				label="Logement"
+				placeholder={
+					batiment
+						? "Sélectionner un logement"
+						: "Choisissez d'abord un bâtiment"
+				}
+				value={value}
+				onValueChange={onChange}
+				disabled={!batiment}
+			>
+				{(logementsQuery.data ?? []).map((logement) => (
+					<SelectItem key={logement.id} value={logement.id}>
+						{logement.numero} — {LOGEMENT_TYPE_LABELS[logement.type]}
+					</SelectItem>
+				))}
+			</SelectField>
 		</div>
 	);
 }
