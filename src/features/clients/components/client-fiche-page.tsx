@@ -292,7 +292,7 @@ function ContactDialog({
 			} catch (error) {
 				setGlobalError(
 					getErrorMessageForCode(toApiError(error).code) ??
-						"Une erreur est survenue.",
+						(toApiError(error).message || "Une erreur est survenue."),
 				);
 			}
 		},
@@ -515,7 +515,7 @@ function PieceDialog({
 			} catch (error) {
 				setGlobalError(
 					getErrorMessageForCode(toApiError(error).code) ??
-						"Une erreur est survenue.",
+						(toApiError(error).message || "Une erreur est survenue."),
 				);
 			} finally {
 				setUploading(false);

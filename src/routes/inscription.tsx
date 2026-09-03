@@ -243,7 +243,7 @@ export function InscriptionPage() {
 				if (mappedFields === 0) {
 					setGlobalError(
 						getErrorMessageForCode(toApiError(error).code) ??
-							"Inscription impossible.",
+							(toApiError(error).message || "Inscription impossible."),
 					);
 				}
 			}

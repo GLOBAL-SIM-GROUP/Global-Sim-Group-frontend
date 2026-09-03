@@ -85,7 +85,7 @@ export function FactureFormDialog({
 			} catch (error) {
 				setGlobalError(
 					getErrorMessageForCode(toApiError(error).code) ??
-						"Une erreur est survenue.",
+						(toApiError(error).message || "Une erreur est survenue."),
 				);
 			}
 		},

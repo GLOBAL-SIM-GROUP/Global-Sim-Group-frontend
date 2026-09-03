@@ -325,7 +325,7 @@ export function ClientForm({
 					setGlobalError(
 						`Client créé, mais l'ajout de la pièce/du contact a échoué (${
 							getErrorMessageForCode(toApiError(error).code) ??
-							"erreur inconnue"
+							(toApiError(error).message || "erreur inconnue")
 						}). Complétez le dossier depuis la fiche client.`,
 					);
 					onSaved(idClientCree, labelClientCree);
@@ -338,7 +338,7 @@ export function ClientForm({
 			} catch (error) {
 				setGlobalError(
 					getErrorMessageForCode(toApiError(error).code) ??
-						"Une erreur est survenue.",
+						(toApiError(error).message || "Une erreur est survenue."),
 				);
 			}
 		},

@@ -201,10 +201,16 @@ export function LogementForm({
 					}
 				}
 				// Erreur globale (réseau, numéro déjà utilisé non mappable…) sinon.
+				// Le backend renvoie souvent un message déjà clair et actionnable en
+				// français (ex. « Bâtiment inactif : impossible d'y créer un
+				// logement ») pour des codes qui n'ont pas de mapping dédié
+				// (BAD_REQUEST…) — on l'affiche plutôt qu'un message générique qui
+				// masquerait l'information utile.
 				if (mappedFields === 0) {
+					const apiError = toApiError(error);
 					setGlobalError(
-						getErrorMessageForCode(toApiError(error).code) ??
-							"Une erreur est survenue.",
+						getErrorMessageForCode(apiError.code) ??
+							(apiError.message || "Une erreur est survenue."),
 					);
 				}
 			}
