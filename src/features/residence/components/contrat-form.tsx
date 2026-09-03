@@ -177,6 +177,7 @@ export function ContratForm({ onCancel, onSaved }: ContratFormProps) {
 					<LogementCascadeField
 						value={field.state.value}
 						onChange={field.handleChange}
+						disponibleUniquement
 					/>
 				)}
 			</form.Field>

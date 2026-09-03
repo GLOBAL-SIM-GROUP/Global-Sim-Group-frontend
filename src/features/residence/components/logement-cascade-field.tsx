@@ -17,6 +17,13 @@ interface LogementCascadeFieldProps {
 	/** Id du logement sélectionné (champ `idLogement` du formulaire). */
 	value: string;
 	onChange: (id: string) => void;
+	/**
+	 * Ne liste que les logements au statut DISPONIBLE (ex. création de
+	 * contrat : on ne peut pas louer un logement déjà occupé). `false` par
+	 * défaut — les autres usages (ex. ajout d'une charge) doivent pouvoir
+	 * cibler n'importe quel logement, y compris occupé.
+	 */
+	disponibleUniquement?: boolean;
 }
 
 /** Champ Select avec label visible (le contenu s'ouvre en portal). */
@@ -51,15 +58,21 @@ function SelectField({
 /**
  * Sélection du logement par cascade : Bâtiment → Logement (le lister logements
  * exige le paramètre `batiment`, réel). Changer de bâtiment réinitialise le
- * logement choisi.
+ * logement choisi. `disponibleUniquement` restreint la liste aux logements
+ * DISPONIBLE (cf. `LogementCascadeFieldProps`).
  */
 export function LogementCascadeField({
 	value,
 	onChange,
+	disponibleUniquement = false,
 }: LogementCascadeFieldProps) {
 	const [batimentId, setBatimentId] = useState("");
 	const batimentsQuery = useBatiments();
-	const logementsQuery = useLogements(batimentId, "tous", "tous");
+	const logementsQuery = useLogements(
+		batimentId,
+		"tous",
+		disponibleUniquement ? "DISPONIBLE" : "tous",
+	);
 	const batiment = batimentsQuery.data?.find((item) => item.id === batimentId);
 
 	return (
