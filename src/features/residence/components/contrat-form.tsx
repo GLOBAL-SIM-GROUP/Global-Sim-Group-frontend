@@ -14,7 +14,7 @@ import {
 } from "#/components/ui/select";
 import { getErrorMessageForCode, getFieldErrors, toApiError } from "#/core/api";
 
-import { useCreerContrat } from "../hooks/use-contrats";
+import { useCreerCaution, useCreerContrat } from "../hooks/use-contrats";
 import { TYPE_LOCATION_LABELS, type TypeLocation } from "../models/contrats";
 import { ClientRechercheField } from "./client-recherche-field";
 import { LogementCascadeField } from "./logement-cascade-field";
@@ -27,7 +27,8 @@ type ContratField =
 	| "dureeMois"
 	| "typeLocation"
 	| "montantLoyer"
-	| "periodicite";
+	| "periodicite"
+	| "caution";
 
 /** Propriétés backend (snake_case) → champs du formulaire. */
 const FIELD_PROPERTY_TO_FORM: Record<string, ContratField> = {
@@ -79,11 +80,18 @@ function SelectField({
  * au-dessus de la liste des contrats. Recherche de client (base unique,
  * création inline si absent), sélection du logement par cascade bâtiment →
  * logement, dates/durée/type/loyer/périodicité. L'enregistrement POST
- * `/contrats` génère les échéances côté backend. La caution n'est PAS dans le
- * formulaire (absente de `CreerContratDto`).
+ * `/contrats` génère les échéances côté backend.
+ *
+ * La caution est optionnelle et créée par un second appel (POST
+ * `/contrats/{id}/caution`, absent de `CreerContratDto` : le contrat doit
+ * exister avant qu'on puisse lui rattacher une caution). Si cet appel échoue,
+ * le contrat reste créé (pas d'annulation) — la modale reste ouverte avec un
+ * message dédié plutôt que de fermer en silence, la caution pouvant toujours
+ * être ajoutée depuis la fiche du contrat.
  */
 export function ContratForm({ onCancel, onSaved }: ContratFormProps) {
 	const createMutation = useCreerContrat();
+	const creerCautionMutation = useCreerCaution();
 	const [globalError, setGlobalError] = useState<string | null>(null);
 
 	const form = useForm({
@@ -95,6 +103,7 @@ export function ContratForm({ onCancel, onSaved }: ContratFormProps) {
 			typeLocation: "MENSUEL" as TypeLocation,
 			montantLoyer: "",
 			periodicite: "Mensuel",
+			caution: "",
 		},
 		validators: {
 			onSubmit: ({ value }) => {
@@ -111,13 +120,19 @@ export function ContratForm({ onCancel, onSaved }: ContratFormProps) {
 				if (value.dureeMois && !/^\d+$/.test(value.dureeMois.trim())) {
 					fields.dureeMois = "Entrez un nombre de mois entier.";
 				}
+				if (
+					value.caution.trim() &&
+					!/^\d+(\.\d+)?$/.test(value.caution.trim())
+				) {
+					fields.caution = "Le montant doit être un nombre.";
+				}
 				return { fields };
 			},
 		},
 		onSubmit: async ({ value }) => {
 			setGlobalError(null);
 			try {
-				await createMutation.mutateAsync({
+				const contrat = await createMutation.mutateAsync({
 					idClient: value.idClient,
 					idLogement: value.idLogement,
 					dateDebut: value.dateDebut,
@@ -126,6 +141,22 @@ export function ContratForm({ onCancel, onSaved }: ContratFormProps) {
 					dureeMois: value.dureeMois ? Number(value.dureeMois) : null,
 					periodicite: value.periodicite,
 				});
+				// Le contrat existe déjà à ce stade : une erreur ici ne l'annule
+				// pas, donc pas de fermeture silencieuse — message dédié, modale
+				// ouverte (la caution reste ajoutable depuis la fiche du contrat).
+				if (value.caution.trim()) {
+					try {
+						await creerCautionMutation.mutateAsync({
+							idContrat: contrat.id,
+							montant: value.caution.trim(),
+						});
+					} catch {
+						setGlobalError(
+							`Contrat ${contrat.numeroContrat} créé, mais l'enregistrement de la caution a échoué. Ajoutez-la depuis la fiche du contrat.`,
+						);
+						return;
+					}
+				}
 				onSaved();
 			} catch (error) {
 				// Erreurs de validation backend → champ par champ (details[].property).
@@ -264,6 +295,23 @@ export function ContratForm({ onCancel, onSaved }: ContratFormProps) {
 							name={field.name}
 							label="Montant du loyer (FCFA)"
 							placeholder="ex : 95000"
+							inputMode="numeric"
+							autoComplete="off"
+							value={field.state.value}
+							onBlur={field.handleBlur}
+							onChange={(event) => field.handleChange(event.target.value)}
+							error={field.state.meta.errors[0]}
+						/>
+					)}
+				</form.Field>
+
+				<form.Field name="caution">
+					{(field) => (
+						<InputField
+							id={field.name}
+							name={field.name}
+							label="Caution (FCFA)"
+							placeholder="ex : 95000 (optionnel)"
 							inputMode="numeric"
 							autoComplete="off"
 							value={field.state.value}

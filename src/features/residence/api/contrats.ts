@@ -38,7 +38,7 @@ const texteOuNull = (valeur: string | null | undefined): string | null =>
  * Appels API du module Résidence — contrats de location. Réponses hand-typed
  * revalidées sur le backend réel (aucun schéma de réponse dans le spec). Aucun
  * endpoint inventé : GET list/détail, POST création, `activer`, caution
- * (GET + restitution). Pas de PATCH ni de résiliation dans le spec.
+ * (GET + création + restitution). Pas de PATCH ni de résiliation dans le spec.
  */
 export function listContrats(): Promise<Contrat[]> {
 	return getApiClient()
@@ -71,11 +71,31 @@ export interface ContratBody {
 }
 
 /**
+ * Contrat créé (POST `/contrats`). Le spec déclare cette réponse vide
+ * (`content?: never`) mais le backend réel renvoie l'id du contrat créé, son
+ * numéro, et — le contrat active un compte portail pour le client — les
+ * identifiants temporaires de ce compte (vérifié sur l'instance de dev,
+ * 2026-09-03 : absent du spec comme plusieurs autres réponses de ce module).
+ * `compteResident` est `null` si le client avait déjà un compte portail.
+ */
+export interface ContratCree {
+	id: string;
+	numeroContrat: string;
+	compteResident: { login: string; motDePasseTemporaire: string } | null;
+}
+
+interface ContratCreeWire {
+	id_contrat: string;
+	numero_contrat: string;
+	compte_resident?: { login: string; mot_de_passe_temporaire: string } | null;
+}
+
+/**
  * Crée un contrat (POST `CreerContratDto`). `date_fin_prevue` est déduite de
  * la durée (`calculerDateFinPrevue`) ; `statut` et `date_signature` ne sont
  * PAS envoyés (défauts backend). Les échéances sont générées côté backend.
  */
-export function creerContrat(body: ContratBody): Promise<unknown> {
+export function creerContrat(body: ContratBody): Promise<ContratCree> {
 	const corps = {
 		id_client: body.idClient,
 		id_logement: body.idLogement,
@@ -96,10 +116,21 @@ export function creerContrat(body: ContratBody): Promise<unknown> {
 		periodicite?: string | null;
 		date_fin_prevue?: string | null;
 	};
-	return getApiClient().apiFetch("/api/v1/residence/contrats", {
-		method: "POST",
-		body: JSON.stringify(corps),
-	});
+	return getApiClient()
+		.apiFetch<ContratCreeWire>("/api/v1/residence/contrats", {
+			method: "POST",
+			body: JSON.stringify(corps),
+		})
+		.then((data) => ({
+			id: data.id_contrat,
+			numeroContrat: data.numero_contrat,
+			compteResident: data.compte_resident
+				? {
+						login: data.compte_resident.login,
+						motDePasseTemporaire: data.compte_resident.mot_de_passe_temporaire,
+					}
+				: null,
+		}));
 }
 
 /** Active un contrat en attente (POST /contrats/{id}/activer). */
@@ -113,6 +144,23 @@ export function activerContrat(id: string): Promise<unknown> {
 export function getCaution(idContrat: string): Promise<Caution> {
 	return getApiClient()
 		.apiFetch<CautionWire>(`/api/v1/residence/contrats/${idContrat}/caution`)
+		.then(({ id_caution: id, ...reste }) => ({ id, ...reste }));
+}
+
+/**
+ * Crée la caution d'un contrat (POST /contrats/{id}/caution). Absent du spec
+ * (aucun `CreerCautionDto` généré) : corps revalidé sur le backend réel — seul
+ * `montant` est requis (chaîne décimale, ex. `"60000"` ou `"60000.00"`).
+ */
+export function creerCaution(
+	idContrat: string,
+	body: { montant: string },
+): Promise<Caution> {
+	return getApiClient()
+		.apiFetch<CautionWire>(`/api/v1/residence/contrats/${idContrat}/caution`, {
+			method: "POST",
+			body: JSON.stringify({ montant: body.montant }),
+		})
 		.then(({ id_caution: id, ...reste }) => ({ id, ...reste }));
 }
 

@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
 	activerContrat,
 	type ContratBody,
+	creerCaution,
 	creerContrat,
 	getCaution,
 	getContrat,
@@ -61,6 +62,26 @@ export function useCaution(idContrat: string | undefined) {
 		queryFn: () => getCaution(idContrat as string),
 		enabled: Boolean(idContrat),
 		retry: false,
+	});
+}
+
+/**
+ * Crée la caution d'un contrat (à la suite de sa création). Invalide
+ * contrat + caution au succès.
+ */
+export function useCreerCaution() {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: ({
+			idContrat,
+			montant,
+		}: {
+			idContrat: string;
+			montant: string;
+		}) => creerCaution(idContrat, { montant }),
+		onSuccess: () => {
+			void queryClient.invalidateQueries({ queryKey: contratsKeys.all });
+		},
 	});
 }
 
