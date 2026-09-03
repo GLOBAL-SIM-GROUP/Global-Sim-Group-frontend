@@ -22,6 +22,14 @@ const config = defineConfig({
 				target: "https://dev.sim.strife-cyber.org",
 				changeOrigin: true,
 			},
+			// Notifications temps réel (Socket.IO) : même backend, même besoin de
+			// proxy que /api/v1 (CORS). `ws: true` pour l'upgrade WebSocket — sans
+			// ça la poignée de main initiale (polling) passerait mais jamais l'upgrade.
+			"/socket.io": {
+				target: "https://dev.sim.strife-cyber.org",
+				changeOrigin: true,
+				ws: true,
+			},
 		},
 	},
 	plugins: [
