@@ -59,7 +59,6 @@ export function BuildingsPage({
 	const [actif, setActif] = useState<BatimentActifFiltre>(
 		initialSearch.actif ?? "tous",
 	);
-	const [moreOpen, setMoreOpen] = useState(false);
 	const [page, setPage] = useState(initialSearch.page ?? 1);
 	const [aSupprimer, setASupprimer] = useState<Batiment | null>(null);
 	// Modale de création/édition : `formOuvert` = création (bouton Ajouter),
@@ -160,10 +159,8 @@ export function BuildingsPage({
 			<BuildingFilters
 				search={search}
 				actif={actif}
-				moreOpen={moreOpen}
 				onSearchChange={(value) => changerFiltre({ search: value })}
 				onActifChange={(value) => changerFiltre({ actif: value })}
-				onToggleMore={() => setMoreOpen((ouvert) => !ouvert)}
 			/>
 
 			{batimentsQuery.isLoading ? (
