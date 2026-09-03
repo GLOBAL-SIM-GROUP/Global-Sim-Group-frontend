@@ -106,7 +106,9 @@ describe("EtatDesLieuxTab", () => {
 		const user = userEvent.setup();
 		render(<EtatDesLieuxTab idContrat="c1" />);
 
-		await user.click(screen.getByRole("button", { name: "Supprimer la photo" }));
+		await user.click(
+			screen.getByRole("button", { name: "Supprimer la photo" }),
+		);
 
 		await screen.findByText(
 			"Voulez-vous vraiment supprimer cette photo d'état des lieux ? Cette action est irréversible.",

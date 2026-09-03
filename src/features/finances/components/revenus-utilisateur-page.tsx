@@ -80,10 +80,14 @@ export function RevenusUtilisateurPage() {
 				<div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
 					{!caisseScopee && (
 						<div>
-							<label className="block text-xs font-medium text-muted-foreground mb-1">
+							<label
+								htmlFor="revenus-filtre-caisse"
+								className="block text-xs font-medium text-muted-foreground mb-1"
+							>
 								Caisse
 							</label>
 							<select
+								id="revenus-filtre-caisse"
 								value={idCaisse}
 								onChange={(e) => setIdCaisse(e.target.value)}
 								className="w-full h-9 rounded-md border border-input bg-background px-3 text-sm"

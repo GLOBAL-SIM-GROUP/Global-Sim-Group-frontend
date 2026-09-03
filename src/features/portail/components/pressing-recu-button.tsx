@@ -62,9 +62,7 @@ export function PressingRecuButton({
 				) : (
 					<FileDown className="size-4" />
 				)}
-				<span className="ml-2">
-					{isLoading ? "Téléchargement..." : "Reçu"}
-				</span>
+				<span className="ml-2">{isLoading ? "Téléchargement..." : "Reçu"}</span>
 			</Button>
 			{error ? <p className="text-xs text-destructive">{error}</p> : null}
 		</div>

@@ -1,8 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import {
-	getPressingCommande,
-	listPressingCommandes,
-} from "../api/pressing";
+import { getPressingCommande, listPressingCommandes } from "../api/pressing";
 
 /**
  * Récupère la liste des commandes de pressing du résident actuel.

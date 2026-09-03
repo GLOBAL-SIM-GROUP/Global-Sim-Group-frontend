@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { createApiClient } from "./http";
 
 describe("ApiClient HTTP methods", () => {
@@ -7,7 +7,7 @@ describe("ApiClient HTTP methods", () => {
 
 	beforeEach(() => {
 		mockFetch = vi.fn();
-		global.fetch = mockFetch as any;
+		global.fetch = mockFetch as unknown as typeof fetch;
 
 		apiClient = createApiClient({
 			getAccessToken: () => "test-token",
@@ -71,7 +71,7 @@ describe("ApiClient HTTP methods", () => {
 			}),
 		);
 
-		await apiClient.post<{}>("/trigger");
+		await apiClient.post<unknown>("/trigger");
 
 		expect(mockFetch).toHaveBeenCalledWith(
 			expect.stringContaining("/trigger"),
@@ -92,10 +92,7 @@ describe("ApiClient HTTP methods", () => {
 			}),
 		);
 
-		const result = await apiClient.patch<typeof payload>(
-			"/items/1",
-			payload,
-		);
+		const result = await apiClient.patch<typeof payload>("/items/1", payload);
 
 		expect(mockFetch).toHaveBeenCalledWith(
 			expect.stringContaining("/items/1"),
@@ -115,7 +112,7 @@ describe("ApiClient HTTP methods", () => {
 			}),
 		);
 
-		const result = await apiClient.delete<{}>("/items/1");
+		const result = await apiClient.delete<unknown>("/items/1");
 
 		expect(mockFetch).toHaveBeenCalledWith(
 			expect.stringContaining("/items/1"),
@@ -181,13 +178,10 @@ describe("ApiClient HTTP methods", () => {
 		});
 
 		mockFetch.mockResolvedValueOnce(
-			new Response(
-				JSON.stringify({ message: "Unauthorized" }),
-				{
-					status: 401,
-					headers: { "content-type": "application/json" },
-				},
-			),
+			new Response(JSON.stringify({ message: "Unauthorized" }), {
+				status: 401,
+				headers: { "content-type": "application/json" },
+			}),
 		);
 
 		await expect(apiClient.get("/protected")).rejects.toThrow();

@@ -9,14 +9,15 @@ import { Button } from "#/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "#/components/ui/card";
 import { cn } from "#/lib/utils";
 import { usePressingCommande } from "../hooks/use-pressing";
-import { PressingRecuButton } from "./pressing-recu-button";
 import {
 	calculerProgression,
 	getEtapeActuelle,
 	PRESSING_STATUT_COLORS,
 	PRESSING_STATUT_LABELS,
 	PROGRESSION_ETAPES,
+	type PressingStatut,
 } from "../models/pressing";
+import { PressingRecuButton } from "./pressing-recu-button";
 
 interface PressingCommandeDetailPageProps {
 	id: string;
@@ -66,11 +67,11 @@ export function PressingCommandeDetailPage({
 	const couleur =
 		PRESSING_STATUT_COLORS[commande.statut] ?? "bg-gray-100 text-gray-800";
 
-	const getEtapeIcon = (statut: string) => {
-		if (PROGRESSION_ETAPES.indexOf(statut as any) < etape.actuelle - 1) {
+	const getEtapeIcon = (statut: PressingStatut) => {
+		if (PROGRESSION_ETAPES.indexOf(statut) < etape.actuelle - 1) {
 			return <CheckCircle2 className="size-6 text-green-600" />;
 		}
-		if (PROGRESSION_ETAPES.indexOf(statut as any) === etape.actuelle - 1) {
+		if (PROGRESSION_ETAPES.indexOf(statut) === etape.actuelle - 1) {
 			return <Clock className="size-6 text-lagoon animate-pulse" />;
 		}
 		return <div className="size-6 rounded-full border-2 border-gray-300" />;

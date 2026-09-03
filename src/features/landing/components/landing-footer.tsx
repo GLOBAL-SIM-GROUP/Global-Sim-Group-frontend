@@ -95,12 +95,20 @@ export function LandingFooter() {
 					<div className="flex flex-col sm:flex-row justify-between items-center gap-2 text-sm text-white/70">
 						<p>© {currentYear} GLOBAL SIM GROUP. Tous droits réservés.</p>
 						<div className="flex gap-3">
-							<a href="#" className="hover:text-white transition-colors">
+							<Link
+								to="/en-cours"
+								search={{ page: "Politique de confidentialité" }}
+								className="hover:text-white transition-colors"
+							>
 								Politique de confidentialité
-							</a>
-							<a href="#" className="hover:text-white transition-colors">
+							</Link>
+							<Link
+								to="/en-cours"
+								search={{ page: "Conditions d'utilisation" }}
+								className="hover:text-white transition-colors"
+							>
 								Conditions d'utilisation
-							</a>
+							</Link>
 						</div>
 					</div>
 				</div>

@@ -36,6 +36,24 @@ import {
 } from "../hooks/use-dashboard";
 import { getPeriodeDates, type PeriodeFiltre } from "../models/periodes";
 
+/**
+ * Forme réellement renvoyée par `/finances/impayes` : plus riche que `Impaye`
+ * de `../api/dashboard` (qui ne couvre pas ce endpoint — cf. le modèle
+ * équivalent dans `features/finances/models/finances.ts`). Déclarée
+ * localement plutôt que de trancher entre les deux modèles existants.
+ */
+interface ImpayeAffiche {
+	id?: string;
+	reference?: string;
+	locataire?: string;
+	nom_locataire?: string;
+	client?: string;
+	montant_paye?: number | string;
+	montant_impaye?: number | string;
+	reste?: number | string;
+	date_echeance?: string;
+}
+
 const PERIODES: Record<PeriodeFiltre, string> = {
 	aujourd_hui: "Aujourd'hui",
 	hier: "Hier",
@@ -67,7 +85,7 @@ export function DashboardGlobalPage() {
 	const logementsDispoQuery = useLogementsDispo(dates.du, dates.au);
 
 	const synthese = syntheseQuery.data;
-	const impayes = impayesQuery.data ?? [];
+	const impayes = (impayesQuery.data ?? []) as unknown as ImpayeAffiche[];
 	const reservations = reservationsQuery.data ?? [];
 	const pointages = pointagesQuery.data ?? [];
 	const produitsCritiques = produitsCritiquesQuery.data ?? [];
@@ -88,7 +106,7 @@ export function DashboardGlobalPage() {
 	const retardsAujourdhui = pointages.filter(
 		(p) => p.statut === "RETARD",
 	).length;
-	const montantImpayes = impayes.reduce((sum, i: any) => {
+	const montantImpayes = impayes.reduce((sum, i) => {
 		const montant = Number(i.montant_impaye ?? i.reste ?? 0);
 		return sum + (Number.isNaN(montant) ? 0 : montant);
 	}, 0);
@@ -124,14 +142,17 @@ export function DashboardGlobalPage() {
 				<div className="flex flex-col gap-4">
 					<div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:gap-4">
 						<div className="flex-1">
-							<label className="block text-xs font-medium text-muted-foreground mb-1">
+							<label
+								htmlFor="dashboard-global-filtre-periode"
+								className="block text-xs font-medium text-muted-foreground mb-1"
+							>
 								Période
 							</label>
 							<Select
 								value={periode}
 								onValueChange={(v) => setPeriode(v as PeriodeFiltre)}
 							>
-								<SelectTrigger>
+								<SelectTrigger id="dashboard-global-filtre-periode">
 									<SelectValue />
 								</SelectTrigger>
 								<SelectContent>
@@ -149,10 +170,14 @@ export function DashboardGlobalPage() {
 					{periode === "personnalisee" && (
 						<div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:gap-4 pt-2 border-t border-border">
 							<div className="flex-1">
-								<label className="block text-xs font-medium text-muted-foreground mb-1">
+								<label
+									htmlFor="dashboard-global-date-debut"
+									className="block text-xs font-medium text-muted-foreground mb-1"
+								>
 									Date de début
 								</label>
 								<input
+									id="dashboard-global-date-debut"
 									type="date"
 									value={customDu}
 									onChange={(e) => setCustomDu(e.target.value)}
@@ -160,10 +185,14 @@ export function DashboardGlobalPage() {
 								/>
 							</div>
 							<div className="flex-1">
-								<label className="block text-xs font-medium text-muted-foreground mb-1">
+								<label
+									htmlFor="dashboard-global-date-fin"
+									className="block text-xs font-medium text-muted-foreground mb-1"
+								>
 									Date de fin
 								</label>
 								<input
+									id="dashboard-global-date-fin"
 									type="date"
 									value={customAu}
 									onChange={(e) => setCustomAu(e.target.value)}
@@ -312,13 +341,17 @@ export function DashboardGlobalPage() {
 										</thead>
 										<tbody>
 											{impayes
-												.sort((a: any, b: any) => {
-													const dateA = new Date(a.date_echeance).getTime();
-													const dateB = new Date(b.date_echeance).getTime();
+												.sort((a, b) => {
+													const dateA = new Date(
+														a.date_echeance || 0,
+													).getTime();
+													const dateB = new Date(
+														b.date_echeance || 0,
+													).getTime();
 													return dateA - dateB;
 												})
 												.slice(0, 10)
-												.map((i: any, idx) => {
+												.map((i) => {
 													const montantPaye = Number(i.montant_paye ?? 0);
 													const montantReste = Number(
 														i.montant_impaye ?? i.reste ?? 0,
@@ -328,7 +361,7 @@ export function DashboardGlobalPage() {
 													const reference = i.reference ?? i.id ?? "—";
 													return (
 														<tr
-															key={idx}
+															key={reference}
 															className="relative border-t border-border transition-colors hover:bg-accent/40"
 														>
 															<td className="px-4 py-3 font-medium text-foreground">
@@ -367,9 +400,11 @@ export function DashboardGlobalPage() {
 												<td className="px-4 py-3 text-right font-semibold text-emerald-600">
 													{formatMontantFCFA(
 														String(
-															impayes.reduce((sum, i: any) => {
+															impayes.reduce((sum, i) => {
 																const montant = Number(i.montant_paye ?? 0);
-																return sum + (isNaN(montant) ? 0 : montant);
+																return (
+																	sum + (Number.isNaN(montant) ? 0 : montant)
+																);
 															}, 0),
 														),
 													)}
@@ -377,11 +412,13 @@ export function DashboardGlobalPage() {
 												<td className="px-4 py-3 text-right font-semibold text-destructive">
 													{formatMontantFCFA(
 														String(
-															impayes.reduce((sum, i: any) => {
+															impayes.reduce((sum, i) => {
 																const montant = Number(
 																	i.montant_impaye ?? i.reste ?? 0,
 																);
-																return sum + (isNaN(montant) ? 0 : montant);
+																return (
+																	sum + (Number.isNaN(montant) ? 0 : montant)
+																);
 															}, 0),
 														),
 													)}
@@ -567,14 +604,16 @@ export function DashboardGlobalPage() {
 										<tbody>
 											{reservations
 												.sort(
-													(a: any, b: any) =>
-														new Date(a.date_evenement || a.date).getTime() -
-														new Date(b.date_evenement || b.date).getTime(),
+													(a, b) =>
+														new Date(
+															a.date_evenement || a.date || 0,
+														).getTime() -
+														new Date(b.date_evenement || b.date || 0).getTime(),
 												)
 												.slice(0, 5)
-												.map((r: any, idx) => (
+												.map((r, idx) => (
 													<tr
-														key={idx}
+														key={r.id ?? r.id_reservation ?? idx}
 														className="relative border-t border-border transition-colors hover:bg-accent/40"
 													>
 														<td className="px-4 py-3 font-medium text-foreground">
@@ -585,7 +624,7 @@ export function DashboardGlobalPage() {
 														</td>
 														<td className="px-4 py-3 text-muted-foreground">
 															{new Date(
-																r.date_evenement || r.date,
+																r.date_evenement || r.date || 0,
 															).toLocaleDateString("fr-FR")}
 														</td>
 														<td className="px-4 py-3 text-muted-foreground">

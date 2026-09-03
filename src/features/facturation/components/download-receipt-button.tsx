@@ -1,9 +1,9 @@
 import { FileDown, Loader2, Printer } from "lucide-react";
 import { useState } from "react";
 import { Button } from "#/components/ui/button";
-import { useFindFacture } from "#/core/api/hooks/use-factures";
-import { printFacturePdf, printFactureTicket } from "#/core/api/facturation";
 import type { FactureSourceType } from "#/core/api/facturation";
+import { printFacturePdf, printFactureTicket } from "#/core/api/facturation";
+import { useFindFacture } from "#/core/api/hooks/use-factures";
 
 interface DownloadReceiptButtonProps {
 	sourceType: FactureSourceType;

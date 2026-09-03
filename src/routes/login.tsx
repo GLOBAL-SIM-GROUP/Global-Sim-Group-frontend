@@ -186,7 +186,10 @@ export function LoginPage() {
 		return () => {
 			cancelled = true;
 		};
-	}, []);
+		// `auth`/`navigate` sont des références stables (issues du contexte du
+		// routeur) : lister leurs dépendances utilisées ne fait pas re-déclencher
+		// l'effet à chaque rendu, juste satisfaire la règle exhaustive-deps.
+	}, [auth.isAuthenticated, auth.restore, navigate, search.next]);
 
 	const form = useForm({
 		defaultValues: {

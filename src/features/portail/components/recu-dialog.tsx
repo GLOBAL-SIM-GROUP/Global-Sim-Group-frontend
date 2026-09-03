@@ -65,11 +65,7 @@ export function RecuDialog({ open, kind, id, onOpenChange }: RecuDialogProps) {
 		if (!query.error) return null;
 		const error = query.error as unknown;
 		// Vérifie si c'est une erreur API avec un code de statut
-		if (
-			typeof error === "object" &&
-			error !== null &&
-			"statusCode" in error
-		) {
+		if (typeof error === "object" && error !== null && "statusCode" in error) {
 			const statusCode = (error as Record<string, unknown>).statusCode;
 			if (statusCode === 404 || statusCode === 400) {
 				return "Aucun reçu n'est encore disponible. Assurez-vous que le paiement a été effectué.";
@@ -136,9 +132,7 @@ export function RecuDialog({ open, kind, id, onOpenChange }: RecuDialogProps) {
 								role="alert"
 								className="space-y-3 rounded-lg border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive"
 							>
-								<p>
-									{getErrorMessage()}
-								</p>
+								<p>{getErrorMessage()}</p>
 								<Button
 									variant="outline"
 									size="sm"

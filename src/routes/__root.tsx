@@ -63,18 +63,11 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 });
 
 function RootComponent() {
-	// En SSR, useRouteContext() lance une erreur car le routeur n'est pas hydraté.
-	// Côté client, il retourne le contexte créé dans router.tsx.
-	let auth: AuthSession | undefined;
-	if (typeof window !== "undefined") {
-		try {
-			const context = useRouteContext({ from: "__root__" }) as RouterContext;
-			auth = context?.auth;
-		} catch {
-			// Cas rare : client hydration sans contexte
-			auth = undefined;
-		}
-	}
+	// Le hook doit être appelé sans condition (règle des Hooks) : le
+	// try/catch encaisse le cas, rare, où le contexte du routeur n'est pas
+	// encore disponible (ex. tout premier rendu SSR avant hydratation).
+	const context = useRouteContext({ from: "__root__" }) as RouterContext;
+	const auth: AuthSession | undefined = context?.auth;
 
 	// Enregistrement du service worker (PWA), écrit à la main dans public/sw.js
 	// — client uniquement, l'API `navigator.serviceWorker` n'existe pas en SSR.

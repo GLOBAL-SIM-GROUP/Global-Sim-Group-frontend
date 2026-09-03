@@ -5,13 +5,13 @@ import { useState } from "react";
 import { Breadcrumb } from "#/components/ui/breadcrumb";
 import { Button } from "#/components/ui/button";
 import { useCan } from "#/core/auth";
+import { DownloadReceiptButton } from "#/features/facturation/components/download-receipt-button";
 import { useMoyensPaiement } from "#/features/residence/hooks/use-moyens-paiement";
 import {
 	formatDateHeureISO,
 	formatMontantFCFA,
 } from "#/features/residence/models/format";
 import { cn } from "#/lib/utils";
-
 import {
 	useCommande,
 	usePretCommande,
@@ -25,7 +25,6 @@ import {
 } from "../models/commandes";
 import { CommandeFormDialog } from "./commande-form-dialog";
 import { RetirerCommandeDialog } from "./retirer-commande-dialog";
-import { DownloadReceiptButton } from "#/features/facturation/components/download-receipt-button";
 
 const PRESSING_STATUT_BADGE: Record<CommandePressingStatut, string> = {
 	DEPOSE: "bg-[#2980B9] text-white",

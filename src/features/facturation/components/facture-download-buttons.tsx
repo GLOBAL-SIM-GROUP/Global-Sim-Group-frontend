@@ -1,5 +1,5 @@
-import { useState } from "react";
 import { Loader2, Printer } from "lucide-react";
+import { useState } from "react";
 import { Button } from "#/components/ui/button";
 import { imprimerPdfBlob } from "#/lib/print-pdf";
 import {
@@ -52,7 +52,8 @@ export function FactureDownloadButtons({
 		}
 	};
 
-	const containerClass = layout === "inline" ? "flex gap-2" : "flex flex-col gap-2";
+	const containerClass =
+		layout === "inline" ? "flex gap-2" : "flex flex-col gap-2";
 
 	return (
 		<div className={containerClass}>
@@ -102,6 +103,7 @@ export function FactureDownloadButtons({
 				{showTicketOptions && (
 					<div className="absolute top-full mt-1 z-10 bg-white border border-border rounded-md shadow-md">
 						<button
+							type="button"
 							onClick={() => void handlePrintTicket(58)}
 							disabled={isLoadingTicket}
 							className="block w-full px-4 py-2 text-left text-sm hover:bg-accent whitespace-nowrap disabled:opacity-50"
@@ -109,6 +111,7 @@ export function FactureDownloadButtons({
 							58 mm
 						</button>
 						<button
+							type="button"
 							onClick={() => void handlePrintTicket(80)}
 							disabled={isLoadingTicket}
 							className="block w-full px-4 py-2 text-left text-sm hover:bg-accent border-t border-border whitespace-nowrap disabled:opacity-50"

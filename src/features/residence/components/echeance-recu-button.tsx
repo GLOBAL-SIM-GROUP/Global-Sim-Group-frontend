@@ -1,5 +1,5 @@
-import { useState } from "react";
 import { Download, Loader2, Printer } from "lucide-react";
+import { useState } from "react";
 import { Button } from "#/components/ui/button";
 import { getApiClient } from "#/core/api";
 import { useCan } from "#/core/auth";
@@ -41,7 +41,7 @@ export function EcheanceRecuButton({ echeance }: EcheanceRecuButtonProps) {
 			} else {
 				imprimerPdfBlob(blob);
 			}
-		} catch (err) {
+		} catch {
 			setError("Erreur lors du téléchargement du reçu");
 		} finally {
 			setIsLoading(false);

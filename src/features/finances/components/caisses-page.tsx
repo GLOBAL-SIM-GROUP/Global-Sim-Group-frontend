@@ -113,8 +113,14 @@ export function CaissesPage() {
 						</Dialog.Description>
 						<div className="mt-6 space-y-4">
 							<div>
-								<label className="text-sm font-medium">Libellé</label>
+								<label
+									htmlFor="caisse-libelle-create"
+									className="text-sm font-medium"
+								>
+									Libellé
+								</label>
 								<Input
+									id="caisse-libelle-create"
 									value={formData.libelle}
 									onChange={(e) =>
 										setFormData({ ...formData, libelle: e.target.value })
@@ -123,8 +129,14 @@ export function CaissesPage() {
 								/>
 							</div>
 							<div>
-								<label className="text-sm font-medium">Activité</label>
+								<label
+									htmlFor="caisse-activite-create"
+									className="text-sm font-medium"
+								>
+									Activité
+								</label>
 								<select
+									id="caisse-activite-create"
 									value={formData.id_activite}
 									onChange={(e) =>
 										setFormData({ ...formData, id_activite: e.target.value })
@@ -168,8 +180,14 @@ export function CaissesPage() {
 						</Dialog.Description>
 						<div className="mt-6 space-y-4">
 							<div>
-								<label className="text-sm font-medium">Libellé</label>
+								<label
+									htmlFor="caisse-libelle-edit"
+									className="text-sm font-medium"
+								>
+									Libellé
+								</label>
 								<Input
+									id="caisse-libelle-edit"
 									value={formData.libelle}
 									onChange={(e) =>
 										setFormData({ ...formData, libelle: e.target.value })

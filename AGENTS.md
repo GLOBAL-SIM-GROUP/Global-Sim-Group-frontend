@@ -1,10 +1,14 @@
 # Règles du projet — GLOBAL SIM GROUP · SIM (frontend)
 
-Ce projet est la **fondation** du client web de la plateforme multiservice
-GLOBAL SIM GROUP. La spec qui régit ce travail est
-[`prompt-adapted.md`](prompt-adapted.md) ; les conventions détaillées sont dans
-[`docs/`](docs/). **Aucune fonctionnalité métier n'est implémentée** (modules
-M0–M11 : à venir, par-dessus cette fondation). Ne pas en inventer une.
+Ce projet est le client web de la plateforme multiservice GLOBAL SIM GROUP.
+La quasi-totalité des modules métier est implémentée (résidence, restaurant,
+pressing, salle de fête, facturation, finances, RH, clients, marchandise,
+administration, rapports, signalements, portail résident). Les conventions
+détaillées sont dans [`docs/`](docs/). [`prompt-adapted.md`](prompt-adapted.md)
+décrit l'intention initiale du projet (jour 1) — ne plus s'y fier pour le
+modèle de permissions ou le périmètre réel : se fier au code
+(`src/core/permissions/`, `src/features/`). Ne pas inventer de module ou
+d'endpoint hors de ce qui existe réellement côté backend.
 
 1. **Ne pas contourner les frontières de features** — les écrans d'un module
    vivent dans `src/features/<module>/`, le réutilisable dans `src/core/` et

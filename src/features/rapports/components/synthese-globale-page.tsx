@@ -8,11 +8,7 @@ import { formatMontantFCFA } from "#/features/residence/models/format";
 
 import { rapportExcelPath, rapportPdfPath } from "../api/rapports";
 import { useSyntheseGlobale } from "../hooks/use-rapports";
-import {
-	imprimerPdf,
-	telechargerExcel,
-	telechargerTexte,
-} from "../lib/export";
+import { imprimerPdf, telechargerExcel, telechargerTexte } from "../lib/export";
 import {
 	construireCsv,
 	periodeParDefaut,

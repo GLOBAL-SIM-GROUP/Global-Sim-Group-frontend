@@ -1,9 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import {
+	type Facture,
 	type FactureSourceType,
 	type FactureStatut,
 	findFacture,
-	type Facture,
 	listFactures,
 } from "../facturation";
 

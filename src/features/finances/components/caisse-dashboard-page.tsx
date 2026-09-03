@@ -100,8 +100,11 @@ export function CaisseDashboardPage({ id }: CaisseDashboardPageProps) {
 						</Dialog.Description>
 						<div className="mt-6 space-y-4">
 							<div>
-								<label className="text-sm font-medium">Date</label>
+								<label htmlFor="tirage-date" className="text-sm font-medium">
+									Date
+								</label>
 								<Input
+									id="tirage-date"
 									type="date"
 									value={tirageForms.date}
 									onChange={(e) =>
@@ -110,8 +113,14 @@ export function CaisseDashboardPage({ id }: CaisseDashboardPageProps) {
 								/>
 							</div>
 							<div>
-								<label className="text-sm font-medium">Montant compté</label>
+								<label
+									htmlFor="tirage-montant-compte"
+									className="text-sm font-medium"
+								>
+									Montant compté
+								</label>
 								<Input
+									id="tirage-montant-compte"
 									type="number"
 									step="0.01"
 									value={tirageForms.montant_compte}
@@ -125,8 +134,11 @@ export function CaisseDashboardPage({ id }: CaisseDashboardPageProps) {
 								/>
 							</div>
 							<div>
-								<label className="text-sm font-medium">Note (optionnel)</label>
+								<label htmlFor="tirage-note" className="text-sm font-medium">
+									Note (optionnel)
+								</label>
 								<Input
+									id="tirage-note"
 									value={tirageForms.note || ""}
 									onChange={(e) =>
 										setTirageForms({

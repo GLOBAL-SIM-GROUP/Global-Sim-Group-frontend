@@ -3,7 +3,12 @@
  * Client peut suivre l'état d'avancement de ses habits.
  */
 
-export type PressingStatut = "DEPOSE" | "EN_TRAITEMENT" | "PRET" | "RETIRE" | "ANNULEE";
+export type PressingStatut =
+	| "DEPOSE"
+	| "EN_TRAITEMENT"
+	| "PRET"
+	| "RETIRE"
+	| "ANNULEE";
 
 export interface PressingCommande {
 	id: string;

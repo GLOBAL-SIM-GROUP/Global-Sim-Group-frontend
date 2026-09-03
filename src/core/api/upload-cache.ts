@@ -31,10 +31,10 @@ class UploadCache {
 	/** Ajoute un blob URL au cache */
 	set(key: string, blobUrl: string): void {
 		// Si la clé existe déjà, incrémenter le refCount
-		if (this.cache.has(key)) {
-			const entry = this.cache.get(key)!;
-			entry.refCount++;
-			entry.lastUsed = Date.now();
+		const existing = this.cache.get(key);
+		if (existing) {
+			existing.refCount++;
+			existing.lastUsed = Date.now();
 			return;
 		}
 
@@ -87,12 +87,14 @@ class UploadCache {
 	/** Supprime l'entrée la moins récemment utilisée */
 	private evictLRU(): void {
 		let lruKey: string | null = null;
+		let lruEntry: CacheEntry | null = null;
 		let lruTime = Infinity;
 
 		for (const [key, entry] of this.cache.entries()) {
 			// Préférer supprimer les entrées avec refCount = 0
 			if (entry.refCount === 0 && entry.lastUsed < lruTime) {
 				lruKey = key;
+				lruEntry = entry;
 				lruTime = entry.lastUsed;
 			}
 		}
@@ -102,14 +104,14 @@ class UploadCache {
 			for (const [key, entry] of this.cache.entries()) {
 				if (entry.lastUsed < lruTime) {
 					lruKey = key;
+					lruEntry = entry;
 					lruTime = entry.lastUsed;
 				}
 			}
 		}
 
-		if (lruKey) {
-			const entry = this.cache.get(lruKey)!;
-			URL.revokeObjectURL(entry.blobUrl);
+		if (lruKey && lruEntry) {
+			URL.revokeObjectURL(lruEntry.blobUrl);
 			this.cache.delete(lruKey);
 		}
 	}

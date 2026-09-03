@@ -4,12 +4,15 @@ Client web de la plateforme multiservice **GLOBAL SIM GROUP — SIM** :
 résidence, market, pressing, restaurant, salle de fête, facturation,
 finances, RH et administration.
 
-> **État actuel — fondation uniquement.** Ce dépôt contient l'architecture,
-> l'authentification JWT, le système de permissions, la couche API générée
-> depuis la spec OpenAPI réelle. L'interface est en français (texte en dur).
-> **Aucune fonctionnalité métier n'est implémentée** (contrainte de la spec
-> `prompt-adapted.md` §« IMPORTANT ») — les 12 modules (M0–M11) seront
-> construits par-dessus cette fondation.
+> **État actuel — la quasi-totalité des modules métier est implémentée**
+> (résidence, restaurant, pressing, salle de fête, facturation, finances, RH,
+> clients, marchandise, administration, rapports, signalements, portail
+> résident). L'architecture, l'authentification JWT, le système de
+> permissions et la couche API générée depuis la spec OpenAPI réelle servent
+> de fondation à ces modules. L'interface est en français (texte en dur).
+> `prompt-adapted.md` décrit l'intention initiale du projet (jour 1) — il ne
+> reflète plus l'état actuel du modèle de permissions ni le périmètre livré ;
+> se fier au code (`src/core/permissions/`) plutôt qu'à ce document.
 
 ## Stack
 
@@ -30,8 +33,8 @@ npm
 ```text
 src/
   routes/        TanStack Router (file-based routing, guards beforeLoad)
-  features/      un dossier par module métier (M0–M11) — vide tant que la fondation
-                 ne l'exige pas
+  features/      un dossier par module métier (résidence, finances, RH, admin…),
+                 chacun avec ses api/ hooks/ models/ components/
   core/          couche réutilisable, sans dépendance feature :
                    api/      client HTTP + types générés (OpenAPI)
                    auth/     session JWT, guards, AuthProvider
@@ -63,8 +66,10 @@ Instance dev déployée : `https://dev.sim.strife-cyber.org`.
 - Tous les appels passent par le wrapper [`core/api/http.ts`](src/core/api/http.ts) :
   bearer automatique (sauf `/auth/login` et `/auth/refresh`), enveloppe d'erreur
   normalisée, **refresh-on-401** single-flight.
-- Les tokens vivent **en mémoire** (décision produit) ; la session est perdue au
-  reload, jamais persistée en `localStorage`.
+- Les tokens sont persistés en `localStorage` (`createLocalStorageTokenStore`,
+  voir [`src/core/auth/token-store.ts`](src/core/auth/token-store.ts)) : la
+  session survit au rechargement de la page, restaurée par `auth.restore()`
+  au démarrage.
 - Le modèle de permissions reflète le backend réel (`MODULE.{VOIR,CREER,MODIFIER}`,
   13 préfixes, pas de `DELETE`) ; l'UI n'affiche que ce que `/auth/me` retourne.
 - Voir [`docs/api.md`](docs/api.md) et [`docs/authentication.md`](docs/authentication.md).

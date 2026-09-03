@@ -11,11 +11,7 @@ import {
 
 import { rapportExcelPath, rapportPdfPath } from "../api/rapports";
 import { useRapportFinancier } from "../hooks/use-rapports";
-import {
-	imprimerPdf,
-	telechargerExcel,
-	telechargerTexte,
-} from "../lib/export";
+import { imprimerPdf, telechargerExcel, telechargerTexte } from "../lib/export";
 import {
 	construireCsv,
 	periodeParDefaut,

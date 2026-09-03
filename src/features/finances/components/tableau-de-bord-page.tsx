@@ -80,7 +80,9 @@ export function TableauDeBordPage() {
 
 	const tableauBordQuery = useTableauBord(periodeParam);
 
-	// Reset page quand les filtres changent
+	// Reset page quand les filtres changent (periodeParam sert de déclencheur,
+	// pas lu dans le corps — le retirer romprait la remise à 1).
+	// biome-ignore lint/correctness/useExhaustiveDependencies: déclencheur volontaire, cf. commentaire ci-dessus
 	useEffect(() => {
 		setCurrentPage(1);
 	}, [periodeParam]);
@@ -175,14 +177,17 @@ export function TableauDeBordPage() {
 			<div className="space-y-3 rounded-lg border border-border bg-card p-4">
 				<div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
 					<div>
-						<label className="block text-xs font-medium text-muted-foreground mb-1">
+						<label
+							htmlFor="tableau-bord-filtre-periode"
+							className="block text-xs font-medium text-muted-foreground mb-1"
+						>
 							Période
 						</label>
 						<Select
 							value={periode}
 							onValueChange={(v) => setPeriode(v as PeriodeFiltre)}
 						>
-							<SelectTrigger>
+							<SelectTrigger id="tableau-bord-filtre-periode">
 								<SelectValue />
 							</SelectTrigger>
 							<SelectContent>
@@ -196,14 +201,17 @@ export function TableauDeBordPage() {
 					</div>
 
 					<div>
-						<label className="block text-xs font-medium text-muted-foreground mb-1">
+						<label
+							htmlFor="tableau-bord-filtre-activite"
+							className="block text-xs font-medium text-muted-foreground mb-1"
+						>
 							Activité
 						</label>
 						<Select
 							value={activite}
 							onValueChange={(v) => setActivite(v as ActiviteFiltre)}
 						>
-							<SelectTrigger>
+							<SelectTrigger id="tableau-bord-filtre-activite">
 								<SelectValue />
 							</SelectTrigger>
 							<SelectContent>
@@ -375,6 +383,7 @@ export function TableauDeBordPage() {
 					{totalPages > 1 && lignes.length > 0 && (
 						<div className="flex justify-center gap-2 mt-6 pb-4">
 							<button
+								type="button"
 								onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
 								disabled={currentPage === 1}
 								className="px-3 py-2 h-9 rounded-md border border-input bg-background text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:bg-accent"
@@ -388,6 +397,7 @@ export function TableauDeBordPage() {
 									(page) => (
 										<button
 											key={page}
+											type="button"
 											onClick={() => setCurrentPage(page)}
 											className={`px-3 py-2 h-9 rounded-md text-sm font-medium transition-colors ${
 												page === currentPage
@@ -404,6 +414,7 @@ export function TableauDeBordPage() {
 							</div>
 
 							<button
+								type="button"
 								onClick={() =>
 									setCurrentPage((p) => Math.min(totalPages, p + 1))
 								}

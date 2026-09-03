@@ -38,7 +38,7 @@ export function CaisseSelector({
 		const maCaisse = caisses.find((c) => c.id_caisse === userCaisse);
 		return (
 			<div className="space-y-1">
-				<label className="text-sm font-medium text-foreground">Caisse</label>
+				<span className="text-sm font-medium text-foreground">Caisse</span>
 				<div className="flex items-center gap-2 rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground">
 					<span className="flex-1">{maCaisse?.libelle || userCaisse}</span>
 					<span className="text-xs text-muted-foreground">(personnel)</span>
@@ -51,7 +51,7 @@ export function CaisseSelector({
 	if (caisses.length === 0) {
 		return (
 			<div className="space-y-2">
-				<label className="text-sm font-medium text-foreground">Caisse</label>
+				<span className="text-sm font-medium text-foreground">Caisse</span>
 				<div className="rounded-md border border-input bg-background px-3 py-2 text-sm text-muted-foreground">
 					Aucune caisse disponible. Créez-en une d'abord.
 				</div>
@@ -61,9 +61,15 @@ export function CaisseSelector({
 
 	return (
 		<div className="space-y-2">
-			<label className="text-sm font-medium text-foreground">Caisse</label>
+			<label
+				htmlFor="caisse-select"
+				className="text-sm font-medium text-foreground"
+			>
+				Caisse
+			</label>
 			<div className="flex gap-2">
 				<select
+					id="caisse-select"
 					value={value ?? ""}
 					onChange={(e) => onChange?.(e.target.value)}
 					disabled={disabled}

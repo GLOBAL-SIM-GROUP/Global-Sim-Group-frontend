@@ -96,7 +96,9 @@ export function creerPaiementFacture(
 
 /** Télécharge une facture en PDF. */
 export function telechargerFacturePdf(idFacture: string): Promise<Blob> {
-	return getApiClient().download(`/api/v1/facturation/factures/${idFacture}/pdf`);
+	return getApiClient().download(
+		`/api/v1/facturation/factures/${idFacture}/pdf`,
+	);
 }
 
 /** Télécharge un ticket de caisse (58mm ou 80mm). */

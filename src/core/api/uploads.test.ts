@@ -2,8 +2,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { ApiClient } from "./http";
 import { downloadUploadedFile, uploadImage } from "./uploads";
 
-// Mock de l'API client
-let mockApiClient: Partial<ApiClient>;
+// Mock de l'API client — seules ces deux méthodes sont utilisées par
+// `uploadImage`/`downloadUploadedFile`, et toujours affectées ensemble.
+let mockApiClient: Pick<ApiClient, "uploadForm" | "download">;
 
 vi.mock("./client", () => ({
 	getApiClient: () => mockApiClient,
@@ -57,7 +58,7 @@ describe("uploadImage", () => {
 					type: format.type,
 				});
 
-				(mockApiClient.uploadForm as any).mockResolvedValueOnce({
+				vi.mocked(mockApiClient.uploadForm).mockResolvedValueOnce({
 					key: `client-photo/3-uuid.${format.name.split(".").pop()}`,
 				});
 
@@ -74,7 +75,7 @@ describe("uploadImage", () => {
 			});
 
 			const expectedKey = "client-photo/3-abc123-uuid.jpg";
-			(mockApiClient.uploadForm as any).mockResolvedValueOnce({
+			vi.mocked(mockApiClient.uploadForm).mockResolvedValueOnce({
 				key: expectedKey,
 			});
 
@@ -94,15 +95,15 @@ describe("uploadImage", () => {
 				type: "application/pdf",
 			});
 
-			(mockApiClient.uploadForm as any).mockResolvedValueOnce({
+			vi.mocked(mockApiClient.uploadForm).mockResolvedValueOnce({
 				key: "piece-identite/3-def456.pdf",
 			});
 
 			await uploadImage(file, "piece-identite");
 
-			const call = (mockApiClient.uploadForm as any).mock.calls[0];
+			const call = vi.mocked(mockApiClient.uploadForm).mock.calls[0];
 			expect(call[0]).toBe("/api/v1/uploads");
-			expect(call[1].body).toBeInstanceOf(FormData);
+			expect(call[1]?.body).toBeInstanceOf(FormData);
 		});
 	});
 
@@ -113,7 +114,7 @@ describe("uploadImage", () => {
 			});
 
 			const error = new Error("403 Forbidden");
-			(mockApiClient.uploadForm as any).mockRejectedValueOnce(error);
+			vi.mocked(mockApiClient.uploadForm).mockRejectedValueOnce(error);
 
 			await expect(uploadImage(file, "client-photo")).rejects.toBe(error);
 		});
@@ -124,7 +125,7 @@ describe("uploadImage", () => {
 			});
 
 			const error = new Error("400 Bad Request");
-			(mockApiClient.uploadForm as any).mockRejectedValueOnce(error);
+			vi.mocked(mockApiClient.uploadForm).mockRejectedValueOnce(error);
 
 			await expect(uploadImage(file, "client-photo")).rejects.toBe(error);
 		});
@@ -157,7 +158,7 @@ describe("downloadUploadedFile", () => {
 
 	it("télécharge le fichier avec la clé correcte", async () => {
 		const mockBlob = new Blob(["image data"], { type: "image/jpeg" });
-		(mockApiClient.download as any).mockResolvedValueOnce(mockBlob);
+		vi.mocked(mockApiClient.download).mockResolvedValueOnce(mockBlob);
 
 		const result = await downloadUploadedFile("client-photo/3-uuid.jpg");
 
@@ -168,7 +169,7 @@ describe("downloadUploadedFile", () => {
 	});
 
 	it("retourne null si le téléchargement échoue (404 ou permission)", async () => {
-		(mockApiClient.download as any).mockRejectedValueOnce(
+		vi.mocked(mockApiClient.download).mockRejectedValueOnce(
 			new Error("404 Not Found"),
 		);
 
