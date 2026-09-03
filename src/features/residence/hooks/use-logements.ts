@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo } from "react";
 
 import {
+	type CreerLogementBody,
 	creerLogement,
 	getLogement,
 	type LogementBody,
@@ -66,7 +67,7 @@ export function useLogementsParId(ids: readonly string[]) {
 export function useCreerLogement() {
 	const queryClient = useQueryClient();
 	return useMutation({
-		mutationFn: (body: LogementBody) => creerLogement(body),
+		mutationFn: (body: CreerLogementBody) => creerLogement(body),
 		onSuccess: () => {
 			void queryClient.invalidateQueries({ queryKey: logementsKeys.all });
 		},

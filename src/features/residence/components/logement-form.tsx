@@ -153,10 +153,11 @@ export function LogementForm({
 		validators: {
 			onSubmit: ({ value }) => {
 				// `{ fields }` = erreurs champ par champ (cf. login.tsx).
+				// Pas de contrôle sur `numero` : généré par le backend en création,
+				// non modifiable (champ désactivé) en édition.
 				const fields: Partial<Record<LogementField, string>> = {};
 				if (!value.idBatiment.trim())
 					fields.idBatiment = "Ce champ est requis.";
-				if (!value.numero.trim()) fields.numero = "Ce champ est requis.";
 				if (!value.tarif.trim()) {
 					fields.tarif = "Ce champ est requis.";
 				} else if (!/^\d+(\.\d+)?$/.test(value.tarif.trim())) {
@@ -168,8 +169,7 @@ export function LogementForm({
 		onSubmit: async ({ value }) => {
 			setGlobalError(null);
 			try {
-				const corps = {
-					numero: value.numero.trim(),
+				const corpsCommun = {
 					type: value.type,
 					tarif: value.tarif.trim(),
 					statut: value.statut,
@@ -178,10 +178,17 @@ export function LogementForm({
 					etat: value.etat,
 				};
 				if (logement) {
-					// Mode édition : `logement` est non-null (dérivé de la prop).
-					await editMutation.mutateAsync({ id: logement.id, ...corps });
+					// Mode édition : `logement` est non-null (dérivé de la prop). Le
+					// numéro est désactivé dans le formulaire (généré par le backend) :
+					// on renvoie sa valeur inchangée.
+					await editMutation.mutateAsync({
+						id: logement.id,
+						numero: value.numero,
+						...corpsCommun,
+					});
 				} else {
-					await createMutation.mutateAsync(corps);
+					// Création : pas de `numero` — le backend l'assigne lui-même.
+					await createMutation.mutateAsync(corpsCommun);
 				}
 				onSaved();
 			} catch (error) {
@@ -244,21 +251,27 @@ export function LogementForm({
 				)}
 			</form.Field>
 
-			<form.Field name="numero">
-				{(field) => (
-					<InputField
-						id={field.name}
-						name={field.name}
-						label="Numéro"
-						placeholder="ex : 1, 2, 3"
-						autoComplete="off"
-						value={field.state.value}
-						onBlur={field.handleBlur}
-						onChange={(event) => field.handleChange(event.target.value)}
-						error={field.state.meta.errors[0]}
-					/>
-				)}
-			</form.Field>
+			{logement ? (
+				// Le numéro est généré par le backend (ex. GSG-ST01-Y) : affiché en
+				// édition à titre indicatif, non modifiable ; absent en création,
+				// l'utilisateur n'a rien à saisir.
+				<form.Field name="numero">
+					{(field) => (
+						<div className="space-y-1.5">
+							<InputField
+								id={field.name}
+								name={field.name}
+								label="Numéro"
+								value={field.state.value}
+								disabled
+							/>
+							<p className="text-xs text-muted-foreground">
+								Généré automatiquement, non modifiable.
+							</p>
+						</div>
+					)}
+				</form.Field>
+			) : null}
 
 			<form.Field name="type">
 				{(field) => (

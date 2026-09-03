@@ -31,6 +31,12 @@ export interface LogementBody {
 }
 
 /**
+ * Corps de création : pas de `numero` — le backend le génère lui-même (ex.
+ * `GSG-ST01-Y`), jamais saisi par l'utilisateur (cf. `LogementForm`).
+ */
+export type CreerLogementBody = Omit<LogementBody, "numero">;
+
+/**
  * Appels API du module Résidence — logements.
  *
  * Chemins relatifs à `${VITE_API_URL}` (`/api/v1/api/v1`). Le lister documente des
@@ -89,20 +95,16 @@ export function getLogement(id: string): Promise<Logement> {
 		.then(({ id_logement: lid, ...reste }) => ({ id: lid, ...reste }));
 }
 
-/** Crée un logement (POST `CreerLogementDto`). */
-export function creerLogement(body: LogementBody): Promise<unknown> {
+/** Crée un logement (POST `CreerLogementDto`). Le backend assigne le `numero`. */
+export function creerLogement(body: CreerLogementBody): Promise<unknown> {
 	const corps = {
-		numero: body.numero,
 		type: body.type,
 		tarif: body.tarif,
 		statut: body.statut,
 		id_batiment: body.idBatiment,
 		equipements: texteOuNull(body.equipements),
 		etat: texteOuNull(body.etat),
-	} satisfies Omit<CreerLogementDto, "equipements" | "etat" | "numero"> & {
-		/** Absent du schéma généré (même écart que `equipements`/`etat`
-		 *  ci-dessus) mais bien un champ réel — voir `LogementWire.numero`. */
-		numero: string;
+	} satisfies Omit<CreerLogementDto, "equipements" | "etat"> & {
 		equipements?: string | null;
 		etat?: string | null;
 	};
