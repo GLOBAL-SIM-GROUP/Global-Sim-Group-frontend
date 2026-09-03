@@ -42,7 +42,6 @@ describe("filtrerLogements", () => {
 			filtrerLogements(logements, {
 				type: "tous",
 				statut: "tous",
-				dispo: "tous",
 			}),
 		).toHaveLength(5);
 	});
@@ -51,7 +50,6 @@ describe("filtrerLogements", () => {
 		const result = filtrerLogements(logements, {
 			type: "CHAMBRE",
 			statut: "tous",
-			dispo: "tous",
 		});
 		expect(result.map((item) => item.id)).toEqual(["1", "5"]);
 	});
@@ -60,25 +58,22 @@ describe("filtrerLogements", () => {
 		const result = filtrerLogements(logements, {
 			type: "tous",
 			statut: "OCCUPE",
-			dispo: "tous",
 		});
 		expect(result.map((item) => item.id)).toEqual(["2"]);
 	});
 
-	it("filtre « disponibles uniquement » par statut DISPONIBLE", () => {
+	it("filtre par statut DISPONIBLE (équivalent de « disponibles uniquement »)", () => {
 		const result = filtrerLogements(logements, {
 			type: "tous",
-			statut: "tous",
-			dispo: "disponibles",
+			statut: "DISPONIBLE",
 		});
 		expect(result.map((item) => item.id)).toEqual(["1", "5"]);
 	});
 
-	it("combine type et disponibilité", () => {
+	it("combine type et statut", () => {
 		const result = filtrerLogements(logements, {
 			type: "CHAMBRE",
-			statut: "tous",
-			dispo: "disponibles",
+			statut: "DISPONIBLE",
 		});
 		expect(result.map((item) => item.id)).toEqual(["1", "5"]);
 	});
@@ -87,7 +82,6 @@ describe("filtrerLogements", () => {
 		const result = filtrerLogements(logements, {
 			type: "MEUBLE",
 			statut: "OCCUPE",
-			dispo: "tous",
 		});
 		expect(result).toEqual([]);
 	});

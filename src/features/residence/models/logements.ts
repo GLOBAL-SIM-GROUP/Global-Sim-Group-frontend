@@ -77,20 +77,16 @@ export type LogementTypeFiltre = "tous" | LogementType;
 /** Valeurs du filtre « Statut » (URL : `?statut=`). */
 export type LogementStatutFiltre = "tous" | LogementStatut;
 
-/** Valeurs du filtre « Disponibilité » (URL : `?dispo=`). */
-export type LogementDispoFiltre = "tous" | "disponibles";
-
 /** Filtres de la liste des logements (URL + côté client). */
 export interface LogementFiltres {
 	type: LogementTypeFiltre;
 	statut: LogementStatutFiltre;
-	dispo: LogementDispoFiltre;
 }
 
 /**
- * Filtre la liste. `type`/api/v1/`statut` sont aussi envoyés au lister (params réels
- * du spec) : ré-appliqués ici sans effet — ce filtre garde le cas « disponible
- * uniquement » (`dispo`). Fonction pure, sans dépendance React.
+ * Filtre la liste. `type`/`statut` sont aussi envoyés au lister (params réels
+ * du spec) : ré-appliqués ici sans effet (le filtre « disponible uniquement »
+ * se fait via Statut = Disponible). Fonction pure, sans dépendance React.
  */
 export function filtrerLogements(
 	logements: readonly Logement[],
@@ -99,9 +95,6 @@ export function filtrerLogements(
 	return logements.filter((logement) => {
 		if (filtres.type !== "tous" && logement.type !== filtres.type) return false;
 		if (filtres.statut !== "tous" && logement.statut !== filtres.statut) {
-			return false;
-		}
-		if (filtres.dispo === "disponibles" && logement.statut !== "DISPONIBLE") {
 			return false;
 		}
 		return true;

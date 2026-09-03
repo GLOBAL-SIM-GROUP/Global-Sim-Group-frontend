@@ -32,7 +32,6 @@ export const Route = createFileRoute("/_authenticated/residence/logements/")({
 				"INDISPONIBLE",
 			])
 			.optional(),
-		dispo: z.enum(["tous", "disponibles"]).optional(),
 		page: z.coerce.number().int().positive().optional(),
 	}),
 	component: LogementsRoutePage,

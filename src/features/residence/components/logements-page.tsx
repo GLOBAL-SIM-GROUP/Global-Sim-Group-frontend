@@ -12,7 +12,6 @@ import { useLogements } from "../hooks/use-logements";
 import {
 	filtrerLogements,
 	type Logement,
-	type LogementDispoFiltre,
 	type LogementStatutFiltre,
 	type LogementTypeFiltre,
 	paginerLogements,
@@ -28,7 +27,6 @@ export interface LogementsSearch {
 	search?: string;
 	type?: LogementTypeFiltre;
 	statut?: LogementStatutFiltre;
-	dispo?: LogementDispoFiltre;
 	page?: number;
 }
 
@@ -69,9 +67,6 @@ export function LogementsPage({
 	const [statut, setStatut] = useState<LogementStatutFiltre>(
 		initialSearch.statut ?? "tous",
 	);
-	const [dispo, setDispo] = useState<LogementDispoFiltre>(
-		initialSearch.dispo ?? "tous",
-	);
 	const [page, setPage] = useState(initialSearch.page ?? 1);
 	// Modale de création/édition : `formOuvert` = création (bouton Ajouter),
 	// `aModifier` = édition (pencil d'une ligne).
@@ -89,12 +84,10 @@ export function LogementsPage({
 		search?: string;
 		type?: LogementTypeFiltre;
 		statut?: LogementStatutFiltre;
-		dispo?: LogementDispoFiltre;
 	}) => {
 		if (patch.search !== undefined) setSearch(patch.search);
 		setType(patch.type ?? type);
 		setStatut(patch.statut ?? statut);
-		setDispo(patch.dispo ?? dispo);
 		setPage(1);
 		onSearchChange((prev) => ({ ...prev, ...patch, page: 1 }));
 	};
@@ -104,8 +97,7 @@ export function LogementsPage({
 		onSearchChange((prev) => ({ ...prev, page: pageSuivante }));
 	};
 
-	// Les filtres serveur (search/type/statut) rechargent la liste via la query key ;
-	// le filtre dispo reste côté client.
+	// Les filtres serveur (search/type/statut) rechargent la liste via la query key.
 	const logementsQuery = useLogements(
 		initialSearch.batiment,
 		type,
@@ -114,8 +106,8 @@ export function LogementsPage({
 	);
 
 	const filtres = useMemo(
-		() => filtrerLogements(logementsQuery.data ?? [], { type, statut, dispo }),
-		[logementsQuery.data, type, statut, dispo],
+		() => filtrerLogements(logementsQuery.data ?? [], { type, statut }),
+		[logementsQuery.data, type, statut],
 	);
 	const pagination = paginerLogements(filtres, page, LOGEMENTS_PAGE_SIZE);
 
@@ -163,10 +155,8 @@ export function LogementsPage({
 					<LogementFilters
 						type={type}
 						statut={statut}
-						dispo={dispo}
 						onTypeChange={(valeur) => changerFiltre({ type: valeur })}
 						onStatutChange={(valeur) => changerFiltre({ statut: valeur })}
-						onDispoChange={(valeur) => changerFiltre({ dispo: valeur })}
 					/>
 
 					{logementsQuery.isLoading ? (
