@@ -75,7 +75,11 @@ export function paginerSignalements(
 
 /** Nom d'affichage du déclarant (prénom + nom, repli sur le login). */
 export function nomDeclarant(signalement: Signalement): string {
-	const nom =
-		`${signalement.declarant_prenom} ${signalement.declarant_nom}`.trim();
+	// `.filter(Boolean)` écarte prénom/nom absents (undefined/null/vide) — les
+	// concaténer directement transformerait un champ manquant en la chaîne
+	// littérale "undefined" (interpolation de template sur `undefined`).
+	const nom = [signalement.declarant_prenom, signalement.declarant_nom]
+		.filter(Boolean)
+		.join(" ");
 	return nom || signalement.declarant_login;
 }

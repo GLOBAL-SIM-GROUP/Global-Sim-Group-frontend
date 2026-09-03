@@ -19,8 +19,10 @@ export interface Signalement {
 	date_resolution?: string | null;
 	activite_code?: string | null;
 	activite_libelle?: string | null;
-	declarant_nom: string;
-	declarant_prenom: string;
+	// Le backend omet parfois nom/prénom (compte sans profil complet) — jamais
+	// le login. `nomDeclarant()` gère le repli.
+	declarant_nom?: string | null;
+	declarant_prenom?: string | null;
 	declarant_login: string;
 }
 

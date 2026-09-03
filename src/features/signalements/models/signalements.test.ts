@@ -46,6 +46,23 @@ describe("nomDeclarant", () => {
 			),
 		).toBe("y.kouassi");
 	});
+
+	it("replie sur le login si prénom/nom absents (undefined), sans afficher « undefined »", () => {
+		expect(
+			nomDeclarant(
+				signalement("1", "OUVERT", {
+					declarant_nom: undefined,
+					declarant_prenom: undefined,
+				}),
+			),
+		).toBe("y.kouassi");
+	});
+
+	it("affiche le prénom seul si le nom est absent", () => {
+		expect(
+			nomDeclarant(signalement("1", "OUVERT", { declarant_nom: undefined })),
+		).toBe("Yao");
+	});
 });
 
 describe("filtrerSignalements", () => {
