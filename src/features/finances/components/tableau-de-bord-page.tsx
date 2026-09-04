@@ -513,13 +513,6 @@ function DetailsParActiviteModal({
 							</div>
 						</div>
 					)}
-
-					<div className="border-t border-border pt-4">
-						<p className="text-xs text-muted-foreground">
-							💡 Le filtrage détaillé par activité sera disponible une fois que
-							le backend API supportera cette fonctionnalité.
-						</p>
-					</div>
 				</div>
 			</div>
 		</div>
