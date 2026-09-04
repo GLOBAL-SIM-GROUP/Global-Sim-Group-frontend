@@ -246,6 +246,7 @@ export function SejourForm({
 							<LogementCascadeField
 								value={field.state.value}
 								onChange={field.handleChange}
+								disponibleUniquement
 							/>
 						)}
 					</form.Field>
