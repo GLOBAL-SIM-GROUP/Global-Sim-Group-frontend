@@ -56,6 +56,14 @@ const contrat: ContratDetail = {
 
 vi.mock("../hooks/use-contrats", () => ({
 	useContratDetail: () => ({ data: contrat, isLoading: false, isError: false }),
+	useEnvoyerContratParEmail: () => ({
+		mutateAsync: vi.fn(),
+		isPending: false,
+	}),
+	useResilierContrat: () => ({
+		mutateAsync: vi.fn(),
+		isPending: false,
+	}),
 }));
 vi.mock("../hooks/use-clients", () => ({
 	useClientsDetails: () => ({

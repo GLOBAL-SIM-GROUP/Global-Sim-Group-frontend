@@ -1,5 +1,6 @@
 import { Dialog } from "radix-ui";
 
+import type { ContratCree } from "../api/contrats";
 import { ContratForm } from "./contrat-form";
 
 interface ContratFormDialogProps {
@@ -7,7 +8,7 @@ interface ContratFormDialogProps {
 	/** Fermeture (overlay, Échap, Annuler). */
 	onOpenChange: (open: boolean) => void;
 	/** Appelé après un enregistrement réussi (ferme la modale côté liste). */
-	onSaved: () => void;
+	onSaved: (contrat: ContratCree) => void;
 }
 
 /**

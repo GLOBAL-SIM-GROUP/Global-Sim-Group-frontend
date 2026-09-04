@@ -6,6 +6,7 @@ import { Button } from "#/components/ui/button";
 import { useCan } from "#/core/auth";
 import { cn } from "#/lib/utils";
 
+import type { ContratCree } from "../api/contrats";
 import { useClientsDetails } from "../hooks/use-clients";
 import { useActiverContrat, useContrats } from "../hooks/use-contrats";
 import { useLogementsParId } from "../hooks/use-logements";
@@ -70,6 +71,9 @@ export function ContratsPage({
 	const [aActiver, setAActiver] = useState<ContratJoin | null>(null);
 	// Modale de création d'un contrat (au-dessus de la liste, pas de route).
 	const [formOuvert, setFormOuvert] = useState(false);
+	// Encart affiché après création si un compte portail a été provisionné.
+	const [compteResidentCree, setCompteResidentCree] =
+		useState<ContratCree["compteResident"]>(null);
 
 	const contrats = contratsQuery.data ?? [];
 	const clientIds = useMemo(() => contrats.map((c) => c.id_client), [contrats]);
@@ -194,6 +198,36 @@ export function ContratsPage({
 				</div>
 			) : null}
 
+			{compteResidentCree ? (
+				<output className="flex items-center justify-between gap-3 rounded-md border border-lagoon/40 bg-lagoon/10 px-4 py-2 text-sm text-lagoon">
+					<span>
+						{compteResidentCree.emailEnvoye ? (
+							<>
+								Compte résident créé (identifiant :{" "}
+								<strong>{compteResidentCree.login}</strong>) — un email a été
+								envoyé au client pour définir son mot de passe.
+							</>
+						) : (
+							<>
+								Compte résident créé (identifiant :{" "}
+								<strong>{compteResidentCree.login}</strong>) mais aucun email
+								n'est enregistré pour ce client — le compte reste inactif.
+								Ajoutez un email au dossier client puis déclenchez une
+								réinitialisation depuis l'écran d'administration pour l'activer.
+							</>
+						)}
+					</span>
+					<Button
+						variant="ghost"
+						size="sm"
+						aria-label="Fermer"
+						onClick={() => setCompteResidentCree(null)}
+					>
+						<X className="size-4" aria-hidden />
+					</Button>
+				</output>
+			) : null}
+
 			<ContratFilters
 				statut={statut}
 				locataire={locataire}
@@ -286,7 +320,10 @@ export function ContratsPage({
 				onOpenChange={(ouvert) => {
 					if (!ouvert) setFormOuvert(false);
 				}}
-				onSaved={() => setFormOuvert(false)}
+				onSaved={(contrat) => {
+					setFormOuvert(false);
+					setCompteResidentCree(contrat.compteResident);
+				}}
 			/>
 		</div>
 	);

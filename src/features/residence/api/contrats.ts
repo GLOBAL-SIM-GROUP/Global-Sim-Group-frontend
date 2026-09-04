@@ -14,9 +14,9 @@ type CreerContratDto = components["schemas"]["CreerContratDto"];
 type RestituerCautionDto = components["schemas"]["RestituerCautionDto"];
 
 /**
- * Le schéma généré type `duree_mois`/api/v1/`periodicite`/api/v1/`date_fin_prevue` en objet
- * libre (`Record<string, never> | null`) mais ce sont de vraies valeurs ; on
- * élargit ces champs (même pattern que `equipements`/api/v1/`etat` côté logements).
+ * Le schéma généré type `duree_mois`/`date_fin_prevue` en objet libre
+ * (`Record<string, never> | null`) mais ce sont de vraies valeurs ; on élargit
+ * ces champs (même pattern que `equipements`/`etat` côté logements).
  */
 type ContratWire = Omit<Contrat, "id"> & { id_contrat: string };
 type EcheanceWire = Omit<Echeance, "id"> & { id_echeance: string };
@@ -67,33 +67,41 @@ export interface ContratBody {
 	montantLoyer: string;
 	typeLocation: TypeLocation;
 	dureeMois?: number | null;
-	periodicite?: string | null;
+	/** Date de signature (optionnelle, `YYYY-MM-DD`). */
+	dateSignature?: string | null;
 }
 
 /**
  * Contrat créé (POST `/contrats`). Le spec déclare cette réponse vide
  * (`content?: never`) mais le backend réel renvoie l'id du contrat créé, son
- * numéro, et — le contrat active un compte portail pour le client — les
- * identifiants temporaires de ce compte (vérifié sur l'instance de dev,
- * 2026-09-03 : absent du spec comme plusieurs autres réponses de ce module).
- * `compteResident` est `null` si le client avait déjà un compte portail.
+ * numéro, et — le contrat provisionne un compte portail pour le client s'il
+ * n'en avait pas — le résultat de cette provision (vérifié sur l'instance de
+ * dev, 2026-09-04 : absent du spec comme plusieurs autres réponses de ce
+ * module). Plus aucun mot de passe temporaire en clair : le backend envoie un
+ * email « définissez votre mot de passe » (lien valable 7 jours, même
+ * mécanisme que `/auth/reinitialiser-mot-de-passe`) si le client a un email
+ * enregistré — `emailEnvoye` indique si cet envoi a eu lieu. `compteResident`
+ * est `null` si le client avait déjà un compte portail (rien de nouveau).
  */
 export interface ContratCree {
 	id: string;
 	numeroContrat: string;
-	compteResident: { login: string; motDePasseTemporaire: string } | null;
+	compteResident: { login: string; emailEnvoye: boolean } | null;
 }
 
 interface ContratCreeWire {
 	id_contrat: string;
 	numero_contrat: string;
-	compte_resident?: { login: string; mot_de_passe_temporaire: string } | null;
+	compte_resident?: { login: string; email_envoye: boolean } | null;
 }
 
 /**
  * Crée un contrat (POST `CreerContratDto`). `date_fin_prevue` est déduite de
- * la durée (`calculerDateFinPrevue`) ; `statut` et `date_signature` ne sont
- * PAS envoyés (défauts backend). Les échéances sont générées côté backend.
+ * la durée (`calculerDateFinPrevue`) ; `statut` n'est PAS envoyé (défaut
+ * backend EN_ATTENTE). `date_signature` est optionnelle (signature à la
+ * création). Les échéances sont générées côté backend.
+ * Pas de `periodicite` : redondant avec `type_location` (même valeur côté
+ * backend) — non saisi, jamais envoyé.
  */
 export function creerContrat(body: ContratBody): Promise<ContratCree> {
 	const corps = {
@@ -103,18 +111,18 @@ export function creerContrat(body: ContratBody): Promise<ContratCree> {
 		montant_loyer: body.montantLoyer,
 		type_location: body.typeLocation,
 		duree_mois: body.dureeMois ?? null,
-		periodicite: texteOuNull(body.periodicite),
 		date_fin_prevue: calculerDateFinPrevue(
 			body.dateDebut,
 			body.dureeMois ?? null,
 		),
+		date_signature: body.dateSignature ?? null,
 	} satisfies Omit<
 		CreerContratDto,
-		"duree_mois" | "periodicite" | "date_fin_prevue"
+		"duree_mois" | "date_fin_prevue" | "date_signature"
 	> & {
 		duree_mois?: number | null;
-		periodicite?: string | null;
 		date_fin_prevue?: string | null;
+		date_signature?: string | null;
 	};
 	return getApiClient()
 		.apiFetch<ContratCreeWire>("/api/v1/residence/contrats", {
@@ -127,10 +135,20 @@ export function creerContrat(body: ContratBody): Promise<ContratCree> {
 			compteResident: data.compte_resident
 				? {
 						login: data.compte_resident.login,
-						motDePasseTemporaire: data.compte_resident.mot_de_passe_temporaire,
+						emailEnvoye: data.compte_resident.email_envoye,
 					}
 				: null,
 		}));
+}
+
+/** Envoie le contrat (PDF) par email au client (POST /contrats/{id}/envoyer-email). */
+export function envoyerContratParEmail(
+	id: string,
+): Promise<{ envoye: boolean }> {
+	return getApiClient().apiFetch(
+		`/api/v1/residence/contrats/${id}/envoyer-email`,
+		{ method: "POST" },
+	);
 }
 
 /** Active un contrat en attente (POST /contrats/{id}/activer). */
@@ -138,6 +156,54 @@ export function activerContrat(id: string): Promise<unknown> {
 	return getApiClient().apiFetch(`/api/v1/residence/contrats/${id}/activer`, {
 		method: "POST",
 	});
+}
+
+/**
+ * Résultat d'une résiliation anticipée : le backend calcule (mais ne crée
+ * aucun décaissement pour) le trop-perçu de loyer — somme des échéances déjà
+ * payées pour des mois postérieurs à `dateResiliation`. Ne touche jamais la
+ * caution (décision distincte, restituée séparément).
+ */
+export interface ContratResilie {
+	resilie: boolean;
+	dateResiliation: string;
+	montantARembourser: string;
+	nbEcheancesARembourser: number;
+}
+
+interface ContratResilieWire {
+	resilie: boolean;
+	date_resiliation: string;
+	montant_a_rembourser: string;
+	nb_echeances_a_rembourser: number;
+}
+
+/**
+ * Résilie un contrat ACTIF avant son terme (POST /contrats/{id}/resilier) :
+ * bascule le contrat en RESILIE et libère le logement (DISPONIBLE)
+ * immédiatement côté backend — pas de rafraîchissement manuel du statut du
+ * logement à faire, juste invalider les caches. 400 si le contrat n'est pas
+ * ACTIF (déjà en attente, résilié ou terminé).
+ */
+export function resilierContrat(
+	id: string,
+	body: { dateResiliation?: string; motif?: string | null },
+): Promise<ContratResilie> {
+	const corps = {
+		date_resiliation: body.dateResiliation || undefined,
+		motif: body.motif ?? undefined,
+	};
+	return getApiClient()
+		.apiFetch<ContratResilieWire>(`/api/v1/residence/contrats/${id}/resilier`, {
+			method: "POST",
+			body: JSON.stringify(corps),
+		})
+		.then((data) => ({
+			resilie: data.resilie,
+			dateResiliation: data.date_resiliation,
+			montantARembourser: data.montant_a_rembourser,
+			nbEcheancesARembourser: data.nb_echeances_a_rembourser,
+		}));
 }
 
 /** Caution d'un contrat (GET /contrats/{id}/caution). */

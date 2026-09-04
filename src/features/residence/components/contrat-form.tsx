@@ -14,6 +14,7 @@ import {
 } from "#/components/ui/select";
 import { getErrorMessageForCode, getFieldErrors, toApiError } from "#/core/api";
 
+import type { ContratCree } from "../api/contrats";
 import { useCreerCaution, useCreerContrat } from "../hooks/use-contrats";
 import { TYPE_LOCATION_LABELS, type TypeLocation } from "../models/contrats";
 import { ClientRechercheField } from "./client-recherche-field";
@@ -24,10 +25,10 @@ type ContratField =
 	| "idClient"
 	| "idLogement"
 	| "dateDebut"
+	| "dateSignature"
 	| "dureeMois"
 	| "typeLocation"
 	| "montantLoyer"
-	| "periodicite"
 	| "caution";
 
 /** Propriétés backend (snake_case) → champs du formulaire. */
@@ -35,17 +36,21 @@ const FIELD_PROPERTY_TO_FORM: Record<string, ContratField> = {
 	id_client: "idClient",
 	id_logement: "idLogement",
 	date_debut: "dateDebut",
+	date_signature: "dateSignature",
 	duree_mois: "dureeMois",
 	type_location: "typeLocation",
 	montant_loyer: "montantLoyer",
-	periodicite: "periodicite",
 };
 
 interface ContratFormProps {
 	/** Annulation (ferme la modale). */
 	onCancel: () => void;
-	/** Appelé après un enregistrement réussi (ferme la modale côté liste). */
-	onSaved: () => void;
+	/**
+	 * Appelé après un enregistrement réussi (ferme la modale côté liste). Reçoit
+	 * le contrat créé — l'appelant peut y lire `compteResident` pour afficher un
+	 * encart sur le compte portail provisionné.
+	 */
+	onSaved: (contrat: ContratCree) => void;
 }
 
 /** Champ Select avec label visible (le contenu s'ouvre en portal). */
@@ -79,8 +84,9 @@ function SelectField({
  * Formulaire « Nouveau contrat de location » (M2.2), affiché dans une modale
  * au-dessus de la liste des contrats. Recherche de client (base unique,
  * création inline si absent), sélection du logement par cascade bâtiment →
- * logement, dates/durée/type/loyer/périodicité. L'enregistrement POST
- * `/contrats` génère les échéances côté backend.
+ * logement, dates/durée/type/loyer. L'enregistrement POST `/contrats` génère
+ * les échéances côté backend. Pas de champ « Périodicité » : redondant avec
+ * « Type de location » (même valeur côté backend, cf. modèle).
  *
  * La caution est optionnelle et créée par un second appel (POST
  * `/contrats/{id}/caution`, absent de `CreerContratDto` : le contrat doit
@@ -93,16 +99,17 @@ export function ContratForm({ onCancel, onSaved }: ContratFormProps) {
 	const createMutation = useCreerContrat();
 	const creerCautionMutation = useCreerCaution();
 	const [globalError, setGlobalError] = useState<string | null>(null);
+	const [creationClientOuverte, setCreationClientOuverte] = useState(false);
 
 	const form = useForm({
 		defaultValues: {
 			idClient: "",
 			idLogement: "",
 			dateDebut: "",
+			dateSignature: "",
 			dureeMois: "",
 			typeLocation: "MENSUEL" as TypeLocation,
 			montantLoyer: "",
-			periodicite: "Mensuel",
 			caution: "",
 		},
 		validators: {
@@ -139,7 +146,9 @@ export function ContratForm({ onCancel, onSaved }: ContratFormProps) {
 					montantLoyer: value.montantLoyer.trim(),
 					typeLocation: value.typeLocation,
 					dureeMois: value.dureeMois ? Number(value.dureeMois) : null,
-					periodicite: value.periodicite,
+					dateSignature: value.dateSignature.trim()
+						? value.dateSignature.trim()
+						: null,
 				});
 				// Le contrat existe déjà à ce stade : une erreur ici ne l'annule
 				// pas, donc pas de fermeture silencieuse — message dédié, modale
@@ -157,7 +166,7 @@ export function ContratForm({ onCancel, onSaved }: ContratFormProps) {
 						return;
 					}
 				}
-				onSaved();
+				onSaved(contrat);
 			} catch (error) {
 				// Erreurs de validation backend → champ par champ (details[].property).
 				let mappedFields = 0;
@@ -199,6 +208,7 @@ export function ContratForm({ onCancel, onSaved }: ContratFormProps) {
 						value={field.state.value}
 						onChange={(id) => field.handleChange(id)}
 						creationLocataireComplete
+						onCreationOuverteChange={setCreationClientOuverte}
 					/>
 				)}
 			</form.Field>
@@ -220,6 +230,22 @@ export function ContratForm({ onCancel, onSaved }: ContratFormProps) {
 							id={field.name}
 							name={field.name}
 							label="Date de début"
+							type="date"
+							autoComplete="off"
+							value={field.state.value}
+							onBlur={field.handleBlur}
+							onChange={(event) => field.handleChange(event.target.value)}
+							error={field.state.meta.errors[0]}
+						/>
+					)}
+				</form.Field>
+
+				<form.Field name="dateSignature">
+					{(field) => (
+						<InputField
+							id={field.name}
+							name={field.name}
+							label="Date de signature"
 							type="date"
 							autoComplete="off"
 							value={field.state.value}
@@ -253,15 +279,9 @@ export function ContratForm({ onCancel, onSaved }: ContratFormProps) {
 							id={field.name}
 							label="Type de location"
 							value={field.state.value}
-							onValueChange={(valeur) => {
-								const type = valeur as TypeLocation;
-								field.handleChange(type);
-								// Périodicité auto-synchronisée (éditable ensuite).
-								form.setFieldValue(
-									"periodicite",
-									type === "MENSUEL" ? "Mensuel" : "Annuel",
-								);
-							}}
+							onValueChange={(valeur) =>
+								field.handleChange(valeur as TypeLocation)
+							}
 						>
 							{(Object.keys(TYPE_LOCATION_LABELS) as TypeLocation[]).map(
 								(type) => (
@@ -270,20 +290,6 @@ export function ContratForm({ onCancel, onSaved }: ContratFormProps) {
 									</SelectItem>
 								),
 							)}
-						</SelectField>
-					)}
-				</form.Field>
-
-				<form.Field name="periodicite">
-					{(field) => (
-						<SelectField
-							id={field.name}
-							label="Périodicité"
-							value={field.state.value}
-							onValueChange={field.handleChange}
-						>
-							<SelectItem value="Mensuel">Mensuelle</SelectItem>
-							<SelectItem value="Annuel">Annuelle</SelectItem>
 						</SelectField>
 					)}
 				</form.Field>
@@ -329,26 +335,28 @@ export function ContratForm({ onCancel, onSaved }: ContratFormProps) {
 				</p>
 			) : null}
 
-			<form.Subscribe selector={(state) => state.isSubmitting}>
-				{(isSubmitting) => (
-					<div className="flex items-center justify-end gap-2 pt-2">
-						<Button
-							type="button"
-							variant="ghost"
-							disabled={isSubmitting}
-							onClick={onCancel}
-						>
-							Annuler
-						</Button>
-						<Button type="submit" disabled={isSubmitting}>
-							{isSubmitting ? (
-								<Loader2 className="size-4 animate-spin" aria-hidden />
-							) : null}
-							{isSubmitting ? "Enregistrement…" : "Enregistrer"}
-						</Button>
-					</div>
-				)}
-			</form.Subscribe>
+			{!creationClientOuverte ? (
+				<form.Subscribe selector={(state) => state.isSubmitting}>
+					{(isSubmitting) => (
+						<div className="flex items-center justify-end gap-2 pt-2">
+							<Button
+								type="button"
+								variant="ghost"
+								disabled={isSubmitting}
+								onClick={onCancel}
+							>
+								Annuler
+							</Button>
+							<Button type="submit" disabled={isSubmitting}>
+								{isSubmitting ? (
+									<Loader2 className="size-4 animate-spin" aria-hidden />
+								) : null}
+								{isSubmitting ? "Enregistrement…" : "Enregistrer"}
+							</Button>
+						</div>
+					)}
+				</form.Subscribe>
+			) : null}
 		</form>
 	);
 }

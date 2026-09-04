@@ -1,15 +1,20 @@
 import { Link } from "@tanstack/react-router";
-import { Loader2, Printer } from "lucide-react";
+import { FileX, Loader2, Mail, Printer } from "lucide-react";
 import { useState } from "react";
 
 import { Breadcrumb } from "#/components/ui/breadcrumb";
 import { Button } from "#/components/ui/button";
+import { getErrorMessageForCode, toApiError } from "#/core/api";
 import { getApiClient } from "#/core/api/client";
 import { imprimerPdfBlob } from "#/lib/print-pdf";
 import { cn } from "#/lib/utils";
 
+import type { ContratResilie } from "../api/contrats";
 import { useClientsDetails } from "../hooks/use-clients";
-import { useContratDetail } from "../hooks/use-contrats";
+import {
+	useContratDetail,
+	useEnvoyerContratParEmail,
+} from "../hooks/use-contrats";
 import { useLogementsParId } from "../hooks/use-logements";
 import { nomComplet } from "../models/clients";
 import {
@@ -21,6 +26,7 @@ import { formatDateISO, formatMontantFCFA } from "../models/format";
 import { CautionTab } from "./caution-tab";
 import { ContratEcheancesTab } from "./contrat-echeances-tab";
 import { EtatDesLieuxTab } from "./etat-des-lieux-tab";
+import { ResilierContratFormDialog } from "./resilier-contrat-form-dialog";
 
 const CONTRAT_STATUT_BADGE: Record<ContratStatut, string> = {
 	EN_ATTENTE: "bg-[#E67E22] text-white",
@@ -51,14 +57,24 @@ interface ContratFichePageProps {
 
 /**
  * Page « Fiche contrat — [Numéro] » (M2.2) : informations générales + onglets
- * « Échéances » (encaissement des échéances) et « Caution » (restitution). Pas
- * de bouton Modifier / Résilier / Clôturer / Générer reçu : aucun endpoint réel.
+ * « Échéances » (encaissement des échéances) et « Caution » (restitution).
+ * « Résilier » (départ anticipé, avant terme) : visible uniquement sur un
+ * contrat ACTIF. Pas de bouton Modifier / Clôturer / Générer reçu : aucun
+ * endpoint réel pour ceux-là.
  */
 export function ContratFichePage({ id }: ContratFichePageProps) {
 	const [onglet, setOnglet] = useState<
 		"echeances" | "caution" | "etatDesLieux"
 	>("echeances");
 	const [isPrintingPDF, setIsPrintingPDF] = useState(false);
+	const [emailFeedback, setEmailFeedback] = useState<{
+		type: "success" | "error";
+		texte: string;
+	} | null>(null);
+	const envoyerEmailMutation = useEnvoyerContratParEmail();
+	const [resiliationOuverte, setResiliationOuverte] = useState(false);
+	const [resiliationResultat, setResiliationResultat] =
+		useState<ContratResilie | null>(null);
 
 	const contratQuery = useContratDetail(id);
 	const clientsDetails = useClientsDetails(
@@ -79,6 +95,29 @@ export function ContratFichePage({ id }: ContratFichePageProps) {
 			console.error("Erreur lors de l'impression du PDF", error);
 		} finally {
 			setIsPrintingPDF(false);
+		}
+	};
+
+	const handleEnvoyerEmail = async () => {
+		setEmailFeedback(null);
+		try {
+			const { envoye } = await envoyerEmailMutation.mutateAsync(id);
+			setEmailFeedback(
+				envoye
+					? { type: "success", texte: "Le contrat a été envoyé par email." }
+					: {
+							type: "error",
+							texte: "L'envoi a échoué. Réessayez plus tard.",
+						},
+			);
+		} catch (error) {
+			const apiError = toApiError(error);
+			setEmailFeedback({
+				type: "error",
+				texte:
+					getErrorMessageForCode(apiError.code) ??
+					(apiError.message || "Impossible d'envoyer le contrat par email."),
+			});
 		}
 	};
 
@@ -152,11 +191,79 @@ export function ContratFichePage({ id }: ContratFichePageProps) {
 							</>
 						)}
 					</Button>
+					<Button
+						variant="outline"
+						onClick={() => void handleEnvoyerEmail()}
+						disabled={envoyerEmailMutation.isPending}
+						className="w-full sm:w-auto"
+					>
+						{envoyerEmailMutation.isPending ? (
+							<>
+								<Loader2 className="size-4 mr-2 animate-spin" />
+								Envoi…
+							</>
+						) : (
+							<>
+								<Mail className="size-4 mr-2" />
+								Envoyer par email
+							</>
+						)}
+					</Button>
+					{contrat.statut === "ACTIF" ? (
+						<Button
+							variant="destructive"
+							onClick={() => setResiliationOuverte(true)}
+							className="w-full sm:w-auto"
+						>
+							<FileX className="size-4 mr-2" />
+							Résilier le contrat
+						</Button>
+					) : null}
 					<Button variant="outline" asChild className="w-full sm:w-auto">
 						<Link to="/residence/contrats">Retour aux contrats</Link>
 					</Button>
 				</div>
 			</div>
+
+			{emailFeedback ? (
+				<div
+					role="alert"
+					className={cn(
+						"rounded-lg border px-4 py-3 text-sm",
+						emailFeedback.type === "success"
+							? "border-[#27AE60]/30 bg-[#27AE60]/10 text-[#27AE60]"
+							: "border-destructive/30 bg-destructive/10 text-destructive",
+					)}
+				>
+					{emailFeedback.texte}
+				</div>
+			) : null}
+
+			{resiliationResultat ? (
+				resiliationResultat.montantARembourser !== "0.00" &&
+				Number(resiliationResultat.montantARembourser) > 0 ? (
+					<div
+						role="alert"
+						className="space-y-2 rounded-lg border border-[#E67E22]/30 bg-[#E67E22]/10 p-4 text-sm text-[#E67E22]"
+					>
+						<p>
+							Contrat résilié au{" "}
+							{formatDateISO(resiliationResultat.dateResiliation)}. Ce résident
+							a payé {resiliationResultat.nbEcheancesARembourser} mois d'avance
+							— {formatMontantFCFA(resiliationResultat.montantARembourser)} sont
+							à lui rembourser.
+						</p>
+						<Button variant="outline" size="sm" asChild>
+							<Link to="/finances/depenses">Enregistrer le remboursement</Link>
+						</Button>
+					</div>
+				) : (
+					<output className="block rounded-lg border border-[#27AE60]/30 bg-[#27AE60]/10 px-4 py-3 text-sm text-[#27AE60]">
+						Contrat résilié au{" "}
+						{formatDateISO(resiliationResultat.dateResiliation)}.
+					</output>
+				)
+			) : null}
 
 			<section className="rounded-lg border border-border bg-card p-4 shadow-sm sm:p-5">
 				<dl className="grid gap-4 sm:grid-cols-2">
@@ -176,7 +283,6 @@ export function ContratFichePage({ id }: ContratFichePageProps) {
 						label="Loyer"
 						valeur={formatMontantFCFA(contrat.montant_loyer)}
 					/>
-					<Ligne label="Périodicité" valeur={contrat.periodicite ?? "—"} />
 					<Ligne
 						label="Date de début"
 						valeur={formatDateISO(contrat.date_debut)}
@@ -246,6 +352,16 @@ export function ContratFichePage({ id }: ContratFichePageProps) {
 			) : (
 				<EtatDesLieuxTab idContrat={contrat.id} />
 			)}
+
+			<ResilierContratFormDialog
+				open={resiliationOuverte}
+				idContrat={contrat.id}
+				onOpenChange={setResiliationOuverte}
+				onSaved={(resultat) => {
+					setResiliationOuverte(false);
+					setResiliationResultat(resultat);
+				}}
+			/>
 		</div>
 	);
 }

@@ -5,12 +5,14 @@ import {
 	type ContratBody,
 	creerCaution,
 	creerContrat,
+	envoyerContratParEmail,
 	getCaution,
 	getContrat,
 	listContrats,
+	resilierContrat,
 	restituerCaution,
 } from "../api/contrats";
-import { contratsKeys } from "../permissions";
+import { contratsKeys, logementsKeys } from "../permissions";
 
 /** Liste de tous les contrats de location. */
 export function useContrats() {
@@ -41,6 +43,13 @@ export function useCreerContrat() {
 	});
 }
 
+/** Envoie le contrat (PDF) par email au client. Aucune invalidation (n'affecte aucune donnée listée). */
+export function useEnvoyerContratParEmail() {
+	return useMutation({
+		mutationFn: (id: string) => envoyerContratParEmail(id),
+	});
+}
+
 /** Active un contrat en attente. Invalide la liste au succès. */
 export function useActiverContrat() {
 	const queryClient = useQueryClient();
@@ -48,6 +57,25 @@ export function useActiverContrat() {
 		mutationFn: (id: string) => activerContrat(id),
 		onSuccess: () => {
 			void queryClient.invalidateQueries({ queryKey: contratsKeys.all });
+		},
+	});
+}
+
+/**
+ * Résilie un contrat ACTIF avant son terme. Invalide contrats ET logements —
+ * le backend libère le logement (DISPONIBLE) dans le même appel.
+ */
+export function useResilierContrat() {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: ({
+			id,
+			...body
+		}: { id: string } & { dateResiliation?: string; motif?: string | null }) =>
+			resilierContrat(id, body),
+		onSuccess: () => {
+			void queryClient.invalidateQueries({ queryKey: contratsKeys.all });
+			void queryClient.invalidateQueries({ queryKey: logementsKeys.all });
 		},
 	});
 }
