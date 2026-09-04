@@ -1,3 +1,4 @@
+import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { Loader2, Printer } from "lucide-react";
 import { useState } from "react";
 import { Button } from "#/components/ui/button";
@@ -60,47 +61,62 @@ export function DownloadReceiptIconButton({
 	};
 
 	return (
-		<div className="relative">
-			<Button
-				variant="ghost"
-				size="icon-sm"
-				title="Imprimer la facture / le reçu"
-				disabled={isLoading || isDownloading}
-				onClick={() => setMenuOuvert((ouvert) => !ouvert)}
-			>
-				{isDownloading ? (
-					<Loader2 className="size-4 animate-spin" aria-hidden />
-				) : (
-					<Printer className="size-4" aria-hidden />
-				)}
-				<span className="sr-only">Imprimer la facture / le reçu</span>
-			</Button>
+		<DropdownMenu.Root open={menuOuvert} onOpenChange={setMenuOuvert}>
+			<DropdownMenu.Trigger asChild>
+				<Button
+					variant="ghost"
+					size="icon-sm"
+					title="Imprimer la facture / le reçu"
+					disabled={isLoading || isDownloading}
+				>
+					{isDownloading ? (
+						<Loader2 className="size-4 animate-spin" aria-hidden />
+					) : (
+						<Printer className="size-4" aria-hidden />
+					)}
+					<span className="sr-only">Imprimer la facture / le reçu</span>
+				</Button>
+			</DropdownMenu.Trigger>
 
-			{menuOuvert ? (
-				<div className="absolute top-full right-0 z-10 mt-1 min-w-[9rem] rounded-md border border-border bg-card shadow-md">
-					<button
-						type="button"
-						onClick={() => void handlePdf()}
-						className="block w-full whitespace-nowrap px-4 py-2 text-left text-sm hover:bg-accent"
-					>
-						Facture PDF
-					</button>
-					<button
-						type="button"
-						onClick={() => void handleTicket(58)}
-						className="block w-full whitespace-nowrap border-t border-border px-4 py-2 text-left text-sm hover:bg-accent"
-					>
-						Ticket 58 mm
-					</button>
-					<button
-						type="button"
-						onClick={() => void handleTicket(80)}
-						className="block w-full whitespace-nowrap border-t border-border px-4 py-2 text-left text-sm hover:bg-accent"
-					>
-						Ticket 80 mm
-					</button>
-				</div>
-			) : null}
-		</div>
+			{/* Rendu dans un portail (racine `document.body`) : échappe à
+			    l'empilement du tableau — sans ça, le menu d'une ligne se
+			    retrouve sous les cellules des lignes suivantes (celles-ci
+			    viennent après dans le DOM, donc au-dessus à empilement égal). */}
+			<DropdownMenu.Portal>
+				<DropdownMenu.Content
+					className="z-50 min-w-[9rem] rounded-md border border-border bg-card shadow-md"
+					sideOffset={4}
+					align="end"
+				>
+					<DropdownMenu.Item asChild>
+						<button
+							type="button"
+							onClick={() => void handlePdf()}
+							className="block w-full cursor-pointer whitespace-nowrap px-4 py-2 text-left text-sm outline-none hover:bg-accent"
+						>
+							Facture PDF
+						</button>
+					</DropdownMenu.Item>
+					<DropdownMenu.Item asChild>
+						<button
+							type="button"
+							onClick={() => void handleTicket(58)}
+							className="block w-full cursor-pointer whitespace-nowrap border-t border-border px-4 py-2 text-left text-sm outline-none hover:bg-accent"
+						>
+							Ticket 58 mm
+						</button>
+					</DropdownMenu.Item>
+					<DropdownMenu.Item asChild>
+						<button
+							type="button"
+							onClick={() => void handleTicket(80)}
+							className="block w-full cursor-pointer whitespace-nowrap border-t border-border px-4 py-2 text-left text-sm outline-none hover:bg-accent"
+						>
+							Ticket 80 mm
+						</button>
+					</DropdownMenu.Item>
+				</DropdownMenu.Content>
+			</DropdownMenu.Portal>
+		</DropdownMenu.Root>
 	);
 }
