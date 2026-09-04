@@ -39,6 +39,66 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/auth/inscription": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Inscription
+         * @description Création d'un compte client (auto-inscription, sans authentification préalable) — rôle CLIENT, aucune permission de module.
+         */
+        post: operations["AuthController_inscription_v1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/mot-de-passe-oublie": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Mot De Passe Oublie
+         * @description Envoie un email de réinitialisation si le compte existe, est actif, et a un email enregistré (compte lié à un dossier client, ou email propre — voir admin.utilisateur.email).
+         */
+        post: operations["AuthController_motDePasseOublie_v1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/reinitialiser-mot-de-passe": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Reinitialiser Mot De Passe
+         * @description Applique le nouveau mot de passe si le jeton reçu par email est valide, non expiré et non déjà utilisé — révoque toutes les sessions ouvertes du compte.
+         */
+        post: operations["AuthController_reinitialiserMotDePasse_v1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/auth/refresh": {
         parameters: {
             query?: never;
@@ -97,6 +157,114 @@ export interface paths {
         options?: never;
         head?: never;
         patch?: never;
+        trace?: never;
+    };
+    "/api/v1/client/clients": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Rechercher
+         * @description Récupération des données pour clients
+         */
+        get: operations["ClientController_rechercher_v1"];
+        put?: never;
+        /**
+         * Creer
+         * @description Exécution de clients
+         */
+        post: operations["ClientController_creer_v1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/client/clients/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Detail
+         * @description Récupération des données pour clients/:id
+         */
+        get: operations["ClientController_detail_v1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Maj
+         * @description Mise à jour partielle de clients/:id
+         */
+        patch: operations["ClientController_maj_v1"];
+        trace?: never;
+    };
+    "/api/v1/client/clients/{id}/contacts-urgence": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Ajouter Contact
+         * @description Exécution de clients/:id/contacts-urgence
+         */
+        post: operations["ClientController_ajouterContact_v1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/client/clients/{id}/pieces-identite": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Ajouter Piece
+         * @description Exécution de clients/:id/pieces-identite
+         */
+        post: operations["ClientController_ajouterPiece_v1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/client/clients/{id}/pieces-identite/{idPiece}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Maj Piece
+         * @description Mise à jour partielle de clients/:id/pieces-identite/:idPiece
+         */
+        patch: operations["ClientController_majPiece_v1"];
         trace?: never;
     };
     "/api/v1/admin/utilisateurs": {
@@ -351,114 +519,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/client/clients": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Rechercher
-         * @description Récupération des données pour clients
-         */
-        get: operations["ClientController_rechercher_v1"];
-        put?: never;
-        /**
-         * Creer
-         * @description Exécution de clients
-         */
-        post: operations["ClientController_creer_v1"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/client/clients/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Detail
-         * @description Récupération des données pour clients/:id
-         */
-        get: operations["ClientController_detail_v1"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /**
-         * Maj
-         * @description Mise à jour partielle de clients/:id
-         */
-        patch: operations["ClientController_maj_v1"];
-        trace?: never;
-    };
-    "/api/v1/client/clients/{id}/contacts-urgence": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Ajouter Contact
-         * @description Exécution de clients/:id/contacts-urgence
-         */
-        post: operations["ClientController_ajouterContact_v1"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/client/clients/{id}/pieces-identite": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Ajouter Piece
-         * @description Exécution de clients/:id/pieces-identite
-         */
-        post: operations["ClientController_ajouterPiece_v1"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/client/clients/{id}/pieces-identite/{idPiece}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /**
-         * Maj Piece
-         * @description Mise à jour partielle de clients/:id/pieces-identite/:idPiece
-         */
-        patch: operations["ClientController_majPiece_v1"];
-        trace?: never;
-    };
     "/api/v1/residence/contrats": {
         parameters: {
             query?: never;
@@ -543,6 +603,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/residence/contrats/{id}/envoyer-email": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Envoyer Contrat Email
+         * @description Envoi du contrat de location en PDF à l'email du client.
+         */
+        post: operations["ResidenceController_envoyerContratParEmail_v1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/residence/contrats/{id}/etat-des-lieux": {
         parameters: {
             query?: never;
@@ -600,7 +680,11 @@ export interface paths {
          */
         get: operations["ResidenceController_caution_v1"];
         put?: never;
-        post?: never;
+        /**
+         * Creer Caution
+         * @description Exécution de contrats/:id/caution
+         */
+        post: operations["ResidenceController_creerCaution_v1"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1163,6 +1247,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/residence/portail/etat-des-lieux/{id}/photo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Photo Etat Des Lieux
+         * @description Récupération des octets d'une photo d'état des lieux
+         */
+        get: operations["PortailController_photoEtatDesLieux_v1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/residence/portail/paiements": {
         parameters: {
             query?: never;
@@ -1235,6 +1339,46 @@ export interface paths {
          * @description Récupération des données pour paiements/:id/recu
          */
         get: operations["PortailController_recuPaiement_v1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/residence/portail/echeances/{id}/recu/pdf": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * PDF Recu Echeance
+         * @description Génération PDF du reçu d'une échéance
+         */
+        get: operations["PortailController_recuEcheancePdf_v1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/residence/portail/paiements/{id}/recu/pdf": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * PDF Recu Paiement
+         * @description Génération PDF du reçu d'un paiement
+         */
+        get: operations["PortailController_recuPaiementPdf_v1"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1783,6 +1927,82 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/uploads": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Telecharger
+         * @description Récupération des données pour
+         */
+        get: operations["UploadsController_telecharger_v1"];
+        put?: never;
+        /**
+         * Upload
+         * @description Exécution de
+         */
+        post: operations["UploadsController_upload_v1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/abonnement/categories": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Lister
+         * @description Récupération des données pour categories
+         */
+        get: operations["AbonnementController_lister_v1"];
+        put?: never;
+        /**
+         * Creer
+         * @description Exécution de categories
+         */
+        post: operations["AbonnementController_creer_v1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/abonnement/categories/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Detail
+         * @description Récupération des données pour categories/:id
+         */
+        get: operations["AbonnementController_detail_v1"];
+        put?: never;
+        post?: never;
+        /**
+         * Supprimer
+         * @description Suppression de categories/:id
+         */
+        delete: operations["AbonnementController_supprimer_v1"];
+        options?: never;
+        head?: never;
+        /**
+         * Maj
+         * @description Mise à jour partielle de categories/:id
+         */
+        patch: operations["AbonnementController_maj_v1"];
+        trace?: never;
+    };
     "/api/v1/market/categories-produits": {
         parameters: {
             query?: never;
@@ -1888,7 +2108,7 @@ export interface paths {
         };
         /**
          * Produits
-         * @description Récupération des données pour produits
+         * @description Récupération des données pour produits — catalogue public, aucune authentification requise.
          */
         get: operations["MarketController_produits_v1"];
         put?: never;
@@ -1897,6 +2117,26 @@ export interface paths {
          * @description Exécution de produits
          */
         post: operations["MarketController_creerProduit_v1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/market/produits/scan/{code_barre}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Scanner Produit
+         * @description Résout un code-barres scanné (EAN-13 fabricant ou GSG interne) vers le produit — sert le scan à l'entrée de stock et à la vente.
+         */
+        get: operations["MarketController_scannerProduit_v1"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -1912,7 +2152,7 @@ export interface paths {
         };
         /**
          * Detail Produit
-         * @description Récupération des données pour produits/:id
+         * @description Récupération des données pour produits/:id — catalogue public, aucune authentification requise.
          */
         get: operations["MarketController_detailProduit_v1"];
         put?: never;
@@ -1925,6 +2165,66 @@ export interface paths {
          * @description Mise à jour partielle de produits/:id
          */
         patch: operations["MarketController_majProduit_v1"];
+        trace?: never;
+    };
+    "/api/v1/market/produits/{id}/code-barre": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Generer Code Barre
+         * @description Génère et pose un code-barres interne (EAN-13) sur un produit qui n'en a pas encore — refuse d'écraser un code existant.
+         */
+        post: operations["MarketController_genererCodeBarre_v1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/market/produits/{id}/etiquette": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Etiquette Produit
+         * @description Image PNG du code-barres du produit, à imprimer sur une étiquette — 404 si le produit n'a pas encore de code-barres.
+         */
+        get: operations["MarketController_etiquetteProduit_v1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/market/produits/{id}/image": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Maj Image Produit
+         * @description Exécution de produits/:id/image
+         */
+        post: operations["MarketController_majImageProduit_v1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/api/v1/market/ventes": {
@@ -2124,7 +2424,7 @@ export interface paths {
         };
         /**
          * Plats
-         * @description Récupération des données pour plats
+         * @description Récupération des données pour plats — catalogue public, aucune authentification requise.
          */
         get: operations["RestaurantController_plats_v1"];
         put?: never;
@@ -2148,7 +2448,7 @@ export interface paths {
         };
         /**
          * Detail Plat
-         * @description Récupération des données pour plats/:id
+         * @description Récupération des données pour plats/:id — catalogue public, aucune authentification requise.
          */
         get: operations["RestaurantController_detailPlat_v1"];
         put?: never;
@@ -2287,7 +2587,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/uploads": {
+    "/api/v1/restaurant/portail/commandes": {
         parameters: {
             query?: never;
             header?: never;
@@ -2295,16 +2595,32 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Telecharger
-         * @description Récupération des données pour
+         * Mes commandes
+         * @description Liste des commandes restaurant du résident connecté
          */
-        get: operations["UploadsController_telecharger_v1"];
+        get: operations["RestaurantPortailController_mesCommandes_v1"];
         put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/restaurant/portail/commandes/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         /**
-         * Upload
-         * @description Exécution de
+         * Détail commande
+         * @description Détail d'une commande restaurant du résident
          */
-        post: operations["UploadsController_upload_v1"];
+        get: operations["RestaurantPortailController_detailCommande_v1"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -2433,6 +2749,66 @@ export interface paths {
          * @description Exécution de commandes/:id/annuler
          */
         post: operations["PressingController_annulerCommande_v1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/pressing/portail/commandes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Mes commandes
+         * @description Liste des commandes pressing du résident connecté
+         */
+        get: operations["PressingPortailController_mesCommandes_v1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/pressing/portail/commandes/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Détail commande
+         * @description Détail d'une commande pressing du résident
+         */
+        get: operations["PressingPortailController_detailCommande_v1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/pressing/portail/commandes/{id}/recu": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Reçu commande
+         * @description Reçu PDF d'une commande pressing du résident
+         */
+        get: operations["PressingPortailController_recuCommande_v1"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -3432,6 +3808,28 @@ export interface components {
              */
             mot_de_passe: string;
         };
+        InscriptionDto: {
+            /** @example KOUASSI */
+            nom: string;
+            /** @example Aya */
+            prenoms: string;
+            /** @example +2250700000000 */
+            tel_principal: string;
+            /** @example aya.kouassi */
+            login: string;
+            /** @example motdepasse */
+            mot_de_passe: string;
+        };
+        MotDePasseOublieDto: {
+            /** @example aya.kouassi */
+            login: string;
+        };
+        ReinitialiserMotDePasseTokenDto: {
+            /** @description Jeton reçu par email (lien de réinitialisation). */
+            token: string;
+            /** @example MotDePasse8! */
+            nouveau_mot_de_passe: string;
+        };
         RefreshTokenDto: {
             /** @description Jeton de rafraîchissement brut (32 octets aléatoires encodés). */
             refresh_token: string;
@@ -3439,87 +3837,6 @@ export interface components {
         LogoutDto: {
             /** @description Jeton de rafraîchissement à révoquer. */
             refresh_token: string;
-        };
-        CreerUtilisateurDto: {
-            /** @example KOUASSI */
-            nom?: Record<string, never> | null;
-            /** @example Aya */
-            prenom?: Record<string, never> | null;
-            /** @example aya.kouassi */
-            login: string;
-            /** @example MotDePasse8! */
-            mot_de_passe: string;
-            /** @example 3 */
-            id_role: string;
-            /** @example 2 */
-            id_activite_scope?: Record<string, never> | null;
-            /** @example 1 */
-            id_caisse?: Record<string, never> | null;
-            /** @example 5 */
-            id_employe?: Record<string, never> | null;
-            /** @example 12 */
-            id_client?: Record<string, never> | null;
-            /**
-             * @default true
-             * @enum {boolean}
-             */
-            actif: true | false;
-        };
-        MajUtilisateurDto: {
-            nom?: Record<string, never> | null;
-            prenom?: Record<string, never> | null;
-            login?: string;
-            id_role?: string;
-            id_activite_scope?: Record<string, never> | null;
-            id_caisse?: Record<string, never> | null;
-            id_employe?: Record<string, never> | null;
-            id_client?: Record<string, never> | null;
-            /** @enum {boolean} */
-            actif?: true | false;
-        };
-        ReinitialiserMotDePasseDto: {
-            /** @example MotDePasse8! */
-            nouveau_mot_de_passe: string;
-        };
-        CreerRoleDto: {
-            /** @example RESPONSABLE_MAGASIN */
-            code: string;
-            /** @example Responsable magasin */
-            libelle: string;
-            description?: Record<string, never> | null;
-        };
-        MajRoleDto: {
-            /** @example RESPONSABLE_MAGASIN */
-            code?: string;
-            /** @example Responsable magasin */
-            libelle?: string;
-            description?: Record<string, never> | null;
-        };
-        MajPermissionsRoleDto: {
-            /**
-             * @description Identifiants des permissions — le jeu complet remplace l’existant (tableau vide = tout décocher)
-             * @example [
-             *       "42",
-             *       "43"
-             *     ]
-             */
-            id_permissions: string[];
-        };
-        AjouterPermissionRoleDto: {
-            /** @example 42 */
-            id_permission: string;
-        };
-        CreerParametreDto: {
-            /** @example DEVISE_DEFAUT */
-            cle: string;
-            /** @example FCFA */
-            valeur: string;
-            description?: Record<string, never> | null;
-        };
-        MajParametreDto: {
-            /** @example XOF */
-            valeur: string;
-            description?: Record<string, never> | null;
         };
         CreerClientDto: {
             /** @example KOUASSI */
@@ -3594,6 +3911,90 @@ export interface components {
             /** @description Clé objet S3/MinIO du scan VERSO (§31, optionnel — un passeport n’a pas de verso). */
             copie_num_verso?: Record<string, never> | null;
         };
+        CreerUtilisateurDto: {
+            /** @example KOUASSI */
+            nom?: Record<string, never> | null;
+            /** @example Aya */
+            prenom?: Record<string, never> | null;
+            /** @example aya.kouassi */
+            login: string;
+            /** @example MotDePasse8! */
+            mot_de_passe: string;
+            /** @example 3 */
+            id_role: string;
+            /** @example 2 */
+            id_activite_scope?: Record<string, never> | null;
+            /** @example 1 */
+            id_caisse?: Record<string, never> | null;
+            /** @example 5 */
+            id_employe?: Record<string, never> | null;
+            /** @example 12 */
+            id_client?: Record<string, never> | null;
+            /**
+             * @default true
+             * @enum {boolean}
+             */
+            actif: true | false;
+            /** @example aya.kouassi@example.com */
+            email?: Record<string, never> | null;
+        };
+        MajUtilisateurDto: {
+            nom?: Record<string, never> | null;
+            prenom?: Record<string, never> | null;
+            login?: string;
+            id_role?: string;
+            id_activite_scope?: Record<string, never> | null;
+            id_caisse?: Record<string, never> | null;
+            id_employe?: Record<string, never> | null;
+            id_client?: Record<string, never> | null;
+            /** @enum {boolean} */
+            actif?: true | false;
+            email?: Record<string, never> | null;
+        };
+        ReinitialiserMotDePasseDto: {
+            /** @example MotDePasse8! */
+            nouveau_mot_de_passe: string;
+        };
+        CreerRoleDto: {
+            /** @example RESPONSABLE_MAGASIN */
+            code: string;
+            /** @example Responsable magasin */
+            libelle: string;
+            description?: Record<string, never> | null;
+        };
+        MajRoleDto: {
+            /** @example RESPONSABLE_MAGASIN */
+            code?: string;
+            /** @example Responsable magasin */
+            libelle?: string;
+            description?: Record<string, never> | null;
+        };
+        MajPermissionsRoleDto: {
+            /**
+             * @description Identifiants des permissions — le jeu complet remplace l’existant (tableau vide = tout décocher)
+             * @example [
+             *       "42",
+             *       "43"
+             *     ]
+             */
+            id_permissions: string[];
+        };
+        AjouterPermissionRoleDto: {
+            /** @example 42 */
+            id_permission: string;
+        };
+        CreerParametreDto: {
+            /** @example DEVISE_DEFAUT */
+            cle: string;
+            /** @example FCFA */
+            valeur: string;
+            description?: Record<string, never> | null;
+        };
+        MajParametreDto: {
+            /** @example XOF */
+            valeur: string;
+            description?: Record<string, never> | null;
+        };
         CreerContratDto: {
             /** @description Id du client (bigint, transporté en string). */
             id_client: string;
@@ -3606,7 +4007,7 @@ export interface components {
             /** @enum {string} */
             type_location: "MENSUEL" | "ANNUEL";
             /** @enum {string} */
-            statut?: "EN_ATTENTE" | "ACTIF" | "EXPIRE" | "RESILIE" | "TERMINE";
+            statut?: "EN_ATTENTE" | "ACTIF" | "RESILIE" | "TERMINE";
             date_fin_prevue?: Record<string, never> | null;
             duree_mois?: Record<string, never> | null;
             periodicite?: Record<string, never> | null;
@@ -3637,6 +4038,14 @@ export interface components {
             /** @description Clé objet S3/MinIO renvoyée par POST /uploads (catégorie etat-lieux). */
             cle_objet: string;
             commentaire?: Record<string, never> | null;
+        };
+        CreerCautionDto: {
+            /** @example 150000 */
+            montant: string;
+            /** @example 2026-01-15 */
+            date_versement?: Record<string, never> | null;
+            /** @example true */
+            payee?: boolean | null;
         };
         RestituerCautionDto: {
             /**
@@ -3684,7 +4093,7 @@ export interface components {
             /** @example Chambre 104 */
             nom?: Record<string, never> | null;
             /** @enum {string} */
-            type: "CHAMBRE" | "STUDIO" | "APPARTEMENT" | "MEUBLE";
+            type: "CHAMBRE" | "STUDIO";
             /** @example 35000 */
             tarif: string;
             equipements?: Record<string, never> | null;
@@ -3700,7 +4109,7 @@ export interface components {
         MajLogementDto: {
             nom?: Record<string, never> | null;
             /** @enum {string} */
-            type?: "CHAMBRE" | "STUDIO" | "APPARTEMENT" | "MEUBLE";
+            type?: "CHAMBRE" | "STUDIO";
             tarif?: string;
             equipements?: Record<string, never> | null;
             /** @enum {string} */
@@ -3814,12 +4223,23 @@ export interface components {
             id_client: string;
             /** @example 5 */
             id_logement?: Record<string, never> | null;
-            /** @example Internet fibre */
-            service: string;
+            /**
+             * @description Catégorie standardisée (abonnement/categories) — pré-remplit service/montant quand ils sont omis. Sans elle, service et montant restent obligatoires.
+             * @example 2
+             */
+            id_categorie_abonnement?: string;
+            /**
+             * @description Obligatoire si id_categorie_abonnement est omis ; sinon dérivé du libellé de la catégorie quand non fourni.
+             * @example Internet fibre
+             */
+            service?: string;
             /** @enum {string} */
             type: "MENSUEL" | "ANNUEL" | "PERIODIQUE";
-            /** @example 20000.00 */
-            montant: string;
+            /**
+             * @description Obligatoire si id_categorie_abonnement est omis ou sans prix_defaut ; sinon dérivé du prix_defaut de la catégorie quand non fourni.
+             * @example 20000.00
+             */
+            montant?: string;
             /** @example 2026-08-01 */
             date_debut: string;
             date_fin?: Record<string, never> | null;
@@ -3833,6 +4253,7 @@ export interface components {
         MajAbonnementDto: {
             id_client?: string;
             id_logement?: Record<string, never> | null;
+            id_categorie_abonnement?: Record<string, never> | null;
             service?: string;
             /** @enum {string} */
             type?: "MENSUEL" | "ANNUEL" | "PERIODIQUE";
@@ -4216,6 +4637,37 @@ export interface components {
             id_caisse?: string;
             note?: string;
         };
+        CreerCategorieAbonnementDto: {
+            /** @description Code unique de la catégorie */
+            code: string;
+            /** @description Libellé de la catégorie */
+            libelle: string;
+            /** @description Description de la catégorie */
+            description?: string;
+            /**
+             * @description Statut actif
+             * @default true
+             */
+            actif: boolean;
+            /**
+             * @description Prix par défaut suggéré à la création d’un abonnement de cette catégorie — pré-remplit le montant, reste modifiable au cas par cas.
+             * @example 20000.00
+             */
+            prix_defaut?: string;
+        };
+        MajCategorieAbonnementDto: {
+            /** @description Libellé de la catégorie */
+            libelle?: string;
+            /** @description Description de la catégorie */
+            description?: string;
+            /** @description Statut actif */
+            actif?: boolean;
+            /**
+             * @description Prix par défaut suggéré à la création d’un abonnement.
+             * @example 20000.00
+             */
+            prix_defaut?: string;
+        };
         CreerCategorieProduitDto: {
             /** @example Boissons */
             libelle: string;
@@ -4267,6 +4719,12 @@ export interface components {
              * @enum {boolean}
              */
             actif: true | false;
+            image_url?: Record<string, never> | null;
+            /**
+             * @description Code-barres scanné sur l'emballage (EAN-13 fabricant). Laisser vide pour générer un code interne via POST produits/:id/code-barre.
+             * @example 2000000000012
+             */
+            code_barre?: Record<string, never> | null;
         };
         MajProduitDto: {
             nom?: string;
@@ -4277,6 +4735,12 @@ export interface components {
             id_fournisseur?: Record<string, never> | null;
             /** @enum {boolean} */
             actif?: true | false;
+            image_url?: Record<string, never> | null;
+            /**
+             * @description Code-barres scanné sur l'emballage — null pour retirer.
+             * @example 2000000000012
+             */
+            code_barre?: Record<string, never> | null;
         };
         LigneVenteDto: {
             /** @example 1 */
@@ -4653,6 +5117,72 @@ export interface operations {
             };
         };
     };
+    AuthController_inscription_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["InscriptionDto"];
+            };
+        };
+        responses: {
+            /** @description Compte créé, session ouverte */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AuthController_motDePasseOublie_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MotDePasseOublieDto"];
+            };
+        };
+        responses: {
+            /** @description Email envoyé */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AuthController_reinitialiserMotDePasse_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReinitialiserMotDePasseTokenDto"];
+            };
+        };
+        responses: {
+            /** @description Mot de passe réinitialisé */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     AuthController_refresh_v1: {
         parameters: {
             query?: never;
@@ -4717,6 +5247,246 @@ export interface operations {
             };
         };
     };
+    ClientController_rechercher_v1: {
+        parameters: {
+            query?: {
+                /** @description Recherche texte libre */
+                recherche?: string;
+                /** @description Colonne de tri */
+                sort?: string;
+                order?: "asc" | "desc";
+                limit?: number;
+                offset?: number;
+                type_client?: "LOCATAIRE" | "PASSAGE" | "AUTRE";
+                code?: string;
+                nom?: string;
+                prenoms?: string;
+                sexe?: string;
+                nationalite?: string;
+                profession?: string;
+                tel_principal?: string;
+                tel_secondaire?: string;
+                email?: string;
+                ville?: string;
+                pays?: string;
+                /** @description Date de naissance >= */
+                naissance_du?: string;
+                /** @description Date de naissance <= */
+                naissance_au?: string;
+                /** @description Date d'enregistrement >= */
+                enregistre_du?: string;
+                /** @description Date d'enregistrement <= */
+                enregistre_au?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Données renvoyées avec succès */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Permission refusée — requiert CLIENT.VOIR */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ClientController_creer_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreerClientDto"];
+            };
+        };
+        responses: {
+            /** @description Opération effectuée avec succès */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Permission refusée — requiert CLIENT.CREER */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ClientController_detail_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identifiant de la ressource ciblée */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Données renvoyées avec succès */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Permission refusée — requiert CLIENT.VOIR */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ClientController_maj_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identifiant de la ressource ciblée */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MajClientDto"];
+            };
+        };
+        responses: {
+            /** @description Opération effectuée avec succès */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Permission refusée — requiert CLIENT.MODIFIER */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ClientController_ajouterContact_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identifiant de la ressource ciblée */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreerContactDto"];
+            };
+        };
+        responses: {
+            /** @description Opération effectuée avec succès */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Permission refusée — requiert CLIENT.MODIFIER */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ClientController_ajouterPiece_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identifiant de la ressource ciblée */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreerPieceDto"];
+            };
+        };
+        responses: {
+            /** @description Opération effectuée avec succès */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Permission refusée — requiert CLIENT.MODIFIER */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ClientController_majPiece_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identifiant de la ressource ciblée */
+                id: string;
+                /** @description Identifiant de la ressource ciblée */
+                idPiece: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MajPieceDto"];
+            };
+        };
+        responses: {
+            /** @description Opération effectuée avec succès */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Permission refusée — requiert CLIENT.MODIFIER */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     AdminController_listerUtilisateurs_v1: {
         parameters: {
             query?: {
@@ -4732,6 +5502,7 @@ export interface operations {
                 login?: string;
                 nom?: string;
                 prenom?: string;
+                email?: string;
             };
             header?: never;
             path?: never;
@@ -5283,245 +6054,6 @@ export interface operations {
             };
         };
     };
-    ClientController_rechercher_v1: {
-        parameters: {
-            query?: {
-                /** @description Recherche texte libre */
-                recherche?: string;
-                /** @description Colonne de tri */
-                sort?: string;
-                order?: "asc" | "desc";
-                limit?: number;
-                offset?: number;
-                type_client?: "LOCATAIRE" | "PASSAGE" | "AUTRE";
-                nom?: string;
-                prenoms?: string;
-                sexe?: string;
-                nationalite?: string;
-                profession?: string;
-                tel_principal?: string;
-                tel_secondaire?: string;
-                email?: string;
-                ville?: string;
-                pays?: string;
-                /** @description Date de naissance >= */
-                naissance_du?: string;
-                /** @description Date de naissance <= */
-                naissance_au?: string;
-                /** @description Date d'enregistrement >= */
-                enregistre_du?: string;
-                /** @description Date d'enregistrement <= */
-                enregistre_au?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Données renvoyées avec succès */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Permission refusée — requiert CLIENT.VOIR */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    ClientController_creer_v1: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreerClientDto"];
-            };
-        };
-        responses: {
-            /** @description Opération effectuée avec succès */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Permission refusée — requiert CLIENT.CREER */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    ClientController_detail_v1: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Identifiant de la ressource ciblée */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Données renvoyées avec succès */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Permission refusée — requiert CLIENT.VOIR */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    ClientController_maj_v1: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Identifiant de la ressource ciblée */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["MajClientDto"];
-            };
-        };
-        responses: {
-            /** @description Opération effectuée avec succès */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Permission refusée — requiert CLIENT.MODIFIER */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    ClientController_ajouterContact_v1: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Identifiant de la ressource ciblée */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreerContactDto"];
-            };
-        };
-        responses: {
-            /** @description Opération effectuée avec succès */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Permission refusée — requiert CLIENT.MODIFIER */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    ClientController_ajouterPiece_v1: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Identifiant de la ressource ciblée */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreerPieceDto"];
-            };
-        };
-        responses: {
-            /** @description Opération effectuée avec succès */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Permission refusée — requiert CLIENT.MODIFIER */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    ClientController_majPiece_v1: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Identifiant de la ressource ciblée */
-                id: string;
-                /** @description Identifiant de la ressource ciblée */
-                idPiece: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["MajPieceDto"];
-            };
-        };
-        responses: {
-            /** @description Opération effectuée avec succès */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Permission refusée — requiert CLIENT.MODIFIER */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
     ResidenceController_lister_v1: {
         parameters: {
             query?: {
@@ -5537,7 +6069,7 @@ export interface operations {
                 id_client?: string;
                 /** @description Id du logement (bigint, string). */
                 id_logement?: string;
-                statut?: "EN_ATTENTE" | "ACTIF" | "EXPIRE" | "RESILIE" | "TERMINE";
+                statut?: "EN_ATTENTE" | "ACTIF" | "RESILIE" | "TERMINE";
                 type_location?: "MENSUEL" | "ANNUEL";
                 periodicite?: string | null;
                 montant_loyer?: string;
@@ -5687,6 +6219,34 @@ export interface operations {
             };
         };
     };
+    ResidenceController_envoyerContratParEmail_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identifiant de la ressource ciblée */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Email envoyé (ou tenté) */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Permission refusée — requiert RESIDENCE.VOIR */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     ResidenceController_etatDesLieux_v1: {
         parameters: {
             query?: {
@@ -5804,6 +6364,38 @@ export interface operations {
                 content?: never;
             };
             /** @description Permission refusée — requiert RESIDENCE.VOIR */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ResidenceController_creerCaution_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identifiant de la ressource ciblée */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreerCautionDto"];
+            };
+        };
+        responses: {
+            /** @description Opération effectuée avec succès */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Permission refusée — requiert RESIDENCE.CREER */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -6216,7 +6808,7 @@ export interface operations {
                 numero?: string;
                 nom?: string;
                 statut?: "DISPONIBLE" | "RESERVE" | "OCCUPE" | "EN_NETTOYAGE" | "EN_MAINTENANCE" | "INDISPONIBLE";
-                type?: "CHAMBRE" | "STUDIO" | "APPARTEMENT" | "MEUBLE";
+                type?: "CHAMBRE" | "STUDIO";
                 tarif?: string;
                 etat?: string;
             };
@@ -6737,6 +7329,8 @@ export interface operations {
                 id_client?: string;
                 /** @description Id du logement (bigint, string). */
                 id_logement?: string;
+                /** @description Id de la catégorie d’abonnement (bigint, string). */
+                id_categorie_abonnement?: string;
                 service?: string;
                 type?: "MENSUEL" | "ANNUEL" | "PERIODIQUE";
                 montant?: string;
@@ -6955,6 +7549,48 @@ export interface operations {
             };
         };
     };
+    PortailController_photoEtatDesLieux_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identifiant de la photo */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Octets de l’image renvoyés avec succès */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Jeton invalide ou expiré */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Permission refusée — requiert RESIDENT.VOIR */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Photo inconnue ou n'appartenant pas au résident */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     PortailController_paiements_v1: {
         parameters: {
             query?: never;
@@ -7103,6 +7739,90 @@ export interface operations {
                 content?: never;
             };
             /** @description Paiement inconnu ou n’appartenant pas au résident. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    PortailController_recuEcheancePdf_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identifiant de l'échéance */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Document PDF renvoyé avec succès */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Jeton invalide ou expiré */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Permission refusée — requiert RESIDENT.VOIR */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Échéance inconnue ou n'appartenant pas au résident */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    PortailController_recuPaiementPdf_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identifiant du paiement */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Document PDF renvoyé avec succès */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Jeton invalide ou expiré */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Permission refusée — requiert RESIDENT.VOIR */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Paiement inconnu ou n'appartenant pas au résident */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -8206,6 +8926,215 @@ export interface operations {
             };
         };
     };
+    UploadsController_telecharger_v1: {
+        parameters: {
+            query: {
+                key: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Données renvoyées avec succès */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Permission refusée — requiert CLIENT.VOIR */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    UploadsController_upload_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Opération effectuée avec succès */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Permission refusée — requiert CLIENT.MODIFIER */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AbonnementController_lister_v1: {
+        parameters: {
+            query?: {
+                /** @description Filtrer par code */
+                code?: string;
+                /** @description Filtrer par statut actif */
+                actif?: boolean;
+                /** @description Recherche textuelle */
+                recherche?: string;
+                /** @description Tri */
+                sort?: string;
+                /** @description Ordre */
+                order?: string;
+                /** @description Limite */
+                limit?: number;
+                /** @description Offset */
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Données renvoyées avec succès */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Permission refusée — requiert ABONNEMENT.VOIR */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AbonnementController_creer_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreerCategorieAbonnementDto"];
+            };
+        };
+        responses: {
+            /** @description Opération effectuée avec succès */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Permission refusée — requiert ABONNEMENT.CREER */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AbonnementController_detail_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identifiant de la ressource ciblée */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Données renvoyées avec succès */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Permission refusée — requiert ABONNEMENT.VOIR */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AbonnementController_supprimer_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identifiant de la ressource ciblée */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Suppression effectuée avec succès */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Permission refusée — requiert ABONNEMENT.SUPPRIMER */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AbonnementController_maj_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identifiant de la ressource ciblée */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MajCategorieAbonnementDto"];
+            };
+        };
+        responses: {
+            /** @description Opération effectuée avec succès */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Permission refusée — requiert ABONNEMENT.MODIFIER */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     MarketController_categories_v1: {
         parameters: {
             query?: {
@@ -8474,6 +9403,7 @@ export interface operations {
                 prix_vente?: string;
                 entree_du?: string;
                 entree_au?: string;
+                code_barre?: string;
             };
             header?: never;
             path?: never;
@@ -8483,13 +9413,6 @@ export interface operations {
         responses: {
             /** @description Données renvoyées avec succès */
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Permission refusée — requiert MARCHANDISE.VOIR */
-            403: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -8526,6 +9449,34 @@ export interface operations {
             };
         };
     };
+    MarketController_scannerProduit_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Code-barres scanné */
+                code_barre: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Produit résolu */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Permission refusée — requiert MARCHANDISE.VOIR */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     MarketController_detailProduit_v1: {
         parameters: {
             query?: never;
@@ -8540,13 +9491,6 @@ export interface operations {
         responses: {
             /** @description Données renvoyées avec succès */
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Permission refusée — requiert MARCHANDISE.VOIR */
-            403: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -8569,6 +9513,90 @@ export interface operations {
                 "application/json": components["schemas"]["MajProduitDto"];
             };
         };
+        responses: {
+            /** @description Opération effectuée avec succès */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Permission refusée — requiert MARCHANDISE.MODIFIER */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    MarketController_genererCodeBarre_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identifiant de la ressource ciblée */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Code-barres généré et posé */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Permission refusée — requiert MARCHANDISE.MODIFIER */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    MarketController_etiquetteProduit_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identifiant de la ressource ciblée */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Image PNG du code-barres */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Permission refusée — requiert MARCHANDISE.VOIR */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    MarketController_majImageProduit_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identifiant de la ressource ciblée */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
         responses: {
             /** @description Opération effectuée avec succès */
             200: {
@@ -8937,13 +9965,6 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description Permission refusée — requiert RESTAURANT.VOIR */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
         };
     };
     RestaurantController_creerPlat_v1: {
@@ -8989,13 +10010,6 @@ export interface operations {
         responses: {
             /** @description Données renvoyées avec succès */
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Permission refusée — requiert RESTAURANT.VOIR */
-            403: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -9247,11 +10261,9 @@ export interface operations {
             };
         };
     };
-    UploadsController_telecharger_v1: {
+    RestaurantPortailController_mesCommandes_v1: {
         parameters: {
-            query: {
-                key: string;
-            };
+            query?: never;
             header?: never;
             path?: never;
             cookie?: never;
@@ -9265,7 +10277,7 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description Permission refusée — requiert CLIENT.VOIR */
+            /** @description Permission refusée — requiert RESIDENT.VOIR */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -9274,24 +10286,34 @@ export interface operations {
             };
         };
     };
-    UploadsController_upload_v1: {
+    RestaurantPortailController_detailCommande_v1: {
         parameters: {
             query?: never;
             header?: never;
-            path?: never;
+            path: {
+                /** @description Identifiant de la commande */
+                id: string;
+            };
             cookie?: never;
         };
         requestBody?: never;
         responses: {
-            /** @description Opération effectuée avec succès */
+            /** @description Données renvoyées avec succès */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
             };
-            /** @description Permission refusée — requiert CLIENT.MODIFIER */
+            /** @description Permission refusée — requiert RESIDENT.VOIR */
             403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Commande inconnue ou n'appartenant pas au résident */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -9536,6 +10558,101 @@ export interface operations {
             };
             /** @description Permission refusée — requiert PRESSING.ANNULER */
             403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    PressingPortailController_mesCommandes_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Données renvoyées avec succès */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Permission refusée — requiert RESIDENT.VOIR */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    PressingPortailController_detailCommande_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identifiant de la commande */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Données renvoyées avec succès */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Permission refusée — requiert RESIDENT.VOIR */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Commande inconnue ou n'appartenant pas au résident */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    PressingPortailController_recuCommande_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identifiant de la commande */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Données du reçu renvoyées avec succès */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Permission refusée — requiert RESIDENT.VOIR */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Commande inconnue ou n'appartenant pas au résident */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };

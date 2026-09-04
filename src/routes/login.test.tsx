@@ -3,7 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ApiError } from "#/core/api";
-import { LoginPage } from "./login";
+import { LoginPage } from "#/features/auth/components/login-page";
 
 const mocks = vi.hoisted(() => ({
 	auth: {
@@ -12,9 +12,10 @@ const mocks = vi.hoisted(() => ({
 		restore: vi.fn<() => Promise<void>>(),
 	},
 	navigate: vi.fn<() => Promise<void>>(),
-	search: { next: undefined, expired: undefined } as {
+	search: { next: undefined, expired: undefined, reinitialise: undefined } as {
 		next?: string;
 		expired?: "1";
+		reinitialise?: "1";
 	},
 }));
 
@@ -29,6 +30,18 @@ vi.mock("@tanstack/react-router", async (importOriginal) => {
 		useRouteContext: () => ({ auth: mocks.auth }),
 		useNavigate: () => mocks.navigate,
 		useSearch: () => mocks.search,
+		Link: ({
+			to,
+			children,
+			...props
+		}: {
+			to: string;
+			children?: React.ReactNode;
+		}) => (
+			<a href={to} {...props}>
+				{children}
+			</a>
+		),
 	};
 });
 
@@ -44,6 +57,7 @@ beforeEach(() => {
 	mocks.navigate.mockReset();
 	mocks.search.next = undefined;
 	mocks.search.expired = undefined;
+	mocks.search.reinitialise = undefined;
 });
 
 describe("LoginPage", () => {

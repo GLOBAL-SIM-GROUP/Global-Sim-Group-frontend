@@ -13,6 +13,8 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as InscriptionRouteImport } from './routes/inscription'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as MotDePasseOublieRouteImport } from './routes/mot-de-passe-oublie'
+import { Route as ReinitialiserMotDePasseRouteImport } from './routes/reinitialiser-mot-de-passe'
 import { Route as AuthenticatedEnCoursRouteImport } from './routes/_authenticated/en-cours'
 import { Route as AuthenticatedHomeRouteImport } from './routes/_authenticated/home'
 import { Route as MarchandiseProduitsRouteImport } from './routes/marchandise/produits'
@@ -104,6 +106,16 @@ const InscriptionRoute = InscriptionRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MotDePasseOublieRoute = MotDePasseOublieRouteImport.update({
+  id: '/mot-de-passe-oublie',
+  path: '/mot-de-passe-oublie',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReinitialiserMotDePasseRoute = ReinitialiserMotDePasseRouteImport.update({
+  id: '/reinitialiser-mot-de-passe',
+  path: '/reinitialiser-mot-de-passe',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedEnCoursRoute = AuthenticatedEnCoursRouteImport.update({
@@ -545,6 +557,8 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/inscription': typeof InscriptionRoute
   '/login': typeof LoginRoute
+  '/mot-de-passe-oublie': typeof MotDePasseOublieRoute
+  '/reinitialiser-mot-de-passe': typeof ReinitialiserMotDePasseRoute
   '/en-cours': typeof AuthenticatedEnCoursRoute
   '/home': typeof AuthenticatedHomeRoute
   '/marchandise/produits': typeof MarchandiseProduitsRoute
@@ -623,6 +637,8 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/inscription': typeof InscriptionRoute
   '/login': typeof LoginRoute
+  '/mot-de-passe-oublie': typeof MotDePasseOublieRoute
+  '/reinitialiser-mot-de-passe': typeof ReinitialiserMotDePasseRoute
   '/en-cours': typeof AuthenticatedEnCoursRoute
   '/home': typeof AuthenticatedHomeRoute
   '/marchandise/produits': typeof AuthenticatedMarchandiseProduitsIndexRoute
@@ -701,6 +717,8 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/inscription': typeof InscriptionRoute
   '/login': typeof LoginRoute
+  '/mot-de-passe-oublie': typeof MotDePasseOublieRoute
+  '/reinitialiser-mot-de-passe': typeof ReinitialiserMotDePasseRoute
   '/_authenticated/en-cours': typeof AuthenticatedEnCoursRoute
   '/_authenticated/home': typeof AuthenticatedHomeRoute
   '/marchandise/produits': typeof MarchandiseProduitsRoute
@@ -781,6 +799,8 @@ export interface FileRouteTypes {
     | '/'
     | '/inscription'
     | '/login'
+    | '/mot-de-passe-oublie'
+    | '/reinitialiser-mot-de-passe'
     | '/en-cours'
     | '/home'
     | '/marchandise/produits'
@@ -859,6 +879,8 @@ export interface FileRouteTypes {
     | '/'
     | '/inscription'
     | '/login'
+    | '/mot-de-passe-oublie'
+    | '/reinitialiser-mot-de-passe'
     | '/en-cours'
     | '/home'
     | '/marchandise/produits'
@@ -936,6 +958,8 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/inscription'
     | '/login'
+    | '/mot-de-passe-oublie'
+    | '/reinitialiser-mot-de-passe'
     | '/_authenticated/en-cours'
     | '/_authenticated/home'
     | '/marchandise/produits'
@@ -1016,6 +1040,8 @@ export interface RootRouteChildren {
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   InscriptionRoute: typeof InscriptionRoute
   LoginRoute: typeof LoginRoute
+  MotDePasseOublieRoute: typeof MotDePasseOublieRoute
+  ReinitialiserMotDePasseRoute: typeof ReinitialiserMotDePasseRoute
   MarchandiseProduitsRoute: typeof MarchandiseProduitsRoute
   RestaurantPlatsRoute: typeof RestaurantPlatsRoute
 }
@@ -1048,6 +1074,20 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mot-de-passe-oublie': {
+      id: '/mot-de-passe-oublie'
+      path: '/mot-de-passe-oublie'
+      fullPath: '/mot-de-passe-oublie'
+      preLoaderRoute: typeof MotDePasseOublieRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reinitialiser-mot-de-passe': {
+      id: '/reinitialiser-mot-de-passe'
+      path: '/reinitialiser-mot-de-passe'
+      fullPath: '/reinitialiser-mot-de-passe'
+      preLoaderRoute: typeof ReinitialiserMotDePasseRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/en-cours': {
@@ -1773,6 +1813,8 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   InscriptionRoute: InscriptionRoute,
   LoginRoute: LoginRoute,
+  MotDePasseOublieRoute: MotDePasseOublieRoute,
+  ReinitialiserMotDePasseRoute: ReinitialiserMotDePasseRoute,
   MarchandiseProduitsRoute: MarchandiseProduitsRoute,
   RestaurantPlatsRoute: RestaurantPlatsRoute,
 }

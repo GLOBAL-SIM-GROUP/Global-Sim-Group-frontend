@@ -4,12 +4,13 @@ import { useState } from "react";
 import { InputField, type InputFieldProps } from "./input-field";
 
 /** Champ mot de passe avec bascule d'affichage (oeil). */
-type PasswordInputProps = Omit<
-	InputFieldProps,
-	"type" | "autoComplete" | "trailing"
->;
+type PasswordInputProps = Omit<InputFieldProps, "type" | "trailing">;
 
-function PasswordInput({ label, ...props }: PasswordInputProps) {
+function PasswordInput({
+	label,
+	autoComplete = "current-password",
+	...props
+}: PasswordInputProps) {
 	const [visible, setVisible] = useState(false);
 
 	return (
@@ -17,7 +18,7 @@ function PasswordInput({ label, ...props }: PasswordInputProps) {
 			{...props}
 			label={label}
 			type={visible ? "text" : "password"}
-			autoComplete="current-password"
+			autoComplete={autoComplete}
 			trailing={
 				<button
 					type="button"

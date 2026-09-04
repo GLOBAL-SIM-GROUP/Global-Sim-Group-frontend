@@ -44,9 +44,16 @@ export interface ApiClient {
 /**
  * Chemins qui n'exigent jamais de bearer. Le spec déclare (à tort) `login`
  * comme protégé par JWT ; le wrapper ne doit pas attacher de token sur ces
- * endpoints, sinon le login casse.
+ * endpoints, sinon le login casse. `mot-de-passe-oublie`/`reinitialiser-mot-
+ * de-passe` sont de vraies routes publiques (accessibles sans être connecté) :
+ * même raison, ne jamais y attacher de bearer ni déclencher de refresh/retry.
  */
-const NO_AUTH_PATHS = ["/api/v1/auth/login", "/api/v1/auth/refresh"];
+const NO_AUTH_PATHS = [
+	"/api/v1/auth/login",
+	"/api/v1/auth/refresh",
+	"/api/v1/auth/mot-de-passe-oublie",
+	"/api/v1/auth/reinitialiser-mot-de-passe",
+];
 
 const DEFAULT_TIMEOUT_MS = 15_000;
 
