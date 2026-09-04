@@ -40,6 +40,7 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 			// plein écran — ces balises sont le seul moyen d'obtenir un
 			// comportement d'app installée (via « Sur l'écran d'accueil »).
 			{ name: "apple-mobile-web-app-capable", content: "yes" },
+			{ name: "mobile-web-app-capable", content: "yes" },
 			{
 				name: "apple-mobile-web-app-status-bar-style",
 				content: "black-translucent",
