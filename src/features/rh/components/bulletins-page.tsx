@@ -1,6 +1,6 @@
 import { useForm } from "@tanstack/react-form";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Check, Loader2, Plus, X } from "lucide-react";
+import { Check, Loader2, Plus, Printer, X } from "lucide-react";
 import { Dialog } from "radix-ui";
 import { useState } from "react";
 
@@ -21,8 +21,10 @@ import { ConfirmDialog } from "#/features/residence/components/confirm-dialog";
 import { useMoyensPaiement } from "#/features/residence/hooks/use-moyens-paiement";
 import { formatMontantFCFA } from "#/features/residence/models/format";
 import { PaiementDialog } from "#/features/salle-fete/components/paiement-dialog";
+import { imprimerPdfBlob } from "#/lib/print-pdf";
 import { cn } from "#/lib/utils";
 
+import { telechargerPaiePdf } from "../api/paies";
 import { useEmployes } from "../hooks/use-employes";
 import {
 	useAnnulerPaie,
@@ -251,6 +253,10 @@ export function BulletinsPage({
 	const [formOuvert, setFormOuvert] = useState(false);
 	const [aPayer, setAPayer] = useState<Paie | null>(null);
 	const [aAnnuler, setAAnnuler] = useState<Paie | null>(null);
+	const [impressionEnCours, setImpressionEnCours] = useState<string | null>(
+		null,
+	);
+	const [erreurImpression, setErreurImpression] = useState<string | null>(null);
 
 	const paiesQuery = usePaies();
 	const employesQuery = useEmployes();
@@ -260,6 +266,20 @@ export function BulletinsPage({
 	const annulerMutation = useAnnulerPaie();
 
 	const employes = employesQuery.data ?? [];
+
+	const imprimerPdf = async (id: string) => {
+		setErreurImpression(null);
+		setImpressionEnCours(id);
+		try {
+			const blob = await telechargerPaiePdf(id);
+			imprimerPdfBlob(blob);
+		} catch (error) {
+			setErreurImpression("Impossible d'imprimer le bulletin.");
+			console.error("Erreur impression bulletin PDF", error);
+		} finally {
+			setImpressionEnCours(null);
+		}
+	};
 
 	const changerFiltre = (patch: {
 		employe?: string;
@@ -349,6 +369,15 @@ export function BulletinsPage({
 					</SelectContent>
 				</Select>
 			</div>
+
+			{erreurImpression ? (
+				<div
+					role="alert"
+					className="rounded-md border border-destructive/40 bg-destructive/10 px-4 py-2 text-sm text-destructive"
+				>
+					{erreurImpression}
+				</div>
+			) : null}
 
 			{paiesQuery.isLoading ? (
 				<p className="text-sm text-muted-foreground">Chargement…</p>
@@ -445,6 +474,23 @@ export function BulletinsPage({
 									</td>
 									<td className="relative z-10 px-4 py-3">
 										<div className="flex items-center justify-end gap-1">
+											<Button
+												variant="ghost"
+												size="icon-sm"
+												title="Imprimer le PDF"
+												disabled={impressionEnCours === paie.id}
+												onClick={() => void imprimerPdf(paie.id)}
+											>
+												{impressionEnCours === paie.id ? (
+													<Loader2
+														className="size-4 animate-spin"
+														aria-hidden
+													/>
+												) : (
+													<Printer className="size-4" aria-hidden />
+												)}
+												<span className="sr-only">Imprimer le PDF</span>
+											</Button>
 											{canCreer && paie.statut === "CALCULEE" ? (
 												<Button
 													variant="ghost"
