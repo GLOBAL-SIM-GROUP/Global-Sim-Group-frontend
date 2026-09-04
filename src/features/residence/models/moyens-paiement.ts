@@ -7,3 +7,10 @@ export interface MoyenPaiement {
 	libelle: string;
 	actif: boolean;
 }
+
+/** Moyens de paiement proposables pour une nouvelle opération (inactifs exclus). */
+export function moyensActifs(
+	moyens: readonly MoyenPaiement[],
+): MoyenPaiement[] {
+	return moyens.filter((moyen) => moyen.actif);
+}
