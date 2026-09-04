@@ -13,8 +13,10 @@ interface ProduitFormDialogProps {
 	produit: Produit | null;
 	categories: CategorieProduit[];
 	fournisseurs: Fournisseur[];
+	/** Code-barres à pré-remplir (création à la volée depuis un scan). */
+	codeBarrePrefill?: string;
 	onOpenChange: (open: boolean) => void;
-	onSaved: () => void;
+	onSaved: (produit: Produit) => void;
 }
 
 /**
@@ -26,6 +28,7 @@ export function ProduitFormDialog({
 	produit,
 	categories,
 	fournisseurs,
+	codeBarrePrefill,
 	onOpenChange,
 	onSaved,
 }: ProduitFormDialogProps) {
@@ -46,6 +49,7 @@ export function ProduitFormDialog({
 							produit={produit}
 							categories={categories}
 							fournisseurs={fournisseurs}
+							codeBarrePrefill={codeBarrePrefill}
 							onCancel={() => onOpenChange(false)}
 							onSaved={onSaved}
 						/>

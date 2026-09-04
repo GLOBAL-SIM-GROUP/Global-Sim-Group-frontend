@@ -99,8 +99,14 @@ export interface ProduitBody {
 	codeBarre?: string | null;
 }
 
-/** Crée un produit (POST `CreerProduitDto` — date d'entrée auto backend). */
-export function creerProduit(body: ProduitBody): Promise<unknown> {
+/**
+ * Crée un produit (POST `CreerProduitDto` — date d'entrée auto backend). Le
+ * spec ne documente pas la réponse mais le backend réel renvoie le produit
+ * créé en entier (vérifié en direct, 2026-09-04) — nécessaire pour l'ajouter
+ * immédiatement à un panier de vente en cours (création à la volée sur un
+ * scan sans correspondance, cf. `vente-form.tsx`).
+ */
+export function creerProduit(body: ProduitBody): Promise<Produit> {
 	const corps = {
 		reference: body.reference,
 		nom: body.nom,
@@ -133,10 +139,12 @@ export function creerProduit(body: ProduitBody): Promise<unknown> {
 		image_url?: string | null;
 		code_barre?: string | null;
 	};
-	return getApiClient().apiFetch("/api/v1/market/produits", {
-		method: "POST",
-		body: JSON.stringify(corps),
-	});
+	return getApiClient()
+		.apiFetch<ProduitWire>("/api/v1/market/produits", {
+			method: "POST",
+			body: JSON.stringify(corps),
+		})
+		.then(({ id_produit: id, ...reste }) => ({ id, ...reste }));
 }
 
 /** Modifie un produit (PATCH `MajProduitDto`). */

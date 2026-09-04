@@ -59,8 +59,20 @@ interface ProduitFormProps {
 	produit: Produit | null;
 	categories: CategorieProduit[];
 	fournisseurs: Fournisseur[];
+	/**
+	 * Code-barres à pré-remplir (création à la volée depuis un scan sans
+	 * correspondance, cf. `vente-form.tsx`). Ignoré en édition (le code du
+	 * produit existant prévaut).
+	 */
+	codeBarrePrefill?: string;
 	onCancel: () => void;
-	onSaved: () => void;
+	/**
+	 * Appelé après enregistrement avec le produit résultant — en édition,
+	 * c'est le produit passé en prop (la réponse du PATCH n'est pas typée) ;
+	 * en création, c'est le produit réellement créé (id inclus), nécessaire
+	 * pour l'ajouter immédiatement à un panier en cours.
+	 */
+	onSaved: (produit: Produit) => void;
 }
 
 /** Champ Select avec label visible (le contenu s'ouvre en portal). */
@@ -99,6 +111,7 @@ export function ProduitForm({
 	produit,
 	categories,
 	fournisseurs,
+	codeBarrePrefill,
 	onCancel,
 	onSaved,
 }: ProduitFormProps) {
@@ -120,7 +133,7 @@ export function ProduitForm({
 			idFournisseur: produit?.id_fournisseur ?? "",
 			actif: produit?.actif ?? true,
 			imageUrl: produit?.image_url ?? "",
-			codeBarre: produit?.code_barre ?? "",
+			codeBarre: produit?.code_barre ?? codeBarrePrefill ?? "",
 		},
 		validators: {
 			onSubmit: ({ value }) => {
@@ -144,6 +157,15 @@ export function ProduitForm({
 				) {
 					fields.seuilAlerte = "Le seuil doit être un nombre.";
 				}
+				if (
+					value.codeBarre.trim() &&
+					!/^\d{6,32}$/.test(value.codeBarre.trim())
+				) {
+					// Contrainte backend exacte (vérifiée en direct) : uniquement des
+					// chiffres, 6 à 32 caractères — jamais documentée dans le spec.
+					fields.codeBarre =
+						"Le code-barres doit contenir entre 6 et 32 chiffres.";
+				}
 				return { fields };
 			},
 		},
@@ -165,10 +187,11 @@ export function ProduitForm({
 				};
 				if (produit) {
 					await editMutation.mutateAsync({ id: produit.id, ...corps });
+					onSaved(produit);
 				} else {
-					await createMutation.mutateAsync(corps);
+					const produitCree = await createMutation.mutateAsync(corps);
+					onSaved(produitCree);
 				}
-				onSaved();
 			} catch (error) {
 				// Erreurs de validation backend → champ par champ (details[].property).
 				let mappedFields = 0;

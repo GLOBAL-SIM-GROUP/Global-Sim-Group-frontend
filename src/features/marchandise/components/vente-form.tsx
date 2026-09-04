@@ -16,9 +16,11 @@ import { ClientRechercheField } from "#/features/residence/components/client-rec
 import { formatMontantFCFA } from "#/features/residence/models/format";
 import type { MoyenPaiement } from "#/features/residence/models/moyens-paiement";
 
+import { useCategoriesProduits, useFournisseurs } from "../hooks/use-produits";
 import { useCreerVente } from "../hooks/use-ventes";
 import type { Produit } from "../models/produits";
 import { BarcodeScanInput } from "./barcode-scan-input";
+import { ProduitFormDialog } from "./produit-form-dialog";
 
 interface VenteFormProps {
 	produits: Produit[];
@@ -47,6 +49,8 @@ export function VenteForm({
 	onSaved,
 }: VenteFormProps) {
 	const mutation = useCreerVente();
+	const categoriesQuery = useCategoriesProduits();
+	const fournisseursQuery = useFournisseurs();
 	const [globalError, setGlobalError] = useState<string | null>(null);
 	const [idClient, setIdClient] = useState("");
 	const [lignes, setLignes] = useState<LigneSaisie[]>([
@@ -55,7 +59,9 @@ export function VenteForm({
 	const [prochaineCle, setProchaineCle] = useState(1);
 	const [remise, setRemise] = useState("");
 	const [idMoyen, setIdMoyen] = useState("");
-	const [erreurScan, setErreurScan] = useState<string | null>(null);
+	// Code scanné sans correspondance : ouvre la création de produit à la
+	// volée (pré-remplie), sans quitter la vente en cours.
+	const [codeACreer, setCodeACreer] = useState<string | null>(null);
 
 	const ajouterLigne = () => {
 		setLignes((current) => [
@@ -84,7 +90,6 @@ export function VenteForm({
 	 * concurrence possible entre la lecture et cet appel.
 	 */
 	const onScanResolu = (produit: Produit) => {
-		setErreurScan(null);
 		const existante = lignes.find((ligne) => ligne.idProduit === produit.id);
 		if (existante) {
 			const quantiteActuelle = Number(existante.quantite) || 0;
@@ -181,15 +186,8 @@ export function VenteForm({
 			<BarcodeScanInput
 				label="Scanner un produit"
 				onResolu={onScanResolu}
-				onIntrouvable={(code) =>
-					setErreurScan(`Aucun produit pour le code « ${code} ».`)
-				}
+				onIntrouvable={(code) => setCodeACreer(code)}
 			/>
-			{erreurScan ? (
-				<p role="alert" className="text-sm text-destructive">
-					{erreurScan}
-				</p>
-			) : null}
 
 			<div className="space-y-3">
 				<div className="flex items-center justify-between">
@@ -308,6 +306,21 @@ export function VenteForm({
 					{mutation.isPending ? "Enregistrement…" : "Valider la vente"}
 				</Button>
 			</div>
+
+			<ProduitFormDialog
+				open={codeACreer !== null}
+				produit={null}
+				categories={categoriesQuery.data ?? []}
+				fournisseurs={fournisseursQuery.data ?? []}
+				codeBarrePrefill={codeACreer ?? undefined}
+				onOpenChange={(ouvert) => {
+					if (!ouvert) setCodeACreer(null);
+				}}
+				onSaved={(produit) => {
+					setCodeACreer(null);
+					onScanResolu(produit);
+				}}
+			/>
 		</form>
 	);
 }
