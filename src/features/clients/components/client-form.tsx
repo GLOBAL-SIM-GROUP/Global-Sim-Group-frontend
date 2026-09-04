@@ -84,14 +84,17 @@ function pieceEstRenseignee(piece: PieceDraft): boolean {
 	);
 }
 
-/** Contact « touché » : au moins un champ saisi. */
+/**
+ * Contact « touché » : au moins un champ saisi — `telSecondaire` exclu
+ * exprès : c'est un champ purement optionnel, le remplir seul ne doit pas
+ * déclencher l'exigence du reste de la section (nom/lien/téléphone principal).
+ */
 function contactEstRenseigne(contact: ContactDraft): boolean {
 	return (
 		contact.nom.trim() !== "" ||
 		contact.prenom.trim() !== "" ||
 		contact.lien.trim() !== "" ||
 		contact.telPrincipal.trim() !== "" ||
-		contact.telSecondaire.trim() !== "" ||
 		contact.adresse.trim() !== "" ||
 		contact.email.trim() !== ""
 	);
@@ -106,6 +109,12 @@ interface ClientFormProps {
 	 * d'origine. Ignoré en édition (le type reste modifiable comme avant).
 	 */
 	typeClientCree?: TypeClient;
+	/**
+	 * Rendu inline dans un autre formulaire (ex. création d'un locataire depuis
+	 * le formulaire de contrat) : rend un `<div>` au lieu d'un `<form>` pour
+	 * éviter un `<form>` imbriqué (HTML invalide → erreur d'hydratation).
+	 */
+	embedded?: boolean;
 	onCancel: () => void;
 	/**
 	 * Appelé après un enregistrement réussi avec l'id (et le nom complet) du
@@ -132,6 +141,7 @@ interface ClientFormProps {
 export function ClientForm({
 	client,
 	typeClientCree,
+	embedded = false,
 	onCancel,
 	onSaved,
 }: ClientFormProps) {
@@ -349,14 +359,20 @@ export function ClientForm({
 		enregistrementAnnexes ||
 		uploadingPhoto;
 
+	const Wrapper = (embedded ? "div" : "form") as React.ElementType;
+
 	return (
-		<form
+		<Wrapper
 			className="space-y-4"
-			onSubmit={(event) => {
-				event.preventDefault();
-				event.stopPropagation();
-				void form.handleSubmit();
-			}}
+			{...(embedded
+				? {}
+				: {
+						onSubmit: (event: React.FormEvent<HTMLFormElement>) => {
+							event.preventDefault();
+							event.stopPropagation();
+							void form.handleSubmit();
+						},
+					})}
 		>
 			<ChampPhoto
 				cle={photo}
@@ -651,14 +667,18 @@ export function ClientForm({
 				>
 					Annuler
 				</Button>
-				<Button type="submit" disabled={busy}>
+				<Button
+					type={embedded ? "button" : "submit"}
+					onClick={embedded ? () => void form.handleSubmit() : undefined}
+					disabled={busy}
+				>
 					{busy ? (
 						<Loader2 className="size-4 animate-spin" aria-hidden />
 					) : null}
 					Enregistrer
 				</Button>
 			</div>
-		</form>
+		</Wrapper>
 	);
 }
 

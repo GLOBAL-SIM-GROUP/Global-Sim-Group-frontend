@@ -34,6 +34,12 @@ interface ClientRechercheFieldProps {
 	 * un client de passage au pressing/restaurant/boutique.
 	 */
 	creationLocataireComplete?: boolean;
+	/**
+	 * Notifie le formulaire parent quand le formulaire de création inline
+	 * s'ouvre/se ferme, pour qu'il puisse masquer ses propres boutons
+	 * « Enregistrer » / « Annuler » (évite deux paires de boutons visibles).
+	 */
+	onCreationOuverteChange?: (ouverte: boolean) => void;
 }
 
 /**
@@ -46,6 +52,7 @@ export function ClientRechercheField({
 	value,
 	onChange,
 	creationLocataireComplete = false,
+	onCreationOuverteChange,
 }: ClientRechercheFieldProps) {
 	const [terme, setTerme] = useState("");
 	const termeDebounced = useDebouncedValue(terme, 300);
@@ -55,6 +62,10 @@ export function ClientRechercheField({
 		label: string;
 	} | null>(null);
 	const [creationOuverte, setCreationOuverte] = useState(false);
+
+	useEffect(() => {
+		onCreationOuverteChange?.(creationOuverte);
+	}, [creationOuverte, onCreationOuverteChange]);
 
 	if (selectionne) {
 		return (
@@ -142,6 +153,7 @@ export function ClientRechercheField({
 						<ClientForm
 							client={null}
 							typeClientCree="LOCATAIRE"
+							embedded
 							onCancel={() => setCreationOuverte(false)}
 							onSaved={(id, label) => {
 								if (!id) return;

@@ -117,6 +117,7 @@ export function SejourForm({
 	const createMutation = useCreerSejour();
 	const editMutation = useModifierSejour();
 	const [globalError, setGlobalError] = useState<string | null>(null);
+	const [creationClientOuverte, setCreationClientOuverte] = useState(false);
 
 	const form = useForm({
 		defaultValues: {
@@ -237,6 +238,7 @@ export function SejourForm({
 							<ClientRechercheField
 								value={field.state.value}
 								onChange={(id) => field.handleChange(id)}
+								onCreationOuverteChange={setCreationClientOuverte}
 							/>
 						)}
 					</form.Field>
@@ -350,26 +352,28 @@ export function SejourForm({
 				</p>
 			) : null}
 
-			<form.Subscribe selector={(state) => state.isSubmitting}>
-				{(isSubmitting) => (
-					<div className="flex items-center justify-end gap-2 pt-2">
-						<Button
-							type="button"
-							variant="ghost"
-							disabled={isSubmitting}
-							onClick={onCancel}
-						>
-							Annuler
-						</Button>
-						<Button type="submit" disabled={isSubmitting}>
-							{isSubmitting ? (
-								<Loader2 className="size-4 animate-spin" aria-hidden />
-							) : null}
-							{isSubmitting ? "Enregistrement…" : "Enregistrer"}
-						</Button>
-					</div>
-				)}
-			</form.Subscribe>
+			{!creationClientOuverte ? (
+				<form.Subscribe selector={(state) => state.isSubmitting}>
+					{(isSubmitting) => (
+						<div className="flex items-center justify-end gap-2 pt-2">
+							<Button
+								type="button"
+								variant="ghost"
+								disabled={isSubmitting}
+								onClick={onCancel}
+							>
+								Annuler
+							</Button>
+							<Button type="submit" disabled={isSubmitting}>
+								{isSubmitting ? (
+									<Loader2 className="size-4 animate-spin" aria-hidden />
+								) : null}
+								{isSubmitting ? "Enregistrement…" : "Enregistrer"}
+							</Button>
+						</div>
+					)}
+				</form.Subscribe>
+			) : null}
 		</form>
 	);
 }
