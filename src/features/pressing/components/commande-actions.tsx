@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { CheckCheck, Eye, HandCoins, Pencil, RefreshCw } from "lucide-react";
 
 import { Button } from "#/components/ui/button";
+import { DownloadReceiptIconButton } from "#/features/facturation/components/download-receipt-icon-button";
 
 import type { CommandePressing } from "../models/commandes";
 
@@ -47,6 +48,13 @@ export function CommandeActions({
 					<span className="sr-only">Voir la fiche</span>
 				</Link>
 			</Button>
+
+			<DownloadReceiptIconButton
+				sourceType="COMMANDE_PRESSING"
+				idClient={commande.id_client}
+				montantTotal={commande.montant_total}
+				isPaid={Number(commande.reste_a_payer) === 0}
+			/>
 
 			{canModifier ? (
 				<>
