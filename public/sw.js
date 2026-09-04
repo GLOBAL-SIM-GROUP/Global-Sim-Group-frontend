@@ -39,12 +39,24 @@ self.addEventListener("activate", (event) => {
 self.addEventListener("fetch", (event) => {
 	const { request } = event;
 
-	// Jamais d'interception pour l'API — toujours le réseau.
-	if (request.method !== "GET" || request.url.includes("/api/")) return;
+	// Jamais d'interception pour l'API ni pour Socket.IO — toujours le réseau.
+	if (
+		request.method !== "GET" ||
+		request.url.includes("/api/") ||
+		request.url.includes("/socket.io/")
+	) {
+		return;
+	}
 
 	// Réseau d'abord ; secours cache uniquement si hors-ligne (best-effort,
 	// ne couvre que ce qui a été explicitement mis en cache ci-dessus).
 	event.respondWith(
-		fetch(request).catch(() => caches.match(request)),
+		fetch(request).catch(async () => {
+			const cached = await caches.match(request);
+			// `caches.match` résout à `undefined` en cas de cache miss : il faut
+			// toujours renvoyer une Response valide, sinon `respondWith` lève
+			// « Failed to convert value to 'Response' ».
+			return cached ?? Response.error();
+		}),
 	);
 });
