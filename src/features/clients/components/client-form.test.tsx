@@ -80,7 +80,7 @@ async function remplirChampsObligatoires(
 	user: ReturnType<typeof userEvent.setup>,
 ) {
 	await user.type(screen.getByLabelText("Nom"), "Kouassi");
-	await user.type(screen.getByLabelText("Prénom(s)"), "Awa");
+	await user.type(screen.getByLabelText("Prénom(s) (optionnel)"), "Awa");
 	await user.type(screen.getByLabelText("Téléphone principal"), "0700000000");
 	fireEvent.change(screen.getByLabelText("Date de naissance"), {
 		target: { value: "1990-01-01" },
@@ -161,6 +161,18 @@ describe("ClientForm — pièce d'identité et contact d'urgence", () => {
 		expect(mutateAsyncPiece).not.toHaveBeenCalled();
 		expect(mutateAsyncContact).not.toHaveBeenCalled();
 		expect(onSaved).toHaveBeenCalledWith("42", "Kouassi Awa");
+	});
+
+	it("crée le client sans prénom (champ optionnel)", async () => {
+		const user = userEvent.setup();
+		const { onSaved } = renderCreation();
+		await remplirChampsObligatoires(user);
+		await user.clear(screen.getByLabelText("Prénom(s) (optionnel)"));
+
+		await user.click(screen.getByRole("button", { name: "Enregistrer" }));
+
+		await vi.waitFor(() => expect(mutateAsyncClient).toHaveBeenCalledTimes(1));
+		expect(onSaved).toHaveBeenCalledWith("42", "Kouassi");
 	});
 
 	it("bloque la soumission si le numéro de la pièce est manquant alors que la section est renseignée", async () => {

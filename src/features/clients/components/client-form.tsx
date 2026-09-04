@@ -177,7 +177,6 @@ export function ClientForm({
 			onSubmit: ({ value }) => {
 				const fields: Partial<Record<string, string>> = {};
 				if (!value.nom.trim()) fields.nom = "Ce champ est requis.";
-				if (!value.prenoms.trim()) fields.prenoms = "Ce champ est requis.";
 				if (!value.telPrincipal.trim())
 					fields.telPrincipal = "Ce champ est requis.";
 				if (!value.typeClient) fields.typeClient = "Sélectionnez un type.";
@@ -385,7 +384,7 @@ export function ClientForm({
 						<InputField
 							id={field.name}
 							name={field.name}
-							label="Prénom(s)"
+							label="Prénom(s) (optionnel)"
 							value={field.state.value}
 							onBlur={field.handleBlur}
 							onChange={(event) => field.handleChange(event.target.value)}

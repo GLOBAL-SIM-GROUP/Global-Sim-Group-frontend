@@ -70,7 +70,6 @@ export function EmployeFormDialog({
 			onSubmit: ({ value }) => {
 				const fields: Partial<Record<string, string>> = {};
 				if (!value.nom.trim()) fields.nom = "Ce champ est requis.";
-				if (!value.prenom.trim()) fields.prenom = "Ce champ est requis.";
 				if (!value.fonction.trim()) fields.fonction = "Ce champ est requis.";
 				if (!value.dateEmbauche) fields.dateEmbauche = "Ce champ est requis.";
 				if (!value.typeContrat) fields.typeContrat = "Ce champ est requis.";
@@ -153,7 +152,7 @@ export function EmployeFormDialog({
 									<InputField
 										id={field.name}
 										name={field.name}
-										label="Prénom"
+										label="Prénom (optionnel)"
 										value={field.state.value}
 										onBlur={field.handleBlur}
 										onChange={(event) => field.handleChange(event.target.value)}
