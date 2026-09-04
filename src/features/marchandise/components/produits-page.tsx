@@ -21,6 +21,7 @@ import {
 } from "../models/produits";
 import { PRODUITS_PAGE_SIZE } from "../permissions";
 import { ProduitCardsGrid } from "./produit-cards-grid";
+import { ProduitCodeBarreDialog } from "./produit-code-barre-dialog";
 import { ProduitFilters } from "./produit-filters";
 import { ProduitFormDialog } from "./produit-form-dialog";
 
@@ -65,6 +66,9 @@ export function ProduitsPage({
 	const [page, setPage] = useState(initialSearch.page ?? 1);
 	const [formOuvert, setFormOuvert] = useState(false);
 	const [aModifier, setAModifier] = useState<Produit | null>(null);
+	const [codeBarreProduit, setCodeBarreProduit] = useState<Produit | null>(
+		null,
+	);
 
 	const produitsQuery = useProduits({
 		search,
@@ -216,6 +220,7 @@ export function ProduitsPage({
 					categories={categoriesQuery.data ?? []}
 					fournisseurs={fournisseursQuery.data ?? []}
 					onEdit={(produit) => setAModifier(produit)}
+					onCodeBarre={(produit) => setCodeBarreProduit(produit)}
 				/>
 			)}
 
@@ -258,6 +263,14 @@ export function ProduitsPage({
 					if (!ouvert) fermerFormulaire();
 				}}
 				onSaved={fermerFormulaire}
+			/>
+
+			<ProduitCodeBarreDialog
+				open={codeBarreProduit !== null}
+				produit={codeBarreProduit}
+				onOpenChange={(ouvert) => {
+					if (!ouvert) setCodeBarreProduit(null);
+				}}
 			/>
 		</div>
 	);

@@ -16,6 +16,8 @@ export interface Produit {
 	date_entree: string | null;
 	actif: boolean;
 	image_url?: string | null;
+	/** EAN-13 fabricant (scanné sur l'emballage) ou interne (généré, préfixe GS1 20). */
+	code_barre: string | null;
 }
 
 /** Catégorie de produit (GET /market/categories-produits). */

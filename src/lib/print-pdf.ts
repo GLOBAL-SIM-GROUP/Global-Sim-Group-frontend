@@ -47,3 +47,12 @@ export function imprimerPdfBlob(blob: Blob): void {
 export function imprimerPdfOctets(octets: Uint8Array<ArrayBuffer>): void {
 	imprimerPdfBlob(new Blob([octets], { type: "application/pdf" }));
 }
+
+/**
+ * Imprime un blob image (étiquette code-barres, etc.) — même mécanique que
+ * `imprimerPdfBlob` : un navigateur affiche nativement une image chargée en
+ * `src` d'iframe, `contentWindow.print()` fonctionne donc à l'identique.
+ */
+export function imprimerImageBlob(blob: Blob): void {
+	imprimerPdfBlob(blob);
+}

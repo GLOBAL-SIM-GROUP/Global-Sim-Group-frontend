@@ -17,6 +17,7 @@ import type { MoyenPaiement } from "#/features/residence/models/moyens-paiement"
 
 import { useCreerVente } from "../hooks/use-ventes";
 import type { Produit } from "../models/produits";
+import { BarcodeScanInput } from "./barcode-scan-input";
 
 interface VenteFormProps {
 	produits: Produit[];
@@ -53,6 +54,7 @@ export function VenteForm({
 	const [prochaineCle, setProchaineCle] = useState(1);
 	const [remise, setRemise] = useState("");
 	const [idMoyen, setIdMoyen] = useState("");
+	const [erreurScan, setErreurScan] = useState<string | null>(null);
 
 	const ajouterLigne = () => {
 		setLignes((current) => [
@@ -61,12 +63,44 @@ export function VenteForm({
 		]);
 		setProchaineCle((valeur) => valeur + 1);
 	};
-	const majLigne = (index: number, patch: Partial<LigneSaisie>) =>
+	// Indexé par `cle` (pas `index`) : une ligne peut être retirée pendant
+	// qu'un scan est en cours, l'index d'une ligne existante changerait alors
+	// sous elle sans que ce cle-ci ne bouge.
+	const majLigne = (cle: number, patch: Partial<LigneSaisie>) =>
 		setLignes((current) =>
-			current.map((ligne, i) => (i === index ? { ...ligne, ...patch } : ligne)),
+			current.map((ligne) =>
+				ligne.cle === cle ? { ...ligne, ...patch } : ligne,
+			),
 		);
-	const retirerLigne = (index: number) =>
-		setLignes((current) => current.filter((_, i) => i !== index));
+	const retirerLigne = (cle: number) =>
+		setLignes((current) => current.filter((ligne) => ligne.cle !== cle));
+
+	/**
+	 * Scan résolu → produit déjà dans le panier : +1 sur sa quantité (comme un
+	 * re-scan au comptoir). Sinon, remplit la première ligne encore vide, ou en
+	 * ajoute une nouvelle. Lecture directe de `lignes`/`prochaineCle` (pas de
+	 * mise à jour fonctionnelle) : un seul scan est traité à la fois, pas de
+	 * concurrence possible entre la lecture et cet appel.
+	 */
+	const onScanResolu = (produit: Produit) => {
+		setErreurScan(null);
+		const existante = lignes.find((ligne) => ligne.idProduit === produit.id);
+		if (existante) {
+			const quantiteActuelle = Number(existante.quantite) || 0;
+			majLigne(existante.cle, { quantite: String(quantiteActuelle + 1) });
+			return;
+		}
+		const ligneVide = lignes.find((ligne) => !ligne.idProduit);
+		if (ligneVide) {
+			majLigne(ligneVide.cle, { idProduit: produit.id, quantite: "1" });
+			return;
+		}
+		setLignes((current) => [
+			...current,
+			{ cle: prochaineCle, idProduit: produit.id, quantite: "1" },
+		]);
+		setProchaineCle((valeur) => valeur + 1);
+	};
 
 	const total = useMemo(() => {
 		const brut = lignes.reduce((somme, ligne) => {
@@ -140,6 +174,19 @@ export function VenteForm({
 				</p>
 			</div>
 
+			<BarcodeScanInput
+				label="Scanner un produit"
+				onResolu={onScanResolu}
+				onIntrouvable={(code) =>
+					setErreurScan(`Aucun produit pour le code « ${code} ».`)
+				}
+			/>
+			{erreurScan ? (
+				<p role="alert" className="text-sm text-destructive">
+					{erreurScan}
+				</p>
+			) : null}
+
 			<div className="space-y-3">
 				<div className="flex items-center justify-between">
 					<Label>Produits</Label>
@@ -161,7 +208,9 @@ export function VenteForm({
 					>
 						<Select
 							value={ligne.idProduit}
-							onValueChange={(valeur) => majLigne(index, { idProduit: valeur })}
+							onValueChange={(valeur) =>
+								majLigne(ligne.cle, { idProduit: valeur })
+							}
 						>
 							<SelectTrigger aria-label={`Produit ligne ${index + 1}`}>
 								<SelectValue placeholder="Produit…" />
@@ -181,7 +230,7 @@ export function VenteForm({
 							inputMode="decimal"
 							value={ligne.quantite}
 							onChange={(event) =>
-								majLigne(index, { quantite: event.target.value })
+								majLigne(ligne.cle, { quantite: event.target.value })
 							}
 						/>
 						<Button
@@ -190,7 +239,7 @@ export function VenteForm({
 							size="icon-sm"
 							aria-label="Retirer la ligne"
 							disabled={lignes.length === 1}
-							onClick={() => retirerLigne(index)}
+							onClick={() => retirerLigne(ligne.cle)}
 						>
 							<Trash2 className="size-4 text-destructive" aria-hidden />
 						</Button>

@@ -15,6 +15,7 @@ interface ProduitCardsGridProps {
 	categories: CategorieProduit[];
 	fournisseurs: Fournisseur[];
 	onEdit: (produit: Produit) => void;
+	onCodeBarre: (produit: Produit) => void;
 }
 
 /**
@@ -26,6 +27,7 @@ export function ProduitCardsGrid({
 	categories,
 	fournisseurs,
 	onEdit,
+	onCodeBarre,
 }: ProduitCardsGridProps) {
 	if (produits.length === 0) {
 		return (
@@ -120,7 +122,11 @@ export function ProduitCardsGrid({
 							</div>
 
 							<div className="flex items-center justify-end gap-1 border-t border-border pt-3">
-								<ProduitActions produit={produit} onEdit={onEdit} />
+								<ProduitActions
+									produit={produit}
+									onEdit={onEdit}
+									onCodeBarre={onCodeBarre}
+								/>
 							</div>
 						</div>
 					</div>

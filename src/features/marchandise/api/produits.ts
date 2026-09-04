@@ -95,6 +95,8 @@ export interface ProduitBody {
 	idFournisseur?: string | null;
 	actif?: boolean;
 	imageUrl?: string | null;
+	/** Code-barres fabricant scanné à la saisie ; `null` pour ne pas en poser (génération interne possible ensuite). */
+	codeBarre?: string | null;
 }
 
 /** Crée un produit (POST `CreerProduitDto` — date d'entrée auto backend). */
@@ -110,6 +112,7 @@ export function creerProduit(body: ProduitBody): Promise<unknown> {
 		id_fournisseur: texteOuNull(body.idFournisseur),
 		actif: body.actif ?? true,
 		image_url: texteOuNull(body.imageUrl),
+		code_barre: texteOuNull(body.codeBarre),
 	} satisfies Omit<
 		CreerProduitDto,
 		| "id_categorie_produit"
@@ -117,6 +120,7 @@ export function creerProduit(body: ProduitBody): Promise<unknown> {
 		| "quantite_initiale"
 		| "seuil_alerte"
 		| "image_url"
+		| "code_barre"
 	> & {
 		/** Absent du schéma généré (même écart que `id_categorie_produit`
 		 *  etc. ci-dessus) mais bien accepté par le backend — voir GET
@@ -127,6 +131,7 @@ export function creerProduit(body: ProduitBody): Promise<unknown> {
 		quantite_initiale?: string | null;
 		seuil_alerte?: string | null;
 		image_url?: string | null;
+		code_barre?: string | null;
 	};
 	return getApiClient().apiFetch("/api/v1/market/produits", {
 		method: "POST",
@@ -149,9 +154,14 @@ export function modifierProduit(
 		id_fournisseur: texteOuNull(body.idFournisseur),
 		actif: body.actif ?? true,
 		image_url: texteOuNull(body.imageUrl),
+		code_barre: texteOuNull(body.codeBarre),
 	} satisfies Omit<
 		MajProduitDto,
-		"id_categorie_produit" | "id_fournisseur" | "seuil_alerte" | "image_url"
+		| "id_categorie_produit"
+		| "id_fournisseur"
+		| "seuil_alerte"
+		| "image_url"
+		| "code_barre"
 	> & {
 		/** Absent du schéma généré mais bien accepté par le backend — voir
 		 *  `creerProduit` ci-dessus. */
@@ -160,9 +170,51 @@ export function modifierProduit(
 		id_fournisseur?: string | null;
 		seuil_alerte?: string | null;
 		image_url?: string | null;
+		code_barre?: string | null;
 	};
 	return getApiClient().apiFetch(`/api/v1/market/produits/${id}`, {
 		method: "PATCH",
 		body: JSON.stringify(corps),
 	});
+}
+
+/**
+ * Résout un code-barres scanné vers son produit (`GET
+ * /market/produits/scan/:code_barre`). 404 explicite si aucun produit ne
+ * porte ce code — remonte comme `ApiError`, à distinguer par l'appelant
+ * (pas une liste vide : une vraie erreur « produit inconnu »).
+ */
+export function scannerProduit(codeBarre: string): Promise<Produit> {
+	return getApiClient()
+		.apiFetch<ProduitWire>(
+			`/api/v1/market/produits/scan/${encodeURIComponent(codeBarre)}`,
+		)
+		.then(({ id_produit: id, ...reste }) => ({ id, ...reste }));
+}
+
+/**
+ * Génère et pose un code-barres interne EAN-13 (POST
+ * `/market/produits/:id/code-barre`, aucun body). Refuse (400) si le produit
+ * a déjà un code — il faut d'abord le retirer via `modifierProduit({
+ * codeBarre: null })`.
+ */
+export function genererCodeBarre(id: string): Promise<Produit> {
+	return getApiClient()
+		.apiFetch<ProduitWire>(`/api/v1/market/produits/${id}/code-barre`, {
+			method: "POST",
+		})
+		.then(({ id_produit: pid, ...reste }) => ({ id: pid, ...reste }));
+}
+
+/**
+ * Image PNG de l'étiquette à imprimer (`GET
+ * /market/produits/:id/etiquette`), en URL de blob objet — un `<img src>`
+ * brut vers l'API ne fonctionnerait pas (pas d'en-tête d'autorisation) ;
+ * `download()` est le seul mécanisme du client API qui attache le Bearer
+ * token pour du binaire (même famille que `printFacturePdf`).
+ */
+export function getEtiquetteBlobUrl(id: string): Promise<string> {
+	return getApiClient()
+		.download(`/api/v1/market/produits/${id}/etiquette`)
+		.then((blob) => URL.createObjectURL(blob));
 }

@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { AlertTriangle, Plus } from "lucide-react";
+import { AlertTriangle, Plus, ScanLine } from "lucide-react";
 import { useState } from "react";
 
 import { Breadcrumb } from "#/components/ui/breadcrumb";
@@ -15,6 +15,7 @@ import {
 } from "../models/mouvements";
 import { MOUVEMENTS_PAGE_SIZE } from "../permissions";
 import { AlerteStockDialog } from "./alerte-stock-dialog";
+import { EntreeStockScanDialog } from "./entree-stock-scan-dialog";
 import { MouvementFilters } from "./mouvement-filters";
 import { MouvementFormDialog } from "./mouvement-form-dialog";
 import { MouvementTable } from "./mouvement-table";
@@ -56,6 +57,7 @@ export function MouvementsPage({
 	const [page, setPage] = useState(initialSearch.page ?? 1);
 	const [formOuvert, setFormOuvert] = useState(false);
 	const [alerteOuverte, setAlerteOuverte] = useState(false);
+	const [scanOuvert, setScanOuvert] = useState(false);
 
 	const changerFiltre = (patch: {
 		type?: MouvementTypeFiltre;
@@ -114,6 +116,17 @@ export function MouvementsPage({
 						<AlertTriangle className="size-4 text-lagoon" aria-hidden />
 						Alerte stock
 					</Button>
+					{canCreer ? (
+						<Button
+							variant="outline"
+							size="sm"
+							onClick={() => setScanOuvert(true)}
+							className="w-full sm:w-auto justify-center"
+						>
+							<ScanLine className="size-4" aria-hidden />
+							Réception par scan
+						</Button>
+					) : null}
 					{canCreer ? (
 						<Button
 							onClick={() => setFormOuvert(true)}
@@ -207,6 +220,14 @@ export function MouvementsPage({
 				onOpenChange={(ouvert) => {
 					if (!ouvert) setAlerteOuverte(false);
 				}}
+			/>
+
+			<EntreeStockScanDialog
+				open={scanOuvert}
+				onOpenChange={(ouvert) => {
+					if (!ouvert) setScanOuvert(false);
+				}}
+				onSaved={() => setScanOuvert(false)}
 			/>
 		</div>
 	);

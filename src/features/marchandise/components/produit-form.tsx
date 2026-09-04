@@ -36,7 +36,8 @@ type ProduitField =
 	| "seuilAlerte"
 	| "idFournisseur"
 	| "actif"
-	| "imageUrl";
+	| "imageUrl"
+	| "codeBarre";
 
 /** Propriétés backend (snake_case) → champs du formulaire. */
 const FIELD_PROPERTY_TO_FORM: Record<string, ProduitField> = {
@@ -50,6 +51,7 @@ const FIELD_PROPERTY_TO_FORM: Record<string, ProduitField> = {
 	id_fournisseur: "idFournisseur",
 	actif: "actif",
 	image_url: "imageUrl",
+	code_barre: "codeBarre",
 };
 
 interface ProduitFormProps {
@@ -118,6 +120,7 @@ export function ProduitForm({
 			idFournisseur: produit?.id_fournisseur ?? "",
 			actif: produit?.actif ?? true,
 			imageUrl: produit?.image_url ?? "",
+			codeBarre: produit?.code_barre ?? "",
 		},
 		validators: {
 			onSubmit: ({ value }) => {
@@ -158,6 +161,7 @@ export function ProduitForm({
 					idFournisseur: value.idFournisseur || null,
 					actif: value.actif,
 					imageUrl: value.imageUrl || null,
+					codeBarre: value.codeBarre.trim() || null,
 				};
 				if (produit) {
 					await editMutation.mutateAsync({ id: produit.id, ...corps });
@@ -328,6 +332,27 @@ export function ProduitForm({
 							value={field.state.value}
 							onBlur={field.handleBlur}
 							onChange={(event) => field.handleChange(event.target.value)}
+							error={field.state.meta.errors[0]}
+						/>
+					)}
+				</form.Field>
+
+				<form.Field name="codeBarre">
+					{(field) => (
+						<InputField
+							id={field.name}
+							name={field.name}
+							label="Code-barres (optionnel)"
+							placeholder="Scannez le code imprimé sur l'emballage, ou saisissez-le"
+							autoComplete="off"
+							value={field.state.value}
+							onBlur={field.handleBlur}
+							onChange={(event) => field.handleChange(event.target.value)}
+							onKeyDown={(event) => {
+								// Une douchette envoie `Entrée` après avoir tapé le code —
+								// on l'empêche de soumettre le formulaire prématurément.
+								if (event.key === "Enter") event.preventDefault();
+							}}
 							error={field.state.meta.errors[0]}
 						/>
 					)}

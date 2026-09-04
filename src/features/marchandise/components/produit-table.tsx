@@ -12,6 +12,7 @@ interface ProduitTableProps {
 	categories: CategorieProduit[];
 	fournisseurs: Fournisseur[];
 	onEdit: (produit: Produit) => void;
+	onCodeBarre: (produit: Produit) => void;
 }
 
 /**
@@ -23,6 +24,7 @@ export function ProduitTable({
 	categories,
 	fournisseurs,
 	onEdit,
+	onCodeBarre,
 }: ProduitTableProps) {
 	if (produits.length === 0) {
 		return (
@@ -110,7 +112,11 @@ export function ProduitTable({
 								{fournisseurParId.get(produit.id_fournisseur ?? "") ?? "—"}
 							</td>
 							<td className="px-4 py-3">
-								<ProduitActions produit={produit} onEdit={onEdit} />
+								<ProduitActions
+									produit={produit}
+									onEdit={onEdit}
+									onCodeBarre={onCodeBarre}
+								/>
 							</td>
 						</tr>
 					))}
