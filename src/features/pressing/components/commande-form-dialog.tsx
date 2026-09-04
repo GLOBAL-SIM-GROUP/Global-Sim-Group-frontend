@@ -14,6 +14,14 @@ interface CommandeFormDialogProps {
 	commande: CommandePressing | null;
 	/** Lignes actuelles (mode édition). */
 	lignesInitiales: LigneCommandePressing[];
+	/**
+	 * `true` tant que `lignesInitiales` n'est pas encore le reflet réel de la
+	 * commande à modifier (requête de détail en cours). Le formulaire n'est
+	 * monté qu'une fois les lignes chargées : `CommandeForm` ne les relit
+	 * qu'à son montage (clé = id de la commande), donc l'afficher plus tôt
+	 * figerait un panier vide pour toute la session d'édition.
+	 */
+	chargementLignes?: boolean;
 	moyens: MoyenPaiement[];
 	onOpenChange: (open: boolean) => void;
 	onSaved: () => void;
@@ -24,6 +32,7 @@ export function CommandeFormDialog({
 	open,
 	commande,
 	lignesInitiales,
+	chargementLignes,
 	moyens,
 	onOpenChange,
 	onSaved,
@@ -42,14 +51,18 @@ export function CommandeFormDialog({
 							: "Enregistrer un dépôt de vêtements (articles, prestations, acompte)."}
 					</Dialog.Description>
 					<div className="mt-4">
-						<CommandeForm
-							key={commande?.id ?? "create"}
-							commande={commande}
-							lignesInitiales={lignesInitiales}
-							moyens={moyens}
-							onCancel={() => onOpenChange(false)}
-							onSaved={onSaved}
-						/>
+						{commande && chargementLignes ? (
+							<p className="text-sm text-muted-foreground">Chargement…</p>
+						) : (
+							<CommandeForm
+								key={commande?.id ?? "create"}
+								commande={commande}
+								lignesInitiales={lignesInitiales}
+								moyens={moyens}
+								onCancel={() => onOpenChange(false)}
+								onSaved={onSaved}
+							/>
+						)}
 					</div>
 				</Dialog.Content>
 			</Dialog.Portal>

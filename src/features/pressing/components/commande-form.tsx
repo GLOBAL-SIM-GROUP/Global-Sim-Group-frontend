@@ -57,10 +57,13 @@ export function CommandeForm({
 	const editMutation = useModifierCommande();
 	const [globalError, setGlobalError] = useState<string | null>(null);
 	const [idClient, setIdClient] = useState(commande?.id_client ?? "");
-	const [lignes, setLignes] = useState<LigneSaisie[]>(
+	// `cle` dérivée de l'index de construction (pas de `ligne.id`, qui n'est
+	// pas forcément numérique) : garantit des clés 0..n-1 uniques quel que
+	// soit le contenu de `lignesInitiales`.
+	const lignesInitialesEffectives: LigneSaisie[] =
 		lignesInitiales && lignesInitiales.length > 0
-			? lignesInitiales.map((ligne) => ({
-					cle: ligne.id === "" ? 0 : Number(ligne.id),
+			? lignesInitiales.map((ligne, index) => ({
+					cle: index,
 					typeVetement: ligne.type_vetement,
 					quantite: String(ligne.quantite),
 					prestation: ligne.prestation,
@@ -74,10 +77,16 @@ export function CommandeForm({
 						prestation: "",
 						tarif: "",
 					},
-				],
+				];
+	const [lignes, setLignes] = useState<LigneSaisie[]>(
+		lignesInitialesEffectives,
 	);
+	// Dérivée de la liste effectivement posée en état (jamais de `lignesInitiales`
+	// directement) : évite qu'un tableau initial vide (ex. lignes pas encore
+	// chargées) ne fasse démarrer `prochaineCle` à 0 et entre en collision avec
+	// la ligne par défaut, elle aussi `cle: 0`.
 	const [prochaineCle, setProchaineCle] = useState(
-		lignesInitiales?.length ?? 1,
+		lignesInitialesEffectives.length,
 	);
 	const [dateRetrait, setDateRetrait] = useState(
 		commande?.date_retrait_prevue ?? "",
