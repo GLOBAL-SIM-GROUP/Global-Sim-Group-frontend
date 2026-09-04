@@ -11,6 +11,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "#/components/ui/select";
+import { getErrorMessageForCode, toApiError } from "#/core/api";
 import { ClientRechercheField } from "#/features/residence/components/client-recherche-field";
 import { formatMontantFCFA } from "#/features/residence/models/format";
 import type { MoyenPaiement } from "#/features/residence/models/moyens-paiement";
@@ -148,9 +149,12 @@ export function VenteForm({
 				paiement: { montant: String(total), idMoyen },
 			});
 			onSaved();
-		} catch {
+		} catch (error) {
+			const apiError = toApiError(error);
 			setGlobalError(
-				"Une erreur est survenue lors de l'enregistrement de la vente.",
+				getErrorMessageForCode(apiError.code) ??
+					(apiError.message ||
+						"Une erreur est survenue lors de l'enregistrement de la vente."),
 			);
 		}
 	};
