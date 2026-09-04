@@ -95,7 +95,14 @@ export function getLogement(id: string): Promise<Logement> {
 		.then(({ id_logement: lid, ...reste }) => ({ id: lid, ...reste }));
 }
 
-/** Crée un logement (POST `CreerLogementDto`). Le backend assigne le `numero`. */
+/**
+ * Crée un logement (POST `CreerLogementDto`). Le backend assigne le `numero`.
+ * `type` : le DTO généré (2026-09-04) restreint l'enum à `CHAMBRE`/`STUDIO`,
+ * mais `APPARTEMENT`/`MEUBLE` existent toujours côté modèle (logements déjà
+ * en base, filtres de la liste) — élargi comme `equipements`/`etat`, sans
+ * toucher au sélecteur du formulaire (décision produit hors de ce correctif :
+ * signalé à l'utilisateur, pas tranché ici).
+ */
 export function creerLogement(body: CreerLogementBody): Promise<unknown> {
 	const corps = {
 		type: body.type,
@@ -104,7 +111,8 @@ export function creerLogement(body: CreerLogementBody): Promise<unknown> {
 		id_batiment: body.idBatiment,
 		equipements: texteOuNull(body.equipements),
 		etat: texteOuNull(body.etat),
-	} satisfies Omit<CreerLogementDto, "equipements" | "etat"> & {
+	} satisfies Omit<CreerLogementDto, "equipements" | "etat" | "type"> & {
+		type: LogementType;
 		equipements?: string | null;
 		etat?: string | null;
 	};
@@ -127,8 +135,12 @@ export function modifierLogement(
 		id_batiment: body.idBatiment,
 		equipements: texteOuNull(body.equipements),
 		etat: texteOuNull(body.etat),
-	} satisfies Omit<MajLogementDto, "equipements" | "etat" | "numero"> & {
+	} satisfies Omit<
+		MajLogementDto,
+		"equipements" | "etat" | "numero" | "type"
+	> & {
 		numero: string;
+		type: LogementType;
 		equipements?: string | null;
 		etat?: string | null;
 	};
