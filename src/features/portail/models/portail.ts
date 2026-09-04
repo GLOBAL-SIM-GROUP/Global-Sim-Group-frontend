@@ -20,7 +20,8 @@ export interface PortailContrat {
 	date_debut: string;
 	date_fin_prevue: string | null;
 	montant_loyer: string;
-	periodicite: string;
+	/** `null` pour les contrats créés sans périodicité (champ retiré du formulaire). */
+	periodicite: string | null;
 	logement: PortailLogement;
 }
 

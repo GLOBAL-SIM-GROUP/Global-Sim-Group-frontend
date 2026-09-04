@@ -189,7 +189,10 @@ export function PortailPage() {
 							label="Montant du loyer"
 							valeur={formatMontantFCFA(contrat_en_cours.montant_loyer)}
 						/>
-						<Ligne label="Périodicité" valeur={contrat_en_cours.periodicite} />
+						<Ligne
+							label="Périodicité"
+							valeur={contrat_en_cours.periodicite ?? "—"}
+						/>
 						<Ligne
 							label="Début"
 							valeur={formatDateISO(contrat_en_cours.date_debut)}
