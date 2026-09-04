@@ -1,11 +1,7 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
+
 import { hasSessionHint } from "#/core/auth";
-import { LandingDishes } from "#/features/landing/components/landing-dishes";
-import { LandingFooter } from "#/features/landing/components/landing-footer";
-import { LandingHeader } from "#/features/landing/components/landing-header";
-import { LandingHero } from "#/features/landing/components/landing-hero";
-import { LandingProducts } from "#/features/landing/components/landing-products";
-import { LandingServices } from "#/features/landing/components/landing-services";
+import { LandingPage } from "#/features/landing/components/landing-page";
 
 export const Route = createFileRoute("/")({
 	beforeLoad: async ({ context }) => {
@@ -18,7 +14,8 @@ export const Route = createFileRoute("/")({
 			// SSR : `restore()` ne peut rien lire (pas de localStorage) — sans cet
 			// indice, un utilisateur bien connecté serait envoyé vers /login avant
 			// de revenir ici. On laisse passer (page publique, sans conséquence) ;
-			// l'hydratation client refera ce `beforeLoad` avec la vraie session.
+			// `LandingPage` refait la vraie vérification client (`beforeLoad` ne se
+			// réexécute pas à l'hydratation du tout premier rendu).
 			return;
 		}
 		throw redirect({ to: context.auth.isAuthenticated ? "/home" : "/login" });
@@ -37,18 +34,3 @@ export const Route = createFileRoute("/")({
 	}),
 	component: LandingPage,
 });
-
-export function LandingPage() {
-	return (
-		<div className="min-h-dvh flex flex-col bg-background">
-			<LandingHeader />
-			<main className="flex-1">
-				<LandingHero />
-				<LandingServices />
-				<LandingProducts />
-				<LandingDishes />
-			</main>
-			<LandingFooter />
-		</div>
-	);
-}
