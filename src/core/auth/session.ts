@@ -2,6 +2,7 @@ import {
 	type AuthMeResponse,
 	authApi,
 	createApiClient,
+	isApiError,
 	setApiClient,
 } from "#/core/api";
 import { clearSessionHint, markSessionHint } from "./session-hint";
@@ -13,6 +14,21 @@ import {
 
 /** Marges de sécurité avant l'expiration réelle de l'access token (secondes). */
 const REFRESH_MARGIN_S = 30;
+
+/** Délai avant de retenter un refresh après une erreur réseau/timeout (secondes). */
+const NETWORK_RETRY_DELAY_S = 15;
+
+/**
+ * `true` si l'échec du refresh vient d'une vraie réponse du backend (401 :
+ * refresh token expiré/révoqué — la session est réellement finie). `false`
+ * pour une erreur réseau/timeout (`status: 0`, cf. `mapperErreur` dans
+ * `http.ts`) : la requête n'a même pas atteint le serveur, le refresh token
+ * est probablement toujours valide — ne pas déconnecter l'utilisateur pour
+ * un accroc réseau passager.
+ */
+function estRefusParLeBackend(error: unknown): boolean {
+	return isApiError(error) && error.status !== 0;
+}
 
 /**
  * Nom du verrou Web Locks API (partagé par tous les onglets/PWA de même
@@ -82,8 +98,8 @@ export interface CreateAuthSessionOptions {
  * - les tokens ne sont JAMAIS loggés.
  *
  * Construit et enregistre le client API singleton (`core/api`), en injectant
- * ses dépendances (`getAccessToken`, `refresh`, `onSessionExpired`) — c'est le
- * point unique qui brise la dépendance circulaire api ↔ auth.
+ * ses dépendances (`getAccessToken`, `refresh`) — c'est le point unique qui
+ * brise la dépendance circulaire api ↔ auth.
  */
 export function createAuthSession(
 	options: CreateAuthSessionOptions = {},
@@ -126,6 +142,14 @@ export function createAuthSession(
 		refreshTimer = setTimeout(() => {
 			void refresh();
 		}, delayMs);
+	}
+
+	/** Reprogramme un refresh proche après un échec réseau/timeout (pas une vraie expiration). */
+	function scheduleNetworkRetry(): void {
+		if (refreshTimer) clearTimeout(refreshTimer);
+		refreshTimer = setTimeout(() => {
+			void refresh();
+		}, NETWORK_RETRY_DELAY_S * 1000);
 	}
 
 	function handleSessionExpired(): void {
@@ -197,8 +221,17 @@ export function createAuthSession(
 				});
 				scheduleRefresh(response.accessExpiresIn);
 				return true;
-			} catch {
-				handleSessionExpired();
+			} catch (error) {
+				if (estRefusParLeBackend(error)) {
+					// Le backend a explicitement rejeté ce refresh token (401 —
+					// expiré/révoqué/déjà consommé) : la session est réellement finie.
+					handleSessionExpired();
+				} else {
+					// Erreur réseau/timeout : la requête n'a pas atteint le backend, le
+					// refresh token est probablement toujours valide. Ne PAS déconnecter
+					// pour un accroc réseau passager — retente bientôt, tokens conservés.
+					scheduleNetworkRetry();
+				}
 				return false;
 			}
 		});
@@ -295,7 +328,6 @@ export function createAuthSession(
 		createApiClient({
 			getAccessToken: () => tokenStorage.get()?.accessToken ?? null,
 			refresh: () => session.refresh(),
-			onSessionExpired: () => session.handleSessionExpired(),
 		}),
 	);
 

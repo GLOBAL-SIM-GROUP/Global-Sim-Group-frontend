@@ -87,6 +87,82 @@ describe("createAuthSession — refresh", () => {
 	});
 });
 
+/**
+ * Un refresh qui échoue ne veut pas dire la même chose selon la cause : un
+ * vrai rejet du backend (401 — refresh token expiré/révoqué) signifie que la
+ * session est réellement finie, mais une erreur réseau/timeout ne prouve
+ * rien sur la validité du refresh token — déconnecter dans ce cas coupe
+ * l'utilisateur pour un simple accroc de connexion.
+ */
+describe("createAuthSession — échec du refresh", () => {
+	afterEach(() => {
+		vi.unstubAllGlobals();
+	});
+
+	it("ne déconnecte pas sur une erreur réseau (tokens conservés)", async () => {
+		vi.stubGlobal(
+			"fetch",
+			vi.fn(async () => {
+				throw new TypeError("Failed to fetch");
+			}),
+		);
+		let stored: StoredTokens | null = tokens;
+		const clear = vi.fn(() => {
+			stored = null;
+		});
+		const session = createAuthSession({
+			tokenStorage: {
+				get: () => stored,
+				set: (next) => {
+					stored = next;
+				},
+				clear,
+			},
+		});
+
+		expect(await session.refresh()).toBe(false);
+
+		expect(clear).not.toHaveBeenCalled();
+		expect(stored).toEqual(tokens);
+	});
+
+	it("déconnecte sur un vrai rejet du backend (401)", async () => {
+		vi.stubGlobal(
+			"fetch",
+			vi.fn(
+				async () =>
+					new Response(
+						JSON.stringify({
+							success: false,
+							statusCode: 401,
+							code: "UNAUTHORIZED",
+							message: "Refresh token invalide",
+						}),
+						{ status: 401, headers: { "content-type": "application/json" } },
+					),
+			),
+		);
+		let stored: StoredTokens | null = tokens;
+		const clear = vi.fn(() => {
+			stored = null;
+		});
+		const session = createAuthSession({
+			tokenStorage: {
+				get: () => stored,
+				set: (next) => {
+					stored = next;
+				},
+				clear,
+			},
+		});
+
+		expect(await session.refresh()).toBe(false);
+
+		expect(clear).toHaveBeenCalledTimes(1);
+		expect(stored).toBeNull();
+	});
+});
+
 describe("createAuthSession — sync inter-onglets", () => {
 	beforeEach(() => {
 		stubFetch();

@@ -12,7 +12,6 @@ describe("ApiClient HTTP methods", () => {
 		apiClient = createApiClient({
 			getAccessToken: () => "test-token",
 			refresh: async () => true,
-			onSessionExpired: vi.fn(),
 		});
 	});
 
@@ -174,7 +173,6 @@ describe("ApiClient HTTP methods", () => {
 		apiClient = createApiClient({
 			getAccessToken: () => "test-token",
 			refresh: async () => false,
-			onSessionExpired: vi.fn(),
 		});
 
 		mockFetch.mockResolvedValueOnce(

@@ -5,7 +5,7 @@ import { ApiErrorCode, isApiError } from "#/core/api/api-error";
  * Singleton QueryClient de l'application.
  *
  * Une seule instance pour tout le cycle de vie (router SSR-query, hooks,
- * devtools). Le wrapper API gère déjà le refresh 401 + `onSessionExpired()` :
+ * devtools). Le wrapper API gère déjà le refresh sur 401 (`core/api/http.ts`) :
  * les relances automatiques de TanStack Query ne doivent **pas** re-tenter les
  * erreurs d'application (4xx, validation, auth) — uniquement les erreurs
  * réseau/transitoires.

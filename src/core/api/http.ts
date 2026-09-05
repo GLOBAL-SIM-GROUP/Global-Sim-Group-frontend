@@ -9,10 +9,15 @@ import { ApiError, ApiErrorCode, buildApiError } from "./api-error";
 export interface ApiDeps {
 	/** Token d'accès courant (ou null si non authentifié). */
 	getAccessToken(): string | null;
-	/** Tente un rafraîchissement silencieux. false = session expirée. */
+	/**
+	 * Tente un rafraîchissement silencieux. `false` = pas de token valide pour
+	 * rejouer la requête (session réellement expirée, OU refresh impossible
+	 * pour l'instant — ex. erreur réseau). `refresh()` gère lui-même la purge
+	 * de la session quand elle est réellement finie (cf.
+	 * `core/auth/session.ts`) : ce wrapper n'a pas à le redécider, il n'a pas
+	 * de quoi distinguer les deux cas à partir du seul booléen.
+	 */
 	refresh(): Promise<boolean>;
-	/** Appelé quand la session est définitivement expirée (401 après refresh). */
-	onSessionExpired?(): void;
 }
 
 export interface ApiClient {
@@ -99,9 +104,11 @@ export function createApiClient(deps: ApiDeps): ApiClient {
 					const token = deps.getAccessToken();
 					if (token) headers.set("authorization", `Bearer ${token}`);
 					response = await executer();
-				} else {
-					deps.onSessionExpired?.();
 				}
+				// `refreshed === false` : la réponse 401 d'origine remonte telle
+				// quelle. `refresh()` a déjà purgé la session si elle est
+				// réellement finie ; pas de purge ici pour ne pas déconnecter
+				// l'utilisateur sur un simple échec réseau du refresh.
 			}
 			return response;
 		})();
@@ -170,9 +177,9 @@ export function createApiClient(deps: ApiDeps): ApiClient {
 					const token = deps.getAccessToken();
 					if (token) headers.set("authorization", `Bearer ${token}`);
 					response = await executer();
-				} else {
-					deps.onSessionExpired?.();
 				}
+				// Cf. `requete()` ci-dessus : pas de purge ici, `refresh()` s'en
+				// charge déjà quand la session est réellement finie.
 			}
 
 			return await unwrap<T>(response);
