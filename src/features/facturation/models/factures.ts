@@ -3,13 +3,14 @@
  * le backend réel (GET /facturation/factures et /facturation/factures/{id}).
  * Clés primaires wire `id_facture`/api/v1/`id_ligne` → `id`.
  */
-export type FactureStatut = "PAYEE" | "PARTIELLE" | "IMPAYEE";
+export type FactureStatut = "PAYEE" | "PARTIELLE" | "IMPAYEE" | "ANNULEE";
 
 /** Libellés français du statut de facture. */
 export const FACTURE_STATUT_LABELS: Record<FactureStatut, string> = {
 	PAYEE: "Payée",
 	PARTIELLE: "Partielle",
 	IMPAYEE: "Impayée",
+	ANNULEE: "Annulée",
 };
 
 /** Classes de badge (fond/texte) par statut de facture. */
@@ -17,6 +18,7 @@ export const FACTURE_STATUT_BADGE: Record<FactureStatut, string> = {
 	PAYEE: "bg-[#27AE60] text-white",
 	PARTIELLE: "bg-[#E67E22] text-white",
 	IMPAYEE: "bg-[#E74C3C] text-white",
+	ANNULEE: "bg-[#95A5A6] text-white",
 };
 
 /** Libellés français des sources de facture (libre : nouveau type = valeur brute). */
