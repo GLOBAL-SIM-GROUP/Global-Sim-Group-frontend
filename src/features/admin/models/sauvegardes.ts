@@ -16,6 +16,8 @@ export interface Sauvegarde {
 /** Configuration de la sauvegarde automatique. */
 export interface ConfigurationSauvegardes {
 	frequence: "quotidienne" | "hebdomadaire";
+	/** Heure de déclenchement, format `HH:MM`. */
+	heure: string;
 	activee: boolean;
 }
 

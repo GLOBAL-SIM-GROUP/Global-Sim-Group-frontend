@@ -31,6 +31,7 @@ export function useMajConfigurationSauvegardes() {
 	return useMutation({
 		mutationFn: (config: {
 			frequence: "quotidienne" | "hebdomadaire";
+			heure: string;
 			activee: boolean;
 		}) => majConfigurationSauvegardes(config),
 		onSuccess: () => {

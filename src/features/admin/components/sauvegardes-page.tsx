@@ -2,6 +2,7 @@ import { Save } from "lucide-react";
 
 import { Breadcrumb } from "#/components/ui/breadcrumb";
 import { Button } from "#/components/ui/button";
+import { getErrorMessageForCode, toApiError } from "#/core/api";
 import { useCan } from "#/core/auth";
 import { cn } from "#/lib/utils";
 
@@ -85,6 +86,7 @@ export function SauvegardesPage() {
 											frequence: e.target.value as
 												| "quotidienne"
 												| "hebdomadaire",
+											heure: config.heure,
 											activee: config.activee,
 										})
 									}
@@ -96,6 +98,23 @@ export function SauvegardesPage() {
 								</select>
 							</div>
 
+							<div className="flex items-center justify-between">
+								<span className="text-sm text-muted-foreground">Heure :</span>
+								<input
+									type="time"
+									value={config.heure}
+									onChange={(e) =>
+										majConfigMutation.mutate({
+											frequence: config.frequence,
+											heure: e.target.value,
+											activee: config.activee,
+										})
+									}
+									disabled={!canModifier || majConfigMutation.isPending}
+									className="rounded border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+								/>
+							</div>
+
 							<label className="flex items-center gap-2">
 								<input
 									type="checkbox"
@@ -103,6 +122,7 @@ export function SauvegardesPage() {
 									onChange={(e) =>
 										majConfigMutation.mutate({
 											frequence: config.frequence,
+											heure: config.heure,
 											activee: e.target.checked,
 										})
 									}
@@ -113,22 +133,44 @@ export function SauvegardesPage() {
 									Activer les sauvegardes automatiques
 								</span>
 							</label>
+
+							{majConfigMutation.isError ? (
+								<p
+									role="alert"
+									className="text-sm font-medium text-destructive"
+								>
+									{getErrorMessageForCode(
+										toApiError(majConfigMutation.error).code,
+									) ??
+										(toApiError(majConfigMutation.error).message ||
+											"Impossible de mettre à jour la planification.")}
+								</p>
+							) : null}
 						</div>
 					</div>
 				)}
 
 				{/* Actions manuelles */}
 				{canModifier ? (
-					<div className="flex gap-2">
-						<Button
-							onClick={() => creerMutation.mutate()}
-							disabled={creerMutation.isPending}
-						>
-							<Save className="mr-2 size-4" aria-hidden />
-							{creerMutation.isPending
-								? "Sauvegarde en cours…"
-								: "Sauvegarder maintenant"}
-						</Button>
+					<div className="space-y-2">
+						<div className="flex gap-2">
+							<Button
+								onClick={() => creerMutation.mutate()}
+								disabled={creerMutation.isPending}
+							>
+								<Save className="mr-2 size-4" aria-hidden />
+								{creerMutation.isPending
+									? "Sauvegarde en cours…"
+									: "Sauvegarder maintenant"}
+							</Button>
+						</div>
+						{creerMutation.isError ? (
+							<p role="alert" className="text-sm font-medium text-destructive">
+								{getErrorMessageForCode(toApiError(creerMutation.error).code) ??
+									(toApiError(creerMutation.error).message ||
+										"Impossible de déclencher la sauvegarde.")}
+							</p>
+						) : null}
 					</div>
 				) : null}
 
