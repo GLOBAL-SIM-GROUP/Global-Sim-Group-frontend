@@ -188,9 +188,24 @@ export function createAuthSession(
 			refreshToken: response.refreshToken,
 			refreshExpiresIn: response.refreshExpiresIn,
 		});
-		const me = await authApi.me();
-		setUser(me);
+		// Programmé avant `/auth/me` : ces tokens sont valides (le login vient de
+		// réussir) et méritent leur cycle de rotation même si `/auth/me` échoue
+		// juste en dessous (accroc réseau) — pas de raison de le retarder.
 		scheduleRefresh(response.accessExpiresIn);
+		try {
+			const me = await authApi.me();
+			setUser(me);
+		} catch (error) {
+			if (estRefusParLeBackend(error)) {
+				// Cas très improbable juste après un login réussi, mais géré par
+				// prudence : le backend rejette ces tokens fraîchement émis.
+				handleSessionExpired();
+			}
+			// Erreur réseau/timeout : tokens valides conservés (`isAuthenticated`
+			// reste false tant que `setUser` n'a pas tourné) — un prochain
+			// `restore()` (rechargement, navigation) complétera la connexion.
+			throw error;
+		}
 	}
 
 	async function doRefresh(): Promise<boolean> {
@@ -268,8 +283,15 @@ export function createAuthSession(
 					const me = await authApi.me();
 					setUser(me);
 				}
-			} catch {
-				handleSessionExpired();
+			} catch (error) {
+				if (estRefusParLeBackend(error)) {
+					// `/auth/me` rejette le token qu'on vient d'obtenir (rare, mais
+					// alors la session est bien finie).
+					handleSessionExpired();
+				}
+				// Erreur réseau/timeout : `refresh()` a déjà géré son propre cas (ne
+				// purge pas sur un accroc réseau) ; pareil ici pour /auth/me — tokens
+				// conservés, on retentera au prochain `restore()`.
 			}
 		})().finally(() => {
 			restoreInFlight = null;

@@ -163,6 +163,145 @@ describe("createAuthSession — échec du refresh", () => {
 	});
 });
 
+/**
+ * Même logique que le refresh : une erreur réseau sur /auth/me (appelé après
+ * un refresh ou un login réussi) ne doit pas non plus déconnecter — seul un
+ * vrai rejet du backend (401) le justifie.
+ */
+describe("createAuthSession — restore", () => {
+	afterEach(() => {
+		vi.unstubAllGlobals();
+	});
+
+	function stubRefreshOk(meHandler: () => Response) {
+		vi.stubGlobal(
+			"fetch",
+			vi.fn(async (input: RequestInfo | URL) => {
+				if (String(input).includes("/auth/refresh")) {
+					return new Response(
+						JSON.stringify({
+							accessToken: "nouveau-access",
+							accessExpiresIn: 900,
+							refreshToken: "nouveau-refresh",
+							refreshExpiresIn: 604800,
+						}),
+						{ status: 200, headers: { "content-type": "application/json" } },
+					);
+				}
+				if (String(input).includes("/auth/me")) {
+					return meHandler();
+				}
+				return new Response("{}", { status: 404 });
+			}),
+		);
+	}
+
+	it("ne déconnecte pas si /auth/me échoue en réseau après un refresh réussi", async () => {
+		stubRefreshOk(() => {
+			throw new TypeError("Failed to fetch");
+		});
+		let stored: StoredTokens | null = tokens;
+		const clear = vi.fn(() => {
+			stored = null;
+		});
+		const session = createAuthSession({
+			tokenStorage: {
+				get: () => stored,
+				set: (next) => {
+					stored = next;
+				},
+				clear,
+			},
+		});
+
+		await session.restore();
+
+		expect(session.isAuthenticated).toBe(false);
+		expect(clear).not.toHaveBeenCalled();
+		expect(stored).not.toBeNull();
+	});
+
+	it("déconnecte si /auth/me rejette vraiment (401) après un refresh réussi", async () => {
+		stubRefreshOk(
+			() =>
+				new Response(
+					JSON.stringify({ code: "UNAUTHORIZED", message: "Non autorisé" }),
+					{ status: 401, headers: { "content-type": "application/json" } },
+				),
+		);
+		let stored: StoredTokens | null = tokens;
+		const clear = vi.fn(() => {
+			stored = null;
+		});
+		const session = createAuthSession({
+			tokenStorage: {
+				get: () => stored,
+				set: (next) => {
+					stored = next;
+				},
+				clear,
+			},
+		});
+
+		await session.restore();
+
+		expect(session.isAuthenticated).toBe(false);
+		expect(clear).toHaveBeenCalledTimes(1);
+		expect(stored).toBeNull();
+	});
+});
+
+/**
+ * Après un login réussi, les tokens sont déjà stockés avant l'appel à
+ * /auth/me — un accroc réseau sur ce seul appel ne doit pas les purger
+ * (l'utilisateur a de vrais tokens valides, juste pas encore son profil).
+ */
+describe("createAuthSession — login", () => {
+	afterEach(() => {
+		vi.unstubAllGlobals();
+	});
+
+	it("conserve les tokens si /auth/me échoue en réseau juste après un login réussi", async () => {
+		vi.stubGlobal(
+			"fetch",
+			vi.fn(async (input: RequestInfo | URL) => {
+				if (String(input).includes("/auth/login")) {
+					return new Response(
+						JSON.stringify({
+							accessToken: "access-1",
+							accessExpiresIn: 900,
+							refreshToken: "refresh-1",
+							refreshExpiresIn: 604800,
+						}),
+						{ status: 200, headers: { "content-type": "application/json" } },
+					);
+				}
+				if (String(input).includes("/auth/me")) {
+					throw new TypeError("Failed to fetch");
+				}
+				return new Response("{}", { status: 404 });
+			}),
+		);
+		let stored: StoredTokens | null = null;
+		const session = createAuthSession({
+			tokenStorage: {
+				get: () => stored,
+				set: (next) => {
+					stored = next;
+				},
+				clear: () => {
+					stored = null;
+				},
+			},
+		});
+
+		await expect(session.login("admin", "motdepasse")).rejects.toThrow();
+
+		expect(session.isAuthenticated).toBe(false);
+		expect(stored).not.toBeNull();
+	});
+});
+
 describe("createAuthSession — sync inter-onglets", () => {
 	beforeEach(() => {
 		stubFetch();
