@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 
 import { requirePermissions } from "#/core/auth";
 import { PressingCommandeDetailPage } from "#/features/portail/components/pressing-commande-detail-page";
@@ -20,14 +20,6 @@ export const Route = createFileRoute(
 
 function PressingCommandeDetailRoutePage() {
 	const { id } = Route.useParams();
-	const navigate = useNavigate();
 
-	return (
-		<PressingCommandeDetailPage
-			id={id}
-			onBack={() => {
-				void navigate({ to: "/residence/portail/pressing" });
-			}}
-		/>
-	);
+	return <PressingCommandeDetailPage id={id} />;
 }

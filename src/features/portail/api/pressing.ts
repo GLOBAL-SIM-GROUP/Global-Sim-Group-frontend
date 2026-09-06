@@ -1,8 +1,5 @@
 import { getApiClient } from "#/core/api";
-import type {
-	PressingCommande,
-	PressingCommandeDetail,
-} from "../models/pressing";
+import type { PressingCommande } from "../models/pressing";
 
 interface ListCommandesParams {
 	recherche?: string;
@@ -16,9 +13,6 @@ interface ListCommandesParams {
 }
 
 type CommandeWire = Omit<PressingCommande, "id"> & { id_commande: string };
-type CommandeDetailWire = Omit<PressingCommandeDetail, "id"> & {
-	id_commande: string;
-};
 
 const toCommande = ({
 	id_commande: id,
@@ -55,21 +49,18 @@ export async function listPressingCommandes(
 /**
  * Récupère le détail d'une commande de pressing du résident connecté.
  * Endpoint portail (RESIDENT.VOIR) : GET /api/v1/pressing/portail/commandes/{id}
+ * Renvoie exactement la même forme que la liste (pas d'articles/notes).
  */
 export async function getPressingCommande(
 	id: string,
-): Promise<PressingCommandeDetail> {
+): Promise<PressingCommande> {
 	if (!id || id === "undefined") {
 		throw new Error("Commande ID must be a valid string");
 	}
-	const response = await getApiClient().apiFetch<CommandeDetailWire>(
+	const response = await getApiClient().apiFetch<CommandeWire>(
 		`/api/v1/pressing/portail/commandes/${id}`,
 	);
-	return {
-		...toCommande(response),
-		articles: response.articles,
-		notes: response.notes,
-	};
+	return toCommande(response);
 }
 
 /**
