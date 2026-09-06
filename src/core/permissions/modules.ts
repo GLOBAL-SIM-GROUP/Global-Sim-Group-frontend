@@ -346,18 +346,21 @@ export const MODULE_DEFINITIONS: ModuleDefinition[] = [
 		icon: ShieldCheck,
 		path: "/admin",
 		permission: "ADMIN.VOIR",
+		// Rôles avant Utilisateurs : on configure un rôle (et ses permissions)
+		// avant de l'attribuer à un compte, pas l'inverse (boucle confirmée
+		// côté backend : rôle → permissions → utilisateur).
 		subItems: [
-			{
-				id: "utilisateurs",
-				label: "Utilisateurs",
-				permission: "ADMIN.VOIR",
-				path: "/admin/utilisateurs",
-			},
 			{
 				id: "roles",
 				label: "Rôles",
 				permission: "ADMIN.VOIR",
 				path: "/admin/roles",
+			},
+			{
+				id: "utilisateurs",
+				label: "Utilisateurs",
+				permission: "ADMIN.VOIR",
+				path: "/admin/utilisateurs",
 			},
 			{
 				id: "journal",
