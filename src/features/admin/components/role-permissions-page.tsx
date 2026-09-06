@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 
 import { Breadcrumb } from "#/components/ui/breadcrumb";
 import { Button } from "#/components/ui/button";
+import { getErrorMessageForCode, toApiError } from "#/core/api";
 import { useCan } from "#/core/auth";
 import { cn } from "#/lib/utils";
 
@@ -117,8 +118,17 @@ export function RolePermissionsPage({ id }: RolePermissionsPageProps) {
 						"border-[#27AE60]/40 bg-[#27AE60]/10 text-[#27AE60]",
 					)}
 				>
-					Permissions enregistrées.
+					Permissions enregistrées — prend effet pour les utilisateurs de ce
+					rôle sous 60 secondes (pas besoin qu'ils se reconnectent).
 				</output>
+			) : null}
+
+			{majMutation.isError ? (
+				<p role="alert" className="text-sm font-medium text-destructive">
+					{getErrorMessageForCode(toApiError(majMutation.error).code) ??
+						(toApiError(majMutation.error).message ||
+							"Impossible d'enregistrer les permissions.")}
+				</p>
 			) : null}
 
 			{permissionsQuery.isLoading || rolePermissionsQuery.isLoading ? (

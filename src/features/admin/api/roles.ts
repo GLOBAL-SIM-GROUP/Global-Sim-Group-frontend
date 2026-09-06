@@ -53,12 +53,17 @@ export function majRolePermissions(
 	});
 }
 
-/** Crée un rôle (POST `CreerRoleDto`). */
+/**
+ * Crée un rôle (POST `CreerRoleDto`). Le backend renvoie le rôle créé en
+ * entier (vérifié en direct, 2026-09-06) — nécessaire pour enchaîner
+ * directement sur ses permissions (boucle rôle → permissions → utilisateur
+ * confirmée côté backend), sans repasser par la liste.
+ */
 export function creerRole(body: {
 	code: string;
 	libelle: string;
 	description?: string | null;
-}): Promise<unknown> {
+}): Promise<Role> {
 	const corps = {
 		code: body.code,
 		libelle: body.libelle,
@@ -66,10 +71,12 @@ export function creerRole(body: {
 	} satisfies Omit<CreerRoleDto, "description"> & {
 		description?: string | null;
 	};
-	return getApiClient().apiFetch("/api/v1/admin/roles", {
-		method: "POST",
-		body: JSON.stringify(corps),
-	});
+	return getApiClient()
+		.apiFetch<RoleWire>("/api/v1/admin/roles", {
+			method: "POST",
+			body: JSON.stringify(corps),
+		})
+		.then(({ id_role: id, ...reste }) => ({ id, ...reste }));
 }
 
 /** Modifie un rôle (PATCH `MajRoleDto`). */

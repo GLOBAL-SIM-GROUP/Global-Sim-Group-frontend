@@ -1,5 +1,5 @@
 import { useForm } from "@tanstack/react-form";
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { Loader2, Plus, Shield, Trash2 } from "lucide-react";
 import { Dialog } from "radix-ui";
 import { useMemo, useState } from "react";
@@ -28,7 +28,7 @@ function CreerRoleDialog({
 }: {
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
-	onSaved: () => void;
+	onSaved: (role: Role) => void;
 }) {
 	const createMutation = useCreerRole();
 	const [globalError, setGlobalError] = useState<string | null>(null);
@@ -45,12 +45,12 @@ function CreerRoleDialog({
 		onSubmit: async ({ value }) => {
 			setGlobalError(null);
 			try {
-				await createMutation.mutateAsync({
+				const role = await createMutation.mutateAsync({
 					code: value.code.trim(),
 					libelle: value.libelle.trim(),
 					description: value.description.trim() || null,
 				});
-				onSaved();
+				onSaved(role);
 			} catch (error) {
 				setGlobalError(
 					getErrorMessageForCode(toApiError(error).code) ??
@@ -68,7 +68,7 @@ function CreerRoleDialog({
 						Ajouter un rôle
 					</Dialog.Title>
 					<Dialog.Description className="mt-1 text-sm text-muted-foreground">
-						Nouveau rôle avec ses permissions.
+						Vous choisirez ses permissions juste après.
 					</Dialog.Description>
 					<form
 						className="mt-4 space-y-4"
@@ -209,6 +209,7 @@ function LigneRole({
  */
 export function RolesPage() {
 	const canCreer = useCan("ADMIN.CREER");
+	const navigate = useNavigate();
 	const rolesQuery = useRoles();
 	const utilisateursQuery = useUtilisateurs();
 	const supprimerMutation = useSupprimerRole();
@@ -306,7 +307,16 @@ export function RolesPage() {
 				onOpenChange={(ouvert) => {
 					if (!ouvert) setFormOuvert(false);
 				}}
-				onSaved={() => setFormOuvert(false)}
+				onSaved={(role) => {
+					setFormOuvert(false);
+					// Enchaîne directement sur ses permissions — un rôle sans aucune
+					// permission n'a aucun intérêt, autant guider l'admin jusque-là
+					// plutôt que de le laisser retrouver le rôle dans la liste.
+					void navigate({
+						to: "/admin/roles/$id/permissions",
+						params: { id: role.id },
+					});
+				}}
 			/>
 
 			<ConfirmDialog
