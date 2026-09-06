@@ -42,6 +42,12 @@ export interface UtilisateurBody {
 	nom?: string | null;
 	prenom?: string | null;
 	idEmploye?: string | null;
+	/**
+	 * Client/locataire associé — mutuellement exclusif avec `idEmploye` côté
+	 * formulaire (un compte représente soit un membre du personnel, soit un
+	 * client/résident, jamais les deux).
+	 */
+	idClient?: string | null;
 	idActiviteScope?: string | null;
 	actif?: boolean;
 }
@@ -56,16 +62,18 @@ export function creerUtilisateur(body: UtilisateurBody): Promise<unknown> {
 		...(body.nom?.trim() ? { nom: body.nom } : {}),
 		...(body.prenom?.trim() ? { prenom: body.prenom } : {}),
 		...(body.idEmploye ? { id_employe: body.idEmploye } : {}),
+		...(body.idClient ? { id_client: body.idClient } : {}),
 		...(body.idActiviteScope
 			? { id_activite_scope: body.idActiviteScope }
 			: {}),
 	} satisfies Omit<
 		CreerUtilisateurDto,
-		"nom" | "prenom" | "id_employe" | "id_activite_scope"
+		"nom" | "prenom" | "id_employe" | "id_client" | "id_activite_scope"
 	> & {
 		nom?: string | null;
 		prenom?: string | null;
 		id_employe?: string | null;
+		id_client?: string | null;
 		id_activite_scope?: string | null;
 	};
 	return getApiClient().apiFetch("/api/v1/admin/utilisateurs", {
@@ -82,12 +90,13 @@ export function modifierUtilisateur(
 	const payload: Partial<
 		Omit<
 			MajUtilisateurDto,
-			"nom" | "prenom" | "id_employe" | "id_activite_scope"
+			"nom" | "prenom" | "id_employe" | "id_client" | "id_activite_scope"
 		>
 	> & {
 		nom?: string;
 		prenom?: string;
 		id_employe?: string;
+		id_client?: string;
 		id_activite_scope?: string;
 	} = {};
 	if (body.login !== undefined) payload.login = body.login;
@@ -98,6 +107,8 @@ export function modifierUtilisateur(
 		payload.prenom = body.prenom?.trim() || undefined;
 	if (body.idEmploye !== undefined)
 		payload.id_employe = body.idEmploye || undefined;
+	if (body.idClient !== undefined)
+		payload.id_client = body.idClient || undefined;
 	if (body.idActiviteScope !== undefined)
 		payload.id_activite_scope = body.idActiviteScope || undefined;
 	return getApiClient().apiFetch(`/api/v1/admin/utilisateurs/${id}`, {

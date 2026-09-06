@@ -1,7 +1,7 @@
 import { useForm } from "@tanstack/react-form";
 import { Loader2 } from "lucide-react";
 import { Dialog } from "radix-ui";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 import { Button } from "#/components/ui/button";
 import { InputField } from "#/components/ui/input-field";
@@ -15,12 +15,14 @@ import {
 } from "#/components/ui/select";
 import { Switch } from "#/components/ui/switch";
 import { getErrorMessageForCode, toApiError } from "#/core/api";
+import { ClientRechercheField } from "#/features/residence/components/client-recherche-field";
 import { useActivites } from "#/features/rh/hooks/use-comptes";
 import { useEmployes } from "#/features/rh/hooks/use-employes";
 import { useRoles } from "../hooks/use-roles";
 import {
 	useCreerUtilisateur,
 	useModifierUtilisateur,
+	useUtilisateurs,
 } from "../hooks/use-utilisateurs";
 import type { Utilisateur } from "../models/utilisateurs";
 
@@ -42,24 +44,42 @@ export function UtilisateurFormDialog({
 	onSaved,
 }: UtilisateurFormDialogProps) {
 	const rolesQuery = useRoles();
-	const employesQuery = useEmployes();
+	const employesQuery = useEmployes({ sansCompte: true });
 	const activitesQuery = useActivites(true);
+	const utilisateursQuery = useUtilisateurs();
 	const createMutation = useCreerUtilisateur();
 	const editMutation = useModifierUtilisateur();
 	const [globalError, setGlobalError] = useState<string | null>(null);
 
-	const roles = rolesQuery.data ?? [];
+	const roles = (rolesQuery.data ?? [])
+		.slice()
+		.sort((a, b) => a.libelle.localeCompare(b.libelle));
 	const employes = employesQuery.data ?? [];
 	const activites = (activitesQuery.data ?? []).filter(
 		(activite) => activite.actif,
 	);
 
+	// IDs des clients déjà associés à un compte utilisateur (pour exclure
+	// les résultats de recherche). En édition, on conserve le client
+	// actuellement associé à cet utilisateur.
+	const clientIdsAssocies = useMemo(() => {
+		const ids = new Set<string>();
+		for (const u of utilisateursQuery.data ?? []) {
+			if (u.id_client && (!utilisateur || u.id !== utilisateur.id)) {
+				ids.add(u.id_client);
+			}
+		}
+		return ids;
+	}, [utilisateursQuery.data, utilisateur]);
+
 	const form = useForm({
 		defaultValues: {
 			login: utilisateur?.login ?? "",
 			motDePasse: "",
-			// La réponse GET n'expose pas `id_employe` → champ vide en édition.
+			// La réponse GET n'expose pas `id_employe` → champ vide en édition
+			// (même limite pour `idClient`, qui n'a qu'un id sans nom affichable).
 			idEmploye: "",
+			idClient: "",
 			idRole: utilisateur?.id_role ?? "",
 			idActiviteScope: utilisateur?.id_activite_scope ?? "",
 			actif: utilisateur?.actif ?? true,
@@ -73,6 +93,15 @@ export function UtilisateurFormDialog({
 						"Le mot de passe doit contenir au moins 6 caractères.";
 				}
 				if (!value.idRole) fields.idRole = "Sélectionnez un rôle.";
+				const roleSelectionne = roles.find((r) => r.id === value.idRole);
+				const estRoleCaisse = roleSelectionne
+					? /caiss/i.test(roleSelectionne.code) ||
+						/caiss/i.test(roleSelectionne.libelle)
+					: false;
+				if (estRoleCaisse && !value.idActiviteScope) {
+					fields.idActiviteScope =
+						"L'activité (scope) est obligatoire pour un rôle de caisse.";
+				}
 				return { fields };
 			},
 		},
@@ -83,6 +112,7 @@ export function UtilisateurFormDialog({
 					login: value.login.trim(),
 					idRole: value.idRole,
 					idEmploye: value.idEmploye || null,
+					idClient: value.idClient || null,
 					idActiviteScope: value.idActiviteScope || null,
 					actif: value.actif,
 				};
@@ -96,10 +126,28 @@ export function UtilisateurFormDialog({
 				}
 				onSaved();
 			} catch (error) {
-				setGlobalError(
-					getErrorMessageForCode(toApiError(error).code) ??
-						(toApiError(error).message || "Une erreur est survenue."),
-				);
+				const apiError = toApiError(error);
+				const message = apiError.message ?? "";
+
+				// Contraintes d'unicité PostgreSQL — le backend renvoie le message
+				// brut (ex. « Key (id_employe)=(7) already exists »). On le traduit
+				// en un message clair pour l'utilisateur.
+				if (/Key \(id_employe\)=.*already exists/i.test(message)) {
+					setGlobalError(
+						"Cet employé est déjà associé à un autre compte utilisateur.",
+					);
+				} else if (/Key \(id_client\)=.*already exists/i.test(message)) {
+					setGlobalError(
+						"Ce client est déjà associé à un autre compte utilisateur.",
+					);
+				} else if (/Key \(login\)=.*already exists/i.test(message)) {
+					setGlobalError("Ce login est déjà utilisé. Choisissez-en un autre.");
+				} else {
+					setGlobalError(
+						getErrorMessageForCode(apiError.code) ??
+							(message || "Une erreur est survenue."),
+					);
+				}
 			}
 		},
 	});
@@ -154,33 +202,81 @@ export function UtilisateurFormDialog({
 							</form.Field>
 						) : null}
 
+						{/*
+							Employé et client/locataire sont mutuellement exclusifs : un
+							compte représente soit un membre du personnel, soit un
+							client/résident, jamais les deux à la fois. Choisir l'un
+							efface et désactive l'autre.
+						*/}
 						<form.Field name="idEmploye">
 							{(field) => (
-								<div className="space-y-1.5">
-									<Label htmlFor={field.name}>
-										Employé associé (optionnel)
-									</Label>
-									<Select
-										value={field.state.value}
-										onValueChange={field.handleChange}
-									>
-										<SelectTrigger
-											id={field.name}
-											aria-label="Employé associé"
-											className="w-full"
-										>
-											<SelectValue placeholder="Aucun" />
-										</SelectTrigger>
-										<SelectContent>
-											<SelectItem value="">Aucun</SelectItem>
-											{employes.map((employe) => (
-												<SelectItem key={employe.id} value={employe.id}>
-													{employe.prenom} {employe.nom} — {employe.fonction}
-												</SelectItem>
-											))}
-										</SelectContent>
-									</Select>
-								</div>
+								<form.Subscribe selector={(state) => state.values.idClient}>
+									{(idClient) => (
+										<div className="space-y-1.5">
+											<Label htmlFor={field.name}>
+												Employé associé (optionnel)
+											</Label>
+											<Select
+												value={field.state.value}
+												onValueChange={(valeur) => {
+													field.handleChange(valeur);
+													if (valeur) form.setFieldValue("idClient", "");
+												}}
+												disabled={!!idClient}
+											>
+												<SelectTrigger
+													id={field.name}
+													aria-label="Employé associé"
+													className="w-full"
+												>
+													<SelectValue placeholder="Aucun" />
+												</SelectTrigger>
+												<SelectContent>
+													<SelectItem value="">Aucun</SelectItem>
+													{employes.map((employe) => (
+														<SelectItem key={employe.id} value={employe.id}>
+															{employe.prenom} {employe.nom} —{" "}
+															{employe.fonction}
+														</SelectItem>
+													))}
+												</SelectContent>
+											</Select>
+											{idClient ? (
+												<p className="text-xs text-muted-foreground">
+													Un client/locataire est déjà associé — retirez-le pour
+													choisir un employé.
+												</p>
+											) : null}
+										</div>
+									)}
+								</form.Subscribe>
+							)}
+						</form.Field>
+
+						<form.Field name="idClient">
+							{(field) => (
+								<form.Subscribe selector={(state) => state.values.idEmploye}>
+									{(idEmploye) =>
+										idEmploye ? (
+											<div className="space-y-1.5">
+												<Label>Client / locataire associé (optionnel)</Label>
+												<p className="rounded-md border border-dashed border-border px-3 py-2 text-xs text-muted-foreground">
+													Un employé est déjà associé — retirez-le pour choisir
+													un client/locataire.
+												</p>
+											</div>
+										) : (
+											<ClientRechercheField
+												value={field.state.value}
+												onChange={(id) => {
+													field.handleChange(id);
+													if (id) form.setFieldValue("idEmploye", "");
+												}}
+												excludeIds={clientIdsAssocies}
+											/>
+										)
+									}
+								</form.Subscribe>
 							)}
 						</form.Field>
 
@@ -207,6 +303,13 @@ export function UtilisateurFormDialog({
 											))}
 										</SelectContent>
 									</Select>
+									{utilisateur && field.state.value !== utilisateur.id_role ? (
+										<p className="text-xs text-muted-foreground">
+											Changer le rôle remplace entièrement les permissions
+											actuelles de ce compte par celles du nouveau rôle — ce
+											n'est pas cumulatif.
+										</p>
+									) : null}
 									{field.state.meta.errors[0] ? (
 										<p className="text-xs text-destructive">
 											{field.state.meta.errors[0]}
@@ -218,31 +321,51 @@ export function UtilisateurFormDialog({
 
 						<form.Field name="idActiviteScope">
 							{(field) => (
-								<div className="space-y-1.5">
-									<Label htmlFor={field.name}>
-										Activité (scope, pour les caissiers — optionnel)
-									</Label>
-									<Select
-										value={field.state.value}
-										onValueChange={field.handleChange}
-									>
-										<SelectTrigger
-											id={field.name}
-											aria-label="Activité"
-											className="w-full"
-										>
-											<SelectValue placeholder="Aucune" />
-										</SelectTrigger>
-										<SelectContent>
-											<SelectItem value="">Aucune</SelectItem>
-											{activites.map((activite) => (
-												<SelectItem key={activite.id} value={activite.id}>
-													{activite.libelle}
-												</SelectItem>
-											))}
-										</SelectContent>
-									</Select>
-								</div>
+								<form.Subscribe selector={(state) => state.values.idRole}>
+									{(idRole) => {
+										const roleSelectionne = roles.find((r) => r.id === idRole);
+										const estRoleCaisse = roleSelectionne
+											? /caiss/i.test(roleSelectionne.code) ||
+												/caiss/i.test(roleSelectionne.libelle)
+											: false;
+										return (
+											<div className="space-y-1.5">
+												<Label htmlFor={field.name}>
+													Activité (scope
+													{estRoleCaisse
+														? " — obligatoire pour les caissiers"
+														: ", pour les caissiers — optionnel"}
+													)
+												</Label>
+												<Select
+													value={field.state.value}
+													onValueChange={field.handleChange}
+												>
+													<SelectTrigger
+														id={field.name}
+														aria-label="Activité"
+														className="w-full"
+													>
+														<SelectValue placeholder="Aucune" />
+													</SelectTrigger>
+													<SelectContent>
+														<SelectItem value="">Aucune</SelectItem>
+														{activites.map((activite) => (
+															<SelectItem key={activite.id} value={activite.id}>
+																{activite.libelle}
+															</SelectItem>
+														))}
+													</SelectContent>
+												</Select>
+												{field.state.meta.errors[0] ? (
+													<p className="text-xs text-destructive">
+														{field.state.meta.errors[0]}
+													</p>
+												) : null}
+											</div>
+										);
+									}}
+								</form.Subscribe>
 							)}
 						</form.Field>
 

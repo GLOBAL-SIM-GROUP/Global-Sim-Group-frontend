@@ -25,6 +25,8 @@ interface ClientRechercheFieldProps {
 	value: string;
 	/** Pose l'id (et le libellé affiché) au moment du choix. */
 	onChange: (id: string, label: string) => void;
+	/** Ids de clients à exclure des résultats (ex. déjà associés à un compte). */
+	excludeIds?: ReadonlySet<string>;
 	/**
 	 * Si aucun client ne correspond à la recherche, affiche le formulaire
 	 * complet de création d'un locataire (état civil, coordonnées…, type
@@ -53,6 +55,7 @@ export function ClientRechercheField({
 	onChange,
 	creationLocataireComplete = false,
 	onCreationOuverteChange,
+	excludeIds,
 }: ClientRechercheFieldProps) {
 	const [terme, setTerme] = useState("");
 	const termeDebounced = useDebouncedValue(terme, 300);
@@ -113,27 +116,43 @@ export function ClientRechercheField({
 					Impossible de rechercher les clients.
 				</p>
 			) : recherche.data && recherche.data.length > 0 ? (
-				<ul className="divide-y divide-border rounded-md border border-border">
-					{recherche.data.map((client) => (
-						<li key={client.id}>
-							<button
-								type="button"
-								onClick={() => {
-									setSelectionne({ id: client.id, label: nomComplet(client) });
-									onChange(client.id, nomComplet(client));
-								}}
-								className="w-full px-3 py-2 text-left transition-colors hover:bg-accent/40"
-							>
-								<span className="block text-sm font-medium text-foreground">
-									{nomComplet(client)}
-								</span>
-								<span className="block text-xs text-muted-foreground">
-									{client.tel_principal ?? ""}
-								</span>
-							</button>
-						</li>
-					))}
-				</ul>
+				(() => {
+					const visibles = excludeIds
+						? recherche.data.filter((c) => !excludeIds.has(c.id))
+						: recherche.data;
+					if (visibles.length === 0) {
+						return (
+							<div className="space-y-2 rounded-md border border-dashed border-border p-3">
+								<p className="text-sm text-muted-foreground">
+									Aucun client disponible (tous les clients trouvés sont déjà associés à un compte).
+								</p>
+							</div>
+						);
+					}
+					return (
+						<ul className="divide-y divide-border rounded-md border border-border">
+							{visibles.map((client) => (
+								<li key={client.id}>
+									<button
+										type="button"
+										onClick={() => {
+											setSelectionne({ id: client.id, label: nomComplet(client) });
+											onChange(client.id, nomComplet(client));
+										}}
+										className="w-full px-3 py-2 text-left transition-colors hover:bg-accent/40"
+									>
+										<span className="block text-sm font-medium text-foreground">
+											{nomComplet(client)}
+										</span>
+										<span className="block text-xs text-muted-foreground">
+											{client.tel_principal ?? ""}
+										</span>
+									</button>
+								</li>
+							))}
+						</ul>
+					);
+				})()
 			) : (
 				<div className="space-y-2 rounded-md border border-dashed border-border p-3">
 					<p className="text-sm text-muted-foreground">Aucun client trouvé.</p>

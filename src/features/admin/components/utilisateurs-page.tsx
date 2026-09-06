@@ -148,7 +148,9 @@ export function UtilisateursPage({
 	const rolesQuery = useRoles();
 	const modifierMutation = useModifierUtilisateur();
 
-	const roles = rolesQuery.data ?? [];
+	const roles = (rolesQuery.data ?? [])
+		.slice()
+		.sort((a, b) => a.libelle.localeCompare(b.libelle, "fr"));
 	const roleParId = useMemo(
 		() => new Map(roles.map((r) => [r.id, r.libelle])),
 		[roles],
