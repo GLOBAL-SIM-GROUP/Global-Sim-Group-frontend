@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { AlertCircle, ChevronRight, Loader2 } from "lucide-react";
+import { AlertCircle, ChevronRight, Loader2, Shirt } from "lucide-react";
 import { Card, CardContent } from "#/components/ui/card";
 import { cn } from "#/lib/utils";
 import { usePressingCommandes } from "../hooks/use-pressing";
@@ -50,8 +50,19 @@ export function PressingCommandesPage() {
 			{/* Commandes list */}
 			{!commandes || commandes.length === 0 ? (
 				<Card>
-					<CardContent className="pt-6 text-center text-muted-foreground py-12">
-						Aucune commande pour le moment
+					<CardContent className="flex flex-col items-center gap-3 py-16 text-center">
+						<div className="flex size-14 items-center justify-center rounded-full bg-lagoon/10">
+							<Shirt className="size-7 text-lagoon" aria-hidden />
+						</div>
+						<div className="space-y-1">
+							<p className="font-medium text-foreground">
+								Aucune commande pour le moment
+							</p>
+							<p className="text-sm text-muted-foreground">
+								Vos prochains dépôts au pressing s'afficheront ici, avec leur
+								progression en temps réel.
+							</p>
+						</div>
 					</CardContent>
 				</Card>
 			) : (
