@@ -308,3 +308,80 @@ export function getRecuEcheance(idEcheance: string): Promise<RecuEcheance> {
 		`/api/v1/residence/echeances/${idEcheance}/recu`,
 	);
 }
+
+/** Corps saisi par le formulaire d'encaissement en lot. */
+export interface EncaisserLoyerLotBody {
+	montant: string;
+	idMoyen: string;
+	date?: string;
+}
+
+/** Une échéance touchée par un encaissement en lot. */
+export interface EcheanceLotResultat {
+	id: string;
+	montantApplique: string;
+	statut: string;
+}
+
+/**
+ * Résultat d'un encaissement en lot. `montantNonAffecte`/`avertissement` ne
+ * sont présents que si de l'argent n'a pu être affecté à aucune échéance
+ * (plus rien d'impayé sur le contrat) — pas une erreur, le paiement a quand
+ * même bien été enregistré (`idPaiement` reste renseigné).
+ */
+export interface EncaisserLoyerLotResultat {
+	idPaiement: string | null;
+	montantTotal: string;
+	montantApplique: number;
+	echeances: EcheanceLotResultat[];
+	montantNonAffecte?: number;
+	avertissement?: string;
+}
+
+interface EncaisserLoyerLotWire {
+	id_paiement: string | null;
+	montant_total: string;
+	montant_applique: number;
+	echeances: Array<{
+		id_echeance: string;
+		montant_applique: string;
+		statut: string;
+	}>;
+	montant_non_affecte?: number;
+	avertissement?: string;
+}
+
+/**
+ * Encaisse plusieurs échéances en un seul paiement (POST
+ * `/contrats/{id}/encaisser-loyer-lot`, absent du spec généré). Le backend
+ * applique le montant aux échéances impayées les plus anciennes d'abord, en
+ * remplissant chacune entièrement avant de passer à la suivante — aucune
+ * logique de répartition à reproduire ici, on affiche juste le résultat.
+ */
+export function encaisserLoyerLot(
+	idContrat: string,
+	body: EncaisserLoyerLotBody,
+): Promise<EncaisserLoyerLotResultat> {
+	const corps = {
+		montant: body.montant,
+		id_moyen: body.idMoyen,
+		...(body.date ? { date: body.date } : {}),
+	};
+	return getApiClient()
+		.apiFetch<EncaisserLoyerLotWire>(
+			`/api/v1/residence/contrats/${idContrat}/encaisser-loyer-lot`,
+			{ method: "POST", body: JSON.stringify(corps) },
+		)
+		.then((data) => ({
+			idPaiement: data.id_paiement,
+			montantTotal: data.montant_total,
+			montantApplique: data.montant_applique,
+			echeances: data.echeances.map((e) => ({
+				id: e.id_echeance,
+				montantApplique: e.montant_applique,
+				statut: e.statut,
+			})),
+			montantNonAffecte: data.montant_non_affecte,
+			avertissement: data.avertissement,
+		}));
+}

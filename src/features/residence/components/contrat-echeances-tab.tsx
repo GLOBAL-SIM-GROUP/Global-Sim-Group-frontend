@@ -1,4 +1,4 @@
-import { HandCoins } from "lucide-react";
+import { HandCoins, Wallet } from "lucide-react";
 import { useState } from "react";
 
 import { Button } from "#/components/ui/button";
@@ -11,6 +11,7 @@ import { echanceStatutLabel } from "../models/echeances";
 import { formatDateISO, formatMontantFCFA } from "../models/format";
 import { EcheanceRecuButton } from "./echeance-recu-button";
 import { EncaisserFormDialog } from "./encaisser-form-dialog";
+import { EncaisserLotFormDialog } from "./encaisser-lot-form-dialog";
 
 const ECHANCE_STATUT_BADGE: Record<string, string> = {
 	PAYE: "bg-[#27AE60] text-white",
@@ -21,6 +22,7 @@ const ECHANCE_STATUT_BADGE: Record<string, string> = {
 };
 
 interface ContratEcheancesTabProps {
+	idContrat: string;
 	/** Échéances du contrat (embarquées par le GET détail). */
 	echeances: Echeance[];
 }
@@ -30,12 +32,27 @@ interface ContratEcheancesTabProps {
  * + bouton « Enregistrer un paiement » (POST `/echeances/{id}/encaisser`) sur
  * les lignes non payées, gated par `RESIDENCE.CREER` && `FINANCES.VOIR`.
  * + bouton « Reçu » pour télécharger le PDF du reçu.
+ * + bouton « Encaissement en lot » (POST `/contrats/{id}/encaisser-loyer-lot`),
+ * action complémentaire pour régler plusieurs échéances en un seul paiement.
  */
-export function ContratEcheancesTab({ echeances }: ContratEcheancesTabProps) {
+export function ContratEcheancesTab({
+	idContrat,
+	echeances,
+}: ContratEcheancesTabProps) {
 	const canCreer = useCan("RESIDENCE.CREER");
 	const canFinancesVoir = useCan("FINANCES.VOIR");
 	const moyensQuery = useMoyensPaiement();
 	const [aEncaisser, setAEncaisser] = useState<Echeance | null>(null);
+	const [lotOuvert, setLotOuvert] = useState(false);
+
+	const peutEncaisser = canCreer && canFinancesVoir;
+	// IMPAYE/PARTIEL seulement (pas A_VENIR/EN_ATTENTE) : le lot ne rattrape que
+	// des échéances réellement dues et non soldées — une échéance future n'a
+	// rien à recevoir, l'afficher pousserait à un paiement qui ne s'appliquerait
+	// à rien (tout le montant reviendrait en « non affecté »).
+	const aDesImpayees = echeances.some(
+		(e) => e.statut === "IMPAYE" || e.statut === "PARTIEL",
+	);
 
 	if (echeances.length === 0) {
 		return (
@@ -47,6 +64,19 @@ export function ContratEcheancesTab({ echeances }: ContratEcheancesTabProps) {
 
 	return (
 		<section className="space-y-3">
+			{peutEncaisser && aDesImpayees ? (
+				<div className="flex justify-end">
+					<Button
+						variant="outline"
+						size="sm"
+						onClick={() => setLotOuvert(true)}
+					>
+						<Wallet className="size-4" aria-hidden />
+						Encaissement en lot
+					</Button>
+				</div>
+			) : null}
+
 			<div className="overflow-x-auto rounded-lg border border-border bg-card shadow-sm">
 				<table className="w-full border-collapse text-sm">
 					<thead className="bg-sea-ink text-left text-white">
@@ -125,6 +155,15 @@ export function ContratEcheancesTab({ echeances }: ContratEcheancesTabProps) {
 					if (!ouvert) setAEncaisser(null);
 				}}
 				onSaved={() => setAEncaisser(null)}
+			/>
+
+			<EncaisserLotFormDialog
+				open={lotOuvert}
+				idContrat={idContrat}
+				echeances={echeances}
+				moyens={moyensQuery.data ?? []}
+				onOpenChange={setLotOuvert}
+				onSaved={() => setLotOuvert(false)}
 			/>
 		</section>
 	);

@@ -5,6 +5,8 @@ import {
 	type ContratBody,
 	creerCaution,
 	creerContrat,
+	type EncaisserLoyerLotBody,
+	encaisserLoyerLot,
 	envoyerContratParEmail,
 	getCaution,
 	getContrat,
@@ -13,7 +15,7 @@ import {
 	restituerCaution,
 	versementCaution,
 } from "../api/contrats";
-import { contratsKeys, logementsKeys } from "../permissions";
+import { contratsKeys, logementsKeys, suiviKeys } from "../permissions";
 
 /** Liste de tous les contrats de location. */
 export function useContrats() {
@@ -145,6 +147,26 @@ export function useRestituerCaution() {
 		}) => restituerCaution(idContrat, body),
 		onSuccess: () => {
 			void queryClient.invalidateQueries({ queryKey: contratsKeys.all });
+		},
+	});
+}
+
+/**
+ * Encaisse un paiement de loyer en une fois, réparti par le serveur sur
+ * plusieurs échéances. Invalide contrats ET échéances (même paire que
+ * `useEncaisserEcheance`) — les deux vues affichent le même statut.
+ */
+export function useEncaisserLoyerLot() {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: ({
+			idContrat,
+			...body
+		}: { idContrat: string } & EncaisserLoyerLotBody) =>
+			encaisserLoyerLot(idContrat, body),
+		onSuccess: () => {
+			void queryClient.invalidateQueries({ queryKey: contratsKeys.all });
+			void queryClient.invalidateQueries({ queryKey: suiviKeys.all });
 		},
 	});
 }
