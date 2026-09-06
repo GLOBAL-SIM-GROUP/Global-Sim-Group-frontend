@@ -230,6 +230,38 @@ export function creerCaution(
 		.then(({ id_caution: id, ...reste }) => ({ id, ...reste }));
 }
 
+/**
+ * Déclare le versement de la caution (POST /contrats/{id}/caution/versement,
+ * absent du spec généré — endpoint tout juste ajouté côté backend). Tous les
+ * champs sont optionnels : `date_versement` défaut à aujourd'hui, `montant`
+ * défaut au montant total de la caution (côté backend). Renvoie la caution à
+ * jour (`payee: true`, `statut` inchangé — la caution reste `EN_COURS` tant
+ * qu'elle n'est pas restituée). 404 si aucune caution n'existe pour ce
+ * contrat, 409 si elle est déjà déclarée versée. Ne crée aucun encaissement
+ * (`finances.paiement`) : simple déclaration/traçabilité, pas une opération
+ * de caisse.
+ */
+export function versementCaution(
+	idContrat: string,
+	body: {
+		dateVersement?: string | null;
+		montant?: string | null;
+		motif?: string | null;
+	},
+): Promise<Caution> {
+	const corps = {
+		...(body.dateVersement ? { date_versement: body.dateVersement } : {}),
+		...(body.montant ? { montant: body.montant } : {}),
+		...(body.motif?.trim() ? { motif: body.motif.trim() } : {}),
+	};
+	return getApiClient()
+		.apiFetch<CautionWire>(
+			`/api/v1/residence/contrats/${idContrat}/caution/versement`,
+			{ method: "POST", body: JSON.stringify(corps) },
+		)
+		.then(({ id_caution: id, ...reste }) => ({ id, ...reste }));
+}
+
 /** Restitue la caution (POST /contrats/{id}/caution/restitution). */
 export function restituerCaution(
 	idContrat: string,

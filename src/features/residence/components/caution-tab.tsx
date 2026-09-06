@@ -1,4 +1,4 @@
-import { Undo2 } from "lucide-react";
+import { Undo2, Wallet } from "lucide-react";
 import { useState } from "react";
 
 import { Button } from "#/components/ui/button";
@@ -8,6 +8,7 @@ import { cn } from "#/lib/utils";
 import { useCaution } from "../hooks/use-contrats";
 import { formatDateISO, formatMontantFCFA } from "../models/format";
 import { RestituerCautionFormDialog } from "./restituer-caution-form-dialog";
+import { VersementCautionFormDialog } from "./versement-caution-form-dialog";
 
 interface CautionTabProps {
 	idContrat: string;
@@ -26,12 +27,16 @@ function Ligne({ label, valeur }: { label: string; valeur: string }) {
 /**
  * Onglet « Caution » de la fiche contrat (GET `/contrats/{id}/caution`). Un
  * 404 est traité comme « aucune caution » (état vide), pas comme une erreur.
- * La restitution (POST `caution/restitution`) est gated par `RESIDENCE.CREER`.
+ * La restitution (POST `caution/restitution`) est gated par `RESIDENCE.CREER` ;
+ * la déclaration de versement (POST `caution/versement`) par `RESIDENCE.MODIFIER`
+ * — deux verbes distincts côté backend pour ces deux actions.
  */
 export function CautionTab({ idContrat }: CautionTabProps) {
 	const canCreer = useCan("RESIDENCE.CREER");
+	const canModifier = useCan("RESIDENCE.MODIFIER");
 	const cautionQuery = useCaution(idContrat);
 	const [restitutionOuverte, setRestitutionOuverte] = useState(false);
+	const [versementOuvert, setVersementOuvert] = useState(false);
 
 	if (cautionQuery.isLoading) {
 		return (
@@ -100,8 +105,19 @@ export function CautionTab({ idContrat }: CautionTabProps) {
 				/>
 			</dl>
 
-			{canCreer && caution.payee && !caution.date_restitution ? (
-				<div className="flex justify-end">
+			<div className="flex flex-wrap justify-end gap-2">
+				{canModifier && !caution.payee ? (
+					<Button
+						variant="outline"
+						size="sm"
+						onClick={() => setVersementOuvert(true)}
+					>
+						<Wallet className="size-4" aria-hidden />
+						Déclarer le versement
+					</Button>
+				) : null}
+
+				{canCreer && caution.payee && !caution.date_restitution ? (
 					<Button
 						variant="outline"
 						size="sm"
@@ -110,8 +126,67 @@ export function CautionTab({ idContrat }: CautionTabProps) {
 						<Undo2 className="size-4" aria-hidden />
 						Restituer la caution
 					</Button>
+				) : null}
+			</div>
+
+			{caution.historique.length > 0 ? (
+				<div className="space-y-2 border-t border-border pt-4">
+					<h3 className="text-sm font-semibold text-foreground">Historique</h3>
+					<div className="overflow-x-auto rounded-lg border border-border">
+						<table className="w-full border-collapse text-sm">
+							<thead className="bg-sea-ink text-left text-white">
+								<tr>
+									<th scope="col" className="px-4 py-2 font-medium">
+										ÉVÉNEMENT
+									</th>
+									<th scope="col" className="px-4 py-2 font-medium">
+										DATE
+									</th>
+									<th scope="col" className="px-4 py-2 text-right font-medium">
+										MONTANT
+									</th>
+									<th scope="col" className="px-4 py-2 font-medium">
+										MOTIF
+									</th>
+								</tr>
+							</thead>
+							<tbody>
+								{caution.historique.map((evenement) => (
+									<tr
+										key={`${evenement.evenement}-${evenement.date}-${evenement.montant ?? ""}`}
+										className="border-t border-border"
+									>
+										<td className="px-4 py-2 font-medium text-foreground">
+											{evenement.evenement}
+										</td>
+										<td className="px-4 py-2 text-muted-foreground">
+											{formatDateISO(evenement.date.slice(0, 10))}
+										</td>
+										<td className="px-4 py-2 text-right text-foreground">
+											{evenement.montant
+												? formatMontantFCFA(evenement.montant)
+												: "—"}
+										</td>
+										<td className="px-4 py-2 text-muted-foreground">
+											{evenement.motif ?? "—"}
+										</td>
+									</tr>
+								))}
+							</tbody>
+						</table>
+					</div>
 				</div>
 			) : null}
+
+			<VersementCautionFormDialog
+				open={versementOuvert}
+				idContrat={idContrat}
+				montantCaution={caution.montant}
+				onOpenChange={(ouvert) => {
+					if (!ouvert) setVersementOuvert(false);
+				}}
+				onSaved={() => setVersementOuvert(false)}
+			/>
 
 			<RestituerCautionFormDialog
 				open={restitutionOuverte}

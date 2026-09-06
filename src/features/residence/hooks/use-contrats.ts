@@ -11,6 +11,7 @@ import {
 	listContrats,
 	resilierContrat,
 	restituerCaution,
+	versementCaution,
 } from "../api/contrats";
 import { contratsKeys, logementsKeys } from "../permissions";
 
@@ -107,6 +108,24 @@ export function useCreerCaution() {
 			idContrat: string;
 			montant: string;
 		}) => creerCaution(idContrat, { montant }),
+		onSuccess: () => {
+			void queryClient.invalidateQueries({ queryKey: contratsKeys.all });
+		},
+	});
+}
+
+/** Déclare le versement de la caution. Invalide contrat + caution au succès. */
+export function useVersementCaution() {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: ({
+			idContrat,
+			...body
+		}: { idContrat: string } & {
+			dateVersement?: string | null;
+			montant?: string | null;
+			motif?: string | null;
+		}) => versementCaution(idContrat, body),
 		onSuccess: () => {
 			void queryClient.invalidateQueries({ queryKey: contratsKeys.all });
 		},

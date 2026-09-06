@@ -8,6 +8,10 @@ vi.mock("./restituer-caution-form-dialog", () => ({
 	RestituerCautionFormDialog: () => null,
 }));
 
+vi.mock("./versement-caution-form-dialog", () => ({
+	VersementCautionFormDialog: () => null,
+}));
+
 vi.mock("#/core/auth", () => ({ useCan: () => false }));
 
 const caution: Caution = {
@@ -21,7 +25,14 @@ const caution: Caution = {
 	retenue: null,
 	motif_retenue: null,
 	statut: "PAYEE",
-	historique: [],
+	historique: [
+		{
+			evenement: "VERSEMENT",
+			date: "2026-01-01T10:00:00.000Z",
+			montant: "150000.00",
+			motif: "Versement espèces",
+		},
+	],
 };
 
 vi.mock("../hooks/use-contrats", () => ({
@@ -54,7 +65,15 @@ describe("CautionTab — responsive", () => {
 	it("affiche toujours les informations de la caution (non-régression fonctionnelle)", () => {
 		render(<CautionTab idContrat="1" />);
 
-		expect(screen.getByText("150 000 FCFA")).toBeInTheDocument();
+		expect(screen.getAllByText("150 000 FCFA").length).toBeGreaterThan(0);
 		expect(screen.getByText("Payée")).toBeInTheDocument();
+	});
+
+	it("affiche l'historique de la caution (événement, date, montant, motif)", () => {
+		render(<CautionTab idContrat="1" />);
+
+		expect(screen.getByText("Historique")).toBeInTheDocument();
+		expect(screen.getByText("VERSEMENT")).toBeInTheDocument();
+		expect(screen.getByText("Versement espèces")).toBeInTheDocument();
 	});
 });

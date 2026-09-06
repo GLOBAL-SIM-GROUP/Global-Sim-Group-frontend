@@ -43,6 +43,17 @@ export interface ContratDetail extends Contrat {
 	echeances: Echeance[];
 }
 
+/**
+ * Événement de l'historique d'une caution (versement, restitution, retenue…).
+ * Même forme que côté portail résident (`PortailHistoriqueCaution`).
+ */
+export interface HistoriqueCaution {
+	evenement: string;
+	date: string;
+	montant: string | null;
+	motif: string | null;
+}
+
 /** Caution d'un contrat (GET /contrats/{id}/caution). */
 export interface Caution {
 	id: string;
@@ -55,7 +66,7 @@ export interface Caution {
 	retenue: string | null;
 	motif_retenue: string | null;
 	statut: string;
-	historique: unknown[];
+	historique: HistoriqueCaution[];
 }
 
 /** Libellés français du statut de contrat (badge du tableau). */
