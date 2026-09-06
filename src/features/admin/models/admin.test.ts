@@ -76,6 +76,7 @@ describe("rechercherAudit", () => {
 				description: "Modification du compte",
 				montant: null,
 				avant: null,
+				apres: null,
 			},
 			{
 				id: "2",
@@ -88,6 +89,7 @@ describe("rechercherAudit", () => {
 				description: "Nouvelle dépense",
 				montant: null,
 				avant: null,
+				apres: null,
 			},
 		];
 		expect(rechercherAudit(traces, "finances")).toHaveLength(1);

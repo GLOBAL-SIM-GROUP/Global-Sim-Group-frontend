@@ -2,7 +2,15 @@ import { getApiClient } from "#/core/api";
 
 import type { TraceAudit } from "../models/audit";
 
-type TraceAuditWire = Omit<TraceAudit, "id"> & { id_trace: string };
+/**
+ * `apres` est absent du spec généré (schema gap, même famille que d'autres
+ * champs déjà rencontrés dans ce projet) mais bien renvoyé par le backend —
+ * vérifié en direct le 2026-09-06.
+ */
+type TraceAuditWire = Omit<TraceAudit, "id" | "apres"> & {
+	id_trace: string;
+	apres?: string | null;
+};
 
 export interface ListJournalParams {
 	search?: string;
@@ -26,6 +34,10 @@ export function listJournal(params?: ListJournalParams): Promise<TraceAudit[]> {
 	return getApiClient()
 		.apiFetch<TraceAuditWire[]>(`/api/v1/audit/journal${qs ? `?${qs}` : ""}`)
 		.then((data) =>
-			data.map(({ id_trace: id, ...reste }) => ({ id, ...reste })),
+			data.map(({ id_trace: id, apres, ...reste }) => ({
+				id,
+				apres: apres ?? null,
+				...reste,
+			})),
 		);
 }

@@ -17,7 +17,14 @@ import { imprimerPdfOctets } from "#/lib/print-pdf";
 
 import { useJournal } from "../hooks/use-audit";
 import { useUtilisateurs } from "../hooks/use-utilisateurs";
-import { paginerAudit, rechercherAudit } from "../models/audit";
+import {
+	couleurOperation,
+	libelleObjet,
+	libelleOperation,
+	paginerAudit,
+	rechercherAudit,
+	resumerDetailAudit,
+} from "../models/audit";
 import { JOURNAL_PAGE_SIZE } from "../permissions";
 
 /** Filtres reflétés dans l'URL. */
@@ -124,9 +131,9 @@ export function AuditPage({ initialSearch, onSearchChange }: AuditPageProps) {
 				? (loginParId.get(t.id_utilisateur) ?? t.id_utilisateur)
 				: "—",
 			t.module,
-			t.operation,
-			`${t.entite ?? ""} ${t.entite_id ?? ""}`.trim() || "—",
-			t.description ?? "",
+			libelleOperation(t.operation),
+			libelleObjet(t),
+			resumerDetailAudit(t),
 		]),
 	];
 
@@ -302,15 +309,21 @@ export function AuditPage({ initialSearch, onSearchChange }: AuditPageProps) {
 											: "—"}
 									</td>
 									<td className="px-4 py-3 text-foreground">{trace.module}</td>
-									<td className="px-4 py-3 text-foreground">
-										{trace.operation}
+									<td className="px-4 py-3">
+										<span
+											className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ${couleurOperation(trace.operation)}`}
+										>
+											{libelleOperation(trace.operation)}
+										</span>
 									</td>
 									<td className="px-4 py-3 text-muted-foreground">
-										{`${trace.entite ?? ""} ${trace.entite_id ?? ""}`.trim() ||
-											"—"}
+										{libelleObjet(trace)}
 									</td>
-									<td className="max-w-md truncate px-4 py-3 text-muted-foreground">
-										{trace.description ?? "—"}
+									<td
+										className="max-w-md truncate px-4 py-3 text-muted-foreground"
+										title={resumerDetailAudit(trace)}
+									>
+										{resumerDetailAudit(trace)}
 									</td>
 								</tr>
 							))}
