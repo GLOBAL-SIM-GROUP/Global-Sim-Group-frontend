@@ -91,8 +91,6 @@ const ROUTES_REALLES: Record<
 	},
 	RH: {
 		employes: { to: "/rh/employes", exact: true },
-		// `exact: false` garde la fiche employé active.
-		pointage: { to: "/rh/pointage", exact: false },
 		// `exact: false` garde la fiche bulletin active.
 		bulletins: { to: "/rh/bulletins", exact: false },
 		comptes: { to: "/rh/comptes", exact: true },

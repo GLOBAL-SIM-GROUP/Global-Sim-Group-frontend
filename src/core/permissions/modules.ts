@@ -276,12 +276,6 @@ export const MODULE_DEFINITIONS: ModuleDefinition[] = [
 				path: "/rh/employes",
 			},
 			{
-				id: "pointage",
-				label: "Pointage",
-				permission: "RH.VOIR",
-				path: "/rh/pointage",
-			},
-			{
 				id: "bulletins",
 				label: "Bulletins de salaire",
 				permission: "RH.VOIR",

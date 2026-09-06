@@ -1,15 +1,14 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 
-import { requirePermissions } from "#/core/auth";
 import { PointagePage } from "#/features/rh/components/pointage-page";
 
 /**
- * Pointage — Arrivée / Départ (M9.2). Pas de search param. Page gated par
- * `RH.VOIR`.
+ * Pointage — Arrivée / Départ (M9.2). Masqué de la navigation et de l'accès
+ * direct (redirection systématique) — fonctionnalité retirée de l'UI.
  */
 export const Route = createFileRoute("/_authenticated/rh/pointage/")({
-	beforeLoad: ({ context }) => {
-		requirePermissions(context.auth, "RH.VOIR");
+	beforeLoad: () => {
+		throw redirect({ to: "/rh/employes" });
 	},
 	component: PointageRoutePage,
 });

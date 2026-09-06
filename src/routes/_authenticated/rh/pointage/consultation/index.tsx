@@ -1,21 +1,20 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 import { z } from "zod";
 
-import { requirePermissions } from "#/core/auth";
 import {
 	PointageConsultationPage,
 	type PointageConsultationSearch,
 } from "#/features/rh/components/pointage-consultation-page";
 
 /**
- * Pointage — Consultation (M9.2). Filtres et page vivent dans l'URL. Page
- * gated par `RH.VOIR`.
+ * Pointage — Consultation (M9.2). Masqué de la navigation et de l'accès
+ * direct (redirection systématique) — fonctionnalité retirée de l'UI.
  */
 export const Route = createFileRoute(
 	"/_authenticated/rh/pointage/consultation/",
 )({
-	beforeLoad: ({ context }) => {
-		requirePermissions(context.auth, "RH.VOIR");
+	beforeLoad: () => {
+		throw redirect({ to: "/rh/employes" });
 	},
 	validateSearch: z.object({
 		employe: z.string().optional(),
