@@ -1,5 +1,7 @@
 import { getApiClient } from "#/core/api";
-import { imprimerPdfBlob } from "#/lib/print-pdf";
+import { getImprimanteThermique } from "#/lib/imprimante-thermique-store";
+import { imprimerHtml, imprimerPdfBlob } from "#/lib/print-pdf";
+import { imprimerTicketQZ } from "#/lib/qz-tray-client";
 
 export type FactureSourceType =
 	| "VENTE"
@@ -85,7 +87,14 @@ export async function printFacturePdf(factureId: string): Promise<void> {
 }
 
 /**
- * Imprime le ticket de caisse (58mm ou 80mm) d'une facture.
+ * Imprime le ticket de caisse (58mm ou 80mm) d'une facture. Le backend
+ * renvoie du HTML : si une imprimante QZ Tray est configurée sur ce poste
+ * (`imprimante-thermique-store.ts`), on imprime directement dessus — la
+ * largeur physique est alors imposée par QZ (niveau pilote), indépendamment
+ * de la boîte d'impression du navigateur (voir `docs/impression.md`). Sinon,
+ * ou si QZ Tray a échoué (agent fermé, imprimante débranchée…), repli
+ * silencieux sur la boîte d'impression du navigateur — jamais d'échec dur
+ * pour l'utilisateur.
  */
 export async function printFactureTicket(
 	factureId: string,
@@ -94,7 +103,21 @@ export async function printFactureTicket(
 	const blob = await getApiClient().download(
 		`/api/v1/facturation/factures/${factureId}/ticket?largeur=${largeur}`,
 	);
-	imprimerPdfBlob(blob);
+	const html = await blob.text();
+
+	const imprimanteQZ = getImprimanteThermique();
+	if (imprimanteQZ) {
+		try {
+			await imprimerTicketQZ(html, largeur, imprimanteQZ);
+			return;
+		} catch (error) {
+			console.error(
+				"Impression QZ Tray indisponible, repli sur la boîte d'impression du navigateur",
+				error,
+			);
+		}
+	}
+	imprimerHtml(html, largeur);
 }
 
 /**

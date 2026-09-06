@@ -1,10 +1,11 @@
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
-import { Loader2, Printer } from "lucide-react";
+import { Loader2, Printer, Settings } from "lucide-react";
 import { useState } from "react";
 import { Button } from "#/components/ui/button";
 import type { FactureSourceType } from "#/core/api/facturation";
 import { printFacturePdf, printFactureTicket } from "#/core/api/facturation";
 import { useFindFacture } from "#/core/api/hooks/use-factures";
+import { ParametresImpressionDialog } from "./parametres-impression-dialog";
 
 interface DownloadReceiptIconButtonProps {
 	sourceType: FactureSourceType;
@@ -26,6 +27,7 @@ export function DownloadReceiptIconButton({
 }: DownloadReceiptIconButtonProps) {
 	const [isDownloading, setIsDownloading] = useState(false);
 	const [menuOuvert, setMenuOuvert] = useState(false);
+	const [parametresOuverts, setParametresOuverts] = useState(false);
 	const { data: facture, isLoading } = useFindFacture(
 		sourceType,
 		idClient,
@@ -115,8 +117,26 @@ export function DownloadReceiptIconButton({
 							Ticket 80 mm
 						</button>
 					</DropdownMenu.Item>
+					<DropdownMenu.Item asChild>
+						<button
+							type="button"
+							onClick={() => {
+								setMenuOuvert(false);
+								setParametresOuverts(true);
+							}}
+							className="flex w-full cursor-pointer items-center gap-2 whitespace-nowrap border-t border-border px-4 py-2 text-left text-sm text-muted-foreground outline-none hover:bg-accent"
+						>
+							<Settings className="size-3.5" aria-hidden />
+							Paramètres d'impression…
+						</button>
+					</DropdownMenu.Item>
 				</DropdownMenu.Content>
 			</DropdownMenu.Portal>
+
+			<ParametresImpressionDialog
+				open={parametresOuverts}
+				onOpenChange={setParametresOuverts}
+			/>
 		</DropdownMenu.Root>
 	);
 }

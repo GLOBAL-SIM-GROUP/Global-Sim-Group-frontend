@@ -1,9 +1,10 @@
-import { FileDown, Loader2, Printer } from "lucide-react";
+import { FileDown, Loader2, Printer, Settings } from "lucide-react";
 import { useState } from "react";
 import { Button } from "#/components/ui/button";
 import type { FactureSourceType } from "#/core/api/facturation";
 import { printFacturePdf, printFactureTicket } from "#/core/api/facturation";
 import { useFindFacture } from "#/core/api/hooks/use-factures";
+import { ParametresImpressionDialog } from "./parametres-impression-dialog";
 
 interface DownloadReceiptButtonProps {
 	sourceType: FactureSourceType;
@@ -32,6 +33,7 @@ export function DownloadReceiptButton({
 	const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
 	const [isDownloadingTicket, setIsDownloadingTicket] = useState(false);
 	const [showTicketOptions, setShowTicketOptions] = useState(false);
+	const [parametresOuverts, setParametresOuverts] = useState(false);
 	const { data: facture, isLoading } = useFindFacture(
 		sourceType,
 		idClient,
@@ -126,9 +128,25 @@ export function DownloadReceiptButton({
 						>
 							80 mm
 						</button>
+						<button
+							type="button"
+							onClick={() => {
+								setShowTicketOptions(false);
+								setParametresOuverts(true);
+							}}
+							className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-muted-foreground hover:bg-accent border-t border-border whitespace-nowrap"
+						>
+							<Settings className="size-3.5" />
+							Paramètres d'impression…
+						</button>
 					</div>
 				)}
 			</div>
+
+			<ParametresImpressionDialog
+				open={parametresOuverts}
+				onOpenChange={setParametresOuverts}
+			/>
 		</div>
 	);
 }
