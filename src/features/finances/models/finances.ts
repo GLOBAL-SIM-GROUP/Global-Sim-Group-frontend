@@ -6,9 +6,29 @@ export interface LigneTableauBord {
 	periode: string;
 	encaissements: string;
 	decaissements: string;
+	depenses: string;
 	marge_nette: string;
 	factures_emises: string;
 	montant_factures: string;
+}
+
+/**
+ * Un paiement de loyer individuel (`payeurs_loyer` de `GET
+ * /finances/tableau-de-bord`) — le seul endpoint qui expose les locataires
+ * ayant payé, nommément, sur une période. `/rapports/activites/{code}` et
+ * `/dashboard?activite=...` n'ont que des agrégats (`loyers_percus`,
+ * `impayes.nombre/montant`), jamais de liste nominative.
+ */
+export interface PayeurLoyer {
+	id_paiement: string;
+	date: string;
+	montant: string;
+	id_client: string;
+	nom: string;
+	prenoms: string;
+	numero_contrat: string;
+	mois: number;
+	annee: number;
 }
 
 export interface Paiement {

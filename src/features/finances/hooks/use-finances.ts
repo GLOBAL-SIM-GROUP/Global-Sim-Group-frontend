@@ -10,6 +10,7 @@ import {
 	listImpayes,
 	listMoyensPaiement,
 	listPaiements,
+	listPayeursLoyer,
 	listTableauBord,
 	modifierDepense,
 	modifierMoyenPaiement,
@@ -25,10 +26,19 @@ import {
 	tableauBordKeys,
 } from "../permissions";
 
-export function useTableauBord(periodo?: string, idCaisse?: string) {
+export function useTableauBord(du?: string, au?: string, idCaisse?: string) {
 	return useQuery({
-		queryKey: tableauBordKeys.list(periodo, idCaisse),
-		queryFn: () => listTableauBord({ periodo, id_caisse: idCaisse }),
+		queryKey: tableauBordKeys.list(du, au, idCaisse),
+		queryFn: () => listTableauBord({ du, au, id_caisse: idCaisse }),
+	});
+}
+
+/** Locataires ayant payé leur loyer sur la période (rapport résidence). */
+export function usePayeursLoyer(du?: string, au?: string, enabled = true) {
+	return useQuery({
+		queryKey: ["finances", "payeurs-loyer", du, au],
+		queryFn: () => listPayeursLoyer(du, au),
+		enabled,
 	});
 }
 

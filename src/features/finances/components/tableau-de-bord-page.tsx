@@ -1,8 +1,10 @@
+import type { UseQueryResult } from "@tanstack/react-query";
 import { FileDown, FileText, Loader2, Printer, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { Breadcrumb } from "#/components/ui/breadcrumb";
 import { Button } from "#/components/ui/button";
+import { Input } from "#/components/ui/input";
 import {
 	Select,
 	SelectContent,
@@ -11,6 +13,11 @@ import {
 	SelectValue,
 } from "#/components/ui/select";
 import { useCan } from "#/core/auth";
+import {
+	type DashboardActivite,
+	getDashboardActivitePath,
+} from "#/features/dashboard/api/dashboard";
+import { useDashboardActivite } from "#/features/dashboard/hooks/use-dashboard";
 import { formatMontantFCFA } from "#/features/residence/models/format";
 import { cn } from "#/lib/utils";
 import {
@@ -31,13 +38,21 @@ type PeriodeFiltre =
 	| "annee"
 	| "personnalisee";
 
+/**
+ * Codes réels de `finances.activite.code` côté backend (`GET
+ * /dashboard?activite=...`, vérifié en direct le 2026-09-06) — ne
+ * correspondent pas aux anciens libellés inventés (`RESIDENCE`,
+ * `MARCHANDISE`, `RESTAURANT`) : la résidence se scinde en deux
+ * (résidentiel/commercial), le reste change de nom.
+ */
 type ActiviteFiltre =
 	| "global"
-	| "RESIDENCE"
-	| "MARCHANDISE"
+	| "VENTE_MARCHANDISES"
 	| "PRESSING"
-	| "RESTAURANT"
-	| "SALLE_FETE";
+	| "RESTAURATION"
+	| "SALLE_FETE"
+	| "LOCATION_RESIDENTIEL"
+	| "LOCATION_COMMERCIAL";
 
 const PERIODES: Record<PeriodeFiltre, string> = {
 	aujourd_hui: "Aujourd'hui",
@@ -51,12 +66,88 @@ const PERIODES: Record<PeriodeFiltre, string> = {
 
 const ACTIVITES: Record<ActiviteFiltre, string> = {
 	global: "Global",
-	RESIDENCE: "Résidence",
-	MARCHANDISE: "Market",
+	VENTE_MARCHANDISES: "Vente de marchandises",
 	PRESSING: "Pressing",
-	RESTAURANT: "Restaurant",
+	RESTAURATION: "Restauration",
 	SALLE_FETE: "Salle de fête",
+	LOCATION_RESIDENTIEL: "Location résidentielle",
+	LOCATION_COMMERCIAL: "Location commerciale",
 };
+
+// Composants locaux, pas `toISOString()` (UTC) : décalerait la date d'un
+// jour selon le fuseau du navigateur, faussant les bornes de mois/semaine.
+const formatDateISO = (date: Date): string => {
+	const annee = date.getFullYear();
+	const mois = String(date.getMonth() + 1).padStart(2, "0");
+	const jour = String(date.getDate()).padStart(2, "0");
+	return `${annee}-${mois}-${jour}`;
+};
+
+/**
+ * Traduit un préréglage de période en bornes `du`/`au` réelles — seul
+ * filtrage supporté par le backend (`periodo` n'existe pas côté API, vérifié
+ * en direct : il n'avait strictement aucun effet). Les périodes renvoyées
+ * sont des buckets mensuels : les préréglages plus fins qu'un mois (« Hier »,
+ * « Cette semaine ») retombent donc sur le même bucket que « Ce mois », mais
+ * le calcul reste correct si le backend gagne un jour une granularité plus fine.
+ */
+function calculerPlagePeriode(
+	periode: PeriodeFiltre,
+	personnalise: { du: string; au: string },
+): { du?: string; au?: string } {
+	const aujourdhui = new Date();
+	switch (periode) {
+		case "aujourd_hui":
+			return { du: formatDateISO(aujourdhui), au: formatDateISO(aujourdhui) };
+		case "hier": {
+			const hier = new Date(aujourdhui);
+			hier.setDate(hier.getDate() - 1);
+			return { du: formatDateISO(hier), au: formatDateISO(hier) };
+		}
+		case "cette_semaine": {
+			// Lundi = début de semaine (getDay() : 0 = dimanche).
+			const jour = aujourdhui.getDay();
+			const decalage = jour === 0 ? 6 : jour - 1;
+			const debut = new Date(aujourdhui);
+			debut.setDate(debut.getDate() - decalage);
+			return { du: formatDateISO(debut), au: formatDateISO(aujourdhui) };
+		}
+		case "ce_mois": {
+			const debut = new Date(
+				aujourdhui.getFullYear(),
+				aujourdhui.getMonth(),
+				1,
+			);
+			const fin = new Date(
+				aujourdhui.getFullYear(),
+				aujourdhui.getMonth() + 1,
+				0,
+			);
+			return { du: formatDateISO(debut), au: formatDateISO(fin) };
+		}
+		case "mois_precedent": {
+			const debut = new Date(
+				aujourdhui.getFullYear(),
+				aujourdhui.getMonth() - 1,
+				1,
+			);
+			const fin = new Date(aujourdhui.getFullYear(), aujourdhui.getMonth(), 0);
+			return { du: formatDateISO(debut), au: formatDateISO(fin) };
+		}
+		case "annee":
+			return {
+				du: `${aujourdhui.getFullYear()}-01-01`,
+				au: `${aujourdhui.getFullYear()}-12-31`,
+			};
+		case "personnalisee":
+			return {
+				du: personnalise.du || undefined,
+				au: personnalise.au || undefined,
+			};
+		default:
+			return {};
+	}
+}
 
 /**
  * Page « Tableau de bord financier » (module Finances, M8) : vue consolidée
@@ -69,30 +160,43 @@ export function TableauDeBordPage() {
 	const userCaisse = useCurrentCaisse();
 	const [periode, setPeriode] = useState<PeriodeFiltre>("ce_mois");
 	const [activite, setActivite] = useState<ActiviteFiltre>("global");
+	const [duPersonnalise, setDuPersonnalise] = useState("");
+	const [auPersonnalise, setAuPersonnalise] = useState("");
 	const [currentPage, setCurrentPage] = useState(1);
 	const [detailsOuvert, setDetailsOuvert] = useState(false);
 	const [exportPdfLoading, setExportPdfLoading] = useState(false);
 	const [exportExcelLoading, setExportExcelLoading] = useState(false);
 	const [exportError, setExportError] = useState<string | null>(null);
 
-	// Map période filtre to backend parameter
-	const periodeParam = periode !== "personnalisee" ? periode : undefined;
+	const { du, au } = useMemo(
+		() =>
+			calculerPlagePeriode(periode, {
+				du: duPersonnalise,
+				au: auPersonnalise,
+			}),
+		[periode, duPersonnalise, auPersonnalise],
+	);
 
-	const tableauBordQuery = useTableauBord(periodeParam);
+	const estGlobal = activite === "global";
+	const tableauBordQuery = useTableauBord(du, au, userCaisse ?? undefined);
+	const activiteQuery = useDashboardActivite(estGlobal ? "" : activite, du, au);
 
-	// Reset page quand les filtres changent (periodeParam sert de déclencheur,
-	// pas lu dans le corps — le retirer romprait la remise à 1).
+	// Reset page quand les filtres changent (du/au servent de déclencheur,
+	// pas lus dans le corps — les retirer romprait la remise à 1).
 	// biome-ignore lint/correctness/useExhaustiveDependencies: déclencheur volontaire, cf. commentaire ci-dessus
 	useEffect(() => {
 		setCurrentPage(1);
-	}, [periodeParam]);
+	}, [du, au]);
 
-	// Fonction d'impression PDF via le backend
+	// Fonction d'impression PDF via le backend (résumé d'activité si un
+	// filtre est actif — /finances/tableau-de-bord n'a pas cette dimension).
 	const handlePrintPdf = async () => {
 		setExportPdfLoading(true);
 		setExportError(null);
 		try {
-			const chemin = getTableauBordPdfPath(periodeParam);
+			const chemin = estGlobal
+				? getTableauBordPdfPath(du, au)
+				: getDashboardActivitePath("pdf", activite, du, au);
 			await printTableauBordPdf(chemin);
 		} catch (error) {
 			setExportError("Impossible de générer le PDF");
@@ -102,12 +206,14 @@ export function TableauDeBordPage() {
 		}
 	};
 
-	// Fonction d'export Excel via le backend
+	// Fonction d'export Excel via le backend (même logique que le PDF).
 	const handleExportExcel = async () => {
 		setExportExcelLoading(true);
 		setExportError(null);
 		try {
-			const chemin = getTableauBordExcelPath(periodeParam);
+			const chemin = estGlobal
+				? getTableauBordExcelPath(du, au)
+				: getDashboardActivitePath("xlsx", activite, du, au);
 			const nomFichier = `tableau-de-bord-financier-${new Date().toISOString().split("T")[0]}.xlsx`;
 			await downloadTableauBordExcel(chemin, nomFichier);
 		} catch (error) {
@@ -223,6 +329,39 @@ export function TableauDeBordPage() {
 							</SelectContent>
 						</Select>
 					</div>
+
+					{periode === "personnalisee" ? (
+						<div className="grid grid-cols-1 gap-3 sm:max-w-md sm:grid-cols-2">
+							<div>
+								<label
+									htmlFor="tableau-bord-filtre-du"
+									className="block text-xs font-medium text-muted-foreground mb-1"
+								>
+									Du
+								</label>
+								<Input
+									id="tableau-bord-filtre-du"
+									type="date"
+									value={duPersonnalise}
+									onChange={(event) => setDuPersonnalise(event.target.value)}
+								/>
+							</div>
+							<div>
+								<label
+									htmlFor="tableau-bord-filtre-au"
+									className="block text-xs font-medium text-muted-foreground mb-1"
+								>
+									Au
+								</label>
+								<Input
+									id="tableau-bord-filtre-au"
+									type="date"
+									value={auPersonnalise}
+									onChange={(event) => setAuPersonnalise(event.target.value)}
+								/>
+							</div>
+						</div>
+					) : null}
 				</div>
 
 				<div className="flex flex-col gap-2 w-full sm:w-auto sm:flex-row sm:items-center sm:gap-2">
@@ -230,7 +369,10 @@ export function TableauDeBordPage() {
 						variant="outline"
 						size="sm"
 						onClick={() => void handlePrintPdf()}
-						disabled={lignes.length === 0 || exportPdfLoading}
+						disabled={
+							(estGlobal ? lignes.length === 0 : !activiteQuery.data) ||
+							exportPdfLoading
+						}
 						className="w-full sm:w-auto"
 					>
 						{exportPdfLoading ? (
@@ -244,7 +386,10 @@ export function TableauDeBordPage() {
 						variant="outline"
 						size="sm"
 						onClick={handleExportExcel}
-						disabled={lignes.length === 0 || exportExcelLoading}
+						disabled={
+							(estGlobal ? lignes.length === 0 : !activiteQuery.data) ||
+							exportExcelLoading
+						}
 						className="w-full sm:w-auto"
 					>
 						{exportExcelLoading ? (
@@ -254,16 +399,18 @@ export function TableauDeBordPage() {
 						)}
 						Excel
 					</Button>
-					<Button
-						variant="outline"
-						size="sm"
-						onClick={() => setDetailsOuvert(true)}
-						disabled={lignes.length === 0}
-						className="w-full sm:w-auto"
-					>
-						<FileText className="mr-2 size-4" aria-hidden />
-						Détails par activité
-					</Button>
+					{estGlobal ? (
+						<Button
+							variant="outline"
+							size="sm"
+							onClick={() => setDetailsOuvert(true)}
+							disabled={lignes.length === 0}
+							className="w-full sm:w-auto"
+						>
+							<FileText className="mr-2 size-4" aria-hidden />
+							Détails par activité
+						</Button>
+					) : null}
 				</div>
 
 				{exportError && (
@@ -273,8 +420,9 @@ export function TableauDeBordPage() {
 				)}
 			</div>
 
-			{/* Indicateurs principaux */}
-			{tableauBordQuery.isLoading ? (
+			{!estGlobal ? (
+				<ActiviteResume query={activiteQuery} libelle={ACTIVITES[activite]} />
+			) : tableauBordQuery.isLoading ? (
 				<p className="text-sm text-muted-foreground">Chargement…</p>
 			) : tableauBordQuery.isError ? (
 				<div
@@ -432,7 +580,8 @@ export function TableauDeBordPage() {
 			{/* Modal détails par activité */}
 			{detailsOuvert && (
 				<DetailsParActiviteModal
-					periode={periodeParam}
+					du={du}
+					au={au}
 					fermer={() => setDetailsOuvert(false)}
 				/>
 			)}
@@ -441,13 +590,15 @@ export function TableauDeBordPage() {
 }
 
 function DetailsParActiviteModal({
-	periode,
+	du,
+	au,
 	fermer,
 }: {
-	periode?: string;
+	du?: string;
+	au?: string;
 	fermer: () => void;
 }) {
-	const { data, isLoading } = useTableauBord(periode);
+	const { data, isLoading } = useTableauBord(du, au);
 	const lignes = data ?? [];
 
 	// Calcule les totaux globaux
@@ -515,6 +666,213 @@ function DetailsParActiviteModal({
 					)}
 				</div>
 			</div>
+		</div>
+	);
+}
+
+/**
+ * Libellés des clés d'indicateurs connues (vérifiées en direct sur les 6
+ * activités réelles — `ca`/`nombre_*` ne se laissent pas déduire correctement
+ * d'un simple remplacement d'underscore : "Ca" et "Nombre commandes" ne sont
+ * pas du français correct). Repli générique pour le reste (codes de statut
+ * dynamiques comme `EN_TRAITEMENT`, clés futures non prévues ici).
+ */
+const LIBELLES_INDICATEURS: Record<string, string> = {
+	ca: "Chiffre d'affaires",
+	nombre_ventes: "Nombre de ventes",
+	nombre_commandes: "Nombre de commandes",
+	nombre_operations: "Nombre d'opérations",
+	top_produit: "Produit le plus vendu",
+	par_statut: "Répartition par statut",
+	realisees: "Réservations réalisées",
+	annulees: "Réservations annulées",
+	loyers_percus: "Loyers perçus",
+	impayes: "Impayés",
+	nom: "Nom",
+	montant: "Montant",
+	nombre: "Nombre",
+};
+
+/** Transforme une clé d'indicateur (`par_statut`, `top_produit`…) en libellé lisible. */
+function libelleCle(cle: string): string {
+	const connu = LIBELLES_INDICATEURS[cle.toLowerCase()];
+	if (connu) return connu;
+	const texte = cle.replaceAll("_", " ").toLowerCase();
+	return texte.charAt(0).toUpperCase() + texte.slice(1);
+}
+
+/**
+ * Couleur des indicateurs dont le sens (positif/négatif) est connu à
+ * l'avance — mêmes teintes que le reste de l'app (`#27AE60` vert / `text-
+ * destructive` rouge). Pas de couleur pour les comptages neutres
+ * (`nombre_*`) ni les objets imbriqués (`top_produit`, `par_statut`, gérés à
+ * part).
+ */
+const COULEUR_INDICATEURS: Record<string, string> = {
+	ca: "text-[#27AE60]",
+	loyers_percus: "text-[#27AE60]",
+	realisees: "text-[#27AE60]",
+	annulees: "text-destructive",
+	impayes: "text-destructive",
+};
+
+function couleurValeur(cle: string): string {
+	return COULEUR_INDICATEURS[cle.toLowerCase()] ?? "text-foreground";
+}
+
+/**
+ * Couleur de badge pour un code de statut générique — mêmes teintes que les
+ * badges de statut utilisés ailleurs dans l'app (contrats, commandes
+ * pressing…), pas une palette inventée pour l'occasion.
+ */
+function couleurStatutBadge(code: string): string {
+	const c = code.toUpperCase();
+	if (["RETIRE", "REALISEE", "REALISEES", "PAYEE", "ACTIF"].includes(c)) {
+		return "bg-[#27AE60] text-white";
+	}
+	if (["ANNULEE", "ANNULEES", "ANNULE", "IMPAYE", "RESILIE"].includes(c)) {
+		return "bg-[#E74C3C] text-white";
+	}
+	if (
+		["EN_TRAITEMENT", "EN_ATTENTE", "PRET", "PARTIEL", "A_VENIR"].includes(c)
+	) {
+		return "bg-[#E67E22] text-white";
+	}
+	if (c === "TERMINE") return "bg-[#2980B9] text-white";
+	return "bg-[#95A5A6] text-white";
+}
+
+/** Formate une valeur d'indicateur générique (nombre, montant, texte). */
+function formatValeurIndicateur(valeur: unknown): string {
+	if (typeof valeur === "number") return valeur.toLocaleString("fr-FR");
+	if (typeof valeur === "string" && /^\d+(\.\d+)?$/.test(valeur)) {
+		return formatMontantFCFA(valeur);
+	}
+	return String(valeur);
+}
+
+/**
+ * Rendu générique des `indicateurs` d'une activité — leur forme varie
+ * entièrement d'une activité à l'autre (vérifié sur les 6 codes réels :
+ * PRESSING a `par_statut`, VENTE_MARCHANDISES a `top_produit`,
+ * LOCATION_RESIDENTIEL a `impayes`…) : pas de mise en page dédiée par
+ * activité, un seul rendu clé/valeur qui gère un niveau d'imbrication.
+ * Une clé `par_*` (répartition par catégorie, ex. `par_statut`) est rendue en
+ * badges colorés plutôt qu'en texte brut.
+ */
+function IndicateursGeneriques({
+	indicateurs,
+}: {
+	indicateurs: Record<string, unknown>;
+}) {
+	const entrees = Object.entries(indicateurs);
+	if (entrees.length === 0) return null;
+	return (
+		<div className="space-y-3 text-sm">
+			{entrees.map(([cle, valeur]) => (
+				<div key={cle}>
+					{valeur !== null && typeof valeur === "object" ? (
+						<div className="space-y-2">
+							<p className="text-muted-foreground">{libelleCle(cle)}</p>
+							{cle.toLowerCase().startsWith("par_") ? (
+								<div className="flex flex-wrap gap-2 pl-3">
+									{Object.entries(valeur as Record<string, unknown>).map(
+										([sousCle, sousValeur]) => (
+											<span
+												key={sousCle}
+												className={cn(
+													"inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium",
+													couleurStatutBadge(sousCle),
+												)}
+											>
+												{libelleCle(sousCle)} ·{" "}
+												{formatValeurIndicateur(sousValeur)}
+											</span>
+										),
+									)}
+								</div>
+							) : (
+								<div className="space-y-1 pl-3">
+									{Object.entries(valeur as Record<string, unknown>).map(
+										([sousCle, sousValeur]) => (
+											<div key={sousCle} className="flex justify-between gap-4">
+												<span className="text-muted-foreground">
+													{libelleCle(sousCle)}
+												</span>
+												<span
+													className={cn("font-medium", couleurValeur(sousCle))}
+												>
+													{formatValeurIndicateur(sousValeur)}
+												</span>
+											</div>
+										),
+									)}
+								</div>
+							)}
+						</div>
+					) : (
+						<div className="flex justify-between gap-4">
+							<span className="text-muted-foreground">{libelleCle(cle)}</span>
+							<span className={cn("font-medium", couleurValeur(cle))}>
+								{formatValeurIndicateur(valeur)}
+							</span>
+						</div>
+					)}
+				</div>
+			))}
+		</div>
+	);
+}
+
+/**
+ * Résumé d'une activité filtrée (`GET /dashboard?activite=...`) : pas de
+ * détail mensuel comme la vue globale (l'endpoint renvoie un seul agrégat
+ * sur toute la période `du`/`au`, pas de tableau à paginer).
+ */
+function ActiviteResume({
+	query,
+	libelle,
+}: {
+	query: UseQueryResult<DashboardActivite>;
+	libelle: string;
+}) {
+	if (query.isLoading) {
+		return <p className="text-sm text-muted-foreground">Chargement…</p>;
+	}
+	if (query.isError || !query.data) {
+		return (
+			<div
+				role="alert"
+				className="rounded-lg border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive"
+			>
+				<p>Impossible de charger les données de cette activité.</p>
+			</div>
+		);
+	}
+	const { data } = query;
+	return (
+		<div className="space-y-4">
+			<div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+				<Indicateur
+					label={`Recettes — ${libelle}`}
+					valeur={formatMontantFCFA(data.recettes_mois)}
+					couleur="text-[#27AE60]"
+				/>
+				<Indicateur
+					label="Opérations sur la période"
+					valeur={data.nombre_operations_mois.toLocaleString("fr-FR")}
+					couleur="text-foreground"
+				/>
+			</div>
+
+			{Object.keys(data.indicateurs).length > 0 ? (
+				<div className="rounded-lg border border-border bg-card p-4 shadow-sm">
+					<h3 className="mb-3 font-semibold text-foreground">
+						Détails — {data.libelle}
+					</h3>
+					<IndicateursGeneriques indicateurs={data.indicateurs} />
+				</div>
+			) : null}
 		</div>
 	);
 }

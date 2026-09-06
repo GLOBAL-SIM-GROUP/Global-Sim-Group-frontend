@@ -124,6 +124,52 @@ export function getIndicateurActivite(
 	);
 }
 
+/**
+ * Réponse de `GET /dashboard?activite=<code>` (nouveau module, absent du
+ * spec — vérifié en direct le 2026-09-06). Résumé d'une activité sur la
+ * période `du`/`au`. `indicateurs` n'a pas de forme fixe : chaque activité a
+ * ses propres clés (ex. PRESSING → `par_statut`, VENTE_MARCHANDISES →
+ * `top_produit`, LOCATION_RESIDENTIEL → `impayes`) — vérifié sur les 6 codes
+ * réels, tous différents.
+ */
+export interface DashboardActivite {
+	code: string;
+	libelle: string;
+	recettes_mois: string;
+	nombre_operations_mois: number;
+	indicateurs: Record<string, unknown>;
+}
+
+/** Résumé consolidé d'une activité (GET `/dashboard?activite=...`). */
+export function getDashboardActivite(
+	code: string,
+	du?: string,
+	au?: string,
+): Promise<DashboardActivite> {
+	const params = new URLSearchParams();
+	params.set("activite", code);
+	if (du) params.set("du", du);
+	if (au) params.set("au", au);
+	return getApiClient().apiFetch<DashboardActivite>(
+		`/api/v1/dashboard?${params.toString()}`,
+	);
+}
+
+/** Chemin d'export PDF/Excel du résumé d'activité (mêmes filtres que ci-dessus). */
+export function getDashboardActivitePath(
+	format: "pdf" | "xlsx",
+	code: string,
+	du?: string,
+	au?: string,
+): string {
+	const params = new URLSearchParams();
+	params.set("format", format);
+	params.set("activite", code);
+	if (du) params.set("du", du);
+	if (au) params.set("au", au);
+	return `/api/v1/dashboard?${params.toString()}`;
+}
+
 /** Récupère les logements (tous) - filtre côté client par statut */
 export function getLogementsDispo(
 	du?: string,

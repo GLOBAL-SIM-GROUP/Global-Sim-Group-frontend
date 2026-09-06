@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 
 import {
 	getCommandesPressing,
+	getDashboardActivite,
 	getImpayes,
 	getIndicateurActivite,
 	getLogementsDispo,
@@ -22,6 +23,19 @@ export function useIndicateurActivite(code: string) {
 	return useQuery({
 		queryKey: ["dashboard", "activite", code],
 		queryFn: () => getIndicateurActivite(code),
+		enabled: !!code,
+	});
+}
+
+/**
+ * Résumé d'une activité sur une période `du`/`au` (page Tableau de bord
+ * financier — filtre « Activité »). `enabled` sur `code` seul : la période
+ * a toujours des bornes par défaut côté backend même sans `du`/`au`.
+ */
+export function useDashboardActivite(code: string, du?: string, au?: string) {
+	return useQuery({
+		queryKey: ["dashboard", "activite-periode", code, du, au],
+		queryFn: () => getDashboardActivite(code, du, au),
 		enabled: !!code,
 	});
 }

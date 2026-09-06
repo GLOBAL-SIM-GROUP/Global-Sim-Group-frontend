@@ -9,6 +9,7 @@ import type {
 	LigneTableauBord,
 	MoyenPaiement,
 	Paiement,
+	PayeurLoyer,
 } from "../models/finances";
 
 type CreerCategorieDepenseDto =
@@ -26,33 +27,71 @@ type MoyenPaiementWire = Omit<MoyenPaiement, "id"> & { id_moyen: string };
 const texteOuNull = (valeur: string | null | undefined): string | null =>
 	valeur?.trim() ? valeur : null;
 
-/** Appels API du module Finances. */
+/**
+ * Appels API du module Finances. La réponse n'est PAS un tableau brut malgré
+ * le nom : le backend renvoie `{ periodes: [...], payeurs_loyer: [...] }`
+ * (vérifié en direct, 2026-09-05) — on déballe `periodes` ici pour que
+ * l'appelant reçoive bien un `LigneTableauBord[]`.
+ *
+ * Filtrage par `du`/`au` (pas `periodo`, qui n'existe pas côté backend et
+ * était silencieusement ignoré — vérifié en direct : `?periodo=ce_mois`
+ * renvoyait exactement les mêmes 36 périodes que sans aucun paramètre,
+ * tandis que `?du=...&au=...` restreint bien les périodes retournées).
+ */
 export function listTableauBord(filtres?: {
-	periodo?: string;
+	du?: string;
+	au?: string;
 	id_caisse?: string;
 }): Promise<LigneTableauBord[]> {
 	const params = new URLSearchParams();
-	if (filtres?.periodo) params.set("periodo", filtres.periodo);
+	if (filtres?.du) params.set("du", filtres.du);
+	if (filtres?.au) params.set("au", filtres.au);
 	if (filtres?.id_caisse) params.set("id_caisse", filtres.id_caisse);
 	const qs = params.toString();
-	return getApiClient().apiFetch<LigneTableauBord[]>(
-		`/api/v1/finances/tableau-de-bord${qs ? `?${qs}` : ""}`,
-	);
+	return getApiClient()
+		.apiFetch<{ periodes: LigneTableauBord[] }>(
+			`/api/v1/finances/tableau-de-bord${qs ? `?${qs}` : ""}`,
+		)
+		.then((data) => data.periodes ?? []);
+}
+
+/**
+ * Locataires ayant payé leur loyer sur la période (`payeurs_loyer` de la même
+ * réponse que `listTableauBord` — voir sa note ci-dessus). Fonction séparée
+ * plutôt qu'un champ de plus sur `listTableauBord` : consommateurs différents
+ * (rapport résidence vs tableau de bord financier), pas besoin de forcer
+ * l'un à porter les données de l'autre.
+ */
+export function listPayeursLoyer(
+	du?: string,
+	au?: string,
+): Promise<PayeurLoyer[]> {
+	const params = new URLSearchParams();
+	if (du) params.set("du", du);
+	if (au) params.set("au", au);
+	const qs = params.toString();
+	return getApiClient()
+		.apiFetch<{ payeurs_loyer: PayeurLoyer[] }>(
+			`/api/v1/finances/tableau-de-bord${qs ? `?${qs}` : ""}`,
+		)
+		.then((data) => data.payeurs_loyer ?? []);
 }
 
 /** Récupère le chemin d'export PDF du tableau de bord financier */
-export function getTableauBordPdfPath(periodo?: string): string {
+export function getTableauBordPdfPath(du?: string, au?: string): string {
 	const params = new URLSearchParams();
 	params.set("format", "pdf");
-	if (periodo) params.set("periodo", periodo);
+	if (du) params.set("du", du);
+	if (au) params.set("au", au);
 	return `/api/v1/finances/tableau-de-bord?${params.toString()}`;
 }
 
 /** Récupère le chemin d'export Excel du tableau de bord financier */
-export function getTableauBordExcelPath(periodo?: string): string {
+export function getTableauBordExcelPath(du?: string, au?: string): string {
 	const params = new URLSearchParams();
 	params.set("format", "xlsx");
-	if (periodo) params.set("periodo", periodo);
+	if (du) params.set("du", du);
+	if (au) params.set("au", au);
 	return `/api/v1/finances/tableau-de-bord?${params.toString()}`;
 }
 

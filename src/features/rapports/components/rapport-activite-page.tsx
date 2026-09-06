@@ -4,7 +4,11 @@ import { useState } from "react";
 
 import { Breadcrumb } from "#/components/ui/breadcrumb";
 import { Button } from "#/components/ui/button";
-import { formatMontantFCFA } from "#/features/residence/models/format";
+import { usePayeursLoyer } from "#/features/finances/hooks/use-finances";
+import {
+	formatDateISO,
+	formatMontantFCFA,
+} from "#/features/residence/models/format";
 
 import { rapportExcelPath, rapportPdfPath } from "../api/rapports";
 import { useRapportActivite } from "../hooks/use-rapports";
@@ -43,6 +47,13 @@ export function RapportActivitePage({
 	const rapportQuery = useRapportActivite(code, periode.du, periode.au);
 	const [pdfError, setPdfError] = useState(false);
 
+	// « Qui a payé son loyer sur la période » : donnée nominative absente de
+	// `/rapports/activites/{code}` (qui n'a que des agrégats) — seul
+	// `/finances/tableau-de-bord` l'expose (`payeurs_loyer`). Résidence
+	// uniquement : ça n'a de sens pour aucune autre activité.
+	const estResidence = code === "LOCATION_RESIDENTIEL";
+	const payeursQuery = usePayeursLoyer(periode.du, periode.au, estResidence);
+
 	const imprimerRapportPdf = async () => {
 		setPdfError(false);
 		try {
@@ -74,12 +85,17 @@ export function RapportActivitePage({
 		}
 	};
 
-	/** Lignes du rapport — base commune de l'export CSV et PDF. */
+	/**
+	 * Lignes du rapport — base commune de l'export CSV. N'alimente PAS
+	 * l'export PDF/Excel (ceux-là sont générés côté backend directement à
+	 * partir de `/rapports/activites/{code}`, qui n'a pas les payeurs) —
+	 * seul le CSV, construit ici côté client, peut les inclure.
+	 */
 	const construireLignes = (): (string | number)[][] => {
 		if (!rapportQuery.data) return [];
 		const { libelle, recettes, nombre_operations, indicateurs } =
 			rapportQuery.data;
-		return [
+		const lignes: (string | number)[][] = [
 			["Période", `${periode.du} → ${periode.au}`],
 			["Activité", libelle],
 			["Recettes", recettes],
@@ -91,6 +107,20 @@ export function RapportActivitePage({
 				typeof valeur === "object" ? JSON.stringify(valeur) : valeur,
 			]),
 		];
+		if (estResidence && payeursQuery.data && payeursQuery.data.length > 0) {
+			lignes.push(
+				[],
+				["Locataires ayant payé leur loyer sur la période"],
+				["Locataire", "Contrat", "Date", "Montant"],
+				...payeursQuery.data.map((payeur) => [
+					`${payeur.nom} ${payeur.prenoms}`.trim(),
+					payeur.numero_contrat,
+					formatDateISO(payeur.date),
+					payeur.montant,
+				]),
+			);
+		}
+		return lignes;
 	};
 
 	const exporter = () => {
@@ -232,6 +262,67 @@ export function RapportActivitePage({
 							)}
 						</div>
 					</section>
+
+					{estResidence ? (
+						<section className="space-y-3 rounded-lg border border-border bg-card p-5 shadow-sm">
+							<h2 className="text-lg font-semibold text-foreground">
+								Locataires ayant payé leur loyer sur la période
+							</h2>
+							{payeursQuery.isLoading ? (
+								<p className="text-sm text-muted-foreground">Chargement…</p>
+							) : payeursQuery.isError ? (
+								<p className="text-sm text-destructive">
+									Impossible de charger la liste des paiements.
+								</p>
+							) : !payeursQuery.data || payeursQuery.data.length === 0 ? (
+								<p className="text-sm text-muted-foreground">
+									Aucun paiement de loyer enregistré sur cette période.
+								</p>
+							) : (
+								<div className="overflow-x-auto rounded-lg border border-border">
+									<table className="w-full text-sm">
+										<thead className="bg-muted">
+											<tr>
+												<th className="px-4 py-2 text-left font-semibold">
+													Locataire
+												</th>
+												<th className="px-4 py-2 text-left font-semibold">
+													Contrat
+												</th>
+												<th className="px-4 py-2 text-left font-semibold">
+													Date
+												</th>
+												<th className="px-4 py-2 text-right font-semibold">
+													Montant
+												</th>
+											</tr>
+										</thead>
+										<tbody>
+											{payeursQuery.data.map((payeur) => (
+												<tr
+													key={payeur.id_paiement}
+													className="border-t border-border"
+												>
+													<td className="px-4 py-2 font-medium text-foreground">
+														{`${payeur.nom} ${payeur.prenoms}`.trim()}
+													</td>
+													<td className="px-4 py-2 text-muted-foreground">
+														{payeur.numero_contrat}
+													</td>
+													<td className="px-4 py-2 text-muted-foreground">
+														{formatDateISO(payeur.date)}
+													</td>
+													<td className="px-4 py-2 text-right font-medium text-[#27AE60]">
+														{formatMontantFCFA(payeur.montant)}
+													</td>
+												</tr>
+											))}
+										</tbody>
+									</table>
+								</div>
+							)}
+						</section>
+					) : null}
 				</>
 			) : null}
 		</div>
