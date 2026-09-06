@@ -24,7 +24,6 @@ import { Route as AuthenticatedRapportsIndexRouteImport } from './routes/_authen
 import { Route as AuthenticatedSignalementsIndexRouteImport } from './routes/_authenticated/signalements/index'
 import { Route as AuthenticatedSignalementsIdRouteImport } from './routes/_authenticated/signalements/$id'
 import { Route as AuthenticatedAdminJournalIndexRouteImport } from './routes/_authenticated/admin/journal/index'
-import { Route as AuthenticatedAdminParametresIndexRouteImport } from './routes/_authenticated/admin/parametres/index'
 import { Route as AuthenticatedAdminRolesIndexRouteImport } from './routes/_authenticated/admin/roles/index'
 import { Route as AuthenticatedAdminSauvegardesIndexRouteImport } from './routes/_authenticated/admin/sauvegardes/index'
 import { Route as AuthenticatedAdminUtilisateursIndexRouteImport } from './routes/_authenticated/admin/utilisateurs/index'
@@ -166,12 +165,6 @@ const AuthenticatedAdminJournalIndexRoute =
   AuthenticatedAdminJournalIndexRouteImport.update({
     id: '/admin/journal/',
     path: '/admin/journal/',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedAdminParametresIndexRoute =
-  AuthenticatedAdminParametresIndexRouteImport.update({
-    id: '/admin/parametres/',
-    path: '/admin/parametres/',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedAdminRolesIndexRoute =
@@ -580,7 +573,6 @@ export interface FileRoutesByFullPath {
   '/rh/employes/$id': typeof AuthenticatedRhEmployesIdRoute
   '/salle-fete/reservations/$id': typeof AuthenticatedSalleFeteReservationsIdRoute
   '/admin/journal/': typeof AuthenticatedAdminJournalIndexRoute
-  '/admin/parametres/': typeof AuthenticatedAdminParametresIndexRoute
   '/admin/roles/': typeof AuthenticatedAdminRolesIndexRoute
   '/admin/sauvegardes/': typeof AuthenticatedAdminSauvegardesIndexRoute
   '/admin/utilisateurs/': typeof AuthenticatedAdminUtilisateursIndexRoute
@@ -660,7 +652,6 @@ export interface FileRoutesByTo {
   '/rh/employes/$id': typeof AuthenticatedRhEmployesIdRoute
   '/salle-fete/reservations/$id': typeof AuthenticatedSalleFeteReservationsIdRoute
   '/admin/journal': typeof AuthenticatedAdminJournalIndexRoute
-  '/admin/parametres': typeof AuthenticatedAdminParametresIndexRoute
   '/admin/roles': typeof AuthenticatedAdminRolesIndexRoute
   '/admin/sauvegardes': typeof AuthenticatedAdminSauvegardesIndexRoute
   '/admin/utilisateurs': typeof AuthenticatedAdminUtilisateursIndexRoute
@@ -740,7 +731,6 @@ export interface FileRoutesById {
   '/_authenticated/rh/employes/$id': typeof AuthenticatedRhEmployesIdRoute
   '/_authenticated/salle-fete/reservations/$id': typeof AuthenticatedSalleFeteReservationsIdRoute
   '/_authenticated/admin/journal/': typeof AuthenticatedAdminJournalIndexRoute
-  '/_authenticated/admin/parametres/': typeof AuthenticatedAdminParametresIndexRoute
   '/_authenticated/admin/roles/': typeof AuthenticatedAdminRolesIndexRoute
   '/_authenticated/admin/sauvegardes/': typeof AuthenticatedAdminSauvegardesIndexRoute
   '/_authenticated/admin/utilisateurs/': typeof AuthenticatedAdminUtilisateursIndexRoute
@@ -822,7 +812,6 @@ export interface FileRouteTypes {
     | '/rh/employes/$id'
     | '/salle-fete/reservations/$id'
     | '/admin/journal/'
-    | '/admin/parametres/'
     | '/admin/roles/'
     | '/admin/sauvegardes/'
     | '/admin/utilisateurs/'
@@ -902,7 +891,6 @@ export interface FileRouteTypes {
     | '/rh/employes/$id'
     | '/salle-fete/reservations/$id'
     | '/admin/journal'
-    | '/admin/parametres'
     | '/admin/roles'
     | '/admin/sauvegardes'
     | '/admin/utilisateurs'
@@ -981,7 +969,6 @@ export interface FileRouteTypes {
     | '/_authenticated/rh/employes/$id'
     | '/_authenticated/salle-fete/reservations/$id'
     | '/_authenticated/admin/journal/'
-    | '/_authenticated/admin/parametres/'
     | '/_authenticated/admin/roles/'
     | '/_authenticated/admin/sauvegardes/'
     | '/_authenticated/admin/utilisateurs/'
@@ -1151,13 +1138,6 @@ declare module '@tanstack/react-router' {
       path: '/admin/journal'
       fullPath: '/admin/journal/'
       preLoaderRoute: typeof AuthenticatedAdminJournalIndexRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/admin/parametres/': {
-      id: '/_authenticated/admin/parametres/'
-      path: '/admin/parametres'
-      fullPath: '/admin/parametres/'
-      preLoaderRoute: typeof AuthenticatedAdminParametresIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/admin/roles/': {
@@ -1624,7 +1604,6 @@ interface AuthenticatedRouteChildren {
   AuthenticatedRhEmployesIdRoute: typeof AuthenticatedRhEmployesIdRoute
   AuthenticatedSalleFeteReservationsIdRoute: typeof AuthenticatedSalleFeteReservationsIdRoute
   AuthenticatedAdminJournalIndexRoute: typeof AuthenticatedAdminJournalIndexRoute
-  AuthenticatedAdminParametresIndexRoute: typeof AuthenticatedAdminParametresIndexRoute
   AuthenticatedAdminRolesIndexRoute: typeof AuthenticatedAdminRolesIndexRoute
   AuthenticatedAdminSauvegardesIndexRoute: typeof AuthenticatedAdminSauvegardesIndexRoute
   AuthenticatedAdminUtilisateursIndexRoute: typeof AuthenticatedAdminUtilisateursIndexRoute
@@ -1705,8 +1684,6 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedSalleFeteReservationsIdRoute:
     AuthenticatedSalleFeteReservationsIdRoute,
   AuthenticatedAdminJournalIndexRoute: AuthenticatedAdminJournalIndexRoute,
-  AuthenticatedAdminParametresIndexRoute:
-    AuthenticatedAdminParametresIndexRoute,
   AuthenticatedAdminRolesIndexRoute: AuthenticatedAdminRolesIndexRoute,
   AuthenticatedAdminSauvegardesIndexRoute:
     AuthenticatedAdminSauvegardesIndexRoute,

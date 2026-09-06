@@ -5,7 +5,6 @@ export const utilisateursKeys = createQueryKeys("admin.utilisateurs");
 export const rolesKeys = createQueryKeys("admin.roles");
 export const permissionsKeys = createQueryKeys("admin.permissions");
 export const journalKeys = createQueryKeys("audit.journal");
-export const parametresKeys = createQueryKeys("core.parametres");
 export const sauvegardesKeys = {
 	all: ["core.sauvegardes"] as const,
 	list: () => ["core.sauvegardes", "list"] as const,
