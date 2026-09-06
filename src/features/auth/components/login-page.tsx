@@ -444,10 +444,6 @@ export function LoginPage() {
 										</Button>
 									)}
 								</form.Subscribe>
-
-								<p className="text-xs text-center text-muted-foreground pt-2">
-									Identifiants de test : admin / motdepasse
-								</p>
 							</form>
 						</div>
 
