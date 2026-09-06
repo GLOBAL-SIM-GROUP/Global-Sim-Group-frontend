@@ -3,7 +3,6 @@ import {
 	AlertCircle,
 	AlertTriangle,
 	CheckCircle2,
-	Clock,
 	Package,
 	TrendingUp,
 	Users,
@@ -29,7 +28,6 @@ import {
 	useCommandesPressing,
 	useImpayes,
 	useLogementsDispo,
-	usePointagesAujourdhui,
 	useProduitsCritiques,
 	useReservationsSalleFutures,
 	useSyntheseGlobale,
@@ -79,7 +77,6 @@ export function DashboardGlobalPage() {
 	const syntheseQuery = useSyntheseGlobale(dates.du, dates.au);
 	const impayesQuery = useImpayes(dates.du, dates.au);
 	const reservationsQuery = useReservationsSalleFutures();
-	const pointagesQuery = usePointagesAujourdhui(dates.du, dates.au);
 	const produitsCritiquesQuery = useProduitsCritiques(dates.du, dates.au);
 	const commandesPressingQuery = useCommandesPressing(dates.du, dates.au);
 	const logementsDispoQuery = useLogementsDispo(dates.du, dates.au);
@@ -87,7 +84,6 @@ export function DashboardGlobalPage() {
 	const synthese = syntheseQuery.data;
 	const impayes = (impayesQuery.data ?? []) as unknown as ImpayeAffiche[];
 	const reservations = reservationsQuery.data ?? [];
-	const pointages = pointagesQuery.data ?? [];
 	const produitsCritiques = produitsCritiquesQuery.data ?? [];
 	const commandesPressing = commandesPressingQuery.data ?? [];
 	const logementsDispo = logementsDispoQuery.data ?? [];
@@ -100,12 +96,6 @@ export function DashboardGlobalPage() {
 		.filter((id): id is string => Boolean(id));
 	const reservationsClientsQuery = useClientsDetails(reservationsClientIds);
 
-	const presentsAujourdhui = pointages.filter(
-		(p) => p.statut === "PRESENT",
-	).length;
-	const retardsAujourdhui = pointages.filter(
-		(p) => p.statut === "RETARD",
-	).length;
 	const montantImpayes = impayes.reduce((sum, i) => {
 		const montant = Number(i.montant_impaye ?? i.reste ?? 0);
 		return sum + (Number.isNaN(montant) ? 0 : montant);
@@ -444,62 +434,12 @@ export function DashboardGlobalPage() {
 						</h2>
 						<div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
 							<InfoCard
-								label="Présents aujourd'hui"
-								valeur={String(presentsAujourdhui)}
-								icon={CheckCircle2}
-								couleur="text-emerald-600"
-								loading={pointagesQuery.isLoading}
-							/>
-							<InfoCard
-								label="Retards aujourd'hui"
-								valeur={String(retardsAujourdhui)}
-								icon={Clock}
-								couleur={
-									retardsAujourdhui > 0
-										? "text-amber-600"
-										: "text-muted-foreground"
-								}
-								loading={pointagesQuery.isLoading}
-							/>
-							<InfoCard
 								label="Masse salariale à payer"
 								valeur={formatMontantFCFA(String(synthese.masse_salariale))}
 								icon={Users}
 								loading={syntheseQuery.isLoading}
 							/>
 						</div>
-
-						{/* Liste des retards */}
-						{retardsAujourdhui > 0 && (
-							<div className="rounded-lg border border-amber-600/40 bg-amber-600/10 p-4">
-								<p className="text-sm font-medium text-amber-600 mb-3">
-									Employés arrivés en retard:
-								</p>
-								<ul className="space-y-2 text-xs">
-									{pointages
-										.filter((p) => p.statut === "RETARD")
-										.slice(0, 10)
-										.map((p) => (
-											<li
-												key={p.id_employe}
-												className="flex items-center justify-between text-foreground"
-											>
-												<span>
-													{p.employe_prenom} {p.employe_nom}
-												</span>
-												<span className="text-muted-foreground">
-													{p.heure_arrivee
-														? new Date(p.heure_arrivee).toLocaleTimeString(
-																"fr-FR",
-																{ hour: "2-digit", minute: "2-digit" },
-															)
-														: "—"}
-												</span>
-											</li>
-										))}
-								</ul>
-							</div>
-						)}
 					</div>
 
 					{/* Market et Stock */}
