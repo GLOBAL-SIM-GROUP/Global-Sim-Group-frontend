@@ -5,6 +5,7 @@ import { Button } from "#/components/ui/button";
 import { DownloadReceiptIconButton } from "#/features/facturation/components/download-receipt-icon-button";
 
 import type { CommandePressing } from "../models/commandes";
+import { RecuDepotButton } from "./recu-depot-button";
 
 interface CommandeActionsProps {
 	commande: CommandePressing;
@@ -48,6 +49,8 @@ export function CommandeActions({
 					<span className="sr-only">Voir la fiche</span>
 				</Link>
 			</Button>
+
+			<RecuDepotButton idCommande={commande.id} />
 
 			<DownloadReceiptIconButton
 				sourceType="COMMANDE_PRESSING"

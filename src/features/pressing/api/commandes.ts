@@ -1,5 +1,8 @@
 import { getApiClient } from "#/core/api";
 import type { components } from "#/core/api/generated/schema";
+import { getImprimanteThermique } from "#/lib/imprimante-thermique-store";
+import { imprimerHtml } from "#/lib/print-pdf";
+import { imprimerTicketQZ } from "#/lib/qz-tray-client";
 
 import type {
 	CommandePressing,
@@ -170,4 +173,36 @@ export function annulerCommande(id: string): Promise<unknown> {
 	return getApiClient().apiFetch(`/api/v1/pressing/commandes/${id}/annuler`, {
 		method: "POST",
 	});
+}
+
+/**
+ * Imprime le reçu de dépôt d'une commande (GET `.../recu`, HTML thermique
+ * 58/80mm) — construit depuis la commande elle-même, disponible dès le dépôt
+ * (avec ou sans acompte), contrairement au reçu de facture qui exige un
+ * paiement intégral. Même mécanique que `printFactureTicket` : imprime via
+ * QZ Tray si une imprimante est configurée sur ce poste, sinon repli sur la
+ * boîte d'impression du navigateur.
+ */
+export async function printCommandeRecu(
+	id: string,
+	largeur: 58 | 80 = 58,
+): Promise<void> {
+	const blob = await getApiClient().download(
+		`/api/v1/pressing/commandes/${id}/recu?largeur=${largeur}`,
+	);
+	const html = await blob.text();
+
+	const imprimanteQZ = getImprimanteThermique();
+	if (imprimanteQZ) {
+		try {
+			await imprimerTicketQZ(html, largeur, imprimanteQZ);
+			return;
+		} catch (error) {
+			console.error(
+				"Impression QZ Tray indisponible, repli sur la boîte d'impression du navigateur",
+				error,
+			);
+		}
+	}
+	imprimerHtml(html, largeur);
 }

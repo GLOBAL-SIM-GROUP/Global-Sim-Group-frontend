@@ -24,6 +24,7 @@ import {
 	PRESSING_STATUT_LABELS,
 } from "../models/commandes";
 import { CommandeFormDialog } from "./commande-form-dialog";
+import { RecuDepotButton } from "./recu-depot-button";
 import { RetirerCommandeDialog } from "./retirer-commande-dialog";
 
 const PRESSING_STATUT_BADGE: Record<CommandePressingStatut, string> = {
@@ -52,8 +53,9 @@ interface CommandeFichePageProps {
 /**
  * Page « Fiche commande — [N°] » (module Pressing, M4) : informations client,
  * liste des articles, montants et statut. Actions : Modifier, Changer le statut
- * (En traitement / Prêt) et Retirer (encaissement du solde). L'historique des
- * changements de statut et le reçu ne sont pas exposés par le backend → omis.
+ * (En traitement / Prêt), Retirer (encaissement du solde) et impression du
+ * reçu de dépôt. L'historique des changements de statut n'est pas exposé par
+ * le backend → omis.
  */
 export function CommandeFichePage({ id }: CommandeFichePageProps) {
 	const canModifier = useCan("PRESSING.MODIFIER");
@@ -133,6 +135,12 @@ export function CommandeFichePage({ id }: CommandeFichePageProps) {
 					>
 						<Link to="/pressing/commandes">Retour aux commandes</Link>
 					</Button>
+					<RecuDepotButton
+						idCommande={commande.id}
+						variant="outline"
+						size="sm"
+						showLabel={true}
+					/>
 					<DownloadReceiptButton
 						sourceType="COMMANDE_PRESSING"
 						idClient={commande.id_client ?? null}
