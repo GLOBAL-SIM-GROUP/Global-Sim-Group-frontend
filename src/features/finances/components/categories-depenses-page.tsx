@@ -116,8 +116,10 @@ function CategorieDepenseFormDialog({
  * dépenses, Ajouter / Supprimer.
  */
 export function CategoriesDepensesPage() {
-	const canCreer = useCan("FINANCES.CREER");
-	const canSupprimer = useCan("FINANCES.SUPPRIMER");
+	// Verbes dédiés (DEPENSE.*) — voir le commentaire équivalent dans
+	// `depenses-page.tsx`.
+	const canCreer = useCan("DEPENSE.CREER");
+	const canSupprimer = useCan("DEPENSE.SUPPRIMER");
 	const canVoir = useCan("FINANCES.VOIR");
 	const categoriesQuery = useCategoriesDepenses();
 	const supprimerMutation = useSupprimerCategorieDepense();

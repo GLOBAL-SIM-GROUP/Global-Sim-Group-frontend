@@ -1,5 +1,5 @@
 import { useForm } from "@tanstack/react-form";
-import { Loader2, Pencil, Plus, Trash2 } from "lucide-react";
+import { AlertTriangle, Loader2, Pencil, Plus, Trash2 } from "lucide-react";
 import { Dialog } from "radix-ui";
 import { useState } from "react";
 
@@ -15,7 +15,11 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "#/components/ui/select";
-import { getErrorMessageForCode, toApiError } from "#/core/api";
+import {
+	getErrorMessageForCode,
+	isCaisseFermeeError,
+	toApiError,
+} from "#/core/api";
 import { useCan } from "#/core/auth";
 import { ConfirmDialog } from "#/features/residence/components/confirm-dialog";
 import {
@@ -70,6 +74,7 @@ function DepenseFormDialog({
 	const categories = categoriesQuery.data ?? [];
 	const userCaisse = useCurrentCaisse();
 	const [globalError, setGlobalError] = useState<string | null>(null);
+	const [caisseFermee, setCaisseFermee] = useState(false);
 	const form = useForm({
 		defaultValues: {
 			date: depense?.date.slice(0, 10) ?? dateAujourdhui(),
@@ -97,6 +102,7 @@ function DepenseFormDialog({
 		},
 		onSubmit: async ({ value }) => {
 			setGlobalError(null);
+			setCaisseFermee(false);
 			try {
 				const corps = {
 					date: value.date,
@@ -112,10 +118,16 @@ function DepenseFormDialog({
 				}
 				onSaved();
 			} catch (error) {
-				setGlobalError(
-					getErrorMessageForCode(toApiError(error).code) ??
-						(toApiError(error).message || "Une erreur est survenue."),
-				);
+				const apiError = toApiError(error);
+				if (isCaisseFermeeError(apiError)) {
+					setCaisseFermee(true);
+					setGlobalError(apiError.message);
+				} else {
+					setGlobalError(
+						getErrorMessageForCode(apiError.code) ??
+							(apiError.message || "Une erreur est survenue."),
+					);
+				}
 			}
 		},
 	});
@@ -238,7 +250,15 @@ function DepenseFormDialog({
 								onChange={(id) => form.setFieldValue("idCaisse", id)}
 							/>
 						)}
-						{globalError ? (
+						{caisseFermee ? (
+							<div
+								role="alert"
+								className="flex items-start gap-2 rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 text-sm text-amber-700 dark:text-amber-400"
+							>
+								<AlertTriangle className="mt-0.5 size-4 shrink-0" aria-hidden />
+								<span>{globalError}</span>
+							</div>
+						) : globalError ? (
 							<p role="alert" className="text-sm font-medium text-destructive">
 								{globalError}
 							</p>
@@ -276,9 +296,14 @@ export function DepensesPage({
 	initialSearch,
 	onSearchChange,
 }: DepensesPageProps) {
-	const canCreer = useCan("FINANCES.CREER");
-	const canModifier = useCan("FINANCES.MODIFIER");
-	const canSupprimer = useCan("FINANCES.SUPPRIMER");
+	// Verbes dédiés (DEPENSE.*) depuis le split backend des permissions dépenses
+	// — avant, ces actions étaient gated par les verbes FINANCES.* partagés
+	// avec les paiements. Seuls ADMINISTRATEUR/DIRIGEANT ont ces nouveaux
+	// codes ; un caissier garde FINANCES.CREER (pour les paiements) mais perd
+	// le bouton « Ajouter une dépense », intentionnellement.
+	const canCreer = useCan("DEPENSE.CREER");
+	const canModifier = useCan("DEPENSE.MODIFIER");
+	const canSupprimer = useCan("DEPENSE.SUPPRIMER");
 	const canVoir = useCan("FINANCES.VOIR");
 	const userCaisse = useCurrentCaisse();
 
