@@ -25,6 +25,7 @@ interface EncaisserLotFormProps {
 	/** Échéances du contrat, pour afficher mois/année dans le résultat (le
 	 *  serveur ne renvoie que des id). */
 	echeances: Echeance[];
+	montantMaximum: number;
 	moyens: MoyenPaiement[];
 	onCancel: () => void;
 	/** Appelé quand l'utilisateur ferme la vue de résultat (rafraîchit déjà
@@ -42,6 +43,7 @@ interface EncaisserLotFormProps {
 export function EncaisserLotForm({
 	idContrat,
 	echeances,
+	montantMaximum,
 	moyens,
 	onCancel,
 	onSaved,
@@ -61,8 +63,13 @@ export function EncaisserLotForm({
 				const fields: Partial<Record<"montant" | "idMoyen", string>> = {};
 				if (!value.montant.trim()) {
 					fields.montant = "Ce champ est requis.";
-				} else if (!/^\d+(\.\d+)?$/.test(value.montant.trim())) {
-					fields.montant = "Le montant doit être un nombre.";
+				} else if (!/^\d+(\.\d{1,2})?$/.test(value.montant.trim())) {
+					fields.montant =
+						"Le montant doit contenir au maximum deux décimales.";
+				} else if (Number(value.montant) > montantMaximum) {
+					fields.montant = `Le montant ne peut pas dépasser ${formatMontantFCFA(
+						String(montantMaximum),
+					)}.`;
 				}
 				if (!value.idMoyen) {
 					fields.idMoyen = "Sélectionnez un moyen de paiement.";
@@ -77,7 +84,7 @@ export function EncaisserLotForm({
 					idContrat,
 					montant: value.montant.trim(),
 					idMoyen: value.idMoyen,
-					date: value.date || undefined,
+					date: value.date ? `${value.date.replace("T", " ")}:00` : undefined,
 				});
 			} catch (error) {
 				setGlobalError(
@@ -172,17 +179,22 @@ export function EncaisserLotForm({
 		>
 			<form.Field name="montant">
 				{(field) => (
-					<InputField
-						id={field.name}
-						name={field.name}
-						label="Montant (FCFA)"
-						inputMode="numeric"
-						autoComplete="off"
-						value={field.state.value}
-						onBlur={field.handleBlur}
-						onChange={(event) => field.handleChange(event.target.value)}
-						error={field.state.meta.errors[0]}
-					/>
+					<div className="space-y-1.5">
+						<InputField
+							id={field.name}
+							name={field.name}
+							label="Montant (FCFA)"
+							inputMode="decimal"
+							autoComplete="off"
+							value={field.state.value}
+							onBlur={field.handleBlur}
+							onChange={(event) => field.handleChange(event.target.value)}
+							error={field.state.meta.errors[0]}
+						/>
+						<p className="text-xs text-muted-foreground">
+							Maximum à encaisser : {formatMontantFCFA(String(montantMaximum))}
+						</p>
+					</div>
 				)}
 			</form.Field>
 
@@ -229,7 +241,8 @@ export function EncaisserLotForm({
 						id={field.name}
 						name={field.name}
 						label="Date (optionnelle)"
-						type="date"
+						type="datetime-local"
+						step="60"
 						autoComplete="off"
 						value={field.state.value}
 						onBlur={field.handleBlur}

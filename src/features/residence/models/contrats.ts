@@ -32,6 +32,7 @@ export interface Echeance {
 	mois: number;
 	annee: number;
 	montant: string;
+	montant_paye?: string | null;
 	date_echeance: string;
 	/** PAYE | IMPAYE | PARTIEL | … (enum ouvert : repli `?? statut`). */
 	statut: string;

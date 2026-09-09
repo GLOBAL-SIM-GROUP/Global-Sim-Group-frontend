@@ -30,7 +30,7 @@ interface ContratEcheancesTabProps {
 /**
  * Onglet « Échéances » de la fiche contrat : tableau des échéances mensuelles
  * + bouton « Enregistrer un paiement » (POST `/echeances/{id}/encaisser`) sur
- * les lignes non payées, gated par `RESIDENCE.CREER` && `FINANCES.VOIR`.
+ * les lignes non payées, gated par `FINANCES.CREER`.
  * + bouton « Reçu » pour télécharger le PDF du reçu.
  * + bouton « Encaissement en lot » (POST `/contrats/{id}/encaisser-loyer-lot`),
  * action complémentaire pour régler plusieurs échéances en un seul paiement.
@@ -39,20 +39,19 @@ export function ContratEcheancesTab({
 	idContrat,
 	echeances,
 }: ContratEcheancesTabProps) {
-	const canCreer = useCan("RESIDENCE.CREER");
-	const canFinancesVoir = useCan("FINANCES.VOIR");
+	const peutEncaisser = useCan("FINANCES.CREER");
 	const moyensQuery = useMoyensPaiement();
 	const [aEncaisser, setAEncaisser] = useState<Echeance | null>(null);
 	const [lotOuvert, setLotOuvert] = useState(false);
-
-	const peutEncaisser = canCreer && canFinancesVoir;
-	// IMPAYE/PARTIEL seulement (pas A_VENIR/EN_ATTENTE) : le lot ne rattrape que
-	// des échéances réellement dues et non soldées — une échéance future n'a
-	// rien à recevoir, l'afficher pousserait à un paiement qui ne s'appliquerait
-	// à rien (tout le montant reviendrait en « non affecté »).
-	const aDesImpayees = echeances.some(
-		(e) => e.statut === "IMPAYE" || e.statut === "PARTIEL",
+	const echeancesNonPayees = echeances.filter(
+		(echeance) => echeance.statut !== "PAYE",
 	);
+	const montantMaximum = echeancesNonPayees.reduce((total, echeance) => {
+		const montant = Number(echeance.montant);
+		const montantPaye = Number(echeance.montant_paye ?? 0);
+		const reste = montant - montantPaye;
+		return total + (Number.isFinite(reste) ? Math.max(0, reste) : 0);
+	}, 0);
 
 	if (echeances.length === 0) {
 		return (
@@ -64,7 +63,7 @@ export function ContratEcheancesTab({
 
 	return (
 		<section className="space-y-3">
-			{peutEncaisser && aDesImpayees ? (
+			{peutEncaisser && echeancesNonPayees.length >= 2 ? (
 				<div className="flex justify-end">
 					<Button
 						variant="outline"
@@ -127,9 +126,7 @@ export function ContratEcheancesTab({
 								<td className="px-4 py-3">
 									<div className="flex items-center justify-end gap-2">
 										<EcheanceRecuButton echeance={echeance} />
-										{canCreer &&
-										canFinancesVoir &&
-										echeance.statut !== "PAYE" ? (
+										{peutEncaisser && echeance.statut !== "PAYE" ? (
 											<Button
 												variant="outline"
 												size="sm"
@@ -161,6 +158,7 @@ export function ContratEcheancesTab({
 				open={lotOuvert}
 				idContrat={idContrat}
 				echeances={echeances}
+				montantMaximum={montantMaximum}
 				moyens={moyensQuery.data ?? []}
 				onOpenChange={setLotOuvert}
 				onSaved={() => setLotOuvert(false)}

@@ -8,6 +8,7 @@ interface EncaisserLotFormDialogProps {
 	open: boolean;
 	idContrat: string;
 	echeances: Echeance[];
+	montantMaximum: number;
 	moyens: MoyenPaiement[];
 	onOpenChange: (open: boolean) => void;
 	onSaved: () => void;
@@ -22,6 +23,7 @@ export function EncaisserLotFormDialog({
 	open,
 	idContrat,
 	echeances,
+	montantMaximum,
 	moyens,
 	onOpenChange,
 	onSaved,
@@ -30,7 +32,7 @@ export function EncaisserLotFormDialog({
 		<Dialog.Root open={open} onOpenChange={onOpenChange}>
 			<Dialog.Portal>
 				<Dialog.Overlay className="fixed inset-0 z-50 bg-black/50" />
-				<Dialog.Content className="fixed top-1/2 left-1/2 z-50 w-[calc(100vw-2rem)] max-w-lg -translate-x-1/2 -translate-y-1/2 rounded-lg border border-border bg-card p-6 shadow-lg">
+				<Dialog.Content className="fixed top-1/2 left-1/2 z-50 max-h-[85dvh] w-[calc(100vw-2rem)] max-w-lg -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-lg border border-border bg-card p-6 shadow-lg">
 					<Dialog.Title className="text-base font-semibold text-foreground">
 						Encaissement en lot
 					</Dialog.Title>
@@ -43,6 +45,7 @@ export function EncaisserLotFormDialog({
 							<EncaisserLotForm
 								idContrat={idContrat}
 								echeances={echeances}
+								montantMaximum={montantMaximum}
 								moyens={moyens}
 								onCancel={() => onOpenChange(false)}
 								onSaved={onSaved}
