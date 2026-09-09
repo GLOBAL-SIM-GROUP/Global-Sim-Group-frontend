@@ -15,10 +15,14 @@ import {
 } from "#/components/ui/select";
 import { Textarea } from "#/components/ui/textarea";
 import { getErrorMessageForCode, getFieldErrors, toApiError } from "#/core/api";
+import { cn } from "#/lib/utils";
 
 import { useCreerLogement, useModifierLogement } from "../hooks/use-logements";
 import type { Batiment } from "../models/batiments";
 import {
+	basculerEquipement,
+	EQUIPEMENTS_PREDEFINIS,
+	equipementsDepuisTexte,
 	LOGEMENT_STATUT_LABELS,
 	LOGEMENT_TYPE_LABELS,
 	type Logement,
@@ -310,16 +314,53 @@ export function LogementForm({
 			</form.Field>
 
 			<form.Field name="equipements">
-				{(field) => (
-					<TextareaField
-						id={field.name}
-						label="Équipements"
-						placeholder="ex : lit, climatisation, douche…"
-						value={field.state.value}
-						onChange={field.handleChange}
-						error={field.state.meta.errors[0]}
-					/>
-				)}
+				{(field) => {
+					const equipementsSelectionnes = equipementsDepuisTexte(
+						field.state.value,
+					).map((equipement) => equipement.toLocaleLowerCase("fr"));
+					return (
+						<div className="space-y-3">
+							<div className="space-y-2">
+								<Label>Équipements proposés</Label>
+								<div className="flex flex-wrap gap-2">
+									{EQUIPEMENTS_PREDEFINIS.map((equipement) => {
+										const selectionne = equipementsSelectionnes.includes(
+											equipement.toLocaleLowerCase("fr"),
+										);
+										return (
+											<button
+												key={equipement}
+												type="button"
+												aria-pressed={selectionne}
+												onClick={() =>
+													field.handleChange(
+														basculerEquipement(field.state.value, equipement),
+													)
+												}
+												className={cn(
+													"rounded-full border px-3 py-1.5 text-sm font-medium transition-colors",
+													selectionne
+														? "border-lagoon bg-lagoon text-white"
+														: "border-border bg-card text-muted-foreground hover:border-lagoon/50 hover:text-foreground",
+												)}
+											>
+												{equipement}
+											</button>
+										);
+									})}
+								</div>
+							</div>
+							<TextareaField
+								id={field.name}
+								label="Équipements enregistrés"
+								placeholder="Sélectionnez les équipements ou ajoutez-en d'autres…"
+								value={field.state.value}
+								onChange={field.handleChange}
+								error={field.state.meta.errors[0]}
+							/>
+						</div>
+					);
+				}}
 			</form.Field>
 
 			<form.Field name="statut">
@@ -343,18 +384,20 @@ export function LogementForm({
 				)}
 			</form.Field>
 
-			<form.Field name="etat">
-				{(field) => (
-					<TextareaField
-						id={field.name}
-						label="État"
-						placeholder="ex : bon état, rénové récemment…"
-						value={field.state.value}
-						onChange={field.handleChange}
-						error={field.state.meta.errors[0]}
-					/>
-				)}
-			</form.Field>
+			{logement ? (
+				<form.Field name="etat">
+					{(field) => (
+						<TextareaField
+							id={field.name}
+							label="État"
+							placeholder="ex : bon état, rénové récemment…"
+							value={field.state.value}
+							onChange={field.handleChange}
+							error={field.state.meta.errors[0]}
+						/>
+					)}
+				</form.Field>
+			) : null}
 
 			{globalError ? (
 				<p role="alert" className="text-sm font-medium text-destructive">

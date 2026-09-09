@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 
 import {
+	basculerEquipement,
+	EQUIPEMENTS_PREDEFINIS,
+	equipementsDepuisTexte,
 	filtrerLogements,
 	formatTarifFCFA,
 	type Logement,
@@ -35,6 +38,19 @@ const logements = [
 	logement({ id: "4", numero: "4", type: "MEUBLE", statut: "RESERVE" }),
 	logement({ id: "5", numero: "5", type: "CHAMBRE", statut: "DISPONIBLE" }),
 ];
+
+describe("équipements prédéfinis", () => {
+	it("expose la même liste pour les formulaires logement", () => {
+		expect(EQUIPEMENTS_PREDEFINIS).toContain("Ventilateur");
+		expect(EQUIPEMENTS_PREDEFINIS).toContain("Un téléviseur");
+	});
+
+	it("ajoute puis retire un équipement sans perdre la saisie libre", () => {
+		const ajoute = basculerEquipement("Douche", "Lit");
+		expect(equipementsDepuisTexte(ajoute)).toEqual(["Douche", "Lit"]);
+		expect(basculerEquipement(ajoute, "Lit")).toBe("Douche");
+	});
+});
 
 describe("filtrerLogements", () => {
 	it("retourne tout sans filtre", () => {

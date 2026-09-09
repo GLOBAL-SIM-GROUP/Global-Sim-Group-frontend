@@ -47,6 +47,35 @@ export const LOGEMENT_STATUT_LABELS: Record<LogementStatut, string> = {
 	INDISPONIBLE: "Indisponible",
 };
 
+export const EQUIPEMENTS_PREDEFINIS = [
+	"Lit",
+	"Placard",
+	"Climatiseur",
+	"Ventilateur",
+	"Table et chaise d'étude",
+	"Plaque et bouteille à gaz",
+	"Un téléviseur",
+	"Deux canapés et une table centrale",
+] as const;
+
+export function equipementsDepuisTexte(value: string): string[] {
+	return value
+		.split(/[,;\n]/)
+		.map((equipement) => equipement.trim())
+		.filter(Boolean);
+}
+
+export function basculerEquipement(value: string, equipement: string): string {
+	const equipements = equipementsDepuisTexte(value);
+	const index = equipements.findIndex(
+		(item) =>
+			item.toLocaleLowerCase("fr") === equipement.toLocaleLowerCase("fr"),
+	);
+	if (index >= 0) equipements.splice(index, 1);
+	else equipements.push(equipement);
+	return equipements.join(", ");
+}
+
 /**
  * Occupation actuelle, dérivée du statut : le spec n'expose aucun nom
  * d'occupant dans la réponse du lister (aucun schéma de réponse). « Libre »
