@@ -126,6 +126,46 @@ describe("createAuthSession — échec du refresh", () => {
 		expect(stored).toEqual(tokens);
 	});
 
+	it.each([
+		429, 500, 503,
+	])("ne déconnecte pas sur une erreur backend temporaire (%i)", async (status) => {
+		vi.stubGlobal(
+			"fetch",
+			vi.fn(
+				async () =>
+					new Response(
+						JSON.stringify({
+							success: false,
+							statusCode: status,
+							message: "Erreur temporaire",
+						}),
+						{
+							status,
+							headers: { "content-type": "application/json" },
+						},
+					),
+			),
+		);
+		let stored: StoredTokens | null = tokens;
+		const clear = vi.fn(() => {
+			stored = null;
+		});
+		const session = createAuthSession({
+			tokenStorage: {
+				get: () => stored,
+				set: (next) => {
+					stored = next;
+				},
+				clear,
+			},
+		});
+
+		expect(await session.refresh()).toBe(false);
+
+		expect(clear).not.toHaveBeenCalled();
+		expect(stored).toEqual(tokens);
+	});
+
 	it("déconnecte sur un vrai rejet du backend (401)", async () => {
 		vi.stubGlobal(
 			"fetch",

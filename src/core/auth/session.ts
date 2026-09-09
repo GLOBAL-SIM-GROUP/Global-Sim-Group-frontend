@@ -5,6 +5,7 @@ import {
 	isApiError,
 	setApiClient,
 } from "#/core/api";
+import { queryClient } from "#/core/query";
 import { clearSessionHint, markSessionHint } from "./session-hint";
 import {
 	createMemoryTokenStore,
@@ -19,15 +20,17 @@ const REFRESH_MARGIN_S = 30;
 const NETWORK_RETRY_DELAY_S = 15;
 
 /**
- * `true` si l'échec du refresh vient d'une vraie réponse du backend (401 :
- * refresh token expiré/révoqué — la session est réellement finie). `false`
- * pour une erreur réseau/timeout (`status: 0`, cf. `mapperErreur` dans
- * `http.ts`) : la requête n'a même pas atteint le serveur, le refresh token
+ * `true` si le backend refuse définitivement les identifiants (400/401/403 :
+ * token invalide, expiré ou révoqué). `false` pour une erreur réseau/timeout,
+ * une limitation de débit ou une erreur serveur temporaire : le refresh token
  * est probablement toujours valide — ne pas déconnecter l'utilisateur pour
- * un accroc réseau passager.
+ * un incident passager.
  */
 function estRefusParLeBackend(error: unknown): boolean {
-	return isApiError(error) && error.status !== 0;
+	return (
+		isApiError(error) &&
+		(error.status === 400 || error.status === 401 || error.status === 403)
+	);
 }
 
 /**
@@ -160,6 +163,14 @@ export function createAuthSession(
 		tokenStorage.clear();
 		clearSessionHint();
 		setUser(null);
+		// Le `queryClient` est un singleton partagé pour tout le cycle de vie de
+		// l'app (jamais recréé entre deux sessions) : sans ce `clear()`, les
+		// données mises en cache par l'utilisateur précédent (staleTime 30s)
+		// restent lisibles par le suivant qui se connecte dans le même onglet
+		// avant expiration du cache — fuite de données entre comptes (ex. un
+		// résident qui hérite brièvement de la liste complète des signalements
+		// vue par l'admin précédent).
+		queryClient.clear();
 	}
 
 	/**
