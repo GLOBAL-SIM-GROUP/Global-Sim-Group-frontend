@@ -1,9 +1,10 @@
 import { Link } from "@tanstack/react-router";
-import { HandCoins } from "lucide-react";
+import { AlertTriangle, HandCoins } from "lucide-react";
 import { useState } from "react";
 
 import { Breadcrumb } from "#/components/ui/breadcrumb";
 import { Button } from "#/components/ui/button";
+import { isCaisseFermeeError, toApiError } from "#/core/api";
 import { useCan } from "#/core/auth";
 import { useClientsDetails } from "#/features/residence/hooks/use-clients";
 import { useMoyensPaiement } from "#/features/residence/hooks/use-moyens-paiement";
@@ -213,12 +214,22 @@ export function FactureFichePage({ id }: FactureFichePageProps) {
 			</section>
 
 			{payerMutation.isError ? (
-				<div
-					role="alert"
-					className="rounded-md border border-destructive/40 bg-destructive/10 px-4 py-2 text-sm text-destructive"
-				>
-					Impossible d'enregistrer le paiement.
-				</div>
+				isCaisseFermeeError(payerMutation.error) ? (
+					<div
+						role="alert"
+						className="flex items-start gap-2 rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 text-sm text-amber-700 dark:text-amber-400"
+					>
+						<AlertTriangle className="mt-0.5 size-4 shrink-0" aria-hidden />
+						<span>{toApiError(payerMutation.error).message}</span>
+					</div>
+				) : (
+					<div
+						role="alert"
+						className="rounded-md border border-destructive/40 bg-destructive/10 px-4 py-2 text-sm text-destructive"
+					>
+						Impossible d'enregistrer le paiement.
+					</div>
+				)
 			) : null}
 
 			{paiementOuvert ? (
