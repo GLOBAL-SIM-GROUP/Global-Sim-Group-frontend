@@ -61,7 +61,6 @@ describe("EtatDesLieuxFormDialog", () => {
 		});
 		await user.upload(screen.getByLabelText("Fichier"), fichier);
 
-		await user.type(screen.getByLabelText(/Pièce/), "Chambre");
 		await user.type(screen.getByLabelText(/Commentaire/), "RAS");
 
 		await user.click(screen.getByRole("button", { name: /Ajouter/ }));
@@ -70,28 +69,16 @@ describe("EtatDesLieuxFormDialog", () => {
 		expect(mutateAsyncMock).toHaveBeenCalledWith({
 			idContrat: "c1",
 			type: "ENTREE",
-			piece: "Chambre",
 			cle_objet: "etat-lieux/abc.jpg",
 			commentaire: "RAS",
 		});
 		expect(onSaved).toHaveBeenCalled();
 	});
 
-	it("affiche une erreur de validation si la pièce dépasse 100 caractères", async () => {
-		const user = userEvent.setup();
+	it("n'affiche plus le champ pièce", () => {
 		ouvrir();
 
-		const fichier = new File(["contenu"], "photo.jpg", {
-			type: "image/jpeg",
-		});
-		await user.upload(screen.getByLabelText("Fichier"), fichier);
-		await user.type(screen.getByLabelText(/Pièce/), "a".repeat(101));
-		await user.click(screen.getByRole("button", { name: /Ajouter/ }));
-
-		expect(
-			await screen.findByText("100 caractères maximum."),
-		).toBeInTheDocument();
-		expect(uploadImageMock).not.toHaveBeenCalled();
+		expect(screen.queryByLabelText(/Pièce/)).not.toBeInTheDocument();
 	});
 
 	it("affiche le message d'erreur d'`uploadImage` si l'upload échoue", async () => {

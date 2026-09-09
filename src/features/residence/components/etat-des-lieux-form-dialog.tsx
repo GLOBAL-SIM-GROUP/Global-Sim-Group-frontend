@@ -4,7 +4,6 @@ import { Dialog } from "radix-ui";
 import { useRef, useState } from "react";
 
 import { Button } from "#/components/ui/button";
-import { InputField } from "#/components/ui/input-field";
 import { Label } from "#/components/ui/label";
 import {
 	Select,
@@ -60,16 +59,12 @@ export function EtatDesLieuxFormDialog({
 	const form = useForm({
 		defaultValues: {
 			type: "ENTREE" as EtatDesLieuxType,
-			piece: "",
 			commentaire: "",
 		},
 		validators: {
 			onSubmit: ({ value }) => {
 				const fields: Partial<Record<string, string>> = {};
 				if (!value.type) fields.type = "Ce champ est requis.";
-				if (value.piece.trim().length > 100) {
-					fields.piece = "100 caractères maximum.";
-				}
 				if (value.commentaire.trim().length > 255) {
 					fields.commentaire = "255 caractères maximum.";
 				}
@@ -90,7 +85,6 @@ export function EtatDesLieuxFormDialog({
 				await ajouterMutation.mutateAsync({
 					idContrat,
 					type: value.type,
-					piece: value.piece.trim() || null,
 					cle_objet: cleObjet,
 					commentaire: value.commentaire.trim() || null,
 				});
@@ -196,22 +190,6 @@ export function EtatDesLieuxFormDialog({
 										</p>
 									) : null}
 								</div>
-							)}
-						</form.Field>
-
-						<form.Field name="piece">
-							{(field) => (
-								<InputField
-									id={field.name}
-									name={field.name}
-									label="Pièce (optionnel)"
-									placeholder="ex : Chambre"
-									autoComplete="off"
-									value={field.state.value}
-									onBlur={field.handleBlur}
-									onChange={(event) => field.handleChange(event.target.value)}
-									error={field.state.meta.errors[0]}
-								/>
 							)}
 						</form.Field>
 
