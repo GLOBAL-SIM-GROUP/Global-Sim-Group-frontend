@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Plus } from "lucide-react";
+import { Layers, Plus } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { Breadcrumb } from "#/components/ui/breadcrumb";
@@ -20,6 +20,7 @@ import { LOGEMENTS_PAGE_SIZE } from "../permissions";
 import { LogementFilters } from "./logement-filters";
 import { LogementFormDialog } from "./logement-form-dialog";
 import { LogementTable } from "./logement-table";
+import { LogementsLotFormDialog } from "./logements-lot-form-dialog";
 
 /** Filtres/pagination reflétés dans l'URL (liens partageables). */
 export interface LogementsSearch {
@@ -71,6 +72,7 @@ export function LogementsPage({
 	// Modale de création/édition : `formOuvert` = création (bouton Ajouter),
 	// `aModifier` = édition (pencil d'une ligne).
 	const [formOuvert, setFormOuvert] = useState(false);
+	const [lotOuvert, setLotOuvert] = useState(false);
 	const [aModifier, setAModifier] = useState<Logement | null>(null);
 
 	/** Ferme la modale du formulaire (overlay, Échap, Annuler, sauvegarde). */
@@ -133,10 +135,16 @@ export function LogementsPage({
 				</section>
 
 				{canCreer && batiment ? (
-					<Button onClick={() => setFormOuvert(true)}>
-						<Plus className="size-4" aria-hidden />
-						Ajouter un logement
-					</Button>
+					<div className="flex flex-wrap gap-2">
+						<Button variant="outline" onClick={() => setLotOuvert(true)}>
+							<Layers className="size-4" aria-hidden />
+							Créer un lot
+						</Button>
+						<Button onClick={() => setFormOuvert(true)}>
+							<Plus className="size-4" aria-hidden />
+							Ajouter un logement
+						</Button>
+					</div>
 				) : null}
 			</div>
 
@@ -232,6 +240,14 @@ export function LogementsPage({
 					if (!ouvert) fermerFormulaire();
 				}}
 				onSaved={fermerFormulaire}
+			/>
+
+			<LogementsLotFormDialog
+				open={lotOuvert}
+				batiments={batimentsQuery.data ?? []}
+				batimentIdParDefaut={batiment?.id}
+				onOpenChange={setLotOuvert}
+				onSaved={() => setLotOuvert(false)}
 			/>
 		</div>
 	);

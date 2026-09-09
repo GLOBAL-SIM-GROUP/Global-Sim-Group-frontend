@@ -3,7 +3,9 @@ import { useMemo } from "react";
 
 import {
 	type CreerLogementBody,
+	type CreerLogementsLotBody,
 	creerLogement,
+	creerLogementsLot,
 	getLogement,
 	type LogementBody,
 	listLogements,
@@ -68,6 +70,16 @@ export function useCreerLogement() {
 	const queryClient = useQueryClient();
 	return useMutation({
 		mutationFn: (body: CreerLogementBody) => creerLogement(body),
+		onSuccess: () => {
+			void queryClient.invalidateQueries({ queryKey: logementsKeys.all });
+		},
+	});
+}
+
+export function useCreerLogementsLot() {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: (body: CreerLogementsLotBody) => creerLogementsLot(body),
 		onSuccess: () => {
 			void queryClient.invalidateQueries({ queryKey: logementsKeys.all });
 		},

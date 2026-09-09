@@ -36,6 +36,17 @@ export interface LogementBody {
  */
 export type CreerLogementBody = Omit<LogementBody, "numero">;
 
+export interface CreerLogementsLotBody {
+	idBatiment: string;
+	type: "CHAMBRE" | "STUDIO";
+	tarif: string;
+	statut: LogementStatut;
+	quantite: number;
+	nom?: string | null;
+	equipements?: string | null;
+	etat?: string | null;
+}
+
 /**
  * Appels API du module Résidence — logements.
  *
@@ -120,6 +131,29 @@ export function creerLogement(body: CreerLogementBody): Promise<unknown> {
 		method: "POST",
 		body: JSON.stringify(corps),
 	});
+}
+
+export function creerLogementsLot(
+	body: CreerLogementsLotBody,
+): Promise<Logement[]> {
+	const corps = {
+		id_batiment: body.idBatiment,
+		type: body.type,
+		tarif: body.tarif,
+		statut: body.statut,
+		quantite: body.quantite,
+		...(texteOuNull(body.nom) ? { nom: texteOuNull(body.nom) } : {}),
+		equipements: texteOuNull(body.equipements),
+		etat: texteOuNull(body.etat),
+	};
+	return getApiClient()
+		.apiFetch<LogementWire[]>("/api/v1/residence/logements/lot", {
+			method: "POST",
+			body: JSON.stringify(corps),
+		})
+		.then((logements) =>
+			logements.map(({ id_logement: id, ...reste }) => ({ id, ...reste })),
+		);
 }
 
 /** Modifie un logement existant (PATCH `MajLogementDto`, champs tous optionnels). */
