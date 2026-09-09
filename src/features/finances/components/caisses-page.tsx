@@ -12,10 +12,12 @@ import { creerCaisse, listerCaisses, modifierCaisse } from "../api/caisses";
 import type { Caisse, CreerCaisseDto } from "../models/caisses";
 
 /**
- * Page de gestion des caisses (liste + CRUD).
- * Admins uniquement.
+ * Page des caisses : liste (tout titulaire de `FINANCES.VOIR` — filtrée par
+ * activité côté backend pour un responsable de service sans caisse propre)
+ * + création/modification (`FINANCES.MODIFIER`, masqué sinon).
  */
 export function CaissesPage() {
+	const canVoir = useCan("FINANCES.VOIR");
 	const canModifier = useCan("FINANCES.MODIFIER");
 	const queryClient = useQueryClient();
 	const [openCreate, setOpenCreate] = useState(false);
@@ -69,10 +71,10 @@ export function CaissesPage() {
 		});
 	};
 
-	if (!canModifier) {
+	if (!canVoir) {
 		return (
 			<div className="p-6 text-sm text-muted-foreground">
-				Vous n'avez pas accès à la gestion des caisses.
+				Vous n'avez pas accès aux caisses.
 			</div>
 		);
 	}
@@ -96,124 +98,142 @@ export function CaissesPage() {
 			<section className="space-y-1">
 				<h1 className="text-2xl font-semibold text-foreground">Caisses</h1>
 				<p className="text-muted-foreground">
-					Gérez les points d'encaissement par activité.
+					{canModifier
+						? "Gérez les points d'encaissement par activité."
+						: "Points d'encaissement de votre activité."}
 				</p>
 			</section>
 
-			{/* Create Dialog */}
-			<Dialog.Root open={openCreate} onOpenChange={setOpenCreate}>
-				<Dialog.Portal>
-					<Dialog.Overlay className="fixed inset-0 z-40 bg-black/50" />
-					<Dialog.Content className="fixed top-1/2 left-1/2 z-50 w-[calc(100vw-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-lg border border-border bg-card p-6 shadow-lg">
-						<Dialog.Title className="text-base font-semibold text-foreground">
-							Créer une caisse
-						</Dialog.Title>
-						<Dialog.Description className="mt-1 text-sm text-muted-foreground">
-							Remplissez les informations de la nouvelle caisse.
-						</Dialog.Description>
-						<div className="mt-6 space-y-4">
-							<div>
-								<label
-									htmlFor="caisse-libelle-create"
-									className="text-sm font-medium"
-								>
-									Libellé
-								</label>
-								<Input
-									id="caisse-libelle-create"
-									value={formData.libelle}
-									onChange={(e) =>
-										setFormData({ ...formData, libelle: e.target.value })
-									}
-									placeholder="ex. Caisse 1 - Restaurant"
-								/>
-							</div>
-							<div>
-								<label
-									htmlFor="caisse-activite-create"
-									className="text-sm font-medium"
-								>
-									Activité
-								</label>
-								<select
-									id="caisse-activite-create"
-									value={formData.id_activite}
-									onChange={(e) =>
-										setFormData({ ...formData, id_activite: e.target.value })
-									}
-									className="w-full h-9 rounded-md border border-input bg-background px-3 text-sm"
-								>
-									<option value="">Sélectionner une activité</option>
-									<option value="restaurant">Restaurant</option>
-									<option value="pressing">Pressing</option>
-									<option value="residence">Résidence</option>
-									<option value="salle_fete">Salle de Fête</option>
-									<option value="market">Marché</option>
-								</select>
-							</div>
-							<div className="flex gap-2 justify-end pt-2">
-								<Button variant="outline" onClick={() => setOpenCreate(false)}>
-									Annuler
-								</Button>
-								<Button onClick={handleCreate} disabled={createMut.isPending}>
-									{createMut.isPending ? "Création…" : "Créer"}
-								</Button>
-							</div>
-						</div>
-					</Dialog.Content>
-				</Dialog.Portal>
-			</Dialog.Root>
+			{canModifier ? (
+				<>
+					{/* Create Dialog */}
+					<Dialog.Root open={openCreate} onOpenChange={setOpenCreate}>
+						<Dialog.Portal>
+							<Dialog.Overlay className="fixed inset-0 z-40 bg-black/50" />
+							<Dialog.Content className="fixed top-1/2 left-1/2 z-50 w-[calc(100vw-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-lg border border-border bg-card p-6 shadow-lg">
+								<Dialog.Title className="text-base font-semibold text-foreground">
+									Créer une caisse
+								</Dialog.Title>
+								<Dialog.Description className="mt-1 text-sm text-muted-foreground">
+									Remplissez les informations de la nouvelle caisse.
+								</Dialog.Description>
+								<div className="mt-6 space-y-4">
+									<div>
+										<label
+											htmlFor="caisse-libelle-create"
+											className="text-sm font-medium"
+										>
+											Libellé
+										</label>
+										<Input
+											id="caisse-libelle-create"
+											value={formData.libelle}
+											onChange={(e) =>
+												setFormData({ ...formData, libelle: e.target.value })
+											}
+											placeholder="ex. Caisse 1 - Restaurant"
+										/>
+									</div>
+									<div>
+										<label
+											htmlFor="caisse-activite-create"
+											className="text-sm font-medium"
+										>
+											Activité
+										</label>
+										<select
+											id="caisse-activite-create"
+											value={formData.id_activite}
+											onChange={(e) =>
+												setFormData({
+													...formData,
+													id_activite: e.target.value,
+												})
+											}
+											className="w-full h-9 rounded-md border border-input bg-background px-3 text-sm"
+										>
+											<option value="">Sélectionner une activité</option>
+											<option value="restaurant">Restaurant</option>
+											<option value="pressing">Pressing</option>
+											<option value="residence">Résidence</option>
+											<option value="salle_fete">Salle de Fête</option>
+											<option value="market">Marché</option>
+										</select>
+									</div>
+									<div className="flex gap-2 justify-end pt-2">
+										<Button
+											variant="outline"
+											onClick={() => setOpenCreate(false)}
+										>
+											Annuler
+										</Button>
+										<Button
+											onClick={handleCreate}
+											disabled={createMut.isPending}
+										>
+											{createMut.isPending ? "Création…" : "Créer"}
+										</Button>
+									</div>
+								</div>
+							</Dialog.Content>
+						</Dialog.Portal>
+					</Dialog.Root>
 
-			{/* Edit Dialog */}
-			<Dialog.Root
-				open={openEdit !== null}
-				onOpenChange={(open) => !open && setOpenEdit(null)}
-			>
-				<Dialog.Portal>
-					<Dialog.Overlay className="fixed inset-0 z-40 bg-black/50" />
-					<Dialog.Content className="fixed top-1/2 left-1/2 z-50 w-[calc(100vw-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-lg border border-border bg-card p-6 shadow-lg">
-						<Dialog.Title className="text-base font-semibold text-foreground">
-							Modifier la caisse
-						</Dialog.Title>
-						<Dialog.Description className="mt-1 text-sm text-muted-foreground">
-							Mettez à jour les informations de la caisse.
-						</Dialog.Description>
-						<div className="mt-6 space-y-4">
-							<div>
-								<label
-									htmlFor="caisse-libelle-edit"
-									className="text-sm font-medium"
-								>
-									Libellé
-								</label>
-								<Input
-									id="caisse-libelle-edit"
-									value={formData.libelle}
-									onChange={(e) =>
-										setFormData({ ...formData, libelle: e.target.value })
-									}
-								/>
-							</div>
-							<div className="flex gap-2 justify-end pt-2">
-								<Button variant="outline" onClick={() => setOpenEdit(null)}>
-									Annuler
-								</Button>
-								<Button onClick={handleSaveEdit} disabled={editMut.isPending}>
-									{editMut.isPending ? "Modification…" : "Modifier"}
-								</Button>
-							</div>
-						</div>
-					</Dialog.Content>
-				</Dialog.Portal>
-			</Dialog.Root>
+					{/* Edit Dialog */}
+					<Dialog.Root
+						open={openEdit !== null}
+						onOpenChange={(open) => !open && setOpenEdit(null)}
+					>
+						<Dialog.Portal>
+							<Dialog.Overlay className="fixed inset-0 z-40 bg-black/50" />
+							<Dialog.Content className="fixed top-1/2 left-1/2 z-50 w-[calc(100vw-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-lg border border-border bg-card p-6 shadow-lg">
+								<Dialog.Title className="text-base font-semibold text-foreground">
+									Modifier la caisse
+								</Dialog.Title>
+								<Dialog.Description className="mt-1 text-sm text-muted-foreground">
+									Mettez à jour les informations de la caisse.
+								</Dialog.Description>
+								<div className="mt-6 space-y-4">
+									<div>
+										<label
+											htmlFor="caisse-libelle-edit"
+											className="text-sm font-medium"
+										>
+											Libellé
+										</label>
+										<Input
+											id="caisse-libelle-edit"
+											value={formData.libelle}
+											onChange={(e) =>
+												setFormData({ ...formData, libelle: e.target.value })
+											}
+										/>
+									</div>
+									<div className="flex gap-2 justify-end pt-2">
+										<Button variant="outline" onClick={() => setOpenEdit(null)}>
+											Annuler
+										</Button>
+										<Button
+											onClick={handleSaveEdit}
+											disabled={editMut.isPending}
+										>
+											{editMut.isPending ? "Modification…" : "Modifier"}
+										</Button>
+									</div>
+								</div>
+							</Dialog.Content>
+						</Dialog.Portal>
+					</Dialog.Root>
 
-			{/* Create button */}
-			<div className="flex justify-end">
-				<Button onClick={() => setOpenCreate(true)}>
-					<Plus className="size-4 mr-2" />
-					Nouvelle caisse
-				</Button>
-			</div>
+					{/* Create button */}
+					<div className="flex justify-end">
+						<Button onClick={() => setOpenCreate(true)}>
+							<Plus className="size-4 mr-2" />
+							Nouvelle caisse
+						</Button>
+					</div>
+				</>
+			) : null}
 
 			{/* Table */}
 			{caisses.length === 0 ? (
@@ -234,9 +254,11 @@ export function CaissesPage() {
 								<th scope="col" className="px-4 py-3 font-medium">
 									STATUT
 								</th>
-								<th scope="col" className="px-4 py-3 text-right font-medium">
-									ACTIONS
-								</th>
+								{canModifier ? (
+									<th scope="col" className="px-4 py-3 text-right font-medium">
+										ACTIONS
+									</th>
+								) : null}
 							</tr>
 						</thead>
 						<tbody>
@@ -263,17 +285,19 @@ export function CaissesPage() {
 											{caisse.actif ? "Active" : "Inactive"}
 										</span>
 									</td>
-									<td className="px-4 py-3 text-right">
-										<div className="flex justify-end gap-2">
-											<Button
-												size="sm"
-												variant="ghost"
-												onClick={() => handleEdit(caisse)}
-											>
-												<Edit className="size-4" />
-											</Button>
-										</div>
-									</td>
+									{canModifier ? (
+										<td className="px-4 py-3 text-right">
+											<div className="flex justify-end gap-2">
+												<Button
+													size="sm"
+													variant="ghost"
+													onClick={() => handleEdit(caisse)}
+												>
+													<Edit className="size-4" />
+												</Button>
+											</div>
+										</td>
+									) : null}
 								</tr>
 							))}
 						</tbody>
