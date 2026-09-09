@@ -35,7 +35,7 @@ export function SejourActions({ sejour, onEdit, onPayer }: SejourActionsProps) {
 				</Link>
 			</Button>
 
-			{canModifier ? (
+			{canModifier && sejour.statut !== "TERMINE" ? (
 				<Button
 					variant="ghost"
 					size="icon-sm"

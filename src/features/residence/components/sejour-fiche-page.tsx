@@ -110,7 +110,7 @@ export function SejourFichePage({ id }: SejourFichePageProps) {
 					<Button variant="outline" asChild>
 						<Link to="/residence/sejours-courts">Retour aux séjours</Link>
 					</Button>
-					{canModifier ? (
+					{canModifier && sejour.statut !== "TERMINE" ? (
 						<Button onClick={() => setAModifier(sejour)}>
 							<Pencil className="size-4" aria-hidden />
 							Modifier
