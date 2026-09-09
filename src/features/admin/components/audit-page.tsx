@@ -1,4 +1,4 @@
-import { FileDown, Printer } from "lucide-react";
+import { FileDown, Loader2, Printer } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { Breadcrumb } from "#/components/ui/breadcrumb";
@@ -12,9 +12,12 @@ import {
 	SelectValue,
 } from "#/components/ui/select";
 import { formatDateHeureISO } from "#/features/residence/models/format";
-import { construirePdf } from "#/lib/pdf";
-import { imprimerPdfOctets } from "#/lib/print-pdf";
 
+import {
+	getJournalExportPath,
+	imprimerJournalPdf,
+	telechargerJournalExcel,
+} from "../api/audit";
 import { useJournal } from "../hooks/use-audit";
 import { useUtilisateurs } from "../hooks/use-utilisateurs";
 import {
@@ -42,39 +45,9 @@ interface AuditPageProps {
 	onSearchChange: (maj: (prev: AuditSearch) => AuditSearch) => void;
 }
 
-/** CSV minimal (séparateur `;`, guillemets si besoin). */
-function construireCsv(lignes: (string | number)[][]): string {
-	return lignes
-		.map((ligne) =>
-			ligne
-				.map((cellule) => {
-					const valeur = String(cellule ?? "");
-					return /[";\n]/.test(valeur)
-						? `"${valeur.replace(/"/g, '""')}"`
-						: valeur;
-				})
-				.join(";"),
-		)
-		.join("\n");
-}
-
-function telechargerTexte(nomFichier: string, contenu: string): void {
-	const blob = new Blob([`﻿${contenu}`], {
-		type: "text/csv;charset=utf-8;",
-	});
-	const url = URL.createObjectURL(blob);
-	const lien = document.createElement("a");
-	lien.href = url;
-	lien.download = nomFichier;
-	document.body.appendChild(lien);
-	lien.click();
-	document.body.removeChild(lien);
-	URL.revokeObjectURL(url);
-}
-
 /**
  * Page « Historique des opérations » (M11, 12.5) : journal d'audit avec filtres
- * (utilisateur, module, période), recherche libre et export CSV/PDF.
+ * (utilisateur, module, période), recherche libre et export PDF/Excel.
  */
 export function AuditPage({ initialSearch, onSearchChange }: AuditPageProps) {
 	const [utilisateur, setUtilisateur] = useState(
@@ -85,6 +58,9 @@ export function AuditPage({ initialSearch, onSearchChange }: AuditPageProps) {
 	const [au, setAu] = useState(initialSearch.au ?? "");
 	const [recherche, setRecherche] = useState(initialSearch.recherche ?? "");
 	const [page, setPage] = useState(initialSearch.page ?? 1);
+	const [exportEnCours, setExportEnCours] = useState<"pdf" | "xlsx" | null>(
+		null,
+	);
 
 	const journalQuery = useJournal({
 		du: du || undefined,
@@ -123,34 +99,38 @@ export function AuditPage({ initialSearch, onSearchChange }: AuditPageProps) {
 	const traces = rechercherAudit(journalQuery.data ?? [], recherche);
 	const pagination = paginerAudit(traces, page, JOURNAL_PAGE_SIZE);
 
-	const lignesExport = (): (string | number)[][] => [
-		["Date", "Utilisateur", "Module", "Action", "Objet", "Détail"],
-		...traces.map((t) => [
-			t.date_heure,
-			t.id_utilisateur
-				? (loginParId.get(t.id_utilisateur) ?? t.id_utilisateur)
-				: "—",
-			t.module,
-			libelleOperation(t.operation),
-			libelleObjet(t),
-			resumerDetailAudit(t),
-		]),
-	];
-
-	const exporterCsv = () => {
-		telechargerTexte(
-			`journal-audit-${du || "toutes"}-${au || "dates"}.csv`,
-			construireCsv(lignesExport()),
-		);
+	/**
+	 * Filtres actuellement appliqués à l'écran, transmis tels quels au rapport
+	 * backend (`GET /audit/journal?format=pdf|xlsx`) — imprime/exporte
+	 * exactement la vue en cours, pas une reconstruction côté client.
+	 */
+	const filtresActuels = {
+		du: du || undefined,
+		au: au || undefined,
+		module,
+		utilisateur,
+		search: recherche || undefined,
 	};
 
-	const imprimerJournalPdf = () => {
-		imprimerPdfOctets(
-			construirePdf(
-				lignesExport(),
-				`Journal d'audit — ${du || "toutes"} → ${au || "dates"}`,
-			),
-		);
+	const handleImprimerPdf = async () => {
+		setExportEnCours("pdf");
+		try {
+			await imprimerJournalPdf(getJournalExportPath("pdf", filtresActuels));
+		} finally {
+			setExportEnCours(null);
+		}
+	};
+
+	const handleExporterExcel = async () => {
+		setExportEnCours("xlsx");
+		try {
+			await telechargerJournalExcel(
+				getJournalExportPath("xlsx", filtresActuels),
+				`journal-audit-${du || "toutes"}-${au || "dates"}.xlsx`,
+			);
+		} finally {
+			setExportEnCours(null);
+		}
 	};
 
 	return (
@@ -175,18 +155,26 @@ export function AuditPage({ initialSearch, onSearchChange }: AuditPageProps) {
 					<Button
 						size="sm"
 						variant="outline"
-						onClick={exporterCsv}
-						disabled={traces.length === 0}
+						onClick={() => void handleExporterExcel()}
+						disabled={traces.length === 0 || exportEnCours !== null}
 					>
-						<FileDown className="size-4" aria-hidden />
-						Exporter en Excel (CSV)
+						{exportEnCours === "xlsx" ? (
+							<Loader2 className="size-4 animate-spin" aria-hidden />
+						) : (
+							<FileDown className="size-4" aria-hidden />
+						)}
+						Exporter en Excel
 					</Button>
 					<Button
 						size="sm"
-						onClick={imprimerJournalPdf}
-						disabled={traces.length === 0}
+						onClick={() => void handleImprimerPdf()}
+						disabled={traces.length === 0 || exportEnCours !== null}
 					>
-						<Printer className="size-4" aria-hidden />
+						{exportEnCours === "pdf" ? (
+							<Loader2 className="size-4 animate-spin" aria-hidden />
+						) : (
+							<Printer className="size-4" aria-hidden />
+						)}
 						Imprimer en PDF
 					</Button>
 				</div>
