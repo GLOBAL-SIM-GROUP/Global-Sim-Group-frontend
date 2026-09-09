@@ -94,23 +94,18 @@ export function getSyntheseGlobale(
 	return getApiClient().apiFetch<SyntheseGlobale>(url);
 }
 
-/** Récupère les réservations de la salle de fête (sans filtre de période) */
+/** Récupère les cinq prochaines réservations de la salle de fête. */
 export function getReservationsSalleFutures(): Promise<Reservation[]> {
-	const url = `/api/v1/salle-fete/reservations?limit=10`;
+	const aujourdhui = new Date().toISOString().slice(0, 10);
+	const params = new URLSearchParams({
+		du: aujourdhui,
+		sort: "date_evenement",
+		order: "asc",
+		limit: "5",
+	});
 	return getApiClient()
-		.apiFetch<Reservation[]>(url)
-		.then((reservations) =>
-			reservations
-				.filter((r) => {
-					const date = r.date_evenement || r.date;
-					return date && new Date(date) >= new Date();
-				})
-				.sort((a, b) => {
-					const dateA = a.date_evenement || a.date || "";
-					const dateB = b.date_evenement || b.date || "";
-					return new Date(dateA).getTime() - new Date(dateB).getTime();
-				})
-				.slice(0, 5),
+		.apiFetch<Reservation[]>(
+			`/api/v1/salle-fete/reservations?${params.toString()}`,
 		)
 		.catch(() => []);
 }
@@ -170,50 +165,17 @@ export function getDashboardActivitePath(
 	return `/api/v1/dashboard?${params.toString()}`;
 }
 
-/** Récupère les logements (tous) - filtre côté client par statut */
-export function getLogementsDispo(
-	du?: string,
-	au?: string,
-): Promise<Logement[]> {
-	const params = new URLSearchParams();
-	if (du) params.set("du", du);
-	if (au) params.set("au", au);
-	const qs = params.toString();
-	const url = qs
-		? `/api/v1/residence/logements?${qs}`
-		: "/api/v1/residence/logements";
+/** Récupère les logements disponibles, filtrés directement par le backend. */
+export function getLogementsDispo(): Promise<Logement[]> {
 	return getApiClient()
-		.apiFetch<
-			Array<{
-				id_logement: string;
-				statut: string;
-				numero: string;
-				id_batiment: string;
-			}>
-		>(url)
-		.then((logements) =>
-			logements
-				.filter((l) => l.statut === "DISPONIBLE")
-				.map((l) => ({
-					id_logement: l.id_logement,
-					numero: l.numero,
-					statut: l.statut,
-					id_batiment: l.id_batiment,
-				})),
+		.apiFetch<Logement[]>(
+			"/api/v1/residence/logements?statut=DISPONIBLE&limit=200",
 		)
 		.catch(() => []);
 }
 
 /** Récupère les produits avec stock faible */
-export function getProduitsCritiques(
-	du?: string,
-	au?: string,
-): Promise<Produit[]> {
-	const params = new URLSearchParams();
-	if (du) params.set("du", du);
-	if (au) params.set("au", au);
-	const qs = params.toString();
-	const url = qs ? `/api/v1/market/produits?${qs}` : "/api/v1/market/produits";
+export function getProduitsCritiques(): Promise<Produit[]> {
 	return getApiClient()
 		.apiFetch<
 			Array<{
@@ -222,7 +184,7 @@ export function getProduitsCritiques(
 				quantite_stock: number | string;
 				seuil_alerte: number | string;
 			}>
-		>(url)
+		>("/api/v1/market/produits?limit=200")
 		.then((produits) =>
 			produits.filter(
 				(p) => Number(p.quantite_stock) <= Number(p.seuil_alerte),
@@ -254,7 +216,7 @@ export function getCommandesPressing(
 		>(url)
 		.then((commandes) =>
 			// Filtre côté client: exclude les retraitées et annulées
-			commandes.filter((c) => c.statut !== "RETIREE" && c.statut !== "ANNULEE"),
+			commandes.filter((c) => c.statut !== "RETIRE" && c.statut !== "ANNULEE"),
 		)
 		.catch(() => []);
 }
@@ -274,16 +236,9 @@ export function getPointagesAujourdhui(
 		.catch(() => []);
 }
 
-/** Récupère les impayés */
-export function getImpayes(du?: string, au?: string): Promise<Impaye[]> {
-	const params = new URLSearchParams();
-	if (du) params.set("du", du);
-	if (au) params.set("au", au);
-	const qs = params.toString();
-	const url = qs
-		? `/api/v1/finances/impayes?${qs}`
-		: "/api/v1/finances/impayes";
+/** Récupère les impayés ; la période est filtrée côté client. */
+export function getImpayes(): Promise<Impaye[]> {
 	return getApiClient()
-		.apiFetch<Impaye[]>(url)
+		.apiFetch<Impaye[]>("/api/v1/finances/impayes")
 		.catch(() => []);
 }

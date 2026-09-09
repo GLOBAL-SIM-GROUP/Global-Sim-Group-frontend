@@ -12,10 +12,14 @@ import {
 	getSyntheseGlobale,
 } from "../api/dashboard";
 
-export function useSyntheseGlobale(du?: string, au?: string) {
+const DASHBOARD_STALE_TIME_MS = 5 * 60 * 1000;
+
+export function useSyntheseGlobale(du?: string, au?: string, enabled = true) {
 	return useQuery({
 		queryKey: ["dashboard", "synthese-globale", du, au],
 		queryFn: () => getSyntheseGlobale(du, au),
+		enabled,
+		staleTime: DASHBOARD_STALE_TIME_MS,
 	});
 }
 
@@ -40,24 +44,30 @@ export function useDashboardActivite(code: string, du?: string, au?: string) {
 	});
 }
 
-export function useLogementsDispo(du?: string, au?: string) {
+export function useLogementsDispo(enabled = true) {
 	return useQuery({
-		queryKey: ["dashboard", "logements-dispo", du, au],
-		queryFn: () => getLogementsDispo(du, au),
+		queryKey: ["dashboard", "logements-dispo"],
+		queryFn: getLogementsDispo,
+		enabled,
+		staleTime: DASHBOARD_STALE_TIME_MS,
 	});
 }
 
-export function useProduitsCritiques(du?: string, au?: string) {
+export function useProduitsCritiques(enabled = true) {
 	return useQuery({
-		queryKey: ["dashboard", "produits-critiques", du, au],
-		queryFn: () => getProduitsCritiques(du, au),
+		queryKey: ["dashboard", "produits-critiques"],
+		queryFn: getProduitsCritiques,
+		enabled,
+		staleTime: DASHBOARD_STALE_TIME_MS,
 	});
 }
 
-export function useCommandesPressing(du?: string, au?: string) {
+export function useCommandesPressing(du?: string, au?: string, enabled = true) {
 	return useQuery({
 		queryKey: ["dashboard", "commandes-pressing", du, au],
 		queryFn: () => getCommandesPressing(du, au),
+		enabled,
+		staleTime: DASHBOARD_STALE_TIME_MS,
 	});
 }
 
@@ -68,16 +78,20 @@ export function usePointagesAujourdhui(du?: string, au?: string) {
 	});
 }
 
-export function useImpayes(du?: string, au?: string) {
+export function useImpayes(enabled = true) {
 	return useQuery({
-		queryKey: ["dashboard", "impayes", du, au],
-		queryFn: () => getImpayes(du, au),
+		queryKey: ["dashboard", "impayes"],
+		queryFn: getImpayes,
+		enabled,
+		staleTime: DASHBOARD_STALE_TIME_MS,
 	});
 }
 
-export function useReservationsSalleFutures() {
+export function useReservationsSalleFutures(enabled = true) {
 	return useQuery({
 		queryKey: ["dashboard", "reservations-salle-futures"],
-		queryFn: () => getReservationsSalleFutures(),
+		queryFn: getReservationsSalleFutures,
+		enabled,
+		staleTime: DASHBOARD_STALE_TIME_MS,
 	});
 }

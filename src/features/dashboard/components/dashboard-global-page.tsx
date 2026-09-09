@@ -74,15 +74,26 @@ export function DashboardGlobalPage() {
 	const [customAu, setCustomAu] = useState<string>("");
 	const dates = getPeriodeDates(periode, customDu, customAu);
 
-	const syntheseQuery = useSyntheseGlobale(dates.du, dates.au);
-	const impayesQuery = useImpayes(dates.du, dates.au);
-	const reservationsQuery = useReservationsSalleFutures();
-	const produitsCritiquesQuery = useProduitsCritiques(dates.du, dates.au);
-	const commandesPressingQuery = useCommandesPressing(dates.du, dates.au);
-	const logementsDispoQuery = useLogementsDispo(dates.du, dates.au);
+	const syntheseQuery = useSyntheseGlobale(dates.du, dates.au, canVoir);
+	const impayesQuery = useImpayes(canVoir);
+	const reservationsQuery = useReservationsSalleFutures(canVoir);
+	const produitsCritiquesQuery = useProduitsCritiques(canVoir);
+	const commandesPressingQuery = useCommandesPressing(
+		dates.du,
+		dates.au,
+		canVoir,
+	);
+	const logementsDispoQuery = useLogementsDispo(canVoir);
 
 	const synthese = syntheseQuery.data;
-	const impayes = (impayesQuery.data ?? []) as unknown as ImpayeAffiche[];
+	const impayes = (
+		(impayesQuery.data ?? []) as unknown as ImpayeAffiche[]
+	).filter((impaye) => {
+		const dateEcheance = impaye.date_echeance?.slice(0, 10);
+		return (
+			!dateEcheance || (dateEcheance >= dates.du && dateEcheance <= dates.au)
+		);
+	});
 	const reservations = reservationsQuery.data ?? [];
 	const produitsCritiques = produitsCritiquesQuery.data ?? [];
 	const commandesPressing = commandesPressingQuery.data ?? [];
