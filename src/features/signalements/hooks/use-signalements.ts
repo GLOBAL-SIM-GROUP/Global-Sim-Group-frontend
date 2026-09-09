@@ -1,13 +1,17 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import {
+	ajouterSignalementPhoto,
 	createSignalement,
 	getSignalement,
+	listSignalementPhotos,
 	listSignalements,
 	prendreEnChargeSignalement,
 	rejeterSignalement,
 	resoudreSignalement,
 	type SignalementCreatePayload,
+	type SignalementType,
+	supprimerSignalementPhoto,
 } from "#/core/api/signalements";
 
 import { signalementsKeys } from "../permissions";
@@ -17,10 +21,11 @@ import { signalementsKeys } from "../permissions";
  * client (même pattern que `useFactures`/`useReservations`) : une seule
  * requête, pas de refetch à chaque frappe.
  */
-export function useSignalements() {
+export function useSignalements(typeSignalement?: SignalementType) {
 	return useQuery({
-		queryKey: signalementsKeys.list(),
-		queryFn: () => listSignalements({ limit: 200 }),
+		queryKey: signalementsKeys.list(typeSignalement ?? "tous"),
+		queryFn: () =>
+			listSignalements({ limit: 200, type_signalement: typeSignalement }),
 	});
 }
 
@@ -85,5 +90,39 @@ export function useRejeterSignalement() {
 			noteResolution: string;
 		}) => rejeterSignalement(id, { note_resolution: noteResolution }),
 		onSuccess: invalider,
+	});
+}
+
+export function useSignalementPhotos(id: string) {
+	return useQuery({
+		queryKey: signalementsKeys.photos(id),
+		queryFn: () => listSignalementPhotos(id),
+		enabled: Boolean(id),
+	});
+}
+
+export function useAjouterSignalementPhoto() {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: ({ id, cleObjet }: { id: string; cleObjet: string }) =>
+			ajouterSignalementPhoto(id, cleObjet),
+		onSuccess: (_photo, variables) => {
+			void queryClient.invalidateQueries({
+				queryKey: signalementsKeys.photos(variables.id),
+			});
+		},
+	});
+}
+
+export function useSupprimerSignalementPhoto() {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: ({ idPhoto }: { idSignalement: string; idPhoto: string }) =>
+			supprimerSignalementPhoto(idPhoto),
+		onSuccess: (_resultat, variables) => {
+			void queryClient.invalidateQueries({
+				queryKey: signalementsKeys.photos(variables.idSignalement),
+			});
+		},
 	});
 }

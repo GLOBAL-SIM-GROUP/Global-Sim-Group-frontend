@@ -45,6 +45,17 @@ describe("uploadImage", () => {
 			);
 		});
 
+		it("refuse les PDF pour les photos de signalement", async () => {
+			const pdf = new File([new ArrayBuffer(1000)], "preuve.pdf", {
+				type: "application/pdf",
+			});
+
+			await expect(uploadImage(pdf, "signalement-photo")).rejects.toThrow(
+				"Utilisez JPG, PNG ou WebP",
+			);
+			expect(mockApiClient.uploadForm).not.toHaveBeenCalled();
+		});
+
 		it("accepte les formats valides (JPG, PNG, WebP, PDF)", async () => {
 			const validFormats = [
 				{ type: "image/jpeg", name: "test.jpg" },

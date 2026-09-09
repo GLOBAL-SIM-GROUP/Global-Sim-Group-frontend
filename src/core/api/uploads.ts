@@ -4,7 +4,8 @@ export type UploadCategorie =
 	| "client-photo"
 	| "piece-identite"
 	| "plat-photo"
-	| "etat-lieux";
+	| "etat-lieux"
+	| "signalement-photo";
 
 /**
  * Upload un fichier image vers MinIO via POST /api/v1/uploads.
@@ -38,14 +39,16 @@ export async function uploadImage(
 	}
 
 	// MIME whitelist frontend (backend valide en plus)
-	const allowedMimes = [
-		"image/jpeg",
-		"image/png",
-		"image/webp",
-		"application/pdf",
-	];
+	const allowedMimes =
+		categorie === "signalement-photo"
+			? ["image/jpeg", "image/png", "image/webp"]
+			: ["image/jpeg", "image/png", "image/webp", "application/pdf"];
 	if (!allowedMimes.includes(file.type)) {
-		throw new Error("Format non supporté. Utilisez JPG, PNG, WebP ou PDF.");
+		throw new Error(
+			categorie === "signalement-photo"
+				? "Format non supporté. Utilisez JPG, PNG ou WebP."
+				: "Format non supporté. Utilisez JPG, PNG, WebP ou PDF.",
+		);
 	}
 
 	const formData = new FormData();

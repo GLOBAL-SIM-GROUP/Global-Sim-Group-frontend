@@ -1,6 +1,31 @@
-import type { Signalement } from "#/core/api/signalements";
+import type { Signalement, SignalementType } from "#/core/api/signalements";
 
 export type SignalementStatut = Signalement["statut"];
+
+export const SIGNALEMENT_TYPE_LABELS: Record<SignalementType, string> = {
+	CORE: "Core",
+	CLIENT: "Clients",
+	RESIDENCE: "Résidence",
+	MARCHANDISE: "Marchandise",
+	PRESSING: "Pressing",
+	RESTAURANT: "Restaurant",
+	SALLE_FETE: "Salle de fête",
+	FACTURATION: "Facturation",
+	FINANCES: "Finances",
+	RH: "Ressources humaines",
+	ADMIN: "Administration",
+	AUDIT: "Audit",
+};
+
+export const SIGNALEMENT_TYPES = Object.keys(
+	SIGNALEMENT_TYPE_LABELS,
+) as SignalementType[];
+
+export function libelleTypeSignalement(
+	type: SignalementType | null | undefined,
+): string {
+	return type ? SIGNALEMENT_TYPE_LABELS[type] : "Général";
+}
 
 /** Libellés français du statut — seule source de vérité (liste + fiche). */
 export const SIGNALEMENT_STATUT_LABELS: Record<SignalementStatut, string> = {

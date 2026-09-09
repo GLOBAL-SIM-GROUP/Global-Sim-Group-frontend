@@ -6,11 +6,26 @@ import { getApiClient } from "./client";
  * facturation) ; noms de fonctions en camelCase (même convention que le
  * reste de `core/api/`).
  */
+export type SignalementType =
+	| "CORE"
+	| "CLIENT"
+	| "RESIDENCE"
+	| "MARCHANDISE"
+	| "PRESSING"
+	| "RESTAURANT"
+	| "SALLE_FETE"
+	| "FACTURATION"
+	| "FINANCES"
+	| "RH"
+	| "ADMIN"
+	| "AUDIT";
+
 export interface Signalement {
 	id: string;
 	titre: string;
 	description: string;
 	id_activite: string | null;
+	type_signalement?: SignalementType | null;
 	statut: "OUVERT" | "EN_COURS" | "RESOLU" | "REJETE";
 	id_utilisateur_declarant: string;
 	id_utilisateur_traitant?: string | null;
@@ -43,6 +58,7 @@ export interface SignalementListParams {
 	limit?: number;
 	offset?: number;
 	id_activite?: string;
+	type_signalement?: SignalementType;
 	statut?: "OUVERT" | "EN_COURS" | "RESOLU" | "REJETE";
 	id_utilisateur_declarant?: string;
 }
@@ -51,6 +67,7 @@ export interface SignalementCreatePayload {
 	titre: string;
 	description: string;
 	id_activite?: string;
+	type_signalement?: SignalementType;
 }
 
 export interface SignalementResolutionPayload {
@@ -68,6 +85,9 @@ export function listSignalements(
 	if (params.limit) queryParams.append("limit", params.limit.toString());
 	if (params.offset) queryParams.append("offset", params.offset.toString());
 	if (params.id_activite) queryParams.append("id_activite", params.id_activite);
+	if (params.type_signalement) {
+		queryParams.append("type_signalement", params.type_signalement);
+	}
 	if (params.statut) queryParams.append("statut", params.statut);
 	if (params.id_utilisateur_declarant) {
 		queryParams.append(
@@ -128,5 +148,44 @@ export function rejeterSignalement(
 	return getApiClient().apiFetch(`/api/v1/signalements/${id}/rejeter`, {
 		method: "POST",
 		body: JSON.stringify(payload),
+	});
+}
+
+export interface SignalementPhoto {
+	id: string;
+	id_signalement: string;
+	cle_objet: string;
+	id_utilisateur: string;
+	date_ajout: string;
+}
+
+type SignalementPhotoWire = Omit<SignalementPhoto, "id"> & { id_photo: string };
+
+const toSignalementPhoto = ({
+	id_photo: id,
+	...reste
+}: SignalementPhotoWire): SignalementPhoto => ({ id, ...reste });
+
+export function listSignalementPhotos(id: string): Promise<SignalementPhoto[]> {
+	return getApiClient()
+		.apiFetch<SignalementPhotoWire[]>(`/api/v1/signalements/${id}/photos`)
+		.then((photos) => photos.map(toSignalementPhoto));
+}
+
+export function ajouterSignalementPhoto(
+	id: string,
+	cleObjet: string,
+): Promise<SignalementPhoto> {
+	return getApiClient()
+		.apiFetch<SignalementPhotoWire>(`/api/v1/signalements/${id}/photos`, {
+			method: "POST",
+			body: JSON.stringify({ cle_objet: cleObjet }),
+		})
+		.then(toSignalementPhoto);
+}
+
+export function supprimerSignalementPhoto(idPhoto: string): Promise<unknown> {
+	return getApiClient().apiFetch(`/api/v1/signalements/photos/${idPhoto}`, {
+		method: "DELETE",
 	});
 }

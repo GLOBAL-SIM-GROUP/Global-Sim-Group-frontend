@@ -12,6 +12,7 @@ import { Button } from "#/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "#/components/ui/card";
 import { requirePermissions, useCan } from "#/core/auth";
 import { formatDateHeureISO } from "#/features/residence/models/format";
+import { SignalementPhotos } from "#/features/signalements/components/signalement-photos";
 import {
 	usePrendreEnChargeSignalement,
 	useRejeterSignalement,
@@ -21,6 +22,7 @@ import {
 } from "#/features/signalements/hooks/use-signalements";
 import {
 	completerSignalementDepuisListe,
+	libelleTypeSignalement,
 	nomDeclarant,
 	SIGNALEMENT_STATUT_BADGE,
 	SIGNALEMENT_STATUT_LABELS,
@@ -135,6 +137,9 @@ function DetailSignalementPage() {
 						>
 							{SIGNALEMENT_STATUT_LABELS[signalement.statut]}
 						</span>
+						<span className="inline-flex rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground">
+							{libelleTypeSignalement(signalement.type_signalement)}
+						</span>
 					</div>
 					<p className="text-muted-foreground">
 						Signalé par {nomDeclarant(signalement)} le{" "}
@@ -153,6 +158,10 @@ function DetailSignalementPage() {
 				<CardContent className="space-y-4">
 					<dl className="grid gap-3 sm:grid-cols-2">
 						<Ligne label="Déclarant" valeur={nomDeclarant(signalement)} />
+						<Ligne
+							label="Module concerné"
+							valeur={libelleTypeSignalement(signalement.type_signalement)}
+						/>
 						<Ligne
 							label="Signalé le"
 							valeur={formatDateHeureISO(signalement.date_signalement)}
@@ -187,6 +196,12 @@ function DetailSignalementPage() {
 							</p>
 						</div>
 					) : null}
+				</CardContent>
+			</Card>
+
+			<Card>
+				<CardContent className="pt-6">
+					<SignalementPhotos idSignalement={id} canDelete={canModify} />
 				</CardContent>
 			</Card>
 

@@ -12,6 +12,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "#/components/ui/select";
+import type { SignalementType } from "#/core/api/signalements";
 import { useCan } from "#/core/auth";
 import { formatDateHeureISO } from "#/features/residence/models/format";
 import { cn } from "#/lib/utils";
@@ -19,11 +20,14 @@ import { cn } from "#/lib/utils";
 import { useSignalements } from "../hooks/use-signalements";
 import {
 	filtrerSignalements,
+	libelleTypeSignalement,
 	nomDeclarant,
 	paginerSignalements,
 	rechercherSignalements,
 	SIGNALEMENT_STATUT_BADGE,
 	SIGNALEMENT_STATUT_LABELS,
+	SIGNALEMENT_TYPE_LABELS,
+	SIGNALEMENT_TYPES,
 	type SignalementStatut,
 } from "../models/signalements";
 import { SIGNALEMENTS_PAGE_SIZE } from "../permissions";
@@ -32,6 +36,7 @@ import { SignalementFormDialog } from "./signalement-form-dialog";
 export interface SignalementsSearch {
 	recherche?: string;
 	statut?: string;
+	type_signalement?: string;
 	page?: number;
 }
 
@@ -56,14 +61,25 @@ export function SignalementsPage({
 
 	const [recherche, setRecherche] = useState(initialSearch.recherche ?? "");
 	const [statut, setStatut] = useState(initialSearch.statut ?? "tous");
+	const [typeSignalement, setTypeSignalement] = useState(
+		initialSearch.type_signalement ?? "tous",
+	);
 	const [page, setPage] = useState(initialSearch.page ?? 1);
 	const [formOuvert, setFormOuvert] = useState(false);
 
-	const signalementsQuery = useSignalements();
+	const signalementsQuery = useSignalements(
+		typeSignalement === "tous"
+			? undefined
+			: (typeSignalement as SignalementType),
+	);
 	const signalements = signalementsQuery.data ?? [];
 
-	const changerFiltre = (patch: { statut?: string }) => {
+	const changerFiltre = (patch: {
+		statut?: string;
+		type_signalement?: string;
+	}) => {
 		setStatut(patch.statut ?? statut);
+		setTypeSignalement(patch.type_signalement ?? typeSignalement);
 		setPage(1);
 		onSearchChange?.((prev) => ({ ...prev, ...patch, page: 1 }));
 	};
@@ -136,6 +152,24 @@ export function SignalementsPage({
 						))}
 					</SelectContent>
 				</Select>
+				<Select
+					value={typeSignalement}
+					onValueChange={(valeur) =>
+						changerFiltre({ type_signalement: valeur })
+					}
+				>
+					<SelectTrigger aria-label="Module concerné" className="w-52">
+						<SelectValue placeholder="Module concerné" />
+					</SelectTrigger>
+					<SelectContent>
+						<SelectItem value="tous">Tous les modules</SelectItem>
+						{SIGNALEMENT_TYPES.map((type) => (
+							<SelectItem key={type} value={type}>
+								{SIGNALEMENT_TYPE_LABELS[type]}
+							</SelectItem>
+						))}
+					</SelectContent>
+				</Select>
 			</div>
 
 			{signalementsQuery.isLoading ? (
@@ -168,6 +202,9 @@ export function SignalementsPage({
 									TITRE
 								</th>
 								<th scope="col" className="px-4 py-3 font-medium">
+									MODULE
+								</th>
+								<th scope="col" className="px-4 py-3 font-medium">
 									DÉCLARANT
 								</th>
 								<th scope="col" className="px-4 py-3 font-medium">
@@ -197,6 +234,11 @@ export function SignalementsPage({
 										<p className="mt-0.5 line-clamp-1 text-xs text-muted-foreground">
 											{signalement.description}
 										</p>
+									</td>
+									<td className="px-4 py-3">
+										<span className="inline-flex rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground">
+											{libelleTypeSignalement(signalement.type_signalement)}
+										</span>
 									</td>
 									<td className="px-4 py-3 text-muted-foreground">
 										{nomDeclarant(signalement)}

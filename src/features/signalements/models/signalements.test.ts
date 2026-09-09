@@ -5,6 +5,7 @@ import type { Signalement } from "#/core/api/signalements";
 import {
 	completerSignalementDepuisListe,
 	filtrerSignalements,
+	libelleTypeSignalement,
 	nomDeclarant,
 	paginerSignalements,
 	rechercherSignalements,
@@ -34,6 +35,13 @@ function signalement(
 		...overrides,
 	};
 }
+
+describe("libelleTypeSignalement", () => {
+	it("traduit le module et utilise Général en absence de classement", () => {
+		expect(libelleTypeSignalement("SALLE_FETE")).toBe("Salle de fête");
+		expect(libelleTypeSignalement(null)).toBe("Général");
+	});
+});
 
 describe("nomDeclarant", () => {
 	it("combine prénom et nom", () => {
