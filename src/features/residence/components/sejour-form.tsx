@@ -34,6 +34,7 @@ type SejourField =
 	| "arrivee"
 	| "depart"
 	| "tarif"
+	| "moyenPaiement"
 	| "statut";
 
 /** Propriétés backend (snake_case) → champs du formulaire. */
@@ -66,6 +67,26 @@ function toBackend(dateHeure: string): string {
 	return dateHeure ? `${dateHeure.replace("T", " ")}:00` : "";
 }
 
+/** Date calendaire (YYYY-MM-DD) d'une valeur `datetime-local`. */
+function dateJour(datetimeLocal: string): string {
+	return datetimeLocal ? datetimeLocal.slice(0, 10) : "";
+}
+
+/**
+ * Ajoute `jours` jours à une valeur `datetime-local` en conservant l'heure.
+ * Renvoie "" si l'entrée est vide.
+ */
+function ajouterJours(datetimeLocal: string, jours: number): string {
+	if (!datetimeLocal) return "";
+	const [datePart, timePart] = datetimeLocal.split("T");
+	const [y, m, d] = datePart.split("-").map(Number);
+	const date = new Date(y, m - 1, d + jours);
+	const pad = (n: number) => String(n).padStart(2, "0");
+	return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(
+		date.getDate(),
+	)}T${timePart}`;
+}
+
 interface SejourFormProps {
 	/** Séjour à modifier (mode édition) ; null = création. */
 	sejour: Sejour | null;
@@ -81,12 +102,14 @@ function SelectField({
 	label,
 	value,
 	onValueChange,
+	error,
 	children,
 }: {
 	id: string;
 	label: string;
 	value: string;
 	onValueChange: (value: string) => void;
+	error?: string;
 	children: React.ReactNode;
 }) {
 	return (
@@ -98,6 +121,11 @@ function SelectField({
 				</SelectTrigger>
 				<SelectContent>{children}</SelectContent>
 			</Select>
+			{error ? (
+				<p role="alert" className="text-sm font-medium text-destructive">
+					{error}
+				</p>
+			) : null}
 		</div>
 	);
 }
@@ -127,7 +155,9 @@ export function SejourForm({
 			arrivee: sejour
 				? toLocalInput(sejour.date_heure_arrivee)
 				: toDateTimeLocal(new Date()),
-			depart: toLocalInput(sejour?.date_heure_depart_prevue),
+			depart: sejour
+				? toLocalInput(sejour.date_heure_depart_prevue)
+				: ajouterJours(toDateTimeLocal(new Date()), 1),
 			tarif: sejour?.tarif ?? "",
 			statut: sejour?.statut ?? ("EN_COURS" as SejourStatut),
 			moyenPaiement: "",
@@ -140,8 +170,38 @@ export function SejourForm({
 					if (!value.idClient) fields.idClient = "Sélectionnez un client.";
 					if (!value.idLogement)
 						fields.idLogement = "Sélectionnez un logement.";
+					// Moyen de paiement obligatoire en création (si des moyens existent).
+					if (moyens.length > 0 && !value.moyenPaiement) {
+						fields.moyenPaiement = "Sélectionnez un moyen de paiement.";
+					}
 				}
 				if (!value.arrivee.trim()) fields.arrivee = "Ce champ est requis.";
+
+				// Départ obligatoire (création et édition).
+				if (!value.depart.trim()) {
+					fields.depart = "La date de départ est obligatoire.";
+				} else if (value.arrivee.trim()) {
+					// Le départ doit toujours être postérieur à l'arrivée.
+					if (value.depart <= value.arrivee) {
+						fields.depart = "Le départ doit être postérieur à l'arrivée.";
+					} else {
+						// Contraintes liées au type de prestation.
+						const jourArrivee = dateJour(value.arrivee);
+						const jourDepart = dateJour(value.depart);
+						if (value.typePrestation === "SIESTE") {
+							if (jourDepart !== jourArrivee) {
+								fields.depart =
+									"Pour une sieste, le départ doit avoir lieu le même jour que l'arrivée.";
+							}
+						} else if (value.typePrestation === "NUITEE") {
+							if (jourDepart <= jourArrivee) {
+								fields.depart =
+									"Pour une nuitée, le départ doit avoir lieu au moins le lendemain de l'arrivée.";
+							}
+						}
+					}
+				}
+
 				if (!value.tarif.trim()) {
 					fields.tarif = "Ce champ est requis.";
 				} else if (!/^\d+(\.\d+)?$/.test(value.tarif.trim())) {
@@ -218,9 +278,21 @@ export function SejourForm({
 				{(field) => (
 					<SelectField
 						id={field.name}
-						label="Type"
+						label="Type de séjour"
 						value={field.state.value}
-						onValueChange={(valeur) => field.handleChange(valeur as SejourType)}
+						onValueChange={(valeur) => {
+							field.handleChange(valeur as SejourType);
+							// En création, on propose automatiquement un départ
+							// cohérent avec le type sélectionné.
+							if (!sejour) {
+								const arrivee = form.getFieldValue("arrivee") as string;
+								if (arrivee) {
+									const depart =
+										valeur === "NUITEE" ? ajouterJours(arrivee, 1) : arrivee; // Sieste → même jour
+									form.setFieldValue("depart", depart);
+								}
+							}
+						}}
 					>
 						{(Object.keys(SEJOUR_TYPE_LABELS) as SejourType[]).map((type) => (
 							<SelectItem key={type} value={type}>
@@ -276,7 +348,7 @@ export function SejourForm({
 					<InputField
 						id={field.name}
 						name={field.name}
-						label="Départ prévu (optionnel)"
+						label="Départ prévu"
 						type="datetime-local"
 						autoComplete="off"
 						value={field.state.value}
@@ -331,9 +403,10 @@ export function SejourForm({
 						{(field) => (
 							<SelectField
 								id={field.name}
-								label="Moyen de paiement (optionnel)"
+								label="Moyen de paiement"
 								value={field.state.value}
 								onValueChange={field.handleChange}
+								error={field.state.meta.errors[0]}
 							>
 								{moyens.map((moyen) => (
 									<SelectItem key={moyen.id} value={moyen.id}>
