@@ -1,5 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { ChevronRight } from "lucide-react";
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 
 export interface BreadcrumbItem {
 	label: string;
@@ -16,18 +18,27 @@ export interface BreadcrumbItem {
  * composant reste générique, les pages passent des routes connues).
  */
 export function Breadcrumb({ items }: { items: BreadcrumbItem[] }) {
-	return (
-		<nav aria-label="Fil d'Ariane" className="text-sm">
-			<ol className="flex flex-wrap items-center gap-1.5">
+	const [navbarTarget, setNavbarTarget] = useState<HTMLElement | null>(null);
+
+	useEffect(() => {
+		setNavbarTarget(document.getElementById("app-navbar-breadcrumb"));
+	}, []);
+
+	const breadcrumb = (
+		<nav aria-label="Fil d'Ariane" className="overflow-hidden text-sm">
+			<ol className="flex items-center gap-1.5 overflow-hidden whitespace-nowrap">
 				{items.map((item, index) => {
 					const isLast = index === items.length - 1;
 					return (
-						<li key={item.label} className="flex items-center gap-1.5">
+						<li
+							key={`${item.to ?? "current"}-${item.label}`}
+							className="flex min-w-0 items-center gap-1.5"
+						>
 							{item.to && !isLast ? (
 								<Link
 									to={item.to as never}
 									search={item.search as never}
-									className="text-lagoon transition-colors hover:underline"
+									className="shrink-0 text-lagoon transition-colors hover:underline"
 								>
 									{item.label}
 								</Link>
@@ -36,8 +47,8 @@ export function Breadcrumb({ items }: { items: BreadcrumbItem[] }) {
 									aria-current={isLast ? "page" : undefined}
 									className={
 										isLast
-											? "font-medium text-foreground"
-											: "text-muted-foreground"
+											? "truncate font-medium text-foreground"
+											: "shrink-0 text-muted-foreground"
 									}
 								>
 									{item.label}
@@ -45,7 +56,7 @@ export function Breadcrumb({ items }: { items: BreadcrumbItem[] }) {
 							)}
 							{!isLast ? (
 								<ChevronRight
-									className="size-3.5 text-muted-foreground"
+									className="size-3.5 shrink-0 text-muted-foreground"
 									aria-hidden
 								/>
 							) : null}
@@ -55,4 +66,6 @@ export function Breadcrumb({ items }: { items: BreadcrumbItem[] }) {
 			</ol>
 		</nav>
 	);
+
+	return navbarTarget ? createPortal(breadcrumb, navbarTarget) : breadcrumb;
 }

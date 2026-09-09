@@ -170,7 +170,7 @@ export function Sidebar({ onClose }: { onClose?: () => void } = {}) {
 	const subActiveClassName = "bg-lagoon/20 text-lagoon font-medium";
 
 	return (
-		<aside className="sticky top-0 h-dvh w-60 shrink-0 flex-col justify-between overflow-y-auto border-r border-palm bg-sea-ink px-3 py-4 flex">
+		<aside className="sticky top-0 h-dvh w-60 shrink-0 flex-col justify-between overflow-y-auto border-r border-palm bg-sea-ink px-3 py-4 flex [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
 			<div className="space-y-6">
 				<div className="flex flex-col items-center gap-2 px-3">
 					{/* Logo de marque servi depuis public/ (sur fond sombre sea-ink). */}

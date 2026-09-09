@@ -48,10 +48,11 @@ export function AppShell({ children }: { children: ReactNode }) {
 								<Menu className="size-5" />
 							)}
 						</button>
-						<span className="text-xs sm:text-lg font-semibold lg:hidden truncate">
-							GLOBAL SIM GROUP
-						</span>
-						<div className="ml-auto flex items-center">
+						<div
+							id="app-navbar-breadcrumb"
+							className="min-w-0 flex-1 overflow-hidden"
+						/>
+						<div className="ml-auto flex shrink-0 items-center">
 							<NotificationBell />
 						</div>
 					</div>
