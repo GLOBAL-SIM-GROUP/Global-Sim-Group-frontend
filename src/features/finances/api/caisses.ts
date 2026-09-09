@@ -4,7 +4,9 @@ import type {
 	CaisseDashboard,
 	CaisseFiltres,
 	CreerCaisseDto,
+	FermetureCaisse,
 	ModifierCaisseDto,
+	PeriodeCaisse,
 	RevenusUtilisateur,
 } from "../models/caisses";
 
@@ -44,6 +46,27 @@ export async function modifierCaisse(
 	return getApiClient().apiFetch(`/api/v1/finances/caisses/${id}`, {
 		method: "PATCH",
 		body: JSON.stringify(dto),
+	});
+}
+
+/**
+ * Ouvre la caisse (nouvelle période). 409 si une période est déjà ouverte —
+ * l'appelant traite ce cas comme « déjà ouverte », pas comme un échec.
+ */
+export async function ouvrirCaisse(id: string): Promise<PeriodeCaisse> {
+	return getApiClient().apiFetch(`/api/v1/finances/caisses/${id}/ouvrir`, {
+		method: "POST",
+	});
+}
+
+/**
+ * Ferme la caisse (clôture la période ouverte). 404 (message « Caisse X déjà
+ * fermée ») si aucune période n'était ouverte — l'appelant traite ce cas
+ * comme « déjà fermée », pas comme un échec.
+ */
+export async function fermerCaisse(id: string): Promise<FermetureCaisse> {
+	return getApiClient().apiFetch(`/api/v1/finances/caisses/${id}/fermer`, {
+		method: "POST",
 	});
 }
 

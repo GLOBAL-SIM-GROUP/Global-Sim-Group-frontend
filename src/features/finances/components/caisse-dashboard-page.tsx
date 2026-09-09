@@ -1,23 +1,36 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
-import { ArrowLeft, Plus, Users } from "lucide-react";
+import { ArrowLeft, Lock, Plus, Unlock, Users } from "lucide-react";
 import { Dialog } from "radix-ui";
 import { useState } from "react";
 
+import { Breadcrumb } from "#/components/ui/breadcrumb";
 import { Button } from "#/components/ui/button";
 import { Input } from "#/components/ui/input";
+import { toApiError } from "#/core/api";
 import { useCan } from "#/core/auth";
 import {
 	formatDateHeureISO,
 	formatMontantFCFA,
 } from "#/features/residence/models/format";
+import { cn } from "#/lib/utils";
 
 import {
+	fermerCaisse,
 	obtenirDashboardCaisse,
 	obtenirRevenusParUtilisateur,
+	ouvrirCaisse,
 } from "../api/caisses";
 import { useCreerTirage, useTirages } from "../hooks/use-tirages";
 import type { CreerTirageDto } from "../models/tirages";
+
+/**
+ * État d'ouverture connu de la caisse dans CETTE session : pas de GET dédié
+ * côté backend pour lire l'état courant au chargement de la page — `inconnu`
+ * tant qu'aucun appel `ouvrir`/`fermer` n'a été fait ici (voir le commentaire
+ * sur `PeriodeCaisse`).
+ */
+type EtatCaisse = "inconnu" | "ouverte" | "fermee";
 
 interface CaisseDashboardPageProps {
 	id: string;
@@ -30,6 +43,11 @@ interface CaisseDashboardPageProps {
 export function CaisseDashboardPage({ id }: CaisseDashboardPageProps) {
 	const canCreer = useCan("FINANCES.CREER");
 	const [openTirage, setOpenTirage] = useState(false);
+	const [etatCaisse, setEtatCaisse] = useState<EtatCaisse>("inconnu");
+	const [caisseActionPending, setCaisseActionPending] = useState(false);
+	const [caisseActionError, setCaisseActionError] = useState<string | null>(
+		null,
+	);
 	const [tirageForms, setTirageForms] = useState<CreerTirageDto>({
 		montant_compte: "",
 		date: new Date().toISOString().split("T")[0],
@@ -70,6 +88,48 @@ export function CaisseDashboardPage({ id }: CaisseDashboardPageProps) {
 				},
 			},
 		);
+	};
+
+	const handleOuvrir = async () => {
+		setCaisseActionError(null);
+		setCaisseActionPending(true);
+		try {
+			await ouvrirCaisse(id);
+			setEtatCaisse("ouverte");
+		} catch (error) {
+			const apiError = toApiError(error);
+			if (apiError.status === 409) {
+				// Déjà ouverte — pas un échec, juste un état qu'on ne connaissait pas.
+				setEtatCaisse("ouverte");
+			} else {
+				setCaisseActionError(
+					apiError.message || "Impossible d'ouvrir la caisse.",
+				);
+			}
+		} finally {
+			setCaisseActionPending(false);
+		}
+	};
+
+	const handleFermer = async () => {
+		setCaisseActionError(null);
+		setCaisseActionPending(true);
+		try {
+			await fermerCaisse(id);
+			setEtatCaisse("fermee");
+		} catch (error) {
+			const apiError = toApiError(error);
+			if (apiError.status === 404) {
+				// Déjà fermée — pas un échec, juste un état qu'on ne connaissait pas.
+				setEtatCaisse("fermee");
+			} else {
+				setCaisseActionError(
+					apiError.message || "Impossible de fermer la caisse.",
+				);
+			}
+		} finally {
+			setCaisseActionPending(false);
+		}
 	};
 
 	if (isLoading) {
@@ -166,23 +226,88 @@ export function CaisseDashboardPage({ id }: CaisseDashboardPageProps) {
 			</Dialog.Root>
 
 			<div className="mx-auto w-full max-w-6xl space-y-6 p-6">
+				<Breadcrumb
+					items={[
+						{ label: "Accueil", to: "/" },
+						{ label: "Caisses", to: "/finances/caisses" },
+						{ label: dashboard.libelle },
+					]}
+				/>
 				{/* Header */}
-				<div className="flex items-center gap-4">
-					<Button asChild variant="ghost" size="sm">
-						<Link to="/finances/caisses">
-							<ArrowLeft className="size-4 mr-2" />
-							Retour aux caisses
-						</Link>
-					</Button>
-					<div>
-						<h1 className="text-3xl font-bold text-foreground">
-							{dashboard.libelle}
-						</h1>
-						<p className="text-sm text-muted-foreground">
-							Activité: {dashboard.id_activite}
-						</p>
+				<div className="flex flex-wrap items-center justify-between gap-4">
+					<div className="flex items-center gap-4">
+						<Button asChild variant="ghost" size="sm">
+							<Link to="/finances/caisses">
+								<ArrowLeft className="size-4 mr-2" />
+								Retour aux caisses
+							</Link>
+						</Button>
+						<div>
+							<h1 className="text-3xl font-bold text-foreground">
+								{dashboard.libelle}
+							</h1>
+							<p className="text-sm text-muted-foreground">
+								Activité: {dashboard.id_activite}
+							</p>
+						</div>
+					</div>
+
+					<div className="flex items-center gap-2">
+						<span
+							className={cn(
+								"inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium",
+								etatCaisse === "ouverte"
+									? "bg-[#27AE60]/20 text-[#27AE60]"
+									: etatCaisse === "fermee"
+										? "bg-[#95A5A6]/20 text-[#95A5A6]"
+										: "bg-muted text-muted-foreground",
+							)}
+						>
+							{etatCaisse === "ouverte" ? (
+								<Unlock className="size-3.5" aria-hidden />
+							) : (
+								<Lock className="size-3.5" aria-hidden />
+							)}
+							{etatCaisse === "ouverte"
+								? "Caisse ouverte"
+								: etatCaisse === "fermee"
+									? "Caisse fermée"
+									: "État inconnu"}
+						</span>
+						{canCreer ? (
+							<>
+								{etatCaisse !== "ouverte" ? (
+									<Button
+										size="sm"
+										variant="outline"
+										disabled={caisseActionPending}
+										onClick={() => void handleOuvrir()}
+									>
+										<Unlock className="size-4" aria-hidden />
+										Ouvrir la caisse
+									</Button>
+								) : null}
+								{etatCaisse !== "fermee" ? (
+									<Button
+										size="sm"
+										variant="outline"
+										disabled={caisseActionPending}
+										onClick={() => void handleFermer()}
+									>
+										<Lock className="size-4" aria-hidden />
+										Fermer la caisse
+									</Button>
+								) : null}
+							</>
+						) : null}
 					</div>
 				</div>
+
+				{caisseActionError ? (
+					<p role="alert" className="text-sm font-medium text-destructive">
+						{caisseActionError}
+					</p>
+				) : null}
 
 				{/* KPIs */}
 				<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
