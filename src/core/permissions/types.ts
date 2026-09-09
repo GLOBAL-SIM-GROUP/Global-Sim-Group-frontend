@@ -10,6 +10,13 @@
  * **4 verbes** dont `SUPPRIMER`. La réponse réelle de `/api/v1/me` fait foi : si le
  * seeding du backend évolue, mettre à jour cette union **et**
  * `permissions.test.ts`.
+ *
+ * `DEPENSE` (2026-09-07) : les mutations dépenses/catégories-dépenses ont été
+ * détachées du verbe `FINANCES.*` partagé avec les paiements — un caissier
+ * garde `FINANCES.CREER` (paiements) mais perd `DEPENSE.CREER`. Seuls
+ * ADMINISTRATEUR/DIRIGEANT ont les nouveaux codes. La lecture reste sur
+ * `FINANCES.VOIR` (`DEPENSE.VOIR` est accordé en parallèle à qui avait déjà
+ * `FINANCES.VOIR`, donc pas de régression de lecture à gérer côté front).
  */
 export const MODULES = [
 	"RESIDENCE",
@@ -26,6 +33,7 @@ export const MODULES = [
 	"AUDIT",
 	"CORE",
 	"SIGNALEMENT",
+	"DEPENSE",
 ] as const;
 
 export type ModuleCode = (typeof MODULES)[number];
