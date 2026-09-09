@@ -16,6 +16,7 @@ export {
 	buildApiError,
 	getFieldErrors,
 	isApiError,
+	isCaisseFermeeError,
 	toApiError,
 } from "./api-error";
 export { authApi } from "./auth";

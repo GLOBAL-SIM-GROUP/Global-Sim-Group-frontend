@@ -61,6 +61,19 @@ export function toApiError(error: unknown): ApiError {
 }
 
 /**
+ * `true` si l'erreur est un 400 « caisse fermée » (POST `/finances/paiements`
+ * ou `/finances/depenses` visant une caisse sans période ouverte — message
+ * backend : « Caisse X fermée — ouvrez-la avant d'enregistrer une opération. »).
+ * Pas de code d'enveloppe dédié pour ce cas : détection sur statut + message.
+ * À utiliser pour distinguer ce blocage actionnable (« allez ouvrir la
+ * caisse ») d'une erreur générique dans les formulaires de paiement/dépense.
+ */
+export function isCaisseFermeeError(error: unknown): boolean {
+	if (!isApiError(error)) return false;
+	return error.status === 400 && /caisse.*ferm[ée]e/i.test(error.message);
+}
+
+/**
  * Extrait les erreurs champ-par-champ d'une erreur `VALIDATION_ERROR`
  * (`details: [{property, messages}]`). À mapper sur les champs d'un formulaire.
  */
