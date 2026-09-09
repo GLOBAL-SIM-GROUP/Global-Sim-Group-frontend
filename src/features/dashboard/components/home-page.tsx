@@ -57,7 +57,7 @@ export function HomePage() {
 		: SOUS_LIENS_RESIDENT;
 
 	return (
-		<div className="mx-auto w-full max-w-5xl space-y-6 p-4 sm:p-6">
+		<div className="w-full space-y-6 p-4 sm:p-6">
 			<section className="space-y-1">
 				<h1 className="text-xl sm:text-2xl font-semibold">
 					Bienvenue, {user?.login ?? ""} !
@@ -68,26 +68,29 @@ export function HomePage() {
 			</section>
 
 			{estResident || accessibleModules.length > 0 ? (
-				<section className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
+				<section className="columns-1 gap-3 sm:columns-2 sm:gap-4 lg:columns-3">
 					{estResident ? (
-						<ModuleTile
-							icon={Home}
-							title="Mon espace résident"
-							description="Suivi de votre loyer, de vos paiements et de votre caution."
-							subItems={[...sousLiensResident]}
-							moduleCode="RESIDENT"
-						/>
+						<div className="mb-3 break-inside-avoid sm:mb-4">
+							<ModuleTile
+								icon={Home}
+								title="Mon espace résident"
+								description="Suivi de votre loyer, de vos paiements et de votre caution."
+								subItems={[...sousLiensResident]}
+								moduleCode="RESIDENT"
+							/>
+						</div>
 					) : null}
 
 					{accessibleModules.map((module) => (
-						<ModuleTile
-							key={module.code}
-							icon={module.icon}
-							title={module.title}
-							description={module.description}
-							subItems={getAccessibleModuleSubItems(module, permissions)}
-							moduleCode={module.code}
-						/>
+						<div key={module.code} className="mb-3 break-inside-avoid sm:mb-4">
+							<ModuleTile
+								icon={module.icon}
+								title={module.title}
+								description={module.description}
+								subItems={getAccessibleModuleSubItems(module, permissions)}
+								moduleCode={module.code}
+							/>
+						</div>
 					))}
 				</section>
 			) : (
