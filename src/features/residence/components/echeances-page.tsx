@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 
+import { Breadcrumb } from "#/components/ui/breadcrumb";
 import { Button } from "#/components/ui/button";
 
 import { useContrats } from "../hooks/use-contrats";
@@ -90,6 +91,9 @@ export function EcheancesPage({
 
 	return (
 		<div className="mx-auto w-full max-w-5xl space-y-6 p-6">
+			<Breadcrumb
+				items={[{ label: "Accueil", to: "/" }, { label: "Échéances de loyer" }]}
+			/>
 			<section className="space-y-1">
 				<h1 className="text-2xl font-semibold text-foreground">
 					Échéances de loyer

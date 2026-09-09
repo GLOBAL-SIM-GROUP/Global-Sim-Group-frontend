@@ -1,6 +1,7 @@
 import { Plus, X } from "lucide-react";
 import { useMemo, useState } from "react";
 
+import { Breadcrumb } from "#/components/ui/breadcrumb";
 import { Button } from "#/components/ui/button";
 import { useCan } from "#/core/auth";
 import { cn } from "#/lib/utils";
@@ -113,6 +114,9 @@ export function BuildingsPage({
 
 	return (
 		<div className="mx-auto w-full max-w-5xl space-y-6 p-6">
+			<Breadcrumb
+				items={[{ label: "Accueil", to: "/" }, { label: "Bâtiments" }]}
+			/>
 			<div className="flex flex-wrap items-end justify-between gap-4">
 				<section className="space-y-1">
 					<h1 className="text-2xl font-semibold text-foreground">
