@@ -122,11 +122,10 @@ export function ClientRechercheField({
 						: recherche.data;
 					if (visibles.length === 0) {
 						return (
-							<div className="space-y-2 rounded-md border border-dashed border-border p-3">
-								<p className="text-sm text-muted-foreground">
-									Aucun client disponible (tous les clients trouvés sont déjà associés à un compte).
-								</p>
-							</div>
+							<p className="text-xs text-muted-foreground">
+								Aucun client disponible (tous les clients trouvés sont déjà
+								associés à un compte).
+							</p>
 						);
 					}
 					return (
@@ -136,7 +135,10 @@ export function ClientRechercheField({
 									<button
 										type="button"
 										onClick={() => {
-											setSelectionne({ id: client.id, label: nomComplet(client) });
+											setSelectionne({
+												id: client.id,
+												label: nomComplet(client),
+											});
 											onChange(client.id, nomComplet(client));
 										}}
 										className="w-full px-3 py-2 text-left transition-colors hover:bg-accent/40"
@@ -154,46 +156,45 @@ export function ClientRechercheField({
 					);
 				})()
 			) : (
-				<div className="space-y-2 rounded-md border border-dashed border-border p-3">
-					<p className="text-sm text-muted-foreground">Aucun client trouvé.</p>
-					{!creationOuverte ? (
-						<Button
-							type="button"
-							variant="outline"
-							size="sm"
-							onClick={() => setCreationOuverte(true)}
-						>
-							<Plus className="size-4" aria-hidden />
-							{creationLocataireComplete
-								? "Créer un locataire"
-								: "Créer un client"}
-						</Button>
-					) : creationLocataireComplete ? (
-						<ClientForm
-							client={null}
-							typeClientCree="LOCATAIRE"
-							embedded
-							onCancel={() => setCreationOuverte(false)}
-							onSaved={(id, label) => {
-								if (!id) return;
-								setSelectionne({ id, label: label ?? "" });
-								onChange(id, label ?? "");
-								setCreationOuverte(false);
-								setTerme("");
-							}}
-						/>
-					) : (
-						<CreerClientInlineForm
-							onCancel={() => setCreationOuverte(false)}
-							onSaved={(id, label) => {
-								setSelectionne({ id, label });
-								onChange(id, label);
-								setCreationOuverte(false);
-								setTerme("");
-							}}
-						/>
-					)}
-				</div>
+				<p className="text-xs text-muted-foreground">Aucun client trouvé.</p>
+			)}
+
+			{/* Création inline — toujours visible tant qu'aucun client n'est
+			    sélectionné, sans attendre une recherche infructueuse. */}
+			{!creationOuverte ? (
+				<Button
+					type="button"
+					variant="outline"
+					size="sm"
+					onClick={() => setCreationOuverte(true)}
+				>
+					<Plus className="size-4" aria-hidden />
+					{creationLocataireComplete ? "Créer un locataire" : "Créer un client"}
+				</Button>
+			) : creationLocataireComplete ? (
+				<ClientForm
+					client={null}
+					typeClientCree="LOCATAIRE"
+					embedded
+					onCancel={() => setCreationOuverte(false)}
+					onSaved={(id, label) => {
+						if (!id) return;
+						setSelectionne({ id, label: label ?? "" });
+						onChange(id, label ?? "");
+						setCreationOuverte(false);
+						setTerme("");
+					}}
+				/>
+			) : (
+				<CreerClientInlineForm
+					onCancel={() => setCreationOuverte(false)}
+					onSaved={(id, label) => {
+						setSelectionne({ id, label });
+						onChange(id, label);
+						setCreationOuverte(false);
+						setTerme("");
+					}}
+				/>
 			)}
 
 			{/* value est posé uniquement via selectionne ; champ a11y neutre. */}
