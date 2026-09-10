@@ -33,6 +33,10 @@ vi.mock("../hooks/use-abonnements", () => ({
 	useModifierAbonnement: () => ({ mutateAsync: vi.fn(), isPending: false }),
 }));
 
+vi.mock("../hooks/use-contrats", () => ({
+	useContrats: () => ({ data: [] }),
+}));
+
 const categoriesMock = vi.fn();
 vi.mock("../hooks/use-abonnement-categories", () => ({
 	useAbonnementCategories: () => categoriesMock(),

@@ -18,4 +18,8 @@ export interface AbonnementCategorie {
 	/** Code technique court (≤ 50 caractères), requis par le backend. */
 	code: string;
 	libelle: string;
+	/** Statut actif (une catégorie désactivée ne doit plus être proposée). */
+	actif?: boolean;
+	/** Prix par défaut suggéré à la création d'un abonnement. */
+	prix_defaut?: string | null;
 }

@@ -14,12 +14,17 @@ import {
 	SelectValue,
 } from "#/components/ui/select";
 import { getErrorMessageForCode, getFieldErrors, toApiError } from "#/core/api";
+import {
+	normaliserMontantPourBackend,
+	validerMontant,
+} from "#/core/forms/montant";
 
 import { useAbonnementCategories } from "../hooks/use-abonnement-categories";
 import {
 	useCreerAbonnement,
 	useModifierAbonnement,
 } from "../hooks/use-abonnements";
+import { useContrats } from "../hooks/use-contrats";
 import {
 	ABONNEMENT_STATUT_LABELS,
 	ABONNEMENT_TYPE_LABELS,
@@ -97,7 +102,10 @@ export function AbonnementForm({
 	const createMutation = useCreerAbonnement();
 	const editMutation = useModifierAbonnement();
 	const categoriesQuery = useAbonnementCategories();
-	const categories = categoriesQuery.data ?? [];
+	const categories = (categoriesQuery.data ?? []).filter(
+		(c) => c.actif !== false,
+	);
+	const contratsQuery = useContrats();
 	const [globalError, setGlobalError] = useState<string | null>(null);
 
 	const form = useForm({
@@ -114,15 +122,35 @@ export function AbonnementForm({
 			onSubmit: ({ value }) => {
 				// `{ fields }` = erreurs champ par champ (cf. login.tsx).
 				const fields: Partial<Record<AbonnementField, string>> = {};
-				if (!abonnement && !value.idClient)
+				if (!abonnement && !value.idClient) {
 					fields.idClient = "Sélectionnez un résident.";
+				} else if (!abonnement && value.idClient) {
+					// Un abonnement ne peut être rattaché qu'à un résident
+					// ayant un contrat ACTIF (logement actuellement loué).
+					const aContratActif = (contratsQuery.data ?? []).some(
+						(c) => c.id_client === value.idClient && c.statut === "ACTIF",
+					);
+					if (!aContratActif) {
+						fields.idClient =
+							"Ce résident n'a aucun contrat actif. L'abonnement ne peut être rattaché qu'à un logement actuellement loué.";
+					}
+				}
 				if (!value.service.trim()) fields.service = "Ce champ est requis.";
 				if (!value.montant.trim()) {
 					fields.montant = "Ce champ est requis.";
-				} else if (!/^\d+(\.\d+)?$/.test(value.montant.trim())) {
-					fields.montant = "Le montant doit être un nombre.";
+				} else {
+					const erreur = validerMontant(value.montant, "Le montant");
+					if (erreur) fields.montant = erreur;
 				}
 				if (!value.dateDebut.trim()) fields.dateDebut = "Ce champ est requis.";
+				if (!value.dateFin.trim()) {
+					fields.dateFin = "Ce champ est requis.";
+				} else if (
+					value.dateDebut.trim() &&
+					value.dateFin.trim() < value.dateDebut.trim()
+				) {
+					fields.dateFin = "La date de fin doit être après la date de début.";
+				}
 				return { fields };
 			},
 		},
@@ -134,9 +162,9 @@ export function AbonnementForm({
 						id: abonnement.id,
 						service: value.service.trim(),
 						type: value.type,
-						montant: value.montant.trim(),
+						montant: normaliserMontantPourBackend(value.montant),
 						dateDebut: value.dateDebut,
-						dateFin: value.dateFin || null,
+						dateFin: value.dateFin,
 						statut: value.statut,
 					});
 				} else {
@@ -144,9 +172,9 @@ export function AbonnementForm({
 						idClient: value.idClient,
 						service: value.service.trim(),
 						type: value.type,
-						montant: value.montant.trim(),
+						montant: normaliserMontantPourBackend(value.montant),
 						dateDebut: value.dateDebut,
-						dateFin: value.dateFin || null,
+						dateFin: value.dateFin,
 					});
 				}
 				onSaved();
@@ -308,7 +336,7 @@ export function AbonnementForm({
 						<InputField
 							id={field.name}
 							name={field.name}
-							label="Date de fin (optionnelle)"
+							label="Date de fin"
 							type="date"
 							autoComplete="off"
 							value={field.state.value}
