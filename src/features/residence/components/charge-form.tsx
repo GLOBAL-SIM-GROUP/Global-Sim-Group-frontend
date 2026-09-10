@@ -13,6 +13,10 @@ import {
 	SelectValue,
 } from "#/components/ui/select";
 import { getErrorMessageForCode, getFieldErrors, toApiError } from "#/core/api";
+import {
+	normaliserMontantPourBackend,
+	validerMontant,
+} from "#/core/forms/montant";
 
 import { useCreerCharge } from "../hooks/use-charges";
 import type { CategorieCharge } from "../models/charges";
@@ -85,6 +89,10 @@ export function ChargeForm({
 	const createMutation = useCreerCharge();
 	const [globalError, setGlobalError] = useState<string | null>(null);
 
+	// Ne proposer que les catégories actives : une catégorie désactivée ne
+	// doit plus être utilisée pour créer de nouvelles charges.
+	const categoriesActives = categories.filter((c) => c.actif);
+
 	const form = useForm({
 		defaultValues: {
 			idLogement: logementIdParDefaut ?? "",
@@ -102,8 +110,9 @@ export function ChargeForm({
 				if (!value.periode.trim()) fields.periode = "Ce champ est requis.";
 				if (!value.montant.trim()) {
 					fields.montant = "Ce champ est requis.";
-				} else if (!/^\d+(\.\d+)?$/.test(value.montant.trim())) {
-					fields.montant = "Le montant doit être un nombre.";
+				} else {
+					const erreur = validerMontant(value.montant, "Le montant");
+					if (erreur) fields.montant = erreur;
 				}
 				return { fields };
 			},
@@ -115,7 +124,7 @@ export function ChargeForm({
 					idLogement: value.idLogement,
 					idCategorieCharge: value.idCategorieCharge,
 					periode: value.periode,
-					montant: value.montant.trim(),
+					montant: normaliserMontantPourBackend(value.montant),
 				});
 				onSaved();
 			} catch (error) {
@@ -160,6 +169,7 @@ export function ChargeForm({
 						<LogementCascadeField
 							value={field.state.value}
 							onChange={field.handleChange}
+							occupeUniquement
 						/>
 					)}
 				</form.Field>
@@ -174,7 +184,7 @@ export function ChargeForm({
 						value={field.state.value}
 						onValueChange={field.handleChange}
 					>
-						{categories.map((categorie) => (
+						{categoriesActives.map((categorie) => (
 							<SelectItem key={categorie.id} value={categorie.id}>
 								{categorie.libelle}
 							</SelectItem>

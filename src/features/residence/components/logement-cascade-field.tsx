@@ -24,6 +24,13 @@ interface LogementCascadeFieldProps {
 	 * cibler n'importe quel logement, y compris occupé.
 	 */
 	disponibleUniquement?: boolean;
+	/**
+	 * Ne liste que les logements au statut OCCUPE (ayant un contrat actif).
+	 * Utilisé par les formulaires de charge et d'abonnement : une charge ou
+	 * un abonnement ne peut être rattaché qu'à un logement actuellement loué.
+	 * `false` par défaut. Mutuellement exclusif avec `disponibleUniquement`.
+	 */
+	occupeUniquement?: boolean;
 }
 
 /** Champ Select avec label visible (le contenu s'ouvre en portal). */
@@ -74,14 +81,16 @@ export function LogementCascadeField({
 	value,
 	onChange,
 	disponibleUniquement = false,
+	occupeUniquement = false,
 }: LogementCascadeFieldProps) {
 	const [batimentId, setBatimentId] = useState("");
 	const batimentsQuery = useBatiments();
-	const logementsQuery = useLogements(
-		batimentId,
-		"tous",
-		disponibleUniquement ? "DISPONIBLE" : "tous",
-	);
+	const statutFiltre = disponibleUniquement
+		? "DISPONIBLE"
+		: occupeUniquement
+			? "OCCUPE"
+			: "tous";
+	const logementsQuery = useLogements(batimentId, "tous", statutFiltre);
 	const batiment = batimentsQuery.data?.find((item) => item.id === batimentId);
 
 	return (
