@@ -224,66 +224,6 @@ export function DashboardGlobalPage() {
 				</div>
 			) : synthese ? (
 				<>
-					{/* KPIs Financiers */}
-					<div className="space-y-4">
-						<h2 className="text-lg font-semibold text-foreground">
-							Vue financière
-						</h2>
-						<div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-							<KPICard
-								label="Chiffre d'affaires global"
-								valeur={formatMontantFCFA(String(synthese.total_recettes))}
-								couleur="text-emerald-600"
-								icon={TrendingUp}
-							/>
-							<KPICard
-								label="Dépenses totales"
-								valeur={formatMontantFCFA(String(synthese.total_depenses))}
-								couleur="text-amber-600"
-								icon={AlertTriangle}
-							/>
-							<KPICard
-								label="Solde"
-								valeur={formatMontantFCFA(String(synthese.solde))}
-								couleur={
-									Number(synthese.solde) >= 0
-										? "text-emerald-600"
-										: "text-destructive"
-								}
-								icon={TrendingUp}
-							/>
-							<KPICard
-								label="Impayés"
-								valeur={`${synthese.impayes.nombre}`}
-								subtext={formatMontantFCFA(String(synthese.impayes.montant))}
-								couleur="text-destructive"
-								icon={AlertCircle}
-							/>
-						</div>
-					</div>
-
-					{/* Recettes par activité */}
-					<div className="space-y-3">
-						<h2 className="text-lg font-semibold text-foreground">
-							Recettes par activité ce mois-ci
-						</h2>
-						<div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-							{synthese.recettes_par_activite.map((activite) => (
-								<div
-									key={activite.code}
-									className="rounded-lg border border-border bg-card p-4 shadow-sm"
-								>
-									<p className="text-sm font-medium text-muted-foreground">
-										{activite.libelle}
-									</p>
-									<p className="mt-2 text-xl font-bold text-foreground">
-										{formatMontantFCFA(String(activite.total_encaisse))}
-									</p>
-								</div>
-							))}
-						</div>
-					</div>
-
 					{/* Résidence */}
 					<div className="space-y-3">
 						<h2 className="text-lg font-semibold text-foreground">Résidence</h2>
@@ -438,68 +378,63 @@ export function DashboardGlobalPage() {
 						)}
 					</div>
 
-					{/* RH - Détails */}
-					<div className="space-y-3">
+					{/* KPIs Financiers */}
+					<div className="space-y-4">
 						<h2 className="text-lg font-semibold text-foreground">
-							Ressources humaines
+							Vue financière
 						</h2>
-						<div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-							<InfoCard
-								label="Masse salariale à payer"
-								valeur={formatMontantFCFA(String(synthese.masse_salariale))}
-								icon={Users}
-								loading={syntheseQuery.isLoading}
+						<div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+							<KPICard
+								label="Chiffre d'affaires global"
+								valeur={formatMontantFCFA(String(synthese.total_recettes))}
+								couleur="text-emerald-600"
+								icon={TrendingUp}
 							/>
-						</div>
-					</div>
-
-					{/* Market et Stock */}
-					<div className="space-y-3">
-						<h2 className="text-lg font-semibold text-foreground">
-							Market & Inventaire
-						</h2>
-						<div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-							<InfoCard
-								label="Produits en stock critique"
-								valeur={String(produitsCritiques.length)}
+							<KPICard
+								label="Dépenses totales"
+								valeur={formatMontantFCFA(String(synthese.total_depenses))}
+								couleur="text-amber-600"
 								icon={AlertTriangle}
+							/>
+							<KPICard
+								label="Solde"
+								valeur={formatMontantFCFA(String(synthese.solde))}
 								couleur={
-									produitsCritiques.length > 0
-										? "text-destructive"
-										: "text-muted-foreground"
+									Number(synthese.solde) >= 0
+										? "text-emerald-600"
+										: "text-destructive"
 								}
-								loading={produitsCritiquesQuery.isLoading}
+								icon={TrendingUp}
+							/>
+							<KPICard
+								label="Impayés"
+								valeur={`${synthese.impayes.nombre}`}
+								subtext={formatMontantFCFA(String(synthese.impayes.montant))}
+								couleur="text-destructive"
+								icon={AlertCircle}
 							/>
 						</div>
-						{produitsCritiques.length > 0 && (
-							<div className="rounded-lg border border-destructive/40 bg-destructive/10 p-4">
-								<p className="text-sm font-medium text-destructive mb-2">
-									Produits à réapprovisionner:
-								</p>
-								<ul className="space-y-1 text-xs">
-									{produitsCritiques.map((p) => (
-										<li key={p.id_produit}>
-											{p.nom} (stock: {p.quantite_stock})
-										</li>
-									))}
-								</ul>
-							</div>
-						)}
 					</div>
 
-					{/* Pressing */}
+					{/* Recettes par activité */}
 					<div className="space-y-3">
 						<h2 className="text-lg font-semibold text-foreground">
-							Blanchisserie
+							Recettes par activité ce mois-ci
 						</h2>
 						<div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-							<InfoCard
-								label="Commandes en cours"
-								valeur={String(commandesPressing.length)}
-								icon={Package}
-								to="/pressing/commandes"
-								loading={commandesPressingQuery.isLoading}
-							/>
+							{synthese.recettes_par_activite.map((activite) => (
+								<div
+									key={activite.code}
+									className="rounded-lg border border-border bg-card p-4 shadow-sm"
+								>
+									<p className="text-sm font-medium text-muted-foreground">
+										{activite.libelle}
+									</p>
+									<p className="mt-2 text-xl font-bold text-foreground">
+										{formatMontantFCFA(String(activite.total_encaisse))}
+									</p>
+								</div>
+							))}
 						</div>
 					</div>
 
@@ -607,6 +542,71 @@ export function DashboardGlobalPage() {
 								)}
 							</div>
 						)}
+					</div>
+
+					{/* Market et Stock */}
+					<div className="space-y-3">
+						<h2 className="text-lg font-semibold text-foreground">
+							Market & Inventaire
+						</h2>
+						<div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+							<InfoCard
+								label="Produits en stock critique"
+								valeur={String(produitsCritiques.length)}
+								icon={AlertTriangle}
+								couleur={
+									produitsCritiques.length > 0
+										? "text-destructive"
+										: "text-muted-foreground"
+								}
+								loading={produitsCritiquesQuery.isLoading}
+							/>
+						</div>
+						{produitsCritiques.length > 0 && (
+							<div className="rounded-lg border border-destructive/40 bg-destructive/10 p-4">
+								<p className="text-sm font-medium text-destructive mb-2">
+									Produits à réapprovisionner:
+								</p>
+								<ul className="space-y-1 text-xs">
+									{produitsCritiques.map((p) => (
+										<li key={p.id_produit}>
+											{p.nom} (stock: {p.quantite_stock})
+										</li>
+									))}
+								</ul>
+							</div>
+						)}
+					</div>
+
+					{/* Pressing */}
+					<div className="space-y-3">
+						<h2 className="text-lg font-semibold text-foreground">
+							Blanchisserie
+						</h2>
+						<div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+							<InfoCard
+								label="Commandes en cours"
+								valeur={String(commandesPressing.length)}
+								icon={Package}
+								to="/pressing/commandes"
+								loading={commandesPressingQuery.isLoading}
+							/>
+						</div>
+					</div>
+
+					{/* RH - Détails */}
+					<div className="space-y-3">
+						<h2 className="text-lg font-semibold text-foreground">
+							Ressources humaines
+						</h2>
+						<div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+							<InfoCard
+								label="Masse salariale à payer"
+								valeur={formatMontantFCFA(String(synthese.masse_salariale))}
+								icon={Users}
+								loading={syntheseQuery.isLoading}
+							/>
+						</div>
 					</div>
 				</>
 			) : null}
