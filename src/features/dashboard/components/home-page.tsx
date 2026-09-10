@@ -1,4 +1,5 @@
 import { Home } from "lucide-react";
+import { useMemo } from "react";
 
 import { ModuleTile } from "#/components/ui/module-tile";
 import { useCan, useCurrentUser, usePermissions } from "#/core/auth";
@@ -49,6 +50,20 @@ export function HomePage() {
 	const permissions = usePermissions();
 	const accessibleModules = getAccessibleModules(permissions);
 
+	// Trie les modules par nombre de sous-pages accessibles décroissant :
+	// les tuiles les plus riches en liens apparaissent en premier.
+	const modulesTri = useMemo(() => {
+		const counts = new Map(
+			accessibleModules.map((m) => {
+				const subs = getAccessibleModuleSubItems(m, permissions);
+				return [m.code, subs.length] as const;
+			}),
+		);
+		return [...accessibleModules].sort(
+			(a, b) => (counts.get(b.code) ?? 0) - (counts.get(a.code) ?? 0),
+		);
+	}, [accessibleModules, permissions]);
+
 	const sousLiensResident = canVoirSignalements
 		? [
 				...SOUS_LIENS_RESIDENT,
@@ -81,7 +96,7 @@ export function HomePage() {
 						</div>
 					) : null}
 
-					{accessibleModules.map((module) => (
+					{modulesTri.map((module) => (
 						<div key={module.code} className="mb-3 break-inside-avoid sm:mb-4">
 							<ModuleTile
 								icon={module.icon}
