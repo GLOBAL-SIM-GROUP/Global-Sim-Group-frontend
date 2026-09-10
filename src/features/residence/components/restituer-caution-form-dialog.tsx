@@ -1,11 +1,19 @@
 import { useForm } from "@tanstack/react-form";
-import { Loader2 } from "lucide-react";
+import { AlertTriangle, Loader2 } from "lucide-react";
 import { Dialog } from "radix-ui";
 import { useState } from "react";
 
 import { Button } from "#/components/ui/button";
 import { InputField } from "#/components/ui/input-field";
-import { getErrorMessageForCode, toApiError } from "#/core/api";
+import {
+	getErrorMessageForCode,
+	isCaisseFermeeError,
+	toApiError,
+} from "#/core/api";
+import {
+	normaliserMontantPourBackend,
+	validerMontant,
+} from "#/core/forms/montant";
 
 import { useRestituerCaution } from "../hooks/use-contrats";
 
@@ -28,34 +36,45 @@ export function RestituerCautionFormDialog({
 }: RestituerCautionFormDialogProps) {
 	const mutation = useRestituerCaution();
 	const [globalError, setGlobalError] = useState<string | null>(null);
+	const [caisseFermee, setCaisseFermee] = useState(false);
 
 	const form = useForm({
 		defaultValues: { retenue: "", motifRetenue: "" },
 		validators: {
 			onSubmit: ({ value }) => {
 				const fields: Partial<Record<string, string>> = {};
-				if (value.retenue && !/^\d+(\.\d+)?$/.test(value.retenue.trim())) {
-					fields.retenue = "Le montant doit être un nombre.";
+				if (value.retenue) {
+					const erreur = validerMontant(value.retenue, "La retenue");
+					if (erreur) fields.retenue = erreur;
 				}
 				return { fields };
 			},
 		},
 		onSubmit: async ({ value }) => {
 			setGlobalError(null);
+			setCaisseFermee(false);
 			try {
 				await mutation.mutateAsync({
 					idContrat,
-					retenue: value.retenue.trim() ? value.retenue.trim() : null,
+					retenue: value.retenue.trim()
+						? normaliserMontantPourBackend(value.retenue)
+						: null,
 					motif_retenue: value.motifRetenue.trim()
 						? value.motifRetenue.trim()
 						: null,
 				});
 				onSaved();
 			} catch (error) {
-				setGlobalError(
-					getErrorMessageForCode(toApiError(error).code) ??
-						(toApiError(error).message || "Une erreur est survenue."),
-				);
+				const apiError = toApiError(error);
+				if (isCaisseFermeeError(apiError)) {
+					setCaisseFermee(true);
+					setGlobalError(apiError.message);
+				} else {
+					setGlobalError(
+						getErrorMessageForCode(apiError.code) ??
+							(apiError.message || "Une erreur est survenue."),
+					);
+				}
 			}
 		},
 	});
@@ -113,7 +132,15 @@ export function RestituerCautionFormDialog({
 							)}
 						</form.Field>
 
-						{globalError ? (
+						{caisseFermee ? (
+							<div
+								role="alert"
+								className="flex items-start gap-2 rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 text-sm text-amber-700 dark:text-amber-400"
+							>
+								<AlertTriangle className="mt-0.5 size-4 shrink-0" aria-hidden />
+								<span>{globalError}</span>
+							</div>
+						) : globalError ? (
 							<p role="alert" className="text-sm font-medium text-destructive">
 								{globalError}
 							</p>

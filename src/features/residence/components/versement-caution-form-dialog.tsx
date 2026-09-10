@@ -1,11 +1,19 @@
 import { useForm } from "@tanstack/react-form";
-import { Loader2 } from "lucide-react";
+import { AlertTriangle, Loader2 } from "lucide-react";
 import { Dialog } from "radix-ui";
 import { useState } from "react";
 
 import { Button } from "#/components/ui/button";
 import { InputField } from "#/components/ui/input-field";
-import { getErrorMessageForCode, toApiError } from "#/core/api";
+import {
+	getErrorMessageForCode,
+	isCaisseFermeeError,
+	toApiError,
+} from "#/core/api";
+import {
+	normaliserMontantPourBackend,
+	validerMontant,
+} from "#/core/forms/montant";
 
 import { useVersementCaution } from "../hooks/use-contrats";
 
@@ -26,7 +34,7 @@ function dateAujourdhui(): string {
  * Modale « Déclarer le versement » (POST `/contrats/{id}/caution/versement`) :
  * enregistre que le résident a payé sa caution — simple déclaration/traçabilité,
  * aucun encaissement de caisse n'est créé. Date (défaut aujourd'hui) et montant
- * (préremplis, éditables) et motif optionnel.
+ * (préremplis, éditables).
  */
 export function VersementCautionFormDialog({
 	open,
@@ -37,41 +45,46 @@ export function VersementCautionFormDialog({
 }: VersementCautionFormDialogProps) {
 	const mutation = useVersementCaution();
 	const [globalError, setGlobalError] = useState<string | null>(null);
+	const [caisseFermee, setCaisseFermee] = useState(false);
 
 	const form = useForm({
 		defaultValues: {
 			dateVersement: dateAujourdhui(),
 			montant: montantCaution,
-			motif: "",
 		},
 		validators: {
 			onSubmit: ({ value }) => {
 				const fields: Partial<Record<string, string>> = {};
-				if (
-					value.montant.trim() &&
-					!/^\d+(\.\d{1,2})?$/.test(value.montant.trim())
-				) {
-					fields.montant = "Le montant doit être un nombre (ex : 150000).";
+				if (value.montant.trim()) {
+					const erreur = validerMontant(value.montant, "Le montant");
+					if (erreur) fields.montant = erreur;
 				}
 				return { fields };
 			},
 		},
 		onSubmit: async ({ value }) => {
 			setGlobalError(null);
+			setCaisseFermee(false);
 			try {
 				await mutation.mutateAsync({
 					idContrat,
 					dateVersement: value.dateVersement || null,
-					montant: value.montant.trim() ? value.montant.trim() : null,
-					motif: value.motif.trim() ? value.motif.trim() : null,
+					montant: value.montant.trim()
+						? normaliserMontantPourBackend(value.montant)
+						: null,
 				});
 				onSaved();
 			} catch (error) {
 				const apiError = toApiError(error);
-				setGlobalError(
-					getErrorMessageForCode(apiError.code) ??
-						(apiError.message || "Une erreur est survenue."),
-				);
+				if (isCaisseFermeeError(apiError)) {
+					setCaisseFermee(true);
+					setGlobalError(apiError.message);
+				} else {
+					setGlobalError(
+						getErrorMessageForCode(apiError.code) ??
+							(apiError.message || "Une erreur est survenue."),
+					);
+				}
 			}
 		},
 	});
@@ -130,23 +143,15 @@ export function VersementCautionFormDialog({
 							)}
 						</form.Field>
 
-						<form.Field name="motif">
-							{(field) => (
-								<InputField
-									id={field.name}
-									name={field.name}
-									label="Motif (optionnel)"
-									placeholder="ex : Versement espèces"
-									autoComplete="off"
-									value={field.state.value}
-									onBlur={field.handleBlur}
-									onChange={(event) => field.handleChange(event.target.value)}
-									error={field.state.meta.errors[0]}
-								/>
-							)}
-						</form.Field>
-
-						{globalError ? (
+						{caisseFermee ? (
+							<div
+								role="alert"
+								className="flex items-start gap-2 rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 text-sm text-amber-700 dark:text-amber-400"
+							>
+								<AlertTriangle className="mt-0.5 size-4 shrink-0" aria-hidden />
+								<span>{globalError}</span>
+							</div>
+						) : globalError ? (
 							<p role="alert" className="text-sm font-medium text-destructive">
 								{globalError}
 							</p>

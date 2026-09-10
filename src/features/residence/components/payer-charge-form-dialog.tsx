@@ -1,5 +1,5 @@
 import { useForm } from "@tanstack/react-form";
-import { Loader2 } from "lucide-react";
+import { AlertTriangle, Loader2 } from "lucide-react";
 import { Dialog } from "radix-ui";
 import { useState } from "react";
 
@@ -13,7 +13,15 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "#/components/ui/select";
-import { getErrorMessageForCode, toApiError } from "#/core/api";
+import {
+	getErrorMessageForCode,
+	isCaisseFermeeError,
+	toApiError,
+} from "#/core/api";
+import {
+	normaliserMontantPourBackend,
+	validerMontant,
+} from "#/core/forms/montant";
 
 import { usePayerCharge } from "../hooks/use-charges";
 import type { Charge } from "../models/charges";
@@ -40,6 +48,7 @@ export function PayerChargeFormDialog({
 }: PayerChargeFormDialogProps) {
 	const mutation = usePayerCharge();
 	const [globalError, setGlobalError] = useState<string | null>(null);
+	const [caisseFermee, setCaisseFermee] = useState(false);
 
 	const form = useForm({
 		defaultValues: {
@@ -51,8 +60,9 @@ export function PayerChargeFormDialog({
 				const fields: Partial<Record<"montant" | "idMoyen", string>> = {};
 				if (!value.montant.trim()) {
 					fields.montant = "Ce champ est requis.";
-				} else if (!/^\d+(\.\d+)?$/.test(value.montant.trim())) {
-					fields.montant = "Le montant doit être un nombre.";
+				} else {
+					const erreur = validerMontant(value.montant, "Le montant");
+					if (erreur) fields.montant = erreur;
 				}
 				if (!value.idMoyen) {
 					fields.idMoyen = "Sélectionnez un moyen de paiement.";
@@ -62,19 +72,26 @@ export function PayerChargeFormDialog({
 		},
 		onSubmit: async ({ value }) => {
 			setGlobalError(null);
+			setCaisseFermee(false);
 			if (!charge) return;
 			try {
 				await mutation.mutateAsync({
 					id: charge.id,
-					montant: value.montant.trim(),
+					montant: normaliserMontantPourBackend(value.montant),
 					idMoyen: value.idMoyen,
 				});
 				onSaved();
 			} catch (error) {
-				setGlobalError(
-					getErrorMessageForCode(toApiError(error).code) ??
-						(toApiError(error).message || "Une erreur est survenue."),
-				);
+				const apiError = toApiError(error);
+				if (isCaisseFermeeError(apiError)) {
+					setCaisseFermee(true);
+					setGlobalError(apiError.message);
+				} else {
+					setGlobalError(
+						getErrorMessageForCode(apiError.code) ??
+							(apiError.message || "Une erreur est survenue."),
+					);
+				}
 			}
 		},
 	});
@@ -154,7 +171,15 @@ export function PayerChargeFormDialog({
 							)}
 						</form.Field>
 
-						{globalError ? (
+						{caisseFermee ? (
+							<div
+								role="alert"
+								className="flex items-start gap-2 rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 text-sm text-amber-700 dark:text-amber-400"
+							>
+								<AlertTriangle className="mt-0.5 size-4 shrink-0" aria-hidden />
+								<span>{globalError}</span>
+							</div>
+						) : globalError ? (
 							<p role="alert" className="text-sm font-medium text-destructive">
 								{globalError}
 							</p>
