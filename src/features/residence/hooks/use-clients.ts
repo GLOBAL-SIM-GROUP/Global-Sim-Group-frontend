@@ -1,6 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo } from "react";
 
+import { useCan } from "#/core/auth";
+
 import {
 	type CreerClientBody,
 	creerClient,
@@ -36,9 +38,11 @@ export function useCreerClient() {
 /**
  * Résout les noms de plusieurs clients par id en UNE seule requête (jamais de
  * hook en boucle) → `Map<id, Client>`. Les ids sont dédupliqués et triés pour
- * une clé de requête déterministe.
+ * une clé de requête déterministe. Désactivé si l'utilisateur n'a pas
+ * `CLIENT.VOIR` (ex. caissier sur la page contrats) — évite les 403 en bloc.
  */
 export function useClientsDetails(ids: readonly string[]) {
+	const canVoirClients = useCan("CLIENT.VOIR");
 	const unique = useMemo(() => [...new Set(ids.filter(Boolean))].sort(), [ids]);
 	return useQuery({
 		queryKey: clientsKeys.list("details", ...unique),
@@ -46,6 +50,6 @@ export function useClientsDetails(ids: readonly string[]) {
 			const resultats = await Promise.all(unique.map((id) => getClient(id)));
 			return new Map(resultats.map((client) => [client.id, client]));
 		},
-		enabled: unique.length > 0,
+		enabled: canVoirClients && unique.length > 0,
 	});
 }
