@@ -140,7 +140,7 @@ export function ReservationFichePage({ id }: ReservationFichePageProps) {
 				</section>
 
 				<div className="flex items-center gap-2">
-					{canModifier ? (
+					{canModifier && reservation.statut !== "REALISEE" ? (
 						<Button variant="outline" onClick={() => setFormOuvert(true)}>
 							<Pencil className="size-4" aria-hidden />
 							Modifier

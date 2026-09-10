@@ -289,7 +289,7 @@ export function ReservationsPage({
 									</td>
 									<td className="relative z-10 px-4 py-3">
 										<div className="flex items-center justify-end gap-1">
-											{canModifier ? (
+											{canModifier && reservation.statut !== "REALISEE" ? (
 												<Button
 													variant="ghost"
 													size="icon-sm"

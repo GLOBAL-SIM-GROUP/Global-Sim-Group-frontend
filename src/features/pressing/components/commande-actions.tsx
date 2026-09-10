@@ -83,15 +83,17 @@ export function CommandeActions({
 							<span className="sr-only">Passer en « Prêt »</span>
 						</Button>
 					) : null}
-					<Button
-						variant="ghost"
-						size="icon-sm"
-						title="Modifier"
-						onClick={() => onEdit(commande)}
-					>
-						<Pencil className="size-4" aria-hidden />
-						<span className="sr-only">Modifier</span>
-					</Button>
+					{!estTerminee ? (
+						<Button
+							variant="ghost"
+							size="icon-sm"
+							title="Modifier"
+							onClick={() => onEdit(commande)}
+						>
+							<Pencil className="size-4" aria-hidden />
+							<span className="sr-only">Modifier</span>
+						</Button>
+					) : null}
 				</>
 			) : null}
 

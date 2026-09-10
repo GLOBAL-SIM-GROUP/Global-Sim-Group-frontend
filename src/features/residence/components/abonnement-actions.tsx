@@ -26,7 +26,9 @@ export function AbonnementActions({
 
 	return (
 		<div className="flex items-center justify-end gap-1">
-			{canModifier ? (
+			{canModifier &&
+			abonnement.statut !== "EXPIRE" &&
+			abonnement.statut !== "RESILIE" ? (
 				<>
 					<Button
 						variant="ghost"

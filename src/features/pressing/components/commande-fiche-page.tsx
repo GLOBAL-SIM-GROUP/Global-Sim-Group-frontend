@@ -176,13 +176,15 @@ export function CommandeFichePage({ id }: CommandeFichePageProps) {
 									Passer en « Prêt »
 								</Button>
 							) : null}
-							<Button
-								onClick={() => setAModifier(commande)}
-								className="w-full sm:w-auto justify-center"
-							>
-								<Pencil className="size-4" aria-hidden />
-								Modifier
-							</Button>
+							{!estTerminee ? (
+								<Button
+									onClick={() => setAModifier(commande)}
+									className="w-full sm:w-auto justify-center"
+								>
+									<Pencil className="size-4" aria-hidden />
+									Modifier
+								</Button>
+							) : null}
 						</>
 					) : null}
 					{canCreer && canFinancesVoir && aUnReste && !estTerminee ? (
