@@ -190,7 +190,14 @@ export function ClientForm({
 				if (!value.telPrincipal.trim())
 					fields.telPrincipal = "Ce champ est requis.";
 				if (!value.typeClient) fields.typeClient = "Sélectionnez un type.";
-				if (!value.dateNaissance) fields.dateNaissance = "Ce champ est requis.";
+				if (!value.dateNaissance) {
+					fields.dateNaissance = "Ce champ est requis.";
+				} else if (
+					value.dateNaissance > new Date().toISOString().slice(0, 10)
+				) {
+					fields.dateNaissance =
+						"La date de naissance ne peut pas être dans le futur.";
+				}
 				if (!value.lieuNaissance.trim())
 					fields.lieuNaissance = "Ce champ est requis.";
 				if (!value.sexe) fields.sexe = "Sélectionnez une option.";
@@ -216,6 +223,18 @@ export function ClientForm({
 			let pieceValide = true;
 			if (!client && pieceEstRenseignee(piece) && !piece.numero.trim()) {
 				setPieceErreur("Le numéro de la pièce est requis.");
+				pieceValide = false;
+			}
+			if (
+				!client &&
+				pieceEstRenseignee(piece) &&
+				piece.dateDelivrance.trim() &&
+				piece.dateExpiration.trim() &&
+				piece.dateExpiration.trim() < piece.dateDelivrance.trim()
+			) {
+				setPieceErreur(
+					"La date d'expiration ne peut pas être antérieure à la date de délivrance.",
+				);
 				pieceValide = false;
 			}
 
