@@ -7,6 +7,10 @@ import { Button } from "#/components/ui/button";
 import { InputField } from "#/components/ui/input-field";
 import { Label } from "#/components/ui/label";
 import { getErrorMessageForCode, toApiError } from "#/core/api";
+import {
+	normaliserMontantPourBackend,
+	validerMontant,
+} from "#/core/forms/montant";
 import { ClientRechercheField } from "#/features/residence/components/client-recherche-field";
 
 import {
@@ -61,8 +65,9 @@ export function ReservationFormDialog({
 					fields.typeManifestation = "Ce champ est requis.";
 				if (!value.tarif.trim()) {
 					fields.tarif = "Ce champ est requis.";
-				} else if (!/^\d+(\.\d+)?$/.test(value.tarif.trim())) {
-					fields.tarif = "Le tarif doit être un nombre.";
+				} else {
+					const erreur = validerMontant(value.tarif, "Le tarif");
+					if (erreur) fields.tarif = erreur;
 				}
 				return { fields };
 			},
@@ -76,7 +81,7 @@ export function ReservationFormDialog({
 					heureDebut: value.heureDebut,
 					duree: value.duree.trim(),
 					typeManifestation: value.typeManifestation.trim(),
-					tarif: value.tarif.trim(),
+					tarif: normaliserMontantPourBackend(value.tarif),
 					acompte: value.acompte.trim() || null,
 					observations: value.observations.trim() || null,
 				};

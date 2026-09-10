@@ -15,6 +15,10 @@ import {
 	SelectValue,
 } from "#/components/ui/select";
 import { getErrorMessageForCode, toApiError } from "#/core/api";
+import {
+	normaliserMontantPourBackend,
+	validerMontant,
+} from "#/core/forms/montant";
 
 import { useCreerEmploye, useModifierEmploye } from "../hooks/use-employes";
 import { useServices } from "../hooks/use-services";
@@ -75,8 +79,9 @@ export function EmployeFormDialog({
 				if (!value.typeContrat) fields.typeContrat = "Ce champ est requis.";
 				if (!value.salaireBase.trim()) {
 					fields.salaireBase = "Ce champ est requis.";
-				} else if (!/^\d+(\.\d+)?$/.test(value.salaireBase.trim())) {
-					fields.salaireBase = "Le salaire doit être un nombre.";
+				} else {
+					const erreur = validerMontant(value.salaireBase, "Le salaire");
+					if (erreur) fields.salaireBase = erreur;
 				}
 				return { fields };
 			},
@@ -92,7 +97,7 @@ export function EmployeFormDialog({
 					idService: value.idService || null,
 					dateEmbauche: value.dateEmbauche,
 					typeContrat: value.typeContrat as TypeContrat,
-					salaireBase: value.salaireBase.trim(),
+					salaireBase: normaliserMontantPourBackend(value.salaireBase),
 					autresInfos: value.autresInfos.trim() || null,
 				};
 				if (employe) {

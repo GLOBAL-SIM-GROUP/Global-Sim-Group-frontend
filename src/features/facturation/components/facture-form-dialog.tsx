@@ -14,6 +14,10 @@ import {
 	SelectValue,
 } from "#/components/ui/select";
 import { getErrorMessageForCode, toApiError } from "#/core/api";
+import {
+	normaliserMontantPourBackend,
+	validerMontant,
+} from "#/core/forms/montant";
 import { ClientRechercheField } from "#/features/residence/components/client-recherche-field";
 import { useMoyensPaiement } from "#/features/residence/hooks/use-moyens-paiement";
 import { formatMontantFCFA } from "#/features/residence/models/format";
@@ -63,8 +67,9 @@ export function FactureFormDialog({
 					fields.idPrestation = "Sélectionnez une prestation.";
 				if (!value.montant.trim()) {
 					fields.montant = "Ce champ est requis.";
-				} else if (!/^\d+(\.\d+)?$/.test(value.montant.trim())) {
-					fields.montant = "Le montant doit être un nombre.";
+				} else {
+					const erreur = validerMontant(value.montant, "Le montant");
+					if (erreur) fields.montant = erreur;
 				}
 				if (!value.idMoyen)
 					fields.idMoyen = "Sélectionnez un moyen de paiement.";
@@ -76,7 +81,7 @@ export function FactureFormDialog({
 			try {
 				const resultat = await facturerMutation.mutateAsync({
 					idPrestation: value.idPrestation,
-					montant: value.montant.trim(),
+					montant: normaliserMontantPourBackend(value.montant),
 					idMoyen: value.idMoyen,
 					idClient: value.idClient || null,
 					remise: value.remise.trim() || null,

@@ -13,6 +13,10 @@ import {
 	SelectValue,
 } from "#/components/ui/select";
 import { getErrorMessageForCode, getFieldErrors, toApiError } from "#/core/api";
+import {
+	normaliserMontantPourBackend,
+	validerMontant,
+} from "#/core/forms/montant";
 
 import { useCreerSejour, useModifierSejour } from "../hooks/use-sejours";
 import type { MoyenPaiement } from "../models/moyens-paiement";
@@ -204,8 +208,9 @@ export function SejourForm({
 
 				if (!value.tarif.trim()) {
 					fields.tarif = "Ce champ est requis.";
-				} else if (!/^\d+(\.\d+)?$/.test(value.tarif.trim())) {
-					fields.tarif = "Le tarif doit être un nombre.";
+				} else {
+					const erreur = validerMontant(value.tarif, "Le tarif");
+					if (erreur) fields.tarif = erreur;
 				}
 				return { fields };
 			},
@@ -219,7 +224,7 @@ export function SejourForm({
 						typePrestation: value.typePrestation,
 						dateHeureArrivee: toBackend(value.arrivee),
 						dateHeureDepartPrevue: toBackend(value.depart) || null,
-						tarif: value.tarif.trim(),
+						tarif: normaliserMontantPourBackend(value.tarif),
 						statut: value.statut,
 					});
 				} else {
@@ -228,11 +233,11 @@ export function SejourForm({
 						idLogement: value.idLogement,
 						dateHeureArrivee: toBackend(value.arrivee),
 						dateHeureDepartPrevue: toBackend(value.depart) || null,
-						tarif: value.tarif.trim(),
+						tarif: normaliserMontantPourBackend(value.tarif),
 						idClient: value.idClient,
 						paiement: value.moyenPaiement
 							? {
-									montant: value.tarif.trim(),
+									montant: normaliserMontantPourBackend(value.tarif),
 									idMoyen: value.moyenPaiement,
 								}
 							: null,

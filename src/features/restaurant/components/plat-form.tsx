@@ -14,8 +14,11 @@ import {
 } from "#/components/ui/select";
 import { Switch } from "#/components/ui/switch";
 import { getErrorMessageForCode, toApiError } from "#/core/api";
-
 import { uploadImage } from "#/core/api/uploads";
+import {
+	normaliserMontantPourBackend,
+	validerMontant,
+} from "#/core/forms/montant";
 
 import { useCreerPlat, useModifierPlat } from "../hooks/use-plats";
 import type { CategoriePlat, Plat } from "../models/plats";
@@ -108,8 +111,9 @@ export function PlatForm({
 				if (!value.nom.trim()) fields.nom = "Ce champ est requis.";
 				if (!value.prix.trim()) {
 					fields.prix = "Ce champ est requis.";
-				} else if (!/^\d+(\.\d+)?$/.test(value.prix.trim())) {
-					fields.prix = "Le prix doit être un nombre.";
+				} else {
+					const erreur = validerMontant(value.prix, "Le prix");
+					if (erreur) fields.prix = erreur;
 				}
 				return { fields };
 			},
@@ -135,7 +139,7 @@ export function PlatForm({
 				const corps = {
 					nom: value.nom.trim(),
 					id_categorie_plat: value.id_categorie_plat || null,
-					prix: value.prix.trim(),
+					prix: normaliserMontantPourBackend(value.prix),
 					disponible: value.disponible,
 					description: value.description.trim() || null,
 					image_url,

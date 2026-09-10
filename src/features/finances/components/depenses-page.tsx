@@ -21,6 +21,10 @@ import {
 	toApiError,
 } from "#/core/api";
 import { useCan } from "#/core/auth";
+import {
+	normaliserMontantPourBackend,
+	validerMontant,
+} from "#/core/forms/montant";
 import { ConfirmDialog } from "#/features/residence/components/confirm-dialog";
 import {
 	formatDateISO,
@@ -90,8 +94,9 @@ function DepenseFormDialog({
 				if (!value.date) fields.date = "Ce champ est requis.";
 				if (!value.montant.trim()) {
 					fields.montant = "Ce champ est requis.";
-				} else if (!/^\d+(\.\d+)?$/.test(value.montant.trim())) {
-					fields.montant = "Le montant doit être un nombre.";
+				} else {
+					const erreur = validerMontant(value.montant, "Le montant");
+					if (erreur) fields.montant = erreur;
 				}
 				if (!value.idCategorieDepense) {
 					fields.idCategorieDepense = "Ce champ est requis.";
@@ -106,7 +111,7 @@ function DepenseFormDialog({
 			try {
 				const corps = {
 					date: value.date,
-					montant: value.montant.trim(),
+					montant: normaliserMontantPourBackend(value.montant),
 					idCategorieDepense: value.idCategorieDepense,
 					libelle: value.libelle.trim(),
 					justificatif: value.justificatif.trim() || null,

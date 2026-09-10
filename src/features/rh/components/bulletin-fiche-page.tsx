@@ -17,6 +17,10 @@ import {
 } from "#/components/ui/select";
 import { getErrorMessageForCode, toApiError } from "#/core/api";
 import { useCan } from "#/core/auth";
+import {
+	normaliserMontantPourBackend,
+	validerMontant,
+} from "#/core/forms/montant";
 import { ConfirmDialog } from "#/features/residence/components/confirm-dialog";
 import { useMoyensPaiement } from "#/features/residence/hooks/use-moyens-paiement";
 import { formatMontantFCFA } from "#/features/residence/models/format";
@@ -80,8 +84,9 @@ function AjouterElementDialog({
 				if (!value.libelle.trim()) fields.libelle = "Ce champ est requis.";
 				if (!value.montant.trim()) {
 					fields.montant = "Ce champ est requis.";
-				} else if (!/^\d+(\.\d+)?$/.test(value.montant.trim())) {
-					fields.montant = "Le montant doit être un nombre.";
+				} else {
+					const erreur = validerMontant(value.montant, "Le montant");
+					if (erreur) fields.montant = erreur;
 				}
 				return { fields };
 			},
@@ -89,7 +94,7 @@ function AjouterElementDialog({
 		onSubmit: async ({ value }) => {
 			setGlobalError(null);
 			try {
-				const brut = value.montant.trim();
+				const brut = normaliserMontantPourBackend(value.montant);
 				const montant =
 					TYPES_RETENUS.has(value.type) && !brut.startsWith("-")
 						? `-${brut}`

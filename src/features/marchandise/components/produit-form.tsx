@@ -16,6 +16,10 @@ import { Switch } from "#/components/ui/switch";
 import { getErrorMessageForCode, getFieldErrors, toApiError } from "#/core/api";
 import { useUploadBlobUrl } from "#/core/api/use-upload-blob";
 import { useUploadImage } from "#/core/api/use-upload-image";
+import {
+	normaliserMontantPourBackend,
+	validerMontant,
+} from "#/core/forms/montant";
 import { cn } from "#/lib/utils";
 
 import { useCreerProduit, useModifierProduit } from "../hooks/use-produits";
@@ -143,19 +147,19 @@ export function ProduitForm({
 				if (!value.nom.trim()) fields.nom = "Ce champ est requis.";
 				if (!value.prixAchat.trim()) {
 					fields.prixAchat = "Ce champ est requis.";
-				} else if (!/^\d+(\.\d+)?$/.test(value.prixAchat.trim())) {
-					fields.prixAchat = "Le prix doit être un nombre.";
+				} else {
+					const erreur = validerMontant(value.prixAchat, "Le prix d'achat");
+					if (erreur) fields.prixAchat = erreur;
 				}
 				if (!value.prixVente.trim()) {
 					fields.prixVente = "Ce champ est requis.";
-				} else if (!/^\d+(\.\d+)?$/.test(value.prixVente.trim())) {
-					fields.prixVente = "Le prix doit être un nombre.";
+				} else {
+					const erreur = validerMontant(value.prixVente, "Le prix de vente");
+					if (erreur) fields.prixVente = erreur;
 				}
-				if (
-					value.seuilAlerte &&
-					!/^\d+(\.\d+)?$/.test(value.seuilAlerte.trim())
-				) {
-					fields.seuilAlerte = "Le seuil doit être un nombre.";
+				if (value.seuilAlerte.trim()) {
+					const erreur = validerMontant(value.seuilAlerte, "Le seuil d'alerte");
+					if (erreur) fields.seuilAlerte = erreur;
 				}
 				if (
 					value.codeBarre.trim() &&
@@ -176,10 +180,12 @@ export function ProduitForm({
 					reference: value.reference.trim(),
 					nom: value.nom.trim(),
 					idCategorieProduit: value.idCategorieProduit || null,
-					prixAchat: value.prixAchat.trim(),
-					prixVente: value.prixVente.trim(),
+					prixAchat: normaliserMontantPourBackend(value.prixAchat),
+					prixVente: normaliserMontantPourBackend(value.prixVente),
 					quantiteInitiale: value.stockInitial.trim() || null,
-					seuilAlerte: value.seuilAlerte.trim() || null,
+					seuilAlerte: value.seuilAlerte.trim()
+						? normaliserMontantPourBackend(value.seuilAlerte)
+						: null,
 					idFournisseur: value.idFournisseur || null,
 					actif: value.actif,
 					imageUrl: value.imageUrl || null,

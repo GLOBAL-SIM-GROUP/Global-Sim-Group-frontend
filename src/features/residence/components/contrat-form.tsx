@@ -13,6 +13,10 @@ import {
 	SelectValue,
 } from "#/components/ui/select";
 import { getErrorMessageForCode, getFieldErrors, toApiError } from "#/core/api";
+import {
+	normaliserMontantPourBackend,
+	validerMontant,
+} from "#/core/forms/montant";
 
 import type { ContratCree } from "../api/contrats";
 import { useCreerCaution, useCreerContrat } from "../hooks/use-contrats";
@@ -121,17 +125,32 @@ export function ContratForm({ onCancel, onSaved }: ContratFormProps) {
 				if (!value.dateDebut.trim()) fields.dateDebut = "Ce champ est requis.";
 				if (!value.montantLoyer.trim()) {
 					fields.montantLoyer = "Ce champ est requis.";
-				} else if (!/^\d+(\.\d+)?$/.test(value.montantLoyer.trim())) {
-					fields.montantLoyer = "Le montant doit être un nombre.";
+				} else {
+					const erreur = validerMontant(
+						value.montantLoyer,
+						"Le montant du loyer",
+					);
+					if (erreur) fields.montantLoyer = erreur;
 				}
-				if (value.dureeMois && !/^\d+$/.test(value.dureeMois.trim())) {
-					fields.dureeMois = "Entrez un nombre de mois entier.";
+				if (value.dureeMois) {
+					if (!/^\d+$/.test(value.dureeMois.trim())) {
+						fields.dureeMois = "Entrez un nombre de mois entier.";
+					} else if (Number(value.dureeMois) <= 0) {
+						fields.dureeMois = "La durée doit être d'au moins 1 mois.";
+					}
 				}
+				if (value.caution.trim()) {
+					const erreur = validerMontant(value.caution, "La caution");
+					if (erreur) fields.caution = erreur;
+				}
+				// La date de signature ne peut pas être postérieure à la date de début.
 				if (
-					value.caution.trim() &&
-					!/^\d+(\.\d+)?$/.test(value.caution.trim())
+					value.dateSignature.trim() &&
+					value.dateDebut.trim() &&
+					value.dateSignature.trim() > value.dateDebut.trim()
 				) {
-					fields.caution = "Le montant doit être un nombre.";
+					fields.dateSignature =
+						"La date de signature ne peut pas être postérieure à la date de début.";
 				}
 				return { fields };
 			},
@@ -143,7 +162,7 @@ export function ContratForm({ onCancel, onSaved }: ContratFormProps) {
 					idClient: value.idClient,
 					idLogement: value.idLogement,
 					dateDebut: value.dateDebut,
-					montantLoyer: value.montantLoyer.trim(),
+					montantLoyer: normaliserMontantPourBackend(value.montantLoyer),
 					typeLocation: value.typeLocation,
 					dureeMois: value.dureeMois ? Number(value.dureeMois) : null,
 					dateSignature: value.dateSignature.trim()
@@ -157,7 +176,7 @@ export function ContratForm({ onCancel, onSaved }: ContratFormProps) {
 					try {
 						await creerCautionMutation.mutateAsync({
 							idContrat: contrat.id,
-							montant: value.caution.trim(),
+							montant: normaliserMontantPourBackend(value.caution),
 						});
 					} catch {
 						setGlobalError(

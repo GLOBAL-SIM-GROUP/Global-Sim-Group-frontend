@@ -15,6 +15,10 @@ import {
 } from "#/components/ui/select";
 import { Textarea } from "#/components/ui/textarea";
 import { getErrorMessageForCode, getFieldErrors, toApiError } from "#/core/api";
+import {
+	normaliserMontantPourBackend,
+	validerMontant,
+} from "#/core/forms/montant";
 import { cn } from "#/lib/utils";
 
 import { useCreerLogement, useModifierLogement } from "../hooks/use-logements";
@@ -164,8 +168,9 @@ export function LogementForm({
 					fields.idBatiment = "Ce champ est requis.";
 				if (!value.tarif.trim()) {
 					fields.tarif = "Ce champ est requis.";
-				} else if (!/^\d+(\.\d+)?$/.test(value.tarif.trim())) {
-					fields.tarif = "Le tarif doit être un montant numérique.";
+				} else {
+					const erreur = validerMontant(value.tarif, "Le tarif");
+					if (erreur) fields.tarif = erreur;
 				}
 				return { fields };
 			},
@@ -175,7 +180,7 @@ export function LogementForm({
 			try {
 				const corpsCommun = {
 					type: value.type,
-					tarif: value.tarif.trim(),
+					tarif: normaliserMontantPourBackend(value.tarif),
 					statut: value.statut,
 					idBatiment: value.idBatiment,
 					equipements: value.equipements,

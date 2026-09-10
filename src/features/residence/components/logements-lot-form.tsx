@@ -14,6 +14,10 @@ import {
 } from "#/components/ui/select";
 import { Textarea } from "#/components/ui/textarea";
 import { getErrorMessageForCode, toApiError } from "#/core/api";
+import {
+	normaliserMontantPourBackend,
+	validerMontant,
+} from "#/core/forms/montant";
 import { cn } from "#/lib/utils";
 
 import { useCreerLogementsLot } from "../hooks/use-logements";
@@ -60,8 +64,9 @@ export function LogementsLotForm({
 				if (!value.idBatiment) fields.idBatiment = "Ce champ est requis.";
 				if (!value.tarif.trim()) {
 					fields.tarif = "Ce champ est requis.";
-				} else if (!/^\d+(\.\d{1,2})?$/.test(value.tarif.trim())) {
-					fields.tarif = "Le tarif doit contenir au maximum deux décimales.";
+				} else {
+					const erreur = validerMontant(value.tarif, "Le tarif");
+					if (erreur) fields.tarif = erreur;
 				}
 				const quantite = Number(value.quantite);
 				if (!Number.isInteger(quantite) || quantite < 1 || quantite > 100) {
@@ -76,7 +81,7 @@ export function LogementsLotForm({
 				await mutation.mutateAsync({
 					idBatiment: value.idBatiment,
 					type: value.type,
-					tarif: value.tarif.trim(),
+					tarif: normaliserMontantPourBackend(value.tarif),
 					statut: value.statut,
 					quantite: Number(value.quantite),
 					equipements: value.equipements.trim() || null,

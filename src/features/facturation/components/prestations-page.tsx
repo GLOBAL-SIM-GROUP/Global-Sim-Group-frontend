@@ -10,6 +10,10 @@ import { Label } from "#/components/ui/label";
 import { Switch } from "#/components/ui/switch";
 import { getErrorMessageForCode, toApiError } from "#/core/api";
 import { useCan } from "#/core/auth";
+import {
+	normaliserMontantPourBackend,
+	validerMontant,
+} from "#/core/forms/montant";
 import { formatMontantFCFA } from "#/features/residence/models/format";
 import { cn } from "#/lib/utils";
 
@@ -49,8 +53,9 @@ function PrestationFormDialog({
 				if (!value.libelle.trim()) fields.libelle = "Ce champ est requis.";
 				if (!value.prix.trim()) {
 					fields.prix = "Ce champ est requis.";
-				} else if (!/^\d+(\.\d+)?$/.test(value.prix.trim())) {
-					fields.prix = "Le prix doit être un nombre.";
+				} else {
+					const erreur = validerMontant(value.prix, "Le prix");
+					if (erreur) fields.prix = erreur;
 				}
 				return { fields };
 			},
@@ -61,7 +66,7 @@ function PrestationFormDialog({
 				const corps = {
 					libelle: value.libelle.trim(),
 					categorie: value.categorie.trim() || null,
-					prix: value.prix.trim(),
+					prix: normaliserMontantPourBackend(value.prix),
 					description: value.description.trim() || null,
 					actif: value.actif,
 				};
