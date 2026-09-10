@@ -253,12 +253,6 @@ export const MODULE_DEFINITIONS: ModuleDefinition[] = [
 				permission: "FINANCES.VOIR",
 				path: "/finances/caissier/dashboard",
 			},
-			{
-				id: "mes_tirages",
-				label: "Mes tirages",
-				permission: "FINANCES.VOIR",
-				path: "/finances/caissier/tirages",
-			},
 		],
 	},
 	{
