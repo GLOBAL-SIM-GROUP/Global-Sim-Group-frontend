@@ -57,7 +57,7 @@ export function FactureFichePage({ id }: FactureFichePageProps) {
 
 	if (factureQuery.isLoading) {
 		return (
-			<div className="mx-auto w-full max-w-5xl space-y-6 p-6">
+			<div className="w-full space-y-6 p-6">
 				<p className="text-sm text-muted-foreground">Chargement…</p>
 			</div>
 		);
@@ -65,7 +65,7 @@ export function FactureFichePage({ id }: FactureFichePageProps) {
 
 	if (factureQuery.isError || !factureQuery.data) {
 		return (
-			<div className="mx-auto w-full max-w-5xl space-y-3 p-6">
+			<div className="w-full space-y-3 p-6">
 				<h1 className="text-2xl font-semibold text-foreground">
 					Fiche facture
 				</h1>
@@ -92,7 +92,7 @@ export function FactureFichePage({ id }: FactureFichePageProps) {
 		(facture.statut === "PARTIELLE" || facture.statut === "IMPAYEE");
 
 	return (
-		<div className="mx-auto w-full max-w-5xl space-y-6 p-6">
+		<div className="w-full space-y-6 p-6">
 			<Breadcrumb
 				items={[
 					{ label: "Accueil", to: "/" },

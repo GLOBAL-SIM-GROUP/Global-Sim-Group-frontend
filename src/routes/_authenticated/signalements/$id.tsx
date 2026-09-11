@@ -72,7 +72,7 @@ function DetailSignalementPage() {
 
 	if (isLoading) {
 		return (
-			<div className="mx-auto w-full max-w-4xl space-y-6 p-6">
+			<div className="w-full space-y-6 p-6">
 				<div className="flex justify-center py-12">
 					<Loader2 className="size-8 animate-spin text-lagoon" />
 				</div>
@@ -82,7 +82,7 @@ function DetailSignalementPage() {
 
 	if (error || !signalementBrut) {
 		return (
-			<div className="mx-auto w-full max-w-4xl space-y-4 p-6">
+			<div className="w-full space-y-4 p-6">
 				<Button
 					variant="outline"
 					onClick={() => navigate({ to: "/signalements" })}
@@ -114,7 +114,7 @@ function DetailSignalementPage() {
 	const isPending = isPendingCharge || isPendingResoudre || isPendingRejeter;
 
 	return (
-		<div className="mx-auto w-full max-w-4xl space-y-6 p-6">
+		<div className="w-full space-y-6 p-6">
 			<Breadcrumb
 				items={[
 					{ label: "Accueil", to: "/" },

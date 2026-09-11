@@ -121,7 +121,7 @@ export function DashboardGlobalPage() {
 	}
 
 	return (
-		<div className="mx-auto w-full max-w-7xl space-y-6 p-6">
+		<div className="w-full space-y-6 p-6">
 			<Breadcrumb
 				items={[
 					{ label: "Accueil", to: "/" },

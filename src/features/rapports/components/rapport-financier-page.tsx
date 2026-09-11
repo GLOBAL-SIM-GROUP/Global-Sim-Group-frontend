@@ -104,7 +104,7 @@ export function RapportFinancierPage({
 	};
 
 	return (
-		<div className="mx-auto w-full max-w-6xl space-y-4 p-3 sm:space-y-6 sm:p-6">
+		<div className="w-full space-y-4 p-3 sm:space-y-6 sm:p-6">
 			<Breadcrumb
 				items={[
 					{ label: "Accueil", to: "/" },

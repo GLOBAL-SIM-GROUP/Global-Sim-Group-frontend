@@ -232,7 +232,7 @@ export function RolesPage() {
 	const roles = rolesQuery.data ?? [];
 
 	return (
-		<div className="mx-auto w-full max-w-5xl space-y-6 p-6">
+		<div className="w-full space-y-6 p-6">
 			<Breadcrumb items={[{ label: "Accueil", to: "/" }, { label: "Rôles" }]} />
 
 			<div className="flex flex-wrap items-end justify-between gap-4">

@@ -123,7 +123,7 @@ export function ContratFichePage({ id }: ContratFichePageProps) {
 
 	if (contratQuery.isLoading) {
 		return (
-			<div className="mx-auto w-full max-w-5xl space-y-6 p-4 sm:p-6">
+			<div className="w-full space-y-6 p-4 sm:p-6">
 				<p className="text-sm text-muted-foreground">Chargement…</p>
 			</div>
 		);
@@ -131,7 +131,7 @@ export function ContratFichePage({ id }: ContratFichePageProps) {
 
 	if (contratQuery.isError || !contratQuery.data) {
 		return (
-			<div className="mx-auto w-full max-w-5xl space-y-3 p-4 sm:p-6">
+			<div className="w-full space-y-3 p-4 sm:p-6">
 				<h1 className="text-2xl font-semibold text-foreground">
 					Fiche contrat
 				</h1>
@@ -153,7 +153,7 @@ export function ContratFichePage({ id }: ContratFichePageProps) {
 	const logement = logementsDetails.data?.get(contrat.id_logement);
 
 	return (
-		<div className="mx-auto w-full max-w-5xl space-y-6 p-4 sm:p-6">
+		<div className="w-full space-y-6 p-4 sm:p-6">
 			<Breadcrumb
 				items={[
 					{ label: "Accueil", to: "/" },

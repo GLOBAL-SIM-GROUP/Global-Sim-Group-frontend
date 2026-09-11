@@ -81,7 +81,7 @@ export function PortailPage() {
 
 	if (resumeQuery.isLoading) {
 		return (
-			<div className="mx-auto w-full max-w-4xl space-y-6 p-6">
+			<div className="w-full space-y-6 p-6">
 				<p className="text-sm text-muted-foreground">Chargement…</p>
 			</div>
 		);
@@ -89,7 +89,7 @@ export function PortailPage() {
 
 	if (resumeQuery.isError || !resumeQuery.data) {
 		return (
-			<div className="mx-auto w-full max-w-4xl space-y-3 p-6">
+			<div className="w-full space-y-3 p-6">
 				<h1 className="text-2xl font-semibold text-foreground">
 					Mon espace résident
 				</h1>
@@ -113,7 +113,7 @@ export function PortailPage() {
 	const { client, contrat_en_cours, prochaine_echeance } = resumeQuery.data;
 
 	return (
-		<div className="mx-auto w-full max-w-4xl space-y-6 p-6">
+		<div className="w-full space-y-6 p-6">
 			<Breadcrumb
 				items={[
 					{ label: "Accueil", to: "/" },

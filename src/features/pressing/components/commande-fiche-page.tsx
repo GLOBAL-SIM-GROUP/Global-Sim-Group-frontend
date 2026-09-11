@@ -73,7 +73,7 @@ export function CommandeFichePage({ id }: CommandeFichePageProps) {
 
 	if (commandeQuery.isLoading) {
 		return (
-			<div className="mx-auto w-full max-w-5xl space-y-6 p-6">
+			<div className="w-full space-y-6 p-6">
 				<p className="text-sm text-muted-foreground">Chargement…</p>
 			</div>
 		);
@@ -81,7 +81,7 @@ export function CommandeFichePage({ id }: CommandeFichePageProps) {
 
 	if (commandeQuery.isError || !commandeQuery.data) {
 		return (
-			<div className="mx-auto w-full max-w-5xl space-y-3 p-6">
+			<div className="w-full space-y-3 p-6">
 				<h1 className="text-2xl font-semibold text-foreground">
 					Fiche commande
 				</h1>
@@ -107,7 +107,7 @@ export function CommandeFichePage({ id }: CommandeFichePageProps) {
 		commande.statut === "RETIRE" || commande.statut === "ANNULEE";
 
 	return (
-		<div className="mx-auto w-full max-w-5xl space-y-4 p-3 sm:space-y-6 sm:p-6">
+		<div className="w-full space-y-4 p-3 sm:space-y-6 sm:p-6">
 			<Breadcrumb
 				items={[
 					{ label: "Accueil", to: "/" },

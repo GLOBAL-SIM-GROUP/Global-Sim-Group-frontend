@@ -194,7 +194,7 @@ export function ImpayesPage({
 	const pagination = paginer(filtres, page, IMPAYES_PAGE_SIZE);
 
 	return (
-		<div className="mx-auto w-full max-w-6xl space-y-6 p-6">
+		<div className="w-full space-y-6 p-6">
 			<Breadcrumb
 				items={[{ label: "Accueil", to: "/" }, { label: "Impayés" }]}
 			/>

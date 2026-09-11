@@ -28,7 +28,7 @@ export function PortailEcheancesPage() {
 
 	if (echeancesQuery.isLoading) {
 		return (
-			<div className="mx-auto w-full max-w-5xl space-y-6 p-6">
+			<div className="w-full space-y-6 p-6">
 				<p className="text-sm text-muted-foreground">Chargement…</p>
 			</div>
 		);
@@ -36,7 +36,7 @@ export function PortailEcheancesPage() {
 
 	if (echeancesQuery.isError || !echeancesQuery.data) {
 		return (
-			<div className="mx-auto w-full max-w-5xl space-y-3 p-6">
+			<div className="w-full space-y-3 p-6">
 				<h1 className="text-2xl font-semibold text-foreground">
 					Mes échéances de loyer
 				</h1>
@@ -60,7 +60,7 @@ export function PortailEcheancesPage() {
 	const { echeances, prochaine_echeance, total_impayes } = echeancesQuery.data;
 
 	return (
-		<div className="mx-auto w-full max-w-5xl space-y-6 p-6">
+		<div className="w-full space-y-6 p-6">
 			<Breadcrumb
 				items={[
 					{ label: "Accueil", to: "/" },

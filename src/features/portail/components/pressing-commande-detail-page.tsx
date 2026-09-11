@@ -34,7 +34,7 @@ export function PressingCommandeDetailPage({
 
 	if (commandeQuery.isLoading) {
 		return (
-			<div className="mx-auto w-full max-w-4xl space-y-6 p-6">
+			<div className="w-full space-y-6 p-6">
 				<p className="text-sm text-muted-foreground">Chargement…</p>
 			</div>
 		);
@@ -42,7 +42,7 @@ export function PressingCommandeDetailPage({
 
 	if (commandeQuery.isError || !commandeQuery.data) {
 		return (
-			<div className="mx-auto w-full max-w-4xl space-y-3 p-6">
+			<div className="w-full space-y-3 p-6">
 				<h1 className="text-2xl font-semibold text-foreground">
 					Commande de pressing
 				</h1>
@@ -68,7 +68,7 @@ export function PressingCommandeDetailPage({
 	const etape = getEtapeActuelle(commande.statut);
 
 	return (
-		<div className="mx-auto w-full max-w-4xl space-y-6 p-6">
+		<div className="w-full space-y-6 p-6">
 			<Breadcrumb
 				items={[
 					{ label: "Accueil", to: "/" },

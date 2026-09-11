@@ -30,7 +30,7 @@ export function PortailCautionPage() {
 
 	if (cautionQuery.isLoading) {
 		return (
-			<div className="mx-auto w-full max-w-4xl space-y-6 p-6">
+			<div className="w-full space-y-6 p-6">
 				<p className="text-sm text-muted-foreground">Chargement…</p>
 			</div>
 		);
@@ -38,7 +38,7 @@ export function PortailCautionPage() {
 
 	if (cautionQuery.isError || !cautionQuery.data) {
 		return (
-			<div className="mx-auto w-full max-w-4xl space-y-3 p-6">
+			<div className="w-full space-y-3 p-6">
 				<h1 className="text-2xl font-semibold text-foreground">Ma caution</h1>
 				<div
 					role="alert"
@@ -60,7 +60,7 @@ export function PortailCautionPage() {
 	const { caution, historique } = cautionQuery.data;
 
 	return (
-		<div className="mx-auto w-full max-w-4xl space-y-6 p-6">
+		<div className="w-full space-y-6 p-6">
 			<Breadcrumb
 				items={[
 					{ label: "Accueil", to: "/" },

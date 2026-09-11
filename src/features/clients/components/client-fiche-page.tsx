@@ -737,7 +737,7 @@ export function ClientFichePage({ id }: ClientFichePageProps) {
 
 	if (clientQuery.isLoading) {
 		return (
-			<div className="mx-auto w-full max-w-5xl space-y-6 p-6">
+			<div className="w-full space-y-6 p-6">
 				<p className="text-sm text-muted-foreground">Chargement…</p>
 			</div>
 		);
@@ -745,7 +745,7 @@ export function ClientFichePage({ id }: ClientFichePageProps) {
 
 	if (clientQuery.isError || !clientQuery.data) {
 		return (
-			<div className="mx-auto w-full max-w-5xl space-y-3 p-6">
+			<div className="w-full space-y-3 p-6">
 				<h1 className="text-2xl font-semibold text-foreground">Fiche client</h1>
 				<div
 					role="alert"
@@ -763,7 +763,7 @@ export function ClientFichePage({ id }: ClientFichePageProps) {
 	const client = clientQuery.data;
 
 	return (
-		<div className="mx-auto w-full max-w-5xl space-y-6 p-6">
+		<div className="w-full space-y-6 p-6">
 			<Breadcrumb
 				items={[
 					{ label: "Accueil", to: "/" },

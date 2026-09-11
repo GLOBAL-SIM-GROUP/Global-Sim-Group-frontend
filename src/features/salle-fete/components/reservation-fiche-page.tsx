@@ -76,7 +76,7 @@ export function ReservationFichePage({ id }: ReservationFichePageProps) {
 
 	if (reservationQuery.isLoading) {
 		return (
-			<div className="mx-auto w-full max-w-5xl space-y-6 p-6">
+			<div className="w-full space-y-6 p-6">
 				<p className="text-sm text-muted-foreground">Chargement…</p>
 			</div>
 		);
@@ -84,7 +84,7 @@ export function ReservationFichePage({ id }: ReservationFichePageProps) {
 
 	if (reservationQuery.isError || !reservationQuery.data) {
 		return (
-			<div className="mx-auto w-full max-w-5xl space-y-3 p-6">
+			<div className="w-full space-y-3 p-6">
 				<h1 className="text-2xl font-semibold text-foreground">
 					Fiche réservation
 				</h1>
@@ -116,7 +116,7 @@ export function ReservationFichePage({ id }: ReservationFichePageProps) {
 		.reduce((somme, paiement) => somme + Number(paiement.montant), 0);
 
 	return (
-		<div className="mx-auto w-full max-w-5xl space-y-6 p-6">
+		<div className="w-full space-y-6 p-6">
 			<Breadcrumb
 				items={[
 					{ label: "Accueil", to: "/" },

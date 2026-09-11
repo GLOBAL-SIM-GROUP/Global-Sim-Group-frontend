@@ -131,7 +131,7 @@ export function MoyensPaiementPage() {
 	}
 
 	return (
-		<div className="mx-auto w-full max-w-4xl space-y-6 p-6">
+		<div className="w-full space-y-6 p-6">
 			<Breadcrumb
 				items={[{ label: "Accueil", to: "/" }, { label: "Moyens de paiement" }]}
 			/>

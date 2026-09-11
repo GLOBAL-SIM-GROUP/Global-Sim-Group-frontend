@@ -125,7 +125,7 @@ export function CaissierDashboardPage() {
 
 	if (!caisses || caisses.length === 0) {
 		return (
-			<div className="mx-auto w-full max-w-6xl space-y-6 p-6">
+			<div className="w-full space-y-6 p-6">
 				<Breadcrumb
 					items={[{ label: "Accueil", to: "/" }, { label: "Ma caisse" }]}
 				/>
@@ -139,7 +139,7 @@ export function CaissierDashboardPage() {
 	// Plusieurs caisses (ex. un admin consultant cette page) : choix explicite.
 	if (caisses.length > 1 && !idCaisse) {
 		return (
-			<div className="mx-auto w-full max-w-6xl space-y-6 p-6">
+			<div className="w-full space-y-6 p-6">
 				<Breadcrumb
 					items={[{ label: "Accueil", to: "/" }, { label: "Ma caisse" }]}
 				/>
@@ -177,7 +177,7 @@ export function CaissierDashboardPage() {
 	}
 
 	return (
-		<div className="mx-auto w-full max-w-6xl space-y-6 p-6">
+		<div className="w-full space-y-6 p-6">
 			<Breadcrumb
 				items={[{ label: "Accueil", to: "/" }, { label: "Ma caisse" }]}
 			/>

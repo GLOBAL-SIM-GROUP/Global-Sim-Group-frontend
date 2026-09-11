@@ -114,7 +114,7 @@ export function LogementsPage({
 	const pagination = paginerLogements(filtres, page, LOGEMENTS_PAGE_SIZE);
 
 	return (
-		<div className="mx-auto w-full max-w-5xl space-y-6 p-6">
+		<div className="w-full space-y-6 p-6">
 			<Breadcrumb
 				items={[
 					{ label: "Accueil", to: "/" },
@@ -129,8 +129,8 @@ export function LogementsPage({
 						{batiment ? `Logements — ${batiment.nom}` : "Logements"}
 					</h1>
 					<p className="text-muted-foreground">
-						Liste des logements (chambres, studios, appartements, meublés)
-						rattachés à un bâtiment donné.
+						Liste des logements (chambres et studios) rattachés à un bâtiment
+						donné.
 					</p>
 				</section>
 

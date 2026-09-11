@@ -113,7 +113,7 @@ export function BuildingsPage({
 					: null;
 
 	return (
-		<div className="mx-auto w-full max-w-5xl space-y-6 p-6">
+		<div className="w-full space-y-6 p-6">
 			<Breadcrumb
 				items={[{ label: "Accueil", to: "/" }, { label: "Bâtiments" }]}
 			/>

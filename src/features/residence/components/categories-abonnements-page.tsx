@@ -41,7 +41,7 @@ export function CategoriesAbonnementsPage() {
 	};
 
 	return (
-		<div className="mx-auto w-full max-w-3xl space-y-6 p-4 sm:p-6">
+		<div className="w-full space-y-6 p-4 sm:p-6">
 			<Breadcrumb
 				items={[
 					{ label: "Accueil", to: "/" },
