@@ -25,8 +25,8 @@ export function Breadcrumb({ items }: { items: BreadcrumbItem[] }) {
 	}, []);
 
 	const breadcrumb = (
-		<nav aria-label="Fil d'Ariane" className="overflow-hidden text-sm">
-			<ol className="flex items-center gap-1.5 overflow-hidden whitespace-nowrap">
+		<nav aria-label="Fil d'Ariane" className="text-sm">
+			<ol className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5">
 				{items.map((item, index) => {
 					const isLast = index === items.length - 1;
 					return (
@@ -47,7 +47,7 @@ export function Breadcrumb({ items }: { items: BreadcrumbItem[] }) {
 									aria-current={isLast ? "page" : undefined}
 									className={
 										isLast
-											? "truncate font-medium text-foreground"
+											? "min-w-0 break-words font-medium text-foreground"
 											: "shrink-0 text-muted-foreground"
 									}
 								>

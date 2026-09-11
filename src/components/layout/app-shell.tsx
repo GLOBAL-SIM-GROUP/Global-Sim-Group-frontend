@@ -35,7 +35,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
 			<div className="flex min-w-0 flex-1 flex-col relative z-10">
 				<header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur">
-					<div className="flex h-14 w-full items-center gap-2 sm:gap-4 px-2 sm:px-4">
+					<div className="flex min-h-14 w-full items-center gap-2 px-2 py-1.5 sm:gap-4 sm:px-4">
 						<button
 							type="button"
 							onClick={() => setSidebarOpen(!sidebarOpen)}
