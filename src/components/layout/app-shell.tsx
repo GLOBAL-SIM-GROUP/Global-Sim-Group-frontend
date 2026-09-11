@@ -33,7 +33,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 				<Sidebar onClose={() => setSidebarOpen(false)} />
 			</div>
 
-			<div className="flex min-w-0 flex-1 flex-col relative z-10">
+			<div className="flex min-w-0 flex-1 flex-col relative z-10 overflow-x-clip">
 				<header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur">
 					<div className="flex min-h-14 w-full items-center gap-2 px-2 py-1.5 sm:gap-4 sm:px-4">
 						<button
