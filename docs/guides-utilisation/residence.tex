@@ -1,0 +1,959 @@
+\documentclass[12pt,a4paper]{article}
+
+% Encodage et langue
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[french]{babel}
+
+% Mise en page
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage[colorlinks=true,linkcolor=black,citecolor=black,filecolor=black,urlcolor=black]{hyperref}
+\usepackage{tikz}
+\usepackage{fontawesome5}
+\usepackage{float}
+
+% Couleurs personnalisées
+\definecolor{lagoon}{RGB}{0, 128, 128}
+\definecolor{sea-ink}{RGB}{0, 45, 64}
+\definecolor{palm}{RGB}{46, 139, 87}
+\definecolor{warn}{RGB}{230, 126, 34}
+\definecolor{danger}{RGB}{231, 76, 60}
+\definecolor{success}{RGB}{39, 174, 96}
+\definecolor{muted}{RGB}{127, 140, 141}
+
+% Titres
+\titleformat{\section}
+  {\normalfont\Large\bfseries\color{sea-ink}}{\thesection}{1em}{}
+\titleformat{\subsection}
+  {\normalfont\large\bfseries\color{lagoon}}{\thesubsection}{1em}{}
+\titleformat{\subsubsection}
+  {\normalfont\normalsize\bfseries\color{palm}}{\thesubsubsection}{1em}{}
+
+% En-têtes et pieds de page
+\setlength{\headheight}{15pt}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\textcolor{sea-ink}{GLOBAL SIM GROUP — Guide Résidence}}
+\fancyhead[R]{\textcolor{muted}{\leftmark}}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0pt}
+
+% Commandes pratiques
+\newcommand{\screenshot}[2]{%
+  \begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{#1}
+    \caption{#2}
+  \end{figure}%
+}
+
+\newcommand{\etape}[1]{\textbf{\faHandPointRight\ #1}}
+\newcommand{\attention}[1]{\par\noindent\textcolor{warn}{\faExclamationTriangle\ Attention : #1}\par}
+\newcommand{\astuce}[1]{\par\noindent\textcolor{success}{\faLightbulb\ Astuce : #1}\par}
+\newcommand{\info}[1]{\par\noindent\textcolor{lagoon}{\faInfoCircle\ Info : #1}\par}
+
+\newlist{etapes}{enumerate}{1}
+\setlist[etapes]{label=\textcolor{lagoon}{\faArrowRight\ \arabic*.}, leftmargin=1.5cm, itemsep=0.4em}
+
+\begin{document}
+
+% Page de garde
+\begin{titlepage}
+  \noindent\colorbox{sea-ink}{%
+    \parbox{\dimexpr\textwidth-2\fboxsep}{%
+      \centering
+      \vspace{1.5cm}
+      \includegraphics[height=3cm]{logo-gsg.png}\par
+      \vspace{0.6cm}
+      {\Huge\bfseries\color{white} GLOBAL SIM GROUP\par}
+      \vspace{0.5cm}
+      {\LARGE\color{white} Guide d'utilisation — Module Résidence\par}
+      \vspace{1.5cm}
+    }%
+  }
+
+  \vfill
+  \begin{center}
+    {\Large\color{sea-ink} Apprends à utiliser la Résidence\par}
+    \vspace{0.4cm}
+    
+    \begin{tikzpicture}
+      \node[fill=lagoon, text=white, rounded corners=10pt, minimum width=12cm, minimum height=1.5cm, font=\large\bfseries] {Bâtiments · Logements · Contrats · Séjours · Charges};
+    \end{tikzpicture}
+  \end{center}
+
+  \vfill
+  \begin{center}
+    \textcolor{muted}{Version 1.0}
+  \end{center}
+\end{titlepage}
+
+\newpage
+% Table des matières
+\tableofcontents
+\newpage
+
+% Introduction
+\section{Avant de commencer}
+
+Imagine que GLOBAL SIM GROUP est une grande maison avec plusieurs pièces. La pièce qu'on appelle \textbf{Résidence} sert à gérer :
+
+\begin{itemize}[label=\textcolor{lagoon}{\faHome}]
+  \item Les \textbf{bâtiments} (les grandes maisons où vivent les gens)
+  \item Les \textbf{logements} (les chambres ou studios à l'intérieur)
+  \item Les \textbf{contrats} (les promesses entre le propriétaire et le locataire)
+  \item Les \textbf{séjours courts} (une nuit ou une sieste, comme à l'hôtel)
+  \item Les \textbf{charges} (les petites factures annexes)
+  \item Les \textbf{abonnements} (des services récurrents pour un locataire)
+  \item Les \textbf{échéances} (les dates où il faut payer le loyer)
+\end{itemize}
+
+\astuce{On dit \og{}comme un enfant de 5 ans\fg{} : on ne presse personne. Chaque étape est expliquée avec une image pour bien voir où cliquer.}
+
+\subsection{Se connecter}
+
+\begin{etapes}
+  \item Ouvre l'adresse de l'application dans ton navigateur.
+  \item Tape ton \textbf{identifiant} et ton \textbf{mot de passe}.
+  \item Clique sur le gros bouton orange \textbf{Se connecter}.
+\end{etapes}
+
+\screenshot{screenshots/residence/01-login.png}{La page de connexion : identifiant, mot de passe, puis Se connecter}
+
+Après la connexion, tu arrives sur le \textbf{tableau de bord}. C'est la page d'accueil qui montre les choses importantes du jour.
+
+\screenshot{screenshots/residence/02-dashboard.png}{Le tableau de bord : la page d'accueil après connexion}
+
+
+\subsection{Trouver le menu Résidence}
+
+Sur la gauche, il y a une barre bleu foncé. C'est le menu principal.
+
+\begin{etapes}
+  \item Cherche le mot \textbf{Résidence} dans le menu de gauche.
+  \item Clique dessus. Le menu s'ouvre comme un accordéon.
+  \item Tu vois apparaître : Bâtiments, Contrats de location, Échéances de loyer, Séjours courts, Charges et abonnements.
+\end{etapes}
+
+\screenshot{screenshots/residence/03-sidebar-residence.png}{Le menu Résidence est ouvert dans la barre latérale}
+
+\newpage
+
+% Bâtiments
+\section{Les bâtiments}
+
+Un \textbf{bâtiment} est une grande maison qui contient plusieurs logements. Avant de pouvoir louer quoi que ce soit, il faut d'abord créer un bâtiment.
+
+\subsection{Voir la liste des bâtiments}
+
+Dans le menu Résidence, clique sur \textbf{Bâtiments}. Tu vois tous les bâtiments déjà créés.
+
+\screenshot{screenshots/residence/04-batiments-liste.png}{La liste des bâtiments existants}
+
+\subsubsection{Filtrer les bâtiments}
+
+En haut de la page, un bandeau de filtres te permet de retrouver un bâtiment :
+
+\begin{etapes}
+  \item \textbf{Recherche} : tape un code, un nom ou une adresse pour retrouver un bâtiment.
+  \item \textbf{Actif} : choisis \textbf{Tous}, \textbf{Actif} ou \textbf{Inactif} pour n'afficher que certains bâtiments.
+\end{etapes}
+
+\screenshot{screenshots/residence/04b-batiments-filtre-actif.png}{Le menu du filtre Actif}
+
+\screenshot{screenshots/residence/04c-batiments-filtre-actifs.png}{La liste filtrée sur les bâtiments actifs}
+
+
+\subsection{Ajouter un nouveau bâtiment}
+
+\begin{etapes}
+  \item Clique sur le bouton orange \textbf{Ajouter un bâtiment}.
+  \item Une fenêtre blanche apparaît au milieu de l'écran.
+\end{etapes}
+
+\screenshot{screenshots/residence/05-batiment-formulaire-vide.png}{Le formulaire de création d'un bâtiment, tout vide}
+
+\begin{etapes}
+  \setcounter{etapesi}{2}
+  \item Remplis les champs :
+  \begin{itemize}[label=\textcolor{lagoon}{\faPen}]
+    \item \textbf{Code} : une petite étiquette courte, par exemple \texttt{BAT-A1}
+    \item \textbf{Nom} : le vrai nom du bâtiment, par exemple \texttt{Bâtiment Principal}
+    \item \textbf{Adresse} : l'adresse complète
+  \end{itemize}
+  \item Clique sur \textbf{Enregistrer}.
+\end{etapes}
+
+\screenshot{screenshots/residence/06-batiment-formulaire-rempli.png}{Le formulaire rempli avec un exemple}
+
+\attention{Le \textbf{Code} doit être unique. Si tu vois un message rouge, c'est que quelqu'un a déjà utilisé ce code. Change-le et recommence.}
+
+
+
+\subsection{Vérifier que le bâtiment est créé}
+
+Après avoir cliqué sur \textbf{Enregistrer}, la fenêtre se ferme et le nouveau bâtiment apparaît dans la liste.
+
+\screenshot{screenshots/residence/07-batiments-liste-avec-nouveau.png}{La liste des bâtiments avec le nouveau bâtiment en plus}
+
+\astuce{Pour voir les logements d'un bâtiment, clique sur son nom dans la liste. C'est comme ouvrir une boîte pour voir ce qu'il y a dedans.}
+
+\newpage
+
+% Logements
+\section{Les logements}
+
+Un \textbf{logement} est une chambre ou un studio à l'intérieur d'un bâtiment.
+
+\subsection{Voir les logements d'un bâtiment}
+
+Quand tu cliques sur le nom d'un bâtiment, tu arrives sur la page de ses logements.
+
+\screenshot{screenshots/residence/08-logements-liste.png}{La liste des logements du bâtiment sélectionné}
+
+\subsubsection{Filtrer les logements}
+
+En haut de la page, tu peux filtrer la liste :
+
+\begin{etapes}
+  \item \textbf{Recherche} : tape un numéro ou une adresse.
+  \item \textbf{Type} : choisis Tous, Chambre ou Studio.
+  \item \textbf{Statut} : choisis Tous, Disponible, Réservé, Occupé, En nettoyage, En maintenance ou Indisponible.
+\end{etapes}
+
+\screenshot{screenshots/residence/08b-logements-filtre-type.png}{Le menu du filtre Type}
+
+\screenshot{screenshots/residence/08c-logements-filtre-type-studio.png}{La liste filtrée sur les studios}
+
+\subsection{Ajouter un logement}
+
+\begin{etapes}
+  \item Clique sur \textbf{Ajouter un logement}.
+  \item Le bâtiment est déjà choisi (c'est normal, tu viens de ce bâtiment).
+  \item Choisis le \textbf{Type} : chambre ou studio.
+  \item Tape le \textbf{Tarif} : c'est le prix de base du logement, en FCFA.
+  \item Le \textbf{Statut} est \og{}Disponible\fg{} par défaut. Tu peux le changer si besoin.
+\end{etapes}
+
+\screenshot{screenshots/residence/09-logement-formulaire-vide.png}{Le formulaire de création d'un logement}
+
+\screenshot{screenshots/residence/10-logement-formulaire-rempli.png}{Le formulaire rempli avec Studio, un tarif de 75\,000 FCFA et le statut Disponible}
+
+\begin{etapes}
+  \setcounter{etapesi}{5}
+  \item Tu peux aussi choisir des équipements proposés : lit, placard, climatiseur, etc.
+  \item Clique sur \textbf{Enregistrer}.
+\end{etapes}
+
+Quand l'enregistrement réussit, la fenêtre se ferme et le nouveau logement apparaît dans la liste avec son numéro automatique.
+
+\screenshot{screenshots/residence/11-logements-liste-avec-nouveau.png}{Le nouveau logement Studio apparaît dans la liste}
+
+\astuce{Le numéro du logement est créé automatiquement par le système. Tu n'as pas besoin de l'inventer toi-même.}
+
+\subsection{Ajouter plusieurs logements en une fois (par lot)}
+
+Quand un bâtiment a plusieurs logements identiques (même type, même tarif, même statut), tu peux les créer tous en une seule opération. C'est beaucoup plus rapide que de les ajouter un par un.
+
+\begin{etapes}
+  \item Sur la page des logements du bâtiment, clique sur le bouton \textbf{Créer un lot}.
+  \item Le bâtiment est déjà choisi (c'est normal, tu viens de ce bâtiment).
+  \item Choisis le \textbf{Type} : chambre ou studio.
+  \item Choisis le \textbf{Statut} (Disponible par défaut).
+  \item Tape le \textbf{Tarif} : c'est le prix de base de chaque logement, en FCFA.
+  \item Tape la \textbf{Quantité} : c'est le nombre de logements identiques à créer (entre 1 et 100).
+  \item Tu peux aussi choisir des équipements proposés : lit, placard, climatiseur, etc.
+  \item Clique sur \textbf{Créer le lot}.
+\end{etapes}
+
+\screenshot{screenshots/residence/12-lot-formulaire-vide.png}{Le formulaire de création par lot, au début}
+
+\screenshot{screenshots/residence/13-lot-formulaire-rempli.png}{Le formulaire rempli : 5 studios à 60\,000 FCFA chacun}
+
+Quand la création réussit, une fenêtre affiche la liste des logements créés avec leurs numéros automatiques.
+
+\screenshot{screenshots/residence/14-lot-resultat}{Les 5 logements créés avec leurs numéros automatiques}
+
+Ferme la fenêtre. La liste des logements du bâtiment contient maintenant tous les logements créés.
+
+\screenshot{screenshots/residence/15-logements-liste-apres-lot.png}{La liste des logements après la création du lot}
+
+\astuce{Le bouton \textbf{Créer un lot} se trouve à côté du bouton \textbf{Ajouter un logement}. Utilise-le quand tu as beaucoup de logements identiques à créer en même temps.}
+
+\subsection{Consulter la fiche d'un logement}
+
+La \textbf{fiche logement} regroupe toutes les informations d'un logement et son historique. C'est utile pour vérifier son statut, son tarif, ses équipements et voir qui l'a occupé.
+
+\begin{etapes}
+  \item Dans la liste des logements, clique sur le numéro du logement (lien bleu).
+  \item La page \textbf{Fiche logement — [numéro]} s'ouvre.
+\end{etapes}
+
+\screenshot{screenshots/residence/16-logement-fiche.png}{La fiche détaillée d'un logement}
+
+La fiche contient :
+
+\begin{itemize}
+  \item Un \textbf{bandeau d'informations} : numéro, bâtiment, type (chambre ou studio), tarif en FCFA, statut (avec un badge coloré) et occupation actuelle.
+  \item Un bouton \textbf{Modifier} (si tu as la permission) pour changer le tarif, le statut ou les équipements.
+  \item Un bouton \textbf{Retour aux logements} pour revenir à la liste.
+  \item Deux \textbf{onglets} :
+  \begin{itemize}
+    \item \textbf{Historique des occupations} : la liste des contrats et des séjours (courtes locations) qui ont concerné ce logement.
+    \item \textbf{Charges} : la liste des charges (eau, électricité, etc.) liées à ce logement.
+  \end{itemize}
+\end{itemize}
+
+\subsubsection{Modifier un logement}
+
+Le bouton \textbf{Modifier} (icône crayon) n'apparaît que si tu as la permission de modifier les logements. Il ouvre la même fenêtre que pour la création, mais les champs sont déjà remplis avec les valeurs actuelles du logement.
+
+\begin{etapes}
+  \item Clique sur \textbf{Modifier} en haut à droite de la fiche.
+  \item La fenêtre \textbf{Modifier le logement [numéro]} s'ouvre.
+  \item Change les champs que tu veux :
+  \begin{itemize}
+    \item \textbf{Bâtiment} : le bâtiment auquel le logement est rattaché.
+    \item \textbf{Type} : chambre ou studio.
+    \item \textbf{Statut} : Disponible, Réservé, Occupé, En nettoyage, En maintenance, Indisponible.
+    \item \textbf{Tarif} : le prix de base en FCFA.
+    \item \textbf{Équipements proposés} : lit, placard, climatiseur, etc. (tu peux aussi en ajouter d'autres à la main).
+    \item \textbf{État} : une description libre de l'état du logement (ex : « Bon état », « À repeindre »).
+  \end{itemize}
+  \item Clique sur \textbf{Enregistrer}.
+\end{etapes}
+
+\attention{Le \textbf{numéro} du logement ne peut pas être modifié : il est généré automatiquement par le système à la création et reste le même toute la vie du logement.}
+
+\astuce{Le fil d'Ariane en haut de la fiche (Accueil $\rightarrow$ Bâtiments $\rightarrow$ Logements $\rightarrow$ numéro) te permet de revenir facilement à la liste.}
+
+\newpage
+
+% Contrats
+\section{Les contrats de location}
+
+Un \textbf{contrat} est la promesse entre GLOBAL SIM GROUP et une personne qui veut louer un logement.
+
+\subsection{Voir les contrats}
+
+Dans le menu Résidence, clique sur \textbf{Contrats de location}. Tu vois tous les contrats existants.
+
+\screenshot{screenshots/residence/12-contrats-liste.png}{La liste des contrats de location}
+
+\subsubsection{Filtrer les contrats}
+
+En haut de la page, un bandeau de filtres te permet de retrouver un contrat :
+
+\begin{etapes}
+  \item \textbf{Statut} : choisis Tous, En attente, Actif, Résilié ou Terminé.
+  \item \textbf{Locataire} : tape le nom d'un locataire.
+  \item \textbf{Logement} : tape un numéro de logement.
+  \item \textbf{Début} et \textbf{Fin} : choisis une période (selon la date de début du contrat).
+\end{etapes}
+
+\screenshot{screenshots/residence/12b-contrats-filtre-statut.png}{Le menu du filtre par statut}
+
+\screenshot{screenshots/residence/12c-contrats-filtre-actifs.png}{La liste filtrée sur les contrats actifs}
+
+\subsection{Créer un nouveau contrat}
+
+\begin{etapes}
+  \item Clique sur \textbf{Nouveau contrat}.
+  \item Une fenêtre blanche s'ouvre.
+\end{etapes}
+
+\screenshot{screenshots/residence/13-contrat-formulaire-vide.png}{Le formulaire de création d'un contrat, au début}
+
+\subsubsection{Choisir ou créer le locataire}
+
+Le locataire est la personne qui va habiter le logement.
+
+\begin{etapes}
+  \item Dans le champ \textbf{Client}, tape quelques lettres du nom du locataire (au moins 2 lettres).
+  \item Le système cherche dans la liste des clients.
+\end{etapes}
+
+\screenshot{screenshots/residence/14-contrat-recherche-client-vide.png}{La recherche du client dans le formulaire de contrat}
+
+\begin{etapes}
+  \setcounter{etapesi}{2}
+  \item Si le locataire n'existe pas encore, clique sur \textbf{Créer un locataire}.
+  \item Remplis les informations de la personne : nom, prénom, téléphone, date de naissance, lieu de naissance, sexe, nationalité, profession, e-mail, adresse, ville, pays.
+\end{etapes}
+
+\screenshot{screenshots/residence/15-contrat-creation-rapide-client.png}{La fenêtre de création rapide du locataire}
+
+\screenshot{screenshots/residence/16-contrat-client-rempli.png}{Les informations du locataire sont remplies}
+
+\begin{etapes}
+  \setcounter{etapesi}{5}
+  \item Clique sur \textbf{Enregistrer}. Le client est maintenant choisi.
+\end{etapes}
+
+\screenshot{screenshots/residence/17-contrat-client-selectionne.png}{Le locataire est maintenant sélectionné dans le contrat}
+
+\subsubsection{Choisir le bâtiment et le logement}
+
+\begin{etapes}
+  \item Clique sur le champ \textbf{Bâtiment}.
+  \item Choisis le bâtiment que tu viens de créer (ou un autre bâtiment existant).
+\end{etapes}
+
+\screenshot{screenshots/residence/17b-contrat-batiment-selectionne.png}{Le bâtiment est sélectionné dans le contrat}
+
+\begin{etapes}
+  \setcounter{etapesi}{2}
+  \item Clique sur le champ \textbf{Logement}.
+  \item Le menu affiche les logements \textbf{Disponible} du bâtiment choisi.
+  \item Choisis le logement à louer.
+\end{etapes}
+
+\screenshot{screenshots/residence/17c-contrat-logement-ouvert.png}{Le menu du logement affiche un logement disponible existant}
+
+\screenshot{screenshots/residence/17d-contrat-logement-selectionne.png}{Le logement est maintenant sélectionné dans le contrat}
+
+\attention{Si le menu \textbf{Logement} reste vide, c'est que le bâtiment ne contient aucun logement de statut \og{}Disponible\fg{}. Vérifie la liste des logements du bâtiment avant de créer le contrat.}
+
+\subsubsection{Les autres informations du contrat}
+
+\begin{etapes}
+  \item \textbf{Date de début} : le jour où le locataire emménage.
+  \item \textbf{Durée (en mois)} : combien de mois dure le contrat (par exemple 12).
+  \item \textbf{Type de location} : Mensuel ou Annuel.
+  \item \textbf{Montant du loyer} : le prix du loyer, en FCFA.
+  \item \textbf{Caution} : une somme d'argent de côté, en cas de problème (optionnelle).
+\end{etapes}
+
+\info{La date de fin du contrat est calculée automatiquement : date de début + durée en mois.}
+
+\info{La date de signature ne peut pas être après la date de début. Le système bloque cette erreur pour toi.}
+
+\subsection{La fiche contrat}
+
+Après avoir enregistré un contrat, clique sur son numéro dans la liste pour ouvrir sa \textbf{fiche}. C'est le tableau de bord du contrat : toutes ses informations et toutes les actions importantes s'y trouvent.
+
+\screenshot{screenshots/residence/18-contrat-fiche.png}{La fiche contrat : informations générales, boutons d'action et onglets}
+
+\subsubsection{Les informations de la fiche}
+
+La fiche affiche en haut :
+
+\begin{itemize}
+  \item Le \textbf{numéro} du contrat et son \textbf{type} (mensuel ou annuel).
+  \item Le \textbf{locataire}, le \textbf{logement}, le \textbf{loyer}.
+  \item La \textbf{date de début}, la \textbf{date de fin prévue}, la \textbf{durée} et la \textbf{date de signature}.
+  \item Le \textbf{statut} avec un badge coloré : En attente (orange), Actif (vert), Résilié (rouge) ou Terminé (bleu).
+\end{itemize}
+
+\subsubsection{Imprimer le contrat}
+
+Clique sur le bouton \textbf{Imprimer le contrat}. Le système prépare un PDF du contrat et l'ouvre pour l'impression. Si tu veux aussi envoyer une copie au locataire par email, clique sur \textbf{Envoyer par email}.
+
+\screenshot{screenshots/residence/18b-contrat-fiche-email.png}{Le message de confirmation après l'envoi du contrat par email}
+
+\subsubsection{Les échéances et les reçus}
+
+L'onglet \textbf{Échéances} liste les loyers mensuels du contrat : le mois, le montant, le statut (Payée, Impayée, Partielle, À venir) et la date d'échéance.
+
+\screenshot{screenshots/residence/18-contrat-fiche.png}{L'onglet Échéances avec des échéances payées et impayées}
+
+Pour une échéance déjà \textbf{payée}, le bouton \textbf{Reçu} permet d'imprimer le reçu de paiement. Ce reçu est la preuve que le loyer a bien été réglé — utile à remettre au locataire.
+
+\subsubsection{Encaisser une échéance}
+
+Quand le locataire paie son loyer :
+
+\begin{etapes}
+  \item Sur la ligne de l'échéance, clique sur \textbf{Enregistrer un paiement}.
+  \item Vérifie le \textbf{montant} (il est prérempli avec le montant de l'échéance).
+  \item Choisis le \textbf{moyen de paiement} (espèces, mobile money, etc.).
+  \item Ajoute la \textbf{date} si besoin (optionnelle).
+  \item Clique sur \textbf{Enregistrer le paiement}.
+\end{etapes}
+
+\screenshot{screenshots/residence/18c-contrat-fiche-encaisser-echeance.png}{La fenêtre d'enregistrement du paiement d'une échéance}
+
+\attention{L'encaissement crée une entrée de caisse. Si la caisse est fermée, le système refuse l'opération et t'affiche un message : ouvre d'abord la caisse dans le module Finances.}
+
+\subsubsection{Encaisser plusieurs échéances en une fois}
+
+Si le locataire veut payer plusieurs mois d'un coup, utilise l'\textbf{encaissement en lot}.
+
+\begin{etapes}
+  \item Clique sur \textbf{Encaissement en lot} (en haut à droite de l'onglet Échéances).
+  \item Tape le \textbf{montant total} payé.
+  \item Choisis le \textbf{moyen de paiement}.
+  \item Clique sur \textbf{Enregistrer le paiement}.
+\end{etapes}
+
+\screenshot{screenshots/residence/18d-contrat-fiche-encaisser-lot.png}{La fenêtre d'encaissement en lot, avec le montant maximum affiché}
+
+Le système répartit automatiquement le montant sur les échéances impayées, en commençant par les plus anciennes. Le montant maximum à encaisser est affiché pour t'aider.
+
+\subsubsection{La caution}
+
+La \textbf{caution} est une somme versée par le locataire au début du bail, en garantie contre les dégâts. Elle est restituée à la fin du contrat, moins d'éventuelles retenues.
+
+L'onglet \textbf{Caution} montre :
+
+\begin{itemize}
+  \item Le \textbf{montant} de la caution.
+  \item La \textbf{date de versement} et le statut (Payée / Non payée).
+  \item La \textbf{restitution}, le montant restitué et une éventuelle \textbf{retenue} avec son motif.
+  \item L'\textbf{historique} des événements (versement, restitution, retenue).
+\end{itemize}
+
+\screenshot{screenshots/residence/18e-contrat-fiche-caution.png}{L'onglet Caution, avant le versement}
+
+\subsubsection{Encaisser la caution}
+
+Quand le locataire paie sa caution :
+
+\begin{etapes}
+  \item Clique sur \textbf{Déclarer le versement}.
+  \item Vérifie la \textbf{date} et le \textbf{montant} (préremplis).
+  \item Clique sur \textbf{Déclarer le versement}.
+\end{etapes}
+
+\screenshot{screenshots/residence/18f-contrat-fiche-caution-versement.png}{La fenêtre de déclaration du versement de la caution}
+
+\attention{Cette action est une simple \textbf{déclaration} de traçabilité : elle ne crée pas d'encaissement de caisse. Le versement réel se gère dans le module Finances.}
+
+Une fois versée, la caution passe au statut \textbf{Payée} et le bouton \textbf{Restituer la caution} apparaît.
+
+\screenshot{screenshots/residence/18g-contrat-fiche-caution-payee.png}{La caution payée, prête à être restituée}
+
+\subsubsection{Restituer la caution}
+
+À la fin du bail, quand le locataire quitte le logement :
+
+\begin{etapes}
+  \item Clique sur \textbf{Restituer la caution}.
+  \item Indique une \textbf{retenue} si tu gardes une partie de la caution (pour des réparations, par exemple), et le \textbf{motif}.
+  \item Clique sur \textbf{Restituer}.
+\end{etapes}
+
+\screenshot{screenshots/residence/18h-contrat-fiche-caution-restitution.png}{La fenêtre de restitution de la caution, avec retenue optionnelle}
+
+\subsubsection{L'état des lieux}
+
+L'\textbf{état des lieux} est un ensemble de photos qui prouvent l'état du logement. On en fait deux :
+
+\begin{itemize}
+  \item L'\textbf{état des lieux d'entrée}, le jour où le locataire arrive : photos de l'état initial du logement.
+  \item L'\textbf{état des lieux de sortie}, le jour où il part : photos de l'état final.
+\end{itemize}
+
+En comparant les deux, tu peux savoir si le locataire a causé des dégâts.
+
+\screenshot{screenshots/residence/18i-contrat-fiche-etat-des-lieux.png}{L'onglet État des lieux avec une photo d'entrée et une photo de sortie}
+
+Pour ajouter une photo :
+
+\begin{etapes}
+  \item Clique sur \textbf{Ajouter une photo}.
+  \item Choisis le \textbf{type} : \textbf{Entrée} ou \textbf{Sortie}.
+  \item Sélectionne le \textbf{fichier} (JPG, PNG, WebP ou PDF, 5 Mo maximum).
+  \item Ajoute un \textbf{commentaire} si besoin (ex : « Mur abîmé près de la fenêtre »).
+  \item Clique sur \textbf{Ajouter}.
+\end{etapes}
+
+\screenshot{screenshots/residence/18j-contrat-fiche-etat-des-lieux-ajouter.png}{La fenêtre d'ajout d'une photo d'état des lieux}
+
+\astuce{Les photos d'entrée sont marquées d'un badge vert \og{}Entrée\fg{}, et celles de sortie d'un badge orange \og{}Sortie\fg{}. Tu peux filtrer l'affichage avec les boutons Toutes / Entrée / Sortie.}
+
+\newpage
+
+% Séjours courts
+\section{Les séjours courts}
+
+Un \textbf{séjour court} est comme une réservation d'hôtel : une nuitée ou une sieste.
+
+\subsection{Voir les séjours courts}
+
+Dans le menu Résidence, clique sur \textbf{Séjours courts}. Tu vois tous les séjours.
+
+\screenshot{screenshots/residence/22-sejours-liste.png}{La liste des séjours courts}
+
+\subsubsection{Filtrer les séjours}
+
+En haut de la page, un bandeau de filtres te permet de réduire la liste :
+
+\begin{etapes}
+  \item \textbf{Type} : choisis Tous, Nuitée ou Sieste.
+  \item \textbf{Statut} : choisis Tous, En cours, Terminé ou Annulé.
+  \item \textbf{Début} et \textbf{Fin} : choisis une période (selon la date d'arrivée).
+\end{etapes}
+
+\screenshot{screenshots/residence/22b-sejours-filtre-type.png}{Le menu du filtre Type}
+
+\screenshot{screenshots/residence/22c-sejours-filtre-type-nuitee.png}{La liste filtrée sur les nuitées}
+
+\subsection{Créer un nouveau séjour}
+
+\begin{etapes}
+  \item Clique sur \textbf{Nouveau séjour}.
+  \item Choisis le type : \textbf{Nuitée} (du soir au lendemain) ou \textbf{Sieste} (même jour).
+  \item Choisis le client.
+  \item Choisis le bâtiment, puis le logement.
+  \item Indique la date et l'heure d'arrivée.
+  \item Indique le départ prévu.
+  \item Indique le tarif et le moyen de paiement.
+  \item Clique sur \textbf{Enregistrer}.
+\end{etapes}
+
+\screenshot{screenshots/residence/23-sejour-formulaire-vide.png}{Le formulaire de création d'un séjour court}
+
+\begin{etapes}
+  \item Choisis le bâtiment : clique sur le champ \textbf{Bâtiment}, puis sur le bâtiment voulu.
+\end{etapes}
+
+\screenshot{screenshots/residence/23b-sejour-batiment-selectionne.png}{Le bâtiment est sélectionné dans le séjour}
+
+\begin{etapes}
+  \setcounter{etapesi}{1}
+  \item Clique sur le champ \textbf{Logement}.
+  \item Le menu affiche les logements \textbf{Disponible} du bâtiment choisi.
+  \item Choisis le logement à réserver.
+\end{etapes}
+
+\screenshot{screenshots/residence/23c-sejour-logement-ouvert.png}{Le menu du logement affiche un logement disponible existant}
+
+\screenshot{screenshots/residence/23d-sejour-logement-selectionne.png}{Le logement est maintenant sélectionné dans le séjour}
+
+\astuce{Règle simple pour les dates :
+\begin{itemize}[label=\faClock]
+  \item \textbf{Sieste} : l'arrivée et le départ doivent être le \textbf{même jour}.
+  \item \textbf{Nuitée} : le départ doit être au moins le \textbf{lendemain} de l'arrivée.
+\end{itemize}
+Le formulaire te dira si tu te trompes.}
+
+\attention{Si le menu \textbf{Logement} reste vide, c'est que le bâtiment ne contient aucun logement de statut \og{}Disponible\fg{}. Vérifie la liste des logements du bâtiment avant de créer le séjour.}
+
+\newpage
+
+% Charges
+\section{Les charges}
+
+Une \textbf{charge} est une petite facture liée à un logement occupé : eau, électricité, ordures ménagères, etc. Elle s'ajoute au loyer.
+
+\subsection{Voir les charges}
+
+Dans le menu Résidence, clique sur \textbf{Charges et abonnements}, puis choisis l'onglet Charges. Tu vois la liste de toutes les charges facturées.
+
+\screenshot{screenshots/residence/26-charges-liste.png}{La liste des charges facturées}
+
+\subsubsection{Comprendre le tableau}
+
+Chaque ligne du tableau correspond à une charge :
+
+\begin{itemize}
+  \item \textbf{Logement} : le numéro du logement concerné.
+  \item \textbf{Période} : le mois facturé (ex : 2026-11).
+  \item \textbf{Catégorie} : électricité, eau, etc.
+  \item \textbf{Montant} : le montant total de la charge.
+  \item \textbf{Montant payé} : ce qui a déjà été réglé.
+  \item \textbf{Statut} : un badge coloré (Payée = vert, Impayée = rouge, Partielle = orange).
+  \item \textbf{Actions} : le bouton pour enregistrer un paiement.
+\end{itemize}
+
+\subsubsection{Filtrer les charges}
+
+En haut de la page, un bandeau de filtres te permet de réduire la liste :
+
+\begin{etapes}
+  \item \textbf{Statut} : choisis un statut (Tous, Impayée, Partielle, Payée).
+  \item \textbf{Logement} : tape un numéro de logement.
+  \item \textbf{Période} : choisis un mois précis.
+  \item \textbf{Catégorie} : tape le nom d'une catégorie (ex : Eau).
+\end{etapes}
+
+\screenshot{screenshots/residence/26b-charges-filtre-statut.png}{Le menu du filtre par statut}
+
+\screenshot{screenshots/residence/26c-charges-filtre-impayees.png}{La liste filtrée sur les charges impayées}
+
+\subsection{Ajouter une charge}
+
+\begin{etapes}
+  \item Clique sur \textbf{Nouvelle charge}.
+  \item Choisis le bâtiment, puis le logement \textbf{occupé}.
+  \item Choisis la catégorie de la charge (eau, électricité, etc.).
+  \item Indique la période (mois et année).
+  \item Tape le montant en FCFA.
+  \item Clique sur \textbf{Enregistrer}.
+\end{etapes}
+
+\screenshot{screenshots/residence/27-charge-formulaire-vide.png}{Le formulaire de création d'une charge}
+
+\attention{Les charges ne peuvent être ajoutées que sur des logements \textbf{occupés} et avec une catégorie \textbf{active}. Si le menu est vide, vérifie ces deux points.}
+
+\subsection{Encaisser une charge}
+
+Quand le locataire paie sa charge (en totalité ou en partie) :
+
+\begin{etapes}
+  \item Sur la ligne de la charge, clique sur l'icône \textbf{Enregistrer le paiement} (la main avec une pièce).
+  \item Le \textbf{montant} est prérempli avec le reste à payer. Tu peux le modifier pour un paiement partiel.
+  \item Choisis le \textbf{moyen de paiement}.
+  \item Clique sur \textbf{Enregistrer}.
+\end{etapes}
+
+\screenshot{screenshots/residence/26d-charges-payer.png}{La fenêtre d'enregistrement du paiement d'une charge}
+
+\attention{Le bouton de paiement n'apparaît que s'il reste quelque chose à payer et si tu as les permissions Finances. Comme pour le loyer, l'encaissement exige une caisse \textbf{ouverte}.}
+
+\subsection{Gérer les catégories de charges}
+
+Les \textbf{catégories de charges} sont les types de factures possibles (électricité, eau, ordures…). Tu peux les créer, les modifier, les activer ou les désactiver.
+
+\begin{etapes}
+  \item Sur la page Charges, clique sur \textbf{Catégories de charges}.
+  \item La page liste les catégories avec leur état (Oui / Non dans la colonne Actif).
+\end{etapes}
+
+\screenshot{screenshots/residence/28-categories-charges.png}{La liste des catégories de charges}
+
+\subsubsection{Actions sur une catégorie de charge}
+
+Pour chaque catégorie, tu peux :
+
+\begin{itemize}
+  \item \textbf{Ajouter une catégorie} (bouton en haut) : entre le \textbf{libellé} (ex : Électricité).
+  \item \textbf{Modifier} (icône crayon) : change le libellé.
+  \item \textbf{Activer / Désactiver} (icône interrupteur) : une catégorie désactivée ne peut plus être choisie pour une nouvelle charge.
+\end{itemize}
+
+\screenshot{screenshots/residence/28b-categorie-charge-form.png}{La fenêtre d'ajout d'une catégorie de charge}
+
+\astuce{Désactive une catégorie plutôt que de la supprimer si elle a déjà servi : tu gardes l'historique des charges, tout en empêchant de nouvelles factures avec cette catégorie.}
+
+\newpage
+
+% Abonnements
+\section{Les abonnements}
+
+Un \textbf{abonnement} est un service récurrent pour un locataire (par exemple un forfait internet, une prestation de nettoyage, un forfait restaurant).
+
+\subsection{Voir les abonnements}
+
+Dans le menu Résidence, clique sur \textbf{Charges et abonnements}, puis choisis l'onglet Abonnements.
+
+\screenshot{screenshots/residence/30-abonnements-liste.png}{La liste des abonnements}
+
+\subsubsection{Comprendre le tableau}
+
+Chaque ligne correspond à un abonnement :
+
+\begin{itemize}
+  \item \textbf{Locataire} : le nom du résident abonné.
+  \item \textbf{Service} : le service souscrit (Internet fibre, Restaurant…).
+  \item \textbf{Type} : Mensuel, Annuel ou Périodique.
+  \item \textbf{Montant} : le prix de l'abonnement.
+  \item \textbf{Date début} et \textbf{Date fin} : la période de validité.
+  \item \textbf{Statut} : un badge coloré (Actif = vert, Suspendu = orange, Résilié = rouge, Expiré = gris).
+  \item \textbf{Actions} : Modifier et Résilier.
+\end{itemize}
+
+\subsubsection{Filtrer les abonnements}
+
+En haut de la page :
+
+\begin{etapes}
+  \item \textbf{Statut} : choisis un statut (Tous, Actif, Suspendu, Résilié, Expiré).
+  \item \textbf{Locataire} : tape un nom.
+  \item \textbf{Service} : tape le nom d'un service.
+\end{etapes}
+
+\screenshot{screenshots/residence/30b-abonnements-filtre-statut.png}{Le menu du filtre par statut}
+
+\screenshot{screenshots/residence/30c-abonnements-filtre-actifs.png}{La liste filtrée sur les abonnements actifs}
+
+\subsection{Ajouter un abonnement}
+
+\begin{etapes}
+  \item Clique sur \textbf{Nouvel abonnement}.
+  \item Choisis le locataire. Il doit avoir un contrat \textbf{actif}.
+  \item Choisis le service (la catégorie active).
+  \item Choisis le type : Mensuel, Annuel ou Périodique.
+  \item Tape le montant.
+  \item Indique la date de début et la date de fin.
+  \item Clique sur \textbf{Enregistrer}.
+\end{etapes}
+
+\screenshot{screenshots/residence/31-abonnement-formulaire-vide.png}{Le formulaire de création d'un abonnement}
+
+\astuce{Le système ne te laisse pas ajouter un abonnement à un locataire sans contrat actif. C'est pour éviter de facturer quelqu'un qui n'a pas de logement.}
+
+\subsection{Modifier un abonnement}
+
+\begin{etapes}
+  \item Sur la ligne de l'abonnement, clique sur l'icône \textbf{Modifier} (crayon).
+  \item Change le service, le type, le montant, les dates ou le statut.
+  \item Clique sur \textbf{Enregistrer}.
+\end{etapes}
+
+\astuce{Le bouton Modifier n'apparaît pas sur les abonnements \textbf{expirés} ou \textbf{résiliés} : ils sont figés, on ne les modifie plus.}
+
+\subsection{Résilier un abonnement}
+
+Pour mettre fin à un abonnement avant sa date de fin :
+
+\begin{etapes}
+  \item Sur la ligne de l'abonnement \textbf{actif}, clique sur l'icône \textbf{Résilier} (croix rouge).
+  \item Une fenêtre de confirmation s'ouvre.
+  \item Clique sur \textbf{Résilier} pour confirmer.
+\end{etapes}
+
+\screenshot{screenshots/residence/30d-abonnement-resilier.png}{La fenêtre de confirmation de résiliation}
+
+\attention{La résiliation est définitive : l'abonnement passe au statut \textbf{Résilié} et ne peut plus être modifié.}
+
+\subsection{Gérer les catégories d'abonnement}
+
+Les \textbf{catégories d'abonnement} sont les services proposables (Internet, eau, restaurant…). Elles alimentent le champ \textbf{Service} du formulaire d'abonnement.
+
+\begin{etapes}
+  \item Sur la page Abonnements, clique sur \textbf{Catégories d'abonnement}.
+  \item La page liste les catégories avec leur code et leur libellé.
+\end{etapes}
+
+\screenshot{screenshots/residence/32-categories-abonnements.png}{La liste des catégories d'abonnement}
+
+\subsubsection{Actions sur une catégorie d'abonnement}
+
+Pour chaque catégorie, tu peux :
+
+\begin{itemize}
+  \item \textbf{Ajouter une catégorie} (bouton en haut) : entre un \textbf{code} (ex : INTERNET) et un \textbf{libellé} (ex : Internet fibre).
+  \item \textbf{Modifier} (icône crayon) : change le code ou le libellé.
+  \item \textbf{Supprimer} (icône corbeille) : retire la catégorie, après confirmation.
+\end{itemize}
+
+\screenshot{screenshots/residence/32b-categorie-abonnement-form.png}{La fenêtre d'ajout d'une catégorie d'abonnement}
+
+\astuce{Seules les catégories \textbf{actives} sont proposées dans le champ \textbf{Service} du formulaire d'abonnement. Si tu ne vois pas le service voulu, vérifie que sa catégorie existe et qu'elle est active.}
+
+\newpage
+
+% Échéances
+\section{Les échéances de loyer}
+
+Une \textbf{échéance} est une date à laquelle un locataire doit payer son loyer. Chaque contrat génère une échéance par mois (ou par an, selon le type de location).
+
+La page \textbf{Échéances de loyer} est une vue consolidée : elle regroupe toutes les échéances de tous les contrats en un seul tableau. C'est l'outil de suivi des loyers : qui a payé, qui n'a pas encore payé, qui est en retard.
+
+\subsection{Voir les échéances}
+
+Dans le menu Résidence, clique sur \textbf{Échéances de loyer}. Tu vois toutes les échéances.
+
+\screenshot{screenshots/residence/34-echeances-liste.png}{La liste consolidée des échéances de loyer}
+
+\subsubsection{Comprendre le tableau}
+
+Chaque ligne du tableau correspond à une échéance :
+
+\begin{itemize}
+  \item \textbf{Locataire} : le nom de la personne qui doit payer.
+  \item \textbf{Logement} : le numéro du logement concerné.
+  \item \textbf{Mois} et \textbf{Année} : la période du loyer.
+  \item \textbf{Montant} : le loyer à payer (ou payé), en FCFA.
+  \item \textbf{Statut} : un badge coloré qui indique l'état de l'échéance.
+  \item \textbf{Date d'échéance} : la date limite de paiement.
+  \item \textbf{Action} : un lien \textbf{Voir le contrat} pour ouvrir la fiche du contrat.
+\end{itemize}
+
+Les statuts possibles :
+
+\begin{itemize}
+  \item \textbf{Payé} (badge vert) : le loyer a été réglé intégralement.
+  \item \textbf{Impayé} (badge rouge) : le loyer n'a pas encore été réglé.
+  \item \textbf{Partiel} (badge orange) : une partie du loyer a été payée.
+  \item \textbf{À venir} (badge gris) : l'échéance n'est pas encore arrivée.
+\end{itemize}
+
+\subsubsection{Filtrer les échéances}
+
+En haut de la page, un bandeau de filtres te permet de réduire la liste :
+
+\begin{etapes}
+  \item \textbf{Statut} : choisis un statut (Tous, Payé, Impayé, Partiel, À venir) pour ne voir que ces échéances.
+  \item \textbf{Locataire} : tape un nom pour retrouver les échéances d'une personne.
+  \item \textbf{Début} et \textbf{Fin} : choisis une période pour voir les échéances comprises entre deux dates.
+\end{etapes}
+
+\screenshot{screenshots/residence/34b-echeances-filtre-statut.png}{Le menu du filtre par statut}
+
+\screenshot{screenshots/residence/34c-echeances-filtre-impayes.png}{La liste filtrée sur les échéances impayées}
+
+\astuce{Le lien \textbf{Voir le contrat} ouvre la fiche du contrat, où tu peux encaisser le loyer, imprimer un reçu ou faire un encaissement en lot. Voir la section \og{}La fiche contrat\fg{} plus haut.}
+
+\newpage
+
+% FAQ
+\section{J'ai un problème : que faire ?}
+
+\begin{longtable}{>{\raggedright}p{5cm} p{9cm}}
+\toprule
+\textbf{Problème} & \textbf{Solution} \\
+\midrule
+\endfirsthead
+\multicolumn{2}{c}{\textit{Suite de la FAQ}} \\
+\toprule
+\textbf{Problème} & \textbf{Solution} \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+
+Le menu Résidence n'apparaît pas & Demande à l'administrateur de t'ajouter la permission \texttt{RESIDENCE.VOIR}. \\
+
+Je ne vois pas de bâtiment & Clique sur \textbf{Bâtiments} puis sur \textbf{Ajouter un bâtiment}. \\
+
+Je ne vois pas de logement & Vérifie que tu as bien sélectionné un bâtiment dans la liste des logements. \\
+
+Le menu des logements est vide quand je crée un contrat & Le bâtiment choisi ne contient peut-être pas de logement de statut \og{}Disponible\fg{}. Vérifie dans \textbf{Bâtiments > Logements}. \\
+
+La création du logement donne \og{}Erreur base de données\fg{} & C'est une erreur côté serveur. Préviens l'administrateur ou réessaie plus tard. \\
+
+Je ne peux pas choisir un locataire dans un abonnement & Le locataire doit avoir un contrat \textbf{actif}. \\
+
+Je ne peux pas créer de charge & La charge doit concerner un logement \textbf{occupé} et une catégorie \textbf{active}. \\
+
+Les chiffres ne passent pas dans les montants & N'utilise pas de virgule. Utilise un point pour les décimales (ex. \texttt{75000.50}) ou un espace comme séparateur de milliers (ex. \texttt{75 000}). \\
+
+\bottomrule
+\end{longtable}
+
+\newpage
+
+\section{Récapitulatif des permissions}
+
+Chaque bouton dans l'application est caché si tu n'as pas la bonne permission. Voici les principales pour le module Résidence :
+
+\begin{itemize}[label=\textcolor{lagoon}{\faKey}]
+  \item \texttt{RESIDENCE.VOIR} : voir le module Résidence.
+  \item \texttt{RESIDENCE.CREER} : créer un bâtiment, un logement, un contrat, un séjour, une charge.
+  \item \texttt{RESIDENCE.MODIFIER} : modifier un contrat, déclarer un versement de caution.
+  \item \texttt{CLIENT.VOIR} : voir les informations des clients.
+  \item \texttt{CLIENT.MODIFIER} : modifier les informations des clients.
+  \item \texttt{FINANCES.VOIR} : voir les moyens de paiement et les encaissements.
+\end{itemize}
+
+\vfill
+
+\begin{center}
+\begin{tikzpicture}
+  \node[fill=sea-ink, text=white, rounded corners=10pt, minimum width=10cm, minimum height=1.5cm, font=\large\bfseries] {Bonne gestion de la Résidence !};
+\end{tikzpicture}
+\end{center}
+
+\end{document}
