@@ -18,9 +18,7 @@ export const Route = createFileRoute("/_authenticated/residence/logements/")({
 	},
 	validateSearch: z.object({
 		batiment: z.string().optional(),
-		type: z
-			.enum(["tous", "CHAMBRE", "STUDIO", "APPARTEMENT", "MEUBLE"])
-			.optional(),
+		type: z.enum(["tous", "CHAMBRE", "STUDIO"]).optional(),
 		statut: z
 			.enum([
 				"tous",

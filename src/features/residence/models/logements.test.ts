@@ -29,13 +29,8 @@ function logement(overrides: Partial<Logement> = {}): Logement {
 const logements = [
 	logement({ id: "1", numero: "1", type: "CHAMBRE", statut: "DISPONIBLE" }),
 	logement({ id: "2", numero: "2", type: "STUDIO", statut: "OCCUPE" }),
-	logement({
-		id: "3",
-		numero: "3",
-		type: "APPARTEMENT",
-		statut: "EN_MAINTENANCE",
-	}),
-	logement({ id: "4", numero: "4", type: "MEUBLE", statut: "RESERVE" }),
+	logement({ id: "3", numero: "3", type: "STUDIO", statut: "EN_MAINTENANCE" }),
+	logement({ id: "4", numero: "4", type: "CHAMBRE", statut: "RESERVE" }),
 	logement({ id: "5", numero: "5", type: "CHAMBRE", statut: "DISPONIBLE" }),
 ];
 
@@ -67,7 +62,7 @@ describe("filtrerLogements", () => {
 			type: "CHAMBRE",
 			statut: "tous",
 		});
-		expect(result.map((item) => item.id)).toEqual(["1", "5"]);
+		expect(result.map((item) => item.id)).toEqual(["1", "4", "5"]);
 	});
 
 	it("filtre par statut", () => {
@@ -96,8 +91,8 @@ describe("filtrerLogements", () => {
 
 	it("ne renvoie rien quand aucun logement ne correspond", () => {
 		const result = filtrerLogements(logements, {
-			type: "MEUBLE",
-			statut: "OCCUPE",
+			type: "STUDIO",
+			statut: "DISPONIBLE",
 		});
 		expect(result).toEqual([]);
 	});

@@ -108,10 +108,8 @@ export function getLogement(id: string): Promise<Logement> {
 
 /**
  * Crée un logement (POST `CreerLogementDto`). Le backend assigne le `numero`.
- * `type` : le DTO généré (2026-09-04) restreint l'enum à `CHAMBRE`/`STUDIO`,
- * mais `APPARTEMENT`/`MEUBLE` existent toujours côté modèle (logements déjà
- * en base, filtres de la liste) — élargi comme `equipements`/`etat`, sans
- * toucher au sélecteur du formulaire (décision produit hors de ce correctif :
+ * `type` : le DTO généré (2026-09-04) restreint l'enum à `CHAMBRE`/`STUDIO`.
+ * Le formulaire et le modèle frontend n'exposent plus que ces deux types.
  * signalé à l'utilisateur, pas tranché ici).
  */
 export function creerLogement(body: CreerLogementBody): Promise<unknown> {

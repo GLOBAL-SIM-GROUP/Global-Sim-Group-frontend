@@ -7,7 +7,7 @@
  * `id` par la couche API ; `id_batiment` (FK) est conservé tel quel. Les id
  * bigint sont transportés en string par le backend.
  */
-export type LogementType = "CHAMBRE" | "STUDIO" | "APPARTEMENT" | "MEUBLE";
+export type LogementType = "CHAMBRE" | "STUDIO";
 
 export type LogementStatut =
 	| "DISPONIBLE"
@@ -33,8 +33,6 @@ export interface Logement {
 export const LOGEMENT_TYPE_LABELS: Record<LogementType, string> = {
 	CHAMBRE: "Chambre",
 	STUDIO: "Studio",
-	APPARTEMENT: "Appartement",
-	MEUBLE: "Meublé",
 };
 
 /** Libellés français du statut (badge du tableau). */
