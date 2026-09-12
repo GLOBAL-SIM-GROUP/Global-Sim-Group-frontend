@@ -1,0 +1,483 @@
+\documentclass[12pt,a4paper]{article}
+
+% Encodage et langue
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[french]{babel}
+
+% Mise en page
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage[colorlinks=true,linkcolor=black,citecolor=black,filecolor=black,urlcolor=black]{hyperref}
+\usepackage{tikz}
+\usepackage{fontawesome5}
+\usepackage{float}
+
+% Couleurs personnalisées (identiques aux autres guides)
+\definecolor{lagoon}{RGB}{0, 128, 128}
+\definecolor{sea-ink}{RGB}{0, 45, 64}
+\definecolor{palm}{RGB}{46, 139, 87}
+\definecolor{warn}{RGB}{230, 126, 34}
+\definecolor{danger}{RGB}{231, 76, 60}
+\definecolor{success}{RGB}{39, 174, 96}
+\definecolor{muted}{RGB}{127, 140, 141}
+
+% Titres
+\titleformat{\section}
+  {\normalfont\Large\bfseries\color{sea-ink}}{\thesection}{1em}{}
+\titleformat{\subsection}
+  {\normalfont\large\bfseries\color{lagoon}}{\thesubsection}{1em}{}
+\titleformat{\subsubsection}
+  {\normalfont\normalsize\bfseries\color{palm}}{\thesubsubsection}{1em}{}
+
+% En-têtes et pieds de page
+\setlength{\headheight}{15pt}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\textcolor{sea-ink}{GLOBAL SIM GROUP — Guide Rapports}}
+\fancyhead[R]{\textcolor{muted}{\leftmark}}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0pt}
+
+% Commandes pratiques (identiques aux autres guides)
+\newcommand{\screenshot}[2]{%
+  \begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{#1}
+    \caption{#2}
+  \end{figure}%
+}
+
+\newcommand{\etape}[1]{\textbf{\faHandPointRight\ #1}}
+\newcommand{\attention}[1]{\par\noindent\textcolor{warn}{\faExclamationTriangle\ Attention : #1}\par}
+\newcommand{\astuce}[1]{\par\noindent\textcolor{success}{\faLightbulb\ Astuce : #1}\par}
+\newcommand{\info}[1]{\par\noindent\textcolor{lagoon}{\faInfoCircle\ Info : #1}\par}
+
+\newlist{etapes}{enumerate}{1}
+\setlist[etapes]{label=\textcolor{lagoon}{\faArrowRight\ \arabic*.}, leftmargin=1.5cm, itemsep=0.4em}
+
+\begin{document}
+
+% Page de garde
+\begin{titlepage}
+  \noindent\colorbox{sea-ink}{%
+    \parbox{\dimexpr\textwidth-2\fboxsep}{%
+      \centering
+      \vspace{1.5cm}
+      \includegraphics[height=3cm]{../logo-gsg.png}\par
+      \vspace{0.6cm}
+      {\Huge\bfseries\color{white} GLOBAL SIM GROUP\par}
+      \vspace{0.5cm}
+      {\LARGE\color{white} Guide d'utilisation — Module Rapports\par}
+      \vspace{1.5cm}
+    }%
+  }
+
+  \vfill
+  \begin{center}
+    {\Large\color{sea-ink} Apprends à générer et exporter tes rapports\par}
+    \vspace{0.4cm}
+
+    \begin{tikzpicture}
+      \node[fill=lagoon, text=white, rounded corners=10pt, minimum width=12cm, minimum height=1.5cm, font=\large\bfseries] {Synthèse globale · Financier · RH · Par activité};
+    \end{tikzpicture}
+  \end{center}
+
+  \vfill
+  \begin{center}
+    \textcolor{muted}{Version 1.0}
+  \end{center}
+\end{titlepage}
+
+\newpage
+% Table des matières
+\tableofcontents
+\newpage
+
+% Introduction
+\section{Avant de commencer}
+
+Imagine que tu as un grand cahier de comptes. Chaque jour, tu y écris ce qui s'est passé : qui a payé, combien tu as dépensé, combien de chambres sont louées\dots
+
+Le module \textbf{Rapports}, c'est la page où tu demandes à l'application de \textbf{lire ce cahier et te faire un résumé}. Tu choisis :
+
+\begin{itemize}[label=\textcolor{lagoon}{\faFile}]
+  \item \textbf{Quel type} de résumé tu veux (toute l'entreprise, juste l'argent, juste le personnel, ou une activité précise).
+  \item \textbf{Pour quelle période} (ce mois, le mois dernier, toute l'année, ou des dates précises).
+\end{itemize}
+
+L'application lit les données, te montre le résumé à l'écran, et tu peux l'\textbf{exporter} (télécharger) en PDF, Excel ou CSV pour l'imprimer ou l'envoyer.
+
+\info{Les rapports sont réservés aux \textbf{Administrateurs} et \textbf{Dirigeants}. Si tu n'as pas la permission \texttt{ADMIN.VOIR}, tu verras « Vous n'avez pas accès aux rapports. »}
+
+\newpage
+
+% Section 1 : Ouvrir les rapports
+\section{Ouvrir le module Rapports}\label{sec:ouvrir}
+
+\begin{etapes}
+  \item Connecte-toi à l'application.
+  \item Sur l'accueil, clique sur la carte \textbf{Rapports}, ou clique sur « Rapports » dans le menu latéral.
+\end{etapes}
+
+\screenshot{screenshots/rapports/01-rapports-page.png}{La page d'entrée du module Rapports}
+
+La page contient :
+
+\begin{itemize}[label=\textcolor{lagoon}{\faList}]
+  \item Un menu déroulant \textbf{Type de rapport} : pour choisir quel rapport générer.
+  \item Un menu déroulant \textbf{Période} : pour choisir la période couverte.
+  \item Un bouton orange \textbf{Générer le rapport} : pour ouvrir le rapport.
+\end{itemize}
+
+\newpage
+
+% Section 2 : Choisir le type de rapport
+\section{Choisir le type de rapport}\label{sec:type}
+
+Clique sur le menu déroulant \textbf{Type de rapport}. Une liste s'ouvre avec 8 options :
+
+\screenshot{screenshots/rapports/02-rapports-type-ouvert.png}{Le menu déroulant des types de rapports}
+
+\begin{longtable}{>{\raggedright}p{4cm} p{9cm}}
+\toprule
+\textbf{Type} & \textbf{Ce qu'il montre} \\
+\midrule
+\endfirsthead
+\multicolumn{2}{c}{\textit{Suite}} \\
+\toprule
+\textbf{Type} & \textbf{Ce qu'il montre} \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+
+Synthèse globale & Vue d'ensemble de toute l'entreprise : recettes, dépenses, solde, impayés, masse salariale, recettes par activité. \\
+Financier & Détail des encaissements (argent entré), des dépenses (argent sorti) et des impayés. \\
+Résidence & Rapport d'activité de la location : recettes, indicateurs, locataires ayant payé leur loyer. \\
+Market & Rapport d'activité du magasin : recettes, indicateurs, top produit. \\
+Pressing & Rapport d'activité de la blanchisserie : recettes et indicateurs. \\
+Restaurant & Rapport d'activité de la restauration : recettes et indicateurs. \\
+Salle de fête & Rapport d'activité des réservations : recettes et indicateurs. \\
+RH & Synthèse de la paie : montants par statut d'employé et total versé. \\
+\bottomrule
+\end{longtable}
+
+\info{Le type « Synthèse globale » est sélectionné par défaut. C'est le plus complet.}
+
+\newpage
+
+% Section 3 : Choisir la période
+\section{Choisir la période}\label{sec:periode}
+
+Clique sur le menu déroulant \textbf{Période}. Une liste s'ouvre avec 4 options :
+
+\screenshot{screenshots/rapports/03-rapports-periode-ouvert.png}{Le menu déroulant des périodes}
+
+\begin{itemize}[label=\textcolor{lagoon}{\faCalendar}]
+  \item \textbf{Ce mois} : du 1\textsuperscript{er} jour du mois en cours au dernier jour.
+  \item \textbf{Mois précédent} : le mois complet d'avant.
+  \item \textbf{Cette année} : du 1\textsuperscript{er} janvier au 31 décembre de l'année en cours.
+  \item \textbf{Période personnalisée} : tu choisis toi-même les dates.
+\end{itemize}
+
+\subsection{La période personnalisée}\label{subsec:personnalisee}
+
+Si tu choisis \textbf{Période personnalisée}, deux cases de date apparaissent en dessous :
+
+\screenshot{screenshots/rapports/04-rapports-periode-personnalisee.png}{Les champs de date personnalisée}
+
+\begin{etapes}
+  \item Clique sur la case \textbf{Début de période} et choisis un jour.
+  \item Clique sur la case \textbf{Fin de période} et choisis un jour.
+\end{etapes}
+
+\screenshot{screenshots/rapports/05-rapports-periode-remplie.png}{Les dates remplies (1\textsuperscript{er} janvier au 31 décembre 2026)}
+
+\attention{La date de début doit être \textbf{avant} la date de fin. Sinon, le rapport sera vide.}
+
+\newpage
+
+% Section 4 : Générer le rapport
+\section{Générer le rapport}\label{sec:generer}
+
+Une fois le type et la période choisis, clique sur le bouton orange \textbf{Générer le rapport}.
+
+\begin{etapes}
+  \item Choisis le type (section~\ref{sec:type}).
+  \item Choisis la période (section~\ref{sec:periode}).
+  \item Clique sur \textbf{Générer le rapport}.
+  \item Le rapport s'ouvre dans une nouvelle page.
+\end{etapes}
+
+\info{Le bouton « Générer le rapport » a une icône de téléchargement \faDownload. Il ne télécharge rien : il \textbf{ouvre} le rapport à l'écran. L'export se fait ensuite depuis la page du rapport (section~\ref{sec:export}).}
+
+\newpage
+
+% Section 5 : Rapport de synthèse globale
+\section{Le rapport de synthèse globale}\label{sec:synthese}
+
+C'est le rapport le plus complet. Il te montre comment va \textbf{toute l'entreprise} en un coup d'\oe il.
+
+\screenshot{screenshots/rapports/06-synthese-globale.png}{Le rapport de synthèse globale}
+
+\subsection{Les indicateurs en haut}
+
+Cinq cartes te donnent les chiffres clés :
+
+\begin{itemize}[label=\textcolor{lagoon}{\faChartBar}]
+  \item \textbf{Recettes} (en vert) : tout l'argent qui est rentré.
+  \item \textbf{Dépenses} (en rouge) : tout l'argent qui est sorti.
+  \item \textbf{Solde} : ce qu'il reste = recettes moins dépenses.
+  \item \textbf{Impayés} (en orange) : le nombre de clients qui n'ont pas payé et la somme totale.
+  \item \textbf{Masse salariale} : combien il faut pour payer tous les employés.
+\end{itemize}
+
+\subsection{Le tableau des recettes par activité}
+
+En dessous, un tableau liste combien chaque activité a rapporté :
+
+\screenshot{screenshots/rapports/07-synthese-recettes-activite.png}{Les recettes par activité}
+
+\begin{itemize}[label=\textcolor{lagoon}{\faTable}]
+  \item \textbf{ACTIVITÉ} : le nom de l'activité (location, pressing, restaurant\dots).
+  \item \textbf{TOTAL ENCAISSÉ} : combien cette activité a rapporté sur la période.
+\end{itemize}
+
+\newpage
+
+% Section 6 : Rapport financier
+\section{Le rapport financier}\label{sec:financier}
+
+Ce rapport te montre le \textbf{détail de l'argent} : chaque encaissement, chaque dépense, et chaque impayé.
+
+\screenshot{screenshots/rapports/08-rapport-financier.png}{Le rapport financier}
+
+\subsection{Les encaissements}\label{subsec:encaissements}
+
+Le premier tableau liste tout l'argent qui est rentré :
+
+\screenshot{screenshots/rapports/09-financier-encaissements.png}{Le tableau des encaissements}
+
+\begin{itemize}[label=\textcolor{lagoon}{\faArrowDown}]
+  \item \textbf{Date} : quand l'argent a été reçu.
+  \item \textbf{Activité} : quelle activité a généré cet argent (location, pressing\dots).
+  \item \textbf{Moyen} : comment l'argent a été payé (espèces, mobile money\dots).
+  \item \textbf{Montant} : combien.
+\end{itemize}
+
+\subsection{Les dépenses}\label{subsec:depenses}
+
+Le deuxième tableau liste tout l'argent qui est sorti :
+
+\screenshot{screenshots/rapports/10-financier-depenses.png}{Le tableau des dépenses}
+
+\begin{itemize}[label=\textcolor{lagoon}{\faArrowUp}]
+  \item \textbf{Date} : quand la dépense a été faite.
+  \item \textbf{Catégorie} : le type de dépense (salaires, électricité, achats\dots).
+  \item \textbf{Libellé} : le nom précis de la dépense.
+  \item \textbf{Montant} : combien (en rouge, avec un signe « - »).
+\end{itemize}
+
+\subsection{Les impayés}\label{subsec:impayes}
+
+Le troisième tableau liste les clients qui doivent encore de l'argent :
+
+\screenshot{screenshots/rapports/11-financier-impayes.png}{Le tableau des impayés}
+
+\begin{itemize}[label=\textcolor{lagoon}{\faExclamationCircle}]
+  \item \textbf{Type} : le type d'impayé (loyer, séjour\dots).
+  \item \textbf{Client} : le nom du client.
+  \item \textbf{Référence} : le numéro de contrat ou d'échéance.
+  \item \textbf{Reste} : combien il reste à payer (en rouge).
+\end{itemize}
+
+\newpage
+
+% Section 7 : Rapport RH
+\section{Le rapport RH}\label{sec:rh}
+
+Ce rapport te montre la \textbf{paie} : combien a été versé aux employés, réparti par statut.
+
+\screenshot{screenshots/rapports/12-rapport-rh.png}{Le rapport RH}
+
+\subsection{La synthèse de la paie}\label{subsec:paie}
+
+\screenshot{screenshots/rapports/13-rh-synthese-paie.png}{La synthèse de la paie}
+
+Deux cartes te résument la paie :
+
+\begin{itemize}[label=\textcolor{lagoon}{\faUsers}]
+  \item \textbf{Montants par statut} : combien a été versé pour chaque type d'employé (CDI, CDD, stagiaire\dots).
+  \item \textbf{Total} : la somme totale versée (en vert).
+\end{itemize}
+
+\info{Le rapport RH ne montre que la paie. Le pointage n'est pas inclus dans ce rapport.}
+
+\newpage
+
+% Section 8 : Rapports par activité
+\section{Les rapports par activité}\label{sec:activite}
+
+Les rapports par activité te montent le détail d'\textbf{une seule activité} : la location, le magasin, le pressing, le restaurant ou la salle de fête.
+
+\subsection{Rapport Résidence}\label{subsec:act-residence}
+
+C'est le rapport le plus riche. Il montre les recettes de la location, le nombre d'opérations, et des indicateurs spécifiques.
+
+\screenshot{screenshots/rapports/14-rapport-activite-residence.png}{Le rapport d'activité Résidence}
+
+\subsubsection{Les indicateurs}
+
+En haut, deux cartes te donnent les chiffres clés :
+
+\begin{itemize}[label=\textcolor{lagoon}{\faChartBar}]
+  \item \textbf{Recettes} : combien la location a rapporté.
+  \item \textbf{Opérations} : combien de transactions ont été faites.
+\end{itemize}
+
+En dessous, une section « Indicateurs de l'activité » montre des détails spécifiques :
+
+\screenshot{screenshots/rapports/15-activite-indicateurs.png}{Les indicateurs de l'activité Résidence}
+
+\subsubsection{Les locataires ayant payé leur loyer}\label{subsec:payeurs}
+
+Un tableau spécial (réservé à la Résidence) liste \textbf{nom par nom} les locataires qui ont payé leur loyer sur la période :
+
+\screenshot{screenshots/rapports/16-activite-payeurs-loyer.png}{Les locataires ayant payé leur loyer}
+
+\begin{itemize}[label=\textcolor{lagoon}{\faUsers}]
+  \item \textbf{Locataire} : le nom du locataire.
+  \item \textbf{Contrat} : le numéro du contrat.
+  \item \textbf{Date} : la date du paiement.
+  \item \textbf{Montant} : combien a été payé (en vert).
+\end{itemize}
+
+\info{Ce tableau n'apparaît que pour le rapport Résidence. Les autres activités n'ont pas de liste nominative de paiements.}
+
+\subsection{Rapport Market}\label{subsec:act-market}
+
+\screenshot{screenshots/rapports/17-rapport-activite-market.png}{Le rapport d'activité Market}
+
+Le rapport Market montre les recettes du magasin, le nombre d'opérations, et des indicateurs comme le \textbf{top produit} (le produit le plus vendu).
+
+\subsection{Rapport Pressing}\label{subsec:act-pressing}
+
+\screenshot{screenshots/rapports/18-rapport-activite-pressing.png}{Le rapport d'activité Pressing}
+
+Le rapport Pressing montre les recettes de la blanchisserie et le nombre de commandes traitées.
+
+\subsection{Rapport Restaurant}\label{subsec:act-restaurant}
+
+\screenshot{screenshots/rapports/19-rapport-activite-restaurant.png}{Le rapport d'activité Restaurant}
+
+Le rapport Restaurant montre les recettes de la restauration et le nombre de commandes.
+
+\subsection{Rapport Salle de fête}\label{subsec:act-salle-fete}
+
+\screenshot{screenshots/rapports/20-rapport-activite-salle-fete.png}{Le rapport d'activité Salle de fête}
+
+Le rapport Salle de fête montre les recettes des réservations et le nombre d'événements.
+
+\newpage
+
+% Section 9 : Exporter un rapport
+\section{Exporter un rapport}\label{sec:export}
+
+Sur chaque page de rapport, en haut à droite, il y a \textbf{trois boutons} pour télécharger le rapport :
+
+\begin{itemize}[label=\textcolor{lagoon}{\faDownload}]
+  \item \textbf{PDF} : ouvre le rapport dans une fenêtre d'impression PDF. Tu peux l'enregistrer ou l'imprimer.
+  \item \textbf{Excel} : télécharge un fichier \texttt{.xlsx} ouvrable dans Excel, LibreOffice ou Google Sheets.
+  \item \textbf{CSV} : télécharge un fichier texte \texttt{.csv} (valeurs séparées par des virgules), ouvrable dans n'importe quel tableur.
+\end{itemize}
+
+\begin{etapes}
+  \item Ouvre le rapport que tu veux exporter (section~\ref{sec:generer}).
+  \item Clique sur le bouton \textbf{PDF}, \textbf{Excel} ou \textbf{CSV} en haut à droite.
+  \item Le fichier se télécharge dans ton navigateur.
+\end{etapes}
+
+\attention{Si le bouton PDF affiche un message rouge « Export PDF indisponible », c'est que le serveur a un problème. Réessaie plus tard, ou utilise l'export Excel ou CSV à la place.}
+
+\astuce{Le bouton \textbf{Nouveau rapport} en haut à gauche te ramène à la page de choix du type et de la période, pour générer un autre rapport sans repasser par le menu.}
+
+\info{Le nom du fichier téléchargé contient toujours la période. Par exemple : \texttt{synthese-globale-2026-09-01-2026-09-30.csv}.}
+
+\newpage
+
+% Section 10 : Vue mobile
+\section{Les rapports sur téléphone}\label{sec:mobile}
+
+Sur un petit écran (téléphone), la page de choix s'adapte : les menus déroulants et le bouton prennent toute la largeur.
+
+\screenshot{screenshots/rapports/21-rapports-mobile.png}{La page Rapports sur téléphone (320 px)}
+
+Le rapport lui-même s'affiche aussi en pleine largeur, les cartes les unes en dessous des autres :
+
+\screenshot{screenshots/rapports/22-synthese-globale-mobile.png}{Le rapport de synthèse globale sur téléphone}
+
+\attention{Sur téléphone, les tableaux larges (encaissements, dépenses) peuvent défiler horizontalement. Glisse avec ton doigt de gauche à droite pour voir toutes les colonnes.}
+
+\newpage
+
+% FAQ
+\section{J'ai un problème : que faire ?}
+
+\begin{longtable}{>{\raggedright}p{5cm} p{9cm}}
+\toprule
+\textbf{Problème} & \textbf{Solution} \\
+\midrule
+\endfirsthead
+\multicolumn{2}{c}{\textit{Suite de la FAQ}} \\
+\toprule
+\textbf{Problème} & \textbf{Solution} \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+
+Je ne vois pas le module Rapports & Tu n'as pas la permission \texttt{ADMIN.VOIR}. Demande à l'administrateur de te l'ajouter. \\
+
+Le rapport est vide & Vérifie la période. Si la période est « Ce mois » et qu'il n'y a pas eu d'activité, les chiffres seront à zéro. Essaie « Cette année ». \\
+
+Le rapport ne se charge pas & Un message « Impossible de charger le rapport » apparaît. Clique sur \textbf{Réessayer}. Si ça persiste, vérifie ta connexion internet. \\
+
+L'export PDF ne marche pas & Un message rouge « Export PDF indisponible » apparaît. Le serveur a un problème temporaire. Utilise l'export Excel ou CSV à la place. \\
+
+Je ne vois pas le rapport Résidence dans la liste & Le type « Résidence » est dans le menu déroulant. Clique sur « Type de rapport » et choisis « Résidence ». \\
+
+Le tableau des payeurs est vide & Aucun locataire n'a payé son loyer sur la période sélectionnée. Essaie une période plus longue. \\
+
+Les chiffres ne correspondent pas au tableau de bord & Le tableau de bord et les rapports peuvent utiliser des périodes légèrement différentes. Vérifie que la période est exactement la même. \\
+
+\bottomrule
+\end{longtable}
+
+\newpage
+
+\section{Récapitulatif des permissions}
+
+\begin{itemize}[label=\textcolor{lagoon}{\faKey}]
+  \item \texttt{ADMIN.VOIR} : voir et générer tous les rapports.
+\end{itemize}
+
+\info{Tous les types de rapports (synthèse, financier, RH, par activité) nécessitent la même permission \texttt{ADMIN.VOIR}. Il n'y a pas de permission séparée par type de rapport.}
+
+\vfill
+
+\begin{center}
+\begin{tikzpicture}
+  \node[fill=sea-ink, text=white, rounded corners=10pt, minimum width=10cm, minimum height=1.5cm, font=\large\bfseries] {Bons rapports avec GLOBAL SIM GROUP !};
+\end{tikzpicture}
+\end{center}
+
+\end{document}

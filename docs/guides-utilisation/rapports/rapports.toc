@@ -1,0 +1,28 @@
+\babel@toc {french}{}\relax 
+\contentsline {section}{\numberline {1}Avant de commencer}{2}{section.1}%
+\contentsline {section}{\numberline {2}Ouvrir le module Rapports}{3}{section.2}%
+\contentsline {section}{\numberline {3}Choisir le type de rapport}{4}{section.3}%
+\contentsline {section}{\numberline {4}Choisir la période}{5}{section.4}%
+\contentsline {subsection}{\numberline {4.1}La période personnalisée}{5}{subsection.4.1}%
+\contentsline {section}{\numberline {5}Générer le rapport}{7}{section.5}%
+\contentsline {section}{\numberline {6}Le rapport de synthèse globale}{8}{section.6}%
+\contentsline {subsection}{\numberline {6.1}Les indicateurs en haut}{8}{subsection.6.1}%
+\contentsline {subsection}{\numberline {6.2}Le tableau des recettes par activité}{8}{subsection.6.2}%
+\contentsline {section}{\numberline {7}Le rapport financier}{10}{section.7}%
+\contentsline {subsection}{\numberline {7.1}Les encaissements}{12}{subsection.7.1}%
+\contentsline {subsection}{\numberline {7.2}Les dépenses}{14}{subsection.7.2}%
+\contentsline {subsection}{\numberline {7.3}Les impayés}{16}{subsection.7.3}%
+\contentsline {section}{\numberline {8}Le rapport RH}{19}{section.8}%
+\contentsline {subsection}{\numberline {8.1}La synthèse de la paie}{20}{subsection.8.1}%
+\contentsline {section}{\numberline {9}Les rapports par activité}{21}{section.9}%
+\contentsline {subsection}{\numberline {9.1}Rapport Résidence}{21}{subsection.9.1}%
+\contentsline {subsubsection}{\numberline {9.1.1}Les indicateurs}{21}{subsubsection.9.1.1}%
+\contentsline {subsubsection}{\numberline {9.1.2}Les locataires ayant payé leur loyer}{22}{subsubsection.9.1.2}%
+\contentsline {subsection}{\numberline {9.2}Rapport Market}{24}{subsection.9.2}%
+\contentsline {subsection}{\numberline {9.3}Rapport Pressing}{25}{subsection.9.3}%
+\contentsline {subsection}{\numberline {9.4}Rapport Restaurant}{26}{subsection.9.4}%
+\contentsline {subsection}{\numberline {9.5}Rapport Salle de fête}{27}{subsection.9.5}%
+\contentsline {section}{\numberline {10}Exporter un rapport}{28}{section.10}%
+\contentsline {section}{\numberline {11}Les rapports sur téléphone}{29}{section.11}%
+\contentsline {section}{\numberline {12}J'ai un problème : que faire ?}{34}{section.12}%
+\contentsline {section}{\numberline {13}Récapitulatif des permissions}{35}{section.13}%

@@ -1,0 +1,3 @@
+[console] Each child in a list should have a unique "key" prop.%s%s See https://react.dev/link/warning-keys for more information. 
+
+Check the render method of `SectionTableau`.  It was passed a child from RapportFinancierPage.
