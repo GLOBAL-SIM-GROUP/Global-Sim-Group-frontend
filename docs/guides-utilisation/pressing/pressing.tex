@@ -1,0 +1,419 @@
+\documentclass[12pt,a4paper]{article}
+
+% Encodage et langue
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[french]{babel}
+
+% Mise en page
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage[colorlinks=true,linkcolor=black,citecolor=black,filecolor=black,urlcolor=black]{hyperref}
+\usepackage{tikz}
+\usepackage{fontawesome5}
+\usepackage{float}
+
+% Couleurs personnalisées (identiques aux autres guides)
+\definecolor{lagoon}{RGB}{0, 128, 128}
+\definecolor{sea-ink}{RGB}{0, 45, 64}
+\definecolor{palm}{RGB}{46, 139, 87}
+\definecolor{warn}{RGB}{230, 126, 34}
+\definecolor{danger}{RGB}{231, 76, 60}
+\definecolor{success}{RGB}{39, 174, 96}
+\definecolor{muted}{RGB}{127, 140, 141}
+
+% Titres
+\titleformat{\section}
+  {\normalfont\Large\bfseries\color{sea-ink}}{\thesection}{1em}{}
+\titleformat{\subsection}
+  {\normalfont\large\bfseries\color{lagoon}}{\thesubsection}{1em}{}
+\titleformat{\subsubsection}
+  {\normalfont\normalsize\bfseries\color{palm}}{\thesubsubsection}{1em}{}
+
+% En-têtes et pieds de page
+\setlength{\headheight}{15pt}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\textcolor{sea-ink}{GLOBAL SIM GROUP — Guide Pressing}}
+\fancyhead[R]{\textcolor{muted}{\leftmark}}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0pt}
+
+% Commandes pratiques (identiques aux autres guides)
+\newcommand{\screenshot}[2]{%
+  \begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{#1}
+    \caption{#2}
+  \end{figure}%
+}
+
+\newcommand{\etape}[1]{\textbf{\faHandPointRight\ #1}}
+\newcommand{\attention}[1]{\par\noindent\textcolor{warn}{\faExclamationTriangle\ Attention : #1}\par}
+\newcommand{\astuce}[1]{\par\noindent\textcolor{success}{\faLightbulb\ Astuce : #1}\par}
+\newcommand{\info}[1]{\par\noindent\textcolor{lagoon}{\faInfoCircle\ Info : #1}\par}
+
+\newlist{etapes}{enumerate}{1}
+\setlist[etapes]{label=\textcolor{lagoon}{\faArrowRight\ \arabic*.}, leftmargin=1.5cm, itemsep=0.4em}
+
+\begin{document}
+
+% Page de garde
+\begin{titlepage}
+  \noindent\colorbox{sea-ink}{%
+    \parbox{\dimexpr\textwidth-2\fboxsep}{%
+      \centering
+      \vspace{1.5cm}
+      \includegraphics[height=3cm]{../logo-gsg.png}\par
+      \vspace{0.6cm}
+      {\Huge\bfseries\color{white} GLOBAL SIM GROUP\par}
+      \vspace{0.5cm}
+      {\LARGE\color{white} Guide d'utilisation — Module Pressing\par}
+      \vspace{1.5cm}
+    }%
+  }
+
+  \vfill
+  \begin{center}
+    {\Large\color{sea-ink} Apprends à gérer les vêtements déposés au pressing\par}
+    \vspace{0.4cm}
+
+    \begin{tikzpicture}
+      \node[fill=lagoon, text=white, rounded corners=10pt, minimum width=12cm, minimum height=1.5cm, font=\large\bfseries] {Dépôt · Traitement · Retrait · Reçus};
+    \end{tikzpicture}
+  \end{center}
+
+  \vfill
+  \begin{center}
+    \textcolor{muted}{Version 1.0}
+  \end{center}
+\end{titlepage}
+
+\newpage
+% Table des matières
+\tableofcontents
+\newpage
+
+% Introduction
+\section{Avant de commencer}
+
+Imagine que tu tiens une blanchisserie. Un client arrive avec un sac de vêtements sales. Tu écris dans un cahier : le nom du client, les vêtements qu'il a déposés, combien ça coûte, et quand il doit revenir les chercher. Quand les vêtements sont propres, tu changes une petite note dans ton cahier, et quand le client revient payer et repartir avec son linge, tu barres la ligne.
+
+Le module \textbf{Pressing}, c'est exactement ce cahier, mais sur l'ordinateur. Une « commande », c'est le dépôt de vêtements d'un client. Pour chaque commande, l'application te permet de :
+
+\begin{itemize}[label=\textcolor{lagoon}{\faFile}]
+  \item \textbf{Noter le dépôt} : qui est le client, quels vêtements, combien ça coûte, quand il revient.
+  \item \textbf{Suivre le travail} : la commande change de couleur au fur et à mesure (déposé, en traitement, prêt, retiré).
+  \item \textbf{Encaisser l'argent} : un acompte au dépôt, puis le reste quand le client vient chercher son linge.
+  \item \textbf{Imprimer un reçu} : un petit ticket à remettre au client.
+\end{itemize}
+
+\info{Chaque commande a un \textbf{statut}, comme un petit panneau de couleur : \textbf{Déposé} (bleu) → \textbf{En traitement} (orange) → \textbf{Prêt} (vert) → \textbf{Retiré} (gris). Une commande peut aussi être \textbf{Annulé} (rouge).}
+
+\info{Ce que tu vois dépend de tes \textbf{permissions}. Si tu n'as pas le droit de créer ou de modifier, certains boutons n'apparaissent pas. Voir le récapitulatif à la fin du guide.}
+
+\newpage
+
+% Section 1 : Ouvrir le module
+\section{Ouvrir le module Pressing}\label{sec:ouvrir}
+
+\begin{etapes}
+  \item Connecte-toi à l'application.
+  \item Sur l'accueil, clique sur la carte \textbf{Pressing}, puis sur « Commandes » ; ou clique sur « Pressing » dans le menu latéral.
+\end{etapes}
+
+La page \textbf{Commandes — Pressing} s'ouvre :
+
+\screenshot{screenshots/pressing/01-commandes-liste.png}{La liste des commandes de pressing}
+
+La page contient :
+
+\begin{itemize}[label=\textcolor{lagoon}{\faList}]
+  \item Un bouton \textbf{Nouvelle commande} en haut à droite : pour enregistrer un dépôt de vêtements.
+  \item Une \textbf{barre de filtres} : pour retrouver une commande.
+  \item Un \textbf{tableau} : une ligne par commande, avec son numéro, le client, les montants et le statut.
+  \item Une \textbf{pagination} en bas : « Précédent » / « Suivant » quand il y a plus de 10 commandes.
+\end{itemize}
+
+\subsection{Lire le tableau des commandes}
+
+Chaque ligne du tableau est une commande. Les colonnes sont :
+
+\begin{itemize}[label=\textcolor{lagoon}{\faTable}]
+  \item \textbf{N° COMMANDE} : le numéro unique de la commande (clique dessus pour ouvrir la fiche).
+  \item \textbf{CLIENT} : le nom de la personne qui a déposé le linge.
+  \item \textbf{DATE DÉPÔT} : quand les vêtements ont été apportés.
+  \item \textbf{RETRAIT PRÉVU} : la date à laquelle le client doit revenir.
+  \item \textbf{MONTANT} : le prix total de la commande.
+  \item \textbf{ACOMPTE} : l'argent déjà payé au dépôt.
+  \item \textbf{RESTE} : ce qui reste à payer au retrait.
+  \item \textbf{STATUT} : le petit panneau de couleur (Déposé, En traitement, Prêt, Retiré, Annulé).
+  \item \textbf{ACTIONS} : les petites icônes pour voir, imprimer, modifier ou retirer la commande.
+\end{itemize}
+
+\astuce{Toute la ligne est cliquable : clique n'importe où sur une ligne pour ouvrir la fiche de la commande.}
+
+\newpage
+
+% Section 2 : Filtrer
+\section{Retrouver une commande}\label{sec:filtres}
+
+La barre de filtres te permet de retrouver une commande quand la liste est longue.
+
+\subsection{La barre de recherche}
+
+Tape un numéro de commande, un nom de client ou un numéro de téléphone dans la case \textbf{Rechercher (n°, nom, téléphone)…}. La liste se met à jour automatiquement :
+
+\screenshot{screenshots/pressing/03-filtre-recherche.png}{Recherche d'une commande par texte}
+
+\subsection{Le filtre Statut}
+
+Clique sur le menu \textbf{Statut} pour ne montrer qu'un seul type de commandes :
+
+\screenshot{screenshots/pressing/02-filtre-statut-ouvert.png}{Le menu déroulant des statuts}
+
+\begin{itemize}[label=\textcolor{lagoon}{\faFilter}]
+  \item \textbf{Tous les statuts} : montre tout (c'est le choix par défaut).
+  \item \textbf{Déposé} : les commandes qui viennent d'arriver, pas encore traitées.
+  \item \textbf{En traitement} : le linge est en train d'être lavé ou repassé.
+  \item \textbf{Prêt} : le linge est propre, le client peut venir.
+  \item \textbf{Retiré} : le client est reparti avec son linge.
+  \item \textbf{Annulé} : la commande a été annulée.
+\end{itemize}
+
+\subsection{Les autres filtres}
+
+\begin{itemize}[label=\textcolor{lagoon}{\faFilter}]
+  \item \textbf{Client} : tape une partie du nom pour ne voir que ses commandes.
+  \item \textbf{Les deux cases de date} : la première est le « début », la deuxième la « fin ». Ensemble, elles montrent les commandes déposées entre ces deux dates.
+\end{itemize}
+
+\astuce{Tu peux combiner les filtres : par exemple « statut Prêt » + « client KOUASSI » pour voir uniquement les commandes prêtes de ce client.}
+
+\newpage
+
+% Section 3 : Nouvelle commande
+\section{Enregistrer un dépôt (nouvelle commande)}\label{sec:nouvelle}
+
+Quand un client apporte son linge, tu crées une \textbf{nouvelle commande}.
+
+\begin{etapes}
+  \item Clique sur le bouton \textbf{Nouvelle commande} en haut à droite.
+  \item Une fenêtre s'ouvre au milieu de l'écran.
+\end{etapes}
+
+\screenshot{screenshots/pressing/04-nouvelle-commande-vide.png}{La fenêtre « Nouvelle commande » vide}
+
+\subsection{Choisir le client}
+
+La première case sert à trouver le client :
+
+\begin{etapes}
+  \item Tape au moins \textbf{2 lettres} du nom du client dans la case \textbf{Client}.
+  \item Une liste de clients correspondants apparaît en dessous.
+  \item Clique sur le bon client : il s'affiche dans une petite puce.
+\end{etapes}
+
+\screenshot{screenshots/pressing/05-commande-client-choisi.png}{Un client sélectionné dans la fenêtre}
+
+\info{Si le client n'existe pas encore, clique sur le bouton \textbf{Créer un client} en dessous : un mini-formulaire (nom, prénoms, téléphone, type de client) s'affiche. Remplis-le puis clique sur \textbf{Créer} : le nouveau client est choisi automatiquement.}
+
+\subsection{Ajouter les articles}
+
+Un « article », c'est un type de vêtement avec sa prestation (par exemple : 2 chemises à laver et repasser).
+
+\begin{etapes}
+  \item Pour chaque article, remplis les 4 cases : \textbf{Type de vêtement} (ex : Chemise), \textbf{Prestation} (ex : Lavage + Repassage), \textbf{Quantité} et \textbf{Tarif} (le prix d'une pièce, en FCFA).
+  \item Clique sur \textbf{Ajouter un article} s'il y a plusieurs sortes de vêtements.
+  \item Clique sur \textbf{Retirer} sous un article pour le supprimer (il faut toujours garder au moins un article).
+\end{etapes}
+
+\subsection{La date de retrait et l'acompte}
+
+\begin{etapes}
+  \item Choisis la \textbf{Date de retrait prévue} : le jour où le client doit revenir chercher son linge.
+  \item Si le client paie un acompte, tape le montant dans \textbf{Acompte (FCFA, optionnel)} et choisis le \textbf{Moyen de paiement} (espèces, mobile money\dots).
+\end{etapes}
+
+En bas, la ligne récapitulative calcule tout seule le \textbf{Total} et le \textbf{Reste à payer} :
+
+\screenshot{screenshots/pressing/06-commande-remplie.png}{La fenêtre remplie : client, article, date et acompte}
+
+\subsection{Enregistrer}
+
+\begin{etapes}
+  \item Vérifie que tout est bon.
+  \item Clique sur \textbf{Enregistrer}.
+  \item La fenêtre se ferme et la commande apparaît dans la liste avec le statut \textbf{Déposé}.
+\end{etapes}
+
+\screenshot{screenshots/pressing/07-commande-creee.png}{La commande créée dans la liste}
+
+\attention{Les champs obligatoires : un client, au moins un article complet (type, prestation, tarif, quantité), et la date de retrait prévue. Si tu oublies quelque chose, un message rouge te dit quoi corriger.}
+
+\astuce{L'acompte est \textbf{optionnel} : si le client ne paie rien au dépôt, laisse la case vide. Il paiera tout au retrait.}
+
+\newpage
+
+% Section 4 : La fiche commande
+\section{La fiche d'une commande}\label{sec:fiche}
+
+Clique sur une ligne du tableau pour ouvrir la \textbf{fiche} de la commande : c'est sa page détaillée.
+
+\screenshot{screenshots/pressing/08-fiche-commande.png}{La fiche d'une commande}
+
+La fiche montre :
+
+\begin{itemize}[label=\textcolor{lagoon}{\faList}]
+  \item \textbf{En haut} : le numéro de la commande, le nom du client, et les boutons d'action.
+  \item \textbf{Le bloc d'informations} : client, téléphone, date de dépôt, retrait prévu, retrait réel, montant total, acompte, reste à payer, et le statut en couleur.
+  \item \textbf{Le tableau Articles} : chaque vêtement avec sa quantité, sa prestation, son tarif et son total.
+\end{itemize}
+
+\subsection{Faire avancer la commande}
+
+Quand le travail sur le linge avance, tu changes le statut avec les boutons en haut :
+
+\begin{etapes}
+  \item Quand tu commences à laver le linge, clique sur \textbf{Passer en traitement}. Le statut devient orange « En traitement ».
+\end{etapes}
+
+\screenshot{screenshots/pressing/10-fiche-en-traitement.png}{La commande passée « En traitement »}
+
+\begin{etapes}
+  \setcounter{etapesi}{2}
+  \item Quand le linge est propre et prêt à être récupéré, clique sur \textbf{Passer en « Prêt »}. Le statut devient vert.
+\end{etapes}
+
+\screenshot{screenshots/pressing/11-fiche-pret.png}{La commande passée « Prêt »}
+
+\info{Les boutons changent selon le statut : « Passer en traitement » n'apparaît que si la commande est « Déposé », et « Passer en « Prêt » » que si elle est « En traitement ». Tu ne peux pas sauter d'étape.}
+
+\subsection{Modifier une commande}
+
+Si tu t'es trompé (mauvais article, mauvaise date de retrait), clique sur \textbf{Modifier} : la même fenêtre que « Nouvelle commande » s'ouvre, déjà remplie. Corrige puis clique sur \textbf{Enregistrer}.
+
+\attention{On ne peut plus modifier une commande « Retiré » ou « Annulé » : le bouton Modifier disparaît.}
+
+\subsection{Imprimer le reçu de dépôt}
+
+Le bouton \textbf{Reçu de dépôt} (icône ticket) sert à imprimer le petit papier qu'on remet au client quand il dépose son linge :
+
+\begin{etapes}
+  \item Clique sur le bouton \textbf{Reçu de dépôt} (sur la fiche, ou l'icône ticket dans le tableau).
+  \item Un petit menu s'ouvre.
+  \item Choisis \textbf{Ticket 58 mm} ou \textbf{Ticket 80 mm} selon la largeur de ton imprimante à tickets.
+  \item Le ticket s'imprime ou s'ouvre dans une fenêtre d'impression.
+\end{etapes}
+
+\screenshot{screenshots/pressing/09-recu-depot-menu.png}{Le menu du reçu de dépôt}
+
+\astuce{Le choix \textbf{Paramètres d'impression…} permet de régler l'imprimante une bonne fois pour toutes. Le reçu de dépôt est disponible dès le dépôt, même sans acompte — c'est différent du reçu de paiement (icône de téléchargement) qui n'apparaît que quand la commande est entièrement payée.}
+
+\newpage
+
+% Section 5 : Le retrait
+\section{Le retrait : encaisser le solde}\label{sec:retrait}
+
+Quand le client revient chercher son linge, il paie ce qui reste. Le bouton \textbf{Retirer} sert à encaisser cet argent et à clore la commande.
+
+\begin{etapes}
+  \item Ouvre la fiche de la commande (ou utilise l'icône de la main avec une pièce dans le tableau).
+  \item Clique sur \textbf{Retirer}.
+  \item Une fenêtre s'ouvre : elle rappelle le numéro de commande et le reste à payer.
+\end{etapes}
+
+\screenshot{screenshots/pressing/12-retrait-dialog.png}{La fenêtre « Retrait — Pressing »}
+
+\begin{etapes}
+  \setcounter{etapesi}{4}
+  \item Vérifie le \textbf{Montant du solde} (le reste à payer est proposé automatiquement).
+  \item Choisis le \textbf{Moyen de paiement}.
+  \item Clique sur \textbf{Valider le retrait}.
+  \item La commande passe au statut \textbf{Retiré} (gris) : le client est reparti avec son linge.
+\end{etapes}
+
+\info{Le bouton \textbf{Retirer} n'apparaît que si trois conditions sont réunies : tu as les permissions \texttt{PRESSING.CREER} et \texttt{FINANCES.VOIR}, il reste de l'argent à payer, et la commande n'est pas déjà « Retiré » ou « Annulé ».}
+
+\attention{Une fois la commande « Retiré », on ne peut plus la modifier. Vérifie le montant avant de valider.}
+
+\newpage
+
+% Section 6 : Vue mobile
+\section{Le pressing sur téléphone}\label{sec:mobile}
+
+Sur un petit écran (téléphone), la page s'adapte : les filtres et le tableau prennent toute la largeur.
+
+\screenshot{screenshots/pressing/13-commandes-mobile.png}{La liste des commandes sur téléphone (320 px)}
+
+La fiche commande aussi : les boutons se mettent les uns sous les autres, sur toute la largeur :
+
+\screenshot{screenshots/pressing/14-fiche-mobile.png}{La fiche commande sur téléphone}
+
+\attention{Sur téléphone, le tableau des commandes peut défiler horizontalement : glisse avec ton doigt de gauche à droite pour voir toutes les colonnes (montant, reste, statut, actions).}
+
+\newpage
+
+% FAQ
+\section{J'ai un problème : que faire ?}
+
+\begin{longtable}{>{\raggedright}p{5cm} p{9cm}}
+\toprule
+\textbf{Problème} & \textbf{Solution} \\
+\midrule
+\endfirsthead
+\multicolumn{2}{c}{\textit{Suite de la FAQ}} \\
+\toprule
+\textbf{Problème} & \textbf{Solution} \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+
+Je ne vois pas le module Pressing & Tu n'as pas la permission de voir le pressing. Demande à l'administrateur de te l'ajouter. \\
+
+Je ne vois pas le bouton « Nouvelle commande » & Il te manque la permission \texttt{PRESSING.CREER}. Demande à l'administrateur. \\
+
+Je ne trouve pas le client & Tape au moins 2 lettres de son nom. Si aucun résultat n'apparaît, crée-le avec le bouton \textbf{Créer un client}. \\
+
+Le bouton « Enregistrer » ne fait rien & Un champ obligatoire est vide. Cherche le message rouge : client manquant, article incomplet ou date de retrait non remplie. \\
+
+Je ne vois pas le bouton « Retirer » & La commande est déjà entièrement payée, déjà retirée, ou il te manque la permission \texttt{FINANCES.VOIR}. \\
+
+Je ne peux plus modifier une commande & C'est normal : une commande « Retiré » ou « Annulé » n'est plus modifiable. \\
+
+Le reçu ne s'imprime pas & Vérifie que l'imprimante à tickets est branchée et allumée. Vérifie aussi les réglages dans « Paramètres d'impression… ». \\
+
+\bottomrule
+\end{longtable}
+
+\newpage
+
+\section{Récapitulatif des permissions}
+
+\begin{itemize}[label=\textcolor{lagoon}{\faKey}]
+  \item Voir la liste et les fiches des commandes : permission de lecture du pressing.
+  \item \texttt{PRESSING.CREER} : créer une commande (bouton « Nouvelle commande »).
+  \item \texttt{PRESSING.MODIFIER} : modifier une commande et changer son statut (« Passer en traitement », « Passer en « Prêt » »).
+  \item \texttt{PRESSING.CREER} + \texttt{FINANCES.VOIR} : retirer une commande (encaisser le solde).
+\end{itemize}
+
+\info{Les permissions se règlent dans le module Administration (page Rôles). Si un bouton manque, ce n'est pas un bug : c'est que ton rôle n'a pas le droit.}
+
+\vfill
+
+\begin{center}
+\begin{tikzpicture}
+  \node[fill=sea-ink, text=white, rounded corners=10pt, minimum width=10cm, minimum height=1.5cm, font=\large\bfseries] {Bon pressing avec GLOBAL SIM GROUP !};
+\end{tikzpicture}
+\end{center}
+
+\end{document}
