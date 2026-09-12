@@ -1,6 +1,8 @@
 import { Link } from "@tanstack/react-router";
 import type { LucideIcon } from "lucide-react";
 
+import { cn } from "#/lib/utils";
+
 /**
  * Carte-menu d'un module du lanceur (accueil) : icône, titre, description, et
  * la liste de ses sous-pages accessibles — chacune un lien direct, pour
@@ -20,6 +22,9 @@ interface ModuleTileProps {
 	subItems: { id: string; label: string; path: string }[];
 	/** Code du module (repli `/en-cours?module=` si aucune sous-page accessible). */
 	moduleCode: string;
+	/** Classes additionnelles sur la racine — sert au conteneur (`home-page.tsx`) à
+	 *  contrôler la largeur/le grandissement de la carte dans la mise en page. */
+	className?: string;
 }
 
 function ModuleTile({
@@ -28,16 +33,19 @@ function ModuleTile({
 	description,
 	subItems,
 	moduleCode,
+	className,
 }: ModuleTileProps) {
 	return (
-		<div className="rounded-xl border bg-card p-4">
+		<div
+			className={cn("flex flex-col rounded-xl border bg-card p-4", className)}
+		>
 			<Icon className="mb-3 size-6 text-lagoon" aria-hidden />
 			<h3 className="text-sm font-semibold text-foreground">{title}</h3>
 			<p className="mt-1 text-xs leading-relaxed text-muted-foreground">
 				{description}
 			</p>
 
-			<ul className="mt-3 space-y-0.5 border-t border-border pt-3">
+			<ul className="mt-3 flex-1 space-y-0.5 border-t border-border pt-3">
 				{subItems.length > 0 ? (
 					subItems.map((item) => (
 						<li key={item.id}>

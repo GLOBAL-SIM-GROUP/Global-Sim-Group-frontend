@@ -71,10 +71,9 @@ describe("HomePage", () => {
 		expect(screen.queryByText("Mon espace résident")).not.toBeInTheDocument();
 	});
 
-	it("affiche la carte résident avec ses sous-pages, Signalements inclus si accessible", () => {
+	it("affiche la carte résident avec ses sous-pages", () => {
 		mocks.can.clear();
 		mocks.can.add("RESIDENT.VOIR");
-		mocks.can.add("SIGNALEMENT.VOIR");
 		mocks.permissions = [];
 
 		render(<HomePage />);
@@ -84,22 +83,56 @@ describe("HomePage", () => {
 			"href",
 			"/residence/portail/echeances",
 		);
-		expect(screen.getByRole("link", { name: "Signalements" })).toHaveAttribute(
-			"href",
-			"/signalements",
-		);
 	});
 
-	it("n'affiche pas Signalements sans SIGNALEMENT.VOIR", () => {
+	it("affiche une carte Signalements dédiée avec SIGNALEMENT.VOIR (résident ou staff)", () => {
+		mocks.can.clear();
+		mocks.can.add("SIGNALEMENT.VOIR");
+		mocks.permissions = [];
+
+		render(<HomePage />);
+
+		expect(screen.getByText("Signalements")).toBeInTheDocument();
+		expect(
+			screen.getByRole("link", { name: "Voir les signalements" }),
+		).toHaveAttribute("href", "/signalements");
+	});
+
+	it("n'affiche pas la carte Signalements sans SIGNALEMENT.VOIR", () => {
 		mocks.can.clear();
 		mocks.can.add("RESIDENT.VOIR");
 		mocks.permissions = [];
 
 		render(<HomePage />);
 
+		expect(screen.queryByText("Signalements")).not.toBeInTheDocument();
+	});
+
+	it("affiche Tableau de bord global et Rapports avec ADMIN.VOIR", () => {
+		mocks.can.clear();
+		mocks.can.add("ADMIN.VOIR");
+		mocks.permissions = [];
+
+		render(<HomePage />);
+
 		expect(
-			screen.queryByRole("link", { name: "Signalements" }),
+			screen.getByRole("link", { name: "Voir le tableau de bord" }),
+		).toHaveAttribute("href", "/dashboard");
+		expect(
+			screen.getByRole("link", { name: "Générer un rapport" }),
+		).toHaveAttribute("href", "/rapports");
+	});
+
+	it("n'affiche pas Tableau de bord global ni Rapports sans ADMIN.VOIR", () => {
+		mocks.can.clear();
+		mocks.permissions = [];
+
+		render(<HomePage />);
+
+		expect(
+			screen.queryByText("Tableau de bord global"),
 		).not.toBeInTheDocument();
+		expect(screen.queryByText("Rapports")).not.toBeInTheDocument();
 	});
 
 	it("pointe la facturation ponctuelle vers la page réellement routée", () => {
