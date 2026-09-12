@@ -1,0 +1,498 @@
+\documentclass[12pt,a4paper]{article}
+
+% Encodage et langue
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[french]{babel}
+
+% Mise en page
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage[colorlinks=true,linkcolor=black,citecolor=black,filecolor=black,urlcolor=black]{hyperref}
+\usepackage{tikz}
+\usepackage{fontawesome5}
+\usepackage{float}
+
+% Couleurs personnalisées (identiques au guide Résidence)
+\definecolor{lagoon}{RGB}{0, 128, 128}
+\definecolor{sea-ink}{RGB}{0, 45, 64}
+\definecolor{palm}{RGB}{46, 139, 87}
+\definecolor{warn}{RGB}{230, 126, 34}
+\definecolor{danger}{RGB}{231, 76, 60}
+\definecolor{success}{RGB}{39, 174, 96}
+\definecolor{muted}{RGB}{127, 140, 141}
+
+% Titres
+\titleformat{\section}
+  {\normalfont\Large\bfseries\color{sea-ink}}{\thesection}{1em}{}
+\titleformat{\subsection}
+  {\normalfont\large\bfseries\color{lagoon}}{\thesubsection}{1em}{}
+\titleformat{\subsubsection}
+  {\normalfont\normalsize\bfseries\color{palm}}{\thesubsubsection}{1em}{}
+
+% En-têtes et pieds de page
+\setlength{\headheight}{15pt}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\textcolor{sea-ink}{GLOBAL SIM GROUP — Guide Accueil \& Tableau de bord}}
+\fancyhead[R]{\textcolor{muted}{\leftmark}}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0pt}
+
+% Commandes pratiques (identiques au guide Résidence)
+\newcommand{\screenshot}[2]{%
+  \begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{#1}
+    \caption{#2}
+  \end{figure}%
+}
+
+\newcommand{\etape}[1]{\textbf{\faHandPointRight\ #1}}
+\newcommand{\attention}[1]{\par\noindent\textcolor{warn}{\faExclamationTriangle\ Attention : #1}\par}
+\newcommand{\astuce}[1]{\par\noindent\textcolor{success}{\faLightbulb\ Astuce : #1}\par}
+\newcommand{\info}[1]{\par\noindent\textcolor{lagoon}{\faInfoCircle\ Info : #1}\par}
+
+\newlist{etapes}{enumerate}{1}
+\setlist[etapes]{label=\textcolor{lagoon}{\faArrowRight\ \arabic*.}, leftmargin=1.5cm, itemsep=0.4em}
+
+\begin{document}
+
+% Page de garde
+\begin{titlepage}
+  \noindent\colorbox{sea-ink}{%
+    \parbox{\dimexpr\textwidth-2\fboxsep}{%
+      \centering
+      \vspace{1.5cm}
+      \includegraphics[height=3cm]{../logo-gsg.png}\par
+      \vspace{0.6cm}
+      {\Huge\bfseries\color{white} GLOBAL SIM GROUP\par}
+      \vspace{0.5cm}
+      {\LARGE\color{white} Guide d'utilisation — Accueil \& Tableau de bord\par}
+      \vspace{1.5cm}
+    }%
+  }
+
+  \vfill
+  \begin{center}
+    {\Large\color{sea-ink} Apprends à te repérer et voir l'activité\par}
+    \vspace{0.4cm}
+
+    \begin{tikzpicture}
+      \node[fill=lagoon, text=white, rounded corners=10pt, minimum width=12cm, minimum height=1.5cm, font=\large\bfseries] {Accueil · Tableau de bord global · Notifications};
+    \end{tikzpicture}
+  \end{center}
+
+  \vfill
+  \begin{center}
+    \textcolor{muted}{Version 1.0}
+  \end{center}
+\end{titlepage}
+
+\newpage
+% Table des matières
+\tableofcontents
+\newpage
+
+% Introduction
+\section{Avant de commencer}
+
+Imagine que GLOBAL SIM GROUP est une grande boîte à outils. Chaque outil sert à faire quelque chose de différent : gérer les logements, encaisser l'argent, suivre le personnel\dots
+
+Ce guide t'explique les \textbf{deux premières pages} que tu vois quand tu ouvres l'application :
+
+\begin{itemize}[label=\textcolor{lagoon}{\faHome}]
+  \item L'\textbf{Accueil} : c'est le sommaire. Il te montre tous les outils disponibles et tu cliques sur celui que tu veux utiliser.
+  \item Le \textbf{Tableau de bord global} : c'est le tableau de bord de la voiture. Il te montre d'un seul coup d'\oe il comment va toute l'entreprise : combien d'argent rentre, combien de chambres sont libres, qui n'a pas payé\dots
+\end{itemize}
+
+\info{Tu n'as pas besoin de tout lire d'un coup. Va directement à la section qui t'intéresse.}
+
+\newpage
+
+% Section 1 : Se connecter
+\section{Se connecter}\label{sec:connexion}
+
+Avant de voir l'accueil, il faut ouvrir la porte de l'application. C'est la \textbf{connexion}.
+
+\subsection{La page de connexion}
+
+Quand tu ouvres l'application dans ton navigateur, tu arrives sur cette page :
+
+\screenshot{screenshots/accueil-dashboard/01-login.png}{La page de connexion}
+
+\begin{etapes}
+  \item Dans la case \textbf{Identifiant}, tape ton nom d'utilisateur (par exemple \texttt{admin}).
+  \item Dans la case \textbf{Mot de passe}, tape ton mot de passe secret.
+  \item Clique sur le bouton bleu \textbf{Se connecter}.
+\end{etapes}
+
+\screenshot{screenshots/accueil-dashboard/02-login-rempli.png}{Les cases remplies avant de cliquer}
+
+\attention{Si tu te trompes de mot de passe, un message rouge apparaît. Vérifie que tu n'as pas mis d'espace au début ou à la fin, et que les majuscules sont au bon endroit.}
+
+\astuce{Si tu veux voir le mot de passe que tu tapes (pour vérifier qu'il est juste), clique sur le petit \oe il à droite de la case mot de passe.}
+
+\subsection{Que se passe-t-il après ?}
+
+Si tes identifiants sont bons, tu arrives automatiquement sur la page \textbf{Accueil}. C'est là que commence vraiment le guide.
+
+\newpage
+
+% Section 2 : L'interface commune
+\section{L'interface autour des pages}\label{sec:interface}
+
+Que tu sois sur l'accueil ou le tableau de bord, tu vois toujours les mêmes choses autour de la page : une barre en haut, un menu sur le côté, et une cloche. On les appelle l'\textbf{interface commune}. On les explique une seule fois ici, parce qu'ils sont partout.
+
+\subsection{La barre du haut}
+
+En haut de l'écran, il y a une barre fine. De gauche à droite, elle contient :
+
+\begin{itemize}[label=\textcolor{lagoon}{\faList}]
+  \item Le \textbf{bouton menu} (trois traits) : ouvre le menu latéral sur téléphone.
+  \item Le \textbf{fil d'Ariane} : c'est le chemin qui te dit où tu es. Par exemple « Accueil > Tableau de bord global ». C'est comme les panneaux dans un centre commercial.
+  \item La \textbf{cloche} : elle montre les notifications (voir section~\ref{subsec:notifications}).
+  \item Ton \textbf{nom d'utilisateur} : en bas à gauche du menu latéral (voir section~\ref{subsec:menu-utilisateur}).
+\end{itemize}
+
+\info{Le fil d'Ariane est cliquable : clique sur « Accueil » pour revenir à la page d'accueil.}
+
+\subsection{Le menu latéral (la sidebar)}\label{subsec:sidebar}
+
+Sur le côté gauche de l'écran, il y a une grande liste de modules : Résidence, Restaurant, Blanchisserie, Salle de fête, Facturation, Finances, Ressources humaines, Clients, Marchandise, Administration, etc.
+
+\screenshot{screenshots/accueil-dashboard/03-accueil.png}{L'accueil avec le menu latéral à gauche}
+
+\begin{itemize}[label=\textcolor{lagoon}{\faBars}]
+  \item Chaque ligne est un \textbf{module}. Clique dessus pour l'ouvrir.
+  \item Certains modules ont un petit triangle : clique dessus pour voir les \textbf{sous-pages} (par exemple, Résidence contient Bâtiments, Logements, Contrats, Séjours, Charges, Abonnements, Échéances).
+  \item Le module que tu utilises est surligné en couleur.
+\end{itemize}
+
+\attention{Tu ne vois que les modules que tu as le droit d'utiliser. Si tu ne vois pas « Administration », c'est que tu n'as pas la permission. Demande à ton administrateur.}
+
+\subsection{Le menu utilisateur}\label{subsec:menu-utilisateur}
+
+En bas du menu latéral, il y a ton nom et ton rôle (par exemple « ADMINISTRATEUR »). Clique dessus pour ouvrir un petit menu :
+
+\screenshot{screenshots/accueil-dashboard/05-menu-utilisateur.png}{Le menu utilisateur ouvert}
+
+\begin{etapes}
+  \item Clique sur ton nom en bas à gauche.
+  \item Un petit menu apparaît avec ton nom, ton rôle, et un bouton \textbf{Se déconnecter}.
+  \item Clique sur \textbf{Se déconnecter} pour quitter l'application.
+\end{etapes}
+
+\attention{Quand tu te déconnectes, tu reviens à la page de connexion. Ton travail n'est pas perdu : tout est déjà enregistré automatiquement.}
+
+\subsection{Les notifications}\label{subsec:notifications}
+
+En haut à droite, il y a une \textbf{cloche}. Elle te prévient quand quelque chose de important se passe : un nouveau signalement, une réservation, un message\dots
+
+\screenshot{screenshots/accueil-dashboard/06-notifications.png}{Le panneau des notifications ouvert}
+
+\begin{etapes}
+  \item Clique sur la cloche.
+  \item Un panneau s'ouvre avec la liste des notifications récentes.
+  \item Clique sur une notification pour aller à la page concernée.
+  \item Clique en dehors du panneau ou appuie sur \texttt{Échap} pour le fermer.
+\end{etapes}
+
+\info{Un petit chiffre rouge sur la cloche te dit combien de notifications tu n'as pas encore lues.}
+
+\newpage
+
+% Section 3 : L'accueil
+\section{La page d'accueil}\label{sec:accueil}
+
+L'accueil, c'est le \textbf{sommaire} de l'application. Il te montre tous les outils disponibles en un seul écran, et tu cliques sur celui que tu veux ouvrir.
+
+\subsection{Ce que tu vois}
+
+Quand tu te connectes, tu arrives ici :
+
+\screenshot{screenshots/accueil-dashboard/03-accueil.png}{La page d'accueil}
+
+En haut, il y a un message : « Bienvenue, [ton nom] ! Choisissez une page pour commencer. »
+
+En dessous, il y a des \textbf{cartes} (on les appelle des tuiles). Il y a deux sortes de cartes :
+
+\begin{itemize}[label=\textcolor{lagoon}{\faThLarge}]
+  \item Les \textbf{cartes de modules} : Résidence, Restaurant, Marchandise, Finances, Clients, Ressources humaines, Administration, Salle de fête, Facturation\dots Chacune mène à un module complet de l'application.
+  \item Les \textbf{cartes d'outils} : Tableau de bord global, Signalements, Rapports. Ce sont des raccourcis vers des pages spéciales de l'application.
+\end{itemize}
+
+\info{Si tu es un locataire, tu as aussi une carte « Mon espace résident » en premier, avec des liens vers tes échéances, tes paiements, ta caution, etc.}
+
+\subsection{Les cartes}\label{subsec:cartes}
+
+Chaque carte contient :
+
+\begin{itemize}[label=\textcolor{lagoon}{\faThLarge}]
+  \item Une \textbf{icône} (une petite image) en haut à gauche.
+  \item Un \textbf{titre} : le nom du module ou de l'outil (par exemple « Résidence » ou « Tableau de bord global »).
+  \item Une \textbf{description} courte : à quoi ça sert.
+  \item Une \textbf{liste de liens} en dessous : ce sont les sous-pages. Clique sur un lien pour aller directement à cette page.
+\end{itemize}
+
+\screenshot{screenshots/accueil-dashboard/04-accueil-tuile-survol.png}{Une carte avec ses sous-liens}
+
+\begin{etapes}
+  \item Regarde les cartes pour trouver le module ou l'outil que tu veux utiliser.
+  \item Clique sur un \textbf{lien} dans la carte pour ouvrir cette page directement.
+\end{etapes}
+
+\astuce{Tu n'as pas besoin de passer par le menu latéral. L'accueil te donne un accès direct à toutes les pages, comme une table des matières.}
+
+\subsection{Les cartes sont triées}
+
+Toutes les cartes (modules et outils) sont triées par nombre de sous-pages accessibles, du plus grand au plus petit. Les cartes les plus riches en liens apparaissent en premier.
+
+Quand tu passes ta souris sur une carte, elle s'agrandit légèrement pour montrer tous ses liens. Sur une même ligne, les cartes ont la même hauteur : si une carte est plus courte que sa voisine, elle s'étire pour remplir l'espace.
+
+\info{Si tu ne vois pas une carte, c'est que tu n'as pas la permission pour ce module ou cet outil. Les cartes s'adaptent à tes droits.}
+
+\subsection{L'accueil sur téléphone}\label{subsec:accueil-mobile}
+
+Sur un petit écran (téléphone), les cartes s'affichent les unes en dessous des autres, au lieu d'être côte à côte.
+
+\screenshot{screenshots/accueil-dashboard/07-accueil-mobile.png}{L'accueil sur un téléphone (320 px)}
+
+Le menu latéral est caché. Pour l'ouvrir, clique sur le \textbf{bouton menu} (trois traits) en haut à gauche :
+
+\screenshot{screenshots/accueil-dashboard/08-accueil-mobile-burger.png}{Le menu latéral ouvert sur téléphone}
+
+\attention{Sur téléphone, le fil d'Ariane peut s'afficher sur deux lignes. C'est normal : il s'adapte à la largeur de l'écran.}
+
+\newpage
+
+% Section 4 : Le tableau de bord global
+\section{Le tableau de bord global}\label{sec:dashboard}
+
+Le tableau de bord global, c'est le \textbf{tableau de bord d'une voiture}. Il te montre d'un seul coup d'\oe il comment va toute l'entreprise : l'argent, les chambres, les impayés, le stock, le personnel\dots
+
+\info{Le tableau de bord global est réservé aux \textbf{Administrateurs} et aux \textbf{Dirigeants}. Si tu n'as pas la permission \texttt{ADMIN.VOIR}, tu verras un message « Vous n'avez pas accès au tableau de bord global. »}
+
+\subsection{Ouvrir le tableau de bord}
+
+\begin{etapes}
+  \item Connecte-toi (voir section~\ref{sec:connexion}).
+  \item Sur l'accueil, clique sur la carte \textbf{Tableau de bord global}, ou clique sur « Tableau de bord global » dans le menu latéral.
+\end{etapes}
+
+\screenshot{screenshots/accueil-dashboard/09-dashboard-global.png}{Le tableau de bord global}
+
+\subsection{Le filtre de période}\label{subsec:periode}
+
+En haut du tableau de bord, il y a un \textbf{filtre de période}. Il te permet de choisir pour quelle période tu veux voir les chiffres : aujourd'hui, hier, cette semaine, ce mois, le mois dernier, l'année, ou une période personnalisée.
+
+\begin{etapes}
+  \item Clique sur le menu déroulant \textbf{Période}.
+  \item Choisis une période dans la liste.
+  \item Les chiffres se mettent à jour automatiquement.
+\end{etapes}
+
+\screenshot{screenshots/accueil-dashboard/10-dashboard-filtre-periode-ouvert.png}{Le menu déroulant des périodes}
+
+\screenshot{screenshots/accueil-dashboard/11-dashboard-periode-aujourdhui.png}{Le tableau de bord avec la période « Aujourd'hui » sélectionnée}
+
+\subsubsection{La période personnalisée}
+
+Si tu choisis \textbf{Personnalisée}, deux cases de date apparaissent : une date de début et une date de fin.
+
+\screenshot{screenshots/accueil-dashboard/12-dashboard-periode-personnalisee.png}{Les champs de date personnalisée}
+
+\begin{etapes}
+  \item Choisis \textbf{Personnalisée} dans le menu.
+  \item Clique sur la case \textbf{Date de début} et choisis un jour.
+  \item Clique sur la case \textbf{Date de fin} et choisis un jour.
+  \item Les chiffres se mettent à jour pour cette période.
+\end{etapes}
+
+\screenshot{screenshots/accueil-dashboard/13-dashboard-periode-personnalisee-remplie.png}{Les dates remplies (1\textsuperscript{er} janvier au 31 décembre 2026)}
+
+\attention{La date de début doit être \textbf{avant} la date de fin. Sinon, les chiffres seront vides.}
+
+\info{La période appliquée est toujours affichée en dessous du filtre, dans un petit bandeau gris. Par exemple : « Période appliquée : 01/09/2026 au 12/09/2026 ».}
+
+\subsection{La section Résidence}\label{subsec:dash-residence}
+
+Cette section te montre l'état des logements et des loyers.
+
+\screenshot{screenshots/accueil-dashboard/14-dashboard-section-residence.png}{La section Résidence du tableau de bord}
+
+Trois cartes t'indiquent :
+
+\begin{itemize}[label=\textcolor{lagoon}{\faBuilding}]
+  \item \textbf{Chambres disponibles} : combien de logements sont libres et prêts à être loués.
+  \item \textbf{Locataires impayés} : combien de locataires n'ont pas payé leur loyer à temps.
+  \item \textbf{Montant des impayés} : la somme totale que les locataires doivent.
+\end{itemize}
+
+\subsubsection{Le tableau des impayés}
+
+S'il y a des impayés, un tableau apparaît en dessous des cartes. Il liste les locataires qui doivent de l'argent :
+
+\begin{itemize}[label=\textcolor{lagoon}{\faTable}]
+  \item \textbf{CLIENT} : le nom du locataire.
+  \item \textbf{RÉFÉRENCE} : le numéro du contrat ou de l'échéance.
+  \item \textbf{PAYÉ} : combien le locataire a déjà payé (en vert).
+  \item \textbf{RESTE} : combien il reste à payer (en rouge).
+  \item \textbf{ÉCHÉANCE} : la date limite de paiement.
+\end{itemize}
+
+\info{Le tableau montre au maximum 10 impayés. S'il y en a plus, un message « +N autres impayés » apparaît en bas.}
+
+\astuce{Clique sur le nom d'un locataire dans le tableau pour aller à sa fiche et voir le détail.}
+
+\subsection{La vue financière}\label{subsec:dash-finances}
+
+Cette section te montre l'argent de l'entreprise.
+
+\screenshot{screenshots/accueil-dashboard/15-dashboard-vue-financiere.png}{La vue financière du tableau de bord}
+
+Quatre grandes cartes t'indiquent :
+
+\begin{itemize}[label=\textcolor{lagoon}{\faCoins}]
+  \item \textbf{Chiffre d'affaires global} (en vert) : tout l'argent qui est rentré.
+  \item \textbf{Dépenses totales} (en orange) : tout l'argent qui est sorti.
+  \item \textbf{Solde} (en vert ou rouge) : ce qu'il reste = recettes moins dépenses. Si c'est rouge, l'entreprise a dépensé plus que ce qu'elle a gagné.
+  \item \textbf{Impayés} (en rouge) : combien de clients n'ont pas payé, et la somme totale.
+\end{itemize}
+
+\attention{Le solde est en \textbf{rouge} si l'entreprise a dépensé plus que ce qu'elle a gagné. C'est un signal d'alarme.}
+
+\subsection{Les recettes par activité}\label{subsec:dash-recettes}
+
+Cette section te montre combien d'argent chaque activité a rapporté : la location, le pressing, le magasin, le restaurant\dots
+
+\screenshot{screenshots/accueil-dashboard/16-dashboard-recettes-activite.png}{Les recettes par activité}
+
+Chaque carte représente une activité et montre le total encaissé pour la période sélectionnée.
+
+\info{Les activités affichées dépendent de ce que fait l'entreprise. Si une activité n'a rien encaissé, elle n'apparaît pas.}
+
+\subsection{Les services (salle de fête)}\label{subsec:dash-services}
+
+Cette section te montre les réservations à venir pour la salle de fête.
+
+\screenshot{screenshots/accueil-dashboard/17-dashboard-services.png}{La section Services avec les réservations}
+
+\begin{itemize}[label=\textcolor{lagoon}{\faCalendar}]
+  \item Une carte « Réservations à venir » te dit combien de réservations il y a.
+  \item Un tableau liste les 5 prochaines réservations : le nom du client, la date, le type d'événement, et le statut (confirmée, réservée).
+\end{itemize}
+
+\subsection{Market \& Inventaire}\label{subsec:dash-market}
+
+Cette section te montre l'état du stock du magasin.
+
+\screenshot{screenshots/accueil-dashboard/18-dashboard-market.png}{La section Market \& Inventaire}
+
+\begin{itemize}[label=\textcolor{lagoon}{\faBoxOpen}]
+  \item Une carte « Produits en stock critique » te dit combien de produits sont presque épuisés.
+  \item S'il y a des produits critiques, une liste rouge apparaît en dessous, avec le nom du produit et la quantité restante.
+\end{itemize}
+
+\attention{Les produits en rouge sont à \textbf{réapprovisionner} rapidement. Si le stock tombe à zéro, tu ne pourras plus les vendre.}
+
+\subsection{La blanchisserie (pressing)}\label{subsec:dash-pressing}
+
+Cette section te montre les commandes de pressing en cours.
+
+\screenshot{screenshots/accueil-dashboard/19-dashboard-pressing.png}{La section Blanchisserie}
+
+Une carte « Commandes en cours » te dit combien de commandes de pressing sont en cours de traitement.
+
+\astuce{Clique sur la carte « Commandes en cours » pour aller directement à la liste des commandes de pressing.}
+
+\subsection{Les ressources humaines}\label{subsec:dash-rh}
+
+Cette section te montre l'état du personnel.
+
+\screenshot{screenshots/accueil-dashboard/20-dashboard-rh.png}{La section Ressources humaines}
+
+Une carte « Masse salariale à payer » te dit combien d'argent il faut pour payer tous les employés pour la période sélectionnée.
+
+\info{La masse salariale est calculée à partir des bulletins de paie enregistrés dans le module Ressources humaines.}
+
+\subsection{Le tableau de bord sur téléphone}\label{subsec:dash-mobile}
+
+Sur un petit écran, le tableau de bord s'adapte : les cartes s'affichent les unes en dessous des autres, et les tableaux défilent horizontalement avec le doigt.
+
+\screenshot{screenshots/accueil-dashboard/21-dashboard-mobile.png}{Le tableau de bord sur un téléphone (320 px)}
+
+\attention{Sur téléphone, les tableaux larges (comme les impayés) peuvent défiler horizontalement. Glisse avec ton doigt de gauche à droite pour voir toutes les colonnes.}
+
+\newpage
+
+% FAQ
+\section{J'ai un problème : que faire ?}
+
+\begin{longtable}{>{\raggedright}p{5cm} p{9cm}}
+\toprule
+\textbf{Problème} & \textbf{Solution} \\
+\midrule
+\endfirsthead
+\multicolumn{2}{c}{\textit{Suite de la FAQ}} \\
+\toprule
+\textbf{Problème} & \textbf{Solution} \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+
+Je ne vois pas le tableau de bord global & Tu n'as pas la permission \texttt{ADMIN.VOIR}. Demande à l'administrateur de te l'ajouter. \\
+
+Je ne vois pas toutes les cartes sur l'accueil & Les cartes s'adaptent à tes permissions. Tu ne vois que les modules que tu as le droit d'utiliser. \\
+
+Les chiffres du tableau de bord sont à zéro & Vérifie la période sélectionnée. Si la période est « Aujourd'hui » et qu'il n'y a pas eu d'activité aujourd'hui, les chiffres seront à zéro. Essaie « Ce mois ». \\
+
+Le tableau de bord met du temps à charger & C'est normal : il récupère beaucoup de données. Attends quelques secondes. Si ça dure trop, vérifie ta connexion internet. \\
+
+Je ne vois pas les notifications & Clique sur la cloche en haut à droite. S'il n'y a pas de petit chiffre rouge, c'est qu'il n'y a pas de nouvelle notification. \\
+
+Le menu latéral a disparu sur téléphone & Clique sur le bouton menu (trois traits) en haut à gauche pour le rouvrir. \\
+
+Le fil d'Ariane s'affiche sur deux lignes & C'est normal sur petit écran : il s'adapte à la largeur. Tu peux quand même cliquer sur les liens. \\
+
+\bottomrule
+\end{longtable}
+
+\newpage
+
+\section{Récapitulatif des permissions}
+
+Chaque page et chaque bouton dans l'application est caché si tu n'as pas la bonne permission. Voici les principales pour l'accueil et le tableau de bord :
+
+\begin{itemize}[label=\textcolor{lagoon}{\faKey}]
+  \item \texttt{ADMIN.VOIR} : voir le tableau de bord global.
+  \item \texttt{RESIDENCE.VOIR} : voir le module Résidence (carte sur l'accueil).
+  \item \texttt{FINANCES.VOIR} : voir le module Finances.
+  \item \texttt{SIGNALEMENT.VOIR} : voir les signalements.
+  \item \texttt{RH.VOIR} : voir le module Ressources humaines.
+  \item \texttt{RESTAURANT.VOIR} : voir le module Restaurant.
+  \item \texttt{PRESSING.VOIR} : voir le module Blanchisserie.
+  \item \texttt{MARCHANDISE.VOIR} : voir le module Marchandise.
+  \item \texttt{SALLE\_FETE.VOIR} : voir le module Salle de fête.
+\end{itemize}
+
+\info{L'accueil ne montre que les cartes des modules que tu as le droit de voir. Si une carte manque, c'est que la permission correspondante te manque.}
+
+\vfill
+
+\begin{center}
+\begin{tikzpicture}
+  \node[fill=sea-ink, text=white, rounded corners=10pt, minimum width=10cm, minimum height=1.5cm, font=\large\bfseries] {Bon début dans GLOBAL SIM GROUP !};
+\end{tikzpicture}
+\end{center}
+
+\end{document}
