@@ -20,6 +20,22 @@ dist-ssr
 
 # ── Tests ────────────────────────────────────────────────────
 coverage
+# Sorties Playwright (captures de guides + specs e2e)
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
+
+# ── Artéfacts de compilation LaTeX (docs/guides-utilisation) ─
+# Les .tex, .png (captures) et .pdf finaux restent versionnés ;
+# seuls les intermédiaires de build sont ignorés.
+*.aux
+*.fdb_latexmk
+*.fls
+*.out
+*.synctex.gz
+*.toc
+*.xdv
 
 # ── Snapshot OpenAPI local (régénéré) — ne PAS committer ─────
 scripts/openapi.latest.json
