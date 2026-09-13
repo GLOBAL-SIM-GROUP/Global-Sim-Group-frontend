@@ -1,0 +1,518 @@
+\documentclass[12pt,a4paper]{article}
+
+% Encodage et langue
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[french]{babel}
+
+% Mise en page
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage[colorlinks=true,linkcolor=black,citecolor=black,filecolor=black,urlcolor=black]{hyperref}
+\usepackage{tikz}
+\usepackage{fontawesome5}
+\usepackage{float}
+
+% Couleurs personnalisées (identiques aux autres guides)
+\definecolor{lagoon}{RGB}{0, 128, 128}
+\definecolor{sea-ink}{RGB}{0, 45, 64}
+\definecolor{palm}{RGB}{46, 139, 87}
+\definecolor{warn}{RGB}{230, 126, 34}
+\definecolor{danger}{RGB}{231, 76, 60}
+\definecolor{success}{RGB}{39, 174, 96}
+\definecolor{muted}{RGB}{127, 140, 141}
+
+% Titres
+\titleformat{\section}
+  {\normalfont\Large\bfseries\color{sea-ink}}{\thesection}{1em}{}
+\titleformat{\subsection}
+  {\normalfont\large\bfseries\color{lagoon}}{\thesubsection}{1em}{}
+\titleformat{\subsubsection}
+  {\normalfont\normalsize\bfseries\color{palm}}{\thesubsubsection}{1em}{}
+
+% En-têtes et pieds de page
+\setlength{\headheight}{15pt}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\textcolor{sea-ink}{GLOBAL SIM GROUP — Guide RH}}
+\fancyhead[R]{\textcolor{muted}{\leftmark}}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0pt}
+
+% Commandes pratiques (identiques aux autres guides)
+\newcommand{\screenshot}[2]{%
+  \begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{#1}
+    \caption{#2}
+  \end{figure}%
+}
+
+\newcommand{\etape}[1]{\textbf{\faHandPointRight\ #1}}
+\newcommand{\attention}[1]{\par\noindent\textcolor{warn}{\faExclamationTriangle\ Attention : #1}\par}
+\newcommand{\astuce}[1]{\par\noindent\textcolor{success}{\faLightbulb\ Astuce : #1}\par}
+\newcommand{\info}[1]{\par\noindent\textcolor{lagoon}{\faInfoCircle\ Info : #1}\par}
+
+\newlist{etapes}{enumerate}{1}
+\setlist[etapes]{label=\textcolor{lagoon}{\faArrowRight\ \arabic*.}, leftmargin=1.5cm, itemsep=0.4em}
+
+\begin{document}
+
+% Page de garde
+\begin{titlepage}
+  \noindent\colorbox{sea-ink}{%
+    \parbox{\dimexpr\textwidth-2\fboxsep}{%
+      \centering
+      \vspace{1.5cm}
+      \includegraphics[height=3cm]{../logo-gsg.png}\par
+      \vspace{0.6cm}
+      {\Huge\bfseries\color{white} GLOBAL SIM GROUP\par}
+      \vspace{0.5cm}
+      {\LARGE\color{white} Guide d'utilisation — Module RH\par}
+      \vspace{1.5cm}
+    }%
+  }
+
+  \vfill
+  \begin{center}
+    {\Large\color{sea-ink} Apprends à gérer l'équipe et les salaires\par}
+    \vspace{0.4cm}
+
+    \begin{tikzpicture}
+      \node[fill=lagoon, text=white, rounded corners=10pt, minimum width=12cm, minimum height=1.5cm, font=\large\bfseries] {Employés · Bulletins de salaire · Comptes utilisateurs};
+    \end{tikzpicture}
+  \end{center}
+
+  \vfill
+  \begin{center}
+    \textcolor{muted}{Version 1.0}
+  \end{center}
+\end{titlepage}
+
+\newpage
+% Table des matières
+\tableofcontents
+\newpage
+
+% Introduction
+\section{Avant de commencer}
+
+Imagine le grand classeur du patron. Dans le premier tiroir, il y a \textbf{une fiche par personne qui travaille ici} : son nom, son métier, sa date d'arrivée, son salaire. Dans le deuxième tiroir, il y a \textbf{les feuilles de paie} : chaque mois, on écrit combien chacun doit recevoir. Et dans le troisième tiroir, les \textbf{clés de l'application} : on décide qui peut se connecter.
+
+Le module \textbf{RH} (Ressources humaines) est ce classeur, sur l'ordinateur. Il a \textbf{trois pages} :
+
+\begin{itemize}[label=\textcolor{lagoon}{\faUsers}]
+  \item \textbf{Employés} : le premier tiroir — la liste de toute l'équipe, avec sa fiche par personne.
+  \item \textbf{Bulletins de salaire} : le deuxième tiroir — préparer, vérifier puis payer les salaires du mois.
+  \item \textbf{Comptes utilisateurs} : le troisième tiroir — donner à un employé un login et un mot de passe pour utiliser l'application.
+\end{itemize}
+
+\info{Ce que tu vois dépend de tes \textbf{permissions}. Si un bouton manque, ce n'est pas un bug : ton rôle n'a pas le droit. Voir le récapitulatif à la fin du guide.}
+
+\subsection{Les statuts d'un employé}
+
+Un employé porte toujours une étiquette de couleur :
+
+\begin{center}
+\begin{tabular}{ll}
+  \toprule
+  \textbf{Étiquette} & \textbf{Signification} \\
+  \midrule
+  \textcolor{success}{\faCircle\ Actif} & La personne travaille ici en ce moment. \\
+  \textcolor{muted}{\faCircle\ Inactif} & La personne ne travaille plus ici (départ, fin de contrat). \\
+  \textcolor{danger}{\faCircle\ Suspendu} & La personne est momentanément écartée. \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Les statuts d'un bulletin de salaire}
+
+Un bulletin avance comme un courrier qui suit un chemin précis :
+
+\begin{center}
+  \textbf{Calculée} $\rightarrow$ \textbf{Validée} $\rightarrow$ \textbf{Payée}
+\end{center}
+
+\begin{center}
+\begin{tabular}{ll}
+  \toprule
+  \textbf{Étiquette} & \textbf{Signification} \\
+  \midrule
+  \textcolor{lagoon}{\faCircle\ Calculée} & Le bulletin vient d'être créé : on peut encore le corriger. \\
+  \textcolor{warn}{\faCircle\ Validée} & Les montants sont vérifiés et figés : prêt à payer. \\
+  \textcolor{success}{\faCircle\ Payée} & Le salaire a été versé : terminé, on ne touche plus à rien. \\
+  \textcolor{danger}{\faCircle\ Annulée} & Le bulletin a été annulé (erreur, doublon\ldots). \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+\attention{On ne peut \textbf{annuler} un bulletin que s'il est encore « Calculée » ou « Validée ». Un bulletin « Payée » est définitif.}
+
+\newpage
+
+% Section 1 : Ouvrir le module
+\section{Ouvrir le module RH}\label{sec:ouvrir}
+
+\begin{etapes}
+  \item Connecte-toi à l'application.
+  \item Dans le menu latéral à gauche, clique sur \textbf{Ressources humaines} : les trois sous-pages apparaissent (\emph{Employés}, \emph{Bulletins de salaire}, \emph{Comptes utilisateurs}).
+  \item Tu peux aussi cliquer sur la carte \textbf{Ressources humaines} de la page d'accueil.
+\end{etapes}
+
+\screenshot{screenshots/rh/01-menu-rh.png}{Le menu latéral avec la section « Ressources humaines » dépliée}
+
+\info{Le module s'appelle \textbf{RH} dans les permissions, mais « Ressources humaines » dans les menus : c'est la même chose.}
+
+\newpage
+
+% Section 2 : Liste des employés
+\section{La liste des employés}\label{sec:employes}
+
+C'est le premier tiroir du classeur : toutes les fiches de l'équipe, rangées dans un tableau.
+
+\screenshot{screenshots/rh/02-employes-liste.png}{La page « Employés — RH » : recherche, filtres et tableau}
+
+\subsection{Lire le tableau}
+
+Chaque ligne est une personne :
+
+\begin{center}
+\begin{tabular}{ll}
+  \toprule
+  \textbf{Colonne} & \textbf{Ce qu'elle dit} \\
+  \midrule
+  EMPLOYÉ & Prénom et nom (en bleu : cliquer dessus ouvre la fiche). \\
+  FONCTION & Le métier de la personne (ex. \texttt{AUTRE}, \texttt{CAISSIER}). \\
+  SERVICE & Le service de rattachement (Administration, Restaurant\ldots). \\
+  EMBAUCHE & La date d'arrivée dans l'entreprise. \\
+  SALAIRE & Le salaire de base mensuel, en FCFA. \\
+  STATUT & L'étiquette de couleur : Actif, Inactif ou Suspendu. \\
+  ACTIONS & Les petits boutons pour modifier ou activer/désactiver. \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+\info{La colonne FONCTION affiche un code en majuscules (\texttt{RECEPTIONNISTE}, \texttt{AGENT\_ENTRETIEN}\ldots) : c'est le nom interne du métier, pas une erreur.}
+
+\subsection{Retrouver quelqu'un}
+
+Trois façons de chercher, qui se combinent :
+
+\begin{itemize}[label=\textcolor{lagoon}{\faSearch}]
+  \item \textbf{La loupe} : tape un bout de nom ou de prénom dans « Rechercher par nom, prénom\ldots ».
+  \item \textbf{Le filtre Service} : ne montre que les employés d'un service (ex. Pressing).
+  \item \textbf{Le filtre Statut} : ne montre que les Actifs, les Inactifs ou les Suspendus.
+\end{itemize}
+
+\screenshot{screenshots/rh/03-employes-filtre-service.png}{Le filtre « Service » déplié}
+
+\screenshot{screenshots/rh/04-employes-filtre-statut.png}{Le filtre « Statut » déplié}
+
+En bas du tableau, la pagination indique combien de fiches sont affichées (« Affichage de 1 à 8 sur 8 résultats ») ; feuillette avec « Précédent » / « Suivant ».
+
+\newpage
+
+% Section 3 : Ajouter un employé
+\section{Ajouter un employé}\label{sec:ajouter-employe}
+
+Une personne rejoint l'équipe ? On crée sa fiche dans le classeur.
+
+\begin{etapes}
+  \item Sur la page « Employés — RH », clique sur le bouton orange \textbf{+ Ajouter un employé} en haut à droite.
+  \item Une fenêtre « Ajouter un employé » s'ouvre par-dessus la liste.
+\end{etapes}
+
+\screenshot{screenshots/rh/05-employe-form-vide.png}{La fenêtre « Ajouter un employé », encore vide}
+
+\subsection{Remplir la fiche}
+
+\begin{center}
+\begin{tabular}{ll}
+  \toprule
+  \textbf{Champ} & \textbf{Quoi écrire} \\
+  \midrule
+  Nom & Le nom de famille (obligatoire). \\
+  Prénom (optionnel) & Le prénom. \\
+  Téléphone & Le numéro, indicatif compris (ex. \texttt{+225 07 02 00 00}). \\
+  Fonction & Le métier — voir la liste des valeurs acceptées plus bas. \\
+  Service & Choisir dans la liste déroulante (optionnel). \\
+  Date d'embauche & Le jour d'arrivée, au format jour/mois/année. \\
+  Type de contrat & CDI, CDD, Apprenti ou Autre. \\
+  Salaire de base (FCFA) & Le salaire mensuel, en chiffres. \\
+  Autres informations & Zone libre (notes administratives). \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+\attention{Le champ \textbf{Fonction} accepte seulement les métiers connus du système : \texttt{RESPONSABLE}, \texttt{SERVEUR}, \texttt{CAISSIER}, \texttt{CUISINIER}, \texttt{RESPONSABLE\_CUISINE}, \texttt{RECEPTIONNISTE}, \texttt{OPERATEUR\_LAVAGE}, \texttt{OPERATEUR\_SECHAGE}, \texttt{OPERATEUR\_REPASSAGE}, \texttt{CONTROLEUR\_QUALITE}, \texttt{AGENT\_LIVRAISON}, \texttt{AGENT\_ENTRETIEN}, \texttt{TECHNICIEN}, \texttt{VENDEUR}, \texttt{MAGASINIER}, \texttt{RESPONSABLE\_APPROVISIONNEMENT} ou \texttt{AUTRE}. Un autre mot (par exemple « Gouvernante ») est refusé à l'enregistrement avec le message « La validation a échoué » : choisis la valeur la plus proche, ou \texttt{AUTRE}.}
+
+\screenshot{screenshots/rh/06-employe-form-rempli.png}{La fenêtre remplie avant l'enregistrement}
+
+\begin{etapes}
+  \item[3.] Vérifie les informations, puis clique sur \textbf{Enregistrer}.
+  \item La fenêtre se ferme et la nouvelle fiche apparaît dans la liste.
+\end{etapes}
+
+\astuce{Pour vérifier que la fiche est bien là, tape son nom dans la recherche : le tableau ne montre plus qu'elle.}
+
+\screenshot{screenshots/rh/07-employe-cree-liste.png}{La liste filtrée sur « Guide-Ngo Bell » : la nouvelle employée apparaît}
+
+\newpage
+
+% Section 4 : Fiche employé
+\section{La fiche employé}\label{sec:fiche-employe}
+
+Cliquer sur un nom dans la liste ouvre sa fiche complète : la « page du classeur » consacrée à cette personne.
+
+\screenshot{screenshots/rh/08-employe-fiche.png}{La fiche de Sandrine Guide-Ngo Bell}
+
+On y lit toutes les informations : nom, prénom, téléphone, fonction, service, date d'embauche, type de contrat, salaire de base, statut, et les éventuelles notes administratives en bas.
+
+\subsection{Modifier la fiche}
+
+\begin{etapes}
+  \item Sur la fiche (ou avec l'icône crayon dans la liste), clique sur \textbf{Modifier}.
+  \item La même fenêtre qu'à la création s'ouvre, pré-remplie — avec un champ en plus : \textbf{Statut} (Actif, Inactif ou Suspendu).
+  \item Corrige ce qu'il faut, puis \textbf{Enregistrer}.
+\end{etapes}
+
+\screenshot{screenshots/rh/09-employe-modifier.png}{La fenêtre « Modifier l'employé » — le champ Statut apparaît en modification}
+
+\subsection{Activer ou désactiver}
+
+Pas besoin d'ouvrir le formulaire pour changer le statut entre Actif et Inactif :
+
+\begin{itemize}[label=\textcolor{lagoon}{\faCircle}]
+  \item Le bouton \textbf{Désactiver} (icône d'extinction) passe un employé Actif à Inactif — par exemple à son départ.
+  \item Le bouton \textbf{Activer} le fait revenir Actif.
+  \item Le même interrupteur existe dans la colonne ACTIONS de la liste.
+\end{itemize}
+
+\info{On ne peut pas supprimer un employé : on le \textbf{désactive}. Son histoire (bulletins, contrat) reste dans le classeur.}
+
+\newpage
+
+% Section 5 : Bulletins de salaire
+\section{Les bulletins de salaire}\label{sec:bulletins}
+
+C'est le deuxième tiroir : chaque mois, une feuille de paie par employé.
+
+\screenshot{screenshots/rh/10-bulletins-liste.png}{La page « Bulletins de salaire »}
+
+\subsection{Lire le tableau}
+
+\begin{center}
+\begin{tabular}{ll}
+  \toprule
+  \textbf{Colonne} & \textbf{Ce qu'elle dit} \\
+  \midrule
+  EMPLOYÉ & La personne payée (en bleu : cliquer ouvre la fiche du bulletin). \\
+  PÉRIODE & Le mois concerné, au format année-mois (ex. 2026-09). \\
+  BASE & Le salaire de base. \\
+  ÉLÉMENTS & Le total des ajouts (primes, heures sup\ldots), en vert. \\
+  RETENUES & Le total des retraits (avances, retenues), en rouge. \\
+  À PAYER & Ce que l'employé recevra : base $+$ éléments $-$ retenues. \\
+  STATUT & L'étiquette : Calculée, Validée, Payée ou Annulée. \\
+  ACTIONS & Imprimer, valider, payer ou annuler (selon le statut). \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Filtrer les bulletins}
+
+\begin{itemize}[label=\textcolor{lagoon}{\faFilter}]
+  \item \textbf{Employé} : ne montrer que les bulletins d'une personne.
+  \item \textbf{Période} : ne montrer qu'un mois précis (sélecteur mois/année).
+  \item \textbf{Statut} : ne montrer qu'un état (par exemple tous les « Validée » en attente de paiement).
+\end{itemize}
+
+\screenshot{screenshots/rh/11-bulletins-filtre-statut.png}{Le filtre « Statut » déplié sur la liste des bulletins}
+
+\newpage
+
+% Section 6 : Créer un bulletin
+\section{Créer un bulletin}\label{sec:creer-bulletin}
+
+\begin{etapes}
+  \item Sur « Bulletins de salaire », clique sur \textbf{+ Nouveau bulletin}.
+  \item La fenêtre « Nouveau bulletin de salaire » s'ouvre avec trois champs : \textbf{Employé}, \textbf{Période} (le mois) et \textbf{Salaire de base}.
+\end{etapes}
+
+\screenshot{screenshots/rh/12-bulletin-form-vide.png}{La fenêtre « Nouveau bulletin de salaire », vide}
+
+\begin{etapes}
+  \item[3.] Choisis l'employé dans la liste : le \textbf{salaire de base se remplit tout seul} d'après sa fiche — tu peux encore le changer.
+  \item[4.] La période propose le mois en cours ; change-la si tu paies un autre mois.
+  \item[5.] Clique sur \textbf{Créer le bulletin} : tu arrives directement sur la fiche du bulletin, au statut \textbf{Calculée}.
+\end{etapes}
+
+\screenshot{screenshots/rh/13-bulletin-form-rempli.png}{Employé choisi : le salaire de base (75 000 FCFA) est pré-rempli}
+
+\info{Le bulletin naît « vide » : il ne contient que le salaire de base. Les primes, avances et retenues s'ajoutent ensuite, sur la fiche.}
+
+\newpage
+
+% Section 7 : Fiche bulletin
+\section{La fiche du bulletin}\label{sec:fiche-bulletin}
+
+La fiche est la « feuille de paie » complète : les montants en haut, le détail des éléments en bas, et tous les boutons d'action.
+
+\screenshot{screenshots/rh/14-bulletin-fiche.png}{La fiche du bulletin juste après sa création (statut « Calculée », aucun élément)}
+
+En haut, on lit : employé, période, salaire de base, total des éléments, total des retenues et \textbf{montant à payer}. En bas, le tableau « Éléments de salaire » liste les primes et retenues.
+
+\subsection{Ajouter un élément de salaire}
+
+\begin{etapes}
+  \item Clique sur \textbf{+ Ajouter un élément} (visible tant que le bulletin est « Calculée » ou « Validée »).
+  \item Choisis le \textbf{type} : Prime, Avance, Retenue, Heures supplémentaires ou Autre.
+  \item Écris le \textbf{libellé} (ex. « Prime d'assiduité ») et le \textbf{montant}.
+  \item Clique sur \textbf{Ajouter}.
+\end{etapes}
+
+\screenshot{screenshots/rh/15-element-form.png}{La fenêtre « Ajouter un élément de salaire »}
+
+\attention{Pour une \textbf{avance} ou une \textbf{retenue}, écris le montant \emph{en positif} : le système le transforme tout seul en montant négatif. Si tu mets toi-même le signe moins, il sera gardé tel quel.}
+
+\screenshot{screenshots/rh/16-bulletin-avec-element.png}{La fiche après l'ajout d'une prime de 10 000 FCFA : le total éléments passe à $+$10 000}
+
+\subsection{Recalculer, valider, payer}
+
+\begin{itemize}[label=\textcolor{lagoon}{\faCircle}]
+  \item \textbf{Recalculer} : refait les totaux après un changement (sécurité si un montant a bougé). Sur notre exemple, le montant à payer est déjà juste : 75 000 $+$ 10 000 $=$ 85 000 FCFA.
+  \item \textbf{Valider} (bulletin « Calculée ») : fige le bulletin — il passe « Validée », prêt à payer.
+  \item \textbf{Payer le bulletin} (bulletin « Validée ») : enregistre le versement du salaire. Réservé à ceux qui ont aussi l'accès au module Finances.
+  \item \textbf{Annuler} : annule un bulletin « Calculée » ou « Validée » après confirmation.
+  \item \textbf{Imprimer le PDF} : ouvre le bulletin en PDF prêt à imprimer ou à remettre à l'employé.
+\end{itemize}
+
+\screenshot{screenshots/rh/17-bulletin-recalcule.png}{Après « Recalculer » : les totaux restent cohérents (85 000 FCFA à payer)}
+
+\screenshot{screenshots/rh/18-bulletin-valide.png}{Le bulletin après validation : le bouton « Payer le bulletin » apparaît}
+
+Quand on clique « Payer le bulletin », une fenêtre demande le montant (pré-rempli avec le montant à payer) et le \textbf{moyen de paiement} :
+
+\screenshot{screenshots/rh/19-bulletin-payer-form.png}{La fenêtre de paiement : montant et moyen de paiement}
+
+\info{La fenêtre de paiement affiche le bouton « Encaisser » — c'est le même composant que pour les ventes — mais il s'agit bien d'une \textbf{sortie d'argent} : le salaire part de la caisse vers l'employé.}
+
+\attention{Le bouton « Payer le bulletin » n'apparaît que si ton rôle a les permissions \texttt{RH.CREER} \textbf{et} \texttt{FINANCES.VOIR} : payer un salaire, c'est à la fois un acte RH et un acte de caisse.}
+
+\newpage
+
+% Section 8 : Comptes utilisateurs
+\section{Les comptes utilisateurs}\label{sec:comptes}
+
+C'est le troisième tiroir : les clés de l'application. Un employé qui doit encaisser ou consulter l'application a besoin d'un compte (login + mot de passe + rôle).
+
+\screenshot{screenshots/rh/20-comptes.png}{La page « Créer un compte utilisateur »}
+
+\begin{etapes}
+  \item Choisis l'\textbf{employé} dans la liste — seuls les employés \emph{sans compte} y figurent (on ne peut pas créer deux comptes pour la même personne).
+  \item Le \textbf{login} se propose tout seul au format \texttt{prenom.nom} en minuscules ; tu peux le changer — il doit être unique.
+  \item Écris le \textbf{mot de passe} (6 caractères minimum) et communique-le à l'employé.
+  \item Choisis le \textbf{rôle} : c'est lui qui décide de ce que la personne pourra faire dans l'application.
+  \item Pour un \textbf{caissier}, tu peux limiter son compte à une seule \textbf{activité} (ex. la caisse Pressing) ; sinon laisse « Aucune ».
+  \item Clique sur \textbf{Enregistrer} : un bandeau vert confirme « Compte utilisateur créé avec succès ».
+\end{etapes}
+
+\screenshot{screenshots/rh/21-comptes-rempli.png}{Le formulaire rempli : employé choisi, login proposé, rôle sélectionné}
+
+\attention{Le login proposé reprend le prénom et le nom tels quels — un nom composé peut donner un login avec un espace (ici « \texttt{sandrine.guide-ngo bell} »). Corrige-le sans espace avant d'enregistrer : \texttt{sandrine.guide-ngo-bell}.}
+
+\attention{Créer un compte demande la permission \texttt{ADMIN.CREER} (en plus de \texttt{RH.VOIR} pour voir la page). Sans elle, la page affiche « Vous n'avez pas la permission de créer des comptes utilisateurs ».}
+
+\info{Si la liste des employés est vide, c'est que tout le monde a déjà un compte — rien à faire.}
+
+\newpage
+
+% Section 10 : Mobile
+\section{Utiliser le module sur téléphone}\label{sec:mobile}
+
+Le module fonctionne aussi sur un petit écran : les tableaux se lisent en faisant glisser le doigt vers la droite, et le menu latéral se range derrière le logo.
+
+\screenshot{screenshots/rh/22-employes-mobile.png}{La liste des employés sur un écran de 320 px}
+
+\screenshot{screenshots/rh/23-bulletins-mobile.png}{Les bulletins de salaire sur un écran de 320 px}
+
+\astuce{Sur téléphone, privilégie la \textbf{recherche} et les \textbf{filtres} plutôt que de feuilleter les pages : c'est plus rapide pour retrouver une fiche.}
+
+\newpage
+
+% Section 11 : FAQ
+\section{Questions fréquentes}\label{sec:faq}
+
+\begin{longtable}{p{6.5cm}p{8.5cm}}
+  \toprule
+  \textbf{Problème} & \textbf{Solution} \\
+  \midrule
+  \endfirsthead
+  \toprule
+  \textbf{Problème} & \textbf{Solution} \\
+  \midrule
+  \endhead
+
+  « La validation a échoué » à la création d'un employé. &
+  La \textbf{Fonction} n'accepte que les codes connus du système (\texttt{CAISSIER}, \texttt{RECEPTIONNISTE}, \texttt{AUTRE}\ldots). Remplace le mot saisi par la valeur la plus proche — voir la liste dans la section « Ajouter un employé ». \\
+
+  Je ne trouve pas le bouton « Ajouter un employé ». &
+  Ton rôle n'a pas la permission \texttt{RH.CREER}. Demande à un administrateur de te l'accorder. \\
+
+  Je ne peux pas modifier un employé (pas de crayon). &
+  La modification demande \texttt{RH.MODIFIER}. Sans elle, tu peux seulement consulter (\texttt{RH.VOIR}). \\
+
+  Le bouton « Payer le bulletin » n'apparaît pas. &
+  Deux conditions : le bulletin doit être « Validée », \emph{et} ton rôle doit avoir \texttt{RH.CREER} + \texttt{FINANCES.VOIR}. \\
+
+  Je me suis trompé sur un bulletin déjà payé. &
+  Un bulletin « Payée » ne peut plus être modifié ni annulé. Crée un bulletin de régularisation le mois suivant, ou demande à un administrateur. \\
+
+  L'employé n'apparaît pas dans la liste des comptes à créer. &
+  La liste ne montre que les employés \emph{sans compte}. S'il en a déjà un, c'est normal qu'il soit absent. \\
+
+  « Vous n'avez pas accès aux comptes utilisateurs. » &
+  La page demande \texttt{RH.VOIR} et la création \texttt{ADMIN.CREER}. Contacte un administrateur. \\
+
+  \bottomrule
+\end{longtable}
+
+\newpage
+
+% Section 12 : Permissions
+\section{Récapitulatif des permissions}\label{sec:permissions}
+
+\begin{center}
+\begin{tabular}{ll}
+  \toprule
+  \textbf{Permission} & \textbf{Elle permet de\ldots} \\
+  \midrule
+  \texttt{RH.VOIR} & Voir les employés, bulletins et la page des comptes. \\
+  \texttt{RH.CREER} & Ajouter un employé, créer/valider/payer/annuler un bulletin. \\
+  \texttt{RH.MODIFIER} & Modifier un employé, activer/désactiver. \\
+  \texttt{FINANCES.VOIR} & (Avec \texttt{RH.CREER}) afficher le bouton « Payer le bulletin ». \\
+  \texttt{ADMIN.VOIR} & Charger la liste des rôles et des activités pour un compte. \\
+  \texttt{ADMIN.CREER} & Enregistrer un nouveau compte utilisateur. \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+\info{Les permissions sont gérées par les administrateurs dans le module Administration. Si un bouton manque alors que tu devrais l'avoir, vérifie ton rôle avec eux.}
+
+\vspace{1cm}
+\begin{center}
+  \begin{tikzpicture}
+    \node[fill=sea-ink, text=white, rounded corners=10pt, minimum width=14cm, minimum height=2cm, font=\large, align=center]
+      {Guide du module RH — GLOBAL SIM GROUP\\[0.3em]
+       \normalsize Une fiche par personne, un bulletin par mois, une clé par utilisateur.};
+  \end{tikzpicture}
+\end{center}
+
+\end{document}
