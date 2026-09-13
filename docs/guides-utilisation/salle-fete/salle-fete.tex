@@ -1,0 +1,387 @@
+\documentclass[12pt,a4paper]{article}
+
+% Encodage et langue
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[french]{babel}
+
+% Mise en page
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage[colorlinks=true,linkcolor=black,citecolor=black,filecolor=black,urlcolor=black]{hyperref}
+\usepackage{tikz}
+\usepackage{fontawesome5}
+\usepackage{float}
+
+% Couleurs personnalisées (identiques aux autres guides)
+\definecolor{lagoon}{RGB}{0, 128, 128}
+\definecolor{sea-ink}{RGB}{0, 45, 64}
+\definecolor{palm}{RGB}{46, 139, 87}
+\definecolor{warn}{RGB}{230, 126, 34}
+\definecolor{danger}{RGB}{231, 76, 60}
+\definecolor{success}{RGB}{39, 174, 96}
+\definecolor{muted}{RGB}{127, 140, 141}
+
+% Titres
+\titleformat{\section}
+  {\normalfont\Large\bfseries\color{sea-ink}}{\thesection}{1em}{}
+\titleformat{\subsection}
+  {\normalfont\large\bfseries\color{lagoon}}{\thesubsection}{1em}{}
+\titleformat{\subsubsection}
+  {\normalfont\normalsize\bfseries\color{palm}}{\thesubsubsection}{1em}{}
+
+% En-têtes et pieds de page
+\setlength{\headheight}{15pt}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\textcolor{sea-ink}{GLOBAL SIM GROUP — Guide Salle de fête}}
+\fancyhead[R]{\textcolor{muted}{\leftmark}}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0pt}
+
+% Commandes pratiques (identiques aux autres guides)
+\newcommand{\screenshot}[2]{%
+  \begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{#1}
+    \caption{#2}
+  \end{figure}%
+}
+
+\newcommand{\etape}[1]{\textbf{\faHandPointRight\ #1}}
+\newcommand{\attention}[1]{\par\noindent\textcolor{warn}{\faExclamationTriangle\ Attention : #1}\par}
+\newcommand{\astuce}[1]{\par\noindent\textcolor{success}{\faLightbulb\ Astuce : #1}\par}
+\newcommand{\info}[1]{\par\noindent\textcolor{lagoon}{\faInfoCircle\ Info : #1}\par}
+
+\newlist{etapes}{enumerate}{1}
+\setlist[etapes]{label=\textcolor{lagoon}{\faArrowRight\ \arabic*.}, leftmargin=1.5cm, itemsep=0.4em}
+
+\begin{document}
+
+% Page de garde
+\begin{titlepage}
+  \noindent\colorbox{sea-ink}{%
+    \parbox{\dimexpr\textwidth-2\fboxsep}{%
+      \centering
+      \vspace{1.5cm}
+      \includegraphics[height=3cm]{../logo-gsg.png}\par
+      \vspace{0.6cm}
+      {\Huge\bfseries\color{white} GLOBAL SIM GROUP\par}
+      \vspace{0.5cm}
+      {\LARGE\color{white} Guide d'utilisation — Module Salle de fête\par}
+      \vspace{1.5cm}
+    }%
+  }
+
+  \vfill
+  \begin{center}
+    {\Large\color{sea-ink} Apprends à gérer les réservations de la salle\par}
+    \vspace{0.4cm}
+
+    \begin{tikzpicture}
+      \node[fill=lagoon, text=white, rounded corners=10pt, minimum width=12cm, minimum height=1.5cm, font=\large\bfseries] {Réservations · Calendrier · Encaissements};
+    \end{tikzpicture}
+  \end{center}
+
+  \vfill
+  \begin{center}
+    \textcolor{muted}{Version 1.0}
+  \end{center}
+\end{titlepage}
+
+\newpage
+% Table des matières
+\tableofcontents
+\newpage
+
+% Introduction
+\section{Avant de commencer}
+
+Imagine que tu loues une grande salle pour les mariages, les anniversaires et les baptêmes. Tu as un calendrier accroché au mur et un registre : quand quelqu'un veut la salle, tu écris son nom, la date de sa fête, le prix, et l'argent qu'il a déjà versé.
+
+Le module \textbf{Salle de fête} fait exactement ça, sur l'ordinateur. Il a \textbf{deux pages} :
+
+\begin{itemize}[label=\textcolor{lagoon}{\faGlassCheers}]
+  \item \textbf{Réservations} : la liste de toutes les réservations, comme le registre.
+  \item \textbf{Calendrier} : la vue par mois, comme le calendrier au mur, pour voir les jours occupés d'un coup d'\oe il.
+\end{itemize}
+
+\info{Chaque réservation a un \textbf{statut}, comme un petit panneau de couleur : \textbf{Réservée} (orange) → \textbf{Confirmée} (bleu) → \textbf{Réalisée} (gris). Une réservation peut aussi être \textbf{Annulée} (rouge). Tu verras parfois « Disponible » (vert) dans le filtre.}
+
+\info{Ce que tu vois dépend de tes \textbf{permissions}. Si un bouton manque, ce n'est pas un bug : ton rôle n'a pas le droit. Voir le récapitulatif à la fin du guide.}
+
+\newpage
+
+% Section 1 : Ouvrir le module
+\section{Ouvrir le module Salle de fête}\label{sec:ouvrir}
+
+\begin{etapes}
+  \item Connecte-toi à l'application.
+  \item Sur l'accueil, clique sur la carte \textbf{Salle de fête}, puis « Réservations » ou « Calendrier » ; ou clique sur « Salle de fête » dans le menu latéral.
+\end{etapes}
+
+\newpage
+
+% Section 2 : La liste des réservations
+\section{La liste des réservations}\label{sec:liste}
+
+La page \textbf{Réservations — Salle de fête} montre toutes les réservations, une par ligne :
+
+\screenshot{screenshots/salle-fete/01-reservations-liste.png}{La liste des réservations}
+
+Les colonnes du tableau :
+
+\begin{itemize}[label=\textcolor{lagoon}{\faTable}]
+  \item \textbf{CLIENT} : le nom de la personne qui loue la salle (clique dessus pour ouvrir la fiche).
+  \item \textbf{DATE} : le jour et l'heure de début de la fête.
+  \item \textbf{MANIFESTATION} : le type d'événement (mariage, anniversaire\dots).
+  \item \textbf{TARIF} : le prix total de la location.
+  \item \textbf{ACOMPTE} : l'argent déjà versé à la réservation.
+  \item \textbf{SOLDE} : ce qui reste à payer.
+  \item \textbf{STATUT} : le petit panneau de couleur.
+  \item \textbf{ACTIONS} : les petites icônes pour modifier, confirmer, réaliser ou annuler.
+\end{itemize}
+
+\astuce{Toute la ligne est cliquable : clique n'importe où sur une ligne pour ouvrir la fiche de la réservation.}
+
+\subsection{Retrouver une réservation}
+
+La barre de filtres permet de chercher :
+
+\begin{itemize}[label=\textcolor{lagoon}{\faFilter}]
+  \item \textbf{Statut} : ne montre qu'un état (par exemple seulement les « Réservée »).
+\end{itemize}
+
+\screenshot{screenshots/salle-fete/02-filtre-statut-ouvert.png}{Le filtre « Statut » ouvert}
+
+\begin{itemize}[label=\textcolor{lagoon}{\faFilter}]
+  \item \textbf{Manifestation} : tape un mot (ex : « Mariage ») pour ne voir que ces événements.
+  \item \textbf{Les deux cases de date} : « début » et « fin » pour voir les fêtes d'une période.
+\end{itemize}
+
+\screenshot{screenshots/salle-fete/01b-reservations-filtrees.png}{La liste filtrée sur « Mariage Guide »}
+
+\newpage
+
+% Section 3 : Nouvelle réservation
+\section{Créer une réservation}\label{sec:nouvelle}
+
+Quand un client veut réserver la salle :
+
+\begin{etapes}
+  \item Sur la page Réservations, clique sur \textbf{Nouvelle réservation}.
+  \item Une fenêtre s'ouvre au milieu de l'écran.
+\end{etapes}
+
+\screenshot{screenshots/salle-fete/03-nouvelle-reservation-vide.png}{La fenêtre « Nouvelle réservation » vide}
+
+\subsection{Choisir le client}
+
+\begin{etapes}
+  \item Tape au moins \textbf{2 lettres} du nom du client dans la case \textbf{Client}.
+  \item Clique sur le bon client dans la liste qui apparaît.
+\end{etapes}
+
+\screenshot{screenshots/salle-fete/04-reservation-client-choisi.png}{Le client sélectionné}
+
+\info{Si le client n'existe pas encore, clique sur \textbf{Créer un client} sous la case : un mini-formulaire (nom, prénoms, téléphone) s'affiche et le nouveau client est choisi automatiquement.}
+
+\subsection{Remplir les informations de la fête}
+
+\begin{etapes}
+  \item \textbf{Date de l'événement} : le jour de la fête (obligatoire).
+  \item \textbf{Heure de début} : à quelle heure commence la fête (obligatoire).
+  \item \textbf{Durée (en heures)} : combien de temps dure la location (obligatoire).
+  \item \textbf{Type de manifestation} : mariage, anniversaire, baptême\dots (obligatoire).
+  \item \textbf{Tarif (FCFA)} : le prix total de la location (obligatoire).
+  \item \textbf{Acompte (FCFA, optionnel)} : l'argent versé à la réservation, s'il y en a.
+  \item \textbf{Observations} : des notes libres (décoration, nombre d'invités\dots), optionnel.
+  \item Clique sur \textbf{Enregistrer}.
+\end{etapes}
+
+\screenshot{screenshots/salle-fete/05-reservation-remplie.png}{La fenêtre remplie}
+
+La réservation apparaît dans la liste avec le statut \textbf{Réservée} :
+
+\screenshot{screenshots/salle-fete/06-reservation-creee.png}{La réservation créée dans la liste}
+
+\attention{Si un champ obligatoire manque (client, date, heure, durée, type ou tarif), un message rouge sous le champ te dit quoi corriger.}
+
+\newpage
+
+% Section 4 : La fiche réservation
+\section{La fiche d'une réservation}\label{sec:fiche}
+
+Clique sur une ligne du tableau pour ouvrir la \textbf{fiche} de la réservation : sa page détaillée.
+
+\screenshot{screenshots/salle-fete/07-fiche-reservation.png}{La fiche d'une réservation}
+
+La fiche montre :
+
+\begin{itemize}[label=\textcolor{lagoon}{\faList}]
+  \item \textbf{En haut} : le type de manifestation, son statut, et les boutons \textbf{Modifier} et \textbf{Retour aux réservations}.
+  \item \textbf{Le bloc d'informations} : client, date et heure de la fête, durée, type, tarif, acompte et solde, puis le badge de statut et les boutons d'action.
+  \item \textbf{Les observations} en bas du bloc, si elles ont été remplies.
+  \item \textbf{Le tableau Paiements} : chaque encaissement avec sa date, son moyen de paiement, son type et son montant — plus le \textbf{total encaissé} en vert.
+\end{itemize}
+
+\info{Le tableau « Paiements » n'apparaît que si tu as la permission \texttt{FINANCES.VOIR}.}
+
+\subsection{Modifier une réservation}
+
+Clique sur \textbf{Modifier} en haut à droite : la même fenêtre que « Nouvelle réservation » s'ouvre, déjà remplie. Corrige puis clique sur \textbf{Enregistrer}.
+
+\attention{On ne peut plus modifier une réservation « Réalisée » : le bouton Modifier disparaît.}
+
+\newpage
+
+% Section 5 : Confirmer et réaliser
+\section{Confirmer et réaliser : les encaissements}\label{sec:cycle}
+
+La vie d'une réservation suit trois grandes étapes. À chaque étape, tu encaisses de l'argent.
+
+\subsection{Confirmer la réservation}
+
+Le client a versé un acompte ou le solde ? Tu confirmes la réservation :
+
+\begin{etapes}
+  \item Ouvre la fiche de la réservation (statut « Réservée »).
+  \item Clique sur \textbf{Confirmer (encaisser)}.
+  \item Une fenêtre s'ouvre : tape le \textbf{montant} encaissé et choisis le \textbf{moyen de paiement}.
+  \item Clique sur \textbf{Confirmer}.
+\end{etapes}
+
+\screenshot{screenshots/salle-fete/08-confirmer-dialog.png}{La fenêtre « Confirmer la réservation »}
+
+La réservation passe au statut \textbf{Confirmée} et le paiement apparaît dans le tableau :
+
+\screenshot{screenshots/salle-fete/09-fiche-confirmee.png}{La fiche « Confirmée » avec le paiement enregistré}
+
+\subsection{Réaliser la réservation}
+
+Après la fête, le client paie le reste. Tu « réalises » la réservation :
+
+\begin{etapes}
+  \item Ouvre la fiche (statut « Confirmée »).
+  \item Clique sur \textbf{Réaliser (encaisser le solde)}.
+  \item La fenêtre propose le solde restant ; vérifie le montant et le moyen de paiement.
+  \item Clique sur \textbf{Réaliser}.
+\end{etapes}
+
+\screenshot{screenshots/salle-fete/10-realiser-dialog.png}{La fenêtre « Réaliser la réservation »}
+
+La réservation passe au statut \textbf{Réalisée} (gris) — elle est terminée :
+
+\screenshot{screenshots/salle-fete/10b-fiche-realisee.png}{La fiche « Réalisée » : la fête a eu lieu et tout est payé}
+
+\info{Les boutons « Confirmer » et « Réaliser » demandent les permissions \texttt{SALLE\_FETE.MODIFIER} \textbf{et} \texttt{FINANCES.VOIR}, car ils encaissent de l'argent. Ils n'apparaissent que sur le bon statut : « Confirmer » sur Réservée, « Réaliser » sur Confirmée.}
+
+\subsection{Annuler une réservation}
+
+Si le client renonce, clique sur \textbf{Annuler la réservation} (ou l'icône X dans le tableau) : une fenêtre de confirmation s'ouvre, clique sur \textbf{Annuler la réservation} pour confirmer ou \textbf{Fermer} pour renoncer.
+
+\attention{Une réservation « Réalisée » ou « Annulée » est figée : plus de modification ni d'encaissement possible.}
+
+\newpage
+
+% Section 6 : Le calendrier
+\section{Le calendrier}\label{sec:calendrier}
+
+La page \textbf{Calendrier — Salle de fête} montre le mois en entier, comme un calendrier mural. Chaque réservation est une petite étiquette colorée posée sur son jour.
+
+\screenshot{screenshots/salle-fete/11-calendrier.png}{Le calendrier mensuel des réservations}
+
+\begin{itemize}[label=\textcolor{lagoon}{\faCalendar}]
+  \item \textbf{Mois précédent} / \textbf{Mois suivant} : pour naviguer dans le temps.
+  \item \textbf{Aujourd'hui} : revient directement au mois en cours. Le jour actuel est entouré d'un liseré turquoise.
+  \item Chaque étiquette montre \textbf{l'heure de début} et le \textbf{type de manifestation}, dans la couleur du statut.
+  \item Clique sur une étiquette pour ouvrir la fiche de la réservation.
+  \item La \textbf{légende} en bas rappelle la couleur de chaque statut.
+\end{itemize}
+
+\astuce{Le calendrier est parfait pour répondre vite à un client : « Est-ce que la salle est libre le 20 ? » — un coup d'\oe il suffit.}
+
+\attention{Les réservations annulées restent visibles sur le calendrier, mais estompées.}
+
+\newpage
+
+% Section 7 : Vue mobile
+\section{La salle de fête sur téléphone}\label{sec:mobile}
+
+Sur un petit écran, la liste des réservations prend toute la largeur et le tableau peut défiler horizontalement :
+
+\screenshot{screenshots/salle-fete/12-reservations-mobile.png}{La liste des réservations sur téléphone (320 px)}
+
+Le calendrier s'affiche aussi, case par case :
+
+\screenshot{screenshots/salle-fete/13-calendrier-mobile.png}{Le calendrier sur téléphone}
+
+\attention{Sur téléphone, glisse le tableau de gauche à droite pour voir toutes les colonnes (tarif, solde, statut, actions).}
+
+\newpage
+
+% FAQ
+\section{J'ai un problème : que faire ?}
+
+\begin{longtable}{>{\raggedright}p{5cm} p{9cm}}
+\toprule
+\textbf{Problème} & \textbf{Solution} \\
+\midrule
+\endfirsthead
+\multicolumn{2}{c}{\textit{Suite de la FAQ}} \\
+\toprule
+\textbf{Problème} & \textbf{Solution} \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+
+Je ne vois pas le module Salle de fête & Tu n'as pas la permission \texttt{SALLE\_FETE.VOIR}. Demande à l'administrateur. \\
+
+Je ne vois pas « Nouvelle réservation » & Il te manque la permission \texttt{SALLE\_FETE.CREER}. \\
+
+Je ne trouve pas le client & Tape au moins 2 lettres de son nom. Si aucun résultat n'apparaît, crée-le avec \textbf{Créer un client}. \\
+
+« Enregistrer » ne fait rien & Un champ obligatoire est vide : client, date, heure, durée, type de manifestation ou tarif. Cherche le message rouge. \\
+
+Je ne vois pas « Confirmer » ou « Réaliser » & Il te manque \texttt{SALLE\_FETE.MODIFIER} ou \texttt{FINANCES.VOIR}, ou la réservation n'est pas au bon statut. \\
+
+Je ne vois pas le tableau des paiements & Il faut la permission \texttt{FINANCES.VOIR}. \\
+
+La réservation n'apparaît pas sur le calendrier & Vérifie que tu regardes le bon mois (boutons « Mois précédent » / « Mois suivant ») et que la date de l'événement est bien celle-là. \\
+
+Je ne peux plus modifier une réservation & C'est normal : une réservation « Réalisée » ou « Annulée » n'est plus modifiable. \\
+
+\bottomrule
+\end{longtable}
+
+\newpage
+
+\section{Récapitulatif des permissions}
+
+\begin{itemize}[label=\textcolor{lagoon}{\faKey}]
+  \item \texttt{SALLE\_FETE.VOIR} : voir les réservations et le calendrier.
+  \item \texttt{SALLE\_FETE.CREER} : créer une réservation.
+  \item \texttt{SALLE\_FETE.MODIFIER} : modifier ou annuler une réservation.
+  \item \texttt{SALLE\_FETE.MODIFIER} + \texttt{FINANCES.VOIR} : confirmer et réaliser (encaisser), voir le tableau des paiements.
+\end{itemize}
+
+\info{Les permissions se règlent dans le module Administration (page Rôles).}
+
+\vfill
+
+\begin{center}
+\begin{tikzpicture}
+  \node[fill=sea-ink, text=white, rounded corners=10pt, minimum width=10cm, minimum height=1.5cm, font=\large\bfseries] {Belles fêtes avec GLOBAL SIM GROUP !};
+\end{tikzpicture}
+\end{center}
+
+\end{document}
