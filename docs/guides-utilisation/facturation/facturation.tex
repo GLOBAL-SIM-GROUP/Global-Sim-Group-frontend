@@ -1,0 +1,355 @@
+\documentclass[12pt,a4paper]{article}
+
+% Encodage et langue
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[french]{babel}
+
+% Mise en page
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage[colorlinks=true,linkcolor=black,citecolor=black,filecolor=black,urlcolor=black]{hyperref}
+\usepackage{tikz}
+\usepackage{fontawesome5}
+\usepackage{float}
+
+% Couleurs personnalisées (identiques aux autres guides)
+\definecolor{lagoon}{RGB}{0, 128, 128}
+\definecolor{sea-ink}{RGB}{0, 45, 64}
+\definecolor{palm}{RGB}{46, 139, 87}
+\definecolor{warn}{RGB}{230, 126, 34}
+\definecolor{danger}{RGB}{231, 76, 60}
+\definecolor{success}{RGB}{39, 174, 96}
+\definecolor{muted}{RGB}{127, 140, 141}
+
+% Titres
+\titleformat{\section}
+  {\normalfont\Large\bfseries\color{sea-ink}}{\thesection}{1em}{}
+\titleformat{\subsection}
+  {\normalfont\large\bfseries\color{lagoon}}{\thesubsection}{1em}{}
+\titleformat{\subsubsection}
+  {\normalfont\normalsize\bfseries\color{palm}}{\thesubsubsection}{1em}{}
+
+% En-têtes et pieds de page
+\setlength{\headheight}{15pt}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\textcolor{sea-ink}{GLOBAL SIM GROUP — Guide Facturation}}
+\fancyhead[R]{\textcolor{muted}{\leftmark}}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0pt}
+
+% Commandes pratiques (identiques aux autres guides)
+\newcommand{\screenshot}[2]{%
+  \begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{#1}
+    \caption{#2}
+  \end{figure}%
+}
+
+\newcommand{\etape}[1]{\textbf{\faHandPointRight\ #1}}
+\newcommand{\attention}[1]{\par\noindent\textcolor{warn}{\faExclamationTriangle\ Attention : #1}\par}
+\newcommand{\astuce}[1]{\par\noindent\textcolor{success}{\faLightbulb\ Astuce : #1}\par}
+\newcommand{\info}[1]{\par\noindent\textcolor{lagoon}{\faInfoCircle\ Info : #1}\par}
+
+\newlist{etapes}{enumerate}{1}
+\setlist[etapes]{label=\textcolor{lagoon}{\faArrowRight\ \arabic*.}, leftmargin=1.5cm, itemsep=0.4em}
+
+\begin{document}
+
+% Page de garde
+\begin{titlepage}
+  \noindent\colorbox{sea-ink}{%
+    \parbox{\dimexpr\textwidth-2\fboxsep}{%
+      \centering
+      \vspace{1.5cm}
+      \includegraphics[height=3cm]{../logo-gsg.png}\par
+      \vspace{0.6cm}
+      {\Huge\bfseries\color{white} GLOBAL SIM GROUP\par}
+      \vspace{0.5cm}
+      {\LARGE\color{white} Guide d'utilisation — Module Facturation\par}
+      \vspace{1.5cm}
+    }%
+  }
+
+  \vfill
+  \begin{center}
+    {\Large\color{sea-ink} Apprends à émettre et encaisser des factures\par}
+    \vspace{0.4cm}
+
+    \begin{tikzpicture}
+      \node[fill=lagoon, text=white, rounded corners=10pt, minimum width=12cm, minimum height=1.5cm, font=\large\bfseries] {Factures · Prestations · Encaissements · Impression};
+    \end{tikzpicture}
+  \end{center}
+
+  \vfill
+  \begin{center}
+    \textcolor{muted}{Version 1.0}
+  \end{center}
+\end{titlepage}
+
+\newpage
+% Table des matières
+\tableofcontents
+\newpage
+
+% Introduction
+\section{Avant de commencer}
+
+Imagine un carnet de reçus. Chaque fois qu'un client paie quelque chose — une nuitée, un repas, un pressing, une prestation spéciale — tu détaches une feuille du carnet : c'est la \textbf{facture}. Elle dit qui a payé, pour quoi, combien, et combien il reste éventuellement à payer.
+
+Le module \textbf{Facturation} est ce carnet de reçus, sur l'ordinateur. Il a \textbf{deux pages} :
+
+\begin{itemize}[label=\textcolor{lagoon}{\faFileInvoiceDollar}]
+  \item \textbf{Facturation ponctuelle} : la liste de toutes les factures émises — celles créées ici à la main \emph{et} celles générées automatiquement par les autres modules (restaurant, pressing, séjours, salle de fête, ventes, charges).
+  \item \textbf{Prestations facturables} : le petit catalogue des services que tu peux facturer à la demande (par exemple « Décoration florale », « Location de matériel »\ldots).
+\end{itemize}
+
+\info{Chaque facture porte un \textbf{statut}, comme un petit panneau de couleur : \textbf{Payée} (vert — tout est réglé), \textbf{Partielle} (orange — une partie payée, un reste dû), \textbf{Impayée} (rouge — rien payé), \textbf{Annulée} (gris).}
+
+\info{La colonne \textbf{Source} dit d'où vient la facture : « Prestation » pour les factures ponctuelles créées ici, ou « Commande restaurant », « Commande pressing », « Séjour », « Réservation salle », « Vente », « Charge » pour celles générées par les autres modules.}
+
+\info{Ce que tu vois dépend de tes \textbf{permissions}. Si un bouton manque, ce n'est pas un bug : ton rôle n'a pas le droit. Voir le récapitulatif à la fin du guide.}
+
+\newpage
+
+% Section 1 : Ouvrir le module
+\section{Ouvrir le module Facturation}\label{sec:ouvrir}
+
+\begin{etapes}
+  \item Connecte-toi à l'application.
+  \item Sur l'accueil, clique sur la carte \textbf{Facturation}, puis « Facturation ponctuelle » ou « Prestations facturables » ; ou clique sur « Facturation » dans le menu latéral à gauche.
+\end{etapes}
+
+\newpage
+
+% Section 2 : La liste des factures
+\section{La liste des factures}\label{sec:liste}
+
+La page \textbf{Facturation ponctuelle} montre toutes les factures émises, une par ligne, de la plus récente à la plus ancienne :
+
+\screenshot{screenshots/facturation/01-factures-liste.png}{La liste des factures}
+
+Les colonnes du tableau :
+
+\begin{itemize}[label=\textcolor{lagoon}{\faCircle}]
+  \item \textbf{Numéro} : le nom unique de la facture (par exemple \texttt{GSG-FAC-2026-009}). Clique dessus — ou n'importe où sur la ligne — pour ouvrir la fiche.
+  \item \textbf{Date} : quand la facture a été créée.
+  \item \textbf{Client} : le nom du client, ou « — » si la facture n'est rattachée à personne.
+  \item \textbf{Source} : le module qui a produit la facture.
+  \item \textbf{Montant} : le total à payer.
+  \item \textbf{Payé} : ce qui a déjà été encaissé (en vert).
+  \item \textbf{Reste} : ce qui reste dû (en rouge).
+  \item \textbf{Statut} : le panneau de couleur (Payée, Partielle, Impayée, Annulée).
+\end{itemize}
+
+\astuce{En bas du tableau, la ligne « Affichage de 1 à 10 sur N résultats » et les boutons \textbf{Précédent} / \textbf{Suivant} permettent de feuilleter le carnet page par page.}
+
+\subsection{Retrouver une facture}
+
+Trois filtres t'aident à retrouver une facture précisément :
+
+\begin{etapes}
+  \item \textbf{Recherche} : tape un numéro de facture ou un nom de client dans le champ « Rechercher par numéro ou client\ldots ». La liste se filtre pendant que tu écris.
+  \item \textbf{Statut} : clique sur la liste « Tous les statuts » pour ne garder qu'un statut (par exemple « Partielle » pour voir toutes les factures avec un reste à payer).
+\end{etapes}
+
+\screenshot{screenshots/facturation/02-filtre-statut-ouvert.png}{Le filtre « Statut » ouvert}
+
+\begin{etapes}
+  \setcounter{etapesi}{2}
+  \item \textbf{Source} : clique sur la liste « Toutes les sources » pour ne garder que les factures d'un module (par exemple « Commande pressing »).
+\end{etapes}
+
+\screenshot{screenshots/facturation/03-filtre-source-ouvert.png}{Le filtre « Source » ouvert}
+
+\info{Les filtres se combinent : tu peux chercher « Guide » \emph{et} ne garder que les « Partielle ». Remets « Tous les statuts » / « Toutes les sources » pour tout revoir.}
+
+\newpage
+
+% Section 3 : Créer une facture ponctuelle
+\section{Créer une facture ponctuelle}\label{sec:creer}
+
+Une facture ponctuelle sert à facturer un service du catalogue \textbf{Prestations facturables} à un client — par exemple une décoration florale pour un événement.
+
+\begin{etapes}
+  \item Sur la page \textbf{Facturation ponctuelle}, clique sur le bouton orange \textbf{Nouvelle facture ponctuelle} en haut à droite.
+  \item La fenêtre « Nouvelle facture ponctuelle » s'ouvre :
+\end{etapes}
+
+\screenshot{screenshots/facturation/04-nouvelle-facture-vide.png}{La fenêtre « Nouvelle facture ponctuelle »}
+
+\subsection{Remplir la facture}
+
+\begin{etapes}
+  \item \textbf{Prestation} (obligatoire) : clique sur la liste et choisis le service à facturer. Le prix de la prestation s'affiche dans la liste, et remplit automatiquement le champ « Montant payé ».
+\end{etapes}
+
+\screenshot{screenshots/facturation/05-facture-prestation-ouvert.png}{Le choix de la prestation}
+
+\begin{etapes}
+  \setcounter{etapesi}{1}
+  \item \textbf{Client} (optionnel) : tape au moins 2 lettres du nom dans « Rechercher par nom, prénom, téléphone\ldots » puis clique sur le client trouvé. S'il n'existe pas encore, clique sur « + Créer un client » pour l'ajouter sans quitter la fenêtre.
+  \item \textbf{Montant payé} (obligatoire) : ce que le client te donne \emph{maintenant}. Pré-rempli avec le prix de la prestation — réduis-le si le client ne paie qu'une partie : la facture passera en « Partielle » et tu encaisseras le reste plus tard.
+  \item \textbf{Remise} (optionnel) : une réduction en FCFA, si tu veux faire un geste commercial.
+  \item \textbf{Moyen de paiement} (obligatoire) : comment le client paie (Espèces, Carte bancaire, MOMO\ldots).
+\end{etapes}
+
+\screenshot{screenshots/facturation/06-facture-remplie.png}{La fenêtre remplie — ici un acompte de 25 000 FCFA sur une prestation de 50 000 FCFA}
+
+\begin{etapes}
+  \setcounter{etapesi}{5}
+  \item Clique sur \textbf{Facturer}. La fiche de la facture créée s'ouvre tout de suite.
+\end{etapes}
+
+\attention{Sans prestation ni moyen de paiement, le bouton « Facturer » affiche un message d'erreur en rouge sous le champ manquant — remplis-le puis réessaie.}
+
+\newpage
+
+% Section 4 : La fiche facture
+\section{La fiche facture}\label{sec:fiche}
+
+La fiche est la page d'une seule facture : tout son détail, ses lignes, et les actions possibles.
+
+\screenshot{screenshots/facturation/07-fiche-facture.png}{La fiche d'une facture « Partielle »}
+
+On y lit :
+
+\begin{itemize}[label=\textcolor{lagoon}{\faCircle}]
+  \item Le \textbf{numéro}, la \textbf{date}, le \textbf{client} et la \textbf{remise} éventuelle.
+  \item Le \textbf{montant total}, le \textbf{montant payé} et le \textbf{reste dû}.
+  \item Le \textbf{statut} en haut à droite (ici « Partielle » : 25 000 payés sur 50 000).
+  \item Le tableau \textbf{Lignes} : ce qui est facturé (libellé, quantité, prix unitaire, total). Une facture ponctuelle a une ligne par prestation ; une facture venue du restaurant ou du pressing a une ligne par plat ou article.
+\end{itemize}
+
+\subsection{Imprimer la facture}
+
+En haut à droite, deux boutons d'impression :
+
+\begin{itemize}[label=\textcolor{lagoon}{\faPrint}]
+  \item \textbf{PDF} (bleu) : la facture au format A4, à imprimer ou à envoyer au client.
+  \item \textbf{Ticket} (vert) : un petit reçu pour imprimante de caisse. Clique dessus, puis choisis la largeur du papier : \textbf{58 mm} ou \textbf{80 mm}.
+\end{itemize}
+
+\screenshot{screenshots/facturation/08-ticket-menu.png}{Le choix de largeur du ticket : 58 mm ou 80 mm}
+
+\newpage
+
+% Section 5 : Encaisser le solde
+\section{Encaisser le reste d'une facture}\label{sec:encaisser}
+
+Un client qui n'avait pas tout payé revient avec le reste ? La facture « Partielle » (ou « Impayée ») peut être soldée depuis sa fiche.
+
+\begin{etapes}
+  \item Ouvre la fiche de la facture (clique sur sa ligne dans la liste).
+  \item Clique sur \textbf{Enregistrer un paiement} — le bouton n'apparaît que si la facture n'est pas totalement payée.
+  \item La fenêtre « Enregistrer un paiement » s'ouvre. Le montant est pré-rempli avec le reste dû — ajuste-le si le client paie encore moins que le solde, choisis le \textbf{moyen de paiement}, puis clique sur \textbf{Encaisser}.
+\end{etapes}
+
+\screenshot{screenshots/facturation/09-paiement-dialog.png}{Encaisser le solde : 25 000 FCFA restants, par carte bancaire}
+
+Quand tout est payé, le statut passe en \textbf{Payée} (vert), le reste dû tombe à 0 FCFA et le bouton « Enregistrer un paiement » disparaît :
+
+\screenshot{screenshots/facturation/10-fiche-payee.png}{La facture soldée : statut « Payée », reste dû 0 FCFA}
+
+\attention{Si la caisse du jour est fermée, l'encaissement est refusé et un message orange t'en informe. Ouvre la caisse dans le module \textbf{Finances} puis réessaie.}
+
+\newpage
+
+% Section 6 : Les prestations facturables
+\section{Le catalogue des prestations}\label{sec:prestations}
+
+La page \textbf{Prestations facturables} est le petit catalogue des services que tu peux facturer à la demande dans « Facturation ponctuelle ». Chaque ligne montre le libellé, la catégorie, le prix et si la prestation est active :
+
+\screenshot{screenshots/facturation/11-prestations.png}{Le catalogue des prestations facturables}
+
+\subsection{Ajouter une prestation}
+
+\begin{etapes}
+  \item Clique sur \textbf{Ajouter une prestation}.
+  \item Remplis le \textbf{libellé} (obligatoire), la \textbf{catégorie} et la \textbf{description} (optionnelles), le \textbf{prix} en FCFA (obligatoire).
+  \item Laisse l'interrupteur \textbf{Actif} allumé pour que la prestation apparaisse dans la liste de choix des factures.
+  \item Clique sur \textbf{Enregistrer}.
+\end{etapes}
+
+\screenshot{screenshots/facturation/12-prestation-form.png}{La fenêtre « Ajouter une prestation »}
+
+\subsection{Modifier ou désactiver}
+
+Sur chaque ligne du catalogue, deux petites icônes à droite :
+
+\begin{itemize}[label=\textcolor{lagoon}{\faCircle}]
+  \item \textbf{Crayon} : modifier le libellé, la catégorie, le prix, la description ou l'état actif.
+  \item \textbf{Interrupteur} (power) : \textbf{désactiver} une prestation (elle disparaît de la liste de choix des nouvelles factures, sans être supprimée) ou la \textbf{réactiver}.
+\end{itemize}
+
+\astuce{Une prestation « Non » active n'apparaît plus dans la fenêtre « Nouvelle facture ponctuelle », mais les factures déjà émises avec elle ne changent pas.}
+
+\newpage
+
+% Section 7 : Vue mobile
+\section{Sur un petit écran}\label{sec:mobile}
+
+Le module fonctionne aussi sur téléphone. Le menu latéral se replie derrière le bouton hamburger en haut à gauche ; le tableau des factures se fait défiler horizontalement pour voir toutes les colonnes :
+
+\screenshot{screenshots/facturation/13-factures-mobile.png}{La liste des factures sur mobile (320 px)}
+
+La fiche facture s'adapte également : les informations s'empilent et les lignes restent lisibles par défilement horizontal :
+
+\screenshot{screenshots/facturation/14-fiche-mobile.png}{La fiche facture sur mobile (320 px)}
+
+\newpage
+
+% Section 8 : FAQ
+\section{Questions fréquentes}\label{sec:faq}
+
+\begin{longtable}{p{6cm} p{8.5cm}}
+\toprule
+\textbf{Problème} & \textbf{Solution} \\
+\midrule
+\endhead
+Le bouton « Nouvelle facture ponctuelle » n'apparaît pas. & Ton rôle n'a pas la permission \texttt{FACTURATION.CREER} (ou \texttt{FINANCES.VOIR}, les deux sont nécessaires). Demande à l'administrateur. \\
+\midrule
+Je ne trouve pas ma facture. & Vérifie les filtres : remets « Tous les statuts » et « Toutes les sources », vide le champ de recherche, et feuillette les pages avec « Suivant ». \\
+\midrule
+Le message « Sélectionnez un moyen de paiement » bloque la création. & Le moyen de paiement est obligatoire : ouvre la liste et choisis-en un (Espèces, Carte bancaire\ldots). \\
+\midrule
+La prestation que je veux n'est pas dans la liste. & Elle n'existe pas encore ou elle est désactivée : va dans « Prestations facturables » pour l'ajouter ou la réactiver. \\
+\midrule
+Le bouton « Enregistrer un paiement » n'est pas là. & Il n'apparaît que sur une facture « Partielle » ou « Impayée », et seulement avec les permissions \texttt{FACTURATION.CREER} + \texttt{FINANCES.VOIR}. Une facture « Payée » ou « Annulée » ne peut plus être encaissée. \\
+\midrule
+L'encaissement est refusé avec un message orange sur la caisse. & La caisse du jour est fermée : ouvre-la dans le module Finances, puis réessaie. \\
+\midrule
+Le client a payé en deux fois, puis une troisième fois. & Pas de problème : chaque « Enregistrer un paiement » ajoute un encaissement, le « Payé » augmente et le « Reste » diminue jusqu'à 0 FCFA. \\
+\bottomrule
+\end{longtable}
+
+\newpage
+
+% Section 9 : Permissions
+\section{Récapitulatif des permissions}\label{sec:permissions}
+
+\begin{center}
+\begin{tabular}{p{5cm} p{9.5cm}}
+\toprule
+\textbf{Permission} & \textbf{Ce qu'elle débloque} \\
+\midrule
+\texttt{FACTURATION.CREER} + \texttt{FINANCES.VOIR} & Bouton « Nouvelle facture ponctuelle », création de factures, « Enregistrer un paiement » (encaissement du solde), « Ajouter une prestation ». \\
+\midrule
+\texttt{FACTURATION.MODIFIER} & Icônes crayon et interrupteur sur le catalogue : modifier une prestation, l'activer ou la désactiver. \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\info{La lecture des pages (liste des factures, fiches, catalogue des prestations) et les impressions PDF / ticket sont visibles par les utilisateurs qui ont accès au module Facturation. Les permissions servent de garde-fou d'affichage : c'est le backend qui tranche en dernier.}
+
+\end{document}
