@@ -519,30 +519,40 @@ L'onglet \textbf{Caution} montre :
 Quand le locataire paie sa caution :
 
 \begin{etapes}
-  \item Clique sur \textbf{Déclarer le versement}.
-  \item Vérifie la \textbf{date} et le \textbf{montant} (préremplis).
-  \item Clique sur \textbf{Déclarer le versement}.
+  \item Clique sur \textbf{Encaisser la caution} (bouton orange).
+  \item Vérifie le \textbf{montant} (prérempli avec le montant de la caution).
+  \item Choisis le \textbf{moyen de paiement}.
+  \item Indique si besoin la \textbf{date} et une \textbf{référence} (optionnelles — par défaut \texttt{CAUTION-<id>}).
+  \item Clique sur \textbf{Encaisser la caution}.
 \end{etapes}
 
-\screenshot{screenshots/residence/18f-contrat-fiche-caution-versement.png}{La fenêtre de déclaration du versement de la caution}
+\screenshot{screenshots/residence/18f-contrat-fiche-caution-versement.png}{La fenêtre « Encaisser la caution »}
 
-\attention{Cette action est une simple \textbf{déclaration} de traçabilité : elle ne crée pas d'encaissement de caisse. Le versement réel se gère dans le module Finances.}
+\info{L'encaissement se fait \textbf{en une seule opération} : le paiement est enregistré dans le module Finances (encaissement de caisse) \emph{et} la caution passe au statut Payée. L'écran de confirmation affiche la \textbf{référence du paiement} créé.}
 
-Une fois versée, la caution passe au statut \textbf{Payée} et le bouton \textbf{Restituer la caution} apparaît.
+\screenshot{screenshots/residence/18f2-caution-encaissee.png}{La confirmation : « Caution encaissée — paiement référence 318 »}
 
-\screenshot{screenshots/residence/18g-contrat-fiche-caution-payee.png}{La caution payée, prête à être restituée}
+\astuce{Le petit bouton \textbf{Déclarer un versement hors système} (à côté) sert si la caution a déjà été encaissée par un autre biais : il ne fait que \textbf{tracer} le versement, sans créer de mouvement de caisse. Pour un paiement réel, utilise toujours « Encaisser la caution ».}
 
-\subsubsection{Restituer la caution}
+Une fois versée, la caution passe au statut \textbf{Payée} et le bouton \textbf{Rembourser la caution} apparaît. L'historique trace l'événement (ici : « Encaissé — paiement 318 »).
+
+\screenshot{screenshots/residence/18g-contrat-fiche-caution-payee.png}{La caution payée, prête à être remboursée}
+
+\subsubsection{Rembourser la caution}
 
 À la fin du bail, quand le locataire quitte le logement :
 
 \begin{etapes}
-  \item Clique sur \textbf{Restituer la caution}.
-  \item Indique une \textbf{retenue} si tu gardes une partie de la caution (pour des réparations, par exemple), et le \textbf{motif}.
-  \item Clique sur \textbf{Restituer}.
+  \item Clique sur \textbf{Rembourser la caution}.
+  \item Choisis le \textbf{moyen de paiement} du remboursement.
+  \item Indique une \textbf{retenue} si tu gardes une partie de la caution (pour des réparations, par exemple), et le \textbf{motif} — la retenue est déduite du montant remboursé.
+  \item Indique si besoin la \textbf{date} (optionnelle).
+  \item Clique sur \textbf{Rembourser la caution}.
 \end{etapes}
 
-\screenshot{screenshots/residence/18h-contrat-fiche-caution-restitution.png}{La fenêtre de restitution de la caution, avec retenue optionnelle}
+\screenshot{screenshots/residence/18h-contrat-fiche-caution-restitution.png}{La fenêtre « Rembourser la caution », avec retenue optionnelle}
+
+\info{Le remboursement crée un \textbf{décaissement réel} dans le module Finances, du montant \emph{caution moins retenue}. Si la retenue couvre toute la caution, aucun paiement n'est créé (rien ne sort physiquement) mais la restitution est quand même tracée.}
 
 \subsubsection{L'état des lieux}
 
@@ -638,6 +648,18 @@ En haut de la page, un bandeau de filtres te permet de réduire la liste :
 Le formulaire te dira si tu te trompes.}
 
 \attention{Si le menu \textbf{Logement} reste vide, c'est que le bâtiment ne contient aucun logement de statut \og{}Disponible\fg{}. Vérifie la liste des logements du bâtiment avant de créer le séjour.}
+
+\subsection{La fiche d'un séjour}
+
+Clique sur un séjour dans la liste pour ouvrir sa \textbf{fiche} : informations complètes (client, logement, arrivée, tarif, montants) et, en dessous, la \textbf{facture} générée automatiquement.
+
+\screenshot{screenshots/residence/24-sejour-fiche.png}{La fiche d'un séjour terminé, avec sa facture payée}
+
+\begin{itemize}
+  \item \textbf{Modifier} : permet de corriger le séjour — uniquement s'il n'est pas \textbf{Terminé}.
+  \item \textbf{Enregistrer un paiement} : apparaît si le séjour a un \textbf{reste à payer} (et si tu as les permissions caisse).
+  \item \textbf{Facture} : numéro, statut et lignes ; les boutons \textbf{PDF} et \textbf{Ticket} en haut à droite téléchargent la facture au format A4 ou reçu de caisse.
+\end{itemize}
 
 \newpage
 
@@ -942,7 +964,8 @@ Chaque bouton dans l'application est caché si tu n'as pas la bonne permission. 
 \begin{itemize}[label=\textcolor{lagoon}{\faKey}]
   \item \texttt{RESIDENCE.VOIR} : voir le module Résidence.
   \item \texttt{RESIDENCE.CREER} : créer un bâtiment, un logement, un contrat, un séjour, une charge.
-  \item \texttt{RESIDENCE.MODIFIER} : modifier un contrat, déclarer un versement de caution.
+  \item \texttt{RESIDENCE.MODIFIER} : modifier un logement ou un contrat, encaisser ou rembourser une caution, déclarer un versement hors système.
+  \item \texttt{RESIDENCE.ENCAISSER} : enregistrer un paiement sur la fiche d'un séjour (nécessite aussi \texttt{FINANCES.VOIR}).
   \item \texttt{CLIENT.VOIR} : voir les informations des clients.
   \item \texttt{CLIENT.MODIFIER} : modifier les informations des clients.
   \item \texttt{FINANCES.VOIR} : voir les moyens de paiement et les encaissements.
