@@ -1,0 +1,446 @@
+\documentclass[12pt,a4paper]{article}
+
+% Encodage et langue
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[french]{babel}
+
+% Mise en page
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage[colorlinks=true,linkcolor=black,citecolor=black,filecolor=black,urlcolor=black]{hyperref}
+\usepackage{tikz}
+\usepackage{fontawesome5}
+\usepackage{float}
+
+% Couleurs personnalisées (identiques aux autres guides)
+\definecolor{lagoon}{RGB}{0, 128, 128}
+\definecolor{sea-ink}{RGB}{0, 45, 64}
+\definecolor{palm}{RGB}{46, 139, 87}
+\definecolor{warn}{RGB}{230, 126, 34}
+\definecolor{danger}{RGB}{231, 76, 60}
+\definecolor{success}{RGB}{39, 174, 96}
+\definecolor{muted}{RGB}{127, 140, 141}
+
+% Titres
+\titleformat{\section}
+  {\normalfont\Large\bfseries\color{sea-ink}}{\thesection}{1em}{}
+\titleformat{\subsection}
+  {\normalfont\large\bfseries\color{lagoon}}{\thesubsection}{1em}{}
+\titleformat{\subsubsection}
+  {\normalfont\normalsize\bfseries\color{palm}}{\thesubsubsection}{1em}{}
+
+% En-têtes et pieds de page
+\setlength{\headheight}{15pt}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\textcolor{sea-ink}{GLOBAL SIM GROUP — Guide Administration}}
+\fancyhead[R]{\textcolor{muted}{\leftmark}}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0pt}
+
+% Commandes pratiques (identiques aux autres guides)
+\newcommand{\screenshot}[2]{%
+  \begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{#1}
+    \caption{#2}
+  \end{figure}%
+}
+
+\newcommand{\etape}[1]{\textbf{\faHandPointRight\ #1}}
+\newcommand{\attention}[1]{\par\noindent\textcolor{warn}{\faExclamationTriangle\ Attention : #1}\par}
+\newcommand{\astuce}[1]{\par\noindent\textcolor{success}{\faLightbulb\ Astuce : #1}\par}
+\newcommand{\info}[1]{\par\noindent\textcolor{lagoon}{\faInfoCircle\ Info : #1}\par}
+
+\newlist{etapes}{enumerate}{1}
+\setlist[etapes]{label=\textcolor{lagoon}{\faArrowRight\ \arabic*.}, leftmargin=1.5cm, itemsep=0.4em}
+
+\begin{document}
+
+% Page de garde
+\begin{titlepage}
+  \noindent\colorbox{sea-ink}{%
+    \parbox{\dimexpr\textwidth-2\fboxsep}{%
+      \centering
+      \vspace{1.5cm}
+      \includegraphics[height=3cm]{../logo-gsg.png}\par
+      \vspace{0.6cm}
+      {\Huge\bfseries\color{white} GLOBAL SIM GROUP\par}
+      \vspace{0.5cm}
+      {\LARGE\color{white} Guide d'utilisation — Module Administration\par}
+      \vspace{1.5cm}
+    }%
+  }
+
+  \vfill
+  \begin{center}
+    {\Large\color{sea-ink} Apprends à gérer les comptes, les rôles et la sécurité\par}
+    \vspace{0.4cm}
+
+    \begin{tikzpicture}
+      \node[fill=lagoon, text=white, rounded corners=10pt, minimum width=12cm, minimum height=1.5cm, font=\large\bfseries] {Utilisateurs · Rôles · Audit · Sauvegardes};
+    \end{tikzpicture}
+  \end{center}
+
+  \vfill
+  \begin{center}
+    \textcolor{muted}{Version 1.0}
+  \end{center}
+\end{titlepage}
+
+\newpage
+% Table des matières
+\tableofcontents
+\newpage
+
+% Introduction
+\section{Avant de commencer}
+
+Imagine le tableau de contrôle d'un immeuble : il y a le registre des clés (qui a accès à quoi), le tableau des badges (quel badge ouvre quelles portes), le livre de bord (qui est entré, quand, pour faire quoi) et le local des archives (les copies de sécurité). Personne n'y touche sans être le gardien chef.
+
+Le module \textbf{Administration} est ce tableau de contrôle, sur l'ordinateur. Il est réservé aux responsables et regroupe \textbf{quatre pages} :
+
+\begin{itemize}[label=\textcolor{lagoon}{\faUsers}]
+  \item \textbf{Rôles} : les profils d'accès (Administrateur, Caissier, Serveur\ldots) et leurs permissions.
+  \item \textbf{Utilisateurs} : les comptes de connexion, leur rôle et leur statut actif/inactif.
+  \item \textbf{Journal d'audit} : l'historique de toutes les opérations — qui, quoi, quand.
+  \item \textbf{Sauvegardes} : les copies de sécurité de la base de données.
+\end{itemize}
+
+\attention{Ce module est \textbf{sensible} : tout ce que tu y fais change qui a accès à l'application. Toutes les actions y sont tracées dans le journal d'audit.}
+
+\info{Ce que tu vois dépend de tes \textbf{permissions}. Si un bouton manque, ce n'est pas un bug : ton rôle n'a pas le droit. Voir le récapitulatif à la fin du guide.}
+
+\newpage
+
+% Section 1 : Ouvrir le module
+\section{Ouvrir le module Administration}\label{sec:ouvrir}
+
+\begin{etapes}
+  \item Connecte-toi à l'application.
+  \item Dans le menu latéral, déplie \textbf{Administration} (icône bouclier).
+  \item Choisis la page : \textbf{Rôles}, \textbf{Utilisateurs}, \textbf{Journal d'audit} ou \textbf{Sauvegardes}.
+\end{etapes}
+
+\info{Les quatre pages exigent la permission \texttt{ADMIN.VOIR}. Sans elle, l'entrée « Administration » n'apparaît même pas dans le menu.}
+
+\newpage
+
+% Section 2 : Les utilisateurs
+\section{La liste des utilisateurs}\label{sec:utilisateurs}
+
+La page \textbf{Utilisateurs} montre tous les comptes de connexion, un par ligne :
+
+\screenshot{screenshots/administration/01-utilisateurs.png}{La liste des utilisateurs}
+
+Les colonnes du tableau :
+
+\begin{itemize}[label=\textcolor{lagoon}{\faTable}]
+  \item \textbf{LOGIN} : l'identifiant de connexion (ex : \texttt{admin}, \texttt{caissier}, \texttt{gsg-cl-017}).
+  \item \textbf{EMPLOYÉ} : l'employé associé au compte, ou « -- » si le compte n'est rattaché à aucun employé (cas des comptes clients, par exemple).
+  \item \textbf{RÔLE} : le profil d'accès (Administrateur, Caissier, Résident\ldots).
+  \item \textbf{DERNIÈRE CONNEXION} : date et heure de la dernière connexion, ou « -- » si le compte ne s'est jamais connecté.
+  \item \textbf{STATUT} : badge \textbf{Actif} (vert) ou \textbf{Inactif} — un compte inactif ne peut plus se connecter.
+  \item \textbf{ACTIONS} : trois icônes par ligne (voir section~\ref{sec:actions-utilisateur}).
+\end{itemize}
+
+En bas de page, une \textbf{pagination} indique « Affichage de 1 à 10 sur N résultats » : les comptes sont montrés par 10, utilise \textbf{Précédent} / \textbf{Suivant} pour changer de page.
+
+\subsection{Retrouver un compte}
+
+Trois outils au-dessus du tableau, combinables :
+
+\begin{itemize}[label=\textcolor{lagoon}{\faFilter}]
+  \item \textbf{Rechercher par login, email, nom\ldots} : tape quelques lettres, la liste se met à jour toute seule.
+  \item \textbf{Rôle} : ne montre que les comptes d'un rôle (par exemple seulement les « Caissier »).
+  \item \textbf{Statut} : « Tous les statuts », « Actif » ou « Inactif ».
+\end{itemize}
+
+\screenshot{screenshots/administration/02-filtre-role.png}{Le filtre « Rôle » ouvert : tous les rôles de l'application}
+
+\astuce{Les filtres sont écrits dans l'adresse de la page (URL) : tu peux copier le lien pour retrouver exactement la même liste filtrée.}
+
+\newpage
+
+% Section 3 : Ajouter un utilisateur
+\section{Ajouter un utilisateur}\label{sec:ajouter-utilisateur}
+
+\begin{etapes}
+  \item Sur la page Utilisateurs, clique sur \textbf{+ Ajouter un utilisateur} (bouton orange en haut à droite).
+  \item Remplis le formulaire puis clique sur \textbf{Enregistrer}.
+\end{etapes}
+
+\screenshot{screenshots/administration/03-nouvel-utilisateur.png}{La fenêtre « Ajouter un utilisateur » remplie}
+
+Les champs :
+
+\begin{itemize}[label=\textcolor{lagoon}{\faEdit}]
+  \item \textbf{Login (unique)} : l'identifiant de connexion — obligatoire. Il doit être unique : si le login existe déjà, l'enregistrement est refusé.
+  \item \textbf{Mot de passe} : obligatoire à la création, \textbf{6 caractères minimum}. En dessous, le message « Le mot de passe doit contenir au moins 6 caractères. » s'affiche.
+  \item \textbf{Employé associé (optionnel)} : rattache le compte à une fiche employé. La liste ne propose que les employés \textbf{sans compte existant} : un employé ne peut avoir qu'un seul compte.
+  \item \textbf{Client} : recherche optionnelle par nom, prénom ou téléphone (2 caractères minimum) pour rattacher le compte à un client — typiquement un locataire qui se connecte à son espace résident. Le bouton \textbf{Créer un client} permet de créer la fiche au vol. Les clients déjà rattachés à un autre compte n'apparaissent pas dans les résultats.
+  \item \textbf{Rôle} : obligatoire — c'est le rôle qui donne ses permissions au compte.
+  \item \textbf{Activité (scope)} : le secteur dans lequel le compte opère. Le libellé change selon le rôle choisi : « optionnel » en général, mais « \textbf{obligatoire pour les caissiers} » (un caissier doit être rattaché à une activité pour ouvrir sa caisse).
+  \item \textbf{Compte actif} : l'interrupteur — un compte créé inactif ne peut pas se connecter.
+\end{itemize}
+
+\attention{Communique le mot de passe initial à l'utilisateur par un canal sûr : il n'est jamais ré-affiché après la création.}
+
+\newpage
+
+% Section 4 : Actions sur un utilisateur
+\section{Modifier, réinitialiser, activer}\label{sec:actions-utilisateur}
+
+Chaque ligne du tableau a trois icônes d'action (colonne ACTIONS) :
+
+\subsection{Modifier le compte}
+
+Le crayon ouvre la fenêtre « Modifier l'utilisateur » : mêmes champs qu'à la création, \textbf{sauf le mot de passe} (qui se change via la réinitialisation).
+
+\screenshot{screenshots/administration/04-modifier-utilisateur.png}{La fenêtre « Modifier l'utilisateur » (compte caissier)}
+
+\attention{Sous le champ Rôle, l'avertissement est clair : « Changer le rôle \textbf{remplace entièrement} les permissions actuelles de ce compte par celles du nouveau rôle -- ce n'est pas cumulatif. »}
+
+\info{En modification, les champs « Employé associé » et « Client » repartent vides : l'application ne recharge pas l'association actuelle dans ces listes. Le compte garde ses rattachements existants tant que tu n'en choisis pas un autre.}
+
+\subsection{Réinitialiser le mot de passe}
+
+L'icône clé ouvre « Réinitialiser le mot de passe » : saisis le nouveau mot de passe (6 caractères minimum) puis \textbf{Réinitialiser}.
+
+\screenshot{screenshots/administration/05-reinitialiser-mdp.png}{La fenêtre « Réinitialiser le mot de passe »}
+
+Le message le dit : « le nouveau mot de passe est \textbf{appliqué immédiatement} » — l'ancien cesse de fonctionner dès la validation.
+
+\subsection{Activer / désactiver un compte}
+
+L'icône interrupteur bascule le statut : \textbf{Désactiver} coupe l'accès sans supprimer le compte (l'utilisateur ne peut plus se connecter, ses données restent), \textbf{Activer} le rétablit. Pratique pour un départ temporaire ou une absence prolongée.
+
+\newpage
+
+% Section 5 : Les rôles
+\section{Les rôles et leurs permissions}\label{sec:roles}
+
+La page \textbf{Rôles} liste tous les profils d'accès de l'application :
+
+\screenshot{screenshots/administration/06-roles.png}{La liste des rôles}
+
+Les colonnes :
+
+\begin{itemize}[label=\textcolor{lagoon}{\faTable}]
+  \item \textbf{RÔLE} : le libellé lisible + le \textbf{code technique} en petites capitales (ex : Caissier \texttt{CAISSIER}).
+  \item \textbf{DESCRIPTION} : ce que le rôle est censé faire.
+  \item \textbf{PERMISSIONS} : le nombre de permissions attribuées (ex : 78 pour l'Administrateur).
+  \item \textbf{UTILISATEURS} : combien de comptes portent ce rôle.
+  \item \textbf{ACTIONS} : le lien « Modifier les permissions » et, si le rôle n'a aucun utilisateur, une poubelle de suppression.
+\end{itemize}
+
+\subsection{Ajouter un rôle}
+
+\begin{etapes}
+  \item Clique sur \textbf{+ Ajouter un rôle}.
+  \item Remplis le \textbf{Code} (format technique en majuscules, ex : \texttt{RESPONSABLE\_X}), le \textbf{Libellé} et éventuellement la \textbf{Description}.
+  \item \textbf{Enregistrer} : l'application t'emmène directement sur la page des permissions du nouveau rôle -- « Vous choisirez ses permissions juste après. »
+\end{etapes}
+
+\screenshot{screenshots/administration/07-nouveau-role.png}{La fenêtre « Ajouter un rôle »}
+
+\subsection{Supprimer un rôle}
+
+La poubelle n'apparaît que pour un rôle \textbf{sans aucun utilisateur} (colonne UTILISATEURS à 0) : on ne peut pas supprimer un rôle encore attribué. La fenêtre de confirmation demande « Voulez-vous vraiment supprimer le rôle « X » ? » avant d'agir.
+
+\info{Pour supprimer un rôle encore utilisé, réassigne d'abord ses comptes à un autre rôle depuis la page Utilisateurs.}
+
+\newpage
+
+% Section 6 : Permissions d'un rôle
+\section{Attribuer les permissions à un rôle}\label{sec:permissions}
+
+Depuis la liste des rôles, clique sur « Modifier les permissions » : la page \textbf{Permissions -- [nom du rôle]} affiche la matrice complète des droits.
+
+\screenshot{screenshots/administration/08-permissions.png}{La matrice des permissions du rôle Administrateur}
+
+\begin{itemize}[label=\textcolor{lagoon}{\faCheckSquare}]
+  \item Les permissions sont \textbf{regroupées par module} : ABONNEMENT, ADMIN, AUDIT, CLIENT, CORE, DEPENSE, FACTURATION, FINANCES, MARCHANDISE, PRESSING, RAPPORTS, RESIDENCE, RESIDENT, RESTAURANT, RH, SALLE\_FETE, SIGNALEMENT\ldots
+  \item Chaque case porte un \textbf{verbe} (CREER, MODIFIER, SUPPRIMER, VOIR\ldots{} et des verbes métier comme ENCAISSER, SUPERVISER, VALIDER, MARQUER\_PRET, RETIRER) avec sa description en clair.
+  \item Le lien « \textbf{Tout cocher / décocher} » en haut à droite de chaque module sélectionne ou vide tout le module d'un coup.
+\end{itemize}
+
+\begin{etapes}
+  \item Coche ou décoche les cases voulues, module par module.
+  \item Clique sur \textbf{Enregistrer} (en haut à droite) -- ou \textbf{Retour aux rôles} pour abandonner.
+\end{etapes}
+
+\info{Après enregistrement, le message confirme : « Permissions enregistrées -- prend effet pour les utilisateurs de ce rôle \textbf{sous 60 secondes} (pas besoin qu'ils se reconnectent). »}
+
+\attention{Retirer une permission à un rôle la retire à \textbf{tous} ses utilisateurs d'un coup. Sur le rôle Administrateur, retirer \texttt{ADMIN.VOIR} ou \texttt{ADMIN.MODIFIER} peut te couper l'accès à cette page : manipule avec précaution.}
+
+\newpage
+
+% Section 7 : Journal d'audit
+\section{Le journal d'audit}\label{sec:journal}
+
+La page \textbf{Historique des opérations} est le livre de bord : chaque action importante y laisse une trace.
+
+\screenshot{screenshots/administration/09-journal.png}{L'historique des opérations}
+
+Les colonnes :
+
+\begin{itemize}[label=\textcolor{lagoon}{\faTable}]
+  \item \textbf{DATE} : date et heure précises de l'opération.
+  \item \textbf{UTILISATEUR} : le compte qui a agi (\texttt{system} = action automatique du serveur).
+  \item \textbf{MODULE} : le secteur concerné (\texttt{admin}, \texttt{market}, \texttt{finances}\ldots).
+  \item \textbf{ACTION} : le badge du type d'opération (Création, Modification, Suppression\ldots).
+  \item \textbf{OBJET} : l'élément touché (ex : « Compte utilisateur n° 2 », « Produit n° 12 »).
+  \item \textbf{DÉTAIL} : le résumé du changement (ex : « Dernière connexion : 14:33 $\to$ 14:34 », « Aucun changement de valeur. »).
+\end{itemize}
+
+\subsection{Filtrer le journal}
+
+Cinq filtres au-dessus du tableau, combinables :
+
+\begin{itemize}[label=\textcolor{lagoon}{\faFilter}]
+  \item \textbf{Recherche libre} : texte cherché dans l'objet ou le détail.
+  \item \textbf{Utilisateur} : ne montre que les actions d'un compte.
+  \item \textbf{Module} : ne montre qu'un secteur.
+  \item \textbf{Début / Fin de période} : la plage de dates (sélecteurs calendrier).
+\end{itemize}
+
+\screenshot{screenshots/administration/10-filtre-module.png}{Le filtre « Module » ouvert}
+
+Le journal est paginé par \textbf{15 lignes} (« Affichage de 1 à 15 sur N résultats »), avec Précédent / Suivant.
+
+\subsection{Exporter le journal}
+
+Deux boutons en haut à droite exportent \textbf{exactement la vue filtrée} affichée à l'écran :
+
+\begin{itemize}[label=\textcolor{lagoon}{\faFileExport}]
+  \item \textbf{Exporter en Excel} : télécharge un fichier \texttt{journal-audit-}\emph{dates}\texttt{.xlsx}.
+  \item \textbf{Imprimer en PDF} : ouvre l'impression du journal filtré, à enregistrer en PDF.
+\end{itemize}
+
+\astuce{Pour un rapport ciblé (par exemple « tout ce qu'a fait le compte X en septembre »), applique d'abord les filtres, puis exporte : le fichier ne contient que ces lignes.}
+
+\newpage
+
+% Section 8 : Sauvegardes
+\section{Les sauvegardes}\label{sec:sauvegardes}
+
+La page \textbf{Sauvegardes} gère les copies de sécurité de la base de données : consultation de l'historique, déclenchement manuel et planification.
+
+\screenshot{screenshots/administration/11-sauvegardes.png}{La page Sauvegardes}
+
+\subsection{Sauvegardes automatiques}
+
+Le premier encart règle la planification :
+
+\begin{itemize}[label=\textcolor{lagoon}{\faCog}]
+  \item \textbf{État} : badge « Activée » ou « Désactivée ».
+  \item \textbf{Fréquence} : « Quotidienne » ou « Hebdomadaire ».
+  \item \textbf{Heure} : l'heure de déclenchement (ex : 04:30 -- de préférence la nuit, hors activité).
+  \item \textbf{Activer les sauvegardes automatiques} : la case qui allume le mécanisme.
+\end{itemize}
+
+\info{Chaque changement est \textbf{enregistré immédiatement}, sans bouton « Enregistrer » : modifier la fréquence, l'heure ou la case applique le réglage aussitôt.}
+
+\subsection{Sauvegarde manuelle}
+
+Le bouton \textbf{Sauvegarder maintenant} lance une copie immédiate -- pendant l'opération, le bouton affiche « Sauvegarde en cours\ldots ». Pratique avant une opération délicate.
+
+\subsection{Historique}
+
+Le tableau liste les copies effectuées :
+
+\begin{itemize}[label=\textcolor{lagoon}{\faTable}]
+  \item \textbf{Date} : date et heure de la sauvegarde.
+  \item \textbf{Type} : « Automatique » (planifiée) ou « Manuelle » (bouton).
+  \item \textbf{Taille} : le poids du fichier de sauvegarde.
+  \item \textbf{Statut} : badge \textbf{Succès} (vert), \textbf{Échec} (rouge) ou \textbf{En cours} (orange).
+\end{itemize}
+
+\attention{Une ligne « Échec » avec une taille à 0 indique une sauvegarde qui n'a pas abouti : vérifie l'espace disque du serveur et relance une sauvegarde manuelle.}
+
+\newpage
+
+% Section 9 : Mobile
+\section{Et sur téléphone ?}\label{sec:mobile}
+
+Sur un écran étroit (320 px), les pages d'administration restent utilisables :
+
+\screenshot{screenshots/administration/12-mobile-utilisateurs.png}{La liste des utilisateurs sur mobile 320 px}
+
+\begin{itemize}[label=\textcolor{lagoon}{\faArrowRight}]
+  \item Le menu latéral se replie derrière l'icône \faBars\ en haut à gauche.
+  \item Les filtres se mettent en colonne, le tableau défile horizontalement.
+  \item La pagination reste en bas avec Précédent / Suivant.
+\end{itemize}
+
+\screenshot{screenshots/administration/13-mobile-sauvegardes.png}{La page Sauvegardes sur mobile 320 px}
+
+\astuce{La matrice des permissions est longue : pour l'éditer confortablement, privilégie un écran d'ordinateur -- le défilement y est bien plus rapide.}
+
+\newpage
+
+% Section 10 : FAQ
+\section{Problèmes fréquents}\label{sec:faq}
+
+\begin{description}[style=nextline, itemsep=0.6em]
+  \item[\faQuestionCircle\ « Administration » n'apparaît pas dans le menu] Ton compte n'a pas la permission \texttt{ADMIN.VOIR}. Demande à un administrateur de l'ajouter à ton rôle (page Permissions).
+
+  \item[\faQuestionCircle\ Le bouton « Ajouter » ou les icônes d'action manquent] Créer un utilisateur ou un rôle exige \texttt{ADMIN.CREER} ; modifier, réinitialiser un mot de passe ou activer/désactiver exige \texttt{ADMIN.MODIFIER} ; supprimer un rôle exige \texttt{ADMIN.SUPPRIMER}. Sans ces permissions, les boutons sont cachés.
+
+  \item[\faQuestionCircle\ « Ce login existe déjà » à la création] Le login doit être unique. Choisis-en un autre (par exemple \texttt{prenom.nom2}) ou retrouve le compte existant via la recherche.
+
+  \item[\faQuestionCircle\ « Le mot de passe doit contenir au moins 6 caractères »] Le mot de passe initial et celui de la réinitialisation exigent 6 caractères minimum.
+
+  \item[\faQuestionCircle\ Un employé n'apparaît pas dans « Employé associé »] La liste ne propose que les employés \textbf{sans compte}. S'il a déjà un compte, retrouve-le dans la liste des utilisateurs ; sinon vérifie qu'il existe bien dans le module RH.
+
+  \item[\faQuestionCircle\ La poubelle de suppression de rôle est absente] Elle n'apparaît que si le rôle n'a \textbf{aucun utilisateur} (colonne UTILISATEURS à 0) et que tu as \texttt{ADMIN.SUPPRIMER}. Réassigne d'abord les comptes concernés.
+
+  \item[\faQuestionCircle\ J'ai changé les permissions d'un rôle, rien n'a changé] La propagation prend jusqu'à \textbf{60 secondes} et ne demande pas de reconnexion : patiente une minute puis recharge la page.
+
+  \item[\faQuestionCircle\ Le journal montre « Aucune opération trouvée »] Les filtres sont trop restrictifs ou la période est vide : élargis les dates ou vide la recherche.
+
+  \item[\faQuestionCircle\ Une sauvegarde est en « Échec »] La copie n'a pas abouti (espace disque, charge serveur). Lance « Sauvegarder maintenant » pour refaire une copie, puis vérifie la nouvelle ligne.
+\end{description}
+
+\newpage
+
+% Section 11 : Permissions
+\section{Récapitulatif des permissions}\label{sec:permissions-recap}
+
+\begin{center}
+\begin{longtable}{>{\bfseries}p{4.2cm}p{10.5cm}}
+\toprule
+\textbf{Permission} & \textbf{Ce qu'elle autorise} \\
+\midrule
+\endhead
+\texttt{ADMIN.VOIR} & Ouvrir le module : listes des utilisateurs et des rôles, matrice des permissions (lecture), journal d'audit et ses exports, page des sauvegardes. \\
+\addlinespace
+\texttt{ADMIN.CREER} & « Ajouter un utilisateur » et « Ajouter un rôle ». \\
+\addlinespace
+\texttt{ADMIN.MODIFIER} & Modifier un compte, réinitialiser un mot de passe, activer/désactiver un compte, enregistrer les permissions d'un rôle, régler la planification et lancer « Sauvegarder maintenant ». \\
+\addlinespace
+\texttt{ADMIN.SUPPRIMER} & Supprimer un rôle sans utilisateur (icône poubelle). \\
+\bottomrule
+\end{longtable}
+\end{center}
+
+\info{Le backend reste la frontière de sécurité : même si un bouton était visible, une action sans la permission serait refusée par le serveur. Les cases de l'interface ne font que refléter tes droits.}
+
+\vspace{1cm}
+\begin{center}
+  \begin{tikzpicture}
+    \node[fill=sea-ink, text=white, rounded corners=10pt, minimum width=14cm, minimum height=2cm, font=\large, align=center] {Tu sais maintenant gérer les comptes,\\les rôles, l'audit et les sauvegardes !};
+  \end{tikzpicture}
+\end{center}
+
+\end{document}
