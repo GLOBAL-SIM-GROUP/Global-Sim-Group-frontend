@@ -25,6 +25,7 @@ function facture(
 		statut,
 		source_type: source,
 		source_id: null,
+		libelle: null,
 	};
 }
 

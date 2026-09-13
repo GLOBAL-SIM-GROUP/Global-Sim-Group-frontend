@@ -56,6 +56,7 @@ export interface Facture {
 	statut: FactureStatut;
 	source_type: string | null;
 	source_id: string | null;
+	libelle: string | null;
 }
 
 /** Détail d'une facture : facture + lignes. */
