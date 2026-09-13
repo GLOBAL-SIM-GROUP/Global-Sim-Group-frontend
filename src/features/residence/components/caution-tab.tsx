@@ -1,4 +1,4 @@
-import { Undo2, Wallet } from "lucide-react";
+import { Banknote, HandCoins, Undo2, Wallet } from "lucide-react";
 import { useState } from "react";
 
 import { Button } from "#/components/ui/button";
@@ -6,7 +6,10 @@ import { useCan } from "#/core/auth";
 import { cn } from "#/lib/utils";
 
 import { useCaution } from "../hooks/use-contrats";
+import { useMoyensPaiement } from "../hooks/use-moyens-paiement";
 import { formatDateISO, formatMontantFCFA } from "../models/format";
+import { EncaisserCautionFormDialog } from "./encaisser-caution-form-dialog";
+import { RembourserCautionFormDialog } from "./rembourser-caution-form-dialog";
 import { RestituerCautionFormDialog } from "./restituer-caution-form-dialog";
 import { VersementCautionFormDialog } from "./versement-caution-form-dialog";
 
@@ -27,14 +30,24 @@ function Ligne({ label, valeur }: { label: string; valeur: string }) {
 /**
  * Onglet « Caution » de la fiche contrat (GET `/contrats/{id}/caution`). Un
  * 404 est traité comme « aucune caution » (état vide), pas comme une erreur.
- * La restitution (POST `caution/restitution`) est gated par `RESIDENCE.CREER` ;
- * la déclaration de versement (POST `caution/versement`) par `RESIDENCE.MODIFIER`
- * — deux verbes distincts côté backend pour ces deux actions.
+ *
+ * Deux actions par mouvement, `RESIDENCE.MODIFIER` pour les quatre :
+ * - « Encaisser »/« Rembourser » (mise en avant) : une seule opération créant
+ *   un vrai paiement `finances.paiement` (ENCAISSEMENT/DECAISSEMENT) via
+ *   `caution/encaisser`/`caution/rembourser` — ajoutés le 2026-09-13.
+ * - « Déclarer un versement/une restitution hors système » (secondaire) :
+ *   simple traçabilité sans paiement (`caution/versement`/`caution/restitution`),
+ *   pour un mouvement déjà fait par un autre biais. La restitution hors
+ *   système garde son ancien verbe `RESIDENCE.CREER`, jamais changé côté
+ *   backend.
  */
 export function CautionTab({ idContrat }: CautionTabProps) {
 	const canCreer = useCan("RESIDENCE.CREER");
 	const canModifier = useCan("RESIDENCE.MODIFIER");
 	const cautionQuery = useCaution(idContrat);
+	const moyensQuery = useMoyensPaiement();
+	const [encaissementOuvert, setEncaissementOuvert] = useState(false);
+	const [remboursementOuvert, setRemboursementOuvert] = useState(false);
 	const [restitutionOuverte, setRestitutionOuverte] = useState(false);
 	const [versementOuvert, setVersementOuvert] = useState(false);
 
@@ -55,6 +68,7 @@ export function CautionTab({ idContrat }: CautionTabProps) {
 	}
 
 	const caution = cautionQuery.data;
+	const moyens = moyensQuery.data ?? [];
 
 	return (
 		<section className="space-y-4 rounded-lg border border-border bg-card p-4 shadow-sm sm:p-5">
@@ -105,29 +119,43 @@ export function CautionTab({ idContrat }: CautionTabProps) {
 				/>
 			</dl>
 
-			<div className="flex flex-wrap justify-end gap-2">
-				{canModifier && !caution.payee ? (
+			{canModifier && !caution.payee ? (
+				<div className="flex flex-wrap items-center justify-end gap-x-4 gap-y-2">
 					<Button
-						variant="outline"
+						variant="ghost"
 						size="sm"
+						className="text-muted-foreground"
 						onClick={() => setVersementOuvert(true)}
 					>
 						<Wallet className="size-4" aria-hidden />
-						Déclarer le versement
+						Déclarer un versement hors système
 					</Button>
-				) : null}
+					<Button size="sm" onClick={() => setEncaissementOuvert(true)}>
+						<HandCoins className="size-4" aria-hidden />
+						Encaisser la caution
+					</Button>
+				</div>
+			) : null}
 
-				{canCreer && caution.payee && !caution.date_restitution ? (
-					<Button
-						variant="outline"
-						size="sm"
-						onClick={() => setRestitutionOuverte(true)}
-					>
-						<Undo2 className="size-4" aria-hidden />
-						Restituer la caution
+			{canModifier && caution.payee && !caution.date_restitution ? (
+				<div className="flex flex-wrap items-center justify-end gap-x-4 gap-y-2">
+					{canCreer ? (
+						<Button
+							variant="ghost"
+							size="sm"
+							className="text-muted-foreground"
+							onClick={() => setRestitutionOuverte(true)}
+						>
+							<Undo2 className="size-4" aria-hidden />
+							Déclarer une restitution hors système
+						</Button>
+					) : null}
+					<Button size="sm" onClick={() => setRemboursementOuvert(true)}>
+						<Banknote className="size-4" aria-hidden />
+						Rembourser la caution
 					</Button>
-				) : null}
-			</div>
+				</div>
+			) : null}
 
 			{caution.historique.length > 0 ? (
 				<div className="space-y-2 border-t border-border pt-4">
@@ -177,6 +205,27 @@ export function CautionTab({ idContrat }: CautionTabProps) {
 					</div>
 				</div>
 			) : null}
+
+			<EncaisserCautionFormDialog
+				open={encaissementOuvert}
+				idContrat={idContrat}
+				montantCaution={caution.montant}
+				moyens={moyens}
+				onOpenChange={(ouvert) => {
+					if (!ouvert) setEncaissementOuvert(false);
+				}}
+				onSaved={() => setEncaissementOuvert(false)}
+			/>
+
+			<RembourserCautionFormDialog
+				open={remboursementOuvert}
+				idContrat={idContrat}
+				moyens={moyens}
+				onOpenChange={(ouvert) => {
+					if (!ouvert) setRemboursementOuvert(false);
+				}}
+				onSaved={() => setRemboursementOuvert(false)}
+			/>
 
 			<VersementCautionFormDialog
 				open={versementOuvert}

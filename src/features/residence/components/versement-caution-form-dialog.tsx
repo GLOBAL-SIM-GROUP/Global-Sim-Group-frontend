@@ -95,11 +95,12 @@ export function VersementCautionFormDialog({
 				<Dialog.Overlay className="fixed inset-0 z-50 bg-black/50" />
 				<Dialog.Content className="fixed top-1/2 left-1/2 z-50 w-[calc(100vw-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-lg border border-border bg-card p-6 shadow-lg">
 					<Dialog.Title className="text-base font-semibold text-foreground">
-						Déclarer le versement de la caution
+						Déclarer un versement hors système
 					</Dialog.Title>
 					<Dialog.Description className="mt-1 text-sm text-muted-foreground">
-						Enregistre que le résident a payé sa caution. Aucun encaissement de
-						caisse n'est créé.
+						Pour un versement déjà encaissé par un autre biais. Simple
+						traçabilité : aucun encaissement de caisse n'est créé ici. Pour un
+						paiement réel, utilisez plutôt « Encaisser la caution ».
 					</Dialog.Description>
 
 					<form

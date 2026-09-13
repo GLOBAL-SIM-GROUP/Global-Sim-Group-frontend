@@ -25,8 +25,10 @@ interface RestituerCautionFormDialogProps {
 }
 
 /**
- * Modale « Restituer la caution » (POST `/contrats/{id}/caution/restitution`).
- * Retenue et motif optionnels.
+ * Modale « Déclarer une restitution hors système » (POST
+ * `/contrats/{id}/caution/restitution`) : traçabilité pure, sans
+ * décaissement — voir `RembourserCautionFormDialog` pour un remboursement
+ * réel. Retenue et motif optionnels.
  */
 export function RestituerCautionFormDialog({
 	open,
@@ -85,10 +87,12 @@ export function RestituerCautionFormDialog({
 				<Dialog.Overlay className="fixed inset-0 z-50 bg-black/50" />
 				<Dialog.Content className="fixed top-1/2 left-1/2 z-50 w-[calc(100vw-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-lg border border-border bg-card p-6 shadow-lg">
 					<Dialog.Title className="text-base font-semibold text-foreground">
-						Restituer la caution
+						Déclarer une restitution hors système
 					</Dialog.Title>
 					<Dialog.Description className="mt-1 text-sm text-muted-foreground">
-						Une retenue éventuelle est déduite du montant restitué.
+						Pour une restitution déjà faite par un autre biais. Simple
+						traçabilité : aucun décaissement de caisse n'est créé ici. Pour un
+						remboursement réel, utilisez plutôt « Rembourser la caution ».
 					</Dialog.Description>
 
 					<form

@@ -12,7 +12,19 @@ vi.mock("./versement-caution-form-dialog", () => ({
 	VersementCautionFormDialog: () => null,
 }));
 
+vi.mock("./encaisser-caution-form-dialog", () => ({
+	EncaisserCautionFormDialog: () => null,
+}));
+
+vi.mock("./rembourser-caution-form-dialog", () => ({
+	RembourserCautionFormDialog: () => null,
+}));
+
 vi.mock("#/core/auth", () => ({ useCan: () => false }));
+
+vi.mock("../hooks/use-moyens-paiement", () => ({
+	useMoyensPaiement: () => ({ data: [], isLoading: false }),
+}));
 
 const caution: Caution = {
 	id: "1",

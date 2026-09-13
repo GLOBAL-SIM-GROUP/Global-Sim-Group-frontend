@@ -68,6 +68,13 @@ export interface Caution {
 	motif_retenue: string | null;
 	statut: string;
 	historique: HistoriqueCaution[];
+	/**
+	 * Id du paiement (`finances.paiement`) créé par le mouvement — présent
+	 * uniquement dans la réponse de `caution/encaisser` et
+	 * `caution/rembourser` (jamais sur le GET, ni sur les anciens endpoints
+	 * `versement`/`restitution`, qui ne créent aucun paiement).
+	 */
+	id_paiement?: string | null;
 }
 
 /** Libellés français du statut de contrat (badge du tableau). */

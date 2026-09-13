@@ -6,11 +6,13 @@ import {
 	creerCaution,
 	creerContrat,
 	type EncaisserLoyerLotBody,
+	encaisserCaution,
 	encaisserLoyerLot,
 	envoyerContratParEmail,
 	getCaution,
 	getContrat,
 	listContrats,
+	rembourserCaution,
 	resilierContrat,
 	restituerCaution,
 	versementCaution,
@@ -145,6 +147,50 @@ export function useRestituerCaution() {
 			retenue?: string | null;
 			motif_retenue?: string | null;
 		}) => restituerCaution(idContrat, body),
+		onSuccess: () => {
+			void queryClient.invalidateQueries({ queryKey: contratsKeys.all });
+		},
+	});
+}
+
+/**
+ * Encaisse la caution (paiement réel, une seule opération). Invalide
+ * contrat + caution au succès.
+ */
+export function useEncaisserCaution() {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: ({
+			idContrat,
+			...body
+		}: { idContrat: string } & {
+			idMoyen: string;
+			montant?: string | null;
+			date?: string | null;
+			reference?: string | null;
+		}) => encaisserCaution(idContrat, body),
+		onSuccess: () => {
+			void queryClient.invalidateQueries({ queryKey: contratsKeys.all });
+		},
+	});
+}
+
+/**
+ * Rembourse la caution (décaissement réel, une seule opération). Invalide
+ * contrat + caution au succès.
+ */
+export function useRembourserCaution() {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: ({
+			idContrat,
+			...body
+		}: { idContrat: string } & {
+			idMoyen: string;
+			retenue?: string | null;
+			motif_retenue?: string | null;
+			date?: string | null;
+		}) => rembourserCaution(idContrat, body),
 		onSuccess: () => {
 			void queryClient.invalidateQueries({ queryKey: contratsKeys.all });
 		},

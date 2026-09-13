@@ -262,7 +262,11 @@ export function versementCaution(
 		.then(({ id_caution: id, ...reste }) => ({ id, ...reste }));
 }
 
-/** Restitue la caution (POST /contrats/{id}/caution/restitution). */
+/**
+ * Restitue la caution (POST /contrats/{id}/caution/restitution) — déclaration
+ * pure, comme `versementCaution` : aucun décaissement créé. Pour un
+ * remboursement réel en caisse, voir `rembourserCaution`.
+ */
 export function restituerCaution(
 	idContrat: string,
 	body: { retenue?: string | null; motif_retenue?: string | null },
@@ -278,6 +282,74 @@ export function restituerCaution(
 		`/api/v1/residence/contrats/${idContrat}/caution/restitution`,
 		{ method: "POST", body: JSON.stringify(corps) },
 	);
+}
+
+/**
+ * Encaisse la caution en une seule opération (POST
+ * /contrats/{id}/caution/encaisser, absent du spec généré — endpoint ajouté
+ * le 2026-09-13). Contrairement à `versementCaution`, crée un vrai paiement
+ * `finances.paiement` (ENCAISSEMENT, sans caisse, activité
+ * LOCATION_RESIDENTIEL) en plus de marquer la caution payée. `montant`
+ * défaut au montant de la caution, `reference` défaut à `CAUTION-<id>`
+ * (calculés côté backend). 409 si déjà encaissée, 400 si montant ≤ 0, 404 si
+ * aucune caution. La réponse ajoute `id_paiement` (référence du mouvement
+ * créé) aux champs habituels de la caution.
+ */
+export function encaisserCaution(
+	idContrat: string,
+	body: {
+		idMoyen: string;
+		montant?: string | null;
+		date?: string | null;
+		reference?: string | null;
+	},
+): Promise<Caution> {
+	const corps = {
+		id_moyen: body.idMoyen,
+		...(body.montant ? { montant: body.montant } : {}),
+		...(body.date ? { date: body.date } : {}),
+		...(body.reference?.trim() ? { reference: body.reference.trim() } : {}),
+	};
+	return getApiClient()
+		.apiFetch<CautionWire>(
+			`/api/v1/residence/contrats/${idContrat}/caution/encaisser`,
+			{ method: "POST", body: JSON.stringify(corps) },
+		)
+		.then(({ id_caution: id, ...reste }) => ({ id, ...reste }));
+}
+
+/**
+ * Rembourse la caution en une seule opération (POST
+ * /contrats/{id}/caution/rembourser, absent du spec généré — endpoint ajouté
+ * le 2026-09-13). Contrairement à `restituerCaution`, crée un vrai
+ * décaissement `finances.paiement` de `montant − retenue` en plus de mettre
+ * à jour `montant_restitue`/`statut` (RESTITUEE/RETENUE). Si la retenue est
+ * totale, `montant_restitue` vaut 0 et aucun paiement n'est écrit (rien ne
+ * sort physiquement), mais la restitution reste tracée. 409 si la caution
+ * n'a jamais été encaissée ou déjà restituée, 400 si la retenue est
+ * invalide. La réponse ajoute `id_paiement` (absent si retenue totale).
+ */
+export function rembourserCaution(
+	idContrat: string,
+	body: {
+		idMoyen: string;
+		retenue?: string | null;
+		motif_retenue?: string | null;
+		date?: string | null;
+	},
+): Promise<Caution> {
+	const corps = {
+		id_moyen: body.idMoyen,
+		retenue: texteOuNull(body.retenue),
+		motif_retenue: texteOuNull(body.motif_retenue),
+		...(body.date ? { date: body.date } : {}),
+	};
+	return getApiClient()
+		.apiFetch<CautionWire>(
+			`/api/v1/residence/contrats/${idContrat}/caution/rembourser`,
+			{ method: "POST", body: JSON.stringify(corps) },
+		)
+		.then(({ id_caution: id, ...reste }) => ({ id, ...reste }));
 }
 
 /** Reçu d'une échéance (données pour génération PDF). */
