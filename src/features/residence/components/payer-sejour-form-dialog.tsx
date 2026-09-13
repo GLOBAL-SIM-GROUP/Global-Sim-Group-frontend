@@ -62,7 +62,17 @@ export function PayerSejourFormDialog({
 					fields.montant = "Ce champ est requis.";
 				} else {
 					const erreur = validerMontant(value.montant, "Le montant");
-					if (erreur) fields.montant = erreur;
+					if (erreur) {
+						fields.montant = erreur;
+					} else if (
+						sejour &&
+						Number(normaliserMontantPourBackend(value.montant)) >
+							Number(sejour.reste_a_payer)
+					) {
+						// Capé côté client (le backend le refuserait de toute façon) :
+						// on ne peut pas encaisser plus que le reste à payer.
+						fields.montant = `Le montant ne peut pas dépasser le reste à payer (${sejour.reste_a_payer} FCFA).`;
+					}
 				}
 				if (!value.idMoyen) {
 					fields.idMoyen = "Sélectionnez un moyen de paiement.";

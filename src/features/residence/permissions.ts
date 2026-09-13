@@ -24,7 +24,11 @@ export const categoriesChargesKeys = createQueryKeys(
 );
 
 /** Clés de requêtes du module Résidence — séjours courts. */
-export const sejoursKeys = createQueryKeys("residence.sejours");
+const baseSejoursKeys = createQueryKeys("residence.sejours");
+export const sejoursKeys = {
+	...baseSejoursKeys,
+	facture: (id: string) => [...baseSejoursKeys.detail(id), "facture"] as const,
+};
 
 /** Clés de requêtes du module Clients. */
 export const clientsKeys = createQueryKeys("clients");

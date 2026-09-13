@@ -1,6 +1,11 @@
-import { getApiClient } from "#/core/api";
+import { getApiClient, toApiError } from "#/core/api";
 import type { components } from "#/core/api/generated/schema";
 import { getClient } from "#/features/clients/api/clients";
+import type {
+	FactureDetail,
+	FactureStatut,
+	LigneFacture,
+} from "#/features/facturation/models/factures";
 
 import type { Sejour, SejourStatut, SejourType } from "../models/sejours";
 
@@ -9,6 +14,29 @@ type MajSejourDto = components["schemas"]["MajSejourDto"];
 type PayerSejourDto = components["schemas"]["PayerSejourDto"];
 
 type SejourWire = Omit<Sejour, "id"> & { id_sejour: string };
+
+/**
+ * Champs joints (numéro de logement, nom/prénoms du client) présents sur
+ * `GET /residence/sejours` (liste) et `GET /residence/sejours/:id` (détail,
+ * complété par un aller supplémentaire vers `/clients/:id` — voir
+ * `getSejour`), mais ABSENTS du séjour renvoyé par `POST /residence/sejours`
+ * et `POST /:id/payer` (vérifié en direct 2026-09-13). Un séjour de mutation
+ * n'est donc jamais un `Sejour` complet : il se fusionne dans un séjour déjà
+ * en cache (qui, lui, a ces champs), jamais utilisé seul pour l'affichage.
+ */
+type SejourMutationWire = Omit<
+	SejourWire,
+	"numero_logement" | "client_nom" | "client_prenoms"
+>;
+export type SejourSansJointures = Omit<
+	Sejour,
+	"numero_logement" | "client_nom" | "client_prenoms"
+>;
+
+const toSejourSansJointures = ({
+	id_sejour: id,
+	...reste
+}: SejourMutationWire): SejourSansJointures => ({ id, ...reste });
 
 const texteOuNull = (valeur: string | null | undefined): string | null =>
 	valeur?.trim() ? valeur : null;
@@ -21,7 +49,7 @@ const texteOuNull = (valeur: string | null | undefined): string | null =>
  */
 export function listSejours(): Promise<Sejour[]> {
 	return getApiClient()
-		.apiFetch<SejourWire[]>("/api/v1/residence/sejours")
+		.apiFetch<SejourWire[]>("/api/v1/residence/sejours?limit=200")
 		.then((data) =>
 			data.map(({ id_sejour: id, ...reste }) => ({ id, ...reste })),
 		);
@@ -65,6 +93,66 @@ export async function getSejour(id: string): Promise<Sejour> {
 	return sejour;
 }
 
+/**
+ * Facture rattachée à un séjour, telle que renvoyée par le résultat d'un
+ * paiement (`POST .../payer` ou `POST /residence/sejours` avec `paiement`) —
+ * un sous-ensemble minimal de la facture (pas d'`id_facture`, pas de
+ * `lignes`), distinct du détail complet renvoyé par `getSejourFacture`.
+ */
+export interface SejourPaiementFacture {
+	montant_total: string;
+	montant_paye: string;
+	reste: string;
+	statut: FactureStatut;
+}
+
+export interface SejourCreationResultat {
+	sejour: SejourSansJointures;
+	facture?: SejourPaiementFacture;
+	numero?: string;
+	id_paiement?: string;
+}
+
+export interface SejourPaiementResultat {
+	sejour: SejourSansJointures;
+	facture: SejourPaiementFacture;
+	numero: string;
+	id_paiement: string;
+}
+
+type FactureDetailWire = Omit<FactureDetail, "id" | "lignes"> & {
+	id_facture: string;
+	lignes: (Omit<LigneFacture, "id"> & { id_ligne: string })[];
+};
+
+/**
+ * Facture d'un séjour (`GET /residence/sejours/:id/facture`). **La règle qui
+ * compte** : un séjour n'a pas de facture tant qu'aucun encaissement n'a eu
+ * lieu — le backend renvoie alors un 404 (« aucun paiement encore
+ * encaissé »), qui n'est PAS une erreur ici mais l'état normal représenté par
+ * `null` (état vide côté UI, pas un toast d'erreur).
+ */
+export async function getSejourFacture(
+	id: string,
+): Promise<FactureDetail | null> {
+	try {
+		const wire = await getApiClient().apiFetch<FactureDetailWire>(
+			`/api/v1/residence/sejours/${id}/facture`,
+		);
+		return {
+			...wire,
+			id: wire.id_facture,
+			lignes: wire.lignes.map(({ id_ligne: idLigne, ...reste }) => ({
+				id: idLigne,
+				...reste,
+			})),
+		};
+	} catch (error) {
+		if (toApiError(error).status === 404) return null;
+		throw error;
+	}
+}
+
 /** Corps saisi par le formulaire d'enregistrement d'un séjour. */
 export interface CreerSejourBody {
 	typePrestation: SejourType;
@@ -85,7 +173,9 @@ export interface CreerSejourBody {
  * et `client` (passage) sont mutuellement exclusifs ; le paiement initial est
  * optionnel.
  */
-export function creerSejour(body: CreerSejourBody): Promise<unknown> {
+export function creerSejour(
+	body: CreerSejourBody,
+): Promise<SejourCreationResultat> {
 	const corps = {
 		type_prestation: body.typePrestation,
 		id_logement: body.idLogement,
@@ -116,10 +206,20 @@ export function creerSejour(body: CreerSejourBody): Promise<unknown> {
 		id_client?: string | null;
 		date_heure_depart_prevue?: string | null;
 	};
-	return getApiClient().apiFetch("/api/v1/residence/sejours", {
-		method: "POST",
-		body: JSON.stringify(corps),
-	});
+	return getApiClient()
+		.apiFetch<{
+			sejour: SejourMutationWire;
+			facture?: SejourPaiementFacture;
+			numero?: string;
+			id_paiement?: string;
+		}>("/api/v1/residence/sejours", {
+			method: "POST",
+			body: JSON.stringify(corps),
+		})
+		.then(({ sejour, ...reste }) => ({
+			sejour: toSejourSansJointures(sejour),
+			...reste,
+		}));
 }
 
 /** Corps saisi pour modifier un séjour (PATCH `MajSejourDto`). */
@@ -151,17 +251,33 @@ export function modifierSejour(
 	});
 }
 
-/** Enregistre un paiement de séjour (POST `/api/v1/sejours/{id}/payer`). */
+/**
+ * Enregistre un paiement de séjour (POST `/api/v1/sejours/{id}/payer`). Le
+ * premier appel crée la facture ; les suivants la complètent. Quand le reste
+ * atteint 0, le backend fait lui-même passer le séjour EN_COURS → TERMINE —
+ * le `sejour` renvoyé porte déjà le nouveau statut, pas besoin d'un second
+ * appel pour le refléter.
+ */
 export function payerSejour(
 	id: string,
 	body: { montant: string; idMoyen: string },
-): Promise<unknown> {
+): Promise<SejourPaiementResultat> {
 	const corps = {
 		montant: body.montant,
 		id_moyen: body.idMoyen,
 	} satisfies PayerSejourDto;
-	return getApiClient().apiFetch(`/api/v1/residence/sejours/${id}/payer`, {
-		method: "POST",
-		body: JSON.stringify(corps),
-	});
+	return getApiClient()
+		.apiFetch<{
+			sejour: SejourMutationWire;
+			facture: SejourPaiementFacture;
+			numero: string;
+			id_paiement: string;
+		}>(`/api/v1/residence/sejours/${id}/payer`, {
+			method: "POST",
+			body: JSON.stringify(corps),
+		})
+		.then(({ sejour, ...reste }) => ({
+			sejour: toSejourSansJointures(sejour),
+			...reste,
+		}));
 }

@@ -39,6 +39,7 @@ type SejourField =
 	| "depart"
 	| "tarif"
 	| "moyenPaiement"
+	| "montantAcompte"
 	| "statut";
 
 /** Propriétés backend (snake_case) → champs du formulaire. */
@@ -165,6 +166,7 @@ export function SejourForm({
 			tarif: sejour?.tarif ?? "",
 			statut: sejour?.statut ?? ("EN_COURS" as SejourStatut),
 			moyenPaiement: "",
+			montantAcompte: "",
 		},
 		validators: {
 			onSubmit: ({ value }) => {
@@ -174,9 +176,28 @@ export function SejourForm({
 					if (!value.idClient) fields.idClient = "Sélectionnez un client.";
 					if (!value.idLogement)
 						fields.idLogement = "Sélectionnez un logement.";
-					// Moyen de paiement obligatoire en création (si des moyens existent).
-					if (moyens.length > 0 && !value.moyenPaiement) {
+					// L'acompte est optionnel, mais montant et moyen se conditionnent
+					// mutuellement : l'un sans l'autre n'a pas de sens pour le backend.
+					const acompteSaisi = value.montantAcompte.trim() !== "";
+					if (acompteSaisi && !value.moyenPaiement) {
 						fields.moyenPaiement = "Sélectionnez un moyen de paiement.";
+					}
+					if (value.moyenPaiement && !acompteSaisi) {
+						fields.montantAcompte = "Indiquez le montant de l'acompte.";
+					}
+					if (acompteSaisi) {
+						const erreur = validerMontant(value.montantAcompte, "L'acompte");
+						if (erreur) {
+							fields.montantAcompte = erreur;
+						} else if (
+							value.tarif.trim() &&
+							!validerMontant(value.tarif) &&
+							Number(normaliserMontantPourBackend(value.montantAcompte)) >
+								Number(normaliserMontantPourBackend(value.tarif))
+						) {
+							fields.montantAcompte =
+								"L'acompte ne peut pas dépasser le montant total du séjour.";
+						}
 					}
 				}
 				if (!value.arrivee.trim()) fields.arrivee = "Ce champ est requis.";
@@ -235,12 +256,13 @@ export function SejourForm({
 						dateHeureDepartPrevue: toBackend(value.depart) || null,
 						tarif: normaliserMontantPourBackend(value.tarif),
 						idClient: value.idClient,
-						paiement: value.moyenPaiement
-							? {
-									montant: normaliserMontantPourBackend(value.tarif),
-									idMoyen: value.moyenPaiement,
-								}
-							: null,
+						paiement:
+							value.moyenPaiement && value.montantAcompte.trim()
+								? {
+										montant: normaliserMontantPourBackend(value.montantAcompte),
+										idMoyen: value.moyenPaiement,
+									}
+								: null,
 					});
 				}
 				onSaved();
@@ -403,26 +425,52 @@ export function SejourForm({
 							</SelectField>
 						)}
 					</form.Field>
-				) : moyens.length > 0 ? (
-					<form.Field name="moyenPaiement">
-						{(field) => (
-							<SelectField
-								id={field.name}
-								label="Moyen de paiement"
-								value={field.state.value}
-								onValueChange={field.handleChange}
-								error={field.state.meta.errors[0]}
-							>
-								{moyens.map((moyen) => (
-									<SelectItem key={moyen.id} value={moyen.id}>
-										{moyen.libelle}
-									</SelectItem>
-								))}
-							</SelectField>
-						)}
-					</form.Field>
 				) : null}
 			</div>
+
+			{!sejour && moyens.length > 0 ? (
+				<div className="space-y-3 rounded-md border border-border bg-accent/20 p-3">
+					<p className="text-sm font-medium text-foreground">
+						Acompte (optionnel)
+					</p>
+					<div className="grid gap-4 sm:grid-cols-2">
+						<form.Field name="montantAcompte">
+							{(field) => (
+								<InputField
+									id={field.name}
+									name={field.name}
+									label="Montant (FCFA)"
+									placeholder="ex : 15000"
+									inputMode="numeric"
+									autoComplete="off"
+									value={field.state.value}
+									onBlur={field.handleBlur}
+									onChange={(event) => field.handleChange(event.target.value)}
+									error={field.state.meta.errors[0]}
+								/>
+							)}
+						</form.Field>
+
+						<form.Field name="moyenPaiement">
+							{(field) => (
+								<SelectField
+									id={field.name}
+									label="Moyen de paiement"
+									value={field.state.value}
+									onValueChange={field.handleChange}
+									error={field.state.meta.errors[0]}
+								>
+									{moyens.map((moyen) => (
+										<SelectItem key={moyen.id} value={moyen.id}>
+											{moyen.libelle}
+										</SelectItem>
+									))}
+								</SelectField>
+							)}
+						</form.Field>
+					</div>
+				</div>
+			) : null}
 
 			{globalError ? (
 				<p role="alert" className="text-sm font-medium text-destructive">

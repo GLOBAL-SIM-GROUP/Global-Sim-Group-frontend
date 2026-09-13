@@ -1,14 +1,19 @@
 import { Link } from "@tanstack/react-router";
-import { HandCoins, Pencil } from "lucide-react";
+import { AlertCircle, HandCoins, Pencil, Receipt } from "lucide-react";
 import { useState } from "react";
 
 import { Breadcrumb } from "#/components/ui/breadcrumb";
 import { Button } from "#/components/ui/button";
 import { useCan } from "#/core/auth";
+import { FactureDownloadButtons } from "#/features/facturation/components/facture-download-buttons";
+import {
+	FACTURE_STATUT_BADGE,
+	FACTURE_STATUT_LABELS,
+} from "#/features/facturation/models/factures";
 import { cn } from "#/lib/utils";
 
 import { useMoyensPaiement } from "../hooks/use-moyens-paiement";
-import { useSejour } from "../hooks/use-sejours";
+import { useSejour, useSejourFacture } from "../hooks/use-sejours";
 import { formatDateHeureISO, formatMontantFCFA } from "../models/format";
 import {
 	SEJOUR_STATUT_LABELS,
@@ -42,18 +47,25 @@ interface SejourFichePageProps {
 
 /**
  * Page « Fiche séjour — [ID] » (M2.3) : informations du client, détails du
- * séjour et paiement (total, payé, reste). Boutons Modifier et Enregistrer un
- * paiement ; « Générer une facture/reçu » n'a pas d'endpoint réel → omis.
+ * séjour et paiement (total, payé, reste), section facture. Boutons Modifier
+ * et Enregistrer un paiement.
+ *
+ * `RESIDENCE.ENCAISSER` (pas `RESIDENCE.CREER`) gate l'encaissement : le
+ * réceptionniste crée des séjours sans pouvoir encaisser, le caissier
+ * résidence encaisse sans pouvoir créer (vérifié en direct sur les rôles
+ * réels 2026-09-13).
  */
 export function SejourFichePage({ id }: SejourFichePageProps) {
 	const canModifier = useCan("RESIDENCE.MODIFIER");
-	const canCreer = useCan("RESIDENCE.CREER");
+	const canEncaisser = useCan("RESIDENCE.ENCAISSER");
 	const canFinancesVoir = useCan("FINANCES.VOIR");
+	const canFacturationVoir = useCan("FACTURATION.VOIR");
 	const moyensQuery = useMoyensPaiement();
 	const [aModifier, setAModifier] = useState<Sejour | null>(null);
 	const [aPayer, setAPayer] = useState<Sejour | null>(null);
 
 	const sejourQuery = useSejour(id);
+	const factureQuery = useSejourFacture(id);
 
 	if (sejourQuery.isLoading) {
 		return (
@@ -84,6 +96,7 @@ export function SejourFichePage({ id }: SejourFichePageProps) {
 
 	const sejour = sejourQuery.data;
 	const aUnReste = Number(sejour.reste_a_payer) > 0;
+	const facture = factureQuery.data ?? null;
 
 	return (
 		<div className="w-full space-y-6 p-6">
@@ -116,7 +129,7 @@ export function SejourFichePage({ id }: SejourFichePageProps) {
 							Modifier
 						</Button>
 					) : null}
-					{canCreer && canFinancesVoir && aUnReste ? (
+					{canEncaisser && canFinancesVoir && aUnReste ? (
 						<Button onClick={() => setAPayer(sejour)}>
 							<HandCoins className="size-4" aria-hidden />
 							Enregistrer un paiement
@@ -176,6 +189,121 @@ export function SejourFichePage({ id }: SejourFichePageProps) {
 						</dd>
 					</div>
 				</dl>
+			</section>
+
+			<section className="space-y-3 rounded-lg border border-border bg-card p-5 shadow-sm">
+				<div className="flex flex-wrap items-center justify-between gap-3">
+					<h2 className="text-lg font-semibold text-foreground">Facture</h2>
+					{facture && canFacturationVoir ? (
+						<FactureDownloadButtons idFacture={facture.id} />
+					) : null}
+				</div>
+
+				{factureQuery.isLoading ? (
+					<p className="text-sm text-muted-foreground">Chargement…</p>
+				) : factureQuery.isError ? (
+					<div
+						role="alert"
+						className="flex items-start gap-2 rounded-lg border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive"
+					>
+						<AlertCircle className="mt-0.5 size-4 shrink-0" aria-hidden />
+						<span>Impossible de charger la facture.</span>
+					</div>
+				) : !facture ? (
+					// Pas d'erreur : un séjour sans encaissement n'a simplement pas
+					// encore de facture (règle du module — voir `getSejourFacture`).
+					<div className="flex flex-col items-center gap-3 rounded-lg border border-dashed border-border p-6 text-center">
+						<Receipt className="size-6 text-muted-foreground" aria-hidden />
+						<p className="text-sm text-muted-foreground">
+							Aucune facture — ce séjour n'a encore fait l'objet d'aucun
+							encaissement.
+						</p>
+						{canEncaisser ? (
+							<Button size="sm" onClick={() => setAPayer(sejour)}>
+								<HandCoins className="size-4" aria-hidden />
+								Encaisser un acompte
+							</Button>
+						) : null}
+					</div>
+				) : (
+					<>
+						<dl className="grid gap-3 sm:grid-cols-2">
+							<Ligne label="Numéro" valeur={facture.numero} />
+							<div className="grid grid-cols-[10rem_1fr] gap-3 text-sm">
+								<dt className="text-muted-foreground">Statut</dt>
+								<dd>
+									<span
+										className={cn(
+											"inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium",
+											FACTURE_STATUT_BADGE[facture.statut],
+										)}
+									>
+										{FACTURE_STATUT_LABELS[facture.statut]}
+									</span>
+								</dd>
+							</div>
+							<Ligne
+								label="Montant payé"
+								valeur={formatMontantFCFA(facture.montant_paye)}
+							/>
+							<Ligne
+								label="Reste dû"
+								valeur={formatMontantFCFA(facture.reste)}
+							/>
+						</dl>
+
+						<div className="overflow-x-auto">
+							<table className="w-full border-collapse text-sm">
+								<thead className="bg-sea-ink text-left text-white">
+									<tr>
+										<th scope="col" className="px-4 py-3 font-medium">
+											LIBELLÉ
+										</th>
+										<th
+											scope="col"
+											className="px-4 py-3 text-right font-medium"
+										>
+											QTÉ
+										</th>
+										<th
+											scope="col"
+											className="px-4 py-3 text-right font-medium"
+										>
+											PRIX UNITAIRE
+										</th>
+										<th
+											scope="col"
+											className="px-4 py-3 text-right font-medium"
+										>
+											TOTAL
+										</th>
+									</tr>
+								</thead>
+								<tbody>
+									{facture.lignes.map((ligne) => (
+										<tr
+											key={ligne.id}
+											className="border-t border-border transition-colors hover:bg-accent/40"
+										>
+											<td className="px-4 py-3 font-medium text-foreground">
+												{ligne.libelle}
+											</td>
+											<td className="px-4 py-3 text-right text-muted-foreground">
+												{ligne.quantite}
+											</td>
+											<td className="px-4 py-3 text-right text-foreground">
+												{formatMontantFCFA(ligne.prix_unitaire)}
+											</td>
+											<td className="px-4 py-3 text-right font-semibold text-foreground">
+												{formatMontantFCFA(ligne.total)}
+											</td>
+										</tr>
+									))}
+								</tbody>
+							</table>
+						</div>
+					</>
+				)}
 			</section>
 
 			<SejourFormDialog

@@ -5,6 +5,7 @@ import { Button } from "#/components/ui/button";
 import { useCan } from "#/core/auth";
 
 import type { Sejour } from "../models/sejours";
+import { SejourImprimerButton } from "./sejour-imprimer-button";
 
 interface SejourActionsProps {
 	sejour: Sejour;
@@ -16,14 +17,17 @@ interface SejourActionsProps {
 
 /**
  * Actions d'une ligne séjour, gated par les verbes réels `RESIDENCE.MODIFIER`
- * (édition) et `RESIDENCE.CREER` + `FINANCES.VOIR` (paiement). « Voir la
- * fiche » (œil) mène à la page dédiée ; le reste de la ligne est aussi cliquable.
- * Pas de « Générer une facture/reçu » (aucun endpoint réel).
+ * (édition) et `RESIDENCE.ENCAISSER` + `FINANCES.VOIR` (paiement — verbe
+ * distinct de `RESIDENCE.CREER` : le réceptionniste crée des séjours mais
+ * n'encaisse pas, le caissier résidence encaisse mais ne crée pas, vérifié en
+ * direct sur les rôles réels 2026-09-13). « Voir la fiche » (œil) mène à la
+ * page dédiée ; le reste de la ligne est aussi cliquable.
  */
 export function SejourActions({ sejour, onEdit, onPayer }: SejourActionsProps) {
 	const canModifier = useCan("RESIDENCE.MODIFIER");
-	const canCreer = useCan("RESIDENCE.CREER");
+	const canEncaisser = useCan("RESIDENCE.ENCAISSER");
 	const canFinancesVoir = useCan("FINANCES.VOIR");
+	const canFacturationVoir = useCan("FACTURATION.VOIR");
 	const aUnReste = Number(sejour.reste_a_payer) > 0;
 
 	return (
@@ -47,7 +51,7 @@ export function SejourActions({ sejour, onEdit, onPayer }: SejourActionsProps) {
 				</Button>
 			) : null}
 
-			{canCreer && canFinancesVoir && aUnReste ? (
+			{canEncaisser && canFinancesVoir && aUnReste ? (
 				<Button
 					variant="ghost"
 					size="icon-sm"
@@ -58,6 +62,8 @@ export function SejourActions({ sejour, onEdit, onPayer }: SejourActionsProps) {
 					<span className="sr-only">Enregistrer le paiement</span>
 				</Button>
 			) : null}
+
+			{canFacturationVoir ? <SejourImprimerButton sejour={sejour} /> : null}
 		</div>
 	);
 }
