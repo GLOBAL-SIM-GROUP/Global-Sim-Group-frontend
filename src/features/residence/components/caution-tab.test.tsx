@@ -4,10 +4,6 @@ import { describe, expect, it, vi } from "vitest";
 import type { Caution } from "../models/contrats";
 import { CautionTab } from "./caution-tab";
 
-vi.mock("./restituer-caution-form-dialog", () => ({
-	RestituerCautionFormDialog: () => null,
-}));
-
 vi.mock("./versement-caution-form-dialog", () => ({
 	VersementCautionFormDialog: () => null,
 }));
