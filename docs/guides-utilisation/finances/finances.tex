@@ -1,0 +1,428 @@
+\documentclass[12pt,a4paper]{article}
+
+% Encodage et langue
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[french]{babel}
+
+% Mise en page
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage[colorlinks=true,linkcolor=black,citecolor=black,filecolor=black,urlcolor=black]{hyperref}
+\usepackage{tikz}
+\usepackage{fontawesome5}
+\usepackage{float}
+
+% Couleurs personnalisées (identiques aux autres guides)
+\definecolor{lagoon}{RGB}{0, 128, 128}
+\definecolor{sea-ink}{RGB}{0, 45, 64}
+\definecolor{palm}{RGB}{46, 139, 87}
+\definecolor{warn}{RGB}{230, 126, 34}
+\definecolor{danger}{RGB}{231, 76, 60}
+\definecolor{success}{RGB}{39, 174, 96}
+\definecolor{muted}{RGB}{127, 140, 141}
+
+% Titres
+\titleformat{\section}
+  {\normalfont\Large\bfseries\color{sea-ink}}{\thesection}{1em}{}
+\titleformat{\subsection}
+  {\normalfont\large\bfseries\color{lagoon}}{\thesubsection}{1em}{}
+\titleformat{\subsubsection}
+  {\normalfont\normalsize\bfseries\color{palm}}{\thesubsubsection}{1em}{}
+
+% En-têtes et pieds de page
+\setlength{\headheight}{15pt}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\textcolor{sea-ink}{GLOBAL SIM GROUP — Guide Finances}}
+\fancyhead[R]{\textcolor{muted}{\leftmark}}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0pt}
+
+% Commandes pratiques (identiques aux autres guides)
+\newcommand{\screenshot}[2]{%
+  \begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{#1}
+    \caption{#2}
+  \end{figure}%
+}
+
+\newcommand{\etape}[1]{\textbf{\faHandPointRight\ #1}}
+\newcommand{\attention}[1]{\par\noindent\textcolor{warn}{\faExclamationTriangle\ Attention : #1}\par}
+\newcommand{\astuce}[1]{\par\noindent\textcolor{success}{\faLightbulb\ Astuce : #1}\par}
+\newcommand{\info}[1]{\par\noindent\textcolor{lagoon}{\faInfoCircle\ Info : #1}\par}
+
+\newlist{etapes}{enumerate}{1}
+\setlist[etapes]{label=\textcolor{lagoon}{\faArrowRight\ \arabic*.}, leftmargin=1.5cm, itemsep=0.4em}
+
+\begin{document}
+
+% Page de garde
+\begin{titlepage}
+  \noindent\colorbox{sea-ink}{%
+    \parbox{\dimexpr\textwidth-2\fboxsep}{%
+      \centering
+      \vspace{1.5cm}
+      \includegraphics[height=3cm]{../logo-gsg.png}\par
+      \vspace{0.6cm}
+      {\Huge\bfseries\color{white} GLOBAL SIM GROUP\par}
+      \vspace{0.5cm}
+      {\LARGE\color{white} Guide d'utilisation — Module Finances\par}
+      \vspace{1.5cm}
+    }%
+  }
+
+  \vfill
+  \begin{center}
+    {\Large\color{sea-ink} Apprends à suivre l'argent qui entre et qui sort\par}
+    \vspace{0.4cm}
+
+    \begin{tikzpicture}
+      \node[fill=lagoon, text=white, rounded corners=10pt, minimum width=12cm, minimum height=1.5cm, font=\large\bfseries] {Tableau de bord · Encaissements · Dépenses · Impayés · Caisses};
+    \end{tikzpicture}
+  \end{center}
+
+  \vfill
+  \begin{center}
+    \textcolor{muted}{Version 1.0}
+  \end{center}
+\end{titlepage}
+
+\newpage
+% Table des matières
+\tableofcontents
+\newpage
+
+% Introduction
+\section{Avant de commencer}
+
+Imagine une grande caisse en bois et un cahier. Chaque fois que de l'argent \textbf{entre} (un client paie), tu écris « + » dans le cahier et tu poses les billets dans la caisse. Chaque fois que de l'argent \textbf{sort} (tu paies un fournisseur), tu écris « -- » et tu retires les billets. À la fin de la journée, tu comptes ce qui reste.
+
+Le module \textbf{Finances} est ce cahier et cette caisse, sur l'ordinateur. Il a \textbf{neuf pages} :
+
+\begin{itemize}[label=\textcolor{lagoon}{\faCoins}]
+  \item \textbf{Tableau de bord financier} : la vue d'ensemble — combien est entré, combien est sorti, ce qui reste.
+  \item \textbf{Encaissements} : l'historique de tous les paiements reçus (et des sorties), ligne par ligne.
+  \item \textbf{Dépenses} : les sorties d'argent (achats, factures d'eau, réparations\ldots) à enregistrer et corriger.
+  \item \textbf{Impayés} : la liste de tout ce que les clients doivent encore.
+  \item \textbf{Moyens de paiement} : les façons de payer proposées (Espèces, Carte bancaire, MOMO\ldots).
+  \item \textbf{Catégories de dépenses} : les étiquettes pour ranger les dépenses (Eau, Matériel, Approvisionnement\ldots).
+  \item \textbf{Caisses} : les points d'encaissement, un par activité (caisse restaurant, caisse pressing\ldots).
+  \item \textbf{Ma caisse} : l'écran du caissier — ouvrir/fermer sa caisse et voir sa journée.
+  \item \textbf{Revenus par employé} : qui a encaissé combien, par caisse et par période.
+\end{itemize}
+
+\info{Beaucoup d'écrits dans le cahier ne se font pas ici : quand un client paie dans les modules Résidence, Restaurant, Pressing, Salle de fête ou Facturation, le paiement \emph{arrive tout seul} dans Encaissements et le tableau de bord. Le module Finances sert surtout à \textbf{regarder} et à enregistrer les \textbf{dépenses}.}
+
+\info{Ce que tu vois dépend de tes \textbf{permissions}. Si un bouton manque, ce n'est pas un bug : ton rôle n'a pas le droit. Voir le récapitulatif à la fin du guide.}
+
+\newpage
+
+% Section 1 : Ouvrir le module
+\section{Ouvrir le module Finances}\label{sec:ouvrir}
+
+\begin{etapes}
+  \item Connecte-toi à l'application.
+  \item Sur l'accueil, clique sur la carte \textbf{Finances}, ou clique sur « Finances » dans le menu latéral à gauche : les neuf sous-pages apparaissent.
+\end{etapes}
+
+\newpage
+
+% Section 2 : Tableau de bord
+\section{Le tableau de bord financier}\label{sec:tdb}
+
+C'est la page d'accueil du module : en un coup d'\oe il, tu sais si l'entreprise gagne ou perd de l'argent sur la période choisie.
+
+\screenshot{screenshots/finances/01-tdb.png}{Le tableau de bord financier — vue « Global »}
+
+\subsection{Les quatre indicateurs}
+
+Quatre grandes cartes en haut :
+
+\begin{itemize}[label=\textcolor{lagoon}{\faCircle}]
+  \item \textbf{Recettes totales} (vert) : tout l'argent entré.
+  \item \textbf{Dépenses totales} (rouge) : tout l'argent sorti.
+  \item \textbf{Solde} : recettes moins dépenses. Vert s'il reste de l'argent, rouge si on a perdu.
+  \item \textbf{Bénéfice estimatif} : la marge nette calculée par le système.
+\end{itemize}
+
+En dessous, le tableau détaille ces montants \textbf{par période} (le système regroupe par mois) : recettes, dépenses, solde et pourcentage de marge de chaque période. S'il y a beaucoup de périodes, feuillette avec « Précédent » / « Suivant » ou les numéros de page.
+
+\subsection{Choisir la période}
+
+Clique sur la liste \textbf{Période} : « Aujourd'hui », « Hier », « Cette semaine », « Ce mois », « Mois précédent », « Année », ou « Personnalisée » — dans ce cas deux champs « Du » / « Au » apparaissent pour choisir les dates exactes.
+
+\screenshot{screenshots/finances/02-tdb-periode-ouvert.png}{Le filtre « Période » ouvert}
+
+\info{Les périodes plus courtes qu'un mois (« Hier », « Cette semaine ») retombent sur le même découpage mensuel du tableau : le système regroupe les chiffres par mois.}
+
+\subsection{Filtrer par activité}
+
+La liste \textbf{Activité} permet de zoomer sur un seul métier : « Vente de marchandises », « Pressing », « Restauration », « Salle de fête », « Location résidentielle », « Location commerciale » — ou « Global » pour tout voir.
+
+\screenshot{screenshots/finances/03-tdb-activite-ouvert.png}{Le filtre « Activité » ouvert}
+
+Avec une activité choisie, la page affiche le \textbf{résumé de cette activité} sur la période (encaissements, décaissements, marge) :
+
+\screenshot{screenshots/finances/04-tdb-activite-resume.png}{Le résumé de l'activité « Pressing »}
+
+\subsection{Détails et exports}
+
+Trois boutons sous les filtres :
+
+\begin{itemize}[label=\textcolor{lagoon}{\faCircle}]
+  \item \textbf{PDF} : imprime le tableau de bord (ou le résumé de l'activité choisie).
+  \item \textbf{Excel} : télécharge un fichier \texttt{.xlsx} avec les mêmes chiffres.
+  \item \textbf{Détails par activité} (visible en vue « Global ») : ouvre une fenêtre avec les totaux consolidés et le détail par activité.
+\end{itemize}
+
+\screenshot{screenshots/finances/05-tdb-details-activite.png}{La fenêtre « Détails par activité »}
+
+\newpage
+
+% Section 3 : Encaissements
+\section{Les encaissements}\label{sec:encaissements}
+
+La page \textbf{Encaissements} est le cahier ligne par ligne : chaque paiement reçu — et chaque sortie — y figure avec sa date, sa référence, son motif et son montant.
+
+\screenshot{screenshots/finances/06-encaissements.png}{L'historique des encaissements}
+
+Les colonnes :
+
+\begin{itemize}[label=\textcolor{lagoon}{\faCircle}]
+  \item \textbf{Date} : quand le mouvement a eu lieu.
+  \item \textbf{Référence} : le numéro lié (facture, séjour\ldots) ou « — ».
+  \item \textbf{Type} : \textbf{Encaissement} (vert — de l'argent est entré) ou \textbf{Décaissement} (rouge — de l'argent est sorti).
+  \item \textbf{Motif} : la raison (« Loyer CON-2026-003 », « Vente comptoir »\ldots).
+  \item \textbf{Montant} : combien.
+\end{itemize}
+
+\subsection{Filtrer}
+
+\begin{etapes}
+  \item \textbf{Type de paiement} : choisis « Encaissement » ou « Décaissement » pour ne voir qu'un sens de flux.
+  \item \textbf{Dates} : les deux calendriers « début » et « fin » bornent la période.
+  \item \textbf{Caisse} : si tu n'es pas rattaché à une seule caisse, un sélecteur permet de ne voir que les mouvements d'une caisse.
+\end{etapes}
+
+\screenshot{screenshots/finances/07-encaissements-type-ouvert.png}{Le filtre « Type de paiement » ouvert}
+
+\newpage
+
+% Section 4 : Dépenses
+\section{Les dépenses}\label{sec:depenses}
+
+La page \textbf{Dépenses} enregistre les sorties de trésorerie : achats, factures, réparations\ldots{} Chaque ligne montre la date, le libellé, la catégorie et le montant (en rouge, précédé d'un « -- »).
+
+\screenshot{screenshots/finances/08-depenses.png}{La liste des dépenses}
+
+Deux calendriers bornent la période affichée, et un sélecteur de caisse filtre par point d'encaissement (sauf si tu es rattaché à une seule caisse).
+
+\subsection{Ajouter une dépense}
+
+\begin{etapes}
+  \item Clique sur \textbf{Ajouter une dépense}.
+  \item Remplis la fenêtre : \textbf{date} (aujourd'hui par défaut), \textbf{montant} en FCFA, \textbf{catégorie} (obligatoire — choisie dans le catalogue), \textbf{libellé} (obligatoire — ce qui a été payé), \textbf{justificatif} (optionnel — numéro de reçu, de facture\ldots), et la \textbf{caisse} concernée si le sélecteur apparaît.
+  \item Clique sur \textbf{Enregistrer} : la fenêtre se ferme et la dépense apparaît en haut de la liste.
+\end{etapes}
+
+\screenshot{screenshots/finances/09-depense-form-vide.png}{La fenêtre « Ajouter une dépense »}
+
+\screenshot{screenshots/finances/10-depense-form-remplie.png}{La fenêtre remplie}
+
+\screenshot{screenshots/finances/11-depense-resultat.png}{Après « Enregistrer » : la dépense « Guide — Achat de fournitures » apparaît en première ligne}
+
+\attention{Si la caisse du jour est fermée, l'enregistrement est refusé : un message orange t'en informe. Ouvre la caisse depuis « Ma caisse » puis réessaie.}
+
+\subsection{Modifier ou supprimer}
+
+Sur chaque ligne, deux icônes à droite : le \textbf{crayon} rouvre la fenêtre remplie pour corriger ; la \textbf{poubelle} rouge demande une confirmation avant de supprimer définitivement.
+
+\astuce{Ces actions demandent des droits à part (\texttt{DEPENSE.MODIFIER}, \texttt{DEPENSE.SUPPRIMER}) : un caissier peut encaisser sans pouvoir toucher aux dépenses.}
+
+\newpage
+
+% Section 5 : Impayés
+\section{Les impayés}\label{sec:impayes}
+
+La page \textbf{Impayés} rassemble tout ce que les clients doivent encore : loyers, charges, séjours et factures non soldés.
+
+\screenshot{screenshots/finances/12-impayes.png}{La liste des impayés}
+
+Les colonnes :
+
+\begin{itemize}[label=\textcolor{lagoon}{\faCircle}]
+  \item \textbf{Type} : une pastille de couleur — \textbf{Loyer} (bleu), \textbf{Charge} (orange), \textbf{Séjour} (violet), \textbf{Facture} (rouge).
+  \item \textbf{Client} : qui doit payer.
+  \item \textbf{Référence} : le numéro du contrat, de la facture\ldots
+  \item \textbf{Montant dû} / \textbf{Payé} / \textbf{Reste} : le total, ce qui est déjà rentré, et ce qu'il reste à récupérer (en rouge).
+  \item \textbf{Échéance} : la date limite.
+\end{itemize}
+
+Le filtre \textbf{Type d'impayé} permet de ne garder qu'une catégorie — par exemple seulement les loyers :
+
+\screenshot{screenshots/finances/13-impayes-type-ouvert.png}{Le filtre « Type d'impayé » ouvert}
+
+\astuce{Clique sur une ligne pour sauter directement à la fiche correspondante (contrat, facture, liste des charges ou des séjours) — pratique pour encaisser le reste depuis le module concerné.}
+
+\newpage
+
+% Section 6 : Moyens de paiement
+\section{Les moyens de paiement}\label{sec:moyens}
+
+Cette page liste les façons de payer proposées partout dans l'application (Espèces, Carte bancaire, MOMO\ldots) :
+
+\screenshot{screenshots/finances/14-moyens-paiement.png}{La liste des moyens de paiement}
+
+\begin{etapes}
+  \item \textbf{Ajouter} : clique sur « Ajouter un moyen de paiement », tape le libellé (par exemple « Virement »), puis \textbf{Enregistrer}.
+  \item \textbf{Activer / désactiver} : l'icône interrupteur sur chaque ligne rend un moyen indisponible dans les listes de choix sans le supprimer.
+\end{etapes}
+
+\screenshot{screenshots/finances/15-moyen-form.png}{La fenêtre « Ajouter un moyen de paiement »}
+
+\info{Un moyen « inactif » n'apparaît plus dans les formulaires de paiement, mais les encaissements passés avec lui restent dans l'historique.}
+
+\newpage
+
+% Section 7 : Catégories de dépenses
+\section{Les catégories de dépenses}\label{sec:categories}
+
+Les catégories sont les étiquettes qui rangent les dépenses (« Eau », « Matériel », « Approvisionnement »\ldots). La liste affiche chaque libellé avec ses actions :
+
+\screenshot{screenshots/finances/16-categories-depenses.png}{Le catalogue des catégories de dépenses}
+
+\begin{etapes}
+  \item \textbf{Ajouter} : clique sur le bouton « Ajouter », tape le libellé, puis \textbf{Enregistrer}.
+  \item \textbf{Supprimer} : l'icône poubelle retire la catégorie (avec confirmation).
+\end{etapes}
+
+\screenshot{screenshots/finances/17-categorie-form.png}{La fenêtre d'ajout d'une catégorie}
+
+\newpage
+
+% Section 8 : Caisses
+\section{Les caisses}\label{sec:caisses}
+
+Une caisse est un point d'encaissement rattaché à une activité : caisse du restaurant, caisse du pressing\ldots{} La page \textbf{Caisses} les liste avec leur activité et leur statut (« Active » / « Inactive ») :
+
+\screenshot{screenshots/finances/18-caisses.png}{La liste des caisses}
+
+\begin{etapes}
+  \item \textbf{Nouvelle caisse} : clique sur le bouton, donne un \textbf{libellé} (par exemple « Caisse 1 — Restaurant ») et choisis l'\textbf{activité} rattachée (Restaurant, Pressing, Résidence, Salle de fête, Marché), puis \textbf{Créer}.
+  \item \textbf{Modifier} : le crayon permet de renommer une caisse.
+\end{etapes}
+
+\screenshot{screenshots/finances/19-caisse-form.png}{La fenêtre « Créer une caisse »}
+
+\info{Un responsable d'activité ne voit que les caisses de son activité ; un utilisateur assigné à une caisse ne voit que la sienne partout dans le module.}
+
+\newpage
+
+% Section 9 : Ma caisse
+\section{« Ma caisse » — l'écran du caissier}\label{sec:macaisse}
+
+La page \textbf{Ma caisse} est le poste de travail du caissier. Si tu as accès à plusieurs caisses, l'écran te demande d'abord laquelle consulter :
+
+\screenshot{screenshots/finances/20-ma-caisse.png}{Le choix de la caisse (plusieurs caisses accessibles)}
+
+Ensuite s'affiche le tableau de bord de la caisse :
+
+\screenshot{screenshots/finances/21-ma-caisse-dashboard.png}{Le tableau de bord de la caisse}
+
+On y trouve :
+
+\begin{itemize}[label=\textcolor{lagoon}{\faCircle}]
+  \item \textbf{L'état de la caisse} en haut à droite, avec les boutons \textbf{Ouvrir la caisse} et \textbf{Fermer la caisse}.
+  \item \textbf{Trois raccourcis} : « Encaisser une échéance », « Paiement séjour court », « Voir les encaissements ».
+  \item \textbf{Trois indicateurs} : revenus du jour, total des paiements, total des dépenses.
+  \item \textbf{Paiements du jour} : le tableau des mouvements du jour sur cette caisse.
+\end{itemize}
+
+\attention{Une caisse fermée bloque les encaissements : les modules concernés affichent un message « caisse fermée » tant qu'elle n'est pas rouverte ici. Pense à ouvrir la caisse le matin et à la fermer le soir.}
+
+\newpage
+
+% Section 10 : Revenus par employé
+\section{Les revenus par employé}\label{sec:revenus}
+
+La page \textbf{Revenus par employé} additionne ce que chaque utilisateur a encaissé — pratique pour vérifier qui a collecté combien sur une période.
+
+\screenshot{screenshots/finances/22-revenus-employe.png}{Les revenus par employé}
+
+Filtres disponibles : la \textbf{caisse} (si tu en vois plusieurs), et les dates \textbf{début} / \textbf{fin}. Le tableau montre pour chaque employé le nombre de paiements et le montant total, avec les totaux en bas.
+
+\newpage
+
+% Section 11 : Vue mobile
+\section{Sur un petit écran}\label{sec:mobile}
+
+Le module fonctionne aussi sur téléphone : les cartes d'indicateurs s'empilent et les tableaux se font défiler horizontalement.
+
+\screenshot{screenshots/finances/23-tdb-mobile.png}{Le tableau de bord financier sur mobile (320 px)}
+
+\screenshot{screenshots/finances/24-impayes-mobile.png}{La liste des impayés sur mobile (320 px)}
+
+\newpage
+
+% Section 12 : FAQ
+\section{Questions fréquentes}\label{sec:faq}
+
+\begin{longtable}{p{6cm} p{8.5cm}}
+\toprule
+\textbf{Problème} & \textbf{Solution} \\
+\midrule
+\endhead
+La page affiche « Vous n'avez pas accès\ldots » & Ton rôle n'a pas la permission \texttt{FINANCES.VOIR}. Demande à l'administrateur. \\
+\midrule
+Je ne vois pas le bouton « Ajouter une dépense ». & Il faut \texttt{DEPENSE.CREER} — un caissier encaisse mais ne saisit pas les dépenses. \\
+\midrule
+La dépense refuse de s'enregistrer avec un message orange. & La caisse du jour est fermée : ouvre-la dans « Ma caisse », puis réessaie. \\
+\midrule
+Les chiffres du tableau de bord semblent identiques pour « Hier » et « Ce mois ». & C'est normal : le système regroupe les montants par mois — les périodes plus courtes retombent sur le même découpage. \\
+\midrule
+Un moyen de paiement a disparu des formulaires. & Il a été désactivé dans « Moyens de paiement » : clique sur l'interrupteur pour le réactiver. \\
+\midrule
+« Ma caisse » dit « Aucune caisse ne vous est assignée ». & Aucune caisse n'est rattachée à ton compte : l'administrateur doit t'assigner à une caisse. \\
+\midrule
+Je ne vois qu'une partie des encaissements. & Tu es assigné à une caisse : l'affichage est limité à tes mouvements (bandeau bleu « Données filtrées par votre caisse assignée »). \\
+\bottomrule
+\end{longtable}
+
+\newpage
+
+% Section 13 : Permissions
+\section{Récapitulatif des permissions}\label{sec:permissions}
+
+\begin{center}
+\begin{tabular}{p{5cm} p{9.5cm}}
+\toprule
+\textbf{Permission} & \textbf{Ce qu'elle débloque} \\
+\midrule
+\texttt{FINANCES.VOIR} & Lecture de toutes les pages du module (tableau de bord, encaissements, dépenses, impayés, catalogues, caisses, revenus). \\
+\midrule
+\texttt{FINANCES.CREER} & Ouvrir/fermer sa caisse, raccourcis d'encaissement dans « Ma caisse », ajouter un moyen de paiement. \\
+\midrule
+\texttt{FINANCES.MODIFIER} & Créer/modifier les caisses, activer/désactiver les moyens de paiement. \\
+\midrule
+\texttt{DEPENSE.CREER} & « Ajouter une dépense », créer une catégorie de dépense. \\
+\midrule
+\texttt{DEPENSE.MODIFIER} & Corriger une dépense (icône crayon). \\
+\midrule
+\texttt{DEPENSE.SUPPRIMER} & Supprimer une dépense ou une catégorie (icône poubelle). \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\info{Les permissions servent de garde-fou d'affichage : c'est le backend qui tranche en dernier. Un utilisateur assigné à une caisse est en plus limité aux données de sa caisse, quel que soit son rôle.}
+
+\end{document}
