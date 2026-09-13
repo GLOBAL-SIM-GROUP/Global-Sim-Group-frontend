@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
 	type ContratJoin,
 	calculerDateFinPrevue,
+	dateEcheanceEffective,
 	filtrerContrats,
 	paginerContrats,
 } from "./contrats";
@@ -164,5 +165,45 @@ describe("calculerDateFinPrevue", () => {
 
 	it("retourne null si la date est invalide", () => {
 		expect(calculerDateFinPrevue("pas-une-date", 12)).toBeNull();
+	});
+});
+
+describe("dateEcheanceEffective", () => {
+	const echeance = { mois: 3, annee: 2026, date_echeance: null };
+
+	it("retourne date_echeance du backend quand elle est renseignée", () => {
+		expect(
+			dateEcheanceEffective(
+				{ ...echeance, date_echeance: "2026-03-05" },
+				"2026-01-15",
+			),
+		).toBe("2026-03-05");
+	});
+
+	it("normalise un timestamp ISO en YYYY-MM-DD", () => {
+		expect(
+			dateEcheanceEffective(
+				{ ...echeance, date_echeance: "2026-03-05T00:00:00.000Z" },
+				"2026-01-15",
+			),
+		).toBe("2026-03-05");
+	});
+
+	it("déduit le jour de la date de début quand date_echeance est absente", () => {
+		expect(dateEcheanceEffective(echeance, "2026-01-15")).toBe("2026-03-15");
+	});
+
+	it("borne le jour déduit au dernier jour du mois", () => {
+		expect(
+			dateEcheanceEffective(
+				{ mois: 2, annee: 2026, date_echeance: null },
+				"2026-01-31",
+			),
+		).toBe("2026-02-28");
+	});
+
+	it("retourne null sans date exploitable", () => {
+		expect(dateEcheanceEffective(echeance, null)).toBeNull();
+		expect(dateEcheanceEffective(echeance, "pas-une-date")).toBeNull();
 	});
 });

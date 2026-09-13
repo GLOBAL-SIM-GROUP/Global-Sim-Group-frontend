@@ -6,7 +6,7 @@ import { useCan } from "#/core/auth";
 import { cn } from "#/lib/utils";
 
 import { useMoyensPaiement } from "../hooks/use-moyens-paiement";
-import type { Echeance } from "../models/contrats";
+import { dateEcheanceEffective, type Echeance } from "../models/contrats";
 import { echanceStatutLabel } from "../models/echeances";
 import { formatDateISO, formatMontantFCFA } from "../models/format";
 import { EcheanceRecuButton } from "./echeance-recu-button";
@@ -25,6 +25,8 @@ interface ContratEcheancesTabProps {
 	idContrat: string;
 	/** Échéances du contrat (embarquées par le GET détail). */
 	echeances: Echeance[];
+	/** Date de début du contrat — sert à déduire le jour d'échéance quand `date_echeance` est absente. */
+	dateDebut: string;
 }
 
 /**
@@ -38,6 +40,7 @@ interface ContratEcheancesTabProps {
 export function ContratEcheancesTab({
 	idContrat,
 	echeances,
+	dateDebut,
 }: ContratEcheancesTabProps) {
 	const peutEncaisser = useCan("FINANCES.CREER");
 	const moyensQuery = useMoyensPaiement();
@@ -98,48 +101,53 @@ export function ContratEcheancesTab({
 						</tr>
 					</thead>
 					<tbody>
-						{echeances.map((echeance) => (
-							<tr
-								key={echeance.id}
-								className="border-t border-border transition-colors hover:bg-accent/40"
-							>
-								<td className="px-4 py-3 font-semibold text-foreground">
-									{echeance.mois}/{echeance.annee}
-								</td>
-								<td className="px-4 py-3 text-foreground">
-									{formatMontantFCFA(echeance.montant)}
-								</td>
-								<td className="px-4 py-3">
-									<span
-										className={cn(
-											"inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium",
-											ECHANCE_STATUT_BADGE[echeance.statut] ??
-												"bg-[#95A5A6] text-white",
-										)}
-									>
-										{echanceStatutLabel(echeance.statut)}
-									</span>
-								</td>
-								<td className="px-4 py-3 text-muted-foreground">
-									{formatDateISO(echeance.date_echeance)}
-								</td>
-								<td className="px-4 py-3">
-									<div className="flex items-center justify-end gap-2">
-										<EcheanceRecuButton echeance={echeance} />
-										{peutEncaisser && echeance.statut !== "PAYE" ? (
-											<Button
-												variant="outline"
-												size="sm"
-												onClick={() => setAEncaisser(echeance)}
-											>
-												<HandCoins className="size-4" aria-hidden />
-												Enregistrer un paiement
-											</Button>
-										) : null}
-									</div>
-								</td>
-							</tr>
-						))}
+						{echeances.map((echeance) => {
+							const dateEffective = dateEcheanceEffective(echeance, dateDebut);
+							return (
+								<tr
+									key={echeance.id}
+									className="border-t border-border transition-colors hover:bg-accent/40"
+								>
+									<td className="px-4 py-3 font-semibold text-foreground">
+										{dateEffective
+											? formatDateISO(dateEffective)
+											: `${echeance.mois}/${echeance.annee}`}
+									</td>
+									<td className="px-4 py-3 text-foreground">
+										{formatMontantFCFA(echeance.montant)}
+									</td>
+									<td className="px-4 py-3">
+										<span
+											className={cn(
+												"inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium",
+												ECHANCE_STATUT_BADGE[echeance.statut] ??
+													"bg-[#95A5A6] text-white",
+											)}
+										>
+											{echanceStatutLabel(echeance.statut)}
+										</span>
+									</td>
+									<td className="px-4 py-3 text-muted-foreground">
+										{formatDateISO(dateEffective)}
+									</td>
+									<td className="px-4 py-3">
+										<div className="flex items-center justify-end gap-2">
+											<EcheanceRecuButton echeance={echeance} />
+											{peutEncaisser && echeance.statut !== "PAYE" ? (
+												<Button
+													variant="outline"
+													size="sm"
+													onClick={() => setAEncaisser(echeance)}
+												>
+													<HandCoins className="size-4" aria-hidden />
+													Enregistrer un paiement
+												</Button>
+											) : null}
+										</div>
+									</td>
+								</tr>
+							);
+						})}
 					</tbody>
 				</table>
 			</div>

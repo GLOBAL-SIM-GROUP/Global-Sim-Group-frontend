@@ -33,7 +33,8 @@ export interface Echeance {
 	annee: number;
 	montant: string;
 	montant_paye?: string | null;
-	date_echeance: string;
+	/** DATE optionnelle en base — `null` possible (DTO généré `| null`). */
+	date_echeance: string | null;
 	/** PAYE | IMPAYE | PARTIEL | … (enum ouvert : repli `?? statut`). */
 	statut: string;
 	id_paiement: string | null;
@@ -173,6 +174,31 @@ export function paginerContrats(
 	const start = total === 0 ? 0 : debut + 1;
 	const end = Math.min(debut + pageSize, total);
 	return { items, total, page: pageCourante, totalPages, start, end };
+}
+
+/**
+ * Date d'échéance affichable (`YYYY-MM-DD`) : `date_echeance` du backend si
+ * renseignée — normalisée aux 10 premiers caractères (le backend peut
+ * sérialiser un timestamp ISO) — sinon déduite du jour de `date_debut` du
+ * contrat : les échéances mensuelles échoient le même jour du mois, borné au
+ * dernier jour du mois (même règle que `calculerDateFinPrevue`). `null` si
+ * rien d'exploitable.
+ */
+export function dateEcheanceEffective(
+	echeance: Pick<Echeance, "mois" | "annee" | "date_echeance">,
+	dateDebut: string | null | undefined,
+): string | null {
+	const brute = echeance.date_echeance?.slice(0, 10);
+	if (brute && /^\d{4}-\d{2}-\d{2}$/.test(brute)) return brute;
+	const jourDebut = Number(dateDebut?.slice(8, 10));
+	if (!Number.isInteger(jourDebut) || jourDebut < 1 || jourDebut > 31) {
+		return null;
+	}
+	// Jour 0 du mois suivant = dernier jour du mois cible.
+	const dernierJour = new Date(echeance.annee, echeance.mois, 0).getDate();
+	const jour = String(Math.min(jourDebut, dernierJour)).padStart(2, "0");
+	const mois = String(echeance.mois).padStart(2, "0");
+	return `${echeance.annee}-${mois}-${jour}`;
 }
 
 /**

@@ -349,6 +349,7 @@ export function ContratFichePage({ id }: ContratFichePageProps) {
 				<ContratEcheancesTab
 					idContrat={contrat.id}
 					echeances={contrat.echeances}
+					dateDebut={contrat.date_debut}
 				/>
 			) : onglet === "caution" ? (
 				<CautionTab idContrat={contrat.id} />
