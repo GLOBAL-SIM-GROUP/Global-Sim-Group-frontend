@@ -83,12 +83,13 @@ describe("modèle de permissions (réel, pas inventé)", () => {
 		expect(MODULES).not.toContain("MARKET");
 	});
 
-	it("expose les 4 verbes réels, dont SUPPRIMER (absent du spec §9)", () => {
+	it("expose les 5 verbes réels, dont SUPPRIMER et ENCAISSER (absents du spec §9)", () => {
 		expect(PERMISSION_VERBS).toEqual([
 			"VOIR",
 			"CREER",
 			"MODIFIER",
 			"SUPPRIMER",
+			"ENCAISSER",
 		]);
 	});
 });

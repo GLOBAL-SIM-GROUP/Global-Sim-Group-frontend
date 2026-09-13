@@ -17,6 +17,14 @@
  * ADMINISTRATEUR/DIRIGEANT ont les nouveaux codes. La lecture reste sur
  * `FINANCES.VOIR` (`DEPENSE.VOIR` est accordé en parallèle à qui avait déjà
  * `FINANCES.VOIR`, donc pas de régression de lecture à gérer côté front).
+ *
+ * `ENCAISSER` (2026-09-13) : 5e verbe, vérifié en direct sur `FINANCES.*`
+ * (caissiers) et `RESIDENCE.*` (séjours courts — le caissier résidence a
+ * `RESIDENCE.ENCAISSER` sans `RESIDENCE.CREER` : il encaisse mais ne crée pas
+ * de séjour, contrairement au réceptionniste qui a `CREER` sans `ENCAISSER`).
+ * D'autres verbes propres à RESIDENCE existent côté backend
+ * (`SUPERVISER`/`VALIDER`, vus sur Responsable résidence) mais ne sont pas
+ * modélisés ici faute d'usage frontend actuel — ajouter au besoin.
  */
 export const MODULES = [
 	"RESIDENCE",
@@ -43,6 +51,7 @@ export const PERMISSION_VERBS = [
 	"CREER",
 	"MODIFIER",
 	"SUPPRIMER",
+	"ENCAISSER",
 ] as const;
 
 export type PermissionVerb = (typeof PERMISSION_VERBS)[number];
