@@ -727,6 +727,7 @@ interface ClientFichePageProps {
  */
 export function ClientFichePage({ id }: ClientFichePageProps) {
 	const canModifier = useCan("CLIENT.MODIFIER");
+	const canVoirResidence = useCan("RESIDENCE.VOIR");
 	const clientQuery = useClient(id);
 	const [formOuvert, setFormOuvert] = useState(false);
 	const [contactOuvert, setContactOuvert] = useState(false);
@@ -831,175 +832,187 @@ export function ClientFichePage({ id }: ClientFichePageProps) {
 					</dl>
 				</section>
 
-				<section className="space-y-3 rounded-lg border border-border bg-card p-4 sm:p-5 shadow-sm">
-					<h2 className="flex items-center gap-2 text-lg font-semibold text-foreground">
-						<Phone className="size-5 text-lagoon" aria-hidden />
-						Coordonnées
-					</h2>
-					<dl className="grid gap-3 sm:gap-4 sm:grid-cols-2">
-						<Ligne label="Téléphone principal" valeur={client.tel_principal} />
-						<Ligne
-							label="Téléphone secondaire"
-							valeur={client.tel_secondaire ?? "—"}
-						/>
-						<Ligne label="Adresse e-mail" valeur={client.email ?? "—"} />
-						<Ligne label="Ville" valeur={client.ville ?? "—"} />
-						<Ligne label="Adresse" valeur={client.adresse ?? "—"} />
-						<Ligne label="Pays" valeur={client.pays ?? "—"} />
-					</dl>
-				</section>
+				{canVoirResidence ? (
+					<section className="space-y-3 rounded-lg border border-border bg-card p-4 sm:p-5 shadow-sm">
+						<h2 className="flex items-center gap-2 text-lg font-semibold text-foreground">
+							<Phone className="size-5 text-lagoon" aria-hidden />
+							Coordonnées
+						</h2>
+						<dl className="grid gap-3 sm:gap-4 sm:grid-cols-2">
+							<Ligne
+								label="Téléphone principal"
+								valeur={client.tel_principal}
+							/>
+							<Ligne
+								label="Téléphone secondaire"
+								valeur={client.tel_secondaire ?? "—"}
+							/>
+							<Ligne label="Adresse e-mail" valeur={client.email ?? "—"} />
+							<Ligne label="Ville" valeur={client.ville ?? "—"} />
+							<Ligne label="Adresse" valeur={client.adresse ?? "—"} />
+							<Ligne label="Pays" valeur={client.pays ?? "—"} />
+						</dl>
+					</section>
+				) : null}
 			</div>
 
-			<section className="space-y-3 rounded-lg border border-border bg-card p-5 shadow-sm">
-				<div className="flex items-center justify-between">
-					<h2 className="text-lg font-semibold text-foreground">
-						Pièces d'identité
-					</h2>
-					{canModifier ? (
-						<Button size="sm" onClick={() => setPieceOuverte(true)}>
-							<Plus className="size-4" aria-hidden />
-							Ajouter une pièce
-						</Button>
-					) : null}
-				</div>
-				{client.pieces.length === 0 ? (
-					<p className="rounded-lg border border-border bg-sea-ink/5 p-4 text-center text-sm text-muted-foreground">
-						Aucune pièce enregistrée.
-					</p>
-				) : (
-					<div className="overflow-x-auto">
-						<table className="w-full border-collapse text-sm">
-							<thead className="bg-sea-ink text-left text-white">
-								<tr>
-									<th scope="col" className="px-4 py-3 font-medium">
-										TYPE
-									</th>
-									<th scope="col" className="px-4 py-3 font-medium">
-										NUMÉRO
-									</th>
-									<th scope="col" className="px-4 py-3 font-medium">
-										DÉLIVRANCE
-									</th>
-									<th scope="col" className="px-4 py-3 font-medium">
-										EXPIRATION
-									</th>
-									<th scope="col" className="px-4 py-3 font-medium">
-										AUTORITÉ
-									</th>
-									<th scope="col" className="px-4 py-3 font-medium">
-										PHOTOS
-									</th>
-								</tr>
-							</thead>
-							<tbody>
-								{client.pieces.map((piece) => (
-									<tr
-										key={piece.id}
-										className="border-t border-border transition-colors hover:bg-accent/40"
-									>
-										<td className="px-4 py-3 font-medium text-foreground">
-											{TYPE_PIECE_LABELS[piece.type_piece] ?? piece.type_piece}
-										</td>
-										<td className="px-4 py-3 text-foreground">
-											{piece.numero}
-										</td>
-										<td className="px-4 py-3 text-muted-foreground">
-											{formatDateISO(piece.date_delivrance)}
-										</td>
-										<td className="px-4 py-3 text-muted-foreground">
-											{formatDateISO(piece.date_expiration)}
-										</td>
-										<td className="px-4 py-3 text-muted-foreground">
-											{piece.autorite_delivrance ?? "—"}
-										</td>
-										<td className="px-4 py-3 text-center">
-											{piece.copie_num || piece.copie_num_verso ? (
-												<Button
-													variant="ghost"
-													size="sm"
-													onClick={() => setPieceAConsulter(piece)}
-													className="text-xs"
-												>
-													<ImageIcon className="size-4 mr-1" aria-hidden />
-													Voir
-												</Button>
-											) : (
-												<span className="text-xs text-muted-foreground">—</span>
-											)}
-										</td>
-									</tr>
-								))}
-							</tbody>
-						</table>
+			{canVoirResidence ? (
+				<section className="space-y-3 rounded-lg border border-border bg-card p-5 shadow-sm">
+					<div className="flex items-center justify-between">
+						<h2 className="text-lg font-semibold text-foreground">
+							Pièces d'identité
+						</h2>
+						{canModifier ? (
+							<Button size="sm" onClick={() => setPieceOuverte(true)}>
+								<Plus className="size-4" aria-hidden />
+								Ajouter une pièce
+							</Button>
+						) : null}
 					</div>
-				)}
-			</section>
+					{client.pieces.length === 0 ? (
+						<p className="rounded-lg border border-border bg-sea-ink/5 p-4 text-center text-sm text-muted-foreground">
+							Aucune pièce enregistrée.
+						</p>
+					) : (
+						<div className="overflow-x-auto">
+							<table className="w-full border-collapse text-sm">
+								<thead className="bg-sea-ink text-left text-white">
+									<tr>
+										<th scope="col" className="px-4 py-3 font-medium">
+											TYPE
+										</th>
+										<th scope="col" className="px-4 py-3 font-medium">
+											NUMÉRO
+										</th>
+										<th scope="col" className="px-4 py-3 font-medium">
+											DÉLIVRANCE
+										</th>
+										<th scope="col" className="px-4 py-3 font-medium">
+											EXPIRATION
+										</th>
+										<th scope="col" className="px-4 py-3 font-medium">
+											AUTORITÉ
+										</th>
+										<th scope="col" className="px-4 py-3 font-medium">
+											PHOTOS
+										</th>
+									</tr>
+								</thead>
+								<tbody>
+									{client.pieces.map((piece) => (
+										<tr
+											key={piece.id}
+											className="border-t border-border transition-colors hover:bg-accent/40"
+										>
+											<td className="px-4 py-3 font-medium text-foreground">
+												{TYPE_PIECE_LABELS[piece.type_piece] ??
+													piece.type_piece}
+											</td>
+											<td className="px-4 py-3 text-foreground">
+												{piece.numero}
+											</td>
+											<td className="px-4 py-3 text-muted-foreground">
+												{formatDateISO(piece.date_delivrance)}
+											</td>
+											<td className="px-4 py-3 text-muted-foreground">
+												{formatDateISO(piece.date_expiration)}
+											</td>
+											<td className="px-4 py-3 text-muted-foreground">
+												{piece.autorite_delivrance ?? "—"}
+											</td>
+											<td className="px-4 py-3 text-center">
+												{piece.copie_num || piece.copie_num_verso ? (
+													<Button
+														variant="ghost"
+														size="sm"
+														onClick={() => setPieceAConsulter(piece)}
+														className="text-xs"
+													>
+														<ImageIcon className="size-4 mr-1" aria-hidden />
+														Voir
+													</Button>
+												) : (
+													<span className="text-xs text-muted-foreground">
+														—
+													</span>
+												)}
+											</td>
+										</tr>
+									))}
+								</tbody>
+							</table>
+						</div>
+					)}
+				</section>
+			) : null}
 
-			<section className="space-y-3 rounded-lg border border-border bg-card p-5 shadow-sm">
-				<div className="flex items-center justify-between">
-					<h2 className="text-lg font-semibold text-foreground">
-						Contacts d'urgence
-					</h2>
-					{canModifier ? (
-						<Button size="sm" onClick={() => setContactOuvert(true)}>
-							<Plus className="size-4" aria-hidden />
-							Ajouter un contact
-						</Button>
-					) : null}
-				</div>
-				{client.contacts.length === 0 ? (
-					<p className="rounded-lg border border-border bg-sea-ink/5 p-4 text-center text-sm text-muted-foreground">
-						Aucun contact d'urgence enregistré.
-					</p>
-				) : (
-					<div className="overflow-x-auto">
-						<table className="w-full border-collapse text-sm">
-							<thead className="bg-sea-ink text-left text-white">
-								<tr>
-									<th scope="col" className="px-4 py-3 font-medium">
-										CONTACT
-									</th>
-									<th scope="col" className="px-4 py-3 font-medium">
-										LIEN
-									</th>
-									<th scope="col" className="px-4 py-3 font-medium">
-										TÉLÉPHONE
-									</th>
-									<th scope="col" className="px-4 py-3 font-medium">
-										E-MAIL
-									</th>
-								</tr>
-							</thead>
-							<tbody>
-								{client.contacts.map((contact) => (
-									<tr
-										key={contact.id}
-										className="border-t border-border transition-colors hover:bg-accent/40"
-									>
-										<td className="px-4 py-3 font-medium text-foreground">
-											{[contact.prenom, contact.nom]
-												.filter(Boolean)
-												.join(" ") || contact.nom}
-										</td>
-										<td className="px-4 py-3 text-muted-foreground">
-											{contact.lien}
-										</td>
-										<td className="px-4 py-3 text-foreground">
-											{contact.tel_principal}
-											{contact.tel_secondaire
-												? ` · ${contact.tel_secondaire}`
-												: ""}
-										</td>
-										<td className="px-4 py-3 text-muted-foreground">
-											{contact.email ?? "—"}
-										</td>
-									</tr>
-								))}
-							</tbody>
-						</table>
+			{canVoirResidence ? (
+				<section className="space-y-3 rounded-lg border border-border bg-card p-5 shadow-sm">
+					<div className="flex items-center justify-between">
+						<h2 className="text-lg font-semibold text-foreground">
+							Contacts d'urgence
+						</h2>
+						{canModifier ? (
+							<Button size="sm" onClick={() => setContactOuvert(true)}>
+								<Plus className="size-4" aria-hidden />
+								Ajouter un contact
+							</Button>
+						) : null}
 					</div>
-				)}
-			</section>
+					{client.contacts.length === 0 ? (
+						<p className="rounded-lg border border-border bg-sea-ink/5 p-4 text-center text-sm text-muted-foreground">
+							Aucun contact d'urgence enregistré.
+						</p>
+					) : (
+						<div className="overflow-x-auto">
+							<table className="w-full border-collapse text-sm">
+								<thead className="bg-sea-ink text-left text-white">
+									<tr>
+										<th scope="col" className="px-4 py-3 font-medium">
+											CONTACT
+										</th>
+										<th scope="col" className="px-4 py-3 font-medium">
+											LIEN
+										</th>
+										<th scope="col" className="px-4 py-3 font-medium">
+											TÉLÉPHONE
+										</th>
+										<th scope="col" className="px-4 py-3 font-medium">
+											E-MAIL
+										</th>
+									</tr>
+								</thead>
+								<tbody>
+									{client.contacts.map((contact) => (
+										<tr
+											key={contact.id}
+											className="border-t border-border transition-colors hover:bg-accent/40"
+										>
+											<td className="px-4 py-3 font-medium text-foreground">
+												{[contact.prenom, contact.nom]
+													.filter(Boolean)
+													.join(" ") || contact.nom}
+											</td>
+											<td className="px-4 py-3 text-muted-foreground">
+												{contact.lien}
+											</td>
+											<td className="px-4 py-3 text-foreground">
+												{contact.tel_principal}
+												{contact.tel_secondaire
+													? ` · ${contact.tel_secondaire}`
+													: ""}
+											</td>
+											<td className="px-4 py-3 text-muted-foreground">
+												{contact.email ?? "—"}
+											</td>
+										</tr>
+									))}
+								</tbody>
+							</table>
+						</div>
+					)}
+				</section>
+			) : null}
 
 			<ClientFormDialog
 				open={formOuvert}
