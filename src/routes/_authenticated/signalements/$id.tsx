@@ -10,6 +10,7 @@ import { useState } from "react";
 import { Breadcrumb } from "#/components/ui/breadcrumb";
 import { Button } from "#/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "#/components/ui/card";
+import { toApiError } from "#/core/api";
 import { requirePermissions, useCan } from "#/core/auth";
 import { formatDateHeureISO } from "#/features/residence/models/format";
 import { SignalementPhotos } from "#/features/signalements/components/signalement-photos";
@@ -22,7 +23,7 @@ import {
 } from "#/features/signalements/hooks/use-signalements";
 import {
 	completerSignalementDepuisListe,
-	libelleTypeSignalement,
+	libelleCible,
 	nomDeclarant,
 	SIGNALEMENT_STATUT_BADGE,
 	SIGNALEMENT_STATUT_LABELS,
@@ -57,8 +58,14 @@ function DetailSignalementPage() {
 	const [selectedAction, setSelectedAction] = useState<
 		"resoudre" | "rejeter" | null
 	>(null);
+	const [actionMessage, setActionMessage] = useState<string | null>(null);
 
-	const { data: signalementBrut, isLoading, error } = useSignalement(id);
+	const {
+		data: signalementBrut,
+		isLoading,
+		error,
+		refetch: refetchSignalement,
+	} = useSignalement(id);
 	// Le détail n'inclut pas déclarant_*/activite_* (écart backend, cf.
 	// commentaire sur `Signalement`) : complétés depuis la liste, qui les a.
 	const { data: liste } = useSignalements();
@@ -138,7 +145,7 @@ function DetailSignalementPage() {
 							{SIGNALEMENT_STATUT_LABELS[signalement.statut]}
 						</span>
 						<span className="inline-flex rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground">
-							{libelleTypeSignalement(signalement.type_signalement)}
+							{libelleCible(signalement)}
 						</span>
 					</div>
 					<p className="text-muted-foreground">
@@ -158,17 +165,11 @@ function DetailSignalementPage() {
 				<CardContent className="space-y-4">
 					<dl className="grid gap-3 sm:grid-cols-2">
 						<Ligne label="Déclarant" valeur={nomDeclarant(signalement)} />
-						<Ligne
-							label="Module concerné"
-							valeur={libelleTypeSignalement(signalement.type_signalement)}
-						/>
+						<Ligne label="Cible" valeur={libelleCible(signalement)} />
 						<Ligne
 							label="Signalé le"
 							valeur={formatDateHeureISO(signalement.date_signalement)}
 						/>
-						{signalement.activite_libelle ? (
-							<Ligne label="Activité" valeur={signalement.activite_libelle} />
-						) : null}
 						{signalement.date_resolution ? (
 							<Ligne
 								label={
@@ -201,9 +202,18 @@ function DetailSignalementPage() {
 
 			<Card>
 				<CardContent className="pt-6">
-					<SignalementPhotos idSignalement={id} canDelete={canModify} />
+					<SignalementPhotos idSignalement={id} />
 				</CardContent>
 			</Card>
+
+			{actionMessage ? (
+				<div
+					role="alert"
+					className="rounded-lg border border-amber-400/40 bg-amber-50 p-3 text-sm text-amber-900"
+				>
+					{actionMessage}
+				</div>
+			) : null}
 
 			{canModify ? (
 				<Card>
@@ -217,7 +227,19 @@ function DetailSignalementPage() {
 									<Button
 										variant="outline"
 										disabled={isPendingCharge}
-										onClick={() => prendreEnCharge(id)}
+										onClick={() => {
+											setActionMessage(null);
+											prendreEnCharge(id, {
+												onError: (error) => {
+													if (toApiError(error).status === 409) {
+														void refetchSignalement();
+														setActionMessage(
+															"Ce signalement a déjà été traité.",
+														);
+													}
+												},
+											});
+										}}
 									>
 										{isPendingCharge ? (
 											<Loader2 className="size-4 animate-spin" aria-hidden />
@@ -227,13 +249,21 @@ function DetailSignalementPage() {
 										Prendre en charge
 									</Button>
 								) : null}
-								<Button onClick={() => setSelectedAction("resoudre")}>
+								<Button
+									onClick={() => {
+										setActionMessage(null);
+										setSelectedAction("resoudre");
+									}}
+								>
 									<CheckCircle2 className="size-4" aria-hidden />
 									Résoudre
 								</Button>
 								<Button
 									variant="destructive"
-									onClick={() => setSelectedAction("rejeter")}
+									onClick={() => {
+										setActionMessage(null);
+										setSelectedAction("rejeter");
+									}}
 								>
 									<XCircle className="size-4" aria-hidden />
 									Rejeter
@@ -247,15 +277,21 @@ function DetailSignalementPage() {
 										className="mb-2 block text-sm font-medium text-foreground"
 									>
 										Note de{" "}
-										{selectedAction === "resoudre" ? "résolution" : "rejet"}
+										{selectedAction === "resoudre" ? "résolution" : "rejet"}{" "}
+										<span className="text-destructive">*</span>
 									</label>
 									<textarea
 										id="action-note"
 										className="flex min-h-[100px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-base shadow-xs placeholder:text-muted-foreground focus-visible:outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
-										placeholder="Ajoutez une note…"
+										placeholder="Ajoutez une note (obligatoire)…"
 										value={actionNote}
 										onChange={(event) => setActionNote(event.target.value)}
 									/>
+									{actionNote.trim() === "" ? (
+										<p className="mt-1 text-xs text-muted-foreground">
+											La note est obligatoire.
+										</p>
+									) : null}
 								</div>
 
 								<div className="flex gap-3">
@@ -263,18 +299,26 @@ function DetailSignalementPage() {
 										variant={
 											selectedAction === "rejeter" ? "destructive" : "default"
 										}
-										disabled={isPending}
+										disabled={isPending || actionNote.trim() === ""}
 										onClick={() => {
 											const noteResolution = actionNote.trim();
+											if (!noteResolution) return;
+											const onError = (error: unknown) => {
+												if (toApiError(error).status === 409) {
+													void refetchSignalement();
+													setSelectedAction(null);
+													setActionMessage("Ce signalement a déjà été traité.");
+												}
+											};
 											if (selectedAction === "resoudre") {
 												resoudre(
 													{ id, noteResolution },
-													{ onSuccess: () => setSelectedAction(null) },
+													{ onSuccess: () => setSelectedAction(null), onError },
 												);
 											} else {
 												rejeter(
 													{ id, noteResolution },
-													{ onSuccess: () => setSelectedAction(null) },
+													{ onSuccess: () => setSelectedAction(null), onError },
 												);
 											}
 										}}

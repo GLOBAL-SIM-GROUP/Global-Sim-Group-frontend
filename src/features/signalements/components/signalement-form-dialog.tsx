@@ -14,16 +14,18 @@ import {
 	SelectValue,
 } from "#/components/ui/select";
 import { getErrorMessageForCode, isApiError, toApiError } from "#/core/api";
-import type { SignalementType } from "#/core/api/signalements";
-import { uploadImage } from "#/core/api/uploads";
+import type { ModuleCible } from "#/core/api/signalements";
+import { usePermissions } from "#/core/auth";
 
 import {
-	useAjouterSignalementPhoto,
+	useCanDeclarerTiers,
 	useCreerSignalement,
+	useUploaderSignalementPhoto,
 } from "../hooks/use-signalements";
 import {
-	SIGNALEMENT_TYPE_LABELS,
-	SIGNALEMENT_TYPES,
+	MODULE_CIBLE_LABELS,
+	modulesCibleAccessibles,
+	validerPhotosSignalement,
 } from "../models/signalements";
 
 interface SignalementFormDialogProps {
@@ -37,6 +39,10 @@ interface SignalementFormDialogProps {
  * Modale « Nouveau signalement » — même pattern que les autres formulaires
  * de création de l'app (`FactureFormDialog`, `ClientFormDialog`) : modale
  * plutôt que page dédiée.
+ *
+ * Le backend exige exactement une cible (`cible_type` + le champ associé) —
+ * plus de repli « Général » implicite comme dans l'ancien contrat : le
+ * formulaire cible toujours un module (`cible_type: "MODULE"`).
  */
 export function SignalementFormDialog({
 	open,
@@ -44,14 +50,21 @@ export function SignalementFormDialog({
 	onCreated,
 }: SignalementFormDialogProps) {
 	const creerMutation = useCreerSignalement();
-	const ajouterPhotoMutation = useAjouterSignalementPhoto();
+	const uploaderPhotoMutation = useUploaderSignalementPhoto();
+	const canDeclarerTiers = useCanDeclarerTiers();
+	const permissions = usePermissions();
+	// Seuls les modules accessibles (`<MODULE>.VOIR`) sont proposés — même
+	// règle que les tuiles du menu. UX, pas sécurité : le backend revalide.
+	const modulesVisibles = modulesCibleAccessibles(permissions);
 	const [globalError, setGlobalError] = useState<string | null>(null);
 	const [fichiers, setFichiers] = useState<File[]>([]);
+	const [erreursPhotos, setErreursPhotos] = useState<string[]>([]);
 	const [isUploading, setIsUploading] = useState(false);
 	const fileInputRef = useRef<HTMLInputElement>(null);
 
 	const reinitialiser = () => {
 		setFichiers([]);
+		setErreursPhotos([]);
 		setGlobalError(null);
 		if (fileInputRef.current) fileInputRef.current.value = "";
 	};
@@ -60,7 +73,7 @@ export function SignalementFormDialog({
 		defaultValues: {
 			titre: "",
 			description: "",
-			typeSignalement: "GENERAL" as SignalementType | "GENERAL",
+			moduleCible: "" as ModuleCible | "",
 		},
 		validators: {
 			onSubmit: ({ value }) => {
@@ -69,33 +82,34 @@ export function SignalementFormDialog({
 				if (!value.description.trim()) {
 					fields.description = "Ce champ est requis.";
 				}
+				if (!value.moduleCible) {
+					fields.moduleCible = "Choisissez un module.";
+				}
 				return { fields };
 			},
 		},
 		onSubmit: async ({ value }) => {
 			setGlobalError(null);
 			try {
-				setIsUploading(fichiers.length > 0);
-				const clesObjet = await Promise.all(
-					fichiers.map((fichier) => uploadImage(fichier, "signalement-photo")),
-				);
-				setIsUploading(false);
 				const signalement = await creerMutation.mutateAsync({
 					titre: value.titre.trim(),
 					description: value.description.trim(),
-					type_signalement:
-						value.typeSignalement === "GENERAL"
-							? undefined
-							: value.typeSignalement,
+					cible_type: "MODULE",
+					module_cible: value.moduleCible as ModuleCible,
 				});
+				// Le signalement doit exister avant l'upload : l'endpoint dédié
+				// (`POST /signalements/:id/photos/upload`) vérifie le périmètre du
+				// signalement cible avant de stocker l'octet.
+				setIsUploading(fichiers.length > 0);
 				await Promise.all(
-					clesObjet.map((cleObjet) =>
-						ajouterPhotoMutation.mutateAsync({
+					fichiers.map((fichier) =>
+						uploaderPhotoMutation.mutateAsync({
 							id: signalement.id,
-							cleObjet,
+							file: fichier,
 						}),
 					),
 				);
+				setIsUploading(false);
 				reinitialiser();
 				form.reset();
 				onCreated(signalement.id);
@@ -114,7 +128,7 @@ export function SignalementFormDialog({
 	});
 
 	const busy =
-		isUploading || creerMutation.isPending || ajouterPhotoMutation.isPending;
+		isUploading || creerMutation.isPending || uploaderPhotoMutation.isPending;
 
 	return (
 		<Dialog.Root
@@ -136,6 +150,11 @@ export function SignalementFormDialog({
 					<Dialog.Description className="mt-1 text-sm text-muted-foreground">
 						Décrivez le problème ou le signalement.
 					</Dialog.Description>
+					{!canDeclarerTiers ? (
+						<p className="mt-2 text-xs text-muted-foreground">
+							Vous ne pouvez déclarer que dans votre propre périmètre.
+						</p>
+					) : null}
 					<form
 						className="mt-4 space-y-4"
 						onSubmit={(event) => {
@@ -181,30 +200,38 @@ export function SignalementFormDialog({
 							)}
 						</form.Field>
 
-						<form.Field name="typeSignalement">
+						<form.Field name="moduleCible">
 							{(field) => (
 								<div className="space-y-1.5">
-									<Label htmlFor={field.name}>
-										Module concerné (optionnel)
-									</Label>
+									<Label htmlFor={field.name}>Module concerné</Label>
 									<Select
 										value={field.state.value}
 										onValueChange={(value) =>
-											field.handleChange(value as SignalementType | "GENERAL")
+											field.handleChange(value as ModuleCible)
 										}
+										disabled={modulesVisibles.length === 0}
 									>
 										<SelectTrigger id={field.name} className="w-full">
-											<SelectValue />
+											<SelectValue placeholder="Choisissez un module" />
 										</SelectTrigger>
 										<SelectContent>
-											<SelectItem value="GENERAL">Général</SelectItem>
-											{SIGNALEMENT_TYPES.map((type) => (
-												<SelectItem key={type} value={type}>
-													{SIGNALEMENT_TYPE_LABELS[type]}
+											{modulesVisibles.map((module) => (
+												<SelectItem key={module} value={module}>
+													{MODULE_CIBLE_LABELS[module]}
 												</SelectItem>
 											))}
 										</SelectContent>
 									</Select>
+									{modulesVisibles.length === 0 ? (
+										<p className="text-xs text-muted-foreground">
+											Aucun module ne vous est accessible.
+										</p>
+									) : null}
+									{field.state.meta.errors[0] ? (
+										<p className="text-xs text-destructive">
+											{field.state.meta.errors[0]}
+										</p>
+									) : null}
 								</div>
 							)}
 						</form.Field>
@@ -218,9 +245,16 @@ export function SignalementFormDialog({
 								accept="image/jpeg,image/png,image/webp"
 								multiple
 								disabled={busy}
-								onChange={(event) =>
-									setFichiers(Array.from(event.target.files ?? []))
-								}
+								onChange={(event) => {
+									// Filtre taille/MIME à la sélection : sans ça, un
+									// fichier refusé par le backend partirait quand même —
+									// après la création du signalement.
+									const { acceptes, erreurs } = validerPhotosSignalement(
+										Array.from(event.target.files ?? []),
+									);
+									setFichiers(acceptes);
+									setErreursPhotos(erreurs);
+								}}
 								className="block w-full text-sm text-foreground file:mr-3 file:rounded-md file:border-0 file:bg-lagoon file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-white hover:file:bg-lagoon/90"
 							/>
 							<p className="text-xs text-muted-foreground">
@@ -231,6 +265,15 @@ export function SignalementFormDialog({
 									{fichiers.length} photo{fichiers.length > 1 ? "s" : ""}
 									sélectionnée{fichiers.length > 1 ? "s" : ""}.
 								</p>
+							) : null}
+							{erreursPhotos.length > 0 ? (
+								<div role="alert" className="space-y-0.5">
+									{erreursPhotos.map((erreur) => (
+										<p key={erreur} className="text-xs text-destructive">
+											{erreur}
+										</p>
+									))}
+								</div>
 							) : null}
 						</div>
 
@@ -255,13 +298,11 @@ export function SignalementFormDialog({
 								) : (
 									<Upload className="size-4" aria-hidden />
 								)}
-								{isUploading
-									? "Envoi des photos…"
-									: ajouterPhotoMutation.isPending
-										? "Association des photos…"
-										: creerMutation.isPending
-											? "Création…"
-											: "Créer le signalement"}
+								{creerMutation.isPending
+									? "Création…"
+									: isUploading || uploaderPhotoMutation.isPending
+										? "Envoi des photos…"
+										: "Créer le signalement"}
 							</Button>
 						</div>
 					</form>

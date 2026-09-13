@@ -1,10 +1,9 @@
-import type { Signalement, SignalementType } from "#/core/api/signalements";
+import type { ModuleCible, Signalement } from "#/core/api/signalements";
+import { hasPermission } from "#/core/permissions";
 
 export type SignalementStatut = Signalement["statut"];
 
-export const SIGNALEMENT_TYPE_LABELS: Record<SignalementType, string> = {
-	CORE: "Core",
-	CLIENT: "Clients",
+export const MODULE_CIBLE_LABELS: Record<ModuleCible, string> = {
 	RESIDENCE: "Résidence",
 	MARCHANDISE: "Marchandise",
 	PRESSING: "Pressing",
@@ -17,14 +16,76 @@ export const SIGNALEMENT_TYPE_LABELS: Record<SignalementType, string> = {
 	AUDIT: "Audit",
 };
 
-export const SIGNALEMENT_TYPES = Object.keys(
-	SIGNALEMENT_TYPE_LABELS,
-) as SignalementType[];
+export const MODULES_CIBLE = Object.keys(MODULE_CIBLE_LABELS) as ModuleCible[];
 
-export function libelleTypeSignalement(
-	type: SignalementType | null | undefined,
+/**
+ * Modules ciblables filtrés par les permissions de l'utilisateur connecté :
+ * `SIGNALEMENT.DECLARER_TIERS` (déclaration hors de son périmètre) débloque la
+ * liste complète ; sinon même règle que le menu (`<MODULE>.VOIR`, cf.
+ * `getAccessibleModules` dans `core/permissions`) — on ne signale un problème
+ * que sur un module auquel on a accès. UX seulement : le backend reste la
+ * frontière de sécurité.
+ */
+export function modulesCibleAccessibles(
+	permissions: readonly string[],
+): ModuleCible[] {
+	if (permissions.includes("SIGNALEMENT.DECLARER_TIERS")) {
+		return [...MODULES_CIBLE];
+	}
+	return MODULES_CIBLE.filter((module) =>
+		hasPermission(permissions, `${module}.VOIR`),
+	);
+}
+
+export function libelleModuleCible(
+	module: ModuleCible | null | undefined,
 ): string {
-	return type ? SIGNALEMENT_TYPE_LABELS[type] : "Général";
+	return module ? MODULE_CIBLE_LABELS[module] : "—";
+}
+
+/** Taille maximale d'une photo de signalement (whitelist backend : 5 Mio). */
+export const PHOTO_TAILLE_MAX_OCTETS = 5 * 1024 * 1024;
+
+/** MIME acceptés pour une photo de signalement (whitelist backend). */
+export const PHOTO_TYPES_MIME = ["image/jpeg", "image/png", "image/webp"];
+
+/**
+ * Filtre les photos sélectionnées avant création — le backend refuse un
+ * fichier > 5 Mo ou hors whitelist MIME ; le rejeter ici évite un signalement
+ * créé puis des uploads qui échouent. Renvoie les fichiers acceptés et un
+ * message par fichier rejeté (nommé, pour que l'utilisateur sache lequel
+ * reprendre). Fonction pure, sans dépendance React.
+ */
+export function validerPhotosSignalement(fichiers: readonly File[]): {
+	acceptes: File[];
+	erreurs: string[];
+} {
+	const acceptes: File[] = [];
+	const erreurs: string[] = [];
+	for (const fichier of fichiers) {
+		if (fichier.size > PHOTO_TAILLE_MAX_OCTETS) {
+			erreurs.push(`« ${fichier.name} » dépasse 5 Mo.`);
+		} else if (!PHOTO_TYPES_MIME.includes(fichier.type)) {
+			erreurs.push(`« ${fichier.name} » n'est pas au format JPG, PNG ou WebP.`);
+		} else {
+			acceptes.push(fichier);
+		}
+	}
+	return { acceptes, erreurs };
+}
+
+/** Libellé de la cible d'un signalement — l'activité si `cible_type ===
+ *  "ACTIVITE"`, le module sinon. Le détail (`GET /signalements/:id`) ne
+ *  renvoie pas `activite_libelle` (voir commentaire sur `Signalement`) : sur
+ *  une fiche non complétée depuis la liste, on retombe sur le code
+ *  d'activité brut, faute de mieux. */
+export function libelleCible(signalement: Signalement): string {
+	if (signalement.cible_type === "ACTIVITE") {
+		return (
+			signalement.activite_libelle ?? signalement.activite_code ?? "Activité"
+		);
+	}
+	return libelleModuleCible(signalement.module_cible);
 }
 
 /** Libellés français du statut — seule source de vérité (liste + fiche). */

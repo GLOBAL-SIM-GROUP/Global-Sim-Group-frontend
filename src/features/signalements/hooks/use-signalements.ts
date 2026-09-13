@@ -1,31 +1,47 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-
+import { useEffect, useState } from "react";
 import {
-	ajouterSignalementPhoto,
+	type CibleType,
 	createSignalement,
 	getSignalement,
+	getSignalementPhotoBlobUrl,
 	listSignalementPhotos,
 	listSignalements,
+	type ModuleCible,
 	prendreEnChargeSignalement,
 	rejeterSignalement,
 	resoudreSignalement,
 	type SignalementCreatePayload,
-	type SignalementType,
-	supprimerSignalementPhoto,
+	uploaderSignalementPhoto,
 } from "#/core/api/signalements";
+import { uploadCache } from "#/core/api/upload-cache";
+import { usePermissions } from "#/core/auth";
 
 import { signalementsKeys } from "../permissions";
 
+export interface SignalementsFiltre {
+	cibleType?: CibleType;
+	moduleCible?: ModuleCible;
+}
+
 /**
- * Liste complète des signalements — recherche et statut sont filtrés côté
- * client (même pattern que `useFactures`/`useReservations`) : une seule
- * requête, pas de refetch à chaque frappe.
+ * Liste complète des signalements — statut et recherche texte sont filtrés
+ * côté client (même pattern que `useFactures`/`useReservations`), mais
+ * `cible_type`/`module_cible` sont envoyés au serveur (supportés nativement
+ * par `GET /signalements`) : un changement de ces filtres refait la requête.
  */
-export function useSignalements(typeSignalement?: SignalementType) {
+export function useSignalements(filtre: SignalementsFiltre = {}) {
+	const { cibleType, moduleCible } = filtre;
 	return useQuery({
-		queryKey: signalementsKeys.list(typeSignalement ?? "tous"),
+		queryKey: signalementsKeys.list(
+			`${cibleType ?? "tous"}:${moduleCible ?? "tous"}`,
+		),
 		queryFn: () =>
-			listSignalements({ limit: 200, type_signalement: typeSignalement }),
+			listSignalements({
+				limit: 200,
+				cible_type: cibleType,
+				module_cible: moduleCible,
+			}),
 	});
 }
 
@@ -93,6 +109,61 @@ export function useRejeterSignalement() {
 	});
 }
 
+/**
+ * Blob URL d'une photo de signalement, via son propre endpoint de lecture
+ * (`GET /signalements/photos/:id/fichier`) — jamais `GET /uploads?key=...`
+ * pour ce module (la visibilité hérite du signalement parent, une garantie
+ * que la clé MinIO seule ne porte pas). Même cache LRU partagé que
+ * `useUploadBlobUrl`, sous un espace de clés distinct (préfixe
+ * `signalement-photo-fichier/`) pour ne jamais collisionner avec les clés
+ * MinIO des autres modules.
+ */
+export function useSignalementPhotoBlobUrl(idPhoto: string | null | undefined) {
+	const [blobUrl, setBlobUrl] = useState<string | null>(null);
+	const [isLoading, setIsLoading] = useState(false);
+	const cacheKey = idPhoto ? `signalement-photo-fichier/${idPhoto}` : null;
+
+	useEffect(() => {
+		if (!cacheKey) {
+			setBlobUrl(null);
+			return;
+		}
+
+		let monte = true;
+		setIsLoading(true);
+
+		(async () => {
+			const encache = uploadCache.get(cacheKey);
+			if (encache) {
+				if (monte) {
+					setBlobUrl(encache);
+					setIsLoading(false);
+				}
+				return;
+			}
+
+			const url = await getSignalementPhotoBlobUrl(idPhoto);
+			if (monte) {
+				if (url) uploadCache.set(cacheKey, url);
+				setBlobUrl(url);
+				setIsLoading(false);
+			}
+		})();
+
+		return () => {
+			monte = false;
+		};
+	}, [cacheKey, idPhoto]);
+
+	useEffect(() => {
+		return () => {
+			if (cacheKey) uploadCache.release(cacheKey);
+		};
+	}, [cacheKey]);
+
+	return { blobUrl, isLoading };
+}
+
 export function useSignalementPhotos(id: string) {
 	return useQuery({
 		queryKey: signalementsKeys.photos(id),
@@ -101,11 +172,12 @@ export function useSignalementPhotos(id: string) {
 	});
 }
 
-export function useAjouterSignalementPhoto() {
+/** Upload en un seul appel (`POST /signalements/:id/photos/upload`, multipart). */
+export function useUploaderSignalementPhoto() {
 	const queryClient = useQueryClient();
 	return useMutation({
-		mutationFn: ({ id, cleObjet }: { id: string; cleObjet: string }) =>
-			ajouterSignalementPhoto(id, cleObjet),
+		mutationFn: ({ id, file }: { id: string; file: File }) =>
+			uploaderSignalementPhoto(id, file),
 		onSuccess: (_photo, variables) => {
 			void queryClient.invalidateQueries({
 				queryKey: signalementsKeys.photos(variables.id),
@@ -114,15 +186,15 @@ export function useAjouterSignalementPhoto() {
 	});
 }
 
-export function useSupprimerSignalementPhoto() {
-	const queryClient = useQueryClient();
-	return useMutation({
-		mutationFn: ({ idPhoto }: { idSignalement: string; idPhoto: string }) =>
-			supprimerSignalementPhoto(idPhoto),
-		onSuccess: (_resultat, variables) => {
-			void queryClient.invalidateQueries({
-				queryKey: signalementsKeys.photos(variables.idSignalement),
-			});
-		},
-	});
+/**
+ * `SIGNALEMENT.DECLARER_TIERS` est un verbe propre à ce module (pas un des 4
+ * verbes génériques `VOIR/CREER/MODIFIER/SUPPRIMER` de `PermissionCode`) : il
+ * ne s'intègre pas au modèle `<MODULE>.<VERBE>` croisé de `core/permissions`
+ * sans y ajouter un verbe qui n'a de sens que pour SIGNALEMENT. Vérifié en
+ * direct (2026-09-12) : seuls Administrateur/Dirigeant/RH le portent, les
+ * responsables et employés ne l'ont pas. Contrôle brut sur la chaîne, comme
+ * `hasPermission`, mais hors du type `PermissionCode`.
+ */
+export function useCanDeclarerTiers(): boolean {
+	return usePermissions().includes("SIGNALEMENT.DECLARER_TIERS");
 }

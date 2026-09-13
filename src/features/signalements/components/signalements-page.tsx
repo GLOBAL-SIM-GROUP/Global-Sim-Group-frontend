@@ -12,7 +12,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "#/components/ui/select";
-import type { SignalementType } from "#/core/api/signalements";
+import type { CibleType, ModuleCible } from "#/core/api/signalements";
 import { useCan } from "#/core/auth";
 import { formatDateHeureISO } from "#/features/residence/models/format";
 import { cn } from "#/lib/utils";
@@ -20,14 +20,14 @@ import { cn } from "#/lib/utils";
 import { useSignalements } from "../hooks/use-signalements";
 import {
 	filtrerSignalements,
-	libelleTypeSignalement,
+	libelleCible,
+	MODULE_CIBLE_LABELS,
+	MODULES_CIBLE,
 	nomDeclarant,
 	paginerSignalements,
 	rechercherSignalements,
 	SIGNALEMENT_STATUT_BADGE,
 	SIGNALEMENT_STATUT_LABELS,
-	SIGNALEMENT_TYPE_LABELS,
-	SIGNALEMENT_TYPES,
 	type SignalementStatut,
 } from "../models/signalements";
 import { SIGNALEMENTS_PAGE_SIZE } from "../permissions";
@@ -36,7 +36,8 @@ import { SignalementFormDialog } from "./signalement-form-dialog";
 export interface SignalementsSearch {
 	recherche?: string;
 	statut?: string;
-	type_signalement?: string;
+	cible_type?: string;
+	module_cible?: string;
 	page?: number;
 }
 
@@ -48,9 +49,10 @@ interface SignalementsPageProps {
 }
 
 /**
- * Page « Signalements » : liste (recherche + statut filtrés côté client,
- * pagination client) et lien « Nouveau signalement ». Mêmes conventions que
- * les autres listes de l'app (tableau, badge de statut, pagination).
+ * Page « Signalements » : liste (recherche et statut filtrés côté client,
+ * pagination client ; `cible_type`/`module_cible` envoyés au serveur) et lien
+ * « Nouveau signalement ». Mêmes conventions que les autres listes de l'app
+ * (tableau, badge de statut, pagination).
  */
 export function SignalementsPage({
 	initialSearch = {},
@@ -61,27 +63,43 @@ export function SignalementsPage({
 
 	const [recherche, setRecherche] = useState(initialSearch.recherche ?? "");
 	const [statut, setStatut] = useState(initialSearch.statut ?? "tous");
-	const [typeSignalement, setTypeSignalement] = useState(
-		initialSearch.type_signalement ?? "tous",
+	const [cibleType, setCibleType] = useState(
+		initialSearch.cible_type ?? "tous",
+	);
+	const [moduleCible, setModuleCible] = useState(
+		initialSearch.module_cible ?? "tous",
 	);
 	const [page, setPage] = useState(initialSearch.page ?? 1);
 	const [formOuvert, setFormOuvert] = useState(false);
 
-	const signalementsQuery = useSignalements(
-		typeSignalement === "tous"
-			? undefined
-			: (typeSignalement as SignalementType),
-	);
+	const signalementsQuery = useSignalements({
+		cibleType: cibleType === "tous" ? undefined : (cibleType as CibleType),
+		moduleCible:
+			cibleType === "MODULE" && moduleCible !== "tous"
+				? (moduleCible as ModuleCible)
+				: undefined,
+	});
 	const signalements = signalementsQuery.data ?? [];
 
 	const changerFiltre = (patch: {
 		statut?: string;
-		type_signalement?: string;
+		cible_type?: string;
+		module_cible?: string;
 	}) => {
-		setStatut(patch.statut ?? statut);
-		setTypeSignalement(patch.type_signalement ?? typeSignalement);
+		if (patch.statut !== undefined) setStatut(patch.statut);
+		if (patch.cible_type !== undefined) {
+			setCibleType(patch.cible_type);
+			// Changer de type de cible invalide le module choisi précédemment.
+			setModuleCible("tous");
+		}
+		if (patch.module_cible !== undefined) setModuleCible(patch.module_cible);
 		setPage(1);
-		onSearchChange?.((prev) => ({ ...prev, ...patch, page: 1 }));
+		onSearchChange?.((prev) => ({
+			...prev,
+			...patch,
+			module_cible: patch.cible_type ? undefined : patch.module_cible,
+			page: 1,
+		}));
 	};
 
 	const changerRecherche = (terme: string) => {
@@ -153,23 +171,36 @@ export function SignalementsPage({
 					</SelectContent>
 				</Select>
 				<Select
-					value={typeSignalement}
-					onValueChange={(valeur) =>
-						changerFiltre({ type_signalement: valeur })
-					}
+					value={cibleType}
+					onValueChange={(valeur) => changerFiltre({ cible_type: valeur })}
 				>
-					<SelectTrigger aria-label="Module concerné" className="w-52">
-						<SelectValue placeholder="Module concerné" />
+					<SelectTrigger aria-label="Type de cible" className="w-44">
+						<SelectValue placeholder="Type de cible" />
 					</SelectTrigger>
 					<SelectContent>
-						<SelectItem value="tous">Tous les modules</SelectItem>
-						{SIGNALEMENT_TYPES.map((type) => (
-							<SelectItem key={type} value={type}>
-								{SIGNALEMENT_TYPE_LABELS[type]}
-							</SelectItem>
-						))}
+						<SelectItem value="tous">Toutes les cibles</SelectItem>
+						<SelectItem value="MODULE">Module</SelectItem>
+						<SelectItem value="ACTIVITE">Activité</SelectItem>
 					</SelectContent>
 				</Select>
+				{cibleType === "MODULE" ? (
+					<Select
+						value={moduleCible}
+						onValueChange={(valeur) => changerFiltre({ module_cible: valeur })}
+					>
+						<SelectTrigger aria-label="Module concerné" className="w-52">
+							<SelectValue placeholder="Module concerné" />
+						</SelectTrigger>
+						<SelectContent>
+							<SelectItem value="tous">Tous les modules</SelectItem>
+							{MODULES_CIBLE.map((module) => (
+								<SelectItem key={module} value={module}>
+									{MODULE_CIBLE_LABELS[module]}
+								</SelectItem>
+							))}
+						</SelectContent>
+					</Select>
+				) : null}
 			</div>
 
 			{signalementsQuery.isLoading ? (
@@ -202,7 +233,7 @@ export function SignalementsPage({
 									TITRE
 								</th>
 								<th scope="col" className="px-4 py-3 font-medium">
-									MODULE
+									CIBLE
 								</th>
 								<th scope="col" className="px-4 py-3 font-medium">
 									DÉCLARANT
@@ -237,7 +268,7 @@ export function SignalementsPage({
 									</td>
 									<td className="px-4 py-3">
 										<span className="inline-flex rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground">
-											{libelleTypeSignalement(signalement.type_signalement)}
+											{libelleCible(signalement)}
 										</span>
 									</td>
 									<td className="px-4 py-3 text-muted-foreground">

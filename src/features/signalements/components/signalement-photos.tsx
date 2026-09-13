@@ -1,28 +1,22 @@
-import { Camera, Loader2, Trash2, X } from "lucide-react";
+import { Camera, Loader2, X } from "lucide-react";
 import { Dialog } from "radix-ui";
 import { useState } from "react";
 
 import { Button } from "#/components/ui/button";
 import type { SignalementPhoto } from "#/core/api/signalements";
-import { useUploadBlobUrl } from "#/core/api/use-upload-blob";
 import { formatDateHeureISO } from "#/features/residence/models/format";
 
 import {
+	useSignalementPhotoBlobUrl,
 	useSignalementPhotos,
-	useSupprimerSignalementPhoto,
 } from "../hooks/use-signalements";
 
 interface SignalementPhotosProps {
 	idSignalement: string;
-	canDelete: boolean;
 }
 
-export function SignalementPhotos({
-	idSignalement,
-	canDelete,
-}: SignalementPhotosProps) {
+export function SignalementPhotos({ idSignalement }: SignalementPhotosProps) {
 	const photosQuery = useSignalementPhotos(idSignalement);
-	const supprimerMutation = useSupprimerSignalementPhoto();
 	const [photoOuverte, setPhotoOuverte] = useState<SignalementPhoto | null>(
 		null,
 	);
@@ -49,18 +43,7 @@ export function SignalementPhotos({
 						<PhotoThumbnail
 							key={photo.id}
 							photo={photo}
-							canDelete={canDelete}
-							isDeleting={
-								supprimerMutation.isPending &&
-								supprimerMutation.variables?.idPhoto === photo.id
-							}
 							onOpen={() => setPhotoOuverte(photo)}
-							onDelete={() =>
-								supprimerMutation.mutate({
-									idSignalement,
-									idPhoto: photo.id,
-								})
-							}
 						/>
 					))}
 				</div>
@@ -78,18 +61,12 @@ export function SignalementPhotos({
 
 function PhotoThumbnail({
 	photo,
-	canDelete,
-	isDeleting,
 	onOpen,
-	onDelete,
 }: {
 	photo: SignalementPhoto;
-	canDelete: boolean;
-	isDeleting: boolean;
 	onOpen: () => void;
-	onDelete: () => void;
 }) {
-	const { blobUrl, isLoading } = useUploadBlobUrl(photo.cle_objet);
+	const { blobUrl, isLoading } = useSignalementPhotoBlobUrl(photo.id);
 
 	return (
 		<div className="relative overflow-hidden rounded-lg border border-border bg-muted">
@@ -115,24 +92,6 @@ function PhotoThumbnail({
 					</span>
 				)}
 			</button>
-			{canDelete ? (
-				<Button
-					type="button"
-					variant="destructive"
-					size="icon-sm"
-					disabled={isDeleting}
-					onClick={onDelete}
-					className="absolute top-1 right-1"
-					title="Supprimer la photo"
-				>
-					{isDeleting ? (
-						<Loader2 className="size-4 animate-spin" aria-hidden />
-					) : (
-						<Trash2 className="size-4" aria-hidden />
-					)}
-					<span className="sr-only">Supprimer la photo</span>
-				</Button>
-			) : null}
 		</div>
 	);
 }
@@ -144,7 +103,7 @@ function PhotoViewer({
 	photo: SignalementPhoto | null;
 	onOpenChange: (open: boolean) => void;
 }) {
-	const { blobUrl, isLoading } = useUploadBlobUrl(photo?.cle_objet);
+	const { blobUrl, isLoading } = useSignalementPhotoBlobUrl(photo?.id);
 
 	return (
 		<Dialog.Root open={photo !== null} onOpenChange={onOpenChange}>

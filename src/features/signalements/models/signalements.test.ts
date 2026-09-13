@@ -3,12 +3,16 @@ import { describe, expect, it } from "vitest";
 import type { Signalement } from "#/core/api/signalements";
 
 import {
+	MODULES_CIBLE,
 	completerSignalementDepuisListe,
 	filtrerSignalements,
-	libelleTypeSignalement,
+	libelleCible,
+	libelleModuleCible,
+	modulesCibleAccessibles,
 	nomDeclarant,
 	paginerSignalements,
 	rechercherSignalements,
+	validerPhotosSignalement,
 } from "./signalements";
 
 function signalement(
@@ -20,7 +24,9 @@ function signalement(
 		id,
 		titre: `Signalement ${id}`,
 		description: "Description du problème",
+		cible_type: "MODULE",
 		id_activite: null,
+		module_cible: "SALLE_FETE",
 		statut,
 		id_utilisateur_declarant: "1",
 		id_utilisateur_traitant: null,
@@ -36,10 +42,42 @@ function signalement(
 	};
 }
 
-describe("libelleTypeSignalement", () => {
-	it("traduit le module et utilise Général en absence de classement", () => {
-		expect(libelleTypeSignalement("SALLE_FETE")).toBe("Salle de fête");
-		expect(libelleTypeSignalement(null)).toBe("Général");
+describe("libelleModuleCible", () => {
+	it("traduit le module et affiche un tiret en son absence", () => {
+		expect(libelleModuleCible("SALLE_FETE")).toBe("Salle de fête");
+		expect(libelleModuleCible(null)).toBe("—");
+	});
+});
+
+describe("libelleCible", () => {
+	it("affiche le module quand cible_type === MODULE", () => {
+		expect(libelleCible(signalement("1", "OUVERT"))).toBe("Salle de fête");
+	});
+
+	it("affiche l'activité (libellé, ou code à défaut) quand cible_type === ACTIVITE", () => {
+		expect(
+			libelleCible(
+				signalement("1", "OUVERT", {
+					cible_type: "ACTIVITE",
+					id_activite: "4",
+					module_cible: null,
+					activite_libelle: "Restauration et plats",
+					activite_code: "RESTAURATION",
+				}),
+			),
+		).toBe("Restauration et plats");
+
+		expect(
+			libelleCible(
+				signalement("1", "OUVERT", {
+					cible_type: "ACTIVITE",
+					id_activite: "4",
+					module_cible: null,
+					activite_libelle: null,
+					activite_code: "RESTAURATION",
+				}),
+			),
+		).toBe("RESTAURATION");
 	});
 });
 
@@ -167,6 +205,94 @@ describe("rechercherSignalements", () => {
 
 	it("retourne tout si le terme est vide", () => {
 		expect(rechercherSignalements(items, "")).toHaveLength(2);
+	});
+});
+
+describe("validerPhotosSignalement", () => {
+	const photo = (nom: string, type: string, taille = 1000) =>
+		new File([new ArrayBuffer(taille)], nom, { type });
+
+	it("accepte les JPG/PNG/WebP de 5 Mo ou moins", () => {
+		const fichiers = [
+			photo("a.jpg", "image/jpeg"),
+			photo("b.png", "image/png"),
+			photo("c.webp", "image/webp"),
+			photo("pile.jpg", "image/jpeg", 5 * 1024 * 1024),
+		];
+
+		const { acceptes, erreurs } = validerPhotosSignalement(fichiers);
+
+		expect(acceptes).toHaveLength(4);
+		expect(erreurs).toHaveLength(0);
+	});
+
+	it("rejette un fichier de plus de 5 Mo", () => {
+		const { acceptes, erreurs } = validerPhotosSignalement([
+			photo("grosse.jpg", "image/jpeg", 5 * 1024 * 1024 + 1),
+		]);
+
+		expect(acceptes).toHaveLength(0);
+		expect(erreurs).toEqual(["« grosse.jpg » dépasse 5 Mo."]);
+	});
+
+	it("rejette un type MIME hors whitelist (PDF, exécutable)", () => {
+		const { acceptes, erreurs } = validerPhotosSignalement([
+			photo("preuve.pdf", "application/pdf"),
+			photo("virus.exe", "application/octet-stream"),
+		]);
+
+		expect(acceptes).toHaveLength(0);
+		expect(erreurs).toHaveLength(2);
+		expect(erreurs[0]).toContain("preuve.pdf");
+		expect(erreurs[1]).toContain("virus.exe");
+	});
+
+	it("sépare acceptés et rejetés dans une sélection mixte", () => {
+		const { acceptes, erreurs } = validerPhotosSignalement([
+			photo("ok.jpg", "image/jpeg"),
+			photo("trop-grosse.png", "image/png", 6 * 1024 * 1024),
+			photo("ok.webp", "image/webp"),
+		]);
+
+		expect(acceptes.map((f) => f.name)).toEqual(["ok.jpg", "ok.webp"]);
+		expect(erreurs).toHaveLength(1);
+	});
+});
+
+describe("modulesCibleAccessibles", () => {
+	it("ne garde que les modules dont l'utilisateur a le VOIR", () => {
+		const modules = modulesCibleAccessibles([
+			"RESIDENCE.VOIR",
+			"RESIDENCE.ENCAISSER",
+			"SIGNALEMENT.CREER",
+		]);
+
+		expect(modules).toEqual(["RESIDENCE"]);
+	});
+
+	it("renvoie tous les modules pour un administrateur", () => {
+		const toutVoir = MODULES_CIBLE.map((module) => `${module}.VOIR`);
+
+		expect(modulesCibleAccessibles(toutVoir)).toEqual(MODULES_CIBLE);
+	});
+
+	it("renvoie tous les modules avec SIGNALEMENT.DECLARER_TIERS, même sans VOIR", () => {
+		expect(
+			modulesCibleAccessibles([
+				"SIGNALEMENT.DECLARER_TIERS",
+				"SIGNALEMENT.CREER",
+			]),
+		).toEqual(MODULES_CIBLE);
+	});
+
+	it("renvoie une liste vide sans aucun VOIR de module", () => {
+		expect(
+			modulesCibleAccessibles(["SIGNALEMENT.CREER", "RESIDENT.VOIR"]),
+		).toEqual([]);
+	});
+
+	it("ignore les autres verbes quand VOIR est absent", () => {
+		expect(modulesCibleAccessibles(["PRESSING.MODIFIER"])).toEqual([]);
 	});
 });
 
