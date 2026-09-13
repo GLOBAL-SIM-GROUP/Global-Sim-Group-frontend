@@ -20,13 +20,18 @@ const CONTRAT_STATUT_BADGE: Record<ContratStatut, string> = {
 interface ContratTableProps {
 	contrats: ContratJoin[];
 	onActiver?: (contrat: ContratJoin) => void;
+	onModifier?: (contrat: ContratJoin) => void;
 }
 
 /**
  * Tableau des contrats de location (même gabarit que les autres tableaux
  * Résidence : en-têtes navy `bg-sea-ink`).
  */
-export function ContratTable({ contrats, onActiver }: ContratTableProps) {
+export function ContratTable({
+	contrats,
+	onActiver,
+	onModifier,
+}: ContratTableProps) {
 	if (contrats.length === 0) {
 		return (
 			<div className="rounded-lg border border-border bg-card p-8 text-center text-sm text-muted-foreground">
@@ -108,7 +113,11 @@ export function ContratTable({ contrats, onActiver }: ContratTableProps) {
 								</span>
 							</td>
 							<td className="relative z-10 px-4 py-3">
-								<ContratActions contrat={contrat} onActiver={onActiver} />
+								<ContratActions
+									contrat={contrat}
+									onActiver={onActiver}
+									onModifier={onModifier}
+								/>
 							</td>
 						</tr>
 					))}

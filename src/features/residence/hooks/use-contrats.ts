@@ -5,6 +5,7 @@ import {
 	type ContratBody,
 	creerCaution,
 	creerContrat,
+	type ContratMajBody,
 	type EncaisserLoyerLotBody,
 	encaisserCaution,
 	encaisserLoyerLot,
@@ -12,6 +13,7 @@ import {
 	getCaution,
 	getContrat,
 	listContrats,
+	majContrat,
 	rembourserCaution,
 	resilierContrat,
 	restituerCaution,
@@ -44,6 +46,22 @@ export function useCreerContrat() {
 		mutationFn: (body: ContratBody) => creerContrat(body),
 		onSuccess: () => {
 			void queryClient.invalidateQueries({ queryKey: contratsKeys.all });
+		},
+	});
+}
+
+/**
+ * Modifie un contrat EN_ATTENTE (PATCH). Invalide contrats ET logements —
+ * `id_logement` peut changer (ancien libéré, nouveau pris côté backend).
+ */
+export function useModifierContrat() {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: ({ id, ...body }: { id: string } & ContratMajBody) =>
+			majContrat(id, body),
+		onSuccess: () => {
+			void queryClient.invalidateQueries({ queryKey: contratsKeys.all });
+			void queryClient.invalidateQueries({ queryKey: logementsKeys.all });
 		},
 	});
 }

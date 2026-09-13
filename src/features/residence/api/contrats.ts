@@ -37,8 +37,8 @@ const texteOuNull = (valeur: string | null | undefined): string | null =>
 /**
  * Appels API du module Résidence — contrats de location. Réponses hand-typed
  * revalidées sur le backend réel (aucun schéma de réponse dans le spec). Aucun
- * endpoint inventé : GET list/détail, POST création, `activer`, caution
- * (GET + création + restitution). Pas de PATCH ni de résiliation dans le spec.
+ * endpoint inventé : GET list/détail, POST création, PATCH maj (EN_ATTENTE),
+ * `activer`, `resilier`, caution (GET + création + restitution).
  */
 export function listContrats(): Promise<Contrat[]> {
 	return getApiClient()
@@ -139,6 +139,56 @@ export function creerContrat(body: ContratBody): Promise<ContratCree> {
 					}
 				: null,
 		}));
+}
+
+/** Corps saisi par le formulaire de modification d'un contrat EN_ATTENTE. */
+export interface ContratMajBody {
+	idLogement?: string;
+	dateDebut?: string;
+	montantLoyer?: string;
+	typeLocation?: TypeLocation;
+	dureeMois?: number | null;
+	/** Date de signature (`YYYY-MM-DD`, `null` pour effacer). */
+	dateSignature?: string | null;
+}
+
+/**
+ * Met à jour un contrat EN_ATTENTE (PATCH `/contrats/{id}`, ajouté au spec
+ * après la génération — comme `caution/encaisser`, corps revalidé sur la doc
+ * live : `id_logement`, `date_debut`, `montant_loyer`, `type_location`,
+ * `duree_mois`, `date_fin_prevue`, `date_signature`). `date_fin_prevue` est
+ * redéduite de la durée (`calculerDateFinPrevue`, même règle qu'à la
+ * création) ; `periodicite` jamais envoyé (redondant avec `type_location`).
+ * `id_client` n'est pas modifiable — absent du DTO. 403 sans
+ * `RESIDENCE.MODIFIER`, 400 si le contrat n'est plus EN_ATTENTE.
+ */
+export function majContrat(id: string, body: ContratMajBody): Promise<unknown> {
+	const corps = {
+		...(body.idLogement !== undefined ? { id_logement: body.idLogement } : {}),
+		...(body.dateDebut !== undefined ? { date_debut: body.dateDebut } : {}),
+		...(body.montantLoyer !== undefined
+			? { montant_loyer: body.montantLoyer }
+			: {}),
+		...(body.typeLocation !== undefined
+			? { type_location: body.typeLocation }
+			: {}),
+		...(body.dureeMois !== undefined ? { duree_mois: body.dureeMois } : {}),
+		...(body.dateDebut !== undefined || body.dureeMois !== undefined
+			? {
+					date_fin_prevue: calculerDateFinPrevue(
+						body.dateDebut ?? "",
+						body.dureeMois ?? null,
+					),
+				}
+			: {}),
+		...(body.dateSignature !== undefined
+			? { date_signature: body.dateSignature }
+			: {}),
+	};
+	return getApiClient().apiFetch(`/api/v1/residence/contrats/${id}`, {
+		method: "PATCH",
+		body: JSON.stringify(corps),
+	});
 }
 
 /** Envoie le contrat (PDF) par email au client (POST /contrats/{id}/envoyer-email). */

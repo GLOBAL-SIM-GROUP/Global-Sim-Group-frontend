@@ -70,6 +70,10 @@ vi.mock("../hooks/use-clients", () => ({
 		data: new Map([["c1", { id: "c1", nom: "KOUASSI", prenoms: "Awa" }]]),
 	}),
 }));
+// Bouton « Modifier » gaté par RESIDENCE.MODIFIER : pas d'AuthProvider dans
+// ce test isolé — `useCan` renvoie false (bouton masqué, comportement sans
+// permission).
+vi.mock("#/core/auth", () => ({ useCan: () => false }));
 vi.mock("../hooks/use-logements", () => ({
 	useLogementsParId: () => ({
 		data: new Map([["l1", { numero: "A-101", nom: "Studio" }]]),

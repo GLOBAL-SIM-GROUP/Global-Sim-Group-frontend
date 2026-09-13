@@ -22,6 +22,7 @@ import { ConfirmDialog } from "./confirm-dialog";
 import { ContratFilters } from "./contrat-filters";
 import { ContratFormDialog } from "./contrat-form-dialog";
 import { ContratTable } from "./contrat-table";
+import { ModifierContratFormDialog } from "./modifier-contrat-form-dialog";
 
 /** Filtres/pagination reflétés dans l'URL (liens partageables). */
 export interface ContratsSearch {
@@ -47,8 +48,9 @@ interface ContratsPageProps {
  * Page « Contrats de location » (module Résidence, M2.2) : liste de tous les
  * contrats longue durée. Les noms des locataires et les numéros de logement
  * sont résolus par id via les caches (le lister ne les embarque pas). Filtres
- * et pagination côté client. Action réelle : « Voir la fiche » et « Activer »
- * (EN_ATTENTE) — pas de Modifier/Résilier/Générer les échéances (aucun endpoint).
+ * et pagination côté client. Actions : « Voir la fiche », « Modifier » et
+ * « Activer » (EN_ATTENTE) — pas de Résilier/Générer les échéances (la
+ * résiliation se fait depuis la fiche, les échéances à la création).
  */
 export function ContratsPage({
 	initialSearch,
@@ -69,6 +71,8 @@ export function ContratsPage({
 	const [au, setAu] = useState(initialSearch.au ?? "");
 	const [page, setPage] = useState(initialSearch.page ?? 1);
 	const [aActiver, setAActiver] = useState<ContratJoin | null>(null);
+	// Contrat EN_ATTENTE en cours de modification (modale PATCH).
+	const [aModifier, setAModifier] = useState<ContratJoin | null>(null);
 	// Modale de création d'un contrat (au-dessus de la liste, pas de route).
 	const [formOuvert, setFormOuvert] = useState(false);
 	// Encart affiché après création si un compte portail a été provisionné.
@@ -263,6 +267,9 @@ export function ContratsPage({
 					onActiver={
 						canModifier ? (contrat) => setAActiver(contrat) : undefined
 					}
+					onModifier={
+						canModifier ? (contrat) => setAModifier(contrat) : undefined
+					}
 				/>
 			)}
 
@@ -325,6 +332,17 @@ export function ContratsPage({
 					setCompteResidentCree(contrat.compteResident);
 				}}
 			/>
+
+			{aModifier ? (
+				<ModifierContratFormDialog
+					contrat={aModifier}
+					logement={logementsDetails.data?.get(aModifier.id_logement)}
+					onOpenChange={(ouvert) => {
+						if (!ouvert) setAModifier(null);
+					}}
+					onSaved={() => setAModifier(null)}
+				/>
+			) : null}
 		</div>
 	);
 }

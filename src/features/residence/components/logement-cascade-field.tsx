@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { Label } from "#/components/ui/label";
 import {
@@ -11,7 +11,7 @@ import {
 
 import { useBatiments } from "../hooks/use-batiments";
 import { useLogements } from "../hooks/use-logements";
-import { LOGEMENT_TYPE_LABELS } from "../models/logements";
+import { LOGEMENT_TYPE_LABELS, type Logement } from "../models/logements";
 
 interface LogementCascadeFieldProps {
 	/** Id du logement sélectionné (champ `idLogement` du formulaire). */
@@ -31,6 +31,18 @@ interface LogementCascadeFieldProps {
 	 * `false` par défaut. Mutuellement exclusif avec `disponibleUniquement`.
 	 */
 	occupeUniquement?: boolean;
+	/**
+	 * Bâtiment présélectionné au montage (édition : celui du logement
+	 * courant). Appliqué aussi si la valeur arrive en async, tant qu'aucun
+	 * bâtiment n'a été choisi à la main.
+	 */
+	batimentInitial?: string;
+	/**
+	 * Logement à toujours proposer quand son bâtiment est sélectionné, même
+	 * filtré par `disponibleUniquement` (édition : le logement actuel du
+	 * contrat n'est pas DISPONIBLE mais doit rester sélectionnable).
+	 */
+	logementActuel?: Pick<Logement, "id" | "id_batiment" | "numero" | "type">;
 }
 
 /** Champ Select avec label visible (le contenu s'ouvre en portal). */
@@ -82,8 +94,18 @@ export function LogementCascadeField({
 	onChange,
 	disponibleUniquement = false,
 	occupeUniquement = false,
+	batimentInitial,
+	logementActuel,
 }: LogementCascadeFieldProps) {
-	const [batimentId, setBatimentId] = useState("");
+	const [batimentId, setBatimentId] = useState(batimentInitial ?? "");
+
+	// `batimentInitial` peut arriver en async (détail du logement chargé en
+	// parallèle) : l'appliquer tant qu'aucun bâtiment n'a été choisi à la
+	// main — le Select n'a pas d'option « vide », `batimentId` ne reste vide
+	// qu'avant le premier choix.
+	useEffect(() => {
+		if (!batimentId && batimentInitial) setBatimentId(batimentInitial);
+	}, [batimentInitial, batimentId]);
 	const batimentsQuery = useBatiments();
 	const statutFiltre = disponibleUniquement
 		? "DISPONIBLE"
@@ -124,6 +146,16 @@ export function LogementCascadeField({
 				onValueChange={onChange}
 				disabled={!batiment}
 			>
+				{logementActuel &&
+				batimentId === logementActuel.id_batiment &&
+				!(logementsQuery.data ?? []).some(
+					(logement) => logement.id === logementActuel.id,
+				) ? (
+					<SelectItem value={logementActuel.id}>
+						{logementActuel.numero} —{" "}
+						{LOGEMENT_TYPE_LABELS[logementActuel.type]}
+					</SelectItem>
+				) : null}
 				{(logementsQuery.data ?? []).map((logement) => (
 					<SelectItem key={logement.id} value={logement.id}>
 						{logement.numero} — {LOGEMENT_TYPE_LABELS[logement.type]}

@@ -1,11 +1,12 @@
 import { Link } from "@tanstack/react-router";
-import { FileX, Loader2, Mail, Printer } from "lucide-react";
+import { FileX, Loader2, Mail, Pencil, Printer } from "lucide-react";
 import { useState } from "react";
 
 import { Breadcrumb } from "#/components/ui/breadcrumb";
 import { Button } from "#/components/ui/button";
 import { getErrorMessageForCode, toApiError } from "#/core/api";
 import { getApiClient } from "#/core/api/client";
+import { useCan } from "#/core/auth";
 import { imprimerPdfBlob } from "#/lib/print-pdf";
 import { cn } from "#/lib/utils";
 
@@ -26,6 +27,7 @@ import { formatDateISO, formatMontantFCFA } from "../models/format";
 import { CautionTab } from "./caution-tab";
 import { ContratEcheancesTab } from "./contrat-echeances-tab";
 import { EtatDesLieuxTab } from "./etat-des-lieux-tab";
+import { ModifierContratFormDialog } from "./modifier-contrat-form-dialog";
 import { ResilierContratFormDialog } from "./resilier-contrat-form-dialog";
 
 const CONTRAT_STATUT_BADGE: Record<ContratStatut, string> = {
@@ -58,9 +60,10 @@ interface ContratFichePageProps {
 /**
  * Page « Fiche contrat — [Numéro] » (M2.2) : informations générales + onglets
  * « Échéances » (encaissement des échéances) et « Caution » (restitution).
- * « Résilier » (départ anticipé, avant terme) : visible uniquement sur un
- * contrat ACTIF. Pas de bouton Modifier / Clôturer / Générer reçu : aucun
- * endpoint réel pour ceux-là.
+ * « Modifier » : contrat EN_ATTENTE uniquement (PATCH `/contrats/{id}`,
+ * `RESIDENCE.MODIFIER`). « Résilier » (départ anticipé, avant terme) :
+ * visible uniquement sur un contrat ACTIF. Pas de bouton Clôturer / Générer
+ * reçu : aucun endpoint réel pour ceux-là.
  */
 export function ContratFichePage({ id }: ContratFichePageProps) {
 	const [onglet, setOnglet] = useState<
@@ -72,6 +75,8 @@ export function ContratFichePage({ id }: ContratFichePageProps) {
 		texte: string;
 	} | null>(null);
 	const envoyerEmailMutation = useEnvoyerContratParEmail();
+	const canModifier = useCan("RESIDENCE.MODIFIER");
+	const [modificationOuverte, setModificationOuverte] = useState(false);
 	const [resiliationOuverte, setResiliationOuverte] = useState(false);
 	const [resiliationResultat, setResiliationResultat] =
 		useState<ContratResilie | null>(null);
@@ -209,6 +214,16 @@ export function ContratFichePage({ id }: ContratFichePageProps) {
 							</>
 						)}
 					</Button>
+					{contrat.statut === "EN_ATTENTE" && canModifier ? (
+						<Button
+							variant="outline"
+							onClick={() => setModificationOuverte(true)}
+							className="w-full sm:w-auto"
+						>
+							<Pencil className="size-4 mr-2" />
+							Modifier
+						</Button>
+					) : null}
 					{contrat.statut === "ACTIF" ? (
 						<Button
 							variant="destructive"
@@ -356,6 +371,15 @@ export function ContratFichePage({ id }: ContratFichePageProps) {
 			) : (
 				<EtatDesLieuxTab idContrat={contrat.id} />
 			)}
+
+			{modificationOuverte ? (
+				<ModifierContratFormDialog
+					contrat={contrat}
+					logement={logement}
+					onOpenChange={setModificationOuverte}
+					onSaved={() => setModificationOuverte(false)}
+				/>
+			) : null}
 
 			<ResilierContratFormDialog
 				open={resiliationOuverte}
