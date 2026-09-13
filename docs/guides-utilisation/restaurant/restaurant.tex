@@ -1,0 +1,435 @@
+\documentclass[12pt,a4paper]{article}
+
+% Encodage et langue
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[french]{babel}
+
+% Mise en page
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage[colorlinks=true,linkcolor=black,citecolor=black,filecolor=black,urlcolor=black]{hyperref}
+\usepackage{tikz}
+\usepackage{fontawesome5}
+\usepackage{float}
+
+% Couleurs personnalisées (identiques aux autres guides)
+\definecolor{lagoon}{RGB}{0, 128, 128}
+\definecolor{sea-ink}{RGB}{0, 45, 64}
+\definecolor{palm}{RGB}{46, 139, 87}
+\definecolor{warn}{RGB}{230, 126, 34}
+\definecolor{danger}{RGB}{231, 76, 60}
+\definecolor{success}{RGB}{39, 174, 96}
+\definecolor{muted}{RGB}{127, 140, 141}
+
+% Titres
+\titleformat{\section}
+  {\normalfont\Large\bfseries\color{sea-ink}}{\thesection}{1em}{}
+\titleformat{\subsection}
+  {\normalfont\large\bfseries\color{lagoon}}{\thesubsection}{1em}{}
+\titleformat{\subsubsection}
+  {\normalfont\normalsize\bfseries\color{palm}}{\thesubsubsection}{1em}{}
+
+% En-têtes et pieds de page
+\setlength{\headheight}{15pt}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\textcolor{sea-ink}{GLOBAL SIM GROUP — Guide Restaurant}}
+\fancyhead[R]{\textcolor{muted}{\leftmark}}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0pt}
+
+% Commandes pratiques (identiques aux autres guides)
+\newcommand{\screenshot}[2]{%
+  \begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{#1}
+    \caption{#2}
+  \end{figure}%
+}
+
+\newcommand{\etape}[1]{\textbf{\faHandPointRight\ #1}}
+\newcommand{\attention}[1]{\par\noindent\textcolor{warn}{\faExclamationTriangle\ Attention : #1}\par}
+\newcommand{\astuce}[1]{\par\noindent\textcolor{success}{\faLightbulb\ Astuce : #1}\par}
+\newcommand{\info}[1]{\par\noindent\textcolor{lagoon}{\faInfoCircle\ Info : #1}\par}
+
+\newlist{etapes}{enumerate}{1}
+\setlist[etapes]{label=\textcolor{lagoon}{\faArrowRight\ \arabic*.}, leftmargin=1.5cm, itemsep=0.4em}
+
+\begin{document}
+
+% Page de garde
+\begin{titlepage}
+  \noindent\colorbox{sea-ink}{%
+    \parbox{\dimexpr\textwidth-2\fboxsep}{%
+      \centering
+      \vspace{1.5cm}
+      \includegraphics[height=3cm]{../logo-gsg.png}\par
+      \vspace{0.6cm}
+      {\Huge\bfseries\color{white} GLOBAL SIM GROUP\par}
+      \vspace{0.5cm}
+      {\LARGE\color{white} Guide d'utilisation — Module Restaurant\par}
+      \vspace{1.5cm}
+    }%
+  }
+
+  \vfill
+  \begin{center}
+    {\Large\color{sea-ink} Apprends à gérer la carte, les commandes et les ventes\par}
+    \vspace{0.4cm}
+
+    \begin{tikzpicture}
+      \node[fill=lagoon, text=white, rounded corners=10pt, minimum width=12cm, minimum height=1.5cm, font=\large\bfseries] {Carte des plats · Commandes · Statistiques};
+    \end{tikzpicture}
+  \end{center}
+
+  \vfill
+  \begin{center}
+    \textcolor{muted}{Version 1.0}
+  \end{center}
+\end{titlepage}
+
+\newpage
+% Table des matières
+\tableofcontents
+\newpage
+
+% Introduction
+\section{Avant de commencer}
+
+Imagine que tu tiens un restaurant. Tu as trois choses à gérer :
+
+\begin{itemize}[label=\textcolor{lagoon}{\faFile}]
+  \item \textbf{La carte} : la liste des plats et boissons que tu proposes, avec leur photo et leur prix.
+  \item \textbf{Les commandes} : chaque fois qu'un client commande à manger, tu notes ce qu'il a pris.
+  \item \textbf{Les statistiques} : à la fin de la journée, tu veux savoir combien tu as gagné et quel plat a le plus plu.
+\end{itemize}
+
+Le module \textbf{Restaurant} fait exactement ça, sur l'ordinateur. Il a \textbf{trois pages} :
+
+\begin{itemize}[label=\textcolor{lagoon}{\faUtensils}]
+  \item \textbf{Plats / carte} : pour créer et ranger les plats du menu.
+  \item \textbf{Commandes} : pour enregistrer et suivre ce que les clients commandent.
+  \item \textbf{Statistiques} : pour voir le chiffre d'affaires et les plats les plus vendus.
+\end{itemize}
+
+\info{Chaque commande a un \textbf{statut}, comme un petit panneau de couleur qui suit le plat en cuisine : \textbf{En cours} (bleu) → \textbf{En préparation} (orange) → \textbf{Servie} (vert) → \textbf{Payée} (gris). Une commande peut aussi être \textbf{Annulée} (rouge).}
+
+\info{Chaque commande a aussi un \textbf{type} : \textbf{Sur place} (le client mange au restaurant), \textbf{À emporter} (le client repart avec son repas) ou \textbf{Livraison} (on lui apporte).}
+
+\info{Ce que tu vois dépend de tes \textbf{permissions}. Si un bouton manque, ce n'est pas un bug : ton rôle n'a pas le droit. Voir le récapitulatif à la fin du guide.}
+
+\newpage
+
+% Section 1 : Ouvrir le module
+\section{Ouvrir le module Restaurant}\label{sec:ouvrir}
+
+\begin{etapes}
+  \item Connecte-toi à l'application.
+  \item Sur l'accueil, clique sur la carte \textbf{Restaurant}, puis choisis « Plats / carte », « Commandes » ou « Statistiques » ; ou clique sur « Restaurant » dans le menu latéral.
+\end{etapes}
+
+Les trois pages sont reliées : en haut de chacune, des boutons te permettent de passer de l'une à l'autre sans repasser par l'accueil.
+
+\newpage
+
+% Section 2 : La carte des plats
+\section{La carte des plats}\label{sec:plats}
+
+La page \textbf{Plats — Restaurant} montre le menu sous forme de grandes cartes avec photo : une carte par plat ou boisson.
+
+\screenshot{screenshots/restaurant/01-plats-carte.png}{La carte des plats}
+
+Sur chaque carte tu vois :
+
+\begin{itemize}[label=\textcolor{lagoon}{\faList}]
+  \item \textbf{La photo} du plat (ou une icône grise s'il n'y en a pas).
+  \item \textbf{Le nom} du plat et sa \textbf{catégorie} (plat, boisson, dessert\dots).
+  \item \textbf{Le prix} en FCFA, en gros et en couleur.
+  \item \textbf{La description} : une petite phrase (ex : « Servi avec riz et sauce »).
+\end{itemize}
+
+\attention{Un plat désactivé apparaît grisé avec la mention « Indisponible » sur la photo. Il reste sur la carte mais ne peut plus être commandé.}
+
+\subsection{Filtrer la carte}
+
+Deux menus déroulants en haut permettent de trier les plats :
+
+\screenshot{screenshots/restaurant/02-plats-filtre-categorie.png}{Le filtre « Catégorie » ouvert}
+
+\begin{itemize}[label=\textcolor{lagoon}{\faFilter}]
+  \item \textbf{Catégorie} : ne montre que les plats d'une famille (par exemple seulement les boissons).
+  \item \textbf{Disponibilité} : « Tous » montre tout, « Disponibles uniquement » cache les plats désactivés.
+\end{itemize}
+
+\newpage
+
+% Section 3 : Ajouter un plat
+\section{Ajouter un plat à la carte}\label{sec:ajouter-plat}
+
+\begin{etapes}
+  \item Sur la page Plats, clique sur le bouton \textbf{Ajouter un plat} en haut à droite.
+  \item Une fenêtre s'ouvre au milieu de l'écran.
+\end{etapes}
+
+\screenshot{screenshots/restaurant/03-plat-form-vide.png}{La fenêtre « Ajouter un plat » vide}
+
+\begin{etapes}
+  \setcounter{etapesi}{3}
+  \item Écris le \textbf{Nom} du plat (obligatoire).
+  \item Choisis sa \textbf{Catégorie} dans le menu déroulant (optionnel).
+  \item Tape le \textbf{Prix (FCFA)} (obligatoire).
+  \item Clique sur \textbf{Choisir une image} pour ajouter une photo (optionnel, max 5 Mo, JPG/PNG/WebP).
+  \item Écris une \textbf{Description} courte (optionnelle).
+  \item Laisse l'interrupteur \textbf{Disponible} allumé pour que le plat puisse être commandé.
+  \item Clique sur \textbf{Enregistrer}.
+\end{etapes}
+
+\screenshot{screenshots/restaurant/04-plat-form-rempli.png}{La fenêtre remplie}
+
+\screenshot{screenshots/restaurant/05-plat-cree.png}{Le nouveau plat apparaît sur la carte}
+
+\astuce{Une belle photo aide les serveurs à reconnaître le plat en un coup d'\oe il.}
+
+\subsection{Modifier ou désactiver un plat}
+
+Sur chaque carte, en bas à droite, deux petites icônes :
+
+\begin{itemize}[label=\textcolor{lagoon}{\faTools}]
+  \item \textbf{Le crayon} (Modifier) : rouvre la fenêtre pour changer le nom, le prix, la photo\dots
+  \item \textbf{L'interrupteur} (Activer / Désactiver) : éteint un plat qui n'est plus servi aujourd'hui, ou le rallume. Pas besoin de le supprimer : le plat grisé reste visible mais n'est plus commandable.
+\end{itemize}
+
+\newpage
+
+% Section 4 : Les commandes
+\section{La liste des commandes}\label{sec:commandes}
+
+La page \textbf{Commandes — Restaurant} montre l'historique de toutes les commandes, de la plus récente à la plus ancienne.
+
+\screenshot{screenshots/restaurant/06-commandes-liste.png}{La liste des commandes}
+
+Chaque ligne du tableau est une commande :
+
+\begin{itemize}[label=\textcolor{lagoon}{\faTable}]
+  \item \textbf{N° COMMANDE} : le numéro de la commande.
+  \item \textbf{CLIENT} : le nom du client (ou « — » si la commande a été prise sans client enregistré).
+  \item \textbf{DATE} : quand la commande a été passée.
+  \item \textbf{TYPE} : Sur place, À emporter ou Livraison.
+  \item \textbf{TOTAL} : le montant de la commande.
+  \item \textbf{STATUT} : le petit panneau de couleur.
+  \item \textbf{ACTIONS} : les petites icônes pour voir la facture, avancer le statut ou annuler.
+\end{itemize}
+
+\subsection{Retrouver une commande}
+
+La barre de filtres permet de chercher :
+
+\begin{itemize}[label=\textcolor{lagoon}{\faFilter}]
+  \item \textbf{La case de recherche} : tape un numéro de commande ou un nom de client.
+  \item \textbf{Statut} : ne montre qu'un état (par exemple seulement les commandes « En préparation »).
+\end{itemize}
+
+\screenshot{screenshots/restaurant/07-commandes-filtre-statut.png}{Le filtre « Statut » ouvert}
+
+\begin{itemize}[label=\textcolor{lagoon}{\faFilter}]
+  \item \textbf{Type} : ne montre que « Sur place », « À emporter » ou « Livraison ».
+\end{itemize}
+
+\screenshot{screenshots/restaurant/08-commandes-filtre-type.png}{Le filtre « Type » ouvert}
+
+\begin{itemize}[label=\textcolor{lagoon}{\faFilter}]
+  \item \textbf{Les deux cases de date} : « début » et « fin » pour voir les commandes d'une période.
+\end{itemize}
+
+\newpage
+
+% Section 5 : Nouvelle commande
+\section{Prendre une commande}\label{sec:nouvelle}
+
+Quand un client commande à manger :
+
+\begin{etapes}
+  \item Sur la page Commandes, clique sur \textbf{Nouvelle commande}.
+  \item Une fenêtre s'ouvre.
+\end{etapes}
+
+\screenshot{screenshots/restaurant/09-commande-form-vide.png}{La fenêtre « Nouvelle commande » vide}
+
+\begin{etapes}
+  \setcounter{etapesi}{3}
+  \item Choisis le \textbf{Type de commande} : Sur place, À emporter ou Livraison.
+\end{etapes}
+
+\screenshot{screenshots/restaurant/10-commande-type-ouvert.png}{Le choix du type de commande}
+
+\begin{etapes}
+  \setcounter{etapesi}{4}
+  \item (Optionnel) Tape le nom du \textbf{client} dans la case Client et clique sur lui dans la liste. Tu peux aussi passer cette étape : la commande marche sans client.
+  \item Dans la partie \textbf{Plats}, clique sur la case « Plat… » et choisis un plat dans la liste (le prix s'affiche à côté du nom).
+\end{etapes}
+
+\screenshot{screenshots/restaurant/11-commande-plat-ouvert.png}{La liste des plats disponibles}
+
+\begin{etapes}
+  \setcounter{etapesi}{6}
+  \item Tape la \textbf{quantité} (combien de fois ce plat).
+  \item Clique sur \textbf{Ajouter une ligne} si le client prend plusieurs plats différents. La petite poubelle retire une ligne.
+  \item Choisis le \textbf{Moyen de paiement} (obligatoire : espèces, mobile money\dots).
+  \item Vérifie le \textbf{Total} affiché en bas, puis clique sur \textbf{Valider la commande}.
+\end{etapes}
+
+\screenshot{screenshots/restaurant/12-commande-remplie.png}{La fenêtre remplie, prête à valider}
+
+La commande apparaît en haut de la liste avec le statut \textbf{En cours} :
+
+\screenshot{screenshots/restaurant/13-commande-creee.png}{La commande enregistrée dans la liste}
+
+\attention{Le moyen de paiement est \textbf{obligatoire} : la commande enregistre directement le paiement complet. Si tu oublies le moyen de paiement ou un plat, un message rouge te le rappelle.}
+
+\info{La facture de la commande est créée automatiquement en même temps que la commande.}
+
+\newpage
+
+% Section 6 : Suivre une commande
+\section{Suivre et faire avancer une commande}\label{sec:suivi}
+
+\subsection{Voir la facture}
+
+Clique sur l'icône \textbf{œil} dans la colonne Actions : une fenêtre « Facture » s'ouvre avec le détail des plats commandés (plat, quantité, prix unitaire, total) et le total en bas :
+
+\screenshot{screenshots/restaurant/14-facture-dialog.png}{La fenêtre « Facture » d'une commande}
+
+Dans cette fenêtre, le bouton de \textbf{téléchargement} permet de récupérer le reçu de la commande pour l'imprimer.
+
+\subsection{Faire avancer le statut}
+
+La cuisine avance, le statut suit. Dans la colonne Actions, une icône colorée fait passer la commande à l'étape suivante :
+
+\begin{etapes}
+  \item \textbf{En cours} → clique pour passer « En préparation » (la cuisine s'en occupe).
+  \item \textbf{En préparation} → clique pour passer « Servie » (le plat est sur la table).
+  \item \textbf{Servie} → clique pour passer « Payée » (la note est réglée).
+\end{etapes}
+
+\screenshot{screenshots/restaurant/15-statut-avance.png}{Le statut de la commande a avancé}
+
+\info{Il n'y a qu'un seul bouton d'avancement : il fait toujours passer à l'étape suivante, dans l'ordre. Impossible de sauter une étape ou de revenir en arrière.}
+
+\subsection{Annuler une commande}
+
+Si le client se désiste ou si la commande est une erreur, clique sur l'icône \textbf{X} rouge :
+
+\begin{etapes}
+  \item Clique sur le \textbf{X} dans la colonne Actions.
+  \item Une fenêtre de confirmation s'ouvre.
+  \item Clique sur \textbf{Annuler la commande} pour confirmer, ou \textbf{Fermer} pour renoncer.
+\end{etapes}
+
+\screenshot{screenshots/restaurant/16-annuler-dialog.png}{La confirmation avant annulation}
+
+\attention{L'annulation est réservée aux profils qui ont la permission \texttt{RESTAURANT.SUPPRIMER}. Une commande annulée garde le statut rouge « Annulée » dans l'historique.}
+
+\newpage
+
+% Section 7 : Statistiques
+\section{Les statistiques}\label{sec:stats}
+
+La page \textbf{Statistiques — Restaurant} répond à deux questions : combien le restaurant a gagné, et quels plats ont le plus marché.
+
+\begin{etapes}
+  \item Choisis la période avec les deux cases de date (début et fin) en haut à droite.
+  \item La page se met à jour automatiquement.
+\end{etapes}
+
+\screenshot{screenshots/restaurant/17-statistiques.png}{La page Statistiques}
+
+Tu vois :
+
+\begin{itemize}[label=\textcolor{lagoon}{\faChartBar}]
+  \item \textbf{Le chiffre d'affaires (période)} : le total des ventes entre les deux dates.
+  \item \textbf{Le tableau « Top des plats les plus vendus »} : chaque plat avec sa quantité vendue et le chiffre d'affaires qu'il a généré.
+\end{itemize}
+
+\astuce{Laisse les dates vides pour voir toutes les ventes enregistrées, ou choisis une petite période (la semaine, le mois) pour un point précis.}
+
+\newpage
+
+% Section 8 : Vue mobile
+\section{Le restaurant sur téléphone}\label{sec:mobile}
+
+Sur un petit écran, la carte des plats s'affiche en une seule colonne, les unes en dessous des autres :
+
+\screenshot{screenshots/restaurant/18-plats-mobile.png}{La carte des plats sur téléphone (320 px)}
+
+La liste des commandes s'adapte aussi ; le tableau peut défiler horizontalement :
+
+\screenshot{screenshots/restaurant/19-commandes-mobile.png}{La liste des commandes sur téléphone}
+
+\attention{Sur téléphone, glisse le tableau des commandes de gauche à droite pour voir toutes les colonnes (total, statut, actions).}
+
+\newpage
+
+% FAQ
+\section{J'ai un problème : que faire ?}
+
+\begin{longtable}{>{\raggedright}p{5cm} p{9cm}}
+\toprule
+\textbf{Problème} & \textbf{Solution} \\
+\midrule
+\endfirsthead
+\multicolumn{2}{c}{\textit{Suite de la FAQ}} \\
+\toprule
+\textbf{Problème} & \textbf{Solution} \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+
+Je ne vois pas le module Restaurant & Tu n'as pas la permission \texttt{RESTAURANT.VOIR}. Demande à l'administrateur. \\
+
+Je ne vois pas « Nouvelle commande » ou « Ajouter un plat » & Il te manque la permission \texttt{RESTAURANT.CREER}. \\
+
+Le plat que je cherche n'est pas dans la liste de la commande & Le plat est peut-être désactivé. Va sur la page Plats et rallume-le avec l'interrupteur. \\
+
+« Valider la commande » ne fait rien & Un message rouge s'affiche : il manque un plat, une quantité, ou le moyen de paiement (obligatoire). \\
+
+Je ne peux pas changer le statut & Il te manque \texttt{RESTAURANT.MODIFIER}, ou la commande est déjà « Payée »/« Annulée » (fin de cycle). \\
+
+Je ne vois pas le X pour annuler & L'annulation demande la permission \texttt{RESTAURANT.SUPPRIMER}. \\
+
+Les statistiques sont vides & Il n'y a eu aucune vente sur la période choisie. Élargis les dates ou laisse-les vides. \\
+
+\bottomrule
+\end{longtable}
+
+\newpage
+
+\section{Récapitulatif des permissions}
+
+\begin{itemize}[label=\textcolor{lagoon}{\faKey}]
+  \item \texttt{RESTAURANT.VOIR} : voir la carte, les commandes et les statistiques.
+  \item \texttt{RESTAURANT.CREER} : ajouter un plat, créer une commande.
+  \item \texttt{RESTAURANT.MODIFIER} : modifier un plat, l'activer/désactiver, faire avancer le statut d'une commande.
+  \item \texttt{RESTAURANT.SUPPRIMER} : annuler une commande.
+\end{itemize}
+
+\info{Les permissions se règlent dans le module Administration (page Rôles).}
+
+\vfill
+
+\begin{center}
+\begin{tikzpicture}
+  \node[fill=sea-ink, text=white, rounded corners=10pt, minimum width=10cm, minimum height=1.5cm, font=\large\bfseries] {Bon service avec GLOBAL SIM GROUP !};
+\end{tikzpicture}
+\end{center}
+
+\end{document}
