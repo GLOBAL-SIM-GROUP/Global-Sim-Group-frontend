@@ -1,0 +1,394 @@
+\documentclass[12pt,a4paper]{article}
+
+% Encodage et langue
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[french]{babel}
+
+% Mise en page
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage[colorlinks=true,linkcolor=black,citecolor=black,filecolor=black,urlcolor=black]{hyperref}
+\usepackage{tikz}
+\usepackage{fontawesome5}
+\usepackage{float}
+
+% Couleurs personnalisées (identiques aux autres guides)
+\definecolor{lagoon}{RGB}{0, 128, 128}
+\definecolor{sea-ink}{RGB}{0, 45, 64}
+\definecolor{palm}{RGB}{46, 139, 87}
+\definecolor{warn}{RGB}{230, 126, 34}
+\definecolor{danger}{RGB}{231, 76, 60}
+\definecolor{success}{RGB}{39, 174, 96}
+\definecolor{muted}{RGB}{127, 140, 141}
+
+% Titres
+\titleformat{\section}
+  {\normalfont\Large\bfseries\color{sea-ink}}{\thesection}{1em}{}
+\titleformat{\subsection}
+  {\normalfont\large\bfseries\color{lagoon}}{\thesubsection}{1em}{}
+\titleformat{\subsubsection}
+  {\normalfont\normalsize\bfseries\color{palm}}{\thesubsubsection}{1em}{}
+
+% En-têtes et pieds de page
+\setlength{\headheight}{15pt}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\textcolor{sea-ink}{GLOBAL SIM GROUP — Guide Clients}}
+\fancyhead[R]{\textcolor{muted}{\leftmark}}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0pt}
+
+% Commandes pratiques (identiques aux autres guides)
+\newcommand{\screenshot}[2]{%
+  \begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{#1}
+    \caption{#2}
+  \end{figure}%
+}
+
+\newcommand{\etape}[1]{\textbf{\faHandPointRight\ #1}}
+\newcommand{\attention}[1]{\par\noindent\textcolor{warn}{\faExclamationTriangle\ Attention : #1}\par}
+\newcommand{\astuce}[1]{\par\noindent\textcolor{success}{\faLightbulb\ Astuce : #1}\par}
+\newcommand{\info}[1]{\par\noindent\textcolor{lagoon}{\faInfoCircle\ Info : #1}\par}
+
+\newlist{etapes}{enumerate}{1}
+\setlist[etapes]{label=\textcolor{lagoon}{\faArrowRight\ \arabic*.}, leftmargin=1.5cm, itemsep=0.4em}
+
+\begin{document}
+
+% Page de garde
+\begin{titlepage}
+  \noindent\colorbox{sea-ink}{%
+    \parbox{\dimexpr\textwidth-2\fboxsep}{%
+      \centering
+      \vspace{1.5cm}
+      \includegraphics[height=3cm]{../logo-gsg.png}\par
+      \vspace{0.6cm}
+      {\Huge\bfseries\color{white} GLOBAL SIM GROUP\par}
+      \vspace{0.5cm}
+      {\LARGE\color{white} Guide d'utilisation — Module Clients\par}
+      \vspace{1.5cm}
+    }%
+  }
+
+  \vfill
+  \begin{center}
+    {\Large\color{sea-ink} Apprends à gérer les locataires et les clients\par}
+    \vspace{0.4cm}
+
+    \begin{tikzpicture}
+      \node[fill=lagoon, text=white, rounded corners=10pt, minimum width=12cm, minimum height=1.5cm, font=\large\bfseries] {Fiches · Pièces d'identité · Contacts};
+    \end{tikzpicture}
+  \end{center}
+
+  \vfill
+  \begin{center}
+    \textcolor{muted}{Version 1.0}
+  \end{center}
+\end{titlepage}
+
+\newpage
+% Table des matières
+\tableofcontents
+\newpage
+
+% Introduction
+\section{Avant de commencer}
+
+Imagine le grand carnet à la réception : chaque fois qu'une personne arrive — pour louer une chambre un mois, ou juste pour déposer un chemisier au pressing — tu écris son nom, son téléphone, et parfois sa pièce d'identité. Quand elle revient, tu retrouves sa page dans le carnet.
+
+Le module \textbf{Clients} fait exactement ça, sur l'ordinateur. Il a \textbf{deux écrans} :
+
+\begin{itemize}[label=\textcolor{lagoon}{\faUsers}]
+  \item \textbf{Locataires et clients} : la liste de toutes les personnes connues, comme le carnet.
+  \item \textbf{Fiche client} : la page d'une seule personne, avec toutes ses informations, ses pièces d'identité et ses contacts d'urgence.
+\end{itemize}
+
+\info{Il existe \textbf{trois types} de clients, marqués par un petit badge de couleur : \textbf{Locataire} (bleu — un résident qui loue une chambre), \textbf{De passage} (orange — un client du pressing, du restaurant ou de la boutique) et \textbf{Autre} (gris).}
+
+\info{Ce que tu vois dépend de tes \textbf{permissions}. Si un bouton manque, ce n'est pas un bug : ton rôle n'a pas le droit. Voir le récapitulatif à la fin du guide.}
+
+\newpage
+
+% Section 1 : Ouvrir le module
+\section{Ouvrir le module Clients}\label{sec:ouvrir}
+
+\begin{etapes}
+  \item Connecte-toi à l'application.
+  \item Sur l'accueil, clique sur la carte \textbf{Clients}, puis « Locataires et clients » ; ou clique sur « Clients » dans le menu latéral.
+\end{etapes}
+
+\newpage
+
+% Section 2 : La liste
+\section{La liste des clients}\label{sec:liste}
+
+La page \textbf{Locataires et clients} montre toutes les personnes enregistrées, une par ligne :
+
+\screenshot{screenshots/clients/01-liste-clients.png}{La liste des locataires et clients}
+
+Les colonnes du tableau :
+
+\begin{itemize}[label=\textcolor{lagoon}{\faTable}]
+  \item \textbf{CODE} : le numéro unique du client (ex : \texttt{GSG-CL-038}), attribué automatiquement.
+  \item \textbf{CLIENT} : le prénom et le nom — clique dessus pour ouvrir la fiche.
+  \item \textbf{TÉLÉPHONE} : le numéro principal.
+  \item \textbf{TYPE} : le badge de couleur (Locataire, De passage, Autre).
+  \item \textbf{VILLE} : la ville indiquée dans la fiche.
+  \item \textbf{ENREGISTRÉ} : la date et l'heure de création de la fiche.
+\end{itemize}
+
+\astuce{Toute la ligne est cliquable : clique n'importe où sur une ligne pour ouvrir la fiche du client.}
+
+En bas de page, une \textbf{pagination} indique « Affichage de 1 à 12 sur N résultats » : les clients sont montrés par 12, utilise \textbf{Précédent} / \textbf{Suivant} pour changer de page.
+
+\subsection{Retrouver un client}
+
+Deux outils au-dessus du tableau :
+
+\begin{itemize}[label=\textcolor{lagoon}{\faFilter}]
+  \item \textbf{Rechercher par nom, prénom, téléphone…} : tape quelques lettres ou chiffres, la liste se met à jour toute seule.
+  \item \textbf{Type} : la liste déroulante ne montre qu'un type (par exemple seulement les « Locataire »).
+\end{itemize}
+
+\screenshot{screenshots/clients/02-filtre-type.png}{Le filtre « Type » ouvert}
+
+\screenshot{screenshots/clients/03-liste-locataires.png}{La liste filtrée sur « Locataire »}
+
+\screenshot{screenshots/clients/04-recherche.png}{Recherche texte sur les premières lettres du nom}
+
+\astuce{La recherche et le filtre s'écrivent dans l'adresse de la page : tu peux copier le lien et le partager, la personne qui l'ouvre verra exactement la même liste filtrée.}
+
+\newpage
+
+% Section 3 : Ajouter un locataire
+\section{Ajouter un locataire}\label{sec:locataire}
+
+Le \textbf{locataire} est un résident : il a besoin d'une fiche complète (identité, coordonnées, pièce, contact d'urgence).
+
+\begin{etapes}
+  \item Sur la liste, clique sur le bouton \textbf{Ajouter un locataire} (en haut à droite).
+  \item La fenêtre \textbf{Nouveau locataire} s'ouvre.
+  \item Remplis la fiche, puis clique sur \textbf{Enregistrer}.
+\end{etapes}
+
+\screenshot{screenshots/clients/05-nouveau-locataire.png}{La fenêtre « Nouveau locataire » remplie}
+
+Les champs de la fiche :
+
+\begin{itemize}[label=\textcolor{lagoon}{\faIdCard}]
+  \item \textbf{Photo (optionnel)} : clique sur le rond « Ajouter » pour choisir une photo du client.
+  \item \textbf{Nom} : obligatoire. \textbf{Prénom(s)} : optionnel.
+  \item \textbf{Téléphone principal} : obligatoire (ex : \texttt{+2250701020304}).
+  \item \textbf{Date} et \textbf{Lieu de naissance}, \textbf{Sexe}, \textbf{Nationalité}, \textbf{Profession / activité}.
+  \item \textbf{Téléphone secondaire}, \textbf{Adresse e-mail}.
+  \item \textbf{Adresse habituelle}, \textbf{Ville}, \textbf{Pays}.
+\end{itemize}
+
+En bas de la fenêtre, deux sections \textbf{optionnelles} permettent de tout enregistrer d'un coup :
+
+\begin{itemize}[label=\textcolor{lagoon}{\faAddressCard}]
+  \item \textbf{Pièce d'identité (optionnel)} : type (CNI, Passeport, Carte de séjour, Autre), numéro, photos \textbf{Recto} et \textbf{Verso} (JPEG, PNG, WebP ou PDF), dates de délivrance et d'expiration. « Ajoutée au dossier dès la création du locataire. »
+  \item \textbf{Contact d'urgence (optionnel)} : nom et prénom du contact, lien avec le locataire (ex : « Sœur », « Frère », « Conjoint »), téléphones, adresse et e-mail. « Personne à contacter en cas de besoin. »
+\end{itemize}
+
+\screenshot{screenshots/clients/06-locataire-piece-contact.png}{Les sections « Pièce d'identité » et « Contact d'urgence » en bas du formulaire}
+
+\attention{\textbf{Nom} et \textbf{Téléphone principal} sont les seuls champs vraiment obligatoires : tout le reste peut être complété plus tard depuis la fiche. Mais si tu commences à remplir la pièce ou le contact, il faut terminer les champs requis de la section (le numéro de la pièce ; le nom, le lien et le téléphone du contact), sinon l'enregistrement est refusé.}
+
+\newpage
+
+% Section 4 : Ajouter un client de passage
+\section{Ajouter un client de passage}\label{sec:passage}
+
+Le \textbf{client de passage} est un client du comptoir : il vient pour une commande au pressing, au restaurant ou à la boutique. Pas besoin d'un dossier complet.
+
+\begin{etapes}
+  \item Sur la liste, clique sur le bouton \textbf{Ajouter un client}.
+  \item La fenêtre \textbf{Nouveau client} s'ouvre : « Client de passage — pour passer une commande au pressing, au restaurant ou à la boutique. »
+  \item Remplis le \textbf{Nom} (obligatoire), le \textbf{Prénom(s)} (optionnel) et le \textbf{Téléphone} (obligatoire).
+  \item Clique sur \textbf{Enregistrer}.
+\end{etapes}
+
+\screenshot{screenshots/clients/07-nouveau-passage.png}{La fenêtre « Nouveau client » (de passage)}
+
+\astuce{Le client est enregistré avec le badge \textbf{De passage}. S'il devient résident plus tard, ouvre sa fiche et clique sur \textbf{Modifier} pour changer son type et compléter son dossier.}
+
+\newpage
+
+% Section 5 : La fiche client
+\section{La fiche client}\label{sec:fiche}
+
+Clique sur une ligne de la liste pour ouvrir la \textbf{fiche client} :
+
+\screenshot{screenshots/clients/08-fiche-client.png}{La fiche d'un locataire}
+
+La page montre :
+
+\begin{itemize}[label=\textcolor{lagoon}{\faUser}]
+  \item En haut : la \textbf{photo} (ou une silhouette si le client n'en a pas), le nom complet, le type de client et la profession.
+  \item \textbf{Informations personnelles} : code client, nom, prénom(s), date et lieu de naissance, sexe, nationalité, profession, type.
+  \item \textbf{Coordonnées} : téléphones, e-mail, ville, adresse, pays.
+  \item \textbf{Pièces d'identité} et \textbf{Contacts d'urgence} : les tableaux détaillés dans les sections suivantes.
+\end{itemize}
+
+\attention{Les sections \textbf{Coordonnées}, \textbf{Pièces d'identité} et \textbf{Contacts d'urgence} ne s'affichent que si ton rôle a la permission \texttt{RESIDENCE.VOIR} — ces données sont partagées avec le module Résidence. Sans elle, la fiche se limite à la photo, au nom et aux \textbf{Informations personnelles}.}
+
+\subsection{Modifier la fiche}
+
+\begin{etapes}
+  \item En haut de la fiche, clique sur \textbf{Modifier}.
+  \item La fenêtre \textbf{Modifier le client} s'ouvre : c'est le même formulaire qu'à la création, pré-rempli, avec en plus la possibilité de changer le \textbf{Type de client}.
+  \item Corrige ce qui doit l'être, puis clique sur \textbf{Enregistrer} — ou \textbf{Annuler} pour ne rien changer.
+\end{etapes}
+
+\screenshot{screenshots/clients/09-modifier-client.png}{La fenêtre « Modifier le client »}
+
+\info{Le bouton \textbf{Retour} ramène à la liste. Le fil d'Ariane en haut (« Accueil > Locataires et clients > Nom ») permet aussi de revenir en arrière.}
+
+\newpage
+
+% Section 6 : Pièces d'identité
+\section{Les pièces d'identité}\label{sec:pieces}
+
+La section \textbf{Pièces d'identité} de la fiche liste les documents du client : type, numéro, dates de délivrance et d'expiration, autorité, et les photos éventuelles.
+
+\subsection{Ajouter une pièce}
+
+\begin{etapes}
+  \item Sur la fiche, clique sur \textbf{Ajouter une pièce} (à droite du titre « Pièces d'identité »).
+  \item La fenêtre \textbf{Ajouter une pièce d'identité} s'ouvre.
+  \item Choisis le \textbf{Type de pièce} (CNI, Passeport, Carte de séjour, Autre), saisis le \textbf{Numéro de la pièce} (obligatoire).
+  \item Clique sur les cadres \textbf{Recto (photo)} et \textbf{Verso (photo)} pour joindre les scans ou photos du document — formats acceptés : JPEG, PNG, WebP ou PDF.
+  \item Indique les dates de \textbf{Délivrance} et d'\textbf{Expiration}, puis \textbf{Enregistrer}.
+\end{etapes}
+
+\screenshot{screenshots/clients/10-nouvelle-piece.png}{La fenêtre « Ajouter une pièce d'identité » remplie}
+
+\screenshot{screenshots/clients/11-fiche-avec-piece.png}{La pièce apparaît dans le tableau de la fiche}
+
+\subsection{Consulter les photos d'une pièce}
+
+Quand une pièce a des photos enregistrées, un bouton \textbf{Voir} apparaît dans la colonne \textbf{PHOTOS} :
+
+\begin{etapes}
+  \item Clique sur \textbf{Voir}.
+  \item La fenêtre de consultation affiche le type, le numéro, puis les photos \textbf{Recto} et \textbf{Verso} en grand.
+  \item Clique sur la croix ou sur \textbf{Fermer} pour revenir à la fiche.
+\end{etapes}
+
+\screenshot{screenshots/clients/12-photos-piece.png}{La consultation des photos de la pièce}
+
+\info{Sans photo jointe, la colonne PHOTOS affiche simplement « — ».}
+
+\newpage
+
+% Section 7 : Contacts d'urgence
+\section{Les contacts d'urgence}\label{sec:contacts}
+
+La section \textbf{Contacts d'urgence} liste les personnes à prévenir pour ce client : nom, lien de parenté, téléphone(s), e-mail.
+
+\begin{etapes}
+  \item Sur la fiche, clique sur \textbf{Ajouter un contact} (à droite du titre « Contacts d'urgence »).
+  \item La fenêtre \textbf{Ajouter un contact d'urgence} s'ouvre : « Personne à contacter en cas de besoin. »
+  \item Remplis le \textbf{Nom}, le \textbf{Prénom}, le \textbf{Lien avec le locataire} (ex : « Frère, Conjoint… »), le \textbf{Téléphone principal} et si besoin le \textbf{Deuxième numéro}, l'\textbf{Adresse} et l'\textbf{Adresse e-mail}.
+  \item Clique sur \textbf{Enregistrer}.
+\end{etapes}
+
+\screenshot{screenshots/clients/13-nouveau-contact.png}{La fenêtre « Ajouter un contact d'urgence » remplie}
+
+\screenshot{screenshots/clients/14-fiche-complete.png}{La fiche complète : pièce d'identité et contact enregistrés}
+
+\newpage
+
+% Section 8 : Mobile
+\section{Sur téléphone}\label{sec:mobile}
+
+Sur un petit écran, la page reste utilisable : les boutons passent en pleine largeur, le tableau se fait défiler horizontalement, et le menu latéral se replie derrière le bouton \faBars.
+
+\screenshot{screenshots/clients/15-mobile-liste.png}{La liste des clients sur mobile (320 px)}
+
+\screenshot{screenshots/clients/16-mobile-fiche.png}{La fiche client sur mobile (320 px)}
+
+\newpage
+
+% Section 9 : FAQ
+\section{Questions fréquentes}\label{sec:faq}
+
+\begin{longtable}{p{6cm}p{9cm}}
+\toprule
+\textbf{Problème} & \textbf{Solution} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Problème} & \textbf{Solution} \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+\bottomrule
+\endlastfoot
+
+Je ne trouve pas un client & Tape seulement quelques lettres de son nom ou quelques chiffres de son téléphone dans « Rechercher ». Vérifie aussi le filtre « Type » : remets-le sur « Tous les types ». \\
+
+Le bouton « Ajouter un locataire » n'apparaît pas & Ton rôle n'a pas la permission \texttt{CLIENT.CREER}. Demande à un administrateur. \\
+
+« Ce champ est requis » à l'enregistrement & Un champ obligatoire est vide : \textbf{Nom} et \textbf{Téléphone principal} pour tout client ; \textbf{Numéro de la pièce} si tu as commencé la section pièce ; \textbf{Nom}, \textbf{Lien} et \textbf{Téléphone} si tu as commencé la section contact. \\
+
+Le client est enregistré mais sa pièce n'apparaît pas & La pièce et le contact du formulaire de création sont envoyés \emph{après} la création du client : si l'un échoue (par exemple un numéro de pièce déjà utilisé), le client existe quand même. Ouvre sa fiche et utilise \textbf{Ajouter une pièce} / \textbf{Ajouter un contact}. \\
+
+Je ne peux pas modifier la fiche & Le bouton \textbf{Modifier} (comme « Ajouter une pièce » et « Ajouter un contact ») demande la permission \texttt{CLIENT.MODIFIER}. \\
+
+La fiche n'affiche que les informations personnelles & Les sections « Coordonnées », « Pièces d'identité » et « Contacts d'urgence » sont réservées aux rôles ayant \texttt{RESIDENCE.VOIR}. Demande à un administrateur si tu dois y accéder. \\
+
+Le client n'existe plus ou le lien est faux & La fiche affiche « Client introuvable » avec un bouton \textbf{Retour à la liste des clients}. \\
+
+La photo de la pièce ne s'affiche pas & La fenêtre de consultation indique « Impossible de charger l'image » si le fichier n'est plus disponible. Ré-upload-le via « Ajouter une pièce » si besoin. \\
+
+\end{longtable}
+
+\newpage
+
+% Section 10 : Permissions
+\section{Récapitulatif des permissions}\label{sec:permissions}
+
+\begin{longtable}{p{5cm}p{10cm}}
+\toprule
+\textbf{Permission} & \textbf{Ce qu'elle permet} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Permission} & \textbf{Ce qu'elle permet} \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+\bottomrule
+\endlastfoot
+
+\texttt{CLIENT.VOIR} & Voir la liste « Locataires et clients » et ouvrir les fiches clients. \\
+\texttt{CLIENT.CREER} & Afficher les boutons « Ajouter un locataire » et « Ajouter un client ». \\
+\texttt{CLIENT.MODIFIER} & Afficher « Modifier » sur la fiche, « Ajouter une pièce » et « Ajouter un contact ». \\
+\texttt{RESIDENCE.VOIR} & Afficher sur la fiche les sections « Coordonnées », « Pièces d'identité » et « Contacts d'urgence » (données partagées avec le module Résidence). \\
+
+\end{longtable}
+
+\info{Les permissions ne cachent que les boutons : la vraie sécurité est côté serveur. Un utilisateur sans les droits ne peut pas créer ou modifier de client, même en connaissant l'adresse.}
+
+\vspace{1cm}
+\begin{center}
+  \textcolor{muted}{\rule{0.6\textwidth}{0.4pt}}\\[0.5em]
+  \textcolor{muted}{Guide généré à partir de captures réelles de l'application.}
+\end{center}
+
+\end{document}
