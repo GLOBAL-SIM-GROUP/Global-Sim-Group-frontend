@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { AuthProvider } from "#/core/auth";
 import { NotificationsProvider } from "#/core/notifications";
 
+import { AppLaunchSplash } from "./app-launch-splash";
 import { AppShell } from "./app-shell";
 
 /**
@@ -64,6 +65,7 @@ export function AuthenticatedLayout() {
 	return (
 		<AuthProvider session={auth}>
 			<NotificationsProvider client={notifications}>
+				<AppLaunchSplash ready={auth.isAuthenticated} />
 				<AppShell>
 					<Outlet />
 				</AppShell>

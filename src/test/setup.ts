@@ -8,3 +8,21 @@ import { afterEach } from "vitest";
 afterEach(() => {
 	cleanup();
 });
+
+// jsdom n'implémente pas `window.matchMedia` — stub minimal (jamais
+// "matches", l'environnement de test n'est ni une PWA installée ni en
+// préférence "prefers-reduced-motion") pour les composants qui l'appellent
+// (ex. `AppLaunchSplash`).
+if (typeof window !== "undefined" && !window.matchMedia) {
+	window.matchMedia = (query: string) =>
+		({
+			matches: false,
+			media: query,
+			onchange: null,
+			addListener: () => {},
+			removeListener: () => {},
+			addEventListener: () => {},
+			removeEventListener: () => {},
+			dispatchEvent: () => false,
+		}) as MediaQueryList;
+}
