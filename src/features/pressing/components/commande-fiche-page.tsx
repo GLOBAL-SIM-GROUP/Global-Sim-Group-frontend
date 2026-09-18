@@ -21,6 +21,7 @@ import {
 import {
 	type CommandePressing,
 	type CommandePressingStatut,
+	MODE_TARIFICATION_LABELS,
 	PRESSING_STATUT_LABELS,
 } from "../models/commandes";
 import { CommandeFormDialog } from "./commande-form-dialog";
@@ -118,9 +119,14 @@ export function CommandeFichePage({ id }: CommandeFichePageProps) {
 
 			<div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
 				<section className="space-y-1">
-					<h1 className="text-lg font-semibold text-foreground sm:text-2xl">
-						Fiche commande — {commande.numero_commande}
-					</h1>
+					<div className="flex flex-wrap items-center gap-2">
+						<h1 className="text-lg font-semibold text-foreground sm:text-2xl">
+							Fiche commande — {commande.numero_commande}
+						</h1>
+						<span className="inline-flex items-center rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground">
+							{MODE_TARIFICATION_LABELS[commande.mode_tarification]}
+						</span>
+					</div>
 					<p className="text-xs text-muted-foreground sm:text-sm">
 						{nomComplet}
 					</p>
@@ -261,7 +267,9 @@ export function CommandeFichePage({ id }: CommandeFichePageProps) {
 									PRESTATION
 								</th>
 								<th scope="col" className="px-4 py-3 font-medium">
-									TARIF
+									{commande.mode_tarification === "POIDS"
+										? "POIDS (KG)"
+										: "TARIF"}
 								</th>
 								<th scope="col" className="px-4 py-3 text-right font-medium">
 									TOTAL
@@ -281,7 +289,9 @@ export function CommandeFichePage({ id }: CommandeFichePageProps) {
 										{ligne.prestation}
 									</td>
 									<td className="px-4 py-3 text-foreground">
-										{formatMontantFCFA(ligne.tarif)}
+										{commande.mode_tarification === "POIDS"
+											? (ligne.poids_kg ?? "—")
+											: formatMontantFCFA(ligne.tarif ?? "0")}
 									</td>
 									<td className="px-4 py-3 text-right text-foreground">
 										{formatMontantFCFA(ligne.total)}
@@ -297,7 +307,6 @@ export function CommandeFichePage({ id }: CommandeFichePageProps) {
 				open={aModifier !== null}
 				commande={aModifier}
 				lignesInitiales={commande.lignes}
-				moyens={moyensQuery.data ?? []}
 				onOpenChange={(ouvert) => {
 					if (!ouvert) setAModifier(null);
 				}}

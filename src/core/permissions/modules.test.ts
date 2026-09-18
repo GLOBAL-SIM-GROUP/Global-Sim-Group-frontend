@@ -126,10 +126,17 @@ describe("getAccessibleModuleSubItems", () => {
 		]);
 	});
 
-	it("chaque sous-page est gâtée par la permission VOIR de son module", () => {
+	it("chaque sous-page est gâtée par la permission VOIR de son module, sauf exception documentée", () => {
+		// « Tarif au kilo » (Pressing) est un réglage réservé au Responsable
+		// pressing / PRESSING.SUPERVISER, pas à tout le personnel qui a
+		// PRESSING.VOIR — exception volontaire, vérifiée en direct 2026-09-16
+		// (voir core/permissions/types.ts, commentaire sur GERER_TARIFS).
+		const exceptions: Record<string, string> = {
+			tarif_kg: "PRESSING.GERER_TARIFS",
+		};
 		for (const def of MODULE_DEFINITIONS) {
 			for (const sub of def.subItems ?? []) {
-				expect(sub.permission).toBe(`${def.code}.VOIR`);
+				expect(sub.permission).toBe(exceptions[sub.id] ?? `${def.code}.VOIR`);
 			}
 		}
 	});

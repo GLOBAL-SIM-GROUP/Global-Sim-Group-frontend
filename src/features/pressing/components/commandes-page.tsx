@@ -220,7 +220,6 @@ export function CommandesPage({
 				commande={aModifier}
 				lignesInitiales={commandeEditQuery.data?.lignes ?? []}
 				chargementLignes={aModifier !== null && commandeEditQuery.isLoading}
-				moyens={moyensQuery.data ?? []}
 				onOpenChange={(ouvert) => {
 					if (!ouvert) fermerFormulaire();
 				}}

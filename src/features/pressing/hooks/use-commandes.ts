@@ -11,7 +11,8 @@ import {
 	retirerCommande,
 	traitementCommande,
 } from "../api/commandes";
-import { commandesKeys } from "../permissions";
+import { definirTarifKg, getTarifKg } from "../api/tarif-kg";
+import { commandesKeys, tarifKgKeys } from "../permissions";
 
 /** Liste des commandes, avec les filtres serveur portés par la clé. */
 export function useCommandes(
@@ -101,5 +102,31 @@ export function useAnnulerCommande() {
 	return useMutation({
 		mutationFn: (id: string) => annulerCommande(id),
 		onSuccess: invalider,
+	});
+}
+
+/**
+ * Tarif au kilo courant. `data === null` (pas d'erreur) = jamais configuré —
+ * état normal avant la première utilisation du mode `POIDS`, voir
+ * `getTarifKg`. `enabled` (défaut `true`) permet de le charger seulement
+ * quand nécessaire (ex. mode `POIDS` sélectionné dans le formulaire de
+ * dépôt), sans l'imposer à tous les écrans du module.
+ */
+export function useTarifKg(enabled = true) {
+	return useQuery({
+		queryKey: tarifKgKeys.list(),
+		queryFn: getTarifKg,
+		enabled,
+	});
+}
+
+/** Ajoute un nouveau tarif au kilo courant (append-only, pas de mise à jour). */
+export function useDefinirTarifKg() {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: (prixKg: string) => definirTarifKg(prixKg),
+		onSuccess: () => {
+			void queryClient.invalidateQueries({ queryKey: tarifKgKeys.all });
+		},
 	});
 }

@@ -2,6 +2,13 @@
  * Commande pressing (module M4). Types hand-typed revalidés sur le backend réel
  * (GET /pressing/commandes). Clé primaire wire `id_commande` → `id` ; le lister
  * embarque déjà le client (nom, prénoms, téléphone).
+ *
+ * `mode_tarification` (2026-09-16, vérifié en direct) : choisi une seule fois
+ * à la création, jamais modifiable après (verrouillé, y compris au PATCH) —
+ * `UNITAIRE` (tarif à la pièce, comportement historique) ou `POIDS` (tarif au
+ * kilo, `features/pressing/api/tarifs-kg.ts`). Chaque ligne porte soit
+ * `tarif` (UNITAIRE) soit `poids_kg` (POIDS), jamais les deux — le champ non
+ * pertinent vaut `null` côté backend.
  */
 export type CommandePressingStatut =
 	| "DEPOSE"
@@ -9,6 +16,8 @@ export type CommandePressingStatut =
 	| "PRET"
 	| "RETIRE"
 	| "ANNULEE";
+
+export type ModeTarificationPressing = "UNITAIRE" | "POIDS";
 
 export interface CommandePressing {
 	id: string;
@@ -21,25 +30,102 @@ export interface CommandePressing {
 	acompte: string;
 	reste_a_payer: string;
 	statut: CommandePressingStatut;
+	mode_tarification: ModeTarificationPressing;
 	client_nom: string;
 	client_prenoms: string;
 	client_tel: string | null;
 }
 
-/** Ligne d'articles d'une commande (GET /pressing/commandes/{id} → `lignes[]`). */
+/**
+ * Ligne d'articles d'une commande (GET /pressing/commandes/{id} → `lignes[]`).
+ * `tarif`/`poids_kg` sont mutuellement exclusifs selon
+ * `commande.mode_tarification` (voir plus haut) — jamais les deux renseignés.
+ */
 export interface LigneCommandePressing {
 	id: string;
 	id_commande: string;
 	type_vetement: string;
 	quantite: number;
 	prestation: string;
-	tarif: string;
+	/** Non-null ssi la commande est en mode `UNITAIRE`. */
+	tarif: string | null;
+	/** Non-null ssi la commande est en mode `POIDS` (jusqu'à 3 décimales). */
+	poids_kg: string | null;
 	total: string;
 }
+
+/** Libellés français du mode de tarification — badge fiche/dépôt. */
+export const MODE_TARIFICATION_LABELS: Record<
+	ModeTarificationPressing,
+	string
+> = {
+	UNITAIRE: "Tarification à la pièce",
+	POIDS: "Tarification au kilo",
+};
 
 /** Détail d'une commande : le GET par id embarque les lignes d'articles. */
 export interface CommandePressingDetail extends CommandePressing {
 	lignes: LigneCommandePressing[];
+}
+
+/** Ligne en cours de saisie dans le formulaire (avant conversion en corps API). */
+export interface LigneSaisiePressing {
+	typeVetement: string;
+	quantite: string;
+	prestation: string;
+	tarif?: string;
+	poidsKg?: string;
+}
+
+/**
+ * Valide une ligne saisie selon le mode de tarification de la commande —
+ * mirroir client de la règle de mutuelle exclusivité du backend (qui, elle,
+ * échoue par une 500 plutôt qu'un 400 propre sur une ligne mal formée, vérifié
+ * en direct). `null` = valide.
+ */
+export function validerLignePressing(
+	ligne: LigneSaisiePressing,
+	mode: ModeTarificationPressing,
+): string | null {
+	if (!ligne.typeVetement.trim()) return "Indiquez le type de vêtement.";
+	if (!ligne.prestation.trim()) return "Indiquez la prestation.";
+	if (!ligne.quantite.trim() || Number(ligne.quantite) <= 0) {
+		return "La quantité doit être un nombre positif.";
+	}
+	if (mode === "UNITAIRE") {
+		if (ligne.poidsKg?.trim()) {
+			return "Le poids ne s'applique pas en tarification à la pièce.";
+		}
+		if (!ligne.tarif?.trim() || Number(ligne.tarif) <= 0) {
+			return "Indiquez un tarif positif.";
+		}
+	} else {
+		if (ligne.tarif?.trim()) {
+			return "Le tarif ne s'applique pas en tarification au kilo.";
+		}
+		if (!ligne.poidsKg?.trim() || Number(ligne.poidsKg) <= 0) {
+			return "Indiquez un poids (kg) positif.";
+		}
+	}
+	return null;
+}
+
+/**
+ * Aperçu du total d'une ligne en mode `POIDS`, calculé côté client avec le
+ * tarif/kg courant — purement indicatif : le total réel est toujours calculé
+ * par le backend (avec le tarif en vigueur au moment de l'appel), voir
+ * `LigneCommandePressing.total`. `null` si le poids saisi n'est pas un
+ * nombre valide ou si aucun tarif/kg n'est configuré.
+ */
+export function apercuTotalLignePoids(
+	poidsKg: string,
+	prixKg: string | null | undefined,
+): number | null {
+	const poids = Number(poidsKg);
+	const prix = Number(prixKg);
+	if (!poidsKg.trim() || Number.isNaN(poids) || poids <= 0) return null;
+	if (!prixKg || Number.isNaN(prix)) return null;
+	return poids * prix;
 }
 
 /** Libellés français du statut de commande (masculin, cf. spec M4). */

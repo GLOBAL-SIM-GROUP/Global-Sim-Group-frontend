@@ -145,6 +145,12 @@ export const MODULE_DEFINITIONS: ModuleDefinition[] = [
 				permission: "PRESSING.VOIR",
 				path: "/pressing/commandes",
 			},
+			{
+				id: "tarif_kg",
+				label: "Tarif au kilo",
+				permission: "PRESSING.GERER_TARIFS",
+				path: "/pressing/tarif-kg",
+			},
 		],
 	},
 	{

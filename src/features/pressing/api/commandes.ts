@@ -8,11 +8,14 @@ import type {
 	CommandePressing,
 	CommandePressingDetail,
 	LigneCommandePressing,
+	ModeTarificationPressing,
 } from "../models/commandes";
 
-type CreerCommandePressingDto =
-	components["schemas"]["CreerCommandePressingDto"];
-type MajCommandePressingDto = components["schemas"]["MajCommandePressingDto"];
+// `CreerCommandePressingDto`/`MajCommandePressingDto` générés (docs-json) ne
+// connaissent pas encore `mode_tarification`/`poids_kg` (2026-09-16, vérifié
+// en direct) — plus utilisés pour typer le corps des lignes ci-dessous,
+// même écart déjà rencontré sur signalements/séjours (generated schema en
+// retard sur le backend réel).
 type EncaisserSoldePressingDto =
 	components["schemas"]["EncaisserSoldePressingDto"];
 
@@ -66,49 +69,61 @@ export function getCommande(id: string): Promise<CommandePressingDetail> {
 		});
 }
 
-/** Ligne d'articles saisie (le backend calcule les totaux). */
+/**
+ * Ligne d'articles saisie (le backend calcule les totaux). `tarif`/`poidsKg`
+ * sont mutuellement exclusifs — lequel des deux est requis dépend du
+ * `modeTarification` de la commande (`UNITAIRE` → `tarif`, `POIDS` →
+ * `poidsKg`) ; envoyer les deux, ou aucun, ou le mauvais pour le mode fait
+ * échouer la requête côté backend (500 constaté en direct, pas un 400
+ * propre) — d'où la validation stricte côté client avant l'appel, voir
+ * `validerLignesPressing` dans `models/commandes.ts`.
+ */
 export interface LigneCommandeBody {
 	typeVetement: string;
 	quantite: string;
 	prestation: string;
-	tarif: string;
+	tarif?: string;
+	poidsKg?: string;
+}
+
+function ligneVersCorps(ligne: LigneCommandeBody) {
+	return {
+		type_vetement: ligne.typeVetement,
+		quantite: ligne.quantite,
+		prestation: ligne.prestation,
+		...(ligne.tarif !== undefined ? { tarif: ligne.tarif } : {}),
+		...(ligne.poidsKg !== undefined ? { poids_kg: ligne.poidsKg } : {}),
+	};
 }
 
 /** Corps saisi par le formulaire de dépôt d'une commande. */
 export interface CommandeBody {
 	idClient: string;
+	/** Choisi une seule fois à la création, jamais modifiable ensuite. */
+	modeTarification: ModeTarificationPressing;
 	dateRetraitPrevue: string;
 	lignes: LigneCommandeBody[];
-	paiement?: { montant: string; idMoyen: string } | null;
 }
 
-/** Enregistre un dépôt (POST `CreerCommandePressingDto`). */
+/** Enregistre un dépôt (POST `/pressing/commandes`). */
 export function creerCommande(body: CommandeBody): Promise<unknown> {
 	const corps = {
 		id_client: body.idClient,
+		mode_tarification: body.modeTarification,
 		date_retrait_prevue: body.dateRetraitPrevue,
-		lignes: body.lignes.map((ligne) => ({
-			type_vetement: ligne.typeVetement,
-			quantite: ligne.quantite,
-			prestation: ligne.prestation,
-			tarif: ligne.tarif,
-		})),
-		...(body.paiement
-			? {
-					paiement: {
-						montant: body.paiement.montant,
-						id_moyen: body.paiement.idMoyen,
-					},
-				}
-			: {}),
-	} satisfies CreerCommandePressingDto;
+		lignes: body.lignes.map(ligneVersCorps),
+	};
 	return getApiClient().apiFetch("/api/v1/pressing/commandes", {
 		method: "POST",
 		body: JSON.stringify(corps),
 	});
 }
 
-/** Corps saisi pour modifier une commande (PATCH `MajCommandePressingDto`). */
+/**
+ * Corps saisi pour modifier une commande (PATCH `/pressing/commandes/:id`).
+ * Pas de `modeTarification` : le mode est verrouillé à la création, les
+ * lignes soumises doivent déjà correspondre à celui de la commande existante.
+ */
 export interface ModifierCommandeBody {
 	idClient: string;
 	dateRetraitPrevue: string;
@@ -123,13 +138,8 @@ export function modifierCommande(
 	const corps = {
 		id_client: body.idClient,
 		date_retrait_prevue: body.dateRetraitPrevue,
-		lignes: body.lignes.map((ligne) => ({
-			type_vetement: ligne.typeVetement,
-			quantite: ligne.quantite,
-			prestation: ligne.prestation,
-			tarif: ligne.tarif,
-		})),
-	} satisfies MajCommandePressingDto;
+		lignes: body.lignes.map(ligneVersCorps),
+	};
 	return getApiClient().apiFetch(`/api/v1/pressing/commandes/${id}`, {
 		method: "PATCH",
 		body: JSON.stringify(corps),

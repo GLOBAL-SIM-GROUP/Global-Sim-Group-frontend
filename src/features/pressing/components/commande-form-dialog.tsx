@@ -1,7 +1,5 @@
 import { Dialog } from "radix-ui";
 
-import type { MoyenPaiement } from "#/features/residence/models/moyens-paiement";
-
 import type {
 	CommandePressing,
 	LigneCommandePressing,
@@ -22,7 +20,6 @@ interface CommandeFormDialogProps {
 	 * figerait un panier vide pour toute la session d'édition.
 	 */
 	chargementLignes?: boolean;
-	moyens: MoyenPaiement[];
 	onOpenChange: (open: boolean) => void;
 	onSaved: () => void;
 }
@@ -33,7 +30,6 @@ export function CommandeFormDialog({
 	commande,
 	lignesInitiales,
 	chargementLignes,
-	moyens,
 	onOpenChange,
 	onSaved,
 }: CommandeFormDialogProps) {
@@ -48,7 +44,7 @@ export function CommandeFormDialog({
 					<Dialog.Description className="mt-1 text-sm text-muted-foreground">
 						{commande
 							? "Mettre à jour les articles et la date de retrait."
-							: "Enregistrer un dépôt de vêtements (articles, prestations, acompte)."}
+							: "Enregistrer un dépôt de vêtements (articles, prestations)."}
 					</Dialog.Description>
 					<div className="mt-4">
 						{commande && chargementLignes ? (
@@ -58,7 +54,6 @@ export function CommandeFormDialog({
 								key={commande?.id ?? "create"}
 								commande={commande}
 								lignesInitiales={lignesInitiales}
-								moyens={moyens}
 								onCancel={() => onOpenChange(false)}
 								onSaved={onSaved}
 							/>
