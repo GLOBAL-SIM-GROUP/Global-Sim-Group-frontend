@@ -19,6 +19,8 @@ import {
 	type LogementType,
 } from "#/features/residence/models/logements";
 
+import { enregistrerDemande } from "../models/demandes";
+
 type ResidenceField =
 	| "typeLogement"
 	| "dateArrivee"
@@ -71,10 +73,18 @@ export function ResidencePage() {
 				return { fields };
 			},
 		},
-		onSubmit: async () => {
+		onSubmit: async ({ value }) => {
 			// Pas d'appel réseau : aucun endpoint CLIENT n'existe pour les
-			// séjours (cf. commentaire du composant). Confirmation locale
-			// uniquement.
+			// séjours (cf. commentaire du composant). Confirmation locale +
+			// trace pour « Mes demandes ».
+			const typeLogement = value.typeLogement
+				? LOGEMENT_TYPE_LABELS[value.typeLogement]
+				: "";
+			enregistrerDemande({
+				service: "residence",
+				resume: `${typeLogement} — du ${value.dateArrivee} au ${value.dateDepart}, ${value.nombrePersonnes} personne(s)`,
+				observations: value.observations.trim() || undefined,
+			});
 			setEnvoye(true);
 			setToastOuvert(true);
 		},

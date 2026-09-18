@@ -8,6 +8,8 @@ import { InputField } from "#/components/ui/input-field";
 import { Label } from "#/components/ui/label";
 import { Textarea } from "#/components/ui/textarea";
 
+import { enregistrerDemande } from "../models/demandes";
+
 type SalleFeteField =
 	| "typeManifestation"
 	| "dateEvenement"
@@ -64,9 +66,15 @@ export function SalleFetePage() {
 				return { fields };
 			},
 		},
-		onSubmit: async () => {
+		onSubmit: async ({ value }) => {
 			// Pas d'appel réseau : aucun endpoint CLIENT n'existe pour la salle de
-			// fête (cf. commentaire du composant). Confirmation locale uniquement.
+			// fête (cf. commentaire du composant). Confirmation locale + trace
+			// pour « Mes demandes ».
+			enregistrerDemande({
+				service: "salle-fete",
+				resume: `${value.typeManifestation} — le ${value.dateEvenement} à ${value.heureDebut}, ${value.duree} h, ${value.nombreInvites} invité(s)`,
+				observations: value.observations.trim() || undefined,
+			});
 			setEnvoye(true);
 			setToastOuvert(true);
 		},
