@@ -1,3 +1,5 @@
+import { env } from "#/env";
+
 import { getApiClient } from "./client";
 
 export type UploadCategorie =
@@ -114,6 +116,36 @@ export async function downloadUploadedFile(
  * @param key - Clé MinIO retournée par uploadImage() (e.g. "plat-photo/3-<uuid>.jpg")
  * @returns Promise<string | null> — blob URL prêt pour <img src>, ou null si échec
  */
+/**
+ * Préfixe d'API complet, identique à celui des requêtes du client
+ * (`VITE_API_URL` + `/api/v1` — cf. `getApiClient()` qui passe des paths
+ * préfixés `/api/v1/…`).
+ */
+const apiBase = () => `${env.VITE_API_URL.replace(/\/+$/, "")}/api/v1`;
+
+/**
+ * URL publique de la photo d'un plat — GET /api/v1/restaurant/plats/:id/image.
+ * Endpoint public (pas de JWT) : utilisable directement en `src` d'un <img>.
+ * 404 côté backend si le plat n'a pas d'image → prévoir un placeholder.
+ */
+export function platImagePublicUrl(
+	platId: string | null | undefined,
+): string | null {
+	if (!platId) return null;
+	return `${apiBase()}/restaurant/plats/${encodeURIComponent(platId)}/image`;
+}
+
+/**
+ * URL publique de la photo d'un produit — GET /api/v1/market/produits/:id/image.
+ * Même contrat que `platImagePublicUrl`.
+ */
+export function produitImagePublicUrl(
+	produitId: string | null | undefined,
+): string | null {
+	if (!produitId) return null;
+	return `${apiBase()}/market/produits/${encodeURIComponent(produitId)}/image`;
+}
+
 export async function getUploadBlobUrl(
 	key: string | null | undefined,
 ): Promise<string | null> {

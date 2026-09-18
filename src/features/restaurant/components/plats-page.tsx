@@ -17,7 +17,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "#/components/ui/select";
-import { useUploadBlobUrl } from "#/core/api/use-upload-blob";
+import { platImagePublicUrl } from "#/core/api/uploads";
 import { useCan } from "#/core/auth";
 import { formatMontantFCFA } from "#/features/residence/models/format";
 
@@ -191,7 +191,7 @@ export function PlatsPage({ initialSearch, onSearchChange }: PlatsPageProps) {
 							className="group relative overflow-hidden rounded-lg border border-border bg-card shadow-sm transition-shadow hover:shadow-md"
 						>
 							<PlatImageDisplay
-								imageKey={plat.image_url}
+								src={plat.image_url ? platImagePublicUrl(plat.id) : null}
 								nomPlat={plat.nom}
 								indisponible={!plat.disponible}
 							/>
@@ -301,29 +301,29 @@ export function PlatsPage({ initialSearch, onSearchChange }: PlatsPageProps) {
 	);
 }
 
-/** Composant pour afficher une image de plat avec authentification */
+/**
+ * Image d'un plat via l'endpoint public GET /restaurant/plats/:id/image —
+ * pas de JWT requis. 404 ou clé absente → placeholder dégradé.
+ */
 function PlatImageDisplay({
-	imageKey,
+	src,
 	nomPlat,
 	indisponible,
 }: {
-	imageKey: string | null | undefined;
+	src: string | null;
 	nomPlat: string;
 	indisponible: boolean;
 }) {
-	const { blobUrl, isLoading } = useUploadBlobUrl(imageKey);
+	const [erreur, setErreur] = useState(false);
 
 	return (
 		<div className="relative h-48 w-full overflow-hidden bg-muted">
-			{isLoading ? (
-				<div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-sea-ink/10 to-lagoon/10">
-					<div className="text-xs text-muted-foreground">Chargement…</div>
-				</div>
-			) : blobUrl ? (
+			{src && !erreur ? (
 				<img
-					src={blobUrl}
+					src={src}
 					alt={nomPlat}
 					className="h-full w-full object-cover transition-transform group-hover:scale-105"
+					onError={() => setErreur(true)}
 				/>
 			) : (
 				<div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-sea-ink/10 to-lagoon/10">
