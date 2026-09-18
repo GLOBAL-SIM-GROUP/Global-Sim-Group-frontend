@@ -69,17 +69,9 @@ export function useCreerSejour() {
 	const queryClient = useQueryClient();
 	return useMutation({
 		mutationFn: (body: CreerSejourBody) => creerSejour(body),
-		onSuccess: ({ sejour, facture }) => {
+		onSuccess: ({ sejour }) => {
 			fusionnerSejourEnCache(queryClient, sejour);
 			void queryClient.invalidateQueries({ queryKey: sejoursKeys.all });
-			// `facture` n'est présent que si un acompte a été versé à la création
-			// (voir la règle : pas de facture tant qu'aucun encaissement n'a eu
-			// lieu) — sans acompte, la facture reste absente, inutile d'invalider.
-			if (facture) {
-				void queryClient.invalidateQueries({
-					queryKey: sejoursKeys.facture(sejour.id),
-				});
-			}
 		},
 	});
 }

@@ -1,5 +1,4 @@
 import { Dialog } from "radix-ui";
-import type { MoyenPaiement } from "../models/moyens-paiement";
 import type { Sejour } from "../models/sejours";
 import { SejourForm } from "./sejour-form";
 
@@ -7,8 +6,6 @@ interface SejourFormDialogProps {
 	open: boolean;
 	/** Séjour à modifier (mode édition) ; null = création. */
 	sejour: Sejour | null;
-	/** Moyens de paiement (module Finances) pour le paiement initial. */
-	moyens: MoyenPaiement[];
 	onOpenChange: (open: boolean) => void;
 	onSaved: () => void;
 }
@@ -20,7 +17,6 @@ interface SejourFormDialogProps {
 export function SejourFormDialog({
 	open,
 	sejour,
-	moyens,
 	onOpenChange,
 	onSaved,
 }: SejourFormDialogProps) {
@@ -43,7 +39,6 @@ export function SejourFormDialog({
 						<SejourForm
 							key={sejour?.id ?? "create"}
 							sejour={sejour}
-							moyens={moyens}
 							onCancel={() => onOpenChange(false)}
 							onSaved={onSaved}
 						/>

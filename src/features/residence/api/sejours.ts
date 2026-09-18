@@ -164,14 +164,11 @@ export interface CreerSejourBody {
 	/** Client existant (base unique) OU client de passage (nouveau). */
 	idClient?: string | null;
 	client?: { nom: string; prenoms: string; telPrincipal: string } | null;
-	/** Paiement initial éventuel (moyen de paiement). */
-	paiement?: { montant: string; idMoyen: string } | null;
 }
 
 /**
  * Enregistre un séjour (POST `CreerSejourDto`). `id_client` (client existant)
- * et `client` (passage) sont mutuellement exclusifs ; le paiement initial est
- * optionnel.
+ * et `client` (passage) sont mutuellement exclusifs.
  */
 export function creerSejour(
 	body: CreerSejourBody,
@@ -191,14 +188,6 @@ export function creerSejour(
 						prenoms: body.client.prenoms,
 						tel_principal: body.client.telPrincipal,
 						type_client: "PASSAGE" as const,
-					},
-				}
-			: {}),
-		...(body.paiement
-			? {
-					paiement: {
-						montant: body.paiement.montant,
-						id_moyen: body.paiement.idMoyen,
 					},
 				}
 			: {}),

@@ -309,7 +309,6 @@ export function SejourFichePage({ id }: SejourFichePageProps) {
 			<SejourFormDialog
 				open={aModifier !== null}
 				sejour={aModifier}
-				moyens={moyensQuery.data ?? []}
 				onOpenChange={(ouvert) => {
 					if (!ouvert) setAModifier(null);
 				}}

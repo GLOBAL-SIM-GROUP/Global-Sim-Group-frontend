@@ -3,9 +3,9 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
 	activerContrat,
 	type ContratBody,
+	type ContratMajBody,
 	creerCaution,
 	creerContrat,
-	type ContratMajBody,
 	type EncaisserLoyerLotBody,
 	encaisserCaution,
 	encaisserLoyerLot,

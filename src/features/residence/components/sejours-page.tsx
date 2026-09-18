@@ -189,7 +189,6 @@ export function SejoursPage({
 			<SejourFormDialog
 				open={formOuvert || aModifier !== null}
 				sejour={aModifier}
-				moyens={moyensQuery.data ?? []}
 				onOpenChange={(ouvert) => {
 					if (!ouvert) fermerFormulaire();
 				}}
