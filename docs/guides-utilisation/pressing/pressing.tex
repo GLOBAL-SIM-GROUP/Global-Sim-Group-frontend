@@ -112,11 +112,13 @@ Le module \textbf{Pressing}, c'est exactement ce cahier, mais sur l'ordinateur. 
 \begin{itemize}[label=\textcolor{lagoon}{\faFile}]
   \item \textbf{Noter le dépôt} : qui est le client, quels vêtements, combien ça coûte, quand il revient.
   \item \textbf{Suivre le travail} : la commande change de couleur au fur et à mesure (déposé, en traitement, prêt, retiré).
-  \item \textbf{Encaisser l'argent} : un acompte au dépôt, puis le reste quand le client vient chercher son linge.
+  \item \textbf{Encaisser l'argent} : le client paie quand il vient chercher son linge.
   \item \textbf{Imprimer un reçu} : un petit ticket à remettre au client.
 \end{itemize}
 
 \info{Chaque commande a un \textbf{statut}, comme un petit panneau de couleur : \textbf{Déposé} (bleu) → \textbf{En traitement} (orange) → \textbf{Prêt} (vert) → \textbf{Retiré} (gris). Une commande peut aussi être \textbf{Annulé} (rouge).}
+
+\info{Deux façons de facturer : \textbf{à la pièce} (chaque vêtement a son prix — le mode habituel) ou \textbf{au kilo} (le linge est pesé, le prix se calcule avec le tarif au kilo en vigueur). Le choix se fait au dépôt et ne change plus ensuite — voir la section « La tarification au kilo ».}
 
 \info{Ce que tu vois dépend de tes \textbf{permissions}. Si tu n'as pas le droit de créer ou de modifier, certains boutons n'apparaissent pas. Voir le récapitulatif à la fin du guide.}
 
@@ -153,7 +155,7 @@ Chaque ligne du tableau est une commande. Les colonnes sont :
   \item \textbf{DATE DÉPÔT} : quand les vêtements ont été apportés.
   \item \textbf{RETRAIT PRÉVU} : la date à laquelle le client doit revenir.
   \item \textbf{MONTANT} : le prix total de la commande.
-  \item \textbf{ACOMPTE} : l'argent déjà payé au dépôt.
+  \item \textbf{ACOMPTE} : l'argent déjà versé (les dépôts n'encaissent plus d'acompte : tout est payé au retrait — la colonne reste pour les anciennes commandes).
   \item \textbf{RESTE} : ce qui reste à payer au retrait.
   \item \textbf{STATUT} : le petit panneau de couleur (Déposé, En traitement, Prêt, Retiré, Annulé).
   \item \textbf{ACTIONS} : les petites icônes pour voir, imprimer, modifier ou retirer la commande.
@@ -226,26 +228,39 @@ La première case sert à trouver le client :
 
 \info{Si le client n'existe pas encore, clique sur le bouton \textbf{Créer un client} en dessous : un mini-formulaire (nom, prénoms, téléphone, type de client) s'affiche. Remplis-le puis clique sur \textbf{Créer} : le nouveau client est choisi automatiquement.}
 
+\subsection{Choisir la tarification}
+
+Le choix \textbf{Tarification} décide comment le prix est calculé :
+
+\begin{itemize}[label=\textcolor{lagoon}{\faBalanceScale}]
+  \item \textbf{Tarification à la pièce} : chaque article a son propre tarif (le mode habituel, choisi par défaut).
+  \item \textbf{Tarification au kilo} : le linge est pesé ; le prix se calcule avec le tarif au kilo en vigueur (voir « La tarification au kilo »).
+\end{itemize}
+
+\attention{Ce choix est \textbf{définitif} : une fois la commande enregistrée, on ne peut plus changer de mode — même en modifiant la commande.}
+
 \subsection{Ajouter les articles}
 
-Un « article », c'est un type de vêtement avec sa prestation (par exemple : 2 chemises à laver et repasser).
+Un « article », c'est un type de vêtement avec sa prestation (par exemple : 2 chemises à laver et repasser, ou 4,5 kg de draps à laver).
 
 \begin{etapes}
-  \item Pour chaque article, remplis les 4 cases : \textbf{Type de vêtement} (ex : Chemise), \textbf{Prestation} (ex : Lavage + Repassage), \textbf{Quantité} et \textbf{Tarif} (le prix d'une pièce, en FCFA).
+  \item Pour chaque article, remplis \textbf{Type de vêtement} (ex : Chemise) et \textbf{Prestation} (ex : Lavage + Repassage).
+  \item Selon la tarification choisie : en mode \textbf{à la pièce}, ajoute la \textbf{Quantité} et le \textbf{Tarif} (prix d'une pièce, en FCFA) ; en mode \textbf{au kilo}, indique le \textbf{Poids (kg)} (ex : \texttt{4.500}) — la case Quantité disparaît, le poids fait office de quantité.
   \item Clique sur \textbf{Ajouter un article} s'il y a plusieurs sortes de vêtements.
   \item Clique sur \textbf{Retirer} sous un article pour le supprimer (il faut toujours garder au moins un article).
 \end{etapes}
 
-\subsection{La date de retrait et l'acompte}
+\info{En mode \textbf{au kilo}, une ligne « Aperçu » estime le montant de chaque article avec le tarif du moment (ex : « Aperçu : 7 200 FCFA (1 600 FCFA/kg) ») et le récapitulatif affiche « Total (aperçu) » : le vrai total est toujours calculé par le serveur. Si aucun tarif au kilo n'est configuré, un bandeau orange bloque la création — voir « La tarification au kilo ».}
+
+\subsection{La date de retrait}
 
 \begin{etapes}
   \item Choisis la \textbf{Date de retrait prévue} : le jour où le client doit revenir chercher son linge.
-  \item Si le client paie un acompte, tape le montant dans \textbf{Acompte (FCFA, optionnel)} et choisis le \textbf{Moyen de paiement} (espèces, mobile money\dots).
 \end{etapes}
 
-En bas, la ligne récapitulative calcule tout seule le \textbf{Total} et le \textbf{Reste à payer} :
+En bas, la ligne récapitulative calcule tout seul le \textbf{Total} :
 
-\screenshot{screenshots/pressing/06-commande-remplie.png}{La fenêtre remplie : client, article, date et acompte}
+\screenshot{screenshots/pressing/06-commande-remplie.png}{La fenêtre remplie : client, article et date}
 
 \subsection{Enregistrer}
 
@@ -257,9 +272,9 @@ En bas, la ligne récapitulative calcule tout seule le \textbf{Total} et le \tex
 
 \screenshot{screenshots/pressing/07-commande-creee.png}{La commande créée dans la liste}
 
-\attention{Les champs obligatoires : un client, au moins un article complet (type, prestation, tarif, quantité), et la date de retrait prévue. Si tu oublies quelque chose, un message rouge te dit quoi corriger.}
+\attention{Les champs obligatoires : un client, au moins un article complet (type, prestation, et tarif + quantité à la pièce ou poids au kilo), et la date de retrait prévue. Si tu oublies quelque chose, un message rouge te dit quoi corriger.}
 
-\astuce{L'acompte est \textbf{optionnel} : si le client ne paie rien au dépôt, laisse la case vide. Il paiera tout au retrait.}
+\astuce{Le dépôt n'enregistre aucun paiement : le client paie la totalité quand il vient chercher son linge (voir « Le retrait »).}
 
 \newpage
 
@@ -273,9 +288,9 @@ Clique sur une ligne du tableau pour ouvrir la \textbf{fiche} de la commande : c
 La fiche montre :
 
 \begin{itemize}[label=\textcolor{lagoon}{\faList}]
-  \item \textbf{En haut} : le numéro de la commande, le nom du client, et les boutons d'action.
+  \item \textbf{En haut} : le numéro de la commande, un badge « Tarification à la pièce » ou « Tarification au kilo », le nom du client, et les boutons d'action.
   \item \textbf{Le bloc d'informations} : client, téléphone, date de dépôt, retrait prévu, retrait réel, montant total, acompte, reste à payer, et le statut en couleur.
-  \item \textbf{Le tableau Articles} : chaque vêtement avec sa quantité, sa prestation, son tarif et son total.
+  \item \textbf{Le tableau Articles} : chaque vêtement avec sa quantité, sa prestation, puis son \textbf{tarif} (à la pièce) ou son \textbf{poids en kg} (au kilo — la colonne s'appelle alors « POIDS (KG) »), et son total.
 \end{itemize}
 
 \subsection{Faire avancer la commande}
@@ -300,6 +315,8 @@ Quand le travail sur le linge avance, tu changes le statut avec les boutons en h
 \subsection{Modifier une commande}
 
 Si tu t'es trompé (mauvais article, mauvaise date de retrait), clique sur \textbf{Modifier} : la même fenêtre que « Nouvelle commande » s'ouvre, déjà remplie. Corrige puis clique sur \textbf{Enregistrer}.
+
+\info{En modification, la tarification est affichée en lecture seule (« fixée à la création, non modifiable ») : tu peux corriger les articles et la date de retrait, jamais le mode.}
 
 \attention{On ne peut plus modifier une commande « Retiré » ou « Annulé » : le bouton Modifier disparaît.}
 
@@ -347,6 +364,42 @@ Quand le client revient chercher son linge, il paie ce qui reste. Le bouton \tex
 
 \newpage
 
+% Section 5b : Tarif au kilo
+\section{La tarification au kilo}\label{sec:kilo}
+
+Certaines commandes sont facturées au poids plutôt qu'à la pièce : draps, rideaux, grosses quantités de linge. Le prix se calcule alors avec le \textbf{tarif au kilo} en vigueur.
+
+\subsection{La page « Tarif au kilo »}
+
+Dans le menu \textbf{Blanchisserie}, clique sur \textbf{Tarif au kilo} :
+
+\screenshot{screenshots/pressing/15-tarif-kg.png}{La page « Tarif au kilo — Pressing »}
+
+La page montre le \textbf{tarif courant} (prix par kilo et date d'entrée en vigueur) et un formulaire pour en définir un nouveau :
+
+\begin{etapes}
+  \item Saisis le nouveau prix dans \textbf{Nouveau tarif (FCFA / kg)}.
+  \item Clique sur \textbf{Définir le tarif} : le message « Nouveau tarif enregistré » confirme la prise en compte immédiate.
+\end{etapes}
+
+\attention{Définir un nouveau tarif ne change \textbf{jamais} le total des commandes déjà enregistrées : chaque commande au kilo garde le prix calculé avec le tarif en vigueur à sa création. L'historique est conservé — on ajoute un nouveau tarif, on ne modifie ni ne supprime l'ancien.}
+
+\info{L'entrée « Tarif au kilo » du menu n'apparaît que pour les rôles ayant la permission \texttt{PRESSING.GERER\_TARIFS} (responsable pressing).}
+
+\subsection{Créer une commande au kilo}
+
+Dans la fenêtre de dépôt, choisis la radio \textbf{Tarification au kilo} : la case « Tarif » des articles est remplacée par \textbf{Poids (kg)}, et une ligne « Aperçu » estime chaque article avec le tarif du moment.
+
+\screenshot{screenshots/pressing/16-commande-kilo.png}{Une commande en tarification au kilo : poids et aperçu}
+
+Sur la fiche, le badge « Tarification au kilo » apparaît à côté du numéro et le tableau des articles affiche la colonne \textbf{POIDS (KG)} à la place de « Tarif » :
+
+\screenshot{screenshots/pressing/17-fiche-poids.png}{Fiche d'une commande au kilo : badge et colonne « POIDS (KG) »}
+
+\attention{Sans tarif au kilo configuré, la création est bloquée : un bandeau orange « Aucun tarif au kilo n'est encore configuré » s'affiche dans la fenêtre — définis d'abord un tarif (ou demande à un responsable pressing).}
+
+\newpage
+
 % Section 6 : Vue mobile
 \section{Le pressing sur téléphone}\label{sec:mobile}
 
@@ -390,6 +443,12 @@ Je ne vois pas le bouton « Retirer » & La commande est déjà entièrement pay
 
 Je ne peux plus modifier une commande & C'est normal : une commande « Retiré » ou « Annulé » n'est plus modifiable. \\
 
+Je ne vois pas « Tarif au kilo » dans le menu & Il te manque la permission \texttt{PRESSING.GERER\_TARIFS} : la page est réservée au responsable pressing. \\
+
+« Aucun tarif au kilo n'est encore configuré » & La commande au kilo est impossible tant qu'aucun tarif n'est défini. Ouvre « Tarif au kilo » et définis un prix (ou demande à un responsable pressing). \\
+
+Je ne peux pas changer la tarification d'une commande & C'est voulu : le mode (à la pièce ou au kilo) est fixé à la création et n'est jamais modifiable. Annule la commande et recrée-la si le mode était faux. \\
+
 Le reçu ne s'imprime pas & Vérifie que l'imprimante à tickets est branchée et allumée. Vérifie aussi les réglages dans « Paramètres d'impression… ». \\
 
 \bottomrule
@@ -404,6 +463,7 @@ Le reçu ne s'imprime pas & Vérifie que l'imprimante à tickets est branchée e
   \item \texttt{PRESSING.CREER} : créer une commande (bouton « Nouvelle commande »).
   \item \texttt{PRESSING.MODIFIER} : modifier une commande et changer son statut (« Passer en traitement », « Passer en « Prêt » »).
   \item \texttt{PRESSING.CREER} + \texttt{FINANCES.VOIR} : retirer une commande (encaisser le solde).
+  \item \texttt{PRESSING.GERER\_TARIFS} : voir et définir le tarif au kilo (page « Tarif au kilo », réservée au responsable pressing).
 \end{itemize}
 
 \info{Les permissions se règlent dans le module Administration (page Rôles). Si un bouton manque, ce n'est pas un bug : c'est que ton rôle n'a pas le droit.}

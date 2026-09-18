@@ -12,17 +12,23 @@ plateforme GLOBAL SIM GROUP.
 | `build-guide.ps1` | Compile le PDF (3 passages `pdflatex`) |
 | `screenshots/pressing/` | Captures Playwright réelles de l'application |
 
-Le script de capture est à la racine du projet :
-`scripts/capture-pressing-guide.mjs`.
+Les scripts de capture sont à la racine du projet :
+`scripts/capture-pressing-guide.mjs` (principal) et
+`scripts/capture-pressing-kilo.mjs` (complément 2026-09-16 : tarification
+au kilo, page « Tarif au kilo », recapture du formulaire sans acompte).
 
 ## Ce que couvre le guide
 
 - Ouvrir le module et lire la liste des commandes (colonnes, statuts colorés).
 - Filtrer : recherche texte, statut, client, période.
-- Créer une commande : recherche/création de client, articles, date de
-  retrait, acompte + moyen de paiement.
-- La fiche commande : informations, articles, avancement du statut
-  (Déposé → En traitement → Prêt → Retiré).
+- Créer une commande : recherche/création de client, choix de la
+  tarification (à la pièce ou au kilo — définitif), articles, date de
+  retrait.
+- La fiche commande : informations, badge de tarification, articles,
+  avancement du statut (Déposé → En traitement → Prêt → Retiré).
+- La tarification au kilo : page « Tarif au kilo » (tarif courant,
+  définition d'un nouveau tarif — append-only), commande au poids
+  (colonne « POIDS (KG) », aperçu au tarif courant).
 - Imprimer le reçu de dépôt (ticket 58 mm / 80 mm).
 - Le retrait : encaisser le solde et clore la commande.
 - Vue mobile (320 px), FAQ et récapitulatif des permissions.
@@ -64,3 +70,4 @@ pdflatex -interaction=nonstopmode -halt-on-error pressing.tex  # x3
 | Nouvelle commande | `PRESSING.CREER` |
 | Modifier / changer le statut | `PRESSING.MODIFIER` |
 | Retirer (encaisser le solde) | `PRESSING.CREER` + `FINANCES.VOIR` |
+| Page « Tarif au kilo » | `PRESSING.GERER_TARIFS` |

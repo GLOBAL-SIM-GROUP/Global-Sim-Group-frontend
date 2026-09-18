@@ -1,20 +1,17 @@
 /**
- * Capture Playwright des pages du module Pressing pour le guide utilisateur
- * `docs/guides-utilisation/pressing/`.
+ * Complément de capture Pressing — tarification au kilo (2026-09-16).
  *
- * Utilise le backend réel (localhost:3000 par défaut) avec l'utilisateur
- * `admin`. Crée une vraie commande « Guide-* » (client existant recherché,
- * ou créé en inline si aucun résultat). Les captures sont fullPage,
- * viewport 1440x900, et vont dans
- * `docs/guides-utilisation/pressing/screenshots/pressing/`.
+ * Recapture les figures modifiées par le nouveau formulaire de dépôt
+ * (radio « Tarification », plus d'acompte) et couvre la nouvelle page
+ * « Tarif au kilo » (`PRESSING.GERER_TARIFS`) ainsi qu'une commande POIDS
+ * (colonne « POIDS (KG) » sur la fiche).
  *
- * Variables d'environnement :
- *   BASE_URL  (défaut http://localhost:3000)
- *   LOGIN     (défaut admin)
- *   PASSWORD  (défaut motdepasse)
- *   OUT_DIR   (défaut docs/guides-utilisation/pressing/screenshots/pressing)
+ * Définit un vrai tarif au kilo en dev si aucun n'est configuré (2000 FCFA),
+ * puis crée une commande au kilo « Guide-* ».
  *
- * Usage : node scripts/capture-pressing-guide.mjs
+ * Variables d'environnement : identiques à capture-pressing-guide.mjs.
+ *
+ * Usage : node scripts/capture-pressing-kilo.mjs
  */
 import { chromium } from "playwright";
 import { mkdir, writeFile } from "node:fs/promises";
@@ -52,32 +49,45 @@ async function login(page) {
 	await waitForLoad(page);
 }
 
-/** Date du lendemain au format YYYY-MM-DD (input type="date"). */
+/** Re-login si la session a expiré (redirection vers /login), puis re-goto. */
+async function gotoAuth(page, url) {
+	await page.goto(url, { waitUntil: "domcontentloaded" });
+	await page.waitForTimeout(800);
+	if (page.url().includes("/login")) {
+		await page.locator('input[name="login"]').fill(LOGIN);
+		await page.locator('input[name="motDePasse"]').fill(PASSWORD);
+		await page.getByRole("button", { name: "Se connecter" }).click();
+		await page.waitForURL((u) => !u.pathname.includes("/login"), {
+			timeout: 20000,
+		});
+		await waitForLoad(page);
+		if (!page.url().startsWith(url)) {
+			await page.goto(url, { waitUntil: "domcontentloaded" });
+		}
+	}
+	await waitForLoad(page);
+}
+
 function demain() {
 	const d = new Date();
 	d.setDate(d.getDate() + 1);
 	return d.toISOString().slice(0, 10);
 }
 
-/** Choisit un client via le champ de recherche, ou le crée en inline. */
 async function choisirClient(page) {
 	const champ = page.locator("#client-recherche");
 	await champ.fill("Guide");
 	await page.waitForTimeout(1500);
-	const premierResultat = page
-		.locator("ul.divide-y li button")
-		.first();
+	const premierResultat = page.locator("ul.divide-y li button").first();
 	if (await premierResultat.isVisible().catch(() => false)) {
 		await premierResultat.click();
 		return;
 	}
-	// Aucun client trouvé → création inline.
 	await page.getByRole("button", { name: "Créer un client" }).click();
 	await page.waitForTimeout(600);
 	await page.locator("#nom").fill("Guide-Pressing");
 	await page.locator("#prenoms").fill("Client");
 	await page.locator("#telPrincipal").fill("+2250700000000");
-	// Type « Passage » : trigger id="typeClient", item index 1.
 	await page.locator("#typeClient").click();
 	await page.waitForTimeout(1200);
 	await page.keyboard.press("ArrowDown");
@@ -85,27 +95,6 @@ async function choisirClient(page) {
 	await page.waitForTimeout(400);
 	await page.getByRole("button", { name: "Créer", exact: true }).click();
 	await page.waitForTimeout(2000);
-}
-
-/** Remplit la première ligne d'article du formulaire de dépôt. */
-async function remplirArticle(page) {
-	await page
-		.getByPlaceholder("Type de vêtement (ex : Chemise)")
-		.first()
-		.fill("Chemise");
-	await page
-		.getByPlaceholder("Prestation (ex : Repassage)")
-		.first()
-		.fill("Lavage + Repassage");
-	await page
-		.locator('input[aria-label="Quantité"]')
-		.first()
-		.fill("2");
-	await page
-		.getByPlaceholder("Tarif (FCFA)")
-		.first()
-		.fill("1500");
-	await page.locator("#commande-retrait").fill(demain());
 }
 
 async function main() {
@@ -123,73 +112,65 @@ async function main() {
 
 	await login(page);
 
-	// --- Liste des commandes -------------------------------------------
-	await page.goto(`${BASE_URL}/pressing/commandes`, {
-		waitUntil: "domcontentloaded",
-	});
-	await waitForLoad(page);
-	await capture(page, "01-commandes-liste");
-
-	// Filtre « Statut » ouvert.
-	const statutTrigger = page.locator('button[aria-label="Statut"]');
-	await statutTrigger.click({ timeout: 10000 });
-	await page.waitForTimeout(1200);
-	await capture(page, "02-filtre-statut-ouvert");
-	await page.keyboard.press("Escape");
-	await page.waitForTimeout(400);
-
-	// Recherche texte (décorative, sans valider).
+	// --- Tarif au kilo : définir si absent, puis capturer la page -------
+	await gotoAuth(page, `${BASE_URL}/pressing/tarif-kg`);
+	// Attendre la résolution de la requête (tarif, absence ou erreur).
 	await page
-		.locator('input[aria-label="Rechercher une commande"]')
-		.fill("CMD");
-	await page.waitForTimeout(1200);
-	await capture(page, "03-filtre-recherche");
-	await page
-		.locator('input[aria-label="Rechercher une commande"]')
-		.fill("");
-	await page.waitForTimeout(1200);
+		.waitForSelector("text=/Prix au kilo|Aucun tarif au kilo|Impossible de charger/", {
+			timeout: 15000,
+		})
+		.catch(() => {});
+	await page.waitForTimeout(800);
+	const aucunTarif = await page
+		.getByText("Aucun tarif au kilo n'a encore été configuré")
+		.isVisible()
+		.catch(() => false);
+	if (aucunTarif) {
+		await page.locator("#tarif-kg-prix").fill("2000");
+		await page
+			.getByRole("button", { name: "Définir le tarif" })
+			.click();
+		await page
+			.waitForSelector("text=/Nouveau tarif enregistré/", { timeout: 15000 })
+			.catch(() => {});
+		await page.waitForTimeout(1500);
+	} else {
+		// Montre le formulaire rempli pour la capture.
+		await page.locator("#tarif-kg-prix").fill("2000");
+	}
+	await capture(page, "15-tarif-kg");
 
-	// --- Nouvelle commande ----------------------------------------------
-	await page
-		.getByRole("button", { name: "Nouvelle commande" })
-		.click();
+	// --- Recapture du formulaire de dépôt (radio + sans acompte) --------
+	await gotoAuth(page, `${BASE_URL}/pressing/commandes`);
+	await page.getByRole("button", { name: "Nouvelle commande" }).click();
 	await page.waitForTimeout(1000);
 	await capture(page, "04-nouvelle-commande-vide");
 
 	await choisirClient(page);
 	await capture(page, "05-commande-client-choisi");
 
-	await remplirArticle(page);
+	await page
+		.getByPlaceholder("Type de vêtement (ex : Chemise)")
+		.first()
+		.fill("Chemise");
+	await page
+		.getByPlaceholder("Prestation (ex : Repassage)")
+		.first()
+		.fill("Lavage + Repassage");
+	await page.locator('input[aria-label="Quantité"]').first().fill("2");
+	await page.getByPlaceholder("Tarif (FCFA)").first().fill("1500");
+	await page.locator("#commande-retrait").fill(demain());
 	await capture(page, "06-commande-remplie");
 
-	// Soumettre : la modale se ferme, la commande apparaît dans la liste.
 	await page.getByRole("button", { name: "Enregistrer" }).click();
 	await page.waitForTimeout(2500);
-	await capture(page, "07-commande-creee");
 
-	// --- Fiche commande --------------------------------------------------
-	// Ouvre la première commande de la liste (lien numéro de commande).
-	const lienCommande = page
-		.locator("table tbody tr td a")
-		.first();
-	await lienCommande.click();
+	// --- Fiche de la commande à la pièce (badge « Tarification ») -------
+	await page.locator("table tbody tr td a").first().click();
 	await page.waitForURL("**/pressing/commandes/**", { timeout: 15000 });
 	await waitForLoad(page);
 	await capture(page, "08-fiche-commande");
 
-	// Menu « Reçu de dépôt » (dropdown : 58 mm / 80 mm / paramètres).
-	const recuBouton = page
-		.getByRole("button", { name: /Reçu de dépôt/i })
-		.first();
-	if (await recuBouton.isVisible().catch(() => false)) {
-		await recuBouton.click();
-		await page.waitForTimeout(1000);
-		await capture(page, "09-recu-depot-menu");
-		await page.keyboard.press("Escape");
-		await page.waitForTimeout(400);
-	}
-
-	// Passage « En traitement » (si la commande est au statut Déposé).
 	const passerTraitement = page.getByRole("button", {
 		name: "Passer en traitement",
 	});
@@ -198,18 +179,12 @@ async function main() {
 		await page.waitForTimeout(2000);
 		await capture(page, "10-fiche-en-traitement");
 	}
-
-	// Passage « Prêt » (si la commande est En traitement).
-	const passerPret = page.getByRole("button", {
-		name: /Passer en « Prêt »/,
-	});
+	const passerPret = page.getByRole("button", { name: /Passer en « Prêt »/ });
 	if (await passerPret.isVisible().catch(() => false)) {
 		await passerPret.click();
 		await page.waitForTimeout(2000);
 		await capture(page, "11-fiche-pret");
 	}
-
-	// Modale « Retirer » (solde restant > 0).
 	const retirerBouton = page.getByRole("button", {
 		name: "Retirer",
 		exact: true,
@@ -218,13 +193,40 @@ async function main() {
 		await retirerBouton.click();
 		await page.waitForTimeout(1000);
 		await capture(page, "12-retrait-dialog");
-		await page
-			.getByRole("button", { name: "Annuler" })
-			.click();
+		await page.getByRole("button", { name: "Annuler" }).click();
 		await page.waitForTimeout(500);
 	}
 
-	// --- Vue mobile (320 px) ---------------------------------------------
+	// --- Commande au kilo ------------------------------------------------
+	await gotoAuth(page, `${BASE_URL}/pressing/commandes`);
+	await page.getByRole("button", { name: "Nouvelle commande" }).click();
+	await page.waitForTimeout(1000);
+	await choisirClient(page);
+	await page
+		.locator("label", { hasText: "Tarification au kilo" })
+		.click();
+	await page.waitForTimeout(1000);
+	await page
+		.getByPlaceholder("Type de vêtement (ex : Chemise)")
+		.first()
+		.fill("Drap");
+	await page
+		.getByPlaceholder("Prestation (ex : Repassage)")
+		.first()
+		.fill("Lavage");
+	await page.locator('input[aria-label="Poids (kg)"]').first().fill("4.5");
+	await page.locator("#commande-retrait").fill(demain());
+	await capture(page, "16-commande-kilo");
+	await page.getByRole("button", { name: "Enregistrer" }).click();
+	await page.waitForTimeout(2500);
+
+	// Fiche de la commande au kilo : badge + colonne « POIDS (KG) ».
+	await page.locator("table tbody tr td a").first().click();
+	await page.waitForURL("**/pressing/commandes/**", { timeout: 15000 });
+	await waitForLoad(page);
+	await capture(page, "17-fiche-poids");
+
+	// --- Mobile : fiche avec badge --------------------------------------
 	await context.close();
 	const mobileContext = await browser.newContext({
 		viewport: { width: 320, height: 700 },
@@ -234,20 +236,12 @@ async function main() {
 	mpage.on("console", (msg) => {
 		if (msg.type() === "error") errors.push(`[console:mobile] ${msg.text()}`);
 	});
-
 	await login(mpage);
-	await mpage.goto(`${BASE_URL}/pressing/commandes`, {
-		waitUntil: "domcontentloaded",
-	});
-	await waitForLoad(mpage);
-	await capture(mpage, "13-commandes-mobile");
-
+	await gotoAuth(mpage, `${BASE_URL}/pressing/commandes`);
 	const mLien = mpage.locator("table tbody tr td a").first();
 	if (await mLien.isVisible().catch(() => false)) {
 		await mLien.click();
-		await mpage.waitForURL("**/pressing/commandes/**", {
-			timeout: 15000,
-		});
+		await mpage.waitForURL("**/pressing/commandes/**", { timeout: 15000 });
 		await waitForLoad(mpage);
 		await capture(mpage, "14-fiche-mobile");
 	}
@@ -258,11 +252,11 @@ async function main() {
 	if (errors.length > 0) {
 		console.log("\n--- Erreurs rencontrées ---");
 		for (const e of errors) console.log(e);
-		const errPath = path.join(OUT_DIR, "capture-errors.txt");
+		const errPath = path.join(OUT_DIR, "capture-kilo-errors.txt");
 		await writeFile(errPath, errors.join("\n"), "utf8");
 		console.log(`Erreurs écrites dans ${errPath}`);
 	}
-	console.log("✅ Captures module Pressing terminées.");
+	console.log("✅ Captures Pressing (kilo) terminées.");
 }
 
 main().catch((err) => {
