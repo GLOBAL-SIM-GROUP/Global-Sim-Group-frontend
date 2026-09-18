@@ -41,6 +41,32 @@ const config = defineConfig({
 		viteReact(),
 		babel({ presets: [reactCompilerPreset()] }),
 	],
+	build: {
+		rollupOptions: {
+			output: {
+				// Regroupe les node_modules en quelques chunks vendor : sans ça,
+				// chaque icône lucide / utilitaire partagé devient un micro-chunk
+				// (~40 requêtes sur la landing). Groupes évalués dans l'ordre.
+				codeSplitting: {
+					groups: [
+						{
+							name: "vendor-react",
+							test: /node_modules[\\/](react|react-dom|scheduler)[\\/]/,
+						},
+						{
+							name: "vendor-tanstack",
+							test: /node_modules[\\/]@tanstack[\\/]/,
+						},
+						{
+							name: "vendor-lucide",
+							test: /node_modules[\\/]lucide/,
+						},
+						{ name: "vendor-misc", test: /node_modules/ },
+					],
+				},
+			},
+		},
+	},
 });
 
 export default config;
