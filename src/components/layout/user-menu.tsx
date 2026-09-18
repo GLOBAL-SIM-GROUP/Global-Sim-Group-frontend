@@ -1,21 +1,30 @@
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
-import { useRouter } from "@tanstack/react-router";
+import { Link, useRouter } from "@tanstack/react-router";
 import { LogOut } from "lucide-react";
 import { type ReactNode, useState } from "react";
 
 import { useAuth } from "#/core/auth";
 import { cn } from "#/lib/utils";
 
+export interface UserMenuItem {
+	label: string;
+	to: string;
+	icon?: ReactNode;
+}
+
 export function UserMenu({
 	avatar,
 	login,
 	role,
 	variant = "sidebar",
+	items,
 }: {
 	avatar: ReactNode;
 	login: string;
 	role?: string;
 	variant?: "sidebar" | "navbar";
+	/** Entrées supplémentaires affichées avant « Se déconnecter ». */
+	items?: UserMenuItem[];
 }) {
 	const [open, setOpen] = useState(false);
 	const { logout } = useAuth();
@@ -106,6 +115,24 @@ export function UserMenu({
 							</p>
 						) : null}
 					</div>
+
+					{items?.map((item) => (
+						<DropdownMenu.Item key={item.to} asChild>
+							<Link
+								to={item.to as never}
+								onClick={() => setOpen(false)}
+								className={cn(
+									"flex w-full items-center justify-center gap-2 px-4 py-2 text-sm transition-colors outline-none",
+									variant === "sidebar"
+										? "text-gray-300 hover:bg-lagoon/20 hover:text-white"
+										: "text-foreground hover:bg-accent",
+								)}
+							>
+								{item.icon}
+								<span>{item.label}</span>
+							</Link>
+						</DropdownMenu.Item>
+					))}
 
 					<DropdownMenu.Item asChild>
 						<button
