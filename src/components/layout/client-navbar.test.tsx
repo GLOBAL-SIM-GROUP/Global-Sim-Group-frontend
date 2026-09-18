@@ -1,6 +1,6 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ClientNavbar } from "./client-navbar";
 
@@ -31,6 +31,10 @@ vi.mock("@tanstack/react-router", async (importOriginal) => {
 });
 
 describe("ClientNavbar", () => {
+	beforeEach(() => {
+		window.localStorage.clear();
+	});
+
 	it("affiche la marque et un lien vers chaque service", () => {
 		render(<ClientNavbar />);
 
@@ -55,6 +59,45 @@ describe("ClientNavbar", () => {
 		for (const link of screen.getAllByRole("link", { name: /résidence/i })) {
 			expect(link).toHaveAttribute("href", "/espace-client/residence");
 		}
+	});
+
+	it("affiche l'icône panier avec le total des articles des deux services", () => {
+		window.localStorage.setItem(
+			"espace-client.panier.restaurant",
+			JSON.stringify([
+				{
+					id: "p1",
+					nom: "Plat",
+					prix: "1000",
+					imageUrl: null,
+					quantite: 2,
+				},
+			]),
+		);
+		window.localStorage.setItem(
+			"espace-client.panier.boutique",
+			JSON.stringify([
+				{
+					id: "a1",
+					nom: "Article",
+					prix: "500",
+					imageUrl: null,
+					quantite: 3,
+				},
+			]),
+		);
+
+		render(<ClientNavbar />);
+
+		const lien = screen.getByRole("link", { name: /panier/i });
+		expect(lien).toHaveAttribute("href", "/espace-client/panier");
+		expect(within(lien).getByText("5")).toBeInTheDocument();
+	});
+
+	it("n'affiche pas de badge quand les paniers sont vides", () => {
+		render(<ClientNavbar />);
+		const lien = screen.getByRole("link", { name: "Panier" });
+		expect(within(lien).queryByText(/\d/)).not.toBeInTheDocument();
 	});
 
 	it("affiche le compte utilisateur connecté", () => {

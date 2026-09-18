@@ -1,11 +1,16 @@
 import { Link } from "@tanstack/react-router";
 import {
 	BedDouble,
+	ClipboardList,
+	Flag,
+	Home,
 	type LucideIcon,
 	Menu,
 	PartyPopper,
 	Shirt,
 	ShoppingBag,
+	ShoppingCart,
+	UserRound,
 	UtensilsCrossed,
 	X,
 } from "lucide-react";
@@ -13,14 +18,16 @@ import { useState } from "react";
 
 import { Button } from "#/components/ui/button";
 import { useCurrentUser } from "#/core/auth";
+import { useNombreArticlesPaniers } from "#/features/espace-client/hooks/use-panier-articles";
 import { cn } from "#/lib/utils";
 
 import { UserMenu } from "./user-menu";
 
 /**
- * Cinq services ouverts aux clients externes, un bouton chacun, tous routés.
- * (cf. `sidebar.tsx`/`en-cours.tsx` pour l'équivalent staff, non réutilisable
- * ici puisqu'il mène dans le layout `_authenticated`, pas l'espace client).
+ * Navigation de l'espace client : accueil, cinq services et « Mes demandes »,
+ * tous routés (cf. `sidebar.tsx`/`en-cours.tsx` pour l'équivalent staff, non
+ * réutilisable ici puisqu'il mène dans le layout `_authenticated`, pas
+ * l'espace client).
  */
 interface ServiceNavItem {
 	id: string;
@@ -30,6 +37,7 @@ interface ServiceNavItem {
 }
 
 const SERVICES: readonly ServiceNavItem[] = [
+	{ id: "accueil", label: "Accueil", icon: Home, to: "/espace-client" },
 	{
 		id: "restaurant",
 		label: "Restaurant",
@@ -59,6 +67,12 @@ const SERVICES: readonly ServiceNavItem[] = [
 		label: "Résidence",
 		icon: BedDouble,
 		to: "/espace-client/residence",
+	},
+	{
+		id: "mes-demandes",
+		label: "Mes demandes",
+		icon: ClipboardList,
+		to: "/espace-client/mes-demandes",
 	},
 ];
 
@@ -122,12 +136,58 @@ function ServiceButtons({
 	);
 }
 
+/**
+ * Icône panier façon `NotificationBell` : bouton-icône avec badge du nombre
+ * total d'articles (restaurant + boutique), visible à toutes les tailles
+ * d'écran — le libellé texte ne passe que par `aria-label`.
+ */
+function PanierButton() {
+	const nombre = useNombreArticlesPaniers();
+	return (
+		<Button
+			asChild
+			variant="ghost"
+			size="icon"
+			className="relative"
+			title="Panier"
+		>
+			<Link
+				to="/espace-client/panier"
+				aria-label={nombre > 0 ? `Panier, ${nombre} article(s)` : "Panier"}
+				activeProps={{ className: "bg-accent text-foreground" }}
+			>
+				<ShoppingCart aria-hidden />
+				{nombre > 0 ? (
+					<span
+						aria-hidden
+						className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-lagoon px-0.5 text-[0.6rem] font-semibold text-white"
+					>
+						{nombre > 99 ? "99+" : nombre}
+					</span>
+				) : null}
+			</Link>
+		</Button>
+	);
+}
+
 function AccountMenu({ variant }: { variant: "navbar" | "sidebar" }) {
 	const user = useCurrentUser();
 	if (!user) return null;
 	return (
 		<UserMenu
 			variant={variant}
+			items={[
+				{
+					label: "Mon compte",
+					to: "/espace-client/mon-compte",
+					icon: <UserRound className="size-4" aria-hidden />,
+				},
+				{
+					label: "Signaler un problème",
+					to: "/espace-client/signalement",
+					icon: <Flag className="size-4" aria-hidden />,
+				},
+			]}
 			avatar={
 				<div
 					aria-hidden
@@ -171,24 +231,26 @@ export function ClientNavbar() {
 					<ServiceButtons className="hidden items-center gap-1 md:flex" />
 				</nav>
 
-				<div className="hidden shrink-0 items-center gap-2 md:flex">
-					<AccountMenu variant="navbar" />
+				<div className="flex shrink-0 items-center gap-2">
+					<PanierButton />
+					<div className="hidden md:flex">
+						<AccountMenu variant="navbar" />
+					</div>
+					<Button
+						variant="ghost"
+						size="icon-sm"
+						className="md:hidden"
+						aria-label={mobileOpen ? "Fermer le menu" : "Ouvrir le menu"}
+						aria-expanded={mobileOpen}
+						onClick={() => setMobileOpen((current) => !current)}
+					>
+						{mobileOpen ? (
+							<X className="size-5" aria-hidden />
+						) : (
+							<Menu className="size-5" aria-hidden />
+						)}
+					</Button>
 				</div>
-
-				<Button
-					variant="ghost"
-					size="icon-sm"
-					className="shrink-0 md:hidden"
-					aria-label={mobileOpen ? "Fermer le menu" : "Ouvrir le menu"}
-					aria-expanded={mobileOpen}
-					onClick={() => setMobileOpen((current) => !current)}
-				>
-					{mobileOpen ? (
-						<X className="size-5" aria-hidden />
-					) : (
-						<Menu className="size-5" aria-hidden />
-					)}
-				</Button>
 			</div>
 
 			<div

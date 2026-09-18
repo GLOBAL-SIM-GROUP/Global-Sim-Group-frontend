@@ -26,9 +26,13 @@ import { Route as AuthenticatedSignalementsIndexRouteImport } from './routes/_au
 import { Route as AuthenticatedSignalementsIdRouteImport } from './routes/_authenticated/signalements/$id'
 import { Route as EspaceClientEspaceClientIndexRouteImport } from './routes/_espace-client/espace-client/index'
 import { Route as EspaceClientEspaceClientBoutiqueRouteImport } from './routes/_espace-client/espace-client/boutique'
+import { Route as EspaceClientEspaceClientMesDemandesRouteImport } from './routes/_espace-client/espace-client/mes-demandes'
+import { Route as EspaceClientEspaceClientMonCompteRouteImport } from './routes/_espace-client/espace-client/mon-compte'
+import { Route as EspaceClientEspaceClientPanierRouteImport } from './routes/_espace-client/espace-client/panier'
 import { Route as EspaceClientEspaceClientResidenceRouteImport } from './routes/_espace-client/espace-client/residence'
 import { Route as EspaceClientEspaceClientRestaurantRouteImport } from './routes/_espace-client/espace-client/restaurant'
 import { Route as EspaceClientEspaceClientSalleFeteRouteImport } from './routes/_espace-client/espace-client/salle-fete'
+import { Route as EspaceClientEspaceClientSignalementRouteImport } from './routes/_espace-client/espace-client/signalement'
 import { Route as AuthenticatedAdminJournalIndexRouteImport } from './routes/_authenticated/admin/journal/index'
 import { Route as AuthenticatedAdminRolesIndexRouteImport } from './routes/_authenticated/admin/roles/index'
 import { Route as AuthenticatedAdminSauvegardesIndexRouteImport } from './routes/_authenticated/admin/sauvegardes/index'
@@ -185,6 +189,24 @@ const EspaceClientEspaceClientBoutiqueRoute =
     path: '/espace-client/boutique',
     getParentRoute: () => EspaceClientRoute,
   } as any)
+const EspaceClientEspaceClientMesDemandesRoute =
+  EspaceClientEspaceClientMesDemandesRouteImport.update({
+    id: '/espace-client/mes-demandes',
+    path: '/espace-client/mes-demandes',
+    getParentRoute: () => EspaceClientRoute,
+  } as any)
+const EspaceClientEspaceClientMonCompteRoute =
+  EspaceClientEspaceClientMonCompteRouteImport.update({
+    id: '/espace-client/mon-compte',
+    path: '/espace-client/mon-compte',
+    getParentRoute: () => EspaceClientRoute,
+  } as any)
+const EspaceClientEspaceClientPanierRoute =
+  EspaceClientEspaceClientPanierRouteImport.update({
+    id: '/espace-client/panier',
+    path: '/espace-client/panier',
+    getParentRoute: () => EspaceClientRoute,
+  } as any)
 const EspaceClientEspaceClientResidenceRoute =
   EspaceClientEspaceClientResidenceRouteImport.update({
     id: '/espace-client/residence',
@@ -201,6 +223,12 @@ const EspaceClientEspaceClientSalleFeteRoute =
   EspaceClientEspaceClientSalleFeteRouteImport.update({
     id: '/espace-client/salle-fete',
     path: '/espace-client/salle-fete',
+    getParentRoute: () => EspaceClientRoute,
+  } as any)
+const EspaceClientEspaceClientSignalementRoute =
+  EspaceClientEspaceClientSignalementRouteImport.update({
+    id: '/espace-client/signalement',
+    path: '/espace-client/signalement',
     getParentRoute: () => EspaceClientRoute,
   } as any)
 const AuthenticatedAdminJournalIndexRoute =
@@ -612,9 +640,13 @@ export interface FileRoutesByFullPath {
   '/restaurant/plats': typeof RestaurantPlatsRoute
   '/signalements/$id': typeof AuthenticatedSignalementsIdRoute
   '/espace-client/boutique': typeof EspaceClientEspaceClientBoutiqueRoute
+  '/espace-client/mes-demandes': typeof EspaceClientEspaceClientMesDemandesRoute
+  '/espace-client/mon-compte': typeof EspaceClientEspaceClientMonCompteRoute
+  '/espace-client/panier': typeof EspaceClientEspaceClientPanierRoute
   '/espace-client/residence': typeof EspaceClientEspaceClientResidenceRoute
   '/espace-client/restaurant': typeof EspaceClientEspaceClientRestaurantRoute
   '/espace-client/salle-fete': typeof EspaceClientEspaceClientSalleFeteRoute
+  '/espace-client/signalement': typeof EspaceClientEspaceClientSignalementRoute
   '/dashboard/': typeof AuthenticatedDashboardIndexRoute
   '/rapports/': typeof AuthenticatedRapportsIndexRoute
   '/signalements/': typeof AuthenticatedSignalementsIndexRoute
@@ -698,9 +730,13 @@ export interface FileRoutesByTo {
   '/restaurant/plats': typeof AuthenticatedRestaurantPlatsIndexRoute
   '/signalements/$id': typeof AuthenticatedSignalementsIdRoute
   '/espace-client/boutique': typeof EspaceClientEspaceClientBoutiqueRoute
+  '/espace-client/mes-demandes': typeof EspaceClientEspaceClientMesDemandesRoute
+  '/espace-client/mon-compte': typeof EspaceClientEspaceClientMonCompteRoute
+  '/espace-client/panier': typeof EspaceClientEspaceClientPanierRoute
   '/espace-client/residence': typeof EspaceClientEspaceClientResidenceRoute
   '/espace-client/restaurant': typeof EspaceClientEspaceClientRestaurantRoute
   '/espace-client/salle-fete': typeof EspaceClientEspaceClientSalleFeteRoute
+  '/espace-client/signalement': typeof EspaceClientEspaceClientSignalementRoute
   '/dashboard': typeof AuthenticatedDashboardIndexRoute
   '/rapports': typeof AuthenticatedRapportsIndexRoute
   '/signalements': typeof AuthenticatedSignalementsIndexRoute
@@ -785,9 +821,13 @@ export interface FileRoutesById {
   '/restaurant/plats': typeof RestaurantPlatsRoute
   '/_authenticated/signalements/$id': typeof AuthenticatedSignalementsIdRoute
   '/_espace-client/espace-client/boutique': typeof EspaceClientEspaceClientBoutiqueRoute
+  '/_espace-client/espace-client/mes-demandes': typeof EspaceClientEspaceClientMesDemandesRoute
+  '/_espace-client/espace-client/mon-compte': typeof EspaceClientEspaceClientMonCompteRoute
+  '/_espace-client/espace-client/panier': typeof EspaceClientEspaceClientPanierRoute
   '/_espace-client/espace-client/residence': typeof EspaceClientEspaceClientResidenceRoute
   '/_espace-client/espace-client/restaurant': typeof EspaceClientEspaceClientRestaurantRoute
   '/_espace-client/espace-client/salle-fete': typeof EspaceClientEspaceClientSalleFeteRoute
+  '/_espace-client/espace-client/signalement': typeof EspaceClientEspaceClientSignalementRoute
   '/_authenticated/dashboard/': typeof AuthenticatedDashboardIndexRoute
   '/_authenticated/rapports/': typeof AuthenticatedRapportsIndexRoute
   '/_authenticated/signalements/': typeof AuthenticatedSignalementsIndexRoute
@@ -873,9 +913,13 @@ export interface FileRouteTypes {
     | '/restaurant/plats'
     | '/signalements/$id'
     | '/espace-client/boutique'
+    | '/espace-client/mes-demandes'
+    | '/espace-client/mon-compte'
+    | '/espace-client/panier'
     | '/espace-client/residence'
     | '/espace-client/restaurant'
     | '/espace-client/salle-fete'
+    | '/espace-client/signalement'
     | '/dashboard/'
     | '/rapports/'
     | '/signalements/'
@@ -959,9 +1003,13 @@ export interface FileRouteTypes {
     | '/restaurant/plats'
     | '/signalements/$id'
     | '/espace-client/boutique'
+    | '/espace-client/mes-demandes'
+    | '/espace-client/mon-compte'
+    | '/espace-client/panier'
     | '/espace-client/residence'
     | '/espace-client/restaurant'
     | '/espace-client/salle-fete'
+    | '/espace-client/signalement'
     | '/dashboard'
     | '/rapports'
     | '/signalements'
@@ -1045,9 +1093,13 @@ export interface FileRouteTypes {
     | '/restaurant/plats'
     | '/_authenticated/signalements/$id'
     | '/_espace-client/espace-client/boutique'
+    | '/_espace-client/espace-client/mes-demandes'
+    | '/_espace-client/espace-client/mon-compte'
+    | '/_espace-client/espace-client/panier'
     | '/_espace-client/espace-client/residence'
     | '/_espace-client/espace-client/restaurant'
     | '/_espace-client/espace-client/salle-fete'
+    | '/_espace-client/espace-client/signalement'
     | '/_authenticated/dashboard/'
     | '/_authenticated/rapports/'
     | '/_authenticated/signalements/'
@@ -1253,6 +1305,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EspaceClientEspaceClientBoutiqueRouteImport
       parentRoute: typeof EspaceClientRoute
     }
+    '/_espace-client/espace-client/mes-demandes': {
+      id: '/_espace-client/espace-client/mes-demandes'
+      path: '/espace-client/mes-demandes'
+      fullPath: '/espace-client/mes-demandes'
+      preLoaderRoute: typeof EspaceClientEspaceClientMesDemandesRouteImport
+      parentRoute: typeof EspaceClientRoute
+    }
+    '/_espace-client/espace-client/mon-compte': {
+      id: '/_espace-client/espace-client/mon-compte'
+      path: '/espace-client/mon-compte'
+      fullPath: '/espace-client/mon-compte'
+      preLoaderRoute: typeof EspaceClientEspaceClientMonCompteRouteImport
+      parentRoute: typeof EspaceClientRoute
+    }
+    '/_espace-client/espace-client/panier': {
+      id: '/_espace-client/espace-client/panier'
+      path: '/espace-client/panier'
+      fullPath: '/espace-client/panier'
+      preLoaderRoute: typeof EspaceClientEspaceClientPanierRouteImport
+      parentRoute: typeof EspaceClientRoute
+    }
     '/_espace-client/espace-client/residence': {
       id: '/_espace-client/espace-client/residence'
       path: '/espace-client/residence'
@@ -1272,6 +1345,13 @@ declare module '@tanstack/react-router' {
       path: '/espace-client/salle-fete'
       fullPath: '/espace-client/salle-fete'
       preLoaderRoute: typeof EspaceClientEspaceClientSalleFeteRouteImport
+      parentRoute: typeof EspaceClientRoute
+    }
+    '/_espace-client/espace-client/signalement': {
+      id: '/_espace-client/espace-client/signalement'
+      path: '/espace-client/signalement'
+      fullPath: '/espace-client/signalement'
+      preLoaderRoute: typeof EspaceClientEspaceClientSignalementRouteImport
       parentRoute: typeof EspaceClientRoute
     }
     '/_authenticated/admin/journal/': {
@@ -1942,9 +2022,13 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
 
 interface EspaceClientRouteChildren {
   EspaceClientEspaceClientBoutiqueRoute: typeof EspaceClientEspaceClientBoutiqueRoute
+  EspaceClientEspaceClientMesDemandesRoute: typeof EspaceClientEspaceClientMesDemandesRoute
+  EspaceClientEspaceClientMonCompteRoute: typeof EspaceClientEspaceClientMonCompteRoute
+  EspaceClientEspaceClientPanierRoute: typeof EspaceClientEspaceClientPanierRoute
   EspaceClientEspaceClientResidenceRoute: typeof EspaceClientEspaceClientResidenceRoute
   EspaceClientEspaceClientRestaurantRoute: typeof EspaceClientEspaceClientRestaurantRoute
   EspaceClientEspaceClientSalleFeteRoute: typeof EspaceClientEspaceClientSalleFeteRoute
+  EspaceClientEspaceClientSignalementRoute: typeof EspaceClientEspaceClientSignalementRoute
   EspaceClientEspaceClientIndexRoute: typeof EspaceClientEspaceClientIndexRoute
   EspaceClientEspaceClientPressingIdRoute: typeof EspaceClientEspaceClientPressingIdRoute
   EspaceClientEspaceClientPressingIndexRoute: typeof EspaceClientEspaceClientPressingIndexRoute
@@ -1952,12 +2036,19 @@ interface EspaceClientRouteChildren {
 
 const EspaceClientRouteChildren: EspaceClientRouteChildren = {
   EspaceClientEspaceClientBoutiqueRoute: EspaceClientEspaceClientBoutiqueRoute,
+  EspaceClientEspaceClientMesDemandesRoute:
+    EspaceClientEspaceClientMesDemandesRoute,
+  EspaceClientEspaceClientMonCompteRoute:
+    EspaceClientEspaceClientMonCompteRoute,
+  EspaceClientEspaceClientPanierRoute: EspaceClientEspaceClientPanierRoute,
   EspaceClientEspaceClientResidenceRoute:
     EspaceClientEspaceClientResidenceRoute,
   EspaceClientEspaceClientRestaurantRoute:
     EspaceClientEspaceClientRestaurantRoute,
   EspaceClientEspaceClientSalleFeteRoute:
     EspaceClientEspaceClientSalleFeteRoute,
+  EspaceClientEspaceClientSignalementRoute:
+    EspaceClientEspaceClientSignalementRoute,
   EspaceClientEspaceClientIndexRoute: EspaceClientEspaceClientIndexRoute,
   EspaceClientEspaceClientPressingIdRoute:
     EspaceClientEspaceClientPressingIdRoute,
