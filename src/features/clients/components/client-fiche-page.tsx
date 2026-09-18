@@ -92,6 +92,10 @@ function PiecePhotosDialog({
 	useEffect(() => {
 		if (!piece) return;
 
+		// URLs créées pendant l'effet — le cleanup les révoque toutes (les
+		// states ne sont pas lisibles ici : ils seraient capturés avant le fetch).
+		const createdUrls: string[] = [];
+
 		const loadPhotos = async () => {
 			if (piece.copie_num) {
 				setLoadingRecto(true);
@@ -99,6 +103,7 @@ function PiecePhotosDialog({
 					const blob = await downloadUploadedFile(piece.copie_num);
 					if (blob) {
 						const url = URL.createObjectURL(blob);
+						createdUrls.push(url);
 						setRectoUrl(url);
 					}
 				} catch (error) {
@@ -114,6 +119,7 @@ function PiecePhotosDialog({
 					const blob = await downloadUploadedFile(piece.copie_num_verso);
 					if (blob) {
 						const url = URL.createObjectURL(blob);
+						createdUrls.push(url);
 						setVersoUrl(url);
 					}
 				} catch (error) {
@@ -127,8 +133,7 @@ function PiecePhotosDialog({
 		loadPhotos();
 
 		return () => {
-			if (rectoUrl) URL.revokeObjectURL(rectoUrl);
-			if (versoUrl) URL.revokeObjectURL(versoUrl);
+			for (const url of createdUrls) URL.revokeObjectURL(url);
 		};
 	}, [piece]);
 
