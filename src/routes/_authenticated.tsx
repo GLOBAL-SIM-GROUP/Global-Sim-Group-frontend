@@ -12,6 +12,13 @@ import { hasSessionHint, requireAuth } from "#/core/auth";
  * page de login, publique, accède à la session via le contexte route.
  * `NotificationsProvider` est monté juste après : le socket temps réel ne se
  * connecte que pour une session authentifiée.
+ *
+ * Un compte rôle CLIENT qui atterrit ici (ex. lien `/home` codé en dur avant
+ * l'existence de l'espace client) est renvoyé vers `/espace-client` — garde
+ * réciproque de celle de `_espace-client.tsx`. Sur le premier rendu SSR
+ * optimiste (indice de session, `user` pas encore restauré), ce contrôle ne
+ * peut pas s'appliquer ; il s'exécute pour de vrai après `router.invalidate()`
+ * (cf. `AuthenticatedLayout`), comme le reste de cette garde.
  */
 export const Route = createFileRoute("/_authenticated")({
 	beforeLoad: async ({ context, location }) => {
@@ -34,6 +41,9 @@ export const Route = createFileRoute("/_authenticated")({
 			});
 		}
 		requireAuth(context.auth);
+		if (context.auth.user?.role === "CLIENT") {
+			throw redirect({ to: "/espace-client" });
+		}
 	},
 	component: AuthenticatedLayout,
 });

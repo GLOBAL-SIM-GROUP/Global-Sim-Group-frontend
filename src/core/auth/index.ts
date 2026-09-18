@@ -20,3 +20,4 @@ export {
 	type StoredTokens,
 	type TokenStorage,
 } from "./token-store";
+export { useSessionBootstrap } from "./use-session-bootstrap";

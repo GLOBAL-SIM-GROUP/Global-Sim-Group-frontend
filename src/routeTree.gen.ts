@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
+import { Route as EspaceClientRouteImport } from './routes/_espace-client'
 import { Route as InscriptionRouteImport } from './routes/inscription'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as MotDePasseOublieRouteImport } from './routes/mot-de-passe-oublie'
@@ -23,6 +24,11 @@ import { Route as AuthenticatedDashboardIndexRouteImport } from './routes/_authe
 import { Route as AuthenticatedRapportsIndexRouteImport } from './routes/_authenticated/rapports/index'
 import { Route as AuthenticatedSignalementsIndexRouteImport } from './routes/_authenticated/signalements/index'
 import { Route as AuthenticatedSignalementsIdRouteImport } from './routes/_authenticated/signalements/$id'
+import { Route as EspaceClientEspaceClientIndexRouteImport } from './routes/_espace-client/espace-client/index'
+import { Route as EspaceClientEspaceClientBoutiqueRouteImport } from './routes/_espace-client/espace-client/boutique'
+import { Route as EspaceClientEspaceClientResidenceRouteImport } from './routes/_espace-client/espace-client/residence'
+import { Route as EspaceClientEspaceClientRestaurantRouteImport } from './routes/_espace-client/espace-client/restaurant'
+import { Route as EspaceClientEspaceClientSalleFeteRouteImport } from './routes/_espace-client/espace-client/salle-fete'
 import { Route as AuthenticatedAdminJournalIndexRouteImport } from './routes/_authenticated/admin/journal/index'
 import { Route as AuthenticatedAdminRolesIndexRouteImport } from './routes/_authenticated/admin/roles/index'
 import { Route as AuthenticatedAdminSauvegardesIndexRouteImport } from './routes/_authenticated/admin/sauvegardes/index'
@@ -48,6 +54,7 @@ import { Route as AuthenticatedMarchandiseStatistiquesIndexRouteImport } from '.
 import { Route as AuthenticatedMarchandiseVentesIndexRouteImport } from './routes/_authenticated/marchandise/ventes/index'
 import { Route as AuthenticatedPressingCommandesIndexRouteImport } from './routes/_authenticated/pressing/commandes/index'
 import { Route as AuthenticatedPressingCommandesIdRouteImport } from './routes/_authenticated/pressing/commandes/$id'
+import { Route as AuthenticatedPressingTarifKgIndexRouteImport } from './routes/_authenticated/pressing/tarif-kg/index'
 import { Route as AuthenticatedRapportsActivitesCodeRouteImport } from './routes/_authenticated/rapports/activites/$code'
 import { Route as AuthenticatedRapportsFinancierIndexRouteImport } from './routes/_authenticated/rapports/financier/index'
 import { Route as AuthenticatedRapportsRhIndexRouteImport } from './routes/_authenticated/rapports/rh/index'
@@ -77,6 +84,8 @@ import { Route as AuthenticatedRhPointageIndexRouteImport } from './routes/_auth
 import { Route as AuthenticatedSalleFeteCalendrierIndexRouteImport } from './routes/_authenticated/salle-fete/calendrier/index'
 import { Route as AuthenticatedSalleFeteReservationsIndexRouteImport } from './routes/_authenticated/salle-fete/reservations/index'
 import { Route as AuthenticatedSalleFeteReservationsIdRouteImport } from './routes/_authenticated/salle-fete/reservations/$id'
+import { Route as EspaceClientEspaceClientPressingIndexRouteImport } from './routes/_espace-client/espace-client/pressing/index'
+import { Route as EspaceClientEspaceClientPressingIdRouteImport } from './routes/_espace-client/espace-client/pressing/$id'
 import { Route as AuthenticatedFinancesCaissesIdDashboardRouteImport } from './routes/_authenticated/finances/caisses/$id/dashboard'
 import { Route as AuthenticatedResidencePortailCautionIndexRouteImport } from './routes/_authenticated/residence/portail/caution/index'
 import { Route as AuthenticatedResidencePortailEcheancesIndexRouteImport } from './routes/_authenticated/residence/portail/echeances/index'
@@ -94,6 +103,10 @@ const IndexRoute = IndexRouteImport.update({
 } as any)
 const AuthenticatedRoute = AuthenticatedRouteImport.update({
   id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EspaceClientRoute = EspaceClientRouteImport.update({
+  id: '/_espace-client',
   getParentRoute: () => rootRouteImport,
 } as any)
 const InscriptionRoute = InscriptionRouteImport.update({
@@ -159,6 +172,36 @@ const AuthenticatedSignalementsIdRoute =
     id: '/signalements/$id',
     path: '/signalements/$id',
     getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const EspaceClientEspaceClientIndexRoute =
+  EspaceClientEspaceClientIndexRouteImport.update({
+    id: '/espace-client/',
+    path: '/espace-client/',
+    getParentRoute: () => EspaceClientRoute,
+  } as any)
+const EspaceClientEspaceClientBoutiqueRoute =
+  EspaceClientEspaceClientBoutiqueRouteImport.update({
+    id: '/espace-client/boutique',
+    path: '/espace-client/boutique',
+    getParentRoute: () => EspaceClientRoute,
+  } as any)
+const EspaceClientEspaceClientResidenceRoute =
+  EspaceClientEspaceClientResidenceRouteImport.update({
+    id: '/espace-client/residence',
+    path: '/espace-client/residence',
+    getParentRoute: () => EspaceClientRoute,
+  } as any)
+const EspaceClientEspaceClientRestaurantRoute =
+  EspaceClientEspaceClientRestaurantRouteImport.update({
+    id: '/espace-client/restaurant',
+    path: '/espace-client/restaurant',
+    getParentRoute: () => EspaceClientRoute,
+  } as any)
+const EspaceClientEspaceClientSalleFeteRoute =
+  EspaceClientEspaceClientSalleFeteRouteImport.update({
+    id: '/espace-client/salle-fete',
+    path: '/espace-client/salle-fete',
+    getParentRoute: () => EspaceClientRoute,
   } as any)
 const AuthenticatedAdminJournalIndexRoute =
   AuthenticatedAdminJournalIndexRouteImport.update({
@@ -308,6 +351,12 @@ const AuthenticatedPressingCommandesIdRoute =
   AuthenticatedPressingCommandesIdRouteImport.update({
     id: '/pressing/commandes/$id',
     path: '/pressing/commandes/$id',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedPressingTarifKgIndexRoute =
+  AuthenticatedPressingTarifKgIndexRouteImport.update({
+    id: '/pressing/tarif-kg/',
+    path: '/pressing/tarif-kg/',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedRapportsActivitesCodeRoute =
@@ -484,6 +533,18 @@ const AuthenticatedSalleFeteReservationsIdRoute =
     path: '/salle-fete/reservations/$id',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const EspaceClientEspaceClientPressingIndexRoute =
+  EspaceClientEspaceClientPressingIndexRouteImport.update({
+    id: '/espace-client/pressing/',
+    path: '/espace-client/pressing/',
+    getParentRoute: () => EspaceClientRoute,
+  } as any)
+const EspaceClientEspaceClientPressingIdRoute =
+  EspaceClientEspaceClientPressingIdRouteImport.update({
+    id: '/espace-client/pressing/$id',
+    path: '/espace-client/pressing/$id',
+    getParentRoute: () => EspaceClientRoute,
+  } as any)
 const AuthenticatedFinancesCaissesIdDashboardRoute =
   AuthenticatedFinancesCaissesIdDashboardRouteImport.update({
     id: '/finances/caisses/$id/dashboard',
@@ -550,9 +611,14 @@ export interface FileRoutesByFullPath {
   '/marchandise/produits': typeof MarchandiseProduitsRoute
   '/restaurant/plats': typeof RestaurantPlatsRoute
   '/signalements/$id': typeof AuthenticatedSignalementsIdRoute
+  '/espace-client/boutique': typeof EspaceClientEspaceClientBoutiqueRoute
+  '/espace-client/residence': typeof EspaceClientEspaceClientResidenceRoute
+  '/espace-client/restaurant': typeof EspaceClientEspaceClientRestaurantRoute
+  '/espace-client/salle-fete': typeof EspaceClientEspaceClientSalleFeteRoute
   '/dashboard/': typeof AuthenticatedDashboardIndexRoute
   '/rapports/': typeof AuthenticatedRapportsIndexRoute
   '/signalements/': typeof AuthenticatedSignalementsIndexRoute
+  '/espace-client/': typeof EspaceClientEspaceClientIndexRoute
   '/client/clients/$id': typeof AuthenticatedClientClientsIdRoute
   '/facturation/factures/$id': typeof AuthenticatedFacturationFacturesIdRoute
   '/finances/caissier/dashboard': typeof AuthenticatedFinancesCaissierDashboardRoute
@@ -564,6 +630,7 @@ export interface FileRoutesByFullPath {
   '/rh/bulletins/$id': typeof AuthenticatedRhBulletinsIdRoute
   '/rh/employes/$id': typeof AuthenticatedRhEmployesIdRoute
   '/salle-fete/reservations/$id': typeof AuthenticatedSalleFeteReservationsIdRoute
+  '/espace-client/pressing/$id': typeof EspaceClientEspaceClientPressingIdRoute
   '/admin/journal/': typeof AuthenticatedAdminJournalIndexRoute
   '/admin/roles/': typeof AuthenticatedAdminRolesIndexRoute
   '/admin/sauvegardes/': typeof AuthenticatedAdminSauvegardesIndexRoute
@@ -585,6 +652,7 @@ export interface FileRoutesByFullPath {
   '/marchandise/statistiques/': typeof AuthenticatedMarchandiseStatistiquesIndexRoute
   '/marchandise/ventes/': typeof AuthenticatedMarchandiseVentesIndexRoute
   '/pressing/commandes/': typeof AuthenticatedPressingCommandesIndexRoute
+  '/pressing/tarif-kg/': typeof AuthenticatedPressingTarifKgIndexRoute
   '/rapports/financier/': typeof AuthenticatedRapportsFinancierIndexRoute
   '/rapports/rh/': typeof AuthenticatedRapportsRhIndexRoute
   '/rapports/synthese-globale/': typeof AuthenticatedRapportsSyntheseGlobaleIndexRoute
@@ -607,6 +675,7 @@ export interface FileRoutesByFullPath {
   '/rh/pointage/': typeof AuthenticatedRhPointageIndexRoute
   '/salle-fete/calendrier/': typeof AuthenticatedSalleFeteCalendrierIndexRoute
   '/salle-fete/reservations/': typeof AuthenticatedSalleFeteReservationsIndexRoute
+  '/espace-client/pressing/': typeof EspaceClientEspaceClientPressingIndexRoute
   '/finances/caisses/$id/dashboard': typeof AuthenticatedFinancesCaissesIdDashboardRoute
   '/residence/portail/pressing/$id': typeof AuthenticatedResidencePortailPressingIdRoute
   '/residence/portail/caution/': typeof AuthenticatedResidencePortailCautionIndexRoute
@@ -628,9 +697,14 @@ export interface FileRoutesByTo {
   '/marchandise/produits': typeof AuthenticatedMarchandiseProduitsIndexRoute
   '/restaurant/plats': typeof AuthenticatedRestaurantPlatsIndexRoute
   '/signalements/$id': typeof AuthenticatedSignalementsIdRoute
+  '/espace-client/boutique': typeof EspaceClientEspaceClientBoutiqueRoute
+  '/espace-client/residence': typeof EspaceClientEspaceClientResidenceRoute
+  '/espace-client/restaurant': typeof EspaceClientEspaceClientRestaurantRoute
+  '/espace-client/salle-fete': typeof EspaceClientEspaceClientSalleFeteRoute
   '/dashboard': typeof AuthenticatedDashboardIndexRoute
   '/rapports': typeof AuthenticatedRapportsIndexRoute
   '/signalements': typeof AuthenticatedSignalementsIndexRoute
+  '/espace-client': typeof EspaceClientEspaceClientIndexRoute
   '/client/clients/$id': typeof AuthenticatedClientClientsIdRoute
   '/facturation/factures/$id': typeof AuthenticatedFacturationFacturesIdRoute
   '/finances/caissier/dashboard': typeof AuthenticatedFinancesCaissierDashboardRoute
@@ -642,6 +716,7 @@ export interface FileRoutesByTo {
   '/rh/bulletins/$id': typeof AuthenticatedRhBulletinsIdRoute
   '/rh/employes/$id': typeof AuthenticatedRhEmployesIdRoute
   '/salle-fete/reservations/$id': typeof AuthenticatedSalleFeteReservationsIdRoute
+  '/espace-client/pressing/$id': typeof EspaceClientEspaceClientPressingIdRoute
   '/admin/journal': typeof AuthenticatedAdminJournalIndexRoute
   '/admin/roles': typeof AuthenticatedAdminRolesIndexRoute
   '/admin/sauvegardes': typeof AuthenticatedAdminSauvegardesIndexRoute
@@ -662,6 +737,7 @@ export interface FileRoutesByTo {
   '/marchandise/statistiques': typeof AuthenticatedMarchandiseStatistiquesIndexRoute
   '/marchandise/ventes': typeof AuthenticatedMarchandiseVentesIndexRoute
   '/pressing/commandes': typeof AuthenticatedPressingCommandesIndexRoute
+  '/pressing/tarif-kg': typeof AuthenticatedPressingTarifKgIndexRoute
   '/rapports/financier': typeof AuthenticatedRapportsFinancierIndexRoute
   '/rapports/rh': typeof AuthenticatedRapportsRhIndexRoute
   '/rapports/synthese-globale': typeof AuthenticatedRapportsSyntheseGlobaleIndexRoute
@@ -683,6 +759,7 @@ export interface FileRoutesByTo {
   '/rh/pointage': typeof AuthenticatedRhPointageIndexRoute
   '/salle-fete/calendrier': typeof AuthenticatedSalleFeteCalendrierIndexRoute
   '/salle-fete/reservations': typeof AuthenticatedSalleFeteReservationsIndexRoute
+  '/espace-client/pressing': typeof EspaceClientEspaceClientPressingIndexRoute
   '/finances/caisses/$id/dashboard': typeof AuthenticatedFinancesCaissesIdDashboardRoute
   '/residence/portail/pressing/$id': typeof AuthenticatedResidencePortailPressingIdRoute
   '/residence/portail/caution': typeof AuthenticatedResidencePortailCautionIndexRoute
@@ -697,6 +774,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteWithChildren
+  '/_espace-client': typeof EspaceClientRouteWithChildren
   '/inscription': typeof InscriptionRoute
   '/login': typeof LoginRoute
   '/mot-de-passe-oublie': typeof MotDePasseOublieRoute
@@ -706,9 +784,14 @@ export interface FileRoutesById {
   '/marchandise/produits': typeof MarchandiseProduitsRoute
   '/restaurant/plats': typeof RestaurantPlatsRoute
   '/_authenticated/signalements/$id': typeof AuthenticatedSignalementsIdRoute
+  '/_espace-client/espace-client/boutique': typeof EspaceClientEspaceClientBoutiqueRoute
+  '/_espace-client/espace-client/residence': typeof EspaceClientEspaceClientResidenceRoute
+  '/_espace-client/espace-client/restaurant': typeof EspaceClientEspaceClientRestaurantRoute
+  '/_espace-client/espace-client/salle-fete': typeof EspaceClientEspaceClientSalleFeteRoute
   '/_authenticated/dashboard/': typeof AuthenticatedDashboardIndexRoute
   '/_authenticated/rapports/': typeof AuthenticatedRapportsIndexRoute
   '/_authenticated/signalements/': typeof AuthenticatedSignalementsIndexRoute
+  '/_espace-client/espace-client/': typeof EspaceClientEspaceClientIndexRoute
   '/_authenticated/client/clients/$id': typeof AuthenticatedClientClientsIdRoute
   '/_authenticated/facturation/factures/$id': typeof AuthenticatedFacturationFacturesIdRoute
   '/_authenticated/finances/caissier/dashboard': typeof AuthenticatedFinancesCaissierDashboardRoute
@@ -720,6 +803,7 @@ export interface FileRoutesById {
   '/_authenticated/rh/bulletins/$id': typeof AuthenticatedRhBulletinsIdRoute
   '/_authenticated/rh/employes/$id': typeof AuthenticatedRhEmployesIdRoute
   '/_authenticated/salle-fete/reservations/$id': typeof AuthenticatedSalleFeteReservationsIdRoute
+  '/_espace-client/espace-client/pressing/$id': typeof EspaceClientEspaceClientPressingIdRoute
   '/_authenticated/admin/journal/': typeof AuthenticatedAdminJournalIndexRoute
   '/_authenticated/admin/roles/': typeof AuthenticatedAdminRolesIndexRoute
   '/_authenticated/admin/sauvegardes/': typeof AuthenticatedAdminSauvegardesIndexRoute
@@ -741,6 +825,7 @@ export interface FileRoutesById {
   '/_authenticated/marchandise/statistiques/': typeof AuthenticatedMarchandiseStatistiquesIndexRoute
   '/_authenticated/marchandise/ventes/': typeof AuthenticatedMarchandiseVentesIndexRoute
   '/_authenticated/pressing/commandes/': typeof AuthenticatedPressingCommandesIndexRoute
+  '/_authenticated/pressing/tarif-kg/': typeof AuthenticatedPressingTarifKgIndexRoute
   '/_authenticated/rapports/financier/': typeof AuthenticatedRapportsFinancierIndexRoute
   '/_authenticated/rapports/rh/': typeof AuthenticatedRapportsRhIndexRoute
   '/_authenticated/rapports/synthese-globale/': typeof AuthenticatedRapportsSyntheseGlobaleIndexRoute
@@ -763,6 +848,7 @@ export interface FileRoutesById {
   '/_authenticated/rh/pointage/': typeof AuthenticatedRhPointageIndexRoute
   '/_authenticated/salle-fete/calendrier/': typeof AuthenticatedSalleFeteCalendrierIndexRoute
   '/_authenticated/salle-fete/reservations/': typeof AuthenticatedSalleFeteReservationsIndexRoute
+  '/_espace-client/espace-client/pressing/': typeof EspaceClientEspaceClientPressingIndexRoute
   '/_authenticated/finances/caisses/$id/dashboard': typeof AuthenticatedFinancesCaissesIdDashboardRoute
   '/_authenticated/residence/portail/pressing/$id': typeof AuthenticatedResidencePortailPressingIdRoute
   '/_authenticated/residence/portail/caution/': typeof AuthenticatedResidencePortailCautionIndexRoute
@@ -786,9 +872,14 @@ export interface FileRouteTypes {
     | '/marchandise/produits'
     | '/restaurant/plats'
     | '/signalements/$id'
+    | '/espace-client/boutique'
+    | '/espace-client/residence'
+    | '/espace-client/restaurant'
+    | '/espace-client/salle-fete'
     | '/dashboard/'
     | '/rapports/'
     | '/signalements/'
+    | '/espace-client/'
     | '/client/clients/$id'
     | '/facturation/factures/$id'
     | '/finances/caissier/dashboard'
@@ -800,6 +891,7 @@ export interface FileRouteTypes {
     | '/rh/bulletins/$id'
     | '/rh/employes/$id'
     | '/salle-fete/reservations/$id'
+    | '/espace-client/pressing/$id'
     | '/admin/journal/'
     | '/admin/roles/'
     | '/admin/sauvegardes/'
@@ -821,6 +913,7 @@ export interface FileRouteTypes {
     | '/marchandise/statistiques/'
     | '/marchandise/ventes/'
     | '/pressing/commandes/'
+    | '/pressing/tarif-kg/'
     | '/rapports/financier/'
     | '/rapports/rh/'
     | '/rapports/synthese-globale/'
@@ -843,6 +936,7 @@ export interface FileRouteTypes {
     | '/rh/pointage/'
     | '/salle-fete/calendrier/'
     | '/salle-fete/reservations/'
+    | '/espace-client/pressing/'
     | '/finances/caisses/$id/dashboard'
     | '/residence/portail/pressing/$id'
     | '/residence/portail/caution/'
@@ -864,9 +958,14 @@ export interface FileRouteTypes {
     | '/marchandise/produits'
     | '/restaurant/plats'
     | '/signalements/$id'
+    | '/espace-client/boutique'
+    | '/espace-client/residence'
+    | '/espace-client/restaurant'
+    | '/espace-client/salle-fete'
     | '/dashboard'
     | '/rapports'
     | '/signalements'
+    | '/espace-client'
     | '/client/clients/$id'
     | '/facturation/factures/$id'
     | '/finances/caissier/dashboard'
@@ -878,6 +977,7 @@ export interface FileRouteTypes {
     | '/rh/bulletins/$id'
     | '/rh/employes/$id'
     | '/salle-fete/reservations/$id'
+    | '/espace-client/pressing/$id'
     | '/admin/journal'
     | '/admin/roles'
     | '/admin/sauvegardes'
@@ -898,6 +998,7 @@ export interface FileRouteTypes {
     | '/marchandise/statistiques'
     | '/marchandise/ventes'
     | '/pressing/commandes'
+    | '/pressing/tarif-kg'
     | '/rapports/financier'
     | '/rapports/rh'
     | '/rapports/synthese-globale'
@@ -919,6 +1020,7 @@ export interface FileRouteTypes {
     | '/rh/pointage'
     | '/salle-fete/calendrier'
     | '/salle-fete/reservations'
+    | '/espace-client/pressing'
     | '/finances/caisses/$id/dashboard'
     | '/residence/portail/pressing/$id'
     | '/residence/portail/caution'
@@ -932,6 +1034,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_authenticated'
+    | '/_espace-client'
     | '/inscription'
     | '/login'
     | '/mot-de-passe-oublie'
@@ -941,9 +1044,14 @@ export interface FileRouteTypes {
     | '/marchandise/produits'
     | '/restaurant/plats'
     | '/_authenticated/signalements/$id'
+    | '/_espace-client/espace-client/boutique'
+    | '/_espace-client/espace-client/residence'
+    | '/_espace-client/espace-client/restaurant'
+    | '/_espace-client/espace-client/salle-fete'
     | '/_authenticated/dashboard/'
     | '/_authenticated/rapports/'
     | '/_authenticated/signalements/'
+    | '/_espace-client/espace-client/'
     | '/_authenticated/client/clients/$id'
     | '/_authenticated/facturation/factures/$id'
     | '/_authenticated/finances/caissier/dashboard'
@@ -955,6 +1063,7 @@ export interface FileRouteTypes {
     | '/_authenticated/rh/bulletins/$id'
     | '/_authenticated/rh/employes/$id'
     | '/_authenticated/salle-fete/reservations/$id'
+    | '/_espace-client/espace-client/pressing/$id'
     | '/_authenticated/admin/journal/'
     | '/_authenticated/admin/roles/'
     | '/_authenticated/admin/sauvegardes/'
@@ -976,6 +1085,7 @@ export interface FileRouteTypes {
     | '/_authenticated/marchandise/statistiques/'
     | '/_authenticated/marchandise/ventes/'
     | '/_authenticated/pressing/commandes/'
+    | '/_authenticated/pressing/tarif-kg/'
     | '/_authenticated/rapports/financier/'
     | '/_authenticated/rapports/rh/'
     | '/_authenticated/rapports/synthese-globale/'
@@ -998,6 +1108,7 @@ export interface FileRouteTypes {
     | '/_authenticated/rh/pointage/'
     | '/_authenticated/salle-fete/calendrier/'
     | '/_authenticated/salle-fete/reservations/'
+    | '/_espace-client/espace-client/pressing/'
     | '/_authenticated/finances/caisses/$id/dashboard'
     | '/_authenticated/residence/portail/pressing/$id'
     | '/_authenticated/residence/portail/caution/'
@@ -1012,6 +1123,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
+  EspaceClientRoute: typeof EspaceClientRouteWithChildren
   InscriptionRoute: typeof InscriptionRoute
   LoginRoute: typeof LoginRoute
   MotDePasseOublieRoute: typeof MotDePasseOublieRoute
@@ -1034,6 +1146,13 @@ declare module '@tanstack/react-router' {
       path: ''
       fullPath: '/'
       preLoaderRoute: typeof AuthenticatedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_espace-client': {
+      id: '/_espace-client'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof EspaceClientRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/inscription': {
@@ -1119,6 +1238,41 @@ declare module '@tanstack/react-router' {
       fullPath: '/signalements/$id'
       preLoaderRoute: typeof AuthenticatedSignalementsIdRouteImport
       parentRoute: typeof AuthenticatedRoute
+    }
+    '/_espace-client/espace-client/': {
+      id: '/_espace-client/espace-client/'
+      path: '/espace-client'
+      fullPath: '/espace-client/'
+      preLoaderRoute: typeof EspaceClientEspaceClientIndexRouteImport
+      parentRoute: typeof EspaceClientRoute
+    }
+    '/_espace-client/espace-client/boutique': {
+      id: '/_espace-client/espace-client/boutique'
+      path: '/espace-client/boutique'
+      fullPath: '/espace-client/boutique'
+      preLoaderRoute: typeof EspaceClientEspaceClientBoutiqueRouteImport
+      parentRoute: typeof EspaceClientRoute
+    }
+    '/_espace-client/espace-client/residence': {
+      id: '/_espace-client/espace-client/residence'
+      path: '/espace-client/residence'
+      fullPath: '/espace-client/residence'
+      preLoaderRoute: typeof EspaceClientEspaceClientResidenceRouteImport
+      parentRoute: typeof EspaceClientRoute
+    }
+    '/_espace-client/espace-client/restaurant': {
+      id: '/_espace-client/espace-client/restaurant'
+      path: '/espace-client/restaurant'
+      fullPath: '/espace-client/restaurant'
+      preLoaderRoute: typeof EspaceClientEspaceClientRestaurantRouteImport
+      parentRoute: typeof EspaceClientRoute
+    }
+    '/_espace-client/espace-client/salle-fete': {
+      id: '/_espace-client/espace-client/salle-fete'
+      path: '/espace-client/salle-fete'
+      fullPath: '/espace-client/salle-fete'
+      preLoaderRoute: typeof EspaceClientEspaceClientSalleFeteRouteImport
+      parentRoute: typeof EspaceClientRoute
     }
     '/_authenticated/admin/journal/': {
       id: '/_authenticated/admin/journal/'
@@ -1293,6 +1447,13 @@ declare module '@tanstack/react-router' {
       path: '/pressing/commandes/$id'
       fullPath: '/pressing/commandes/$id'
       preLoaderRoute: typeof AuthenticatedPressingCommandesIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/pressing/tarif-kg/': {
+      id: '/_authenticated/pressing/tarif-kg/'
+      path: '/pressing/tarif-kg'
+      fullPath: '/pressing/tarif-kg/'
+      preLoaderRoute: typeof AuthenticatedPressingTarifKgIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/rapports/activites/$code': {
@@ -1498,6 +1659,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSalleFeteReservationsIdRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_espace-client/espace-client/pressing/': {
+      id: '/_espace-client/espace-client/pressing/'
+      path: '/espace-client/pressing'
+      fullPath: '/espace-client/pressing/'
+      preLoaderRoute: typeof EspaceClientEspaceClientPressingIndexRouteImport
+      parentRoute: typeof EspaceClientRoute
+    }
+    '/_espace-client/espace-client/pressing/$id': {
+      id: '/_espace-client/espace-client/pressing/$id'
+      path: '/espace-client/pressing/$id'
+      fullPath: '/espace-client/pressing/$id'
+      preLoaderRoute: typeof EspaceClientEspaceClientPressingIdRouteImport
+      parentRoute: typeof EspaceClientRoute
+    }
     '/_authenticated/finances/caisses/$id/dashboard': {
       id: '/_authenticated/finances/caisses/$id/dashboard'
       path: '/finances/caisses/$id/dashboard'
@@ -1603,6 +1778,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedMarchandiseStatistiquesIndexRoute: typeof AuthenticatedMarchandiseStatistiquesIndexRoute
   AuthenticatedMarchandiseVentesIndexRoute: typeof AuthenticatedMarchandiseVentesIndexRoute
   AuthenticatedPressingCommandesIndexRoute: typeof AuthenticatedPressingCommandesIndexRoute
+  AuthenticatedPressingTarifKgIndexRoute: typeof AuthenticatedPressingTarifKgIndexRoute
   AuthenticatedRapportsFinancierIndexRoute: typeof AuthenticatedRapportsFinancierIndexRoute
   AuthenticatedRapportsRhIndexRoute: typeof AuthenticatedRapportsRhIndexRoute
   AuthenticatedRapportsSyntheseGlobaleIndexRoute: typeof AuthenticatedRapportsSyntheseGlobaleIndexRoute
@@ -1699,6 +1875,8 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
     AuthenticatedMarchandiseVentesIndexRoute,
   AuthenticatedPressingCommandesIndexRoute:
     AuthenticatedPressingCommandesIndexRoute,
+  AuthenticatedPressingTarifKgIndexRoute:
+    AuthenticatedPressingTarifKgIndexRoute,
   AuthenticatedRapportsFinancierIndexRoute:
     AuthenticatedRapportsFinancierIndexRoute,
   AuthenticatedRapportsRhIndexRoute: AuthenticatedRapportsRhIndexRoute,
@@ -1762,9 +1940,39 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
   AuthenticatedRouteChildren,
 )
 
+interface EspaceClientRouteChildren {
+  EspaceClientEspaceClientBoutiqueRoute: typeof EspaceClientEspaceClientBoutiqueRoute
+  EspaceClientEspaceClientResidenceRoute: typeof EspaceClientEspaceClientResidenceRoute
+  EspaceClientEspaceClientRestaurantRoute: typeof EspaceClientEspaceClientRestaurantRoute
+  EspaceClientEspaceClientSalleFeteRoute: typeof EspaceClientEspaceClientSalleFeteRoute
+  EspaceClientEspaceClientIndexRoute: typeof EspaceClientEspaceClientIndexRoute
+  EspaceClientEspaceClientPressingIdRoute: typeof EspaceClientEspaceClientPressingIdRoute
+  EspaceClientEspaceClientPressingIndexRoute: typeof EspaceClientEspaceClientPressingIndexRoute
+}
+
+const EspaceClientRouteChildren: EspaceClientRouteChildren = {
+  EspaceClientEspaceClientBoutiqueRoute: EspaceClientEspaceClientBoutiqueRoute,
+  EspaceClientEspaceClientResidenceRoute:
+    EspaceClientEspaceClientResidenceRoute,
+  EspaceClientEspaceClientRestaurantRoute:
+    EspaceClientEspaceClientRestaurantRoute,
+  EspaceClientEspaceClientSalleFeteRoute:
+    EspaceClientEspaceClientSalleFeteRoute,
+  EspaceClientEspaceClientIndexRoute: EspaceClientEspaceClientIndexRoute,
+  EspaceClientEspaceClientPressingIdRoute:
+    EspaceClientEspaceClientPressingIdRoute,
+  EspaceClientEspaceClientPressingIndexRoute:
+    EspaceClientEspaceClientPressingIndexRoute,
+}
+
+const EspaceClientRouteWithChildren = EspaceClientRoute._addFileChildren(
+  EspaceClientRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
+  EspaceClientRoute: EspaceClientRouteWithChildren,
   InscriptionRoute: InscriptionRoute,
   LoginRoute: LoginRoute,
   MotDePasseOublieRoute: MotDePasseOublieRoute,
