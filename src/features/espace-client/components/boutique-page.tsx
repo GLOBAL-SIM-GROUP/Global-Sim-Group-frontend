@@ -14,11 +14,11 @@ import {
 } from "#/features/marchandise/models/produits";
 
 import { usePanierArticles } from "../hooks/use-panier-articles";
+import { CLE_PANIER_BOUTIQUE } from "../models/panier-articles";
 import { PanierBar } from "./panier-bar";
 import { ProduitCarte } from "./produit-carte";
 
 const TOUTES_CATEGORIES = "tous";
-const CLE_STOCKAGE = "espace-client.panier.boutique";
 
 function imageDuProduit(produit: Produit): string | null {
 	return produit.image_url ? produitImagePublicUrl(produit.id) : null;
@@ -39,7 +39,7 @@ export function BoutiquePage() {
 	);
 	// Panier indépendant de celui du restaurant (clé de stockage dédiée) :
 	// pas de panier partagé entre services.
-	const panier = usePanierArticles(CLE_STOCKAGE);
+	const panier = usePanierArticles(CLE_PANIER_BOUTIQUE);
 
 	const produitsActifs = useMemo(
 		() =>
@@ -126,7 +126,7 @@ export function BoutiquePage() {
 						Aucun produit disponible dans cette catégorie.
 					</p>
 				) : (
-					<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+					<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
 						{produitsAffiches.map((produit) => (
 							<ProduitCarte
 								key={produit.id}

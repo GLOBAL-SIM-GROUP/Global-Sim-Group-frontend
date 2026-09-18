@@ -2,6 +2,9 @@ import { useCallback, useEffect, useState } from "react";
 
 import {
 	type ArticleSelectionnable,
+	CLE_PANIER_BOUTIQUE,
+	CLE_PANIER_RESTAURANT,
+	EVENEMENT_PANIER_MAJ,
 	type LigneArticlePanier,
 	ligneDepuisArticle,
 	nombreArticlesPanier,
@@ -40,6 +43,7 @@ export function usePanierArticles(cleStockage: string) {
 			// Stockage indisponible (navigation privée, quota) : le panier reste
 			// utilisable pour la session en cours, juste pas persisté.
 		}
+		window.dispatchEvent(new Event(EVENEMENT_PANIER_MAJ));
 	}, [cleStockage, lignes]);
 
 	const ajouter = useCallback(
@@ -79,4 +83,31 @@ export function usePanierArticles(cleStockage: string) {
 		total: totalPanier(lignes),
 		nombreArticles: nombreArticlesPanier(lignes),
 	};
+}
+
+/**
+ * Nombre total d'articles dans les paniers de tous les services (restaurant +
+ * boutique) — pour le badge « panier » de la navbar. Relit `localStorage` à
+ * chaque `EVENEMENT_PANIER_MAJ` (écriture dans cet onglet) et `storage`
+ * (autres onglets).
+ */
+export function useNombreArticlesPaniers(): number {
+	const [nombre, setNombre] = useState(0);
+
+	useEffect(() => {
+		const relire = () =>
+			setNombre(
+				nombreArticlesPanier(lireStockage(CLE_PANIER_RESTAURANT)) +
+					nombreArticlesPanier(lireStockage(CLE_PANIER_BOUTIQUE)),
+			);
+		relire();
+		window.addEventListener(EVENEMENT_PANIER_MAJ, relire);
+		window.addEventListener("storage", relire);
+		return () => {
+			window.removeEventListener(EVENEMENT_PANIER_MAJ, relire);
+			window.removeEventListener("storage", relire);
+		};
+	}, []);
+
+	return nombre;
 }

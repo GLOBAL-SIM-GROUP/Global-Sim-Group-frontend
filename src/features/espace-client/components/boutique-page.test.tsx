@@ -84,6 +84,26 @@ vi.mock("#/features/marchandise/api/produits", () => ({
 	listCategoriesProduits: () => Promise.resolve(categories),
 }));
 
+vi.mock("@tanstack/react-router", async (importOriginal) => {
+	const actual =
+		await importOriginal<typeof import("@tanstack/react-router")>();
+	return {
+		...actual,
+		Link: ({
+			to,
+			children,
+			...props
+		}: {
+			to: string;
+			children?: React.ReactNode;
+		}) => (
+			<a href={to} {...props}>
+				{children}
+			</a>
+		),
+	};
+});
+
 function renderAvecQueryClient(ui: ReactNode) {
 	const queryClient = new QueryClient({
 		defaultOptions: { queries: { retry: false } },

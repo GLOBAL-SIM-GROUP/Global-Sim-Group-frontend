@@ -6,6 +6,20 @@
  * si l'article change (prix, nom) ou disparaît du catalogue pendant qu'il y
  * est.
  */
+/**
+ * Clés localStorage des paniers par service — centralisées pour que la page
+ * Panier récapitule restaurant et boutique sans dupliquer les chaînes.
+ */
+export const CLE_PANIER_RESTAURANT = "espace-client.panier.restaurant";
+export const CLE_PANIER_BOUTIQUE = "espace-client.panier.boutique";
+
+/**
+ * Événement `window` émis à chaque écriture d'un panier : l'événement
+ * `storage` natif ne se déclenche pas dans l'onglet qui modifie
+ * `localStorage`, d'où ce signal maison pour le badge de la navbar.
+ */
+export const EVENEMENT_PANIER_MAJ = "espace-client:panier-maj";
+
 export interface LigneArticlePanier {
 	id: string;
 	nom: string;

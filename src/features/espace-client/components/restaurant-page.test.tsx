@@ -48,6 +48,26 @@ vi.mock("#/features/restaurant/api/plats", () => ({
 	listCategoriesPlats: () => Promise.resolve(categories),
 }));
 
+vi.mock("@tanstack/react-router", async (importOriginal) => {
+	const actual =
+		await importOriginal<typeof import("@tanstack/react-router")>();
+	return {
+		...actual,
+		Link: ({
+			to,
+			children,
+			...props
+		}: {
+			to: string;
+			children?: React.ReactNode;
+		}) => (
+			<a href={to} {...props}>
+				{children}
+			</a>
+		),
+	};
+});
+
 function renderAvecQueryClient(ui: ReactNode) {
 	const queryClient = new QueryClient({
 		defaultOptions: { queries: { retry: false } },
@@ -94,7 +114,7 @@ describe("RestaurantPage", () => {
 			expect(screen.getByText(/1 article · 3\s?500 FCFA/)).toBeInTheDocument(),
 		);
 		expect(
-			screen.getByRole("button", { name: /bientôt disponible/i }),
-		).toBeDisabled();
+			screen.getByRole("link", { name: /voir le panier/i }),
+		).toHaveAttribute("href", "/espace-client/panier");
 	});
 });

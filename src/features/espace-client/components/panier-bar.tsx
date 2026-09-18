@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router";
 import { ShoppingCart } from "lucide-react";
 
 import { Button } from "#/components/ui/button";
@@ -10,9 +11,10 @@ import { formatMontantFCFA } from "#/features/residence/models/format";
  * largeur en bas d'écran sur mobile (pouce), carte flottante en bas à droite
  * sur desktop.
  *
- * Le paiement en ligne n'existe pas encore côté backend pour un compte
- * CLIENT (cf. mémoire `extension-clients-externes`) : le bouton reste
- * désactivé, pas un appel de soumission simulé.
+ * Mène vers `/espace-client/panier` : le paiement en ligne n'existe pas
+ * encore côté backend pour un compte CLIENT (cf. mémoire
+ * `extension-clients-externes`) — la page envoie une demande, pas une
+ * commande réseau.
  */
 export function PanierBar({
 	nombreArticles,
@@ -34,13 +36,11 @@ export function PanierBar({
 					</span>
 				</div>
 				<Button
-					type="button"
+					asChild
 					size="sm"
-					disabled
-					title="Le paiement en ligne arrive prochainement"
-					className="shrink-0 bg-lagoon text-white disabled:opacity-60"
+					className="shrink-0 bg-lagoon text-white hover:bg-lagoon/90"
 				>
-					Bientôt disponible
+					<Link to="/espace-client/panier">Voir le panier</Link>
 				</Button>
 			</div>
 		</div>

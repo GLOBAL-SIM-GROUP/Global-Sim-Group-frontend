@@ -1,9 +1,8 @@
 import type { Plat } from "#/features/restaurant/models/plats";
 
 import type { LignePanier } from "../models/panier";
+import { CLE_PANIER_RESTAURANT } from "../models/panier-articles";
 import { usePanierArticles } from "./use-panier-articles";
-
-const CLE_STOCKAGE = "espace-client.panier.restaurant";
 
 /**
  * Panier du restaurant — adaptateur au-dessus du cœur générique
@@ -13,7 +12,7 @@ const CLE_STOCKAGE = "espace-client.panier.restaurant";
  * directement avec sa propre clé de stockage, sans passer par un adaptateur.
  */
 export function usePanier() {
-	const panier = usePanierArticles(CLE_STOCKAGE);
+	const panier = usePanierArticles(CLE_PANIER_RESTAURANT);
 
 	const lignes: LignePanier[] = panier.lignes.map((ligne) => ({
 		platId: ligne.id,
