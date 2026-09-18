@@ -502,6 +502,15 @@ export function InscriptionPage() {
 									</Link>
 								</p>
 							</form>
+
+							<p className="text-center text-xs">
+								<Link
+									to="/"
+									className="text-muted-foreground hover:text-foreground transition-colors"
+								>
+									← Retour à l'accueil
+								</Link>
+							</p>
 						</div>
 
 						{/* Footer mobile */}

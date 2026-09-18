@@ -444,7 +444,26 @@ export function LoginPage() {
 										</Button>
 									)}
 								</form.Subscribe>
+
+								<p className="text-xs text-center text-muted-foreground pt-2">
+									Pas encore de compte ?{" "}
+									<Link
+										to="/inscription"
+										className="text-lagoon hover:underline font-semibold transition-colors"
+									>
+										Créez-en un
+									</Link>
+								</p>
 							</form>
+
+							<p className="text-center text-xs">
+								<Link
+									to="/"
+									className="text-muted-foreground hover:text-foreground transition-colors"
+								>
+									← Retour à l'accueil
+								</Link>
+							</p>
 						</div>
 
 						{/* Footer mobile */}
