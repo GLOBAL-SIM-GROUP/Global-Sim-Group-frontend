@@ -1,14 +1,24 @@
 import { Link } from "@tanstack/react-router";
+import { useState } from "react";
+
+import { ConditionsUtilisationDialog } from "./conditions-utilisation-dialog";
+import { PolitiqueConfidentialiteDialog } from "./politique-confidentialite-dialog";
 
 export function LandingFooter() {
 	const currentYear = new Date().getFullYear();
+	const [legalOuvert, setLegalOuvert] = useState<
+		"confidentialite" | "conditions" | null
+	>(null);
 
 	return (
-		<footer className="bg-sea-ink text-white py-6 px-2 sm:px-3 lg:px-4">
-			<div className="max-w-7xl mx-auto">
-				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+		<footer
+			id="contact"
+			className="scroll-mt-16 bg-sea-ink px-4 py-5 text-white sm:px-6 lg:px-8"
+		>
+			<div className="mx-auto max-w-7xl">
+				<div className="mb-4 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
 					{/* Company info */}
-					<div className="space-y-2">
+					<div className="space-y-3">
 						<div className="flex items-center gap-2">
 							<img
 								src="/logo.png"
@@ -18,8 +28,8 @@ export function LandingFooter() {
 							<span className="font-bold">GLOBAL SIM GROUP</span>
 						</div>
 						<p className="text-sm text-white/70">
-							Une plateforme complète pour gérer tous vos services en un seul
-							endroit.
+							Résidence, restaurant, pressing, salle de fête et boutique — tous
+							nos services depuis un seul compte.
 						</p>
 					</div>
 
@@ -63,27 +73,39 @@ export function LandingFooter() {
 					</div>
 
 					{/* Services */}
-					<div className="space-y-2">
-						<h3 className="font-semibold">Services</h3>
+					<div className="space-y-3">
+						<h3 className="font-semibold">Nos services</h3>
 						<ul className="space-y-2 text-sm text-white/70">
-							<li>Résidence</li>
-							<li>Boutique</li>
-							<li>Restaurant</li>
-							<li>Finances</li>
+							<li>
+								<a href="#carte" className="transition-colors hover:text-white">
+									Restaurant
+								</a>
+							</li>
+							<li>
+								<a
+									href="#boutique"
+									className="transition-colors hover:text-white"
+								>
+									Boutique
+								</a>
+							</li>
+							<li>Pressing</li>
+							<li>Salle de fête</li>
+							<li>Résidence — séjours courts</li>
 						</ul>
 					</div>
 
 					{/* Contact */}
-					<div className="space-y-2">
+					<div className="space-y-3">
 						<h3 className="font-semibold">Contact</h3>
 						<div className="space-y-2 text-sm text-white/70">
 							<p>
-								Email:{" "}
+								Email :{" "}
 								<a
-									href="mailto:support@global-sim-group.com"
-									className="text-white hover:text-lagoon transition-colors"
+									href="mailto:maitresim4@gmail.com"
+									className="text-white transition-colors hover:text-lagoon"
 								>
-									support@global-sim-group.com
+									maitresim4@gmail.com
 								</a>
 							</p>
 						</div>
@@ -95,24 +117,33 @@ export function LandingFooter() {
 					<div className="flex flex-col sm:flex-row justify-between items-center gap-2 text-sm text-white/70">
 						<p>© {currentYear} GLOBAL SIM GROUP. Tous droits réservés.</p>
 						<div className="flex gap-3">
-							<Link
-								to="/en-cours"
-								search={{ page: "Politique de confidentialité" }}
-								className="hover:text-white transition-colors"
+							<button
+								type="button"
+								onClick={() => setLegalOuvert("confidentialite")}
+								className="transition-colors hover:text-white"
 							>
 								Politique de confidentialité
-							</Link>
-							<Link
-								to="/en-cours"
-								search={{ page: "Conditions d'utilisation" }}
-								className="hover:text-white transition-colors"
+							</button>
+							<button
+								type="button"
+								onClick={() => setLegalOuvert("conditions")}
+								className="transition-colors hover:text-white"
 							>
 								Conditions d'utilisation
-							</Link>
+							</button>
 						</div>
 					</div>
 				</div>
 			</div>
+
+			<PolitiqueConfidentialiteDialog
+				open={legalOuvert === "confidentialite"}
+				onOpenChange={(open) => setLegalOuvert(open ? "confidentialite" : null)}
+			/>
+			<ConditionsUtilisationDialog
+				open={legalOuvert === "conditions"}
+				onOpenChange={(open) => setLegalOuvert(open ? "conditions" : null)}
+			/>
 		</footer>
 	);
 }

@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import type { LucideIcon } from "lucide-react";
 
-import { cn } from "#/lib/utils";
+import { BorderGlow } from "#/components/border-glow";
 
 /**
  * Carte-menu d'un module du lanceur (accueil) : icône, titre, description, et
@@ -36,40 +36,46 @@ function ModuleTile({
 	className,
 }: ModuleTileProps) {
 	return (
-		<div
-			className={cn("flex flex-col rounded-xl border bg-card p-4", className)}
+		<BorderGlow
+			borderRadius={12}
+			glowRadius={24}
+			glowColor="27 90 60"
+			colors={["#E67E22", "#F0954D", "#4A9FD8"]}
+			className={className}
 		>
-			<Icon className="mb-3 size-6 text-lagoon" aria-hidden />
-			<h3 className="text-sm font-semibold text-foreground">{title}</h3>
-			<p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-				{description}
-			</p>
+			<div className="flex h-full flex-col p-4">
+				<Icon className="mb-3 size-6 text-lagoon" aria-hidden />
+				<h3 className="text-sm font-semibold text-foreground">{title}</h3>
+				<p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+					{description}
+				</p>
 
-			<ul className="mt-3 flex-1 space-y-0.5 border-t border-border pt-3">
-				{subItems.length > 0 ? (
-					subItems.map((item) => (
-						<li key={item.id}>
+				<ul className="mt-3 flex-1 space-y-0.5 border-t border-border pt-3">
+					{subItems.length > 0 ? (
+						subItems.map((item) => (
+							<li key={item.id}>
+								<Link
+									to={item.path}
+									className="block truncate rounded-md px-2 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+								>
+									{item.label}
+								</Link>
+							</li>
+						))
+					) : (
+						<li>
 							<Link
-								to={item.path}
+								to="/en-cours"
+								search={{ module: moduleCode }}
 								className="block truncate rounded-md px-2 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
 							>
-								{item.label}
+								Bientôt disponible
 							</Link>
 						</li>
-					))
-				) : (
-					<li>
-						<Link
-							to="/en-cours"
-							search={{ module: moduleCode }}
-							className="block truncate rounded-md px-2 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-						>
-							Bientôt disponible
-						</Link>
-					</li>
-				)}
-			</ul>
-		</div>
+					)}
+				</ul>
+			</div>
+		</BorderGlow>
 	);
 }
 

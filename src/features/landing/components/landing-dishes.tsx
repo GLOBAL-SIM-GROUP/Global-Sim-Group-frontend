@@ -1,13 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
-import { useNavigate } from "@tanstack/react-router";
 import { AlertCircle, Loader2 } from "lucide-react";
-import { Button } from "#/components/ui/button";
-import { Card, CardContent, CardFooter } from "#/components/ui/card";
-import { formatMontantFCFA } from "#/features/residence/models/format";
+import { AccordionGallery } from "#/components/accordion-gallery";
+import { AnimatedContent } from "#/components/animated-content";
+import { SplitText } from "#/components/split-text";
+import { platImagePublicUrl } from "#/core/api/uploads";
 import { listPlats } from "#/features/restaurant/api/plats";
 
 export function LandingDishes() {
-	const navigate = useNavigate();
 	const {
 		data: plats,
 		isLoading,
@@ -15,12 +14,16 @@ export function LandingDishes() {
 	} = useQuery({
 		queryKey: ["restaurant", "plats", "public"],
 		queryFn: () => listPlats(),
-		enabled: typeof window !== "undefined",
 	});
+
+	const platsDisponibles = plats?.filter((p) => p.disponible) ?? [];
 
 	if (isLoading) {
 		return (
-			<section className="py-20 sm:py-28 lg:py-32 px-4 sm:px-6 lg:px-8 bg-muted/30">
+			<section
+				id="carte"
+				className="scroll-mt-16 px-4 py-20 sm:px-6 sm:py-28 lg:px-8"
+			>
 				<div className="max-w-7xl mx-auto">
 					<div className="text-center space-y-4 mb-12">
 						<h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground">
@@ -40,7 +43,10 @@ export function LandingDishes() {
 
 	if (error) {
 		return (
-			<section className="py-20 sm:py-28 lg:py-32 px-4 sm:px-6 lg:px-8 bg-destructive/5">
+			<section
+				id="carte"
+				className="scroll-mt-16 bg-destructive/5 px-4 py-20 sm:px-6 sm:py-28 lg:px-8"
+			>
 				<div className="max-w-7xl mx-auto">
 					<div className="text-center space-y-4 mb-12">
 						<h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground">
@@ -58,66 +64,48 @@ export function LandingDishes() {
 		);
 	}
 
-	const platsDisponibles = plats?.filter((p) => p.disponible) ?? [];
-
 	return (
-		<section className="py-20 sm:py-28 lg:py-32 px-4 sm:px-6 lg:px-8 bg-muted/30">
-			<div className="max-w-7xl mx-auto">
-				<div className="text-center space-y-4 mb-16">
-					<h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground">
-						Restaurant
-					</h2>
+		<section
+			id="carte"
+			className="scroll-mt-16 px-4 py-10 sm:px-6 sm:py-14 lg:px-8"
+		>
+			<div className="mx-auto max-w-7xl">
+				<div className="mb-14 space-y-4 text-center">
+					<SplitText
+						tag="h2"
+						text="La carte du restaurant"
+						className="text-3xl font-bold text-foreground sm:text-4xl lg:text-5xl"
+						splitType="words"
+						delay={60}
+						duration={0.6}
+					/>
 					<p className="text-lg text-muted-foreground">
-						Nos plats et boissons disponibles
+						Un aperçu de nos plats et boissons du moment
 					</p>
 				</div>
 
 				{platsDisponibles.length === 0 ? (
-					<div className="text-center py-12">
+					<div className="py-12 text-center">
 						<p className="text-muted-foreground">
 							Aucun plat disponible pour le moment.
 						</p>
 					</div>
 				) : (
-					<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-						{platsDisponibles.slice(0, 6).map((plat) => (
-							<Card
-								key={plat.id}
-								className="overflow-hidden flex flex-col hover:shadow-lg transition-shadow"
-							>
-								{plat.image_url && (
-									<div className="h-48 overflow-hidden bg-muted flex items-center justify-center">
-										<img
-											src={plat.image_url}
-											alt={plat.nom}
-											className="w-full h-full object-cover"
-										/>
-									</div>
-								)}
-								<CardContent className="flex-1 pt-4">
-									<h3 className="font-semibold text-lg text-foreground line-clamp-2 mb-2">
-										{plat.nom}
-									</h3>
-									{plat.description && (
-										<p className="text-muted-foreground text-sm mb-4 line-clamp-2">
-											{plat.description}
-										</p>
-									)}
-									<p className="text-xl font-bold text-lagoon">
-										{formatMontantFCFA(plat.prix)}
-									</p>
-								</CardContent>
-								<CardFooter className="pt-0">
-									<Button
-										className="w-full bg-lagoon hover:bg-lagoon/90"
-										onClick={() => navigate({ to: "/restaurant/plats" })}
-									>
-										Commander
-									</Button>
-								</CardFooter>
-							</Card>
-						))}
-					</div>
+					<AnimatedContent distance={60} threshold={0.15}>
+						<AccordionGallery
+							items={platsDisponibles.slice(0, 6).map((plat) => ({
+								image: plat.image_url ? platImagePublicUrl(plat.id) : null,
+								label: plat.nom,
+								link: "/restaurant/plats",
+								alt: plat.nom,
+							}))}
+							defaultIndex={0}
+							accentColor="#E67E22"
+							overlayColor="#1A2B4C"
+							height={420}
+							radius={12}
+						/>
+					</AnimatedContent>
 				)}
 			</div>
 		</section>

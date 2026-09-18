@@ -33,7 +33,7 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 		meta: [
 			{ charSet: "utf-8" },
 			{ name: "viewport", content: "width=device-width, initial-scale=1" },
-			{ title: "GLOBAL SIM GROUP — SIM" },
+			{ title: "GLOBAL SIM GROUP" },
 			// PWA : couleur de la barre du navigateur / de la barre de statut.
 			{ name: "theme-color", content: "#1A2B4C" },
 			// PWA iOS : Safari ignore le Web App Manifest pour l'icône/le mode

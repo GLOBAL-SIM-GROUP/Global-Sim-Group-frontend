@@ -1,13 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
-import { useNavigate } from "@tanstack/react-router";
 import { AlertCircle, Loader2 } from "lucide-react";
-import { Button } from "#/components/ui/button";
-import { Card, CardContent, CardFooter } from "#/components/ui/card";
+import { AccordionGallery } from "#/components/accordion-gallery";
+import { AnimatedContent } from "#/components/animated-content";
+import { SplitText } from "#/components/split-text";
+import { produitImagePublicUrl } from "#/core/api/uploads";
 import { listProduits } from "#/features/marchandise/api/produits";
-import { formatMontantFCFA } from "#/features/residence/models/format";
 
 export function LandingProducts() {
-	const navigate = useNavigate();
 	const {
 		data: produits,
 		isLoading,
@@ -15,12 +14,16 @@ export function LandingProducts() {
 	} = useQuery({
 		queryKey: ["market", "produits", "public"],
 		queryFn: () => listProduits(),
-		enabled: typeof window !== "undefined",
 	});
+
+	const produitsActifs = produits?.filter((p) => p.actif) ?? [];
 
 	if (isLoading) {
 		return (
-			<section className="py-20 sm:py-28 lg:py-32 px-4 sm:px-6 lg:px-8">
+			<section
+				id="boutique"
+				className="scroll-mt-16 bg-muted/30 px-4 py-20 sm:px-6 sm:py-28 lg:px-8"
+			>
 				<div className="max-w-7xl mx-auto">
 					<div className="text-center space-y-4 mb-12">
 						<h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground">
@@ -40,7 +43,10 @@ export function LandingProducts() {
 
 	if (error) {
 		return (
-			<section className="py-20 sm:py-28 lg:py-32 px-4 sm:px-6 lg:px-8 bg-destructive/5">
+			<section
+				id="boutique"
+				className="scroll-mt-16 bg-destructive/5 px-4 py-20 sm:px-6 sm:py-28 lg:px-8"
+			>
 				<div className="max-w-7xl mx-auto">
 					<div className="text-center space-y-4 mb-12">
 						<h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground">
@@ -58,64 +64,50 @@ export function LandingProducts() {
 		);
 	}
 
-	const produitsActifs = produits?.filter((p) => p.actif) ?? [];
-
 	return (
-		<section className="py-20 sm:py-28 lg:py-32 px-4 sm:px-6 lg:px-8">
-			<div className="max-w-7xl mx-auto">
-				<div className="text-center space-y-4 mb-16">
-					<h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground">
-						Boutique
-					</h2>
+		<section
+			id="boutique"
+			className="scroll-mt-16 bg-muted/30 px-4 py-10 sm:px-6 sm:py-14 lg:px-8"
+		>
+			<div className="mx-auto max-w-7xl">
+				<div className="mb-14 space-y-4 text-center">
+					<SplitText
+						tag="h2"
+						text="La boutique"
+						className="text-3xl font-bold text-foreground sm:text-4xl lg:text-5xl"
+						splitType="words"
+						delay={60}
+						duration={0.6}
+					/>
 					<p className="text-lg text-muted-foreground">
-						Découvrez nos produits disponibles
+						Un aperçu des articles disponibles
 					</p>
 				</div>
 
 				{produitsActifs.length === 0 ? (
-					<div className="text-center py-12">
+					<div className="py-12 text-center">
 						<p className="text-muted-foreground">
 							Aucun produit disponible pour le moment.
 						</p>
 					</div>
 				) : (
-					<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-						{produitsActifs.slice(0, 6).map((produit) => (
-							<Card
-								key={produit.id}
-								className="overflow-hidden flex flex-col hover:shadow-lg transition-shadow"
-							>
-								{produit.image_url && (
-									<div className="h-48 overflow-hidden bg-muted flex items-center justify-center">
-										<img
-											src={produit.image_url}
-											alt={produit.nom}
-											className="w-full h-full object-cover"
-										/>
-									</div>
-								)}
-								<CardContent className="flex-1 pt-4">
-									<h3 className="font-semibold text-lg text-foreground line-clamp-2 mb-2">
-										{produit.nom}
-									</h3>
-									<p className="text-muted-foreground text-sm mb-4 line-clamp-2">
-										{produit.reference}
-									</p>
-									<p className="text-xl font-bold text-lagoon">
-										{formatMontantFCFA(produit.prix_vente)}
-									</p>
-								</CardContent>
-								<CardFooter className="pt-0">
-									<Button
-										className="w-full bg-lagoon hover:bg-lagoon/90"
-										onClick={() => navigate({ to: "/marchandise/produits" })}
-									>
-										Voir détails
-									</Button>
-								</CardFooter>
-							</Card>
-						))}
-					</div>
+					<AnimatedContent distance={60} threshold={0.15}>
+						<AccordionGallery
+							items={produitsActifs.slice(0, 6).map((produit) => ({
+								image: produit.image_url
+									? produitImagePublicUrl(produit.id)
+									: null,
+								label: produit.nom,
+								link: "/marchandise/produits",
+								alt: produit.nom,
+							}))}
+							defaultIndex={0}
+							accentColor="#E67E22"
+							overlayColor="#1A2B4C"
+							height={420}
+							radius={12}
+						/>
+					</AnimatedContent>
 				)}
 			</div>
 		</section>
