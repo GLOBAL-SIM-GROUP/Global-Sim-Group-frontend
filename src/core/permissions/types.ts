@@ -25,6 +25,18 @@
  * D'autres verbes propres à RESIDENCE existent côté backend
  * (`SUPERVISER`/`VALIDER`, vus sur Responsable résidence) mais ne sont pas
  * modélisés ici faute d'usage frontend actuel — ajouter au besoin.
+ *
+ * `GERER_TARIFS` (2026-09-16) : 6e verbe, propre à PRESSING (tarif au kilo).
+ * Vérifié en direct : PRESSING a en réalité 9 verbes réels côté backend
+ * (VOIR/CREER/MODIFIER/SUPPRIMER/ANNULER/TRAITER/MARQUER_PRET/RETIRER/
+ * SUPERVISER/GERER_TARIFS — Responsable pressing les a tous ; Agent
+ * d'accueil pressing n'a que CREER+VOIR ; Opérateur lavage TRAITER+VOIR ;
+ * Caissier pressing RETIRER+VOIR ; Contrôleur qualité VALIDER+VOIR). Seul
+ * `GERER_TARIFS` est modélisé ici (requis pour cette feature) — le frontend
+ * actuel continue de gater les actions de statut/retrait avec les verbes
+ * génériques `MODIFIER`/`CREER` plutôt que `TRAITER`/`MARQUER_PRET`/
+ * `RETIRER` réels, un écart pré-existant non corrigé ici (hors périmètre de
+ * cette tâche) — voir `features/pressing/permissions.ts`.
  */
 export const MODULES = [
 	"RESIDENCE",
@@ -52,6 +64,7 @@ export const PERMISSION_VERBS = [
 	"MODIFIER",
 	"SUPPRIMER",
 	"ENCAISSER",
+	"GERER_TARIFS",
 ] as const;
 
 export type PermissionVerb = (typeof PERMISSION_VERBS)[number];
