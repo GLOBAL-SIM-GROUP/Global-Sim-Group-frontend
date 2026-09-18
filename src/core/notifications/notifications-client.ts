@@ -3,7 +3,7 @@ import { io, type Socket } from "socket.io-client";
 import type { AuthSession } from "#/core/auth";
 import { env } from "#/env";
 
-import { createReadIdsStore } from "./read-ids-store";
+import { createClearedIdsStore, createReadIdsStore } from "./id-set-store";
 import type { NotificationConnectionUser, NotificationEnvelope } from "./types";
 
 /** Borne la liste en mémoire (l'historique serveur est déjà plafonné à 50). */
@@ -29,6 +29,13 @@ export interface NotificationsClient {
 	isRead(id: string): boolean;
 	markAsRead(id: string): void;
 	markAllAsRead(): void;
+	/**
+	 * Masque toutes les notifications actuellement connues (état 100%
+	 * frontend, persisté — voir `id-set-store.ts`). Le serveur ne connaît pas
+	 * cette notion : une reconnexion repousse le même historique, mais les
+	 * ids vidés restent masqués pour cet utilisateur/navigateur.
+	 */
+	clearAll(): void;
 	/** Redemande l'historique au serveur (rafraîchissement manuel). */
 	refreshHistory(): void;
 }
@@ -67,18 +74,23 @@ export function createNotificationsClient(
 ): NotificationsClient {
 	const listeners = new Set<() => void>();
 	const readIds = createReadIdsStore();
+	const clearedIds = createClearedIdsStore();
 
 	let socket: Socket | null = null;
+	// Liste brute (historique + live), jamais filtrée : `clearAll` doit
+	// pouvoir masquer un item même après qu'il ait disparu du snapshot d'un
+	// autre onglet. Le filtrage « vidé » n'a lieu que dans `buildSnapshot`.
 	let notifications: NotificationEnvelope[] = [];
 	let connectedUser: NotificationConnectionUser | null = null;
 	let status: NotificationsStatus = "idle";
 	let snapshot = buildSnapshot();
 
 	function buildSnapshot(): NotificationsSnapshot {
+		const visibles = notifications.filter((n) => !clearedIds.has(n.id));
 		return {
 			status,
-			notifications,
-			unreadCount: notifications.filter((n) => !readIds.has(n.id)).length,
+			notifications: visibles,
+			unreadCount: visibles.filter((n) => !readIds.has(n.id)).length,
 			connectedUser,
 		};
 	}
@@ -98,7 +110,9 @@ export function createNotificationsClient(
 					new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
 			)
 			.slice(0, MAX_NOTIFICATIONS);
-		readIds.prune(notifications.map((n) => n.id));
+		const idsConnus = notifications.map((n) => n.id);
+		readIds.prune(idsConnus);
+		clearedIds.prune(idsConnus);
 	}
 
 	function attachSocketListeners(s: Socket): void {
@@ -216,6 +230,10 @@ export function createNotificationsClient(
 		},
 		markAllAsRead() {
 			for (const n of notifications) readIds.add(n.id);
+			emit();
+		},
+		clearAll() {
+			for (const n of notifications) clearedIds.add(n.id);
 			emit();
 		},
 		refreshHistory() {

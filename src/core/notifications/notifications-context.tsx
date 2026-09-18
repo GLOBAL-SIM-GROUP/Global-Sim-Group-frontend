@@ -46,6 +46,7 @@ export function useNotifications() {
 		isRead: client.isRead,
 		markAsRead: client.markAsRead,
 		markAllAsRead: client.markAllAsRead,
+		clearAll: client.clearAll,
 		refreshHistory: client.refreshHistory,
 	};
 }

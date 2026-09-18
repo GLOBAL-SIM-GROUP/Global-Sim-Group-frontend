@@ -1,6 +1,6 @@
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { useNavigate } from "@tanstack/react-router";
-import { Bell, CheckCheck, Loader2, RefreshCw } from "lucide-react";
+import { Bell, CheckCheck, Loader2, RefreshCw, Trash2 } from "lucide-react";
 import { useState } from "react";
 
 import { Button } from "#/components/ui/button";
@@ -122,6 +122,7 @@ export function NotificationBell({ className }: { className?: string }) {
 		isRead,
 		markAsRead,
 		markAllAsRead,
+		clearAll,
 		refreshHistory,
 	} = useNotifications();
 
@@ -180,6 +181,16 @@ export function NotificationBell({ className }: { className?: string }) {
 									onClick={() => markAllAsRead()}
 								>
 									<CheckCheck className="size-3.5" aria-hidden />
+								</Button>
+							) : null}
+							{notifications.length > 0 ? (
+								<Button
+									variant="ghost"
+									size="icon-xs"
+									title="Vider la liste"
+									onClick={() => clearAll()}
+								>
+									<Trash2 className="size-3.5" aria-hidden />
 								</Button>
 							) : null}
 						</div>

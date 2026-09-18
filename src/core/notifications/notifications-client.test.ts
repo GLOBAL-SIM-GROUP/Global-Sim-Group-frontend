@@ -246,6 +246,39 @@ describe("createNotificationsClient", () => {
 		expect(client.getSnapshot().unreadCount).toBe(0);
 	});
 
+	it("clearAll masque toutes les notifications connues, même après une reconnexion", () => {
+		const { auth } = createFakeAuth({ isAuthenticated: true, token: "tok-1" });
+		const client = createNotificationsClient(auth);
+		const socket = createdSockets[0];
+
+		socket.trigger("connect");
+		socket.trigger("notifications:history", [
+			envelope({ id: "a" }),
+			envelope({ id: "b", timestamp: "2026-08-29T11:00:00.000Z" }),
+		]);
+		expect(client.getSnapshot().notifications).toHaveLength(2);
+
+		client.clearAll();
+		expect(client.getSnapshot().notifications).toHaveLength(0);
+		expect(client.getSnapshot().unreadCount).toBe(0);
+
+		// Le serveur ne sait rien de « vidé » : une reconnexion repousse le même
+		// historique, mais les ids déjà vidés restent masqués pour ce client.
+		socket.trigger("connect");
+		socket.trigger("notifications:history", [
+			envelope({ id: "a" }),
+			envelope({ id: "b", timestamp: "2026-08-29T11:00:00.000Z" }),
+		]);
+		expect(client.getSnapshot().notifications).toHaveLength(0);
+
+		// Une notification réellement nouvelle, elle, redevient visible.
+		socket.trigger(
+			"notification",
+			envelope({ id: "c", timestamp: "2026-08-29T12:00:00.000Z" }),
+		);
+		expect(client.getSnapshot().notifications.map((n) => n.id)).toEqual(["c"]);
+	});
+
 	it("reconnecte avec un token frais sur rotation du token", () => {
 		const { auth, setToken } = createFakeAuth({
 			isAuthenticated: true,
