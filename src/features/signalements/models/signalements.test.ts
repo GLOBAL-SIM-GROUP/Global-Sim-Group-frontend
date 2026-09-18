@@ -3,11 +3,11 @@ import { describe, expect, it } from "vitest";
 import type { Signalement } from "#/core/api/signalements";
 
 import {
-	MODULES_CIBLE,
 	completerSignalementDepuisListe,
 	filtrerSignalements,
 	libelleCible,
 	libelleModuleCible,
+	MODULES_CIBLE,
 	modulesCibleAccessibles,
 	nomDeclarant,
 	paginerSignalements,
