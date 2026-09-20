@@ -8,5 +8,8 @@ export const reservationPaiementsKeys = createQueryKeys(
 	"salle-fete.reservation-paiements",
 );
 
+/** Clés du catalogue des types de manifestation. */
+export const catalogueKeys = createQueryKeys("salle-fete.catalogue");
+
 /** Taille de page de la pagination client des réservations. */
 export const RESERVATIONS_PAGE_SIZE = 10;

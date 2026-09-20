@@ -173,6 +173,12 @@ export const MODULE_DEFINITIONS: ModuleDefinition[] = [
 				permission: "SALLE_FETE.VOIR",
 				path: "/salle-fete/reservations",
 			},
+			{
+				id: "catalogue",
+				label: "Catalogue",
+				permission: "SALLE_FETE.VOIR",
+				path: "/salle-fete/catalogue",
+			},
 		],
 	},
 	{
