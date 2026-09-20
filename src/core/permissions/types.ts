@@ -37,6 +37,28 @@
  * génériques `MODIFIER`/`CREER` plutôt que `TRAITER`/`MARQUER_PRET`/
  * `RETIRER` réels, un écart pré-existant non corrigé ici (hors périmètre de
  * cette tâche) — voir `features/pressing/permissions.ts`.
+ *
+ * `COMMANDER`/`DECLARER`/`DEMANDER` (portail résident « demandes », endpoints
+ * `/restaurant/portail/commandes`, `/pressing/portail/commandes`,
+ * `/salle-fete/portail/reservations`) : verbes propres au compte CLIENT —
+ * créer/annuler une commande restaurant (`RESTAURANT.COMMANDER`), déclarer
+ * un dépôt pressing (`PRESSING.DECLARER`), demander une réservation de salle
+ * de fête (`SALLE_FETE.DEMANDER`). La lecture associée reste `RESIDENT.VOIR`.
+ *
+ * `VALIDER`/`ANNULER` (demandes portail `EN_ATTENTE`, spec OpenAPI live) :
+ * validation/chiffrage des demandes résident (`SALLE_FETE.VALIDER` →
+ * `POST /salle-fete/reservations/{id}/valider`, `RESTAURANT.VALIDER` →
+ * `POST /restaurant/commandes/{id}/statut` EN_ATTENTE→EN_COURS) et refus des
+ * demandes pressing (`PRESSING.ANNULER` → `POST /pressing/commandes/{id}/annuler`).
+ *
+ * Boutique (market 084, contrat convenu — endpoints `/market/portail/ventes`
+ * pas encore dans la spec générée) : `MARCHANDISE.COMMANDER` côté résident
+ * (créer/annuler une demande), `MARCHANDISE.VALIDER`/`MARCHANDISE.ANNULER`
+ * côté staff (validation → `EN_COURS` + décrément stock / refus + motif).
+ *
+ * `GERER_CATALOGUE` (salle de fête, spec OpenAPI live) : administration des
+ * types de manifestation — `POST/PATCH /salle-fete/catalogue/types-manifestation`.
+ * La lecture du catalogue reste sur `SALLE_FETE.VOIR`.
  */
 export const MODULES = [
 	"RESIDENCE",
@@ -65,6 +87,12 @@ export const PERMISSION_VERBS = [
 	"SUPPRIMER",
 	"ENCAISSER",
 	"GERER_TARIFS",
+	"COMMANDER",
+	"DECLARER",
+	"DEMANDER",
+	"VALIDER",
+	"ANNULER",
+	"GERER_CATALOGUE",
 ] as const;
 
 export type PermissionVerb = (typeof PERMISSION_VERBS)[number];

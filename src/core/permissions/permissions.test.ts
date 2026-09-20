@@ -83,7 +83,7 @@ describe("modèle de permissions (réel, pas inventé)", () => {
 		expect(MODULES).not.toContain("MARKET");
 	});
 
-	it("expose les 6 verbes modélisés, dont SUPPRIMER, ENCAISSER et GERER_TARIFS (absents du spec §9)", () => {
+	it("expose les 12 verbes modélisés, dont SUPPRIMER, ENCAISSER, GERER_TARIFS, les verbes du portail, VALIDER/ANNULER (validation des demandes) et GERER_CATALOGUE (salle de fête)", () => {
 		expect(PERMISSION_VERBS).toEqual([
 			"VOIR",
 			"CREER",
@@ -91,6 +91,12 @@ describe("modèle de permissions (réel, pas inventé)", () => {
 			"SUPPRIMER",
 			"ENCAISSER",
 			"GERER_TARIFS",
+			"COMMANDER",
+			"DECLARER",
+			"DEMANDER",
+			"VALIDER",
+			"ANNULER",
+			"GERER_CATALOGUE",
 		]);
 	});
 });
