@@ -1,4 +1,4 @@
-import { Eye, X } from "lucide-react";
+import { Check, Eye, X } from "lucide-react";
 
 import { Button } from "#/components/ui/button";
 import { useCan } from "#/core/auth";
@@ -10,22 +10,32 @@ interface VenteActionsProps {
 	vente: VenteJoin;
 	/** Voir la facture → ouvre la modale du détail. */
 	onVoirFacture: (vente: VenteJoin) => void;
-	/** Annuler → confirmé par la page (POST annuler, administrateur). */
+	/** Valider une demande portail `EN_ATTENTE` (POST valider). */
+	onValider: (vente: VenteJoin) => void;
+	/** Refuser une demande portail `EN_ATTENTE` (POST annuler + motif). */
+	onRefuser: (vente: VenteJoin) => void;
+	/** Annuler une vente déjà validée → confirmé par la page (administrateur). */
 	onAnnuler: (vente: VenteJoin) => void;
 }
 
 /**
- * Actions d'une ligne vente. « Voir la facture » toujours visible ; « Annuler »
- * gated par le verbe réel `MARCHANDISE.SUPPRIMER` (réservé à l'administrateur)
- * et masqué pour une vente déjà annulée. « Export PDF/Excel » omis (aucun
- * endpoint).
+ * Actions d'une ligne vente. « Voir la facture » toujours visible. Sur une
+ * demande portail `EN_ATTENTE` : « Valider » (gated `MARCHANDISE.VALIDER` —
+ * décrémente le stock côté serveur) et « Refuser » (gated
+ * `MARCHANDISE.ANNULER`, motif restitué au résident). « Annuler » (gated
+ * `MARCHANDISE.SUPPRIMER`, administrateur) reste pour les ventes `EN_COURS`.
  */
 export function VenteActions({
 	vente,
 	onVoirFacture,
+	onValider,
+	onRefuser,
 	onAnnuler,
 }: VenteActionsProps) {
+	const canValider = useCan("MARCHANDISE.VALIDER");
+	const canRefuser = useCan("MARCHANDISE.ANNULER");
 	const canSupprimer = useCan("MARCHANDISE.SUPPRIMER");
+	const enAttente = vente.statut === "EN_ATTENTE";
 
 	return (
 		<div className="flex items-center justify-end gap-1">
@@ -46,7 +56,31 @@ export function VenteActions({
 				isPaid={vente.statut === "PAYEE"}
 			/>
 
-			{canSupprimer && vente.statut !== "ANNULEE" ? (
+			{enAttente && canValider ? (
+				<Button
+					variant="ghost"
+					size="icon-sm"
+					title="Valider la demande"
+					onClick={() => onValider(vente)}
+				>
+					<Check className="size-4 text-[#27AE60]" aria-hidden />
+					<span className="sr-only">Valider la demande</span>
+				</Button>
+			) : null}
+
+			{enAttente && canRefuser ? (
+				<Button
+					variant="ghost"
+					size="icon-sm"
+					title="Refuser la demande"
+					onClick={() => onRefuser(vente)}
+				>
+					<X className="size-4 text-destructive" aria-hidden />
+					<span className="sr-only">Refuser la demande</span>
+				</Button>
+			) : null}
+
+			{!enAttente && canSupprimer && vente.statut !== "ANNULEE" ? (
 				<Button
 					variant="ghost"
 					size="icon-sm"

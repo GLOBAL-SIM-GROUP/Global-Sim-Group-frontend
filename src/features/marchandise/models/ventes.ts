@@ -3,7 +3,10 @@
  * (GET /market/ventes, GET /market/ventes/{id}). Clé primaire wire `id_vente`
  * → `id`.
  */
-export type VenteStatut = "EN_COURS" | "PAYEE" | "ANNULEE";
+export type VenteStatut = "EN_ATTENTE" | "EN_COURS" | "PAYEE" | "ANNULEE";
+
+/** Origine de la vente : POS comptoir ou demande boutique du portail. */
+export type VenteOrigine = "COMPTOIR" | "PORTAIL";
 
 export interface Vente {
 	id: string;
@@ -13,6 +16,12 @@ export interface Vente {
 	total: string;
 	statut: VenteStatut;
 	id_utilisateur: string | null;
+	/** `PORTAIL` pour les demandes boutique résident (EN_ATTENTE à validation). */
+	origine?: VenteOrigine | null;
+	/** Consigne libre du résident (ventes portail). */
+	note?: string | null;
+	/** Raison du refus staff / annulation. */
+	motif_annulation?: string | null;
 }
 
 /** Ligne d'une vente (GET /market/ventes/{id} → `lignes[]`). */
@@ -38,10 +47,16 @@ export interface VenteJoin extends Vente {
 
 /** Libellés français du statut de vente. */
 export const VENTE_STATUT_LABELS: Record<VenteStatut, string> = {
+	EN_ATTENTE: "En attente de validation",
 	EN_COURS: "En cours",
 	PAYEE: "Payée",
 	ANNULEE: "Annulée",
 };
+
+/** Vrai tant que la demande portail attend la validation du personnel. */
+export function estVenteEnAttente(vente: Pick<Vente, "statut">): boolean {
+	return vente.statut === "EN_ATTENTE";
+}
 
 /** Valeurs du filtre « Statut » (URL : `?statut=`). */
 export type VenteStatutFiltre = "tous" | VenteStatut;

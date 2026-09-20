@@ -16,7 +16,9 @@ export const Route = createFileRoute("/_authenticated/marchandise/ventes/")({
 		requirePermissions(context.auth, "MARCHANDISE.VOIR");
 	},
 	validateSearch: z.object({
-		statut: z.enum(["tous", "EN_COURS", "PAYEE", "ANNULEE"]).optional(),
+		statut: z
+			.enum(["tous", "EN_ATTENTE", "EN_COURS", "PAYEE", "ANNULEE"])
+			.optional(),
 		du: z.string().optional(),
 		au: z.string().optional(),
 		client: z.string().optional(),

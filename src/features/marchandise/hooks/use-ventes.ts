@@ -8,6 +8,7 @@ import {
 	listRapportVentes,
 	listVentes,
 	type VenteBody,
+	validerVente,
 } from "../api/ventes";
 import { produitsKeys, rapportVentesKeys, ventesKeys } from "../permissions";
 
@@ -41,11 +42,24 @@ export function useCreerVente() {
 	});
 }
 
-/** Annule une vente (POST annuler). Invalide ventes + produits. */
+/** Valide une demande portail `EN_ATTENTE` (POST valider). */
+export function useValiderVente() {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: (id: string) => validerVente(id),
+		onSuccess: () => {
+			void queryClient.invalidateQueries({ queryKey: ventesKeys.all });
+			void queryClient.invalidateQueries({ queryKey: produitsKeys.all });
+		},
+	});
+}
+
+/** Annule une vente (POST annuler, motif optionnel). Invalide ventes + produits. */
 export function useAnnulerVente() {
 	const queryClient = useQueryClient();
 	return useMutation({
-		mutationFn: (id: string) => annulerVente(id),
+		mutationFn: ({ id, motif }: { id: string; motif?: string }) =>
+			annulerVente(id, motif),
 		onSuccess: () => {
 			void queryClient.invalidateQueries({ queryKey: ventesKeys.all });
 			void queryClient.invalidateQueries({ queryKey: produitsKeys.all });

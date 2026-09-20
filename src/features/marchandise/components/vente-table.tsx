@@ -1,5 +1,5 @@
 import {
-	formatDateHeureISO,
+	formatDateHeureUTC,
 	formatMontantFCFA,
 } from "#/features/residence/models/format";
 import { cn } from "#/lib/utils";
@@ -11,21 +11,31 @@ import {
 import { VenteActions } from "./vente-actions";
 
 const VENTE_STATUT_BADGE: Record<VenteStatut, string> = {
+	EN_ATTENTE: "bg-[#8E44AD] text-white",
 	EN_COURS: "bg-[#E67E22] text-white",
 	PAYEE: "bg-[#27AE60] text-white",
 	ANNULEE: "bg-[#95A5A6] text-white",
 };
 
+const VENTE_ORIGINE_LABELS: Record<string, string> = {
+	PORTAIL: "Portail",
+	COMPTOIR: "Comptoir",
+};
+
 interface VenteTableProps {
 	ventes: VenteJoin[];
 	onVoirFacture: (vente: VenteJoin) => void;
+	onValider: (vente: VenteJoin) => void;
+	onRefuser: (vente: VenteJoin) => void;
 	onAnnuler: (vente: VenteJoin) => void;
 }
 
-/** Tableau de l'historique des ventes (M3). */
+/** Tableau de l'historique des ventes (M3) — demandes portail incluses. */
 export function VenteTable({
 	ventes,
 	onVoirFacture,
+	onValider,
+	onRefuser,
 	onAnnuler,
 }: VenteTableProps) {
 	if (ventes.length === 0) {
@@ -74,7 +84,7 @@ export function VenteTable({
 								{vente.id}
 							</td>
 							<td className="px-4 py-3 text-muted-foreground">
-								{formatDateHeureISO(vente.date)}
+								{formatDateHeureUTC(vente.date)}
 							</td>
 							<td className="px-4 py-3 text-foreground">{vente.clientNom}</td>
 							<td className="px-4 py-3 text-foreground">
@@ -84,19 +94,28 @@ export function VenteTable({
 								{formatMontantFCFA(vente.remise)}
 							</td>
 							<td className="px-4 py-3">
-								<span
-									className={cn(
-										"inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium",
-										VENTE_STATUT_BADGE[vente.statut],
-									)}
-								>
-									{VENTE_STATUT_LABELS[vente.statut]}
-								</span>
+								<div className="flex flex-wrap items-center gap-1.5">
+									<span
+										className={cn(
+											"inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium",
+											VENTE_STATUT_BADGE[vente.statut],
+										)}
+									>
+										{VENTE_STATUT_LABELS[vente.statut]}
+									</span>
+									{vente.origine === "PORTAIL" ? (
+										<span className="inline-flex items-center rounded-full bg-accent px-2 py-0.5 text-xs font-medium text-muted-foreground">
+											{VENTE_ORIGINE_LABELS.PORTAIL}
+										</span>
+									) : null}
+								</div>
 							</td>
 							<td className="px-4 py-3">
 								<VenteActions
 									vente={vente}
 									onVoirFacture={onVoirFacture}
+									onValider={onValider}
+									onRefuser={onRefuser}
 									onAnnuler={onAnnuler}
 								/>
 							</td>

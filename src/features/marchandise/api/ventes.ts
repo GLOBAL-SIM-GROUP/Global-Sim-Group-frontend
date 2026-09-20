@@ -82,10 +82,27 @@ export function creerVente(body: VenteBody): Promise<unknown> {
 	});
 }
 
-/** Annule une vente (POST `/api/v1/market/ventes/{id}/annuler`). */
-export function annulerVente(id: string): Promise<unknown> {
+/**
+ * Valide une demande boutique du portail (POST
+ * `/api/v1/market/ventes/{id}/valider`, `MARCHANDISE.VALIDER`) — transition
+ * `EN_ATTENTE` → `EN_COURS` avec vérification et décrémentation atomique du
+ * stock côté serveur (422 si insuffisant).
+ */
+export function validerVente(id: string): Promise<unknown> {
+	return getApiClient().apiFetch(`/api/v1/market/ventes/${id}/valider`, {
+		method: "POST",
+	});
+}
+
+/**
+ * Annule une vente (POST `/api/v1/market/ventes/{id}/annuler`). Le `motif`
+ * optionnel est restitué au résident (`motif_annulation`) sur les demandes
+ * portail `EN_ATTENTE` refusées.
+ */
+export function annulerVente(id: string, motif?: string): Promise<unknown> {
 	return getApiClient().apiFetch(`/api/v1/market/ventes/${id}/annuler`, {
 		method: "POST",
+		...(motif ? { body: JSON.stringify({ motif }) } : {}),
 	});
 }
 

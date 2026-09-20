@@ -2,9 +2,10 @@ import { Dialog } from "radix-ui";
 
 import { DownloadReceiptButton } from "#/features/facturation/components/download-receipt-button";
 import {
-	formatDateHeureISO,
+	formatDateHeureUTC,
 	formatMontantFCFA,
 } from "#/features/residence/models/format";
+import { useProduits } from "../hooks/use-produits";
 import { useVente } from "../hooks/use-ventes";
 import { VENTE_STATUT_LABELS } from "../models/ventes";
 
@@ -25,6 +26,10 @@ export function VenteFactureDialog({
 	onOpenChange,
 }: VenteFactureDialogProps) {
 	const venteQuery = useVente(venteId ?? undefined);
+	const produitsQuery = useProduits();
+	const nomProduit = (idProduit: string) =>
+		produitsQuery.data?.find((produit) => produit.id === idProduit)?.nom ??
+		`Produit ${idProduit}`;
 
 	return (
 		<Dialog.Root open={open} onOpenChange={onOpenChange}>
@@ -51,16 +56,41 @@ export function VenteFactureDialog({
 									<div>
 										<dt className="text-muted-foreground">Date</dt>
 										<dd className="text-foreground">
-											{formatDateHeureISO(venteQuery.data.date)}
+											{formatDateHeureUTC(venteQuery.data.date)}
 										</dd>
 									</div>
 									<div>
 										<dt className="text-muted-foreground">Statut</dt>
 										<dd className="text-foreground">
 											{VENTE_STATUT_LABELS[venteQuery.data.statut]}
+											{venteQuery.data.origine === "PORTAIL"
+												? " — demande portail"
+												: ""}
 										</dd>
 									</div>
 								</dl>
+
+								{venteQuery.data.note ? (
+									<div className="rounded-md border border-border bg-accent/20 p-3 text-sm">
+										<p className="font-medium text-foreground">
+											Note du client
+										</p>
+										<p className="mt-0.5 text-muted-foreground">
+											{venteQuery.data.note}
+										</p>
+									</div>
+								) : null}
+
+								{venteQuery.data.motif_annulation ? (
+									<div className="rounded-md border border-destructive/40 bg-destructive/10 p-3 text-sm">
+										<p className="font-medium text-destructive">
+											Motif d'annulation
+										</p>
+										<p className="mt-0.5 text-foreground">
+											{venteQuery.data.motif_annulation}
+										</p>
+									</div>
+								) : null}
 
 								<div className="overflow-x-auto rounded-md border border-border">
 									<table className="w-full border-collapse text-sm">
@@ -87,7 +117,7 @@ export function VenteFactureDialog({
 											{venteQuery.data.lignes.map((ligne) => (
 												<tr key={ligne.id} className="border-t border-border">
 													<td className="px-3 py-2 text-foreground">
-														{ligne.id_produit}
+														{nomProduit(ligne.id_produit)}
 													</td>
 													<td className="px-3 py-2 text-foreground">
 														{ligne.quantite}
