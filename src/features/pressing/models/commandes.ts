@@ -11,6 +11,7 @@
  * pertinent vaut `null` côté backend.
  */
 export type CommandePressingStatut =
+	| "EN_ATTENTE"
 	| "DEPOSE"
 	| "EN_TRAITEMENT"
 	| "PRET"
@@ -23,14 +24,22 @@ export interface CommandePressing {
 	id: string;
 	id_client: string;
 	numero_commande: string;
-	date_depot: string;
+	/** `null` tant que la demande `EN_ATTENTE` (portail résident) n'est pas validée. */
+	date_depot: string | null;
 	date_retrait_prevue: string | null;
 	date_retrait_reelle: string | null;
-	montant_total: string;
-	acompte: string;
-	reste_a_payer: string;
+	/**
+	 * `null` tant que la demande `EN_ATTENTE` (portail résident) n'a pas été
+	 * chiffrée par le personnel (`POST /pressing/commandes/{id}/valider`).
+	 */
+	montant_total: string | null;
+	acompte: string | null;
+	reste_a_payer: string | null;
 	statut: CommandePressingStatut;
-	mode_tarification: ModeTarificationPressing;
+	/** `null` sur une demande `EN_ATTENTE` : le mode est choisi à la validation. */
+	mode_tarification: ModeTarificationPressing | null;
+	/** Raison du refus quand une demande a été annulée par le personnel. */
+	motif_annulation?: string | null;
 	client_nom: string;
 	client_prenoms: string;
 	client_tel: string | null;
@@ -51,7 +60,8 @@ export interface LigneCommandePressing {
 	tarif: string | null;
 	/** Non-null ssi la commande est en mode `POIDS` (jusqu'à 3 décimales). */
 	poids_kg: string | null;
-	total: string;
+	/** `null` tant que la demande `EN_ATTENTE` n'est pas chiffrée. */
+	total: string | null;
 }
 
 /** Libellés français du mode de tarification — badge fiche/dépôt. */
@@ -130,6 +140,7 @@ export function apercuTotalLignePoids(
 
 /** Libellés français du statut de commande (masculin, cf. spec M4). */
 export const PRESSING_STATUT_LABELS: Record<CommandePressingStatut, string> = {
+	EN_ATTENTE: "En attente de validation",
 	DEPOSE: "Déposé",
 	EN_TRAITEMENT: "En traitement",
 	PRET: "Prêt",
@@ -168,7 +179,9 @@ export function filtrerCommandes(
 		) {
 			return false;
 		}
-		const jour = commande.date_depot.slice(0, 10);
+		// `date_depot` est `null` sur une demande `EN_ATTENTE` (portail) — elle
+		// reste visible quels que soient les filtres de dates.
+		const jour = commande.date_depot?.slice(0, 10) ?? "";
 		if (filtres.du && jour < filtres.du) return false;
 		if (filtres.au && jour > filtres.au) return false;
 		return true;

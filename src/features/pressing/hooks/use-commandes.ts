@@ -10,6 +10,8 @@ import {
 	pretCommande,
 	retirerCommande,
 	traitementCommande,
+	type ValiderDemandeBody,
+	validerDemande,
 } from "../api/commandes";
 import { definirTarifKg, getTarifKg } from "../api/tarif-kg";
 import { commandesKeys, tarifKgKeys } from "../permissions";
@@ -92,6 +94,16 @@ export function useRetirerCommande() {
 			solde: string;
 			idMoyen: string;
 		}) => retirerCommande(id, body),
+		onSuccess: invalider,
+	});
+}
+
+/** Valide et chiffre une demande `EN_ATTENTE` (→ `DEPOSE`, PRESSING.CREER). */
+export function useValiderDemande() {
+	const invalider = useInvalidation();
+	return useMutation({
+		mutationFn: ({ id, ...body }: ValiderDemandeBody & { id: string }) =>
+			validerDemande(id, body),
 		onSuccess: invalider,
 	});
 }

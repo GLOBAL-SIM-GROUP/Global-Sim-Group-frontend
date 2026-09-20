@@ -1,18 +1,20 @@
 import { Link } from "@tanstack/react-router";
-import { CheckCheck, HandCoins, Pencil, RefreshCw } from "lucide-react";
+import { CheckCheck, HandCoins, Pencil, RefreshCw, X } from "lucide-react";
 import { useState } from "react";
 
 import { Breadcrumb } from "#/components/ui/breadcrumb";
 import { Button } from "#/components/ui/button";
 import { useCan } from "#/core/auth";
 import { DownloadReceiptButton } from "#/features/facturation/components/download-receipt-button";
+import { ConfirmDialog } from "#/features/residence/components/confirm-dialog";
 import { useMoyensPaiement } from "#/features/residence/hooks/use-moyens-paiement";
 import {
-	formatDateHeureISO,
+	formatDateHeureUTC,
 	formatMontantFCFA,
 } from "#/features/residence/models/format";
 import { cn } from "#/lib/utils";
 import {
+	useAnnulerCommande,
 	useCommande,
 	usePretCommande,
 	useRetirerCommande,
@@ -27,8 +29,10 @@ import {
 import { CommandeFormDialog } from "./commande-form-dialog";
 import { RecuDepotButton } from "./recu-depot-button";
 import { RetirerCommandeDialog } from "./retirer-commande-dialog";
+import { ValiderDemandeDialog } from "./valider-demande-dialog";
 
 const PRESSING_STATUT_BADGE: Record<CommandePressingStatut, string> = {
+	EN_ATTENTE: "bg-[#8E44AD] text-white",
 	DEPOSE: "bg-[#2980B9] text-white",
 	EN_TRAITEMENT: "bg-[#E67E22] text-white",
 	PRET: "bg-[#27AE60] text-white",
@@ -62,13 +66,17 @@ export function CommandeFichePage({ id }: CommandeFichePageProps) {
 	const canModifier = useCan("PRESSING.MODIFIER");
 	const canCreer = useCan("PRESSING.CREER");
 	const canFinancesVoir = useCan("FINANCES.VOIR");
+	const canAnnuler = useCan("PRESSING.ANNULER");
 	const moyensQuery = useMoyensPaiement();
 	const traitementMutation = useTraitementCommande();
 	const pretMutation = usePretCommande();
 	const retirerMutation = useRetirerCommande();
+	const annulerMutation = useAnnulerCommande();
 
 	const [aModifier, setAModifier] = useState<CommandePressing | null>(null);
 	const [retraitOuvert, setRetraitOuvert] = useState(false);
+	const [validerOuvert, setValiderOuvert] = useState(false);
+	const [refuserOuvert, setRefuserOuvert] = useState(false);
 
 	const commandeQuery = useCommande(id);
 
@@ -104,6 +112,7 @@ export function CommandeFichePage({ id }: CommandeFichePageProps) {
 	const prenomClient = commande.client_prenoms ?? "";
 	const nomComplet = `${nomClient} ${prenomClient}`.trim();
 	const aUnReste = Number(commande.reste_a_payer) > 0;
+	const enAttente = commande.statut === "EN_ATTENTE";
 	const estTerminee =
 		commande.statut === "RETIRE" || commande.statut === "ANNULEE";
 
@@ -123,9 +132,11 @@ export function CommandeFichePage({ id }: CommandeFichePageProps) {
 						<h1 className="text-lg font-semibold text-foreground sm:text-2xl">
 							Fiche commande — {commande.numero_commande}
 						</h1>
-						<span className="inline-flex items-center rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground">
-							{MODE_TARIFICATION_LABELS[commande.mode_tarification]}
-						</span>
+						{commande.mode_tarification ? (
+							<span className="inline-flex items-center rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground">
+								{MODE_TARIFICATION_LABELS[commande.mode_tarification]}
+							</span>
+						) : null}
 					</div>
 					<p className="text-xs text-muted-foreground sm:text-sm">
 						{nomComplet}
@@ -150,12 +161,33 @@ export function CommandeFichePage({ id }: CommandeFichePageProps) {
 					<DownloadReceiptButton
 						sourceType="COMMANDE_PRESSING"
 						idClient={commande.id_client ?? null}
-						montantTotal={commande.montant_total}
+						montantTotal={commande.montant_total ?? undefined}
 						isPaid={Number(commande.reste_a_payer) === 0}
 						variant="outline"
 						size="sm"
 						showLabel={true}
 					/>
+					{enAttente && canCreer ? (
+						<Button
+							size="sm"
+							onClick={() => setValiderOuvert(true)}
+							className="w-full sm:w-auto justify-center"
+						>
+							<CheckCheck className="size-4" aria-hidden />
+							Valider et chiffrer
+						</Button>
+					) : null}
+					{enAttente && canAnnuler ? (
+						<Button
+							variant="destructive"
+							size="sm"
+							onClick={() => setRefuserOuvert(true)}
+							className="w-full sm:w-auto justify-center"
+						>
+							<X className="size-4" aria-hidden />
+							Refuser
+						</Button>
+					) : null}
 					{canModifier ? (
 						<>
 							{commande.statut === "DEPOSE" ? (
@@ -182,7 +214,7 @@ export function CommandeFichePage({ id }: CommandeFichePageProps) {
 									Passer en « Prêt »
 								</Button>
 							) : null}
-							{!estTerminee ? (
+							{!estTerminee && !enAttente ? (
 								<Button
 									onClick={() => setAModifier(commande)}
 									className="w-full sm:w-auto justify-center"
@@ -212,7 +244,7 @@ export function CommandeFichePage({ id }: CommandeFichePageProps) {
 					<Ligne label="Téléphone" valeur={commande.client_tel ?? "—"} />
 					<Ligne
 						label="Date de dépôt"
-						valeur={formatDateHeureISO(commande.date_depot)}
+						valeur={formatDateHeureUTC(commande.date_depot)}
 					/>
 					<Ligne
 						label="Retrait prévu"
@@ -222,7 +254,7 @@ export function CommandeFichePage({ id }: CommandeFichePageProps) {
 						label="Retrait réel"
 						valeur={
 							commande.date_retrait_reelle
-								? formatDateHeureISO(commande.date_retrait_reelle)
+								? formatDateHeureUTC(commande.date_retrait_reelle)
 								: "—"
 						}
 					/>
@@ -250,6 +282,22 @@ export function CommandeFichePage({ id }: CommandeFichePageProps) {
 					</div>
 				</dl>
 			</section>
+
+			{commande.statut === "ANNULEE" && commande.motif_annulation ? (
+				<section className="rounded-lg border border-destructive/40 bg-destructive/10 p-4 text-sm">
+					<p className="font-medium text-destructive">
+						Motif du refus : {commande.motif_annulation}
+					</p>
+				</section>
+			) : null}
+
+			{enAttente ? (
+				<section className="rounded-lg border border-border bg-accent/30 p-4 text-sm text-muted-foreground">
+					Demande de dépôt déclarée via le portail résident — montants non
+					encore chiffrés. « Valider et chiffrer » passe la demande en « Déposé
+					».
+				</section>
+			) : null}
 
 			<section className="space-y-3">
 				<h2 className="text-base font-semibold text-foreground">Articles</h2>
@@ -291,7 +339,7 @@ export function CommandeFichePage({ id }: CommandeFichePageProps) {
 									<td className="px-4 py-3 text-foreground">
 										{commande.mode_tarification === "POIDS"
 											? (ligne.poids_kg ?? "—")
-											: formatMontantFCFA(ligne.tarif ?? "0")}
+											: formatMontantFCFA(ligne.tarif)}
 									</td>
 									<td className="px-4 py-3 text-right text-foreground">
 										{formatMontantFCFA(ligne.total)}
@@ -321,6 +369,34 @@ export function CommandeFichePage({ id }: CommandeFichePageProps) {
 					if (!ouvert) setRetraitOuvert(false);
 				}}
 				onSaved={() => setRetraitOuvert(false)}
+			/>
+
+			<ValiderDemandeDialog
+				open={validerOuvert}
+				commande={enAttente ? commande : null}
+				moyens={moyensQuery.data ?? []}
+				onOpenChange={(ouvert) => {
+					if (!ouvert) setValiderOuvert(false);
+				}}
+				onSaved={() => setValiderOuvert(false)}
+			/>
+
+			<ConfirmDialog
+				open={refuserOuvert}
+				onOpenChange={(ouvert) => {
+					if (!ouvert) setRefuserOuvert(false);
+				}}
+				title="Refuser la demande"
+				message={`Refuser la demande ${commande.numero_commande} ? Elle sera annulée définitivement.`}
+				confirmLabel="Refuser"
+				cancelLabel="Conserver"
+				destructive
+				busy={annulerMutation.isPending}
+				onConfirm={() =>
+					annulerMutation.mutate(commande.id, {
+						onSuccess: () => setRefuserOuvert(false),
+					})
+				}
 			/>
 		</div>
 	);

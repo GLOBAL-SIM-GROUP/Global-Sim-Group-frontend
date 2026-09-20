@@ -11,13 +11,10 @@ import type {
 	ModeTarificationPressing,
 } from "../models/commandes";
 
-// `CreerCommandePressingDto`/`MajCommandePressingDto` générés (docs-json) ne
-// connaissent pas encore `mode_tarification`/`poids_kg` (2026-09-16, vérifié
-// en direct) — plus utilisés pour typer le corps des lignes ci-dessous,
-// même écart déjà rencontré sur signalements/séjours (generated schema en
-// retard sur le backend réel).
 type EncaisserSoldePressingDto =
 	components["schemas"]["EncaisserSoldePressingDto"];
+type ValiderDemandePressingDto =
+	components["schemas"]["ValiderDemandePressingDto"];
 
 type CommandeWire = Omit<CommandePressing, "id"> & { id_commande: string };
 type LigneWire = Omit<LigneCommandePressing, "id"> & { id_ligne: string };
@@ -178,10 +175,55 @@ export function retirerCommande(
 	});
 }
 
-/** Annule une commande (POST `/api/v1/commandes/{id}/annuler`). */
+/** Annule une commande (POST `/api/v1/commandes/{id}/annuler`, PRESSING.ANNULER). */
 export function annulerCommande(id: string): Promise<unknown> {
 	return getApiClient().apiFetch(`/api/v1/pressing/commandes/${id}/annuler`, {
 		method: "POST",
+	});
+}
+
+/**
+ * Corps de validation/chiffrage d'une demande de dépôt `EN_ATTENTE` du
+ * portail résident (`POST /pressing/commandes/{id}/valider` → `DEPOSE`,
+ * PRESSING.CREER). Les lignes reprennent la déclaration du résident, chiffrée
+ * selon `modeTarification` (`tarif` en UNITAIRE, `poidsKg` en POIDS) —
+ * `hors_catalogue: true` est renvoyé ligne à ligne car le libellé saisi par
+ * le résident est libre.
+ */
+export interface ValiderDemandeBody {
+	modeTarification: ModeTarificationPressing;
+	dateRetraitPrevue?: string;
+	lignes: LigneCommandeBody[];
+	/** Acompte éventuel encaissé à la validation. */
+	paiement?: { montant: string; idMoyen: string };
+}
+
+/** Valide et chiffre une demande `EN_ATTENTE` (→ `DEPOSE`, PRESSING.CREER). */
+export function validerDemande(
+	id: string,
+	body: ValiderDemandeBody,
+): Promise<unknown> {
+	const corps = {
+		lignes: body.lignes.map((ligne) => ({
+			...ligneVersCorps(ligne),
+			hors_catalogue: true,
+		})),
+		mode_tarification: body.modeTarification,
+		...(body.dateRetraitPrevue
+			? { date_retrait_prevue: body.dateRetraitPrevue }
+			: {}),
+		...(body.paiement
+			? {
+					paiement: {
+						montant: body.paiement.montant,
+						id_moyen: body.paiement.idMoyen,
+					},
+				}
+			: {}),
+	} satisfies ValiderDemandePressingDto;
+	return getApiClient().apiFetch(`/api/v1/pressing/commandes/${id}/valider`, {
+		method: "POST",
+		body: JSON.stringify(corps),
 	});
 }
 

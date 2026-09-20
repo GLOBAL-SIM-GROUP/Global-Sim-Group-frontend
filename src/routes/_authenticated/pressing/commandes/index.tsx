@@ -18,7 +18,15 @@ export const Route = createFileRoute("/_authenticated/pressing/commandes/")({
 	validateSearch: z.object({
 		recherche: z.string().optional(),
 		statut: z
-			.enum(["tous", "DEPOSE", "EN_TRAITEMENT", "PRET", "RETIRE", "ANNULEE"])
+			.enum([
+				"tous",
+				"EN_ATTENTE",
+				"DEPOSE",
+				"EN_TRAITEMENT",
+				"PRET",
+				"RETIRE",
+				"ANNULEE",
+			])
 			.optional(),
 		client: z.string().optional(),
 		du: z.string().optional(),

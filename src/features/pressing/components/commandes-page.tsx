@@ -4,9 +4,10 @@ import { useMemo, useState } from "react";
 import { Breadcrumb } from "#/components/ui/breadcrumb";
 import { Button } from "#/components/ui/button";
 import { useCan } from "#/core/auth";
+import { ConfirmDialog } from "#/features/residence/components/confirm-dialog";
 import { useMoyensPaiement } from "#/features/residence/hooks/use-moyens-paiement";
-
 import {
+	useAnnulerCommande,
 	useCommande,
 	useCommandes,
 	usePretCommande,
@@ -19,10 +20,12 @@ import {
 	paginerCommandes,
 } from "../models/commandes";
 import { COMMANDES_PAGE_SIZE } from "../permissions";
+
 import { CommandeFilters } from "./commande-filters";
 import { CommandeFormDialog } from "./commande-form-dialog";
 import { CommandeTable } from "./commande-table";
 import { RetirerCommandeDialog } from "./retirer-commande-dialog";
+import { ValiderDemandeDialog } from "./valider-demande-dialog";
 
 /** Filtres/pagination reflétés dans l'URL (liens partageables). */
 export interface CommandesSearch {
@@ -52,10 +55,12 @@ export function CommandesPage({
 	const canCreer = useCan("PRESSING.CREER");
 	const canModifier = useCan("PRESSING.MODIFIER");
 	const canFinancesVoir = useCan("FINANCES.VOIR");
+	const canAnnuler = useCan("PRESSING.ANNULER");
 
 	const moyensQuery = useMoyensPaiement();
 	const traitementMutation = useTraitementCommande();
 	const pretMutation = usePretCommande();
+	const annulerMutation = useAnnulerCommande();
 
 	const [recherche, setRecherche] = useState(initialSearch.recherche ?? "");
 	const [statut, setStatut] = useState<CommandeStatutFiltre>(
@@ -68,9 +73,17 @@ export function CommandesPage({
 	const [formOuvert, setFormOuvert] = useState(false);
 	const [aModifier, setAModifier] = useState<CommandePressing | null>(null);
 	const [aRetirer, setARetirer] = useState<CommandePressing | null>(null);
+	const [aValider, setAValider] = useState<CommandePressing | null>(null);
+	const [aRefuser, setARefuser] = useState<CommandePressing | null>(null);
 
 	// Lignes de la commande en cours d'édition (le lister ne les embarque pas).
 	const commandeEditQuery = useCommande(aModifier?.id);
+	// Lignes de la demande à chiffrer (idem : détail nécessaire).
+	const commandeAValiderQuery = useCommande(aValider?.id);
+	const demandeAValider =
+		commandeAValiderQuery.data?.statut === "EN_ATTENTE"
+			? commandeAValiderQuery.data
+			: null;
 
 	const commandesQuery = useCommandes(
 		statut,
@@ -178,10 +191,13 @@ export function CommandesPage({
 					canModifier={canModifier}
 					canCreer={canCreer}
 					canFinancesVoir={canFinancesVoir}
+					canAnnuler={canAnnuler}
 					onEdit={(commande) => setAModifier(commande)}
 					onTraitement={(commande) => traitementMutation.mutate(commande.id)}
 					onPret={(commande) => pretMutation.mutate(commande.id)}
 					onRetirer={(commande) => setARetirer(commande)}
+					onValider={(commande) => setAValider(commande)}
+					onRefuser={(commande) => setARefuser(commande)}
 				/>
 			)}
 
@@ -234,6 +250,40 @@ export function CommandesPage({
 					if (!ouvert) setARetirer(null);
 				}}
 				onSaved={() => setARetirer(null)}
+			/>
+
+			<ValiderDemandeDialog
+				key={aValider?.id ?? "valider"}
+				open={aValider !== null}
+				commande={demandeAValider}
+				moyens={moyensQuery.data ?? []}
+				onOpenChange={(ouvert) => {
+					if (!ouvert) setAValider(null);
+				}}
+				onSaved={() => setAValider(null)}
+			/>
+
+			<ConfirmDialog
+				open={aRefuser !== null}
+				onOpenChange={(ouvert) => {
+					if (!ouvert) setARefuser(null);
+				}}
+				title="Refuser la demande"
+				message={
+					aRefuser
+						? `Refuser la demande ${aRefuser.numero_commande} ? Elle sera annulée définitivement.`
+						: ""
+				}
+				confirmLabel="Refuser"
+				cancelLabel="Conserver"
+				destructive
+				busy={annulerMutation.isPending}
+				onConfirm={() => {
+					if (!aRefuser) return;
+					annulerMutation.mutate(aRefuser.id, {
+						onSuccess: () => setARefuser(null),
+					});
+				}}
 			/>
 		</div>
 	);

@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import {
-	formatDateHeureISO,
+	formatDateHeureUTC,
 	formatMontantFCFA,
 } from "#/features/residence/models/format";
 import { cn } from "#/lib/utils";
@@ -12,6 +12,7 @@ import {
 import { CommandeActions } from "./commande-actions";
 
 const PRESSING_STATUT_BADGE: Record<CommandePressingStatut, string> = {
+	EN_ATTENTE: "bg-[#8E44AD] text-white",
 	DEPOSE: "bg-[#2980B9] text-white",
 	EN_TRAITEMENT: "bg-[#E67E22] text-white",
 	PRET: "bg-[#27AE60] text-white",
@@ -24,10 +25,14 @@ interface CommandeTableProps {
 	canModifier: boolean;
 	canCreer: boolean;
 	canFinancesVoir: boolean;
+	/** `PRESSING.ANNULER` — refuser une demande `EN_ATTENTE`. */
+	canAnnuler: boolean;
 	onEdit: (commande: CommandePressing) => void;
 	onTraitement: (commande: CommandePressing) => void;
 	onPret: (commande: CommandePressing) => void;
 	onRetirer: (commande: CommandePressing) => void;
+	onValider: (commande: CommandePressing) => void;
+	onRefuser: (commande: CommandePressing) => void;
 }
 
 /**
@@ -39,10 +44,13 @@ export function CommandeTable({
 	canModifier,
 	canCreer,
 	canFinancesVoir,
+	canAnnuler,
 	onEdit,
 	onTraitement,
 	onPret,
 	onRetirer,
+	onValider,
+	onRefuser,
 }: CommandeTableProps) {
 	if (commandes.length === 0) {
 		return (
@@ -108,7 +116,7 @@ export function CommandeTable({
 								{`${commande.client_nom} ${commande.client_prenoms}`.trim()}
 							</td>
 							<td className="px-4 py-3 text-muted-foreground">
-								{formatDateHeureISO(commande.date_depot)}
+								{formatDateHeureUTC(commande.date_depot)}
 							</td>
 							<td className="px-4 py-3 text-muted-foreground">
 								{commande.date_retrait_prevue ?? "—"}
@@ -138,10 +146,13 @@ export function CommandeTable({
 									canModifier={canModifier}
 									canCreer={canCreer}
 									canFinancesVoir={canFinancesVoir}
+									canAnnuler={canAnnuler}
 									onEdit={onEdit}
 									onTraitement={onTraitement}
 									onPret={onPret}
 									onRetirer={onRetirer}
+									onValider={onValider}
+									onRefuser={onRefuser}
 								/>
 							</td>
 						</tr>
