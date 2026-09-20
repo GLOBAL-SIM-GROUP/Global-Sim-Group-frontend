@@ -1,5 +1,5 @@
 import {
-	formatDateHeureISO,
+	formatDateHeureUTC,
 	formatMontantFCFA,
 } from "#/features/residence/models/format";
 import { cn } from "#/lib/utils";
@@ -12,6 +12,7 @@ import {
 import { CommandeActions } from "./commande-actions";
 
 const COMMANDE_STATUT_BADGE: Record<CommandeRestaurantStatut, string> = {
+	EN_ATTENTE: "bg-[#8E44AD] text-white",
 	EN_COURS: "bg-[#2980B9] text-white",
 	EN_PREPARATION: "bg-[#E67E22] text-white",
 	SERVIE: "bg-[#27AE60] text-white",
@@ -24,12 +25,15 @@ interface CommandeTableProps {
 	clients: ReadonlyMap<string, string>;
 	canModifier: boolean;
 	canSupprimer: boolean;
+	/** `RESTAURANT.VALIDER` — valider/refuser une demande `EN_ATTENTE`. */
+	canValider: boolean;
 	onVoirFacture: (commande: CommandeRestaurant) => void;
 	onStatut: (
 		commande: CommandeRestaurant,
 		statut: CommandeRestaurant["statut"],
 	) => void;
 	onAnnuler: (commande: CommandeRestaurant) => void;
+	onRefuser: (commande: CommandeRestaurant) => void;
 }
 
 /** Tableau des commandes restaurant (M5). Le client est résolu par la page. */
@@ -38,9 +42,11 @@ export function CommandeTable({
 	clients,
 	canModifier,
 	canSupprimer,
+	canValider,
 	onVoirFacture,
 	onStatut,
 	onAnnuler,
+	onRefuser,
 }: CommandeTableProps) {
 	if (commandes.length === 0) {
 		return (
@@ -93,7 +99,7 @@ export function CommandeTable({
 									: "—"}
 							</td>
 							<td className="px-4 py-3 text-muted-foreground">
-								{formatDateHeureISO(commande.date)}
+								{formatDateHeureUTC(commande.date)}
 							</td>
 							<td className="px-4 py-3 text-foreground">
 								{TYPE_COMMANDE_LABELS[commande.type]}
@@ -116,9 +122,11 @@ export function CommandeTable({
 									commande={commande}
 									canModifier={canModifier}
 									canSupprimer={canSupprimer}
+									canValider={canValider}
 									onVoirFacture={onVoirFacture}
 									onStatut={onStatut}
 									onAnnuler={onAnnuler}
+									onRefuser={onRefuser}
 								/>
 							</td>
 						</tr>

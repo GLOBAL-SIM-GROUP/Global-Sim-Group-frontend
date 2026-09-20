@@ -19,6 +19,7 @@ export const Route = createFileRoute("/_authenticated/restaurant/commandes/")({
 		statut: z
 			.enum([
 				"tous",
+				"EN_ATTENTE",
 				"EN_COURS",
 				"EN_PREPARATION",
 				"SERVIE",

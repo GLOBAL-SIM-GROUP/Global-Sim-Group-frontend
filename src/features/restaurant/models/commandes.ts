@@ -3,6 +3,7 @@
  * réel (GET /restaurant/commandes). Clé primaire wire `id_commande` → `id`.
  */
 export type CommandeRestaurantStatut =
+	| "EN_ATTENTE"
 	| "EN_COURS"
 	| "EN_PREPARATION"
 	| "SERVIE"
@@ -18,6 +19,11 @@ export interface CommandeRestaurant {
 	type: TypeCommande;
 	total: string;
 	statut: CommandeRestaurantStatut;
+	/**
+	 * Raison du refus quand une demande du portail a été annulée par le
+	 * personnel (champ non garanti sur les anciennes réponses — optionnel).
+	 */
+	motif_annulation?: string | null;
 }
 
 /** Ligne d'une commande (GET /restaurant/commandes/{id} → `lignes[]`). */
@@ -33,11 +39,15 @@ export interface LigneCommandeRestaurant {
 /** Détail d'une commande : le GET par id embarque les lignes. */
 export interface CommandeRestaurantDetail extends CommandeRestaurant {
 	lignes: LigneCommandeRestaurant[];
+	/** Champs portail visibles sur le détail (adresse de livraison, note). */
+	adresse_livraison?: string | null;
+	notes?: string | null;
 }
 
 /** Libellés français du statut de commande. */
 export const COMMANDE_STATUT_LABELS: Record<CommandeRestaurantStatut, string> =
 	{
+		EN_ATTENTE: "En attente",
 		EN_COURS: "En cours",
 		EN_PREPARATION: "En préparation",
 		SERVIE: "Servie",

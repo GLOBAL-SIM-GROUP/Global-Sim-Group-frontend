@@ -9,6 +9,8 @@ interface CommandeActionsProps {
 	commande: CommandeRestaurant;
 	canModifier: boolean;
 	canSupprimer: boolean;
+	/** `RESTAURANT.VALIDER` — valider/refuser une demande `EN_ATTENTE`. */
+	canValider: boolean;
 	/** Voir la facture → ouvre la modale du détail. */
 	onVoirFacture: (commande: CommandeRestaurant) => void;
 	/** Changer le statut (prochaine étape selon l'état courant). */
@@ -18,27 +20,35 @@ interface CommandeActionsProps {
 	) => void;
 	/** Annuler (administrateur). */
 	onAnnuler: (commande: CommandeRestaurant) => void;
+	/** Refuser une demande `EN_ATTENTE` (ANNULEE + motif pour le résident). */
+	onRefuser: (commande: CommandeRestaurant) => void;
 }
 
 /**
- * Actions d'une ligne commande restaurant : « Voir la facture », « Modifier le
- * statut » (prochaine étape : En préparation → Servie → Payée) et « Annuler »
+ * Actions d'une ligne commande restaurant : « Voir la facture », validation
+ * d'une demande du portail `EN_ATTENTE` (valider → EN_COURS, refuser →
+ * ANNULEE avec motif, gated `RESTAURANT.VALIDER`), « Modifier le statut »
+ * (prochaine étape : En préparation → Servie → Payée) et « Annuler »
  * (gated `RESTAURANT.SUPPRIMER`).
  */
 export function CommandeActions({
 	commande,
 	canModifier,
 	canSupprimer,
+	canValider,
 	onVoirFacture,
 	onStatut,
 	onAnnuler,
+	onRefuser,
 }: CommandeActionsProps) {
+	const enAttente = commande.statut === "EN_ATTENTE";
 	const prochaineEtape: {
 		statut: CommandeRestaurant["statut"];
 		label: string;
 		icon: typeof RefreshCw;
-	} | null =
-		commande.statut === "EN_COURS"
+	} | null = enAttente
+		? { statut: "EN_COURS", label: "Prise en charge", icon: CheckCheck }
+		: commande.statut === "EN_COURS"
 			? { statut: "EN_PREPARATION", label: "En préparation", icon: RefreshCw }
 			: commande.statut === "EN_PREPARATION"
 				? { statut: "SERVIE", label: "Servie", icon: CheckCheck }
@@ -65,7 +75,19 @@ export function CommandeActions({
 				isPaid={commande.statut === "PAYEE"}
 			/>
 
-			{canModifier && prochaineEtape ? (
+			{enAttente && canValider ? (
+				<Button
+					variant="ghost"
+					size="icon-sm"
+					title="Valider la demande (prise en charge)"
+					onClick={() => onStatut(commande, "EN_COURS")}
+				>
+					<CheckCheck className="size-4 text-lagoon" aria-hidden />
+					<span className="sr-only">Valider la demande</span>
+				</Button>
+			) : null}
+
+			{!enAttente && canModifier && prochaineEtape ? (
 				<Button
 					variant="ghost"
 					size="icon-sm"
@@ -77,7 +99,19 @@ export function CommandeActions({
 				</Button>
 			) : null}
 
-			{canSupprimer && commande.statut !== "ANNULEE" ? (
+			{enAttente && canValider ? (
+				<Button
+					variant="ghost"
+					size="icon-sm"
+					title="Refuser la demande"
+					onClick={() => onRefuser(commande)}
+				>
+					<X className="size-4 text-destructive" aria-hidden />
+					<span className="sr-only">Refuser la demande</span>
+				</Button>
+			) : null}
+
+			{!enAttente && canSupprimer && commande.statut !== "ANNULEE" ? (
 				<Button
 					variant="ghost"
 					size="icon-sm"

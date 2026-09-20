@@ -52,17 +52,19 @@ export function useCreerCommande() {
 	return useMutation({ mutationFn: creerCommande, onSuccess: invalider });
 }
 
-/** Modifie le statut d'une commande (POST statut). */
+/** Modifie le statut d'une commande (POST statut, motif optionnel). */
 export function useMajStatutCommande() {
 	const invalider = useInvalidation();
 	return useMutation({
 		mutationFn: ({
 			id,
 			statut,
+			motif,
 		}: {
 			id: string;
 			statut: CommandeRestaurantStatut;
-		}) => majStatutCommande(id, statut),
+			motif?: string;
+		}) => majStatutCommande(id, statut, motif),
 		onSuccess: invalider,
 	});
 }

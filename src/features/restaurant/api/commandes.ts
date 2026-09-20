@@ -96,12 +96,22 @@ export function creerCommande(body: CommandeBody): Promise<unknown> {
 	});
 }
 
-/** Modifie le statut d'une commande (POST `/api/v1/commandes/{id}/statut`). */
+/**
+ * Modifie le statut d'une commande (POST `/api/v1/commandes/{id}/statut`).
+ * `motif` (optionnel) porte la raison du refus quand `statut === "ANNULEE"`
+ * — restitué au résident dans `motif_annulation`. La transition
+ * `EN_ATTENTE → EN_COURS` (validation d'une commande du portail) exige
+ * `RESTAURANT.VALIDER`.
+ */
 export function majStatutCommande(
 	id: string,
 	statut: CommandeRestaurantStatut,
+	motif?: string,
 ): Promise<unknown> {
-	const corps = { statut } satisfies MajStatutCommandeDto;
+	const corps = {
+		statut,
+		...(motif ? { motif } : {}),
+	} satisfies Omit<MajStatutCommandeDto, "motif"> & { motif?: string };
 	return getApiClient().apiFetch(`/api/v1/restaurant/commandes/${id}/statut`, {
 		method: "POST",
 		body: JSON.stringify(corps),

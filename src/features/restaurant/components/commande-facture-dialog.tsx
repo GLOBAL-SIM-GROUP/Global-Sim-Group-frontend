@@ -3,12 +3,17 @@ import { Dialog } from "radix-ui";
 import { DownloadReceiptButton } from "#/features/facturation/components/download-receipt-button";
 import { formatMontantFCFA } from "#/features/residence/models/format";
 import { useCommande } from "../hooks/use-commandes";
-import { COMMANDE_STATUT_LABELS } from "../models/commandes";
+import {
+	COMMANDE_STATUT_LABELS,
+	TYPE_COMMANDE_LABELS,
+} from "../models/commandes";
 
 interface CommandeFactureDialogProps {
 	open: boolean;
 	/** Id de la commande affichée ; null = fermé. */
 	commandeId: string | null;
+	/** Index `id_plat` → nom (la page charge déjà le catalogue). */
+	plats?: ReadonlyMap<string, string>;
 	onOpenChange: (open: boolean) => void;
 }
 
@@ -16,6 +21,7 @@ interface CommandeFactureDialogProps {
 export function CommandeFactureDialog({
 	open,
 	commandeId,
+	plats,
 	onOpenChange,
 }: CommandeFactureDialogProps) {
 	const commandeQuery = useCommande(commandeId ?? undefined);
@@ -51,10 +57,38 @@ export function CommandeFactureDialog({
 									<div>
 										<dt className="text-muted-foreground">Type</dt>
 										<dd className="text-foreground">
-											{commandeQuery.data.type}
+											{TYPE_COMMANDE_LABELS[commandeQuery.data.type] ??
+												commandeQuery.data.type}
 										</dd>
 									</div>
+									{commandeQuery.data.adresse_livraison ? (
+										<div className="sm:col-span-2">
+											<dt className="text-muted-foreground">
+												Adresse de livraison
+											</dt>
+											<dd className="text-foreground">
+												{commandeQuery.data.adresse_livraison}
+											</dd>
+										</div>
+									) : null}
+									{commandeQuery.data.notes ? (
+										<div className="sm:col-span-2">
+											<dt className="text-muted-foreground">Note du client</dt>
+											<dd className="text-foreground">
+												{commandeQuery.data.notes}
+											</dd>
+										</div>
+									) : null}
 								</dl>
+
+								{commandeQuery.data.motif_annulation ? (
+									<p
+										role="alert"
+										className="rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive"
+									>
+										Motif du refus : {commandeQuery.data.motif_annulation}
+									</p>
+								) : null}
 
 								<div className="overflow-x-auto rounded-md border border-border">
 									<table className="w-full border-collapse text-sm">
@@ -81,7 +115,7 @@ export function CommandeFactureDialog({
 											{commandeQuery.data.lignes.map((ligne) => (
 												<tr key={ligne.id} className="border-t border-border">
 													<td className="px-3 py-2 text-foreground">
-														{ligne.id_plat}
+														{plats?.get(ligne.id_plat) ?? ligne.id_plat}
 													</td>
 													<td className="px-3 py-2 text-foreground">
 														{ligne.quantite}

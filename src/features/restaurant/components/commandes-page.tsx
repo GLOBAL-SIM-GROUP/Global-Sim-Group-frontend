@@ -40,6 +40,7 @@ import {
 import { COMMANDES_RESTAURANT_PAGE_SIZE } from "../permissions";
 import { CommandeFactureDialog } from "./commande-facture-dialog";
 import { CommandeFormDialog } from "./commande-form-dialog";
+import { CommandeRefusDialog } from "./commande-refus-dialog";
 import { CommandeTable } from "./commande-table";
 
 /** Filtres/pagination reflétés dans l'URL. */
@@ -70,6 +71,7 @@ export function CommandesPage({
 	const canCreer = useCan("RESTAURANT.CREER");
 	const canModifier = useCan("RESTAURANT.MODIFIER");
 	const canSupprimer = useCan("RESTAURANT.SUPPRIMER");
+	const canValider = useCan("RESTAURANT.VALIDER");
 
 	const [search, setSearch] = useState(initialSearch.search ?? "");
 	const [statut, setStatut] = useState<CommandeStatutFiltre>(
@@ -118,6 +120,7 @@ export function CommandesPage({
 	const [formOuvert, setFormOuvert] = useState(false);
 	const [aVoir, setAVoir] = useState<string | null>(null);
 	const [aAnnuler, setAAnnuler] = useState<CommandeRestaurant | null>(null);
+	const [aRefuser, setARefuser] = useState<CommandeRestaurant | null>(null);
 
 	const changerFiltre = (patch: {
 		search?: string;
@@ -314,11 +317,13 @@ export function CommandesPage({
 					clients={clients}
 					canModifier={canModifier}
 					canSupprimer={canSupprimer}
+					canValider={canValider}
 					onVoirFacture={(commande) => setAVoir(commande.id)}
 					onStatut={(commande, suivant) =>
 						statutMutation.mutate({ id: commande.id, statut: suivant })
 					}
 					onAnnuler={(commande) => setAAnnuler(commande)}
+					onRefuser={(commande) => setARefuser(commande)}
 				/>
 			)}
 
@@ -367,8 +372,31 @@ export function CommandesPage({
 			<CommandeFactureDialog
 				open={aVoir !== null}
 				commandeId={aVoir}
+				plats={
+					new Map((platsQuery.data ?? []).map((plat) => [plat.id, plat.nom]))
+				}
 				onOpenChange={(ouvert) => {
 					if (!ouvert) setAVoir(null);
+				}}
+			/>
+
+			<CommandeRefusDialog
+				commande={aRefuser}
+				isPending={statutMutation.isPending}
+				onOpenChange={(ouvert) => {
+					if (!ouvert) setARefuser(null);
+				}}
+				onConfirm={(motif) => {
+					if (aRefuser) {
+						statutMutation.mutate(
+							{
+								id: aRefuser.id,
+								statut: "ANNULEE",
+								motif: motif || undefined,
+							},
+							{ onSettled: () => setARefuser(null) },
+						);
+					}
 				}}
 			/>
 
