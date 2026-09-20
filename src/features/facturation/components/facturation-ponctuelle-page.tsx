@@ -16,7 +16,7 @@ import { useCan } from "#/core/auth";
 import { useClientsDetails } from "#/features/residence/hooks/use-clients";
 import { nomComplet } from "#/features/residence/models/clients";
 import {
-	formatDateHeureISO,
+	formatDateHeureUTC,
 	formatMontantFCFA,
 } from "#/features/residence/models/format";
 import { cn } from "#/lib/utils";
@@ -255,7 +255,7 @@ export function FacturationPonctuellePage({
 										</Link>
 									</td>
 									<td className="px-4 py-3 text-muted-foreground">
-										{formatDateHeureISO(facture.date)}
+										{formatDateHeureUTC(facture.date)}
 									</td>
 									<td className="px-4 py-3 text-foreground">
 										{facture.id_client

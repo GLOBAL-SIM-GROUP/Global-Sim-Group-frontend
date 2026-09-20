@@ -13,7 +13,7 @@ import {
 	SelectValue,
 } from "#/components/ui/select";
 import { useCan } from "#/core/auth";
-import { formatDateHeureISO } from "#/features/residence/models/format";
+import { formatDateHeureUTC } from "#/features/residence/models/format";
 import { cn } from "#/lib/utils";
 
 import { useClients } from "../hooks/use-clients";
@@ -236,7 +236,7 @@ export function ClientsPage({
 										{client.ville ?? "—"}
 									</td>
 									<td className="px-4 py-3 text-muted-foreground">
-										{formatDateHeureISO(client.date_enregistrement)}
+										{formatDateHeureUTC(client.date_enregistrement)}
 									</td>
 								</tr>
 							))}

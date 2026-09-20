@@ -14,7 +14,7 @@ import {
 } from "#/components/ui/select";
 import type { CibleType, ModuleCible } from "#/core/api/signalements";
 import { useCan } from "#/core/auth";
-import { formatDateHeureISO } from "#/features/residence/models/format";
+import { formatDateHeureUTC } from "#/features/residence/models/format";
 import { cn } from "#/lib/utils";
 
 import { useSignalements } from "../hooks/use-signalements";
@@ -275,7 +275,7 @@ export function SignalementsPage({
 										{nomDeclarant(signalement)}
 									</td>
 									<td className="px-4 py-3 text-muted-foreground">
-										{formatDateHeureISO(signalement.date_signalement)}
+										{formatDateHeureUTC(signalement.date_signalement)}
 									</td>
 									<td className="px-4 py-3">
 										<span

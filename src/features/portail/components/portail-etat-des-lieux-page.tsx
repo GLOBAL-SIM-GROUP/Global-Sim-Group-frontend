@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { Breadcrumb } from "#/components/ui/breadcrumb";
 import { Button } from "#/components/ui/button";
 import {
-	formatDateHeureISO,
+	formatDateHeureUTC,
 	formatDateISO,
 } from "#/features/residence/models/format";
 import { cn } from "#/lib/utils";
@@ -206,7 +206,7 @@ function PhotoViewerDialog({
 						</Dialog.Close>
 					</div>
 					<Dialog.Description className="mt-1 text-sm text-muted-foreground">
-						{photo ? formatDateHeureISO(photo.date_ajout) : ""}
+						{photo ? formatDateHeureUTC(photo.date_ajout) : ""}
 						{photo?.commentaire ? ` — ${photo.commentaire}` : ""}
 					</Dialog.Description>
 					<div className="mt-3 flex max-h-[70vh] items-center justify-center overflow-hidden rounded-md bg-muted">

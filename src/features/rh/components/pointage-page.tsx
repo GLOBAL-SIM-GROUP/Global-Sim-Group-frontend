@@ -13,7 +13,7 @@ import {
 } from "#/components/ui/select";
 import { useCan } from "#/core/auth";
 import {
-	formatDateHeureISO,
+	formatDateHeureUTC,
 	formatDateISO,
 } from "#/features/residence/models/format";
 import { cn } from "#/lib/utils";
@@ -106,13 +106,13 @@ export function PointagePage() {
 							<span className="text-muted-foreground">
 								Arrivée :{" "}
 								<span className="font-medium text-foreground">
-									{formatDateHeureISO(pointageDuJour.heure_arrivee)}
+									{formatDateHeureUTC(pointageDuJour.heure_arrivee)}
 								</span>
 							</span>
 							<span className="text-muted-foreground">
 								Départ :{" "}
 								<span className="font-medium text-foreground">
-									{formatDateHeureISO(pointageDuJour.heure_depart)}
+									{formatDateHeureUTC(pointageDuJour.heure_depart)}
 								</span>
 							</span>
 							<span
@@ -200,10 +200,10 @@ export function PointagePage() {
 											{nomCompletPointage(pointage)}
 										</td>
 										<td className="px-4 py-3 text-muted-foreground">
-											{formatDateHeureISO(pointage.heure_arrivee)}
+											{formatDateHeureUTC(pointage.heure_arrivee)}
 										</td>
 										<td className="px-4 py-3 text-muted-foreground">
-											{formatDateHeureISO(pointage.heure_depart)}
+											{formatDateHeureUTC(pointage.heure_depart)}
 										</td>
 										<td className="px-4 py-3">
 											<span

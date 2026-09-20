@@ -17,7 +17,7 @@ import {
 	type EtatDesLieuxPhoto,
 	type EtatDesLieuxType,
 } from "../models/etat-des-lieux";
-import { formatDateHeureISO } from "../models/format";
+import { formatDateHeureUTC } from "../models/format";
 import { ConfirmDialog } from "./confirm-dialog";
 import { EtatDesLieuxFormDialog } from "./etat-des-lieux-form-dialog";
 
@@ -224,7 +224,7 @@ function PhotoCard({
 					</p>
 				) : null}
 				<p className="text-xs text-muted-foreground">
-					{formatDateHeureISO(photo.date_ajout)}
+					{formatDateHeureUTC(photo.date_ajout)}
 				</p>
 			</div>
 		</div>
@@ -258,7 +258,7 @@ function PhotoViewerDialog({
 						</Dialog.Close>
 					</div>
 					<Dialog.Description className="mt-1 text-sm text-muted-foreground">
-						{photo ? formatDateHeureISO(photo.date_ajout) : ""}
+						{photo ? formatDateHeureUTC(photo.date_ajout) : ""}
 						{photo?.commentaire ? ` — ${photo.commentaire}` : ""}
 					</Dialog.Description>
 					<div className="mt-3 flex max-h-[70vh] items-center justify-center overflow-hidden rounded-md bg-muted">

@@ -13,7 +13,7 @@ import {
 	SelectValue,
 } from "#/components/ui/select";
 import { useCan } from "#/core/auth";
-import { formatDateHeureISO } from "#/features/residence/models/format";
+import { formatDateHeureUTC } from "#/features/residence/models/format";
 import { cn } from "#/lib/utils";
 import { useRoles } from "../hooks/use-roles";
 import {
@@ -307,7 +307,7 @@ export function UtilisateursPage({
 											: "—"}
 									</td>
 									<td className="px-4 py-3 text-muted-foreground">
-										{formatDateHeureISO(utilisateur.dernier_connexion)}
+										{formatDateHeureUTC(utilisateur.dernier_connexion)}
 									</td>
 									<td className="px-4 py-3">
 										<span

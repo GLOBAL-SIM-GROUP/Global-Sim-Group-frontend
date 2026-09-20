@@ -17,7 +17,7 @@ import {
 } from "#/components/ui/select";
 import { useCan } from "#/core/auth";
 import {
-	formatDateHeureISO,
+	formatDateHeureUTC,
 	formatDateISO,
 } from "#/features/residence/models/format";
 import { cn } from "#/lib/utils";
@@ -366,10 +366,10 @@ export function PointageConsultationPage({
 										{formatDateISO(pointage.date)}
 									</td>
 									<td className="px-4 py-3 text-muted-foreground">
-										{formatDateHeureISO(pointage.heure_arrivee)}
+										{formatDateHeureUTC(pointage.heure_arrivee)}
 									</td>
 									<td className="px-4 py-3 text-muted-foreground">
-										{formatDateHeureISO(pointage.heure_depart)}
+										{formatDateHeureUTC(pointage.heure_depart)}
 									</td>
 									<td className="px-4 py-3 text-muted-foreground">
 										{pointage.duree_travaillee

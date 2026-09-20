@@ -12,7 +12,7 @@ import { Button } from "#/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "#/components/ui/card";
 import { toApiError } from "#/core/api";
 import { requirePermissions, useCan } from "#/core/auth";
-import { formatDateHeureISO } from "#/features/residence/models/format";
+import { formatDateHeureUTC } from "#/features/residence/models/format";
 import { SignalementPhotos } from "#/features/signalements/components/signalement-photos";
 import {
 	usePrendreEnChargeSignalement,
@@ -150,7 +150,7 @@ function DetailSignalementPage() {
 					</div>
 					<p className="text-muted-foreground">
 						Signalé par {nomDeclarant(signalement)} le{" "}
-						{formatDateHeureISO(signalement.date_signalement)}
+						{formatDateHeureUTC(signalement.date_signalement)}
 					</p>
 				</section>
 				<Button variant="outline" asChild>
@@ -168,14 +168,14 @@ function DetailSignalementPage() {
 						<Ligne label="Cible" valeur={libelleCible(signalement)} />
 						<Ligne
 							label="Signalé le"
-							valeur={formatDateHeureISO(signalement.date_signalement)}
+							valeur={formatDateHeureUTC(signalement.date_signalement)}
 						/>
 						{signalement.date_resolution ? (
 							<Ligne
 								label={
 									signalement.statut === "REJETE" ? "Rejeté le" : "Résolu le"
 								}
-								valeur={formatDateHeureISO(signalement.date_resolution)}
+								valeur={formatDateHeureUTC(signalement.date_resolution)}
 							/>
 						) : null}
 					</dl>

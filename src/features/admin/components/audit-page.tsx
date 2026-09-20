@@ -11,7 +11,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "#/components/ui/select";
-import { formatDateHeureISO } from "#/features/residence/models/format";
+import { formatDateHeureUTC } from "#/features/residence/models/format";
 
 import {
 	getJournalExportPath,
@@ -288,7 +288,7 @@ export function AuditPage({ initialSearch, onSearchChange }: AuditPageProps) {
 									className="border-t border-border transition-colors hover:bg-accent/40"
 								>
 									<td className="whitespace-nowrap px-4 py-3 text-muted-foreground">
-										{formatDateHeureISO(trace.date_heure)}
+										{formatDateHeureUTC(trace.date_heure)}
 									</td>
 									<td className="px-4 py-3 text-foreground">
 										{trace.id_utilisateur

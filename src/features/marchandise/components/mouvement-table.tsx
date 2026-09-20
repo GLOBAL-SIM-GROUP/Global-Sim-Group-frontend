@@ -1,4 +1,4 @@
-import { formatDateHeureISO } from "#/features/residence/models/format";
+import { formatDateHeureUTC } from "#/features/residence/models/format";
 import { cn } from "#/lib/utils";
 import {
 	MOUVEMENT_TYPE_LABELS,
@@ -59,7 +59,7 @@ export function MouvementTable({ mouvements }: MouvementTableProps) {
 							className="border-t border-border transition-colors hover:bg-accent/40"
 						>
 							<td className="px-4 py-3 text-muted-foreground">
-								{formatDateHeureISO(mouvement.date)}
+								{formatDateHeureUTC(mouvement.date)}
 							</td>
 							<td className="px-4 py-3 text-foreground">
 								<span className="font-medium">{mouvement.reference}</span> —{" "}

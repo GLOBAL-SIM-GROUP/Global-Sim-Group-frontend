@@ -10,7 +10,7 @@ import { useClientsDetails } from "#/features/residence/hooks/use-clients";
 import { useMoyensPaiement } from "#/features/residence/hooks/use-moyens-paiement";
 import { nomComplet } from "#/features/residence/models/clients";
 import {
-	formatDateHeureISO,
+	formatDateHeureUTC,
 	formatMontantFCFA,
 } from "#/features/residence/models/format";
 import { PaiementDialog } from "#/features/salle-fete/components/paiement-dialog";
@@ -127,7 +127,7 @@ export function FactureFichePage({ id }: FactureFichePageProps) {
 				<div className="flex flex-wrap items-start justify-between gap-4">
 					<dl className="grid flex-1 gap-4 sm:grid-cols-2">
 						<Ligne label="Numéro" valeur={facture.numero} />
-						<Ligne label="Date" valeur={formatDateHeureISO(facture.date)} />
+						<Ligne label="Date" valeur={formatDateHeureUTC(facture.date)} />
 						<Ligne label="Client" valeur={client ? nomComplet(client) : "—"} />
 						<Ligne
 							label="Remise"

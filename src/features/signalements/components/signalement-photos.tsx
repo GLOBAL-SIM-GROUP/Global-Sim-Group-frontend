@@ -4,7 +4,7 @@ import { useState } from "react";
 
 import { Button } from "#/components/ui/button";
 import type { SignalementPhoto } from "#/core/api/signalements";
-import { formatDateHeureISO } from "#/features/residence/models/format";
+import { formatDateHeureUTC } from "#/features/residence/models/format";
 
 import {
 	useSignalementPhotoBlobUrl,
@@ -116,7 +116,7 @@ function PhotoViewer({
 								Photo du signalement
 							</Dialog.Title>
 							<Dialog.Description className="text-sm text-muted-foreground">
-								{photo ? formatDateHeureISO(photo.date_ajout) : ""}
+								{photo ? formatDateHeureUTC(photo.date_ajout) : ""}
 							</Dialog.Description>
 						</div>
 						<Dialog.Close asChild>

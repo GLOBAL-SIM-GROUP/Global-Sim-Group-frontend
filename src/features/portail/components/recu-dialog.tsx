@@ -5,6 +5,7 @@ import { useState } from "react";
 import { Button } from "#/components/ui/button";
 import {
 	formatDateHeureISO,
+	formatDateHeureUTC,
 	formatMontantFCFA,
 } from "#/features/residence/models/format";
 
@@ -182,7 +183,7 @@ export function RecuDialog({ open, kind, id, onOpenChange }: RecuDialogProps) {
 										</p>
 										<Ligne
 											label="Date"
-											valeur={formatDateHeureISO(recu.facture.date)}
+											valeur={formatDateHeureUTC(recu.facture.date)}
 										/>
 										<Ligne
 											label="Montant total"
