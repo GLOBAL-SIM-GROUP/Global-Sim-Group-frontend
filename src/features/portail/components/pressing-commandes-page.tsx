@@ -3,22 +3,22 @@ import { ChevronRight } from "lucide-react";
 
 import { Breadcrumb } from "#/components/ui/breadcrumb";
 import { Button } from "#/components/ui/button";
-import {
-	formatDateISO,
-	formatMontantFCFA,
-} from "#/features/residence/models/format";
+import { formatMontantFCFA } from "#/features/residence/models/format";
 import { cn } from "#/lib/utils";
 
 import { usePressingCommandes } from "../hooks/use-pressing";
 import {
 	calculerProgression,
+	libelleDateDepot,
+	libelleMontantPressing,
 	PRESSING_STATUT_BADGE,
 	PRESSING_STATUT_LABELS,
 } from "../models/pressing";
 
 /**
- * Page « Suivi Pressing » (M5.x) : liste des commandes de pressing du résident
- * avec statut et progression visuelle.
+ * Page « Suivi Pressing » (M5.x) : liste des commandes de pressing du
+ * résident avec statut et progression visuelle — lecture seule, les dépôts
+ * sont enregistrés par le personnel au comptoir.
  */
 export function PressingCommandesPage() {
 	const commandesQuery = usePressingCommandes();
@@ -113,13 +113,12 @@ export function PressingCommandesPage() {
 											</span>
 										</div>
 										<p className="text-sm text-muted-foreground">
-											Déposé le{" "}
-											{formatDateISO(commande.date_depot.slice(0, 10))}
+											{libelleDateDepot(commande)}
 										</p>
 									</div>
 									<div className="flex shrink-0 items-center gap-1.5">
 										<span className="font-semibold text-foreground">
-											{formatMontantFCFA(commande.montant_total)}
+											{libelleMontantPressing(commande.montant_total)}
 										</span>
 										<ChevronRight
 											className="size-4 text-muted-foreground transition-transform group-hover:translate-x-0.5"
@@ -141,27 +140,29 @@ export function PressingCommandesPage() {
 									</div>
 								</div>
 
-								<div className="grid grid-cols-2 gap-4 text-sm">
-									<div>
-										<p className="text-muted-foreground">Acompte versé</p>
-										<p className="font-medium text-foreground">
-											{formatMontantFCFA(commande.acompte)}
-										</p>
+								{commande.montant_total != null ? (
+									<div className="grid grid-cols-2 gap-4 text-sm">
+										<div>
+											<p className="text-muted-foreground">Acompte versé</p>
+											<p className="font-medium text-foreground">
+												{formatMontantFCFA(commande.acompte)}
+											</p>
+										</div>
+										<div className="text-right">
+											<p className="text-muted-foreground">Reste à payer</p>
+											<p
+												className={cn(
+													"font-medium",
+													Number(commande.reste_a_payer) > 0
+														? "text-destructive"
+														: "text-foreground",
+												)}
+											>
+												{formatMontantFCFA(commande.reste_a_payer)}
+											</p>
+										</div>
 									</div>
-									<div className="text-right">
-										<p className="text-muted-foreground">Reste à payer</p>
-										<p
-											className={cn(
-												"font-medium",
-												Number(commande.reste_a_payer) > 0
-													? "text-destructive"
-													: "text-foreground",
-											)}
-										>
-											{formatMontantFCFA(commande.reste_a_payer)}
-										</p>
-									</div>
-								</div>
+								) : null}
 							</Link>
 						);
 					})}

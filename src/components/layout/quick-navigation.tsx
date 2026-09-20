@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import { Button } from "#/components/ui/button";
 import { Input } from "#/components/ui/input";
-import { useCurrentUser, usePermissions } from "#/core/auth";
+import { usePermissions } from "#/core/auth";
 import { hasPermission } from "#/core/permissions";
 import {
 	getAccessibleModuleSubItems,
@@ -59,6 +59,26 @@ const RESIDENT_ENTRIES: NavigationEntry[] = [
 		group: "Résident",
 	},
 	{
+		label: "Suivi Pressing",
+		path: "/residence/portail/pressing",
+		group: "Résident",
+	},
+	{
+		label: "Restaurant",
+		path: "/residence/portail/restaurant",
+		group: "Résident",
+	},
+	{
+		label: "Salle de fête",
+		path: "/residence/portail/salle-fete",
+		group: "Résident",
+	},
+	{
+		label: "Boutique",
+		path: "/residence/portail/boutique",
+		group: "Résident",
+	},
+	{
 		label: "Mes états des lieux",
 		path: "/residence/portail/etat-des-lieux",
 		group: "Résident",
@@ -67,7 +87,6 @@ const RESIDENT_ENTRIES: NavigationEntry[] = [
 
 function useNavigationEntries(): NavigationEntry[] {
 	const permissions = usePermissions();
-	const user = useCurrentUser();
 
 	return useMemo(() => {
 		const modules = getAccessibleModules(permissions);
@@ -82,7 +101,9 @@ function useNavigationEntries(): NavigationEntry[] {
 			(entry) =>
 				!entry.permission || hasPermission(permissions, entry.permission),
 		);
-		const residentEntries = user?.role === "CLIENT" ? RESIDENT_ENTRIES : [];
+		const residentEntries = hasPermission(permissions, "RESIDENT.VOIR")
+			? RESIDENT_ENTRIES
+			: [];
 		const uniques = new Map<string, NavigationEntry>();
 		for (const entry of [
 			...specialEntries,
@@ -92,7 +113,7 @@ function useNavigationEntries(): NavigationEntry[] {
 			uniques.set(entry.path, entry);
 		}
 		return [...uniques.values()];
-	}, [permissions, user?.role]);
+	}, [permissions]);
 }
 
 export function useCurrentPageTitle(): string {

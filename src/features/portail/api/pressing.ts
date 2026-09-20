@@ -1,5 +1,5 @@
 import { getApiClient } from "#/core/api";
-import type { PressingCommande } from "../models/pressing";
+import type { PressingCommande, RecuPressing } from "../models/pressing";
 
 interface ListCommandesParams {
 	recherche?: string;
@@ -64,12 +64,25 @@ export async function getPressingCommande(
 }
 
 /**
- * Télécharge le reçu PDF d'une commande de pressing du résident connecté.
- * Endpoint portail (RESIDENT.VOIR) :
- * GET /api/v1/pressing/portail/commandes/{id}/recu
+ * Annule une demande de dépôt encore `EN_ATTENTE` (POST
+ * `/pressing/portail/commandes/{id}/annuler`, PRESSING.DECLARER — 409 si le
+ * personnel a déjà traité la demande).
  */
-export function telechargerRecuCommandePressing(id: string): Promise<Blob> {
-	return getApiClient().download(
+export function annulerDepotPressing(id: string): Promise<unknown> {
+	return getApiClient().apiFetch(
+		`/api/v1/pressing/portail/commandes/${id}/annuler`,
+		{ method: "POST" },
+	);
+}
+
+/**
+ * Reçu d'une commande de pressing du résident connecté (GET
+ * `/pressing/portail/commandes/{id}/recu`, RESIDENT.VOIR). Données JSON
+ * rendues par le frontend — pas un PDF ; les montants sont `null` tant que
+ * le dépôt n'est pas tarifé.
+ */
+export function getRecuCommandePressing(id: string): Promise<RecuPressing> {
+	return getApiClient().apiFetch<RecuPressing>(
 		`/api/v1/pressing/portail/commandes/${id}/recu`,
 	);
 }

@@ -5,8 +5,11 @@ import {
 	Camera,
 	ChevronRight,
 	CreditCard,
+	PartyPopper,
 	ShieldCheck,
 	Shirt,
+	ShoppingBag,
+	UtensilsCrossed,
 } from "lucide-react";
 
 import { Breadcrumb } from "#/components/ui/breadcrumb";
@@ -155,7 +158,25 @@ export function PortailPage() {
 						to="/residence/portail/pressing"
 						icon={Shirt}
 						titre="Suivi Pressing"
-						description="Avancement de vos commandes de pressing."
+						description="Dépôts déclarés et avancement de vos commandes."
+					/>
+					<ModuleCard
+						to="/residence/portail/restaurant"
+						icon={UtensilsCrossed}
+						titre="Restaurant"
+						description="Commandez en ligne et suivez vos commandes."
+					/>
+					<ModuleCard
+						to="/residence/portail/salle-fete"
+						icon={PartyPopper}
+						titre="Salle de fête"
+						description="Disponibilités et demandes de réservation."
+					/>
+					<ModuleCard
+						to="/residence/portail/boutique"
+						icon={ShoppingBag}
+						titre="Boutique"
+						description="Suivi de vos demandes d'achat à la boutique."
 					/>
 					<ModuleCard
 						to="/residence/portail/etat-des-lieux"
