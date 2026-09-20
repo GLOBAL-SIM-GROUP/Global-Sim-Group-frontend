@@ -21,6 +21,7 @@ export const Route = createFileRoute(
 		statut: z
 			.enum([
 				"tous",
+				"EN_ATTENTE",
 				"DISPONIBLE",
 				"RESERVEE",
 				"CONFIRMEE",

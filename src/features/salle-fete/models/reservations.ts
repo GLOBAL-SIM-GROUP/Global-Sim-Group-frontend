@@ -4,6 +4,7 @@
  * `id_reservation` → `id`.
  */
 export type ReservationStatut =
+	| "EN_ATTENTE"
 	| "DISPONIBLE"
 	| "RESERVEE"
 	| "CONFIRMEE"
@@ -18,15 +19,22 @@ export interface ReservationFete {
 	heure_debut: string;
 	duree: number;
 	type_manifestation: string;
-	tarif: string;
-	acompte: string;
-	solde: string;
+	/**
+	 * `null` tant que la demande `EN_ATTENTE` (portail résident) n'a pas été
+	 * tarifée par le personnel (`POST /salle-fete/reservations/{id}/valider`).
+	 */
+	tarif: string | null;
+	acompte: string | null;
+	solde: string | null;
 	statut: ReservationStatut;
 	observations: string | null;
+	/** Raison du refus quand la demande a été annulée par le personnel. */
+	motif_annulation?: string | null;
 }
 
 /** Libellés français du statut de réservation. */
 export const RESERVATION_STATUT_LABELS: Record<ReservationStatut, string> = {
+	EN_ATTENTE: "En attente de validation",
 	DISPONIBLE: "Disponible",
 	RESERVEE: "Réservée",
 	CONFIRMEE: "Confirmée",
@@ -36,6 +44,7 @@ export const RESERVATION_STATUT_LABELS: Record<ReservationStatut, string> = {
 
 /** Classes de badge (fond/texte) par statut de réservation. */
 export const RESERVATION_STATUT_BADGE: Record<ReservationStatut, string> = {
+	EN_ATTENTE: "bg-[#8E44AD] text-white",
 	DISPONIBLE: "bg-[#27AE60] text-white",
 	RESERVEE: "bg-[#E67E22] text-white",
 	CONFIRMEE: "bg-[#2980B9] text-white",

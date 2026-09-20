@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { CheckCheck, Pencil, Plus, X } from "lucide-react";
+import { BadgeCheck, CheckCheck, Pencil, Plus, X } from "lucide-react";
 import { useState } from "react";
 
 import { Breadcrumb } from "#/components/ui/breadcrumb";
@@ -13,7 +13,6 @@ import {
 	SelectValue,
 } from "#/components/ui/select";
 import { useCan } from "#/core/auth";
-import { ConfirmDialog } from "#/features/residence/components/confirm-dialog";
 import { useMoyensPaiement } from "#/features/residence/hooks/use-moyens-paiement";
 import { formatMontantFCFA } from "#/features/residence/models/format";
 import { cn } from "#/lib/utils";
@@ -34,8 +33,10 @@ import {
 	type ReservationStatutFiltre,
 } from "../models/reservations";
 import { RESERVATIONS_PAGE_SIZE } from "../permissions";
+import { AnnulerReservationDialog } from "./annuler-reservation-dialog";
 import { PaiementDialog } from "./paiement-dialog";
 import { ReservationFormDialog } from "./reservation-form-dialog";
+import { ValiderReservationDialog } from "./valider-reservation-dialog";
 
 /** Filtres reflétés dans l'URL. */
 export interface ReservationsSearch {
@@ -65,6 +66,7 @@ export function ReservationsPage({
 }: ReservationsPageProps) {
 	const canCreer = useCan("SALLE_FETE.CREER");
 	const canModifier = useCan("SALLE_FETE.MODIFIER");
+	const canValider = useCan("SALLE_FETE.VALIDER");
 	const canFinancesVoir = useCan("FINANCES.VOIR");
 
 	const reservationsQuery = useReservations(
@@ -94,6 +96,7 @@ export function ReservationsPage({
 		montant: string;
 	} | null>(null);
 	const [aAnnuler, setAAnnuler] = useState<ReservationFete | null>(null);
+	const [aValider, setAValider] = useState<ReservationFete | null>(null);
 
 	const changerFiltre = (patch: {
 		statut?: ReservationStatutFiltre;
@@ -289,7 +292,23 @@ export function ReservationsPage({
 									</td>
 									<td className="relative z-10 px-4 py-3">
 										<div className="flex items-center justify-end gap-1">
-											{canModifier && reservation.statut !== "REALISEE" ? (
+											{canValider && reservation.statut === "EN_ATTENTE" ? (
+												<Button
+													variant="ghost"
+													size="icon-sm"
+													title="Valider et tarifer la demande"
+													onClick={() => setAValider(reservation)}
+												>
+													<BadgeCheck
+														className="size-4 text-lagoon"
+														aria-hidden
+													/>
+													<span className="sr-only">Valider et tarifer</span>
+												</Button>
+											) : null}
+											{canModifier &&
+											reservation.statut !== "REALISEE" &&
+											reservation.statut !== "EN_ATTENTE" ? (
 												<Button
 													variant="ghost"
 													size="icon-sm"
@@ -311,7 +330,7 @@ export function ReservationsPage({
 														setAPayer({
 															id: reservation.id,
 															mode: "confirmer",
-															montant: reservation.solde,
+															montant: reservation.solde ?? "0",
 														})
 													}
 												>
@@ -333,7 +352,7 @@ export function ReservationsPage({
 														setAPayer({
 															id: reservation.id,
 															mode: "realiser",
-															montant: reservation.solde,
+															montant: reservation.solde ?? "0",
 														})
 													}
 												>
@@ -344,7 +363,8 @@ export function ReservationsPage({
 													<span className="sr-only">Réaliser</span>
 												</Button>
 											) : null}
-											{canModifier &&
+											{(canModifier ||
+												(canValider && reservation.statut === "EN_ATTENTE")) &&
 											reservation.statut !== "REALISEE" &&
 											reservation.statut !== "ANNULEE" ? (
 												<Button
@@ -440,22 +460,28 @@ export function ReservationsPage({
 				</div>
 			) : null}
 
-			<ConfirmDialog
-				open={aAnnuler !== null}
+			<ValiderReservationDialog
+				key={aValider?.id ?? "valider"}
+				open={aValider !== null}
+				reservation={aValider}
+				onOpenChange={(ouvert) => {
+					if (!ouvert) setAValider(null);
+				}}
+				onSaved={() => setAValider(null)}
+			/>
+
+			<AnnulerReservationDialog
+				reservation={aAnnuler}
+				isPending={annulerMutation.isPending}
 				onOpenChange={(ouvert) => {
 					if (!ouvert) setAAnnuler(null);
 				}}
-				title="Annuler la réservation"
-				message={`Voulez-vous vraiment annuler la réservation du ${aAnnuler?.date_evenement ?? ""} ?`}
-				confirmLabel="Annuler"
-				cancelLabel="Fermer"
-				destructive
-				busy={annulerMutation.isPending}
-				onConfirm={() => {
+				onConfirm={(motif) => {
 					if (aAnnuler) {
-						annulerMutation.mutate(aAnnuler.id, {
-							onSettled: () => setAAnnuler(null),
-						});
+						annulerMutation.mutate(
+							{ id: aAnnuler.id, motif: motif || undefined },
+							{ onSettled: () => setAAnnuler(null) },
+						);
 					}
 				}}
 			/>

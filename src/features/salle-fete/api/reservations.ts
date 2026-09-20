@@ -8,6 +8,8 @@ import type {
 
 type CreerReservationFeteDto = components["schemas"]["CreerReservationFeteDto"];
 type MajReservationFeteDto = components["schemas"]["MajReservationFeteDto"];
+type ValiderReservationFeteDto =
+	components["schemas"]["ValiderReservationFeteDto"];
 
 type ReservationWire = Omit<ReservationFete, "id"> & { id_reservation: string };
 
@@ -66,6 +68,10 @@ export function creerReservation(body: ReservationBody): Promise<unknown> {
 		heure_debut: body.heureDebut,
 		duree: body.duree,
 		type_manifestation: body.typeManifestation,
+		// Le type est saisi en texte libre dans le formulaire (pas de liste
+		// catalogue côté UI) → on déclare `hors_catalogue` pour éviter la
+		// validation catalogue du backend.
+		hors_catalogue: true,
 		tarif: body.tarif,
 		observations: texteOuNull(body.observations),
 	} satisfies Omit<CreerReservationFeteDto, "id_client" | "observations"> & {
@@ -88,6 +94,7 @@ export function modifierReservation(
 		heure_debut: body.heureDebut,
 		duree: body.duree,
 		type_manifestation: body.typeManifestation,
+		hors_catalogue: true,
 		tarif: body.tarif,
 		acompte: texteOuNull(body.acompte),
 		observations: texteOuNull(body.observations),
@@ -133,12 +140,48 @@ export function realiserReservation(
 	);
 }
 
-/** Annule une réservation (POST annuler). */
-export function annulerReservation(id: string): Promise<unknown> {
+/**
+ * Valide et tarife une demande de réservation `EN_ATTENTE` du portail
+ * résident (`POST /salle-fete/reservations/{id}/valider` → `RESERVEE`,
+ * SALLE_FETE.VALIDER). `acompte` est optionnel (montant convenu, encaissé
+ * plus tard au comptoir).
+ *
+ * La spec générée type `acompte` en `Record<string, never> | null` (quirk
+ * du générateur pour les strings nullables) — on envoie la string telle
+ * quelle, d'où le cast.
+ */
+export function validerReservation(
+	id: string,
+	body: { tarif: string; acompte?: string | null },
+): Promise<unknown> {
+	const corps = {
+		tarif: body.tarif,
+		acompte: (body.acompte?.trim() ||
+			null) as ValiderReservationFeteDto["acompte"],
+	} satisfies ValiderReservationFeteDto;
+	return getApiClient().apiFetch(
+		`/api/v1/salle-fete/reservations/${id}/valider`,
+		{
+			method: "POST",
+			body: JSON.stringify(corps),
+		},
+	);
+}
+
+/**
+ * Annule une réservation (POST annuler) — sur une demande `EN_ATTENTE` c'est
+ * un refus : le `motif` optionnel (≤255) est conservé dans
+ * `motif_annulation` et visible par le résident.
+ */
+export function annulerReservation(
+	id: string,
+	motif?: string,
+): Promise<unknown> {
 	return getApiClient().apiFetch(
 		`/api/v1/salle-fete/reservations/${id}/annuler`,
 		{
 			method: "POST",
+			...(motif ? { body: JSON.stringify({ motif }) } : {}),
 		},
 	);
 }

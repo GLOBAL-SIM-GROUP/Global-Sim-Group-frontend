@@ -185,7 +185,9 @@ export function CalendrierPage({
 												className={cn(
 													"block truncate rounded px-1.5 py-0.5 text-[11px] font-medium text-white transition-opacity hover:opacity-80",
 													RESERVATION_STATUT_BADGE[reservation.statut],
-													reservation.statut === "ANNULEE" && "opacity-50",
+													(reservation.statut === "ANNULEE" ||
+														reservation.statut === "EN_ATTENTE") &&
+														"opacity-50",
 												)}
 											>
 												{reservation.heure_debut?.slice(0, 5) ?? ""}{" "}

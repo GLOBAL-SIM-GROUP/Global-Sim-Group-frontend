@@ -9,8 +9,11 @@ import {
 	CreditCard,
 	Home,
 	LayoutGrid,
+	PartyPopper,
 	ShieldCheck,
 	Shirt,
+	ShoppingBag,
+	UtensilsCrossed,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -21,6 +24,7 @@ import {
 } from "#/core/permissions/modules";
 import { usePortailResume } from "#/features/portail/hooks/use-portail";
 import { formatMontantFCFA } from "#/features/residence/models/format";
+import { useReservationsEnAttenteCount } from "#/features/salle-fete/hooks/use-reservations";
 import { cn } from "#/lib/utils";
 
 import { UserMenu } from "./user-menu";
@@ -72,6 +76,7 @@ const ROUTES_REALLES: Record<
 	SALLE_FETE: {
 		calendrier: { to: "/salle-fete/calendrier", exact: true },
 		reservations: { to: "/salle-fete/reservations", exact: false },
+		catalogue: { to: "/salle-fete/catalogue", exact: true },
 	},
 	FACTURATION: {
 		prestations: { to: "/facturation/prestations", exact: true },
@@ -123,6 +128,9 @@ export function Sidebar({ onClose }: { onClose?: () => void } = {}) {
 	const canVoirRapports = useCan("ADMIN.VOIR");
 	const canVoirSignalements = useCan("SIGNALEMENT.VOIR");
 	const estResident = useCan("RESIDENT.VOIR");
+	const canVoirSalleFete = useCan("SALLE_FETE.VOIR");
+	const demandesSalleFeteEnAttente =
+		useReservationsEnAttenteCount(canVoirSalleFete).data;
 	const portailResumeQuery = usePortailResume(estResident);
 	const totalImpayes = portailResumeQuery.data?.total_impayes;
 	const accessibleModules = getAccessibleModules(permissions);
@@ -279,6 +287,48 @@ export function Sidebar({ onClose }: { onClose?: () => void } = {}) {
 									</li>
 									<li>
 										<Link
+											to="/residence/portail/restaurant"
+											activeOptions={{ exact: false }}
+											activeProps={{ className: subActiveClassName }}
+											className={subLinkClassName}
+											onClick={() => onClose?.()}
+										>
+											<span className="inline-flex items-center gap-2">
+												<UtensilsCrossed className="size-3.5" aria-hidden />
+												Restaurant
+											</span>
+										</Link>
+									</li>
+									<li>
+										<Link
+											to="/residence/portail/salle-fete"
+											activeOptions={{ exact: false }}
+											activeProps={{ className: subActiveClassName }}
+											className={subLinkClassName}
+											onClick={() => onClose?.()}
+										>
+											<span className="inline-flex items-center gap-2">
+												<PartyPopper className="size-3.5" aria-hidden />
+												Salle de fête
+											</span>
+										</Link>
+									</li>
+									<li>
+										<Link
+											to="/residence/portail/boutique"
+											activeOptions={{ exact: false }}
+											activeProps={{ className: subActiveClassName }}
+											className={subLinkClassName}
+											onClick={() => onClose?.()}
+										>
+											<span className="inline-flex items-center gap-2">
+												<ShoppingBag className="size-3.5" aria-hidden />
+												Boutique
+											</span>
+										</Link>
+									</li>
+									<li>
+										<Link
 											to="/residence/portail/etat-des-lieux"
 											activeOptions={{ exact: true }}
 											activeProps={{ className: subActiveClassName }}
@@ -396,6 +446,12 @@ export function Sidebar({ onClose }: { onClose?: () => void } = {}) {
 										<ul className="ml-5 mt-1 space-y-1 border-l border-palm pl-2">
 											{subItems.map((sub) => {
 												const route = ROUTES_REALLES[module.code]?.[sub.id];
+												const badge =
+													module.code === "SALLE_FETE" &&
+													sub.id === "reservations" &&
+													demandesSalleFeteEnAttente
+														? demandesSalleFeteEnAttente
+														: undefined;
 												return (
 													<li key={sub.id}>
 														{route ? (
@@ -408,7 +464,14 @@ export function Sidebar({ onClose }: { onClose?: () => void } = {}) {
 																className={subLinkClassName}
 																onClick={() => onClose?.()}
 															>
-																{sub.label}
+																<span className="flex items-center justify-between gap-2">
+																	{sub.label}
+																	{badge ? (
+																		<span className="inline-grid min-w-5 place-items-center rounded-full bg-amber-500/25 px-1.5 py-0.5 text-[0.65rem] font-semibold text-amber-300">
+																			{badge}
+																		</span>
+																	) : null}
+																</span>
 															</Link>
 														) : (
 															// Placeholder partagé tant que la route métier n'existe pas.

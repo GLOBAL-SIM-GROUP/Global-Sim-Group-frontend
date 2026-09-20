@@ -14,6 +14,7 @@ import {
 	modifierReservation,
 	type ReservationBody,
 	realiserReservation,
+	validerReservation,
 } from "../api/reservations";
 import type {
 	ReservationFete,
@@ -51,6 +52,22 @@ export function useReservations(statut: string, du?: string, au?: string) {
 		data,
 		isLoading: reservationsQuery.isLoading || clientsQuery.isLoading,
 	};
+}
+
+/**
+ * Compteur des demandes `EN_ATTENTE` — badge du menu Réservations (staff).
+ * Polling 60 s : aucun événement socket n'est émis à la création d'une
+ * demande portail (contrat backend), l'invalidation locale couvre les
+ * mutations staff.
+ */
+export function useReservationsEnAttenteCount(enabled: boolean) {
+	return useQuery({
+		queryKey: reservationsKeys.list("EN_ATTENTE"),
+		queryFn: () => listReservations({ statut: "EN_ATTENTE" }),
+		enabled,
+		select: (data) => data.length,
+		refetchInterval: 60_000,
+	});
 }
 
 /** Détail d'une réservation (fiche). `retry: false` : 404 = introuvable. */
@@ -128,10 +145,27 @@ export function useRealiserReservation() {
 	});
 }
 
+/** Valide et tarife une demande `EN_ATTENTE` (→ `RESERVEE`, SALLE_FETE.VALIDER). */
+export function useValiderReservation() {
+	const invalider = useInvalidation();
+	return useMutation({
+		mutationFn: ({
+			id,
+			...body
+		}: {
+			id: string;
+			tarif: string;
+			acompte?: string | null;
+		}) => validerReservation(id, body),
+		onSuccess: invalider,
+	});
+}
+
 export function useAnnulerReservation() {
 	const invalider = useInvalidation();
 	return useMutation({
-		mutationFn: (id: string) => annulerReservation(id),
+		mutationFn: ({ id, motif }: { id: string; motif?: string }) =>
+			annulerReservation(id, motif),
 		onSuccess: invalider,
 	});
 }
