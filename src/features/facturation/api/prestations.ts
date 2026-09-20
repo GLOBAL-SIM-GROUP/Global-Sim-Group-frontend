@@ -45,11 +45,13 @@ export function creerPrestation(body: PrestationBody): Promise<unknown> {
 		actif: body.actif ?? true,
 	} satisfies Omit<
 		CreerPrestationDto,
-		"categorie" | "description" | "id_activite"
+		"categorie" | "description" | "id_activite" | "prix" | "actif"
 	> & {
 		categorie?: string | null;
+		prix: string;
 		description?: string | null;
 		id_activite?: string | null;
+		actif: boolean;
 	};
 	return getApiClient().apiFetch("/api/v1/facturation/prestations", {
 		method: "POST",
@@ -71,9 +73,10 @@ export function modifierPrestation(
 		actif: body.actif ?? true,
 	} satisfies Omit<
 		MajPrestationDto,
-		"categorie" | "description" | "id_activite"
+		"categorie" | "description" | "id_activite" | "prix"
 	> & {
 		categorie?: string | null;
+		prix: string;
 		description?: string | null;
 		id_activite?: string | null;
 	};
