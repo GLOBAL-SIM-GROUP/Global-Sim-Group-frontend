@@ -59,7 +59,8 @@ describe("PressingPage", () => {
 
 		expect(screen.getByText("PR-0001")).toBeInTheDocument();
 		expect(screen.getByText("En traitement")).toBeInTheDocument();
-		expect(screen.getByText("50%")).toBeInTheDocument();
+		// EN_ATTENTE est l'étape 1 : EN_TRAITEMENT = étape 3/5 → 60%.
+		expect(screen.getByText("60%")).toBeInTheDocument();
 	});
 
 	it("affiche un message quand il n'y a aucune commande", () => {

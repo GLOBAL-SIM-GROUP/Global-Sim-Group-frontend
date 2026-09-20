@@ -1,12 +1,20 @@
 import { Link } from "@tanstack/react-router";
+import { useState } from "react";
 
 import { Button } from "#/components/ui/button";
+import { useCan } from "#/core/auth";
+import { AnnulerDemandeDialog } from "#/features/portail/components/annuler-demande-dialog";
 import { PressingRecuButton } from "#/features/portail/components/pressing-recu-button";
-import { usePressingCommande } from "#/features/portail/hooks/use-pressing";
+import {
+	useAnnulerDepotPressing,
+	usePressingCommande,
+} from "#/features/portail/hooks/use-pressing";
 import {
 	calculerProgression,
-	estSoldee,
+	estAnnulable,
 	getEtapeActuelle,
+	libelleDateDepot,
+	libelleMontantPressing,
 	PRESSING_STATUT_BADGE,
 	PRESSING_STATUT_LABELS,
 	PROGRESSION_ETAPES,
@@ -25,6 +33,9 @@ import { cn } from "#/lib/utils";
  */
 export function PressingDetailPage({ id }: { id: string }) {
 	const commandeQuery = usePressingCommande(id);
+	const canDeclarer = useCan("PRESSING.DECLARER");
+	const annuler = useAnnulerDepotPressing();
+	const [confirmOuvert, setConfirmOuvert] = useState(false);
 
 	if (commandeQuery.isLoading) {
 		return (
@@ -63,6 +74,14 @@ export function PressingDetailPage({ id }: { id: string }) {
 
 	return (
 		<div className="mx-auto w-full max-w-6xl space-y-6 px-4 pt-6 pb-16 sm:px-6 lg:px-8">
+			<Breadcrumb
+				items={[
+					{ label: "Espace client", to: "/espace-client" },
+					{ label: "Pressing", to: "/espace-client/pressing" },
+					{ label: commande.numero_commande },
+				]}
+			/>
+
 			<div className="flex flex-wrap items-end justify-between gap-4">
 				<section className="space-y-1">
 					<div className="flex flex-wrap items-center gap-2">
@@ -80,9 +99,9 @@ export function PressingDetailPage({ id }: { id: string }) {
 						</span>
 					</div>
 					<p className="text-muted-foreground">
-						Déposé le {formatDateISO(commande.date_depot.slice(0, 10))}
+						{libelleDateDepot(commande)}
 						{commande.date_retrait_reelle
-							? ` — retiré le ${formatDateISO(commande.date_retrait_reelle)}`
+							? ` — retiré le ${formatDateISO(commande.date_retrait_reelle.slice(0, 10))}`
 							: commande.date_retrait_prevue
 								? ` — retrait prévu le ${formatDateISO(commande.date_retrait_prevue)}`
 								: ""}
@@ -92,13 +111,29 @@ export function PressingDetailPage({ id }: { id: string }) {
 					<PressingRecuButton
 						idCommande={commande.id}
 						numeroCommande={commande.numero_commande}
-						isPaid={estSoldee(commande)}
 					/>
+					{canDeclarer && estAnnulable(commande) ? (
+						<Button
+							variant="outline"
+							size="sm"
+							className="text-destructive hover:bg-destructive/10"
+							onClick={() => setConfirmOuvert(true)}
+						>
+							Annuler la demande
+						</Button>
+					) : null}
 					<Button variant="outline" size="sm" asChild>
 						<Link to="/espace-client/pressing">Retour à la liste</Link>
 					</Button>
 				</div>
 			</div>
+
+			{commande.motif_annulation ? (
+				<div className="rounded-lg border border-destructive/40 bg-destructive/10 p-4 text-sm">
+					<p className="font-medium text-destructive">Motif d'annulation</p>
+					<p className="mt-1 text-foreground">{commande.motif_annulation}</p>
+				</div>
+			) : null}
 
 			<div className="grid gap-4 sm:grid-cols-3">
 				<div className="rounded-lg border border-border bg-card p-4 shadow-sm">
@@ -106,7 +141,7 @@ export function PressingDetailPage({ id }: { id: string }) {
 						Montant total
 					</p>
 					<p className="mt-1 text-lg font-semibold text-foreground">
-						{formatMontantFCFA(commande.montant_total)}
+						{libelleMontantPressing(commande.montant_total)}
 					</p>
 				</div>
 				<div className="rounded-lg border border-border bg-card p-4 shadow-sm">
@@ -201,6 +236,26 @@ export function PressingDetailPage({ id }: { id: string }) {
 					})}
 				</ol>
 			</section>
+
+			<AnnulerDemandeDialog
+				open={confirmOuvert}
+				titre="Annuler la demande de dépôt ?"
+				description={`${commande.numero_commande} — l'annulation est définitive.`}
+				isPending={annuler.isPending}
+				erreur={
+					annuler.error
+						? annuler.error instanceof Error
+							? annuler.error.message
+							: "Impossible d'annuler la demande."
+						: null
+				}
+				onConfirm={() =>
+					annuler.mutate(commande.id, {
+						onSuccess: () => setConfirmOuvert(false),
+					})
+				}
+				onOpenChange={setConfirmOuvert}
+			/>
 		</div>
 	);
 }

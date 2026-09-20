@@ -1,12 +1,15 @@
 import { render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import type { VentePortail } from "#/features/portail/models/market";
 import type { PressingCommande } from "#/features/portail/models/pressing";
+import type { CommandeRestaurantPortail } from "#/features/portail/models/restaurant";
+import type { ReservationPortail } from "#/features/portail/models/salle-fete";
 
 import { enregistrerDemande } from "../models/demandes";
 import { MesDemandesPage } from "./mes-demandes-page";
 
-const commandes: PressingCommande[] = [
+const commandesPressing: PressingCommande[] = [
 	{
 		id: "1",
 		numero_commande: "PR-0001",
@@ -20,12 +23,68 @@ const commandes: PressingCommande[] = [
 	},
 ];
 
+const commandesResto: CommandeRestaurantPortail[] = [
+	{
+		id: "7",
+		date: "2026-09-02T12:30:00.000Z",
+		type: "A_EMPORTER",
+		statut: "EN_ATTENTE",
+		total: "5000.00",
+		notes: null,
+		adresse_livraison: null,
+		motif_annulation: null,
+	},
+];
+
+const reservations: ReservationPortail[] = [
+	{
+		id: "3",
+		date_evenement: "2026-12-24",
+		heure_debut: "18:00",
+		duree: "5",
+		type_manifestation: "Mariage",
+		statut: "CONFIRMEE",
+		observations: null,
+		motif_annulation: null,
+		tarif: "150000.00",
+		solde: "150000.00",
+	},
+];
+
+const ventes: VentePortail[] = [
+	{
+		id: "9",
+		date: "2026-09-03T09:15:00.000Z",
+		statut: "EN_ATTENTE",
+		origine: "PORTAIL",
+		total: "1500.00",
+		remise: "0",
+		note: null,
+		motif_annulation: null,
+	},
+];
+
 const mocks = vi.hoisted(() => ({
 	usePressingCommandes: vi.fn(),
+	useMesCommandesRestaurant: vi.fn(),
+	useMesReservationsSalleFete: vi.fn(),
+	useMesVentesPortail: vi.fn(),
 }));
 
 vi.mock("#/features/portail/hooks/use-pressing", () => ({
 	usePressingCommandes: mocks.usePressingCommandes,
+}));
+
+vi.mock("#/features/portail/hooks/use-restaurant", () => ({
+	useMesCommandesRestaurant: mocks.useMesCommandesRestaurant,
+}));
+
+vi.mock("#/features/portail/hooks/use-salle-fete", () => ({
+	useMesReservationsSalleFete: mocks.useMesReservationsSalleFete,
+}));
+
+vi.mock("#/features/portail/hooks/use-market", () => ({
+	useMesVentesPortail: mocks.useMesVentesPortail,
 }));
 
 vi.mock("@tanstack/react-router", async (importOriginal) => {
@@ -48,17 +107,46 @@ vi.mock("@tanstack/react-router", async (importOriginal) => {
 	};
 });
 
+function mockQueries({
+	pressing = [],
+	restaurant = [],
+	reservations: resas = [],
+	ventes: vts = [],
+}: {
+	pressing?: PressingCommande[];
+	restaurant?: CommandeRestaurantPortail[];
+	reservations?: ReservationPortail[];
+	ventes?: VentePortail[];
+} = {}) {
+	mocks.usePressingCommandes.mockReturnValue({
+		isLoading: false,
+		isError: false,
+		data: pressing,
+	});
+	mocks.useMesCommandesRestaurant.mockReturnValue({
+		isLoading: false,
+		isError: false,
+		data: restaurant,
+	});
+	mocks.useMesReservationsSalleFete.mockReturnValue({
+		isLoading: false,
+		isError: false,
+		data: resas,
+	});
+	mocks.useMesVentesPortail.mockReturnValue({
+		isLoading: false,
+		isError: false,
+		data: vts,
+	});
+}
+
 describe("MesDemandesPage", () => {
 	beforeEach(() => {
 		localStorage.clear();
-		mocks.usePressingCommandes.mockReturnValue({
-			isLoading: false,
-			isError: false,
-			data: [],
-		});
+		mockQueries();
 	});
 
-	it("affiche les demandes enregistrées localement avec leur statut", () => {
+	it("affiche les demandes locales sans endpoint (séjour, boutique…)", () => {
 		enregistrerDemande({
 			service: "residence",
 			resume: "Chambre — du 2027-01-10 au 2027-01-17, 2 personne(s)",
@@ -75,24 +163,82 @@ describe("MesDemandesPage", () => {
 		).toBeInTheDocument();
 	});
 
-	it("propose les formulaires quand aucune demande n'est enregistrée", () => {
+	it("ignore les anciennes traces locales des services désormais en ligne", () => {
+		enregistrerDemande({
+			service: "commande-restaurant",
+			resume: "2× Poulet braisé — 5 000 FCFA",
+		});
+		enregistrerDemande({ service: "salle-fete", resume: "Mariage" });
+
 		render(<MesDemandesPage />);
 
 		expect(
-			screen.getByText(/aucune demande pour le moment/i),
-		).toBeInTheDocument();
+			screen.queryByText("2× Poulet braisé — 5 000 FCFA"),
+		).not.toBeInTheDocument();
+		expect(
+			screen.queryByText("Autres demandes envoyées"),
+		).not.toBeInTheDocument();
+	});
+
+	it("liste les commandes restaurant avec leur statut en direct", () => {
+		mockQueries({ restaurant: commandesResto });
+
+		render(<MesDemandesPage />);
+
+		expect(screen.getByText("À emporter")).toBeInTheDocument();
+		expect(screen.getByText("En attente de validation")).toBeInTheDocument();
+		expect(screen.getByRole("link", { name: /à emporter/i })).toHaveAttribute(
+			"href",
+			"/espace-client/restaurant/$id",
+		);
 	});
 
 	it("liste les dépôts pressing", () => {
-		mocks.usePressingCommandes.mockReturnValue({
-			isLoading: false,
-			isError: false,
-			data: commandes,
-		});
+		mockQueries({ pressing: commandesPressing });
 
 		render(<MesDemandesPage />);
 
 		expect(screen.getByText("PR-0001")).toBeInTheDocument();
 		expect(screen.getByText("En traitement")).toBeInTheDocument();
+	});
+
+	it("liste les réservations de salle de fête", () => {
+		mockQueries({ reservations });
+
+		render(<MesDemandesPage />);
+
+		expect(screen.getByText("Mariage")).toBeInTheDocument();
+		expect(screen.getByText("Confirmée")).toBeInTheDocument();
+		expect(screen.getByRole("link", { name: /mariage/i })).toHaveAttribute(
+			"href",
+			"/espace-client/salle-fete/$id",
+		);
+	});
+
+	it("liste les demandes boutique avec leur statut en direct", () => {
+		mockQueries({ ventes });
+
+		render(<MesDemandesPage />);
+
+		expect(screen.getByText("Demande n° 9")).toBeInTheDocument();
+		expect(screen.getByText("En attente de validation")).toBeInTheDocument();
+		expect(screen.getByRole("link", { name: /demande n° 9/i })).toHaveAttribute(
+			"href",
+			"/espace-client/boutique/$id",
+		);
+	});
+
+	it("ignore les anciennes traces locales de la boutique", () => {
+		enregistrerDemande({
+			service: "commande-boutique",
+			resume: "3× Savon — 1 500 FCFA",
+		});
+
+		render(<MesDemandesPage />);
+
+		expect(screen.queryByText("3× Savon — 1 500 FCFA")).not.toBeInTheDocument();
+		expect(
+			screen.queryByText("Autres demandes envoyées"),
+		).not.toBeInTheDocument();
 	});
 });

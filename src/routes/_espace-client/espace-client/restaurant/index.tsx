@@ -4,12 +4,12 @@ import { RestaurantPage } from "#/features/espace-client/components/restaurant-p
 
 /**
  * Restaurant de l'espace client (`/espace-client/restaurant`) : parcourir le
- * menu et composer un panier. Panier 100% frontend (`usePanier`, persisté en
- * `localStorage`) — pas de soumission de commande réelle, cf.
- * `RestaurantPage`/mémoire `extension-clients-externes`.
+ * menu public (`GET /restaurant/plats`) et composer un panier persisté en
+ * `localStorage`. La commande se valide dans `/espace-client/panier` via
+ * `POST /restaurant/portail/commandes` (`RESTAURANT.COMMANDER`).
  */
 export const Route = createFileRoute(
-	"/_espace-client/espace-client/restaurant",
+	"/_espace-client/espace-client/restaurant/",
 )({
 	component: RestaurantPage,
 });

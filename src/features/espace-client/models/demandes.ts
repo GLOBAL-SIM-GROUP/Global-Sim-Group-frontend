@@ -1,12 +1,16 @@
 /**
  * Demandes locales de l'espace client (localStorage).
  *
- * Aucun endpoint accessible à un compte CLIENT n'existe pour les demandes
- * (salle de fête, séjours courts, commandes restaurant/boutique) : les
- * formulaires de demande enregistrent une trace locale pour alimenter la
- * page « Mes demandes », en attendant les vrais endpoints backend. Ce n'est
- * PAS de l'état serveur — pas de TanStack Query (cf. règle d'état du projet,
- * « le reste → useState », ici un simple module de lecture/écriture).
+ * Ne subsistent ici que les services SANS endpoint résident : séjour court
+ * résidence et signalement — leur formulaire enregistre une trace locale
+ * pour « Mes demandes ». Les commandes restaurant, dépôts pressing,
+ * réservations de salle de fête et demandes boutique passent par les vrais
+ * endpoints portail (features/portail) — ne plus les enregistrer ici.
+ * `"commande-boutique"` reste dans le type pour la lecture des traces
+ * historiques déjà en localStorage (filtrées de « Mes demandes »).
+ * Ce n'est PAS de l'état serveur — pas de TanStack Query (cf. règle d'état
+ * du projet, « le reste → useState », ici un simple module de
+ * lecture/écriture).
  */
 export type DemandeService =
 	| "salle-fete"

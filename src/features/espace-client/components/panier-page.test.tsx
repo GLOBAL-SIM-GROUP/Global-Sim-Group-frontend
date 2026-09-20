@@ -1,13 +1,31 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { listerDemandes } from "../models/demandes";
 import {
 	CLE_PANIER_BOUTIQUE,
 	CLE_PANIER_RESTAURANT,
 } from "../models/panier-articles";
 import { PanierPage } from "./panier-page";
+
+const mocks = vi.hoisted(() => ({
+	useCan: vi.fn(),
+	creerCommande: { mutate: vi.fn(), isPending: false },
+	creerVente: { mutate: vi.fn(), isPending: false },
+}));
+
+vi.mock("#/core/auth", async (importOriginal) => {
+	const actual = await importOriginal<typeof import("#/core/auth")>();
+	return { ...actual, useCan: mocks.useCan };
+});
+
+vi.mock("#/features/portail/hooks/use-restaurant", () => ({
+	useCreerCommandeRestaurant: () => mocks.creerCommande,
+}));
+
+vi.mock("#/features/portail/hooks/use-market", () => ({
+	useCreerVentePortail: () => mocks.creerVente,
+}));
 
 vi.mock("@tanstack/react-router", async (importOriginal) => {
 	const actual =
@@ -29,16 +47,24 @@ vi.mock("@tanstack/react-router", async (importOriginal) => {
 	};
 });
 
+const PANIER_RESTO = [
+	{
+		id: "12",
+		nom: "Poulet braisé",
+		prix: "2500",
+		imageUrl: null,
+		quantite: 2,
+	},
+];
+
 describe("PanierPage", () => {
-	let fetchSpy: ReturnType<typeof vi.spyOn>;
-
 	beforeEach(() => {
-		fetchSpy = vi.spyOn(global, "fetch");
 		localStorage.clear();
-	});
-
-	afterEach(() => {
-		fetchSpy.mockRestore();
+		mocks.useCan.mockReturnValue(true);
+		mocks.creerCommande.mutate.mockReset();
+		mocks.creerCommande.isPending = false;
+		mocks.creerVente.mutate.mockReset();
+		mocks.creerVente.isPending = false;
 	});
 
 	it("affiche les deux paniers vides avec les liens catalogue", async () => {
@@ -48,18 +74,7 @@ describe("PanierPage", () => {
 	});
 
 	it("liste les lignes du panier restaurant avec le total", async () => {
-		localStorage.setItem(
-			CLE_PANIER_RESTAURANT,
-			JSON.stringify([
-				{
-					id: "12",
-					nom: "Poulet braisé",
-					prix: "2500",
-					imageUrl: null,
-					quantite: 2,
-				},
-			]),
-		);
+		localStorage.setItem(CLE_PANIER_RESTAURANT, JSON.stringify(PANIER_RESTO));
 
 		render(<PanierPage />);
 
@@ -67,39 +82,75 @@ describe("PanierPage", () => {
 		expect(screen.getAllByText(/5 000 FCFA/).length).toBeGreaterThan(0);
 	});
 
-	it("enregistre la demande, vide le panier et n'appelle pas le réseau", async () => {
+	it("ouvre le dialogue de commande (type/livraison/note) avant envoi réseau", async () => {
+		localStorage.setItem(CLE_PANIER_RESTAURANT, JSON.stringify(PANIER_RESTO));
+		const user = userEvent.setup();
+		render(<PanierPage />);
+
+		await screen.findByText("Poulet braisé");
+		await user.click(
+			screen.getByRole("button", { name: /envoyer ma commande/i }),
+		);
+
+		// La commande part via POST /restaurant/portail/commandes : le dialogue
+		// collecte le type avant l'appel à la mutation.
+		expect(await screen.findByText("Type de commande")).toBeInTheDocument();
+		expect(mocks.creerCommande.mutate).not.toHaveBeenCalled();
+	});
+
+	it("masque le bouton de commande sans RESTAURANT.COMMANDER", async () => {
+		mocks.useCan.mockReturnValue(false);
+		localStorage.setItem(CLE_PANIER_RESTAURANT, JSON.stringify(PANIER_RESTO));
+
+		render(<PanierPage />);
+
+		await screen.findByText("Poulet braisé");
+		expect(
+			screen.queryByRole("button", { name: /envoyer ma commande/i }),
+		).not.toBeInTheDocument();
+		expect(
+			screen.getByText(/commande en ligne n'est pas activée/i),
+		).toBeInTheDocument();
+	});
+
+	it("le panier boutique ouvre le dialogue avant envoi via POST portail", async () => {
 		localStorage.setItem(
-			CLE_PANIER_RESTAURANT,
+			CLE_PANIER_BOUTIQUE,
 			JSON.stringify([
 				{
-					id: "12",
-					nom: "Poulet braisé",
-					prix: "2500",
+					id: "7",
+					nom: "Savon",
+					prix: "500",
 					imageUrl: null,
-					quantite: 2,
+					quantite: 3,
 				},
 			]),
 		);
 		const user = userEvent.setup();
 		render(<PanierPage />);
 
-		await screen.findByText("Poulet braisé");
+		await screen.findByText("Savon");
 		await user.click(
 			screen.getByRole("button", { name: /envoyer ma demande/i }),
 		);
 
-		expect(await screen.findByText("Demande enregistrée")).toBeInTheDocument();
-		expect(
-			JSON.parse(localStorage.getItem(CLE_PANIER_RESTAURANT) ?? "[]"),
-		).toHaveLength(0);
-		const demandes = listerDemandes();
-		expect(demandes).toHaveLength(1);
-		expect(demandes[0].service).toBe("commande-restaurant");
-		expect(demandes[0].resume).toContain("2× Poulet braisé");
-		expect(fetchSpy).not.toHaveBeenCalled();
+		// La demande part via POST /market/portail/ventes : le dialogue affiche
+		// le récapitulatif avant l'appel à la mutation.
+		expect(await screen.findByText("Total estimé")).toBeInTheDocument();
+		expect(mocks.creerVente.mutate).not.toHaveBeenCalled();
+
+		await user.click(
+			screen.getByRole("button", { name: /envoyer la demande/i }),
+		);
+
+		expect(mocks.creerVente.mutate).toHaveBeenCalledWith(
+			{ lignes: [{ id_produit: "7", quantite: "3" }], note: undefined },
+			expect.objectContaining({ onSuccess: expect.any(Function) }),
+		);
 	});
 
-	it("le panier boutique est indépendant du panier restaurant", async () => {
+	it("masque le bouton boutique sans MARCHANDISE.COMMANDER", async () => {
+		mocks.useCan.mockReturnValue(false);
 		localStorage.setItem(
 			CLE_PANIER_BOUTIQUE,
 			JSON.stringify([
@@ -115,7 +166,12 @@ describe("PanierPage", () => {
 
 		render(<PanierPage />);
 
-		expect(await screen.findByText("Savon")).toBeInTheDocument();
-		expect(screen.getAllByText(/1 500 FCFA/).length).toBeGreaterThan(0);
+		await screen.findByText("Savon");
+		expect(
+			screen.queryByRole("button", { name: /envoyer ma demande/i }),
+		).not.toBeInTheDocument();
+		expect(
+			screen.getByText(/présentez-vous à la boutique/i),
+		).toBeInTheDocument();
 	});
 });

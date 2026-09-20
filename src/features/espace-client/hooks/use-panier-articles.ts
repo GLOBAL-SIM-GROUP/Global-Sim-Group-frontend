@@ -30,13 +30,21 @@ function lireStockage(cle: string): LigneArticlePanier[] {
  */
 export function usePanierArticles(cleStockage: string) {
 	const [lignes, setLignes] = useState<LigneArticlePanier[]>([]);
+	// L'effet de persistance ne doit pas écrire avant que la lecture initiale
+	// ait été appliquée : il capturerait le `lignes` initial (`[]`) et viderait
+	// le panier stocké — et sous `StrictMode` (rejeu des effets au montage) le
+	// second passage relirait alors un stockage déjà vidé. `hydrate` est un
+	// état (pas un ref) : l'effet d'écriture doit lire la valeur du rendu
+	// courant, donc passer au re-render post-hydratation.
+	const [hydrate, setHydrate] = useState(false);
 
 	useEffect(() => {
 		setLignes(lireStockage(cleStockage));
+		setHydrate(true);
 	}, [cleStockage]);
 
 	useEffect(() => {
-		if (typeof window === "undefined") return;
+		if (typeof window === "undefined" || !hydrate) return;
 		try {
 			window.localStorage.setItem(cleStockage, JSON.stringify(lignes));
 		} catch {
@@ -44,7 +52,7 @@ export function usePanierArticles(cleStockage: string) {
 			// utilisable pour la session en cours, juste pas persisté.
 		}
 		window.dispatchEvent(new Event(EVENEMENT_PANIER_MAJ));
-	}, [cleStockage, lignes]);
+	}, [cleStockage, lignes, hydrate]);
 
 	const ajouter = useCallback(
 		(article: ArticleSelectionnable, imageUrl: string | null) => {

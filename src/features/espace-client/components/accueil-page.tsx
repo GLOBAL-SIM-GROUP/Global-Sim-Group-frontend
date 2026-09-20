@@ -64,6 +64,8 @@ export function AccueilPage() {
 
 	return (
 		<div className="mx-auto w-full max-w-6xl space-y-8 px-4 pt-6 pb-16 sm:px-6 lg:px-8">
+			<Breadcrumb items={[{ label: "Espace client" }]} />
+
 			<div className="space-y-1">
 				<h1 className="text-2xl font-semibold text-foreground">
 					Bonjour{user?.login ? ` ${user.login}` : ""}

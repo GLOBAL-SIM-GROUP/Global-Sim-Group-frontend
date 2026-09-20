@@ -21,6 +21,7 @@ import { useCurrentUser } from "#/core/auth";
 import { useNombreArticlesPaniers } from "#/features/espace-client/hooks/use-panier-articles";
 import { cn } from "#/lib/utils";
 
+import { NotificationBell } from "./notification-bell";
 import { UserMenu } from "./user-menu";
 
 /**
@@ -232,6 +233,7 @@ export function ClientNavbar() {
 				</nav>
 
 				<div className="flex shrink-0 items-center gap-2">
+					<NotificationBell />
 					<PanierButton />
 					<div className="hidden md:flex">
 						<AccountMenu variant="navbar" />

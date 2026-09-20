@@ -5,21 +5,19 @@ import { Button } from "#/components/ui/button";
 import { usePressingCommandes } from "#/features/portail/hooks/use-pressing";
 import {
 	calculerProgression,
+	libelleDateDepot,
+	libelleMontantPressing,
 	PRESSING_STATUT_BADGE,
 	PRESSING_STATUT_LABELS,
 } from "#/features/portail/models/pressing";
-import {
-	formatDateISO,
-	formatMontantFCFA,
-} from "#/features/residence/models/format";
+import { formatMontantFCFA } from "#/features/residence/models/format";
 import { cn } from "#/lib/utils";
 
 /**
- * Suivi Pressing de l'espace client — reprend exactement la logique de
+ * Suivi Pressing de l'espace client — reprend la logique de
  * `PressingCommandesPage` (portail résident), même API/modèle
- * (`features/portail`), seuls les liens de navigation changent (espace
- * client au lieu du portail résident). Cf. `pressing-page.tsx` en-tête de ce
- * commentaire pour la réserve sur l'accès backend (`RESIDENT.VOIR`).
+ * (`features/portail`) — lecture seule, les dépôts sont enregistrés par le
+ * personnel au comptoir.
  */
 export function PressingPage() {
 	const commandesQuery = usePressingCommandes();
@@ -57,11 +55,20 @@ export function PressingPage() {
 
 	return (
 		<div className="mx-auto w-full max-w-6xl space-y-6 px-4 pt-6 pb-16 sm:px-6 lg:px-8">
-			<div className="space-y-1">
-				<h1 className="text-2xl font-semibold text-foreground">Pressing</h1>
-				<p className="text-sm text-muted-foreground">
-					Avancement de vos commandes déposées en pressing.
-				</p>
+			<Breadcrumb
+				items={[
+					{ label: "Espace client", to: "/espace-client" },
+					{ label: "Pressing" },
+				]}
+			/>
+
+			<div className="flex flex-wrap items-end justify-between gap-4">
+				<div className="space-y-1">
+					<h1 className="text-2xl font-semibold text-foreground">Pressing</h1>
+					<p className="text-sm text-muted-foreground">
+						Avancement de vos commandes déposées en pressing.
+					</p>
+				</div>
 			</div>
 
 			{commandes.length === 0 ? (
@@ -97,13 +104,12 @@ export function PressingPage() {
 											</span>
 										</div>
 										<p className="text-sm text-muted-foreground">
-											Déposé le{" "}
-											{formatDateISO(commande.date_depot.slice(0, 10))}
+											{libelleDateDepot(commande)}
 										</p>
 									</div>
 									<div className="flex shrink-0 items-center gap-1.5">
 										<span className="font-semibold text-foreground">
-											{formatMontantFCFA(commande.montant_total)}
+											{libelleMontantPressing(commande.montant_total)}
 										</span>
 										<ChevronRight
 											className="size-4 text-muted-foreground transition-transform group-hover:translate-x-0.5"
@@ -125,27 +131,29 @@ export function PressingPage() {
 									</div>
 								</div>
 
-								<div className="grid grid-cols-2 gap-4 text-sm">
-									<div>
-										<p className="text-muted-foreground">Acompte versé</p>
-										<p className="font-medium text-foreground">
-											{formatMontantFCFA(commande.acompte)}
-										</p>
+								{commande.montant_total != null ? (
+									<div className="grid grid-cols-2 gap-4 text-sm">
+										<div>
+											<p className="text-muted-foreground">Acompte versé</p>
+											<p className="font-medium text-foreground">
+												{formatMontantFCFA(commande.acompte)}
+											</p>
+										</div>
+										<div className="text-right">
+											<p className="text-muted-foreground">Reste à payer</p>
+											<p
+												className={cn(
+													"font-medium",
+													Number(commande.reste_a_payer) > 0
+														? "text-destructive"
+														: "text-foreground",
+												)}
+											>
+												{formatMontantFCFA(commande.reste_a_payer)}
+											</p>
+										</div>
 									</div>
-									<div className="text-right">
-										<p className="text-muted-foreground">Reste à payer</p>
-										<p
-											className={cn(
-												"font-medium",
-												Number(commande.reste_a_payer) > 0
-													? "text-destructive"
-													: "text-foreground",
-											)}
-										>
-											{formatMontantFCFA(commande.reste_a_payer)}
-										</p>
-									</div>
-								</div>
+								) : null}
 							</Link>
 						);
 					})}

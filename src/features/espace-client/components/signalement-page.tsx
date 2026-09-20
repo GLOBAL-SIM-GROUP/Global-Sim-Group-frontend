@@ -63,6 +63,13 @@ export function SignalementPage() {
 	return (
 		<Toast.Provider swipeDirection="right">
 			<div className="mx-auto w-full max-w-2xl space-y-6 px-4 pt-6 pb-16 sm:px-6 lg:px-8">
+				<Breadcrumb
+					items={[
+						{ label: "Espace client", to: "/espace-client" },
+						{ label: "Signaler un problème" },
+					]}
+				/>
+
 				<div className="space-y-1">
 					<h1 className="text-2xl font-semibold text-foreground">
 						Signaler un problème

@@ -9,6 +9,12 @@ vi.mock("#/core/auth", () => ({
 	useCurrentUser: () => ({ login: "aya.kouassi", role: "CLIENT" }),
 }));
 
+// La cloche dépend du socket `/notifications` (provider monté dans
+// ClientLayout, pas dans ce test unitaire de la navbar).
+vi.mock("./notification-bell", () => ({
+	NotificationBell: () => <button type="button" aria-label="Notifications" />,
+}));
+
 vi.mock("@tanstack/react-router", async (importOriginal) => {
 	const actual =
 		await importOriginal<typeof import("@tanstack/react-router")>();

@@ -1,5 +1,6 @@
 import { act, renderHook, waitFor } from "@testing-library/react";
-import { afterEach, describe, expect, it } from "vitest";
+import { createElement, type ReactNode, StrictMode } from "react";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import type { Plat } from "#/features/restaurant/models/plats";
 
@@ -16,6 +17,7 @@ const plat: Plat = {
 };
 
 afterEach(() => {
+	vi.restoreAllMocks();
 	window.localStorage.clear();
 });
 
@@ -68,5 +70,62 @@ describe("usePanier", () => {
 
 		const second = renderHook(() => usePanier());
 		await waitFor(() => expect(second.result.current.lignes).toHaveLength(1));
+	});
+
+	// Régression réelle du bug « panier vide » : au montage, l'effet de
+	// persistance écrivait le `lignes` initial (`[]`) avant que la lecture de
+	// `localStorage` ne soit appliquée — sous StrictMode (navigateur), le
+	// second passage de l'effet de lecture relisait alors un stockage vidé.
+	it("n'écrase jamais le panier stocké avec un état vide au montage", async () => {
+		window.localStorage.setItem(
+			"espace-client.panier.restaurant",
+			JSON.stringify([
+				{
+					id: "1",
+					nom: "Poulet braisé",
+					prix: "3500",
+					imageUrl: null,
+					quantite: 2,
+				},
+			]),
+		);
+		const setItem = vi.spyOn(Storage.prototype, "setItem");
+
+		const { result } = renderHook(() => usePanier());
+		await waitFor(() => expect(result.current.lignes).toHaveLength(1));
+
+		const ecrituresVides = setItem.mock.calls.filter(
+			([cle, valeur]) =>
+				cle === "espace-client.panier.restaurant" && valeur === "[]",
+		);
+		expect(ecrituresVides).toHaveLength(0);
+	});
+
+	it("restaure le panier stocké sans l'écraser au montage (StrictMode)", async () => {
+		window.localStorage.setItem(
+			"espace-client.panier.restaurant",
+			JSON.stringify([
+				{
+					id: "1",
+					nom: "Poulet braisé",
+					prix: "3500",
+					imageUrl: null,
+					quantite: 2,
+				},
+			]),
+		);
+
+		const wrapper = ({ children }: { children: ReactNode }) =>
+			createElement(StrictMode, null, children);
+		const { result } = renderHook(() => usePanier(), { wrapper });
+
+		await waitFor(() => expect(result.current.lignes).toHaveLength(1));
+		expect(result.current.lignes[0]).toMatchObject({
+			platId: "1",
+			quantite: 2,
+		});
+		expect(
+			window.localStorage.getItem("espace-client.panier.restaurant"),
+		).toContain("Poulet braisé");
 	});
 });

@@ -91,6 +91,13 @@ export function BoutiquePage() {
 	return (
 		<Toast.Provider swipeDirection="right" duration={2500}>
 			<div className="mx-auto max-w-6xl space-y-6 px-4 pt-6 pb-28 sm:px-6 lg:px-8">
+				<Breadcrumb
+					items={[
+						{ label: "Espace client", to: "/espace-client" },
+						{ label: "Boutique" },
+					]}
+				/>
+
 				<div className="space-y-1">
 					<h1 className="text-2xl font-semibold text-foreground">Boutique</h1>
 					<p className="text-sm text-muted-foreground">
