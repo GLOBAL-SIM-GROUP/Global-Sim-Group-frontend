@@ -4,6 +4,7 @@ import { Bell, CheckCheck, Loader2, RefreshCw, Trash2 } from "lucide-react";
 import { useState } from "react";
 
 import { Button } from "#/components/ui/button";
+import { useCurrentUser } from "#/core/auth";
 import {
 	type NotificationEnvelope,
 	type NotificationPriority,
@@ -39,17 +40,21 @@ function formatHeure(iso: string): string {
 function NotificationItem({
 	item,
 	isRead,
+	role,
+	permissions,
 	onActivate,
 }: {
 	item: NotificationEnvelope;
 	isRead: boolean;
+	role?: string;
+	permissions: readonly string[];
 	/** Marque comme lu, et navigue si une destination existe pour cet événement. */
 	onActivate: () => void;
 }) {
 	// Pas de destination connue (événement inconnu, id manquant, ou pas encore
 	// de vue self-service pour ce type — ex. `rh.paie.payee`) : l'item reste
 	// affiché mais n'a plus l'affordance cliquable (pas de curseur pointeur).
-	const clickable = routeFor(item) !== null;
+	const clickable = routeFor(item, role, permissions) !== null;
 
 	const contenu = (
 		<>
@@ -115,6 +120,9 @@ function NotificationItem({
 export function NotificationBell({ className }: { className?: string }) {
 	const [open, setOpen] = useState(false);
 	const navigate = useNavigate();
+	const user = useCurrentUser();
+	const role = user?.role;
+	const permissions = user?.permissions ?? [];
 	const {
 		status,
 		notifications,
@@ -128,7 +136,7 @@ export function NotificationBell({ className }: { className?: string }) {
 
 	const handleActivate = (item: NotificationEnvelope) => {
 		markAsRead(item.id);
-		const route = routeFor(item);
+		const route = routeFor(item, role, permissions);
 		if (route) {
 			setOpen(false);
 			void navigate(route);
@@ -216,6 +224,8 @@ export function NotificationBell({ className }: { className?: string }) {
 										<NotificationItem
 											item={item}
 											isRead={isRead(item.id)}
+											role={role}
+											permissions={permissions}
 											onActivate={() => handleActivate(item)}
 										/>
 									</li>

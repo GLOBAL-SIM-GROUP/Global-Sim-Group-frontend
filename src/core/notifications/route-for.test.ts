@@ -36,6 +36,64 @@ describe("routeFor", () => {
 		).toEqual({ to: "/pressing/commandes/7" });
 	});
 
+	it("salle_fete.reservation.statut -> détail réservation selon le compte", () => {
+		expect(
+			routeFor(
+				envelope("salle_fete.reservation.statut", { id_reservation: "9" }),
+				"CLIENT",
+			),
+		).toEqual({ to: "/espace-client/salle-fete/9" });
+		expect(
+			routeFor(
+				envelope("salle_fete.reservation.statut", { id_reservation: "9" }),
+				undefined,
+				["RESIDENT.VOIR"],
+			),
+		).toEqual({ to: "/residence/portail/salle-fete/9" });
+		expect(
+			routeFor(
+				envelope("salle_fete.reservation.statut", { id_reservation: "9" }),
+			),
+		).toEqual({ to: "/salle-fete/reservations/9" });
+	});
+
+	it("salle_fete.reservation_creee -> fiche réservation staff", () => {
+		expect(
+			routeFor(
+				envelope("salle_fete.reservation_creee", { id_reservation: "9" }),
+			),
+		).toEqual({ to: "/salle-fete/reservations/9" });
+		expect(routeFor(envelope("salle_fete.reservation_creee", {}))).toBeNull();
+	});
+
+	it("market.vente.statut -> détail boutique pour un compte CLIENT", () => {
+		expect(
+			routeFor(envelope("market.vente.statut", { id_vente: "12" }), "CLIENT", [
+				"RESIDENT.VOIR",
+			]),
+		).toEqual({ to: "/espace-client/boutique/12" });
+	});
+
+	it("market.vente.statut -> détail boutique portail pour un résident", () => {
+		expect(
+			routeFor(envelope("market.vente.statut", { id_vente: "12" }), undefined, [
+				"RESIDENT.VOIR",
+			]),
+		).toEqual({ to: "/residence/portail/boutique/12" });
+	});
+
+	it("market.vente.statut -> liste des ventes pour le staff", () => {
+		expect(
+			routeFor(envelope("market.vente.statut", { id_vente: "12" })),
+		).toEqual({ to: "/marchandise/ventes" });
+	});
+
+	it("market.demande_creee -> liste des ventes (alerte staff)", () => {
+		expect(
+			routeFor(envelope("market.demande_creee", { id_vente: "12" })),
+		).toEqual({ to: "/marchandise/ventes" });
+	});
+
 	it("market.stock_bas -> catalogue filtré sur les alertes (pas de fiche produit)", () => {
 		expect(routeFor(envelope("market.stock_bas", { id_produit: "9" }))).toEqual(
 			{ to: "/marchandise/produits", search: { alerte: "alerte" } },
