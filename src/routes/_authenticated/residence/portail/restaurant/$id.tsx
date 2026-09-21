@@ -6,13 +6,13 @@ import { RestaurantCommandeDetailPage } from "#/features/portail/components/rest
 /**
  * Détail d'une commande restaurant du portail résident : lignes, suivi du
  * statut et annulation tant qu'elle est `EN_ATTENTE`. Page gated par
- * `RESIDENT.VOIR`.
+ * `PORTAIL.VOIR`.
  */
 export const Route = createFileRoute(
 	"/_authenticated/residence/portail/restaurant/$id",
 )({
 	beforeLoad: ({ context }) => {
-		requirePermissions(context.auth, "RESIDENT.VOIR");
+		requirePermissions(context.auth, "PORTAIL.VOIR");
 	},
 	component: RestaurantCommandeDetailRoutePage,
 });

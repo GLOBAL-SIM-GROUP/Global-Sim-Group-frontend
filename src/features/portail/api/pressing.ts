@@ -24,7 +24,7 @@ const toCommande = ({
 
 /**
  * Récupère la liste des commandes de pressing du résident connecté.
- * Endpoint portail (RESIDENT.VOIR) : GET /api/v1/pressing/portail/commandes
+ * Endpoint portail (PORTAIL.VOIR) : GET /api/v1/pressing/portail/commandes
  */
 export async function listPressingCommandes(
 	params: ListCommandesParams = {},
@@ -48,7 +48,7 @@ export async function listPressingCommandes(
 
 /**
  * Récupère le détail d'une commande de pressing du résident connecté.
- * Endpoint portail (RESIDENT.VOIR) : GET /api/v1/pressing/portail/commandes/{id}
+ * Endpoint portail (PORTAIL.VOIR) : GET /api/v1/pressing/portail/commandes/{id}
  * Renvoie exactement la même forme que la liste (pas d'articles/notes).
  */
 export async function getPressingCommande(
@@ -77,7 +77,7 @@ export function annulerDepotPressing(id: string): Promise<unknown> {
 
 /**
  * Reçu d'une commande de pressing du résident connecté (GET
- * `/pressing/portail/commandes/{id}/recu`, RESIDENT.VOIR). Données JSON
+ * `/pressing/portail/commandes/{id}/recu`, PORTAIL.VOIR). Données JSON
  * rendues par le frontend — pas un PDF ; les montants sont `null` tant que
  * le dépôt n'est pas tarifé.
  */

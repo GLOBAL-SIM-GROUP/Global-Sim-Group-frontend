@@ -25,7 +25,7 @@ const toCommande = ({
  * cuisine avant validation du personnel.
  */
 
-/** Liste des commandes du résident connecté (RESIDENT.VOIR). */
+/** Liste des commandes du résident connecté (PORTAIL.VOIR). */
 export async function listMesCommandesRestaurant(): Promise<
 	CommandeRestaurantPortail[]
 > {
@@ -35,7 +35,7 @@ export async function listMesCommandesRestaurant(): Promise<
 	return response.map(toCommande);
 }
 
-/** Détail d'une commande du résident (RESIDENT.VOIR, `lignes` embarquées). */
+/** Détail d'une commande du résident (PORTAIL.VOIR, `lignes` embarquées). */
 export async function getCommandeRestaurantPortail(
 	id: string,
 ): Promise<CommandeRestaurantPortail> {

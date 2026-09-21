@@ -39,7 +39,7 @@ const toVente = ({
  * validation staff.
  */
 
-/** Liste des demandes boutique du résident connecté (RESIDENT.VOIR). */
+/** Liste des demandes boutique du résident connecté (PORTAIL.VOIR). */
 export async function listMesVentesPortail(): Promise<VentePortail[]> {
 	const response = await getApiClient().apiFetch<VentePortailWire[]>(
 		"/api/v1/market/portail/ventes",
@@ -47,7 +47,7 @@ export async function listMesVentesPortail(): Promise<VentePortail[]> {
 	return response.map(toVente);
 }
 
-/** Détail d'une demande du résident (RESIDENT.VOIR, `lignes` embarquées). */
+/** Détail d'une demande du résident (PORTAIL.VOIR, `lignes` embarquées). */
 export async function getVentePortail(id: string): Promise<VentePortail> {
 	const response = await getApiClient().apiFetch<VentePortailWire>(
 		`/api/v1/market/portail/ventes/${id}`,

@@ -23,7 +23,7 @@ const toReservation = ({
 
 /**
  * Créneaux fermes d'un jour (`YYYY-MM-DD`) — vue « libre/occupé » pour
- * choisir l'heure avant de demander (RESIDENT.VOIR).
+ * choisir l'heure avant de demander (PORTAIL.VOIR).
  */
 export function getDisponibilitesSalleFete(
 	date: string,
@@ -33,7 +33,7 @@ export function getDisponibilitesSalleFete(
 	);
 }
 
-/** Liste des réservations du résident connecté (RESIDENT.VOIR). */
+/** Liste des réservations du résident connecté (PORTAIL.VOIR). */
 export async function listMesReservationsSalleFete(): Promise<
 	ReservationPortail[]
 > {
@@ -43,7 +43,7 @@ export async function listMesReservationsSalleFete(): Promise<
 	return response.map(toReservation);
 }
 
-/** Détail d'une réservation du résident (RESIDENT.VOIR). */
+/** Détail d'une réservation du résident (PORTAIL.VOIR). */
 export async function getReservationSalleFete(
 	id: string,
 ): Promise<ReservationPortail> {

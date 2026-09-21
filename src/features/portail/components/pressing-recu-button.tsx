@@ -11,7 +11,7 @@ interface PressingRecuButtonProps {
 
 /**
  * Bouton « Reçu » pour l'espace résident (M5.x) : affiche le reçu JSON via
- * l'endpoint portail dédié (RESIDENT.VOIR), rendu en modale — l'endpoint
+ * l'endpoint portail dédié (PORTAIL.VOIR), rendu en modale — l'endpoint
  * renvoie des données, pas un PDF. Disponible dès la déclaration (`EN_ATTENTE`
  * → lignes déclaratives, montants `null` affichés « — »).
  */

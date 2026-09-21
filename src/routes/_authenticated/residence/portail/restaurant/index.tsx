@@ -5,15 +5,15 @@ import { RestaurantCommandesPage } from "#/features/portail/components/restauran
 
 /**
  * Commandes restaurant du portail résident : liste + composition d'une
- * commande en ligne. Page gated par `RESIDENT.VOIR` (comme les autres pages
+ * commande en ligne. Page gated par `PORTAIL.VOIR` (comme les autres pages
  * du portail résident — l'endpoint `/restaurant/portail/...` requiert
- * `RESIDENT.VOIR`, pas `RESTAURANT.VOIR`).
+ * `PORTAIL.VOIR`, pas `RESTAURANT.VOIR`).
  */
 export const Route = createFileRoute(
 	"/_authenticated/residence/portail/restaurant/",
 )({
 	beforeLoad: ({ context }) => {
-		requirePermissions(context.auth, "RESIDENT.VOIR");
+		requirePermissions(context.auth, "PORTAIL.VOIR");
 	},
 	component: RestaurantCommandesRoutePage,
 });
