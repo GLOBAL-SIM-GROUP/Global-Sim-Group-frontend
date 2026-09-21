@@ -160,6 +160,7 @@ describe("createNotificationsClient", () => {
 		const [url, opts] = mockIo.mock.calls[0];
 		expect(url).toContain("/notifications");
 		expect(opts).toMatchObject({ auth: { token: "tok-1" } });
+		expect(opts).toMatchObject({ transports: ["websocket"] });
 	});
 
 	it("ne se connecte pas tant que non authentifié", () => {
@@ -313,6 +314,63 @@ describe("createNotificationsClient", () => {
 
 		expect(disconnectSpy).toHaveBeenCalledTimes(1);
 		expect(client.getSnapshot().status).toBe("idle");
+	});
+
+	it("connect_error : rafraîchit le token avant de reconnecter (jamais de retry à token périmé)", async () => {
+		const { auth, setToken } = createFakeAuth({
+			isAuthenticated: true,
+			token: "expire",
+		});
+		createNotificationsClient(auth);
+		const socket = createdSockets[0];
+		socket.trigger("connect");
+		// Le refresh réel fait tourner l'access token (rotation côté session).
+		vi.mocked(auth.refresh).mockImplementation(async () => {
+			setToken("frais");
+			return true;
+		});
+
+		const disconnectSpy = vi.spyOn(socket, "disconnect");
+		const connectSpy = vi.spyOn(socket, "connect");
+		socket.trigger("connect_error");
+
+		await vi.waitFor(() => expect(auth.refresh).toHaveBeenCalledTimes(1));
+		// La reconnexion automatique a été stoppée puis relancée à token frais.
+		expect(disconnectSpy).toHaveBeenCalled();
+		expect(connectSpy).toHaveBeenCalled();
+		expect(socket.auth).toEqual({ token: "frais" });
+	});
+
+	it("déconnexion initiée par le serveur : refresh puis reconnecte", async () => {
+		const { auth, setToken } = createFakeAuth({
+			isAuthenticated: true,
+			token: "expire",
+		});
+		createNotificationsClient(auth);
+		const socket = createdSockets[0];
+		socket.trigger("connect");
+		vi.mocked(auth.refresh).mockImplementation(async () => {
+			setToken("frais");
+			return true;
+		});
+
+		const connectSpy = vi.spyOn(socket, "connect");
+		socket.trigger("disconnect", "io server disconnect");
+
+		await vi.waitFor(() => expect(auth.refresh).toHaveBeenCalledTimes(1));
+		expect(connectSpy).toHaveBeenCalled();
+		expect(socket.auth).toEqual({ token: "frais" });
+	});
+
+	it("déconnexion réseau (transport close) : pas de refresh, socket.io retente seul", () => {
+		const { auth } = createFakeAuth({ isAuthenticated: true, token: "tok-1" });
+		createNotificationsClient(auth);
+		const socket = createdSockets[0];
+		socket.trigger("connect");
+
+		socket.trigger("disconnect", "transport close");
+
+		expect(auth.refresh).not.toHaveBeenCalled();
 	});
 
 	it("ne se connecte pas sans token même si isAuthenticated est vrai", () => {

@@ -84,6 +84,8 @@ export function createNotificationsClient(
 	let connectedUser: NotificationConnectionUser | null = null;
 	let status: NotificationsStatus = "idle";
 	let snapshot = buildSnapshot();
+	// Anti-double : une récupération (refresh + reconnect) déjà en cours.
+	let recovering = false;
 
 	function buildSnapshot(): NotificationsSnapshot {
 		const visibles = notifications.filter((n) => !clearedIds.has(n.id));
@@ -126,15 +128,23 @@ export function createNotificationsClient(
 			emit();
 		});
 
-		s.on("disconnect", () => {
+		s.on("disconnect", (reason) => {
 			status = "disconnected";
 			connectedUser = null;
 			emit();
+			// Déconnexion initiée par le serveur = token refusé, expiré ou
+			// révoqué (socket.io ne retente pas automatiquement dans ce cas) :
+			// rafraîchir le token AVANT de reconnecter.
+			if (reason === "io server disconnect") void recoverConnection();
 		});
 
 		s.on("connect_error", () => {
 			status = "disconnected";
 			emit();
+			// Handshake refusé : on stoppe la reconnexion automatique (elle
+			// rejouerait le token périmé), puis refresh + reconnect manuels.
+			s.disconnect();
+			void recoverConnection();
 		});
 
 		s.on("connection:ok", (payload: { user: NotificationConnectionUser }) => {
@@ -167,6 +177,8 @@ export function createNotificationsClient(
 
 		socket = io(resolveNotificationsUrl(), {
 			auth: { token },
+			// Le backend n'accepte que le transport WebSocket (pas de polling).
+			transports: ["websocket"],
 			reconnection: true,
 		});
 		attachSocketListeners(socket);
@@ -195,6 +207,33 @@ export function createNotificationsClient(
 			socket.disconnect();
 		}
 		socket.connect();
+	}
+
+	/**
+	 * Reconnexion après refus serveur (`connect_error`, déconnexion initiée
+	 * par le serveur) : le backend coupe les sockets à token manquant,
+	 * invalide, révoqué ou expiré — on rafraîchit donc l'access token AVANT de
+	 * retenter, pour ne jamais rejouer un token mort. Un refresh réussi
+	 * déclenche déjà `reconnectWithFreshToken` via `subscribeTokenChange` ; on
+	 * le rappelle explicitement pour couvrir le cas où le token n'a pas
+	 * changé (réponse serveur idempotente) ou où le refresh est injoignable.
+	 */
+	async function recoverConnection(): Promise<void> {
+		if (recovering || !socket) return;
+		recovering = true;
+		try {
+			const refreshed = await auth.refresh();
+			if (!socket || !auth.isAuthenticated) return;
+			if (!refreshed) {
+				// Refresh injoignable (coupure réseau ?) : tempo avant de
+				// retenter — le token courant est peut-être encore valide.
+				await new Promise((resolve) => setTimeout(resolve, 3000));
+				if (!socket || !auth.isAuthenticated) return;
+			}
+			reconnectWithFreshToken();
+		} finally {
+			recovering = false;
+		}
 	}
 
 	function syncWithAuth(): void {
