@@ -3,7 +3,8 @@ import { getApiClient } from "#/core/api";
 import type { LigneVentePortail, VentePortail } from "../models/market";
 
 type LigneVentePortailWire = Omit<LigneVentePortail, "nom_produit"> & {
-	produit?: { nom?: string | null } | null;
+	/** Nom du produit embarqué — string livrée (market 085), objet `{nom}` toléré. */
+	produit?: string | { nom?: string | null } | null;
 };
 
 type VentePortailWire = Omit<VentePortail, "id" | "lignes"> & {
@@ -16,7 +17,7 @@ const toLigne = ({
 	...reste
 }: LigneVentePortailWire): LigneVentePortail => ({
 	...reste,
-	nom_produit: produit?.nom ?? null,
+	nom_produit: typeof produit === "string" ? produit : (produit?.nom ?? null),
 });
 
 const toVente = ({
