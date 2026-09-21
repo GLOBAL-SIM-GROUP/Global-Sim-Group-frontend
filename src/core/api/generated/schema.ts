@@ -2479,6 +2479,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/market/ventes/{id}/valider": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Valider Demande
+         * @description Validation d’une demande boutique EN_ATTENTE — réserve le stock et passe la vente à EN_COURS
+         */
+        post: operations["MarketController_validerVente_v1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/market/ventes/{id}/encaisser": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Encaisser Vente
+         * @description Encaissement physique d’une demande validée — facture VENTE + paiement, vente à PAYEE (règlement intégral exigé)
+         */
+        post: operations["MarketController_encaisserVente_v1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/market/ventes/{id}/annuler": {
         parameters: {
             query?: never;
@@ -2490,7 +2530,7 @@ export interface paths {
         put?: never;
         /**
          * Annuler Vente
-         * @description Exécution de ventes/:id/annuler
+         * @description Annulation d’une vente — refus d’une demande EN_ATTENTE (aucun stock à restituer) ou annulation d’une vente EN_COURS/PAYEE (stock restitué)
          */
         post: operations["MarketController_annulerVente_v1"];
         delete?: never;
@@ -2573,6 +2613,70 @@ export interface paths {
          * @description Exécution de stock/reesolde
          */
         post: operations["MarketController_reesolde_v1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/market/portail/ventes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Mes demandes boutique
+         * @description Liste des ventes du client connecté, plus récentes d’abord
+         */
+        get: operations["MarketPortailController_mesVentes_v1"];
+        put?: never;
+        /**
+         * Créer une demande boutique
+         * @description Demande composée par le client depuis le catalogue — naît EN_ATTENTE, validée puis encaissée physiquement par le staff (aucun paiement ici, aucun stock décrémenté)
+         */
+        post: operations["MarketPortailController_creerVente_v1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/market/portail/ventes/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Détail demande boutique
+         * @description Détail d'une demande boutique du client, avec ses lignes
+         */
+        get: operations["MarketPortailController_detailVente_v1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/market/portail/ventes/{id}/annuler": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Annuler ma demande boutique
+         * @description Annulation par le client d’une de ses demandes — possible uniquement tant qu’elle est EN_ATTENTE (avant validation staff)
+         */
+        post: operations["MarketPortailController_annulerVente_v1"];
         delete?: never;
         options?: never;
         head?: never;
@@ -5526,6 +5630,10 @@ export interface components {
             id_client?: Record<string, never> | null;
             paiement: components["schemas"]["PaiementVenteDto"];
         };
+        AnnulerVenteDto: {
+            /** @example Je n'en ai plus besoin */
+            motif?: Record<string, never> | null;
+        };
         AjouterMouvementDto: {
             /** @example 1 */
             id_produit: string;
@@ -5540,6 +5648,11 @@ export interface components {
             motif?: Record<string, never> | null;
             /** @example BL-2026-0147 */
             document_ref?: Record<string, never> | null;
+        };
+        CreerVentePortailDto: {
+            lignes: components["schemas"]["LigneVenteDto"][];
+            /** @example À récupérer ce soir */
+            note?: Record<string, never> | null;
         };
         CreerCategoriePlatDto: {
             /** @example Grillades */
@@ -10837,7 +10950,8 @@ export interface operations {
                 offset?: number;
                 du?: string;
                 au?: string;
-                statut?: "EN_COURS" | "PAYEE" | "ANNULEE";
+                statut?: "EN_ATTENTE" | "EN_COURS" | "PAYEE" | "ANNULEE";
+                origine?: "COMPTOIR" | "PORTAIL";
                 id_client?: string;
                 id_utilisateur?: string;
                 total?: string;
@@ -10949,7 +11063,7 @@ export interface operations {
             };
         };
     };
-    MarketController_annulerVente_v1: {
+    MarketController_validerVente_v1: {
         parameters: {
             query?: never;
             header?: never;
@@ -10961,6 +11075,112 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
+            /** @description Demande validée (EN_COURS) */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Permission refusée — requiert MARCHANDISE.VALIDER */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Vente ou produit inconnu */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description La vente n’est pas EN_ATTENTE — validation impossible */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Stock insuffisant — la vente reste EN_ATTENTE */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    MarketController_encaisserVente_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identifiant de la ressource ciblée */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PaiementVenteDto"];
+            };
+        };
+        responses: {
+            /** @description Vente encaissée (PAYEE) */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Montant ≠ total, ou caisse fermée */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Permission refusée — requiert FINANCES.ENCAISSER */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Vente inconnue */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Vente déjà encaissée, annulée, non validée ou déjà facturée */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    MarketController_annulerVente_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identifiant de la ressource ciblée */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AnnulerVenteDto"];
+            };
+        };
+        responses: {
             /** @description Opération effectuée avec succès */
             200: {
                 headers: {
@@ -10968,8 +11188,22 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description Permission refusée — requiert MARCHANDISE.SUPPRIMER */
+            /** @description Vente déjà annulée */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Permission refusée — requiert MARCHANDISE.ANNULER */
             403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Vente inconnue */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -11087,6 +11321,155 @@ export interface operations {
             };
             /** @description Permission refusée — requiert MARCHANDISE.SUPERVISER */
             403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    MarketPortailController_mesVentes_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Données renvoyées avec succès */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Permission refusée — requiert PORTAIL.VOIR */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    MarketPortailController_creerVente_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreerVentePortailDto"];
+            };
+        };
+        responses: {
+            /** @description Demande créée (EN_ATTENTE) */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Ligne invalide, stock insuffisant ou total non positif */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Permission refusée — requiert MARCHANDISE.COMMANDER */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Produit inconnu ou aucun client lié au compte */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    MarketPortailController_detailVente_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identifiant de la vente */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Données renvoyées avec succès */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Permission refusée — requiert PORTAIL.VOIR */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Vente inconnue ou n'appartenant pas au client */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    MarketPortailController_annulerVente_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identifiant de la vente */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AnnulerVenteDto"];
+            };
+        };
+        responses: {
+            /** @description Demande annulée */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Permission refusée — requiert MARCHANDISE.COMMANDER */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Vente inconnue ou n'appartenant pas au client */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description La demande n’est plus EN_ATTENTE — annulation impossible */
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };
