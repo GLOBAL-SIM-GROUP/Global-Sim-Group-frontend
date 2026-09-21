@@ -5,6 +5,7 @@ import type { RapportVentes } from "../models/statistiques";
 import type { LigneVente, Vente, VenteDetail } from "../models/ventes";
 
 type CreerVenteDto = components["schemas"]["CreerVenteDto"];
+type PaiementVenteDto = components["schemas"]["PaiementVenteDto"];
 
 type VenteWire = Omit<Vente, "id"> & { id_vente: string };
 type LigneVenteWire = Omit<LigneVente, "id"> & { id_ligne: string };
@@ -95,9 +96,32 @@ export function validerVente(id: string): Promise<unknown> {
 }
 
 /**
- * Annule une vente (POST `/api/v1/market/ventes/{id}/annuler`). Le `motif`
- * optionnel est restitué au résident (`motif_annulation`) sur les demandes
- * portail `EN_ATTENTE` refusées.
+ * Encaisse une vente `EN_COURS` (POST `/api/v1/market/ventes/{id}/encaisser`,
+ * `FINANCES.ENCAISSER`) — transition `EN_COURS` → `PAYEE` du workflow portail
+ * (le POS crée ses ventes directement `PAYEE`, sans passer par cette route).
+ * Corps `PaiementVenteDto` `{ montant, id_moyen }` : règlement **intégral**
+ * uniquement — 400 si `montant ≠ total` ou si la caisse est fermée.
+ */
+export function encaisserVente(
+	id: string,
+	body: { montant: string; idMoyen: string },
+): Promise<unknown> {
+	const corps: PaiementVenteDto = {
+		montant: body.montant,
+		id_moyen: body.idMoyen,
+	};
+	return getApiClient().apiFetch(`/api/v1/market/ventes/${id}/encaisser`, {
+		method: "POST",
+		body: JSON.stringify(corps),
+	});
+}
+
+/**
+ * Annule une vente (POST `/api/v1/market/ventes/{id}/annuler`,
+ * `MARCHANDISE.ANNULER` — market 086). Acceptée sur `EN_ATTENTE` (refus, sans
+ * restitution de stock), `EN_COURS` et `PAYEE` (annulation, stock restitué).
+ * Le `motif` optionnel est restitué au résident (`motif_annulation`) sur les
+ * demandes portail refusées.
  */
 export function annulerVente(id: string, motif?: string): Promise<unknown> {
 	return getApiClient().apiFetch(`/api/v1/market/ventes/${id}/annuler`, {

@@ -27,6 +27,7 @@ interface VenteTableProps {
 	onVoirFacture: (vente: VenteJoin) => void;
 	onValider: (vente: VenteJoin) => void;
 	onRefuser: (vente: VenteJoin) => void;
+	onEncaisser: (vente: VenteJoin) => void;
 	onAnnuler: (vente: VenteJoin) => void;
 }
 
@@ -36,6 +37,7 @@ export function VenteTable({
 	onVoirFacture,
 	onValider,
 	onRefuser,
+	onEncaisser,
 	onAnnuler,
 }: VenteTableProps) {
 	if (ventes.length === 0) {
@@ -116,6 +118,7 @@ export function VenteTable({
 									onVoirFacture={onVoirFacture}
 									onValider={onValider}
 									onRefuser={onRefuser}
+									onEncaisser={onEncaisser}
 									onAnnuler={onAnnuler}
 								/>
 							</td>

@@ -6,6 +6,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Breadcrumb } from "#/components/ui/breadcrumb";
 import { Button } from "#/components/ui/button";
 import { InputField } from "#/components/ui/input-field";
+import { isApiError, isCaisseFermeeError } from "#/core/api";
 import { useCan } from "#/core/auth";
 import { useNotifications } from "#/core/notifications";
 import { useClientsDetails } from "#/features/residence/hooks/use-clients";
@@ -16,6 +17,7 @@ import { ConfirmDialog } from "../../residence/components/confirm-dialog";
 import { useProduits } from "../hooks/use-produits";
 import {
 	useAnnulerVente,
+	useEncaisserVente,
 	useValiderVente,
 	useVentes,
 } from "../hooks/use-ventes";
@@ -26,6 +28,7 @@ import {
 	type VenteStatutFiltre,
 } from "../models/ventes";
 import { VENTES_PAGE_SIZE, ventesKeys } from "../permissions";
+import { VenteEncaisserDialog } from "./vente-encaisser-dialog";
 import { VenteFactureDialog } from "./vente-facture-dialog";
 import { VenteFilters } from "./vente-filters";
 import { VenteFormDialog } from "./vente-form-dialog";
@@ -51,8 +54,11 @@ interface VentesPageProps {
  * Page « Ventes — Market » (module Marchandise, M3) : historique des ventes
  * avec total, client (résolu via la base unique) et statut — inclut les
  * demandes boutique du portail (`origine = "PORTAIL"`, `EN_ATTENTE`).
- * Actions : Voir la facture, Valider/Refuser une demande portail, Annuler
- * (administrateur). « Export PDF/Excel » omis (aucun endpoint).
+ * Actions : Voir la facture, Valider/Refuser une demande `EN_ATTENTE`,
+ * Encaisser une vente `EN_COURS` (`FINANCES.ENCAISSER` — transition
+ * `EN_COURS → PAYEE` du workflow portail), Annuler (`MARCHANDISE.ANNULER`,
+ * stock restitué sur `EN_COURS`/`PAYEE`). « Export PDF/Excel » omis (aucun
+ * endpoint).
  */
 export function VentesPage({ initialSearch, onSearchChange }: VentesPageProps) {
 	const canCreer = useCan("MARCHANDISE.CREER");
@@ -96,6 +102,7 @@ export function VentesPage({ initialSearch, onSearchChange }: VentesPageProps) {
 	const moyensQuery = useMoyensPaiement();
 	const annulerMutation = useAnnulerVente();
 	const validerMutation = useValiderVente();
+	const encaisserMutation = useEncaisserVente();
 
 	const ventes = ventesQuery.data ?? [];
 	const clientIds = useMemo(
@@ -108,6 +115,7 @@ export function VentesPage({ initialSearch, onSearchChange }: VentesPageProps) {
 	const [aVoir, setAVoir] = useState<string | null>(null);
 	const [aValider, setAValider] = useState<VenteJoin | null>(null);
 	const [aRefuser, setARefuser] = useState<VenteJoin | null>(null);
+	const [aEncaisser, setAEncaisser] = useState<VenteJoin | null>(null);
 	const [aAnnuler, setAAnnuler] = useState<VenteJoin | null>(null);
 
 	const joins: VenteJoin[] = useMemo(
@@ -157,21 +165,42 @@ export function VentesPage({ initialSearch, onSearchChange }: VentesPageProps) {
 	}, [joins, statut, du, au, client]);
 	const pagination = paginerVentes(filtres, page, VENTES_PAGE_SIZE);
 
+	const erreurMutation =
+		annulerMutation.error ?? validerMutation.error ?? encaisserMutation.error;
+	const texteErreur = (() => {
+		if (!erreurMutation) return "";
+		// 422 de la validation : stock consommé entre la demande portail et la
+		// validation — distinct du 409 (statut déjà transitionné).
+		if (
+			validerMutation.isError &&
+			isApiError(erreurMutation) &&
+			erreurMutation.status === 422
+		) {
+			return "Stock insuffisant — des articles ont été vendus depuis la demande ; la validation est impossible.";
+		}
+		if (isCaisseFermeeError(erreurMutation)) {
+			return "La caisse est fermée — ouvrez-la (module Finances) avant d'encaisser.";
+		}
+		return erreurMutation instanceof Error
+			? erreurMutation.message
+			: "Une erreur est survenue.";
+	})();
+
 	const feedback =
-		annulerMutation.isError || validerMutation.isError
-			? {
-					type: "error" as const,
-					texte:
-						(annulerMutation.error ?? validerMutation.error) instanceof Error
-							? ((annulerMutation.error ?? validerMutation.error) as Error)
-									.message
-							: "Une erreur est survenue.",
-				}
+		annulerMutation.isError ||
+		validerMutation.isError ||
+		encaisserMutation.isError
+			? { type: "error" as const, texte: texteErreur }
 			: annulerMutation.isSuccess
 				? { type: "success" as const, texte: "Vente annulée avec succès." }
 				: validerMutation.isSuccess
 					? { type: "success" as const, texte: "Demande validée avec succès." }
-					: null;
+					: encaisserMutation.isSuccess
+						? {
+								type: "success" as const,
+								texte: "Vente encaissée avec succès.",
+							}
+						: null;
 
 	return (
 		<div className="w-full space-y-6 p-6">
@@ -219,6 +248,7 @@ export function VentesPage({ initialSearch, onSearchChange }: VentesPageProps) {
 						onClick={() => {
 							annulerMutation.reset();
 							validerMutation.reset();
+							encaisserMutation.reset();
 						}}
 					>
 						<X className="size-4" aria-hidden />
@@ -269,6 +299,7 @@ export function VentesPage({ initialSearch, onSearchChange }: VentesPageProps) {
 					onVoirFacture={(vente) => setAVoir(vente.id)}
 					onValider={(vente) => setAValider(vente)}
 					onRefuser={(vente) => setARefuser(vente)}
+					onEncaisser={(vente) => setAEncaisser(vente)}
 					onAnnuler={(vente) => setAAnnuler(vente)}
 				/>
 			)}
@@ -359,6 +390,23 @@ export function VentesPage({ initialSearch, onSearchChange }: VentesPageProps) {
 				}}
 				onOpenChange={(ouvert) => {
 					if (!ouvert) setARefuser(null);
+				}}
+			/>
+
+			<VenteEncaisserDialog
+				vente={aEncaisser}
+				moyens={moyensQuery.data ?? []}
+				isPending={encaisserMutation.isPending}
+				onConfirm={({ idMoyen }) => {
+					if (aEncaisser) {
+						encaisserMutation.mutate(
+							{ id: aEncaisser.id, montant: aEncaisser.total, idMoyen },
+							{ onSettled: () => setAEncaisser(null) },
+						);
+					}
+				}}
+				onOpenChange={(ouvert) => {
+					if (!ouvert) setAEncaisser(null);
 				}}
 			/>
 

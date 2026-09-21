@@ -6,10 +6,10 @@
  *
  * Une demande boutique est une vente `market_ventes` née `EN_ATTENTE` avec
  * `origine = "PORTAIL"` : le prix est connu dès la demande (`prix_unitaire`
- * figé au `prix_vente` catalogue, totaux calculés serveur). Le personnel
- * valide (`EN_COURS` — stock décrémenté) ou refuse (`ANNULEE` + motif) ;
- * l'encaissement au retrait reste le flux POS (`PAYEE`). Pas de paiement en
- * ligne.
+ * figé au `prix_vente` catalogue, totaux calculés serveur — indicatifs).
+ * Le personnel valide (`EN_COURS` — stock décrémenté) ou refuse (`ANNULEE` +
+ * motif) ; l'encaissement au retrait passe par `POST /market/ventes/:id/
+ * encaisser` (règlement intégral → `PAYEE`). Pas de paiement en ligne.
  */
 
 export type VentePortailStatut =
@@ -27,6 +27,8 @@ export interface LigneVentePortail {
 	nom_produit?: string | null;
 	quantite: string;
 	prix_unitaire: string;
+	/** Toujours `"0.00"` sur une vente portail (pas de remise résident). */
+	remise_ligne?: string;
 	total_ligne: string;
 }
 

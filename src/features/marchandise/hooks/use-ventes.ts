@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
 	annulerVente,
 	creerVente,
+	encaisserVente,
 	getVente,
 	type ListVentesParams,
 	listRapportVentes,
@@ -50,6 +51,27 @@ export function useValiderVente() {
 		onSuccess: () => {
 			void queryClient.invalidateQueries({ queryKey: ventesKeys.all });
 			void queryClient.invalidateQueries({ queryKey: produitsKeys.all });
+		},
+	});
+}
+
+/**
+ * Encaisse une vente `EN_COURS` (POST encaisser, règlement intégral → PAYEE).
+ * Pas de stock restitué/décrémenté ici : la liste des ventes suffit.
+ */
+export function useEncaisserVente() {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: ({
+			id,
+			...body
+		}: {
+			id: string;
+			montant: string;
+			idMoyen: string;
+		}) => encaisserVente(id, body),
+		onSuccess: () => {
+			void queryClient.invalidateQueries({ queryKey: ventesKeys.all });
 		},
 	});
 }
