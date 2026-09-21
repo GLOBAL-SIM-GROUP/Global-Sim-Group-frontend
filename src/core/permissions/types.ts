@@ -43,7 +43,15 @@
  * `/salle-fete/portail/reservations`) : verbes propres au compte CLIENT —
  * créer/annuler une commande restaurant (`RESTAURANT.COMMANDER`), déclarer
  * un dépôt pressing (`PRESSING.DECLARER`), demander une réservation de salle
- * de fête (`SALLE_FETE.DEMANDER`). La lecture associée reste `RESIDENT.VOIR`.
+ * de fête (`SALLE_FETE.DEMANDER`).
+ *
+ * `PORTAIL` (market 085, migration backend 084) : module neutre dont le seul
+ * verbe est `PORTAIL.VOIR`, accordé aux rôles RESIDENT **et** CLIENT — il
+ * couvre toutes les lectures des portails de service (`GET
+ * /restaurant/portail/*`, `/pressing/portail/*`, `/salle-fete/portail/*`,
+ * `/market/portail/*`). Le portail « résidence » (`/residence/portail/*` :
+ * résumé, échéances, caution…) reste sous `RESIDENT.VOIR` — un CLIENT
+ * auto-inscrit n'y a pas accès (pas de contrat).
  *
  * `VALIDER`/`ANNULER` (demandes portail `EN_ATTENTE`, spec OpenAPI live) :
  * validation/chiffrage des demandes résident (`SALLE_FETE.VALIDER` →
@@ -76,6 +84,7 @@ export const MODULES = [
 	"CORE",
 	"SIGNALEMENT",
 	"DEPENSE",
+	"PORTAIL",
 ] as const;
 
 export type ModuleCode = (typeof MODULES)[number];
