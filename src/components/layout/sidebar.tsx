@@ -23,7 +23,9 @@ import {
 	getAccessibleModules,
 } from "#/core/permissions/modules";
 import { usePortailResume } from "#/features/portail/hooks/use-portail";
+import { useCommandesEnAttenteCount as usePressingEnAttenteCount } from "#/features/pressing/hooks/use-commandes";
 import { formatMontantFCFA } from "#/features/residence/models/format";
+import { useCommandesEnAttenteCount as useRestaurantEnAttenteCount } from "#/features/restaurant/hooks/use-commandes";
 import { useReservationsEnAttenteCount } from "#/features/salle-fete/hooks/use-reservations";
 import { cn } from "#/lib/utils";
 
@@ -130,8 +132,14 @@ export function Sidebar({ onClose }: { onClose?: () => void } = {}) {
 	const canVoirSignalements = useCan("SIGNALEMENT.VOIR");
 	const estResident = useCan("RESIDENT.VOIR");
 	const canVoirSalleFete = useCan("SALLE_FETE.VOIR");
+	const canVoirRestaurant = useCan("RESTAURANT.VOIR");
+	const canVoirPressing = useCan("PRESSING.VOIR");
 	const demandesSalleFeteEnAttente =
 		useReservationsEnAttenteCount(canVoirSalleFete).data;
+	const demandesRestaurantEnAttente =
+		useRestaurantEnAttenteCount(canVoirRestaurant).data;
+	const demandesPressingEnAttente =
+		usePressingEnAttenteCount(canVoirPressing).data;
 	const portailResumeQuery = usePortailResume(estResident);
 	const totalImpayes = portailResumeQuery.data?.total_impayes;
 	const accessibleModules = getAccessibleModules(permissions);
@@ -449,10 +457,15 @@ export function Sidebar({ onClose }: { onClose?: () => void } = {}) {
 												const route = ROUTES_REALLES[module.code]?.[sub.id];
 												const badge =
 													module.code === "SALLE_FETE" &&
-													sub.id === "reservations" &&
-													demandesSalleFeteEnAttente
+													sub.id === "reservations"
 														? demandesSalleFeteEnAttente
-														: undefined;
+														: module.code === "RESTAURANT" &&
+																sub.id === "commandes"
+															? demandesRestaurantEnAttente
+															: module.code === "PRESSING" &&
+																	sub.id === "commandes"
+																? demandesPressingEnAttente
+																: undefined;
 												return (
 													<li key={sub.id}>
 														{route ? (

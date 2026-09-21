@@ -26,6 +26,21 @@ export function useCommandes(params?: ListCommandesParams) {
 	});
 }
 
+/**
+ * Nombre de commandes `EN_ATTENTE` (badge nav). `refetchInterval` : filet de
+ * sécurité — l'invalidation via les notifications `restaurant.commande_*`
+ * couvre déjà le rafraîchissement temps réel.
+ */
+export function useCommandesEnAttenteCount(enabled: boolean) {
+	return useQuery({
+		queryKey: commandesRestaurantKeys.list("EN_ATTENTE"),
+		queryFn: () => listCommandes({ statut: "EN_ATTENTE" }),
+		enabled,
+		select: (data) => data.length,
+		refetchInterval: 60_000,
+	});
+}
+
 /** Détail d'une commande (lignes embarquées). `retry: false` : 404 = introuvable. */
 export function useCommande(id: string | undefined) {
 	return useQuery({
