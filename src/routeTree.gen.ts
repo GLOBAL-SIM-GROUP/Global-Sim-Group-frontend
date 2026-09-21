@@ -53,6 +53,7 @@ import { Route as AuthenticatedMarchandiseMouvementsIndexRouteImport } from './r
 import { Route as AuthenticatedMarchandiseProduitsIndexRouteImport } from './routes/_authenticated/marchandise/produits/index'
 import { Route as AuthenticatedMarchandiseStatistiquesIndexRouteImport } from './routes/_authenticated/marchandise/statistiques/index'
 import { Route as AuthenticatedMarchandiseVentesIndexRouteImport } from './routes/_authenticated/marchandise/ventes/index'
+import { Route as AuthenticatedPressingCatalogueIndexRouteImport } from './routes/_authenticated/pressing/catalogue/index'
 import { Route as AuthenticatedPressingCommandesIndexRouteImport } from './routes/_authenticated/pressing/commandes/index'
 import { Route as AuthenticatedPressingCommandesIdRouteImport } from './routes/_authenticated/pressing/commandes/$id'
 import { Route as AuthenticatedPressingTarifKgIndexRouteImport } from './routes/_authenticated/pressing/tarif-kg/index'
@@ -359,6 +360,12 @@ const AuthenticatedMarchandiseVentesIndexRoute =
   AuthenticatedMarchandiseVentesIndexRouteImport.update({
     id: '/marchandise/ventes/',
     path: '/marchandise/ventes/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedPressingCatalogueIndexRoute =
+  AuthenticatedPressingCatalogueIndexRouteImport.update({
+    id: '/pressing/catalogue/',
+    path: '/pressing/catalogue/',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedPressingCommandesIndexRoute =
@@ -753,6 +760,7 @@ export interface FileRoutesByFullPath {
   '/marchandise/produits/': typeof AuthenticatedMarchandiseProduitsIndexRoute
   '/marchandise/statistiques/': typeof AuthenticatedMarchandiseStatistiquesIndexRoute
   '/marchandise/ventes/': typeof AuthenticatedMarchandiseVentesIndexRoute
+  '/pressing/catalogue/': typeof AuthenticatedPressingCatalogueIndexRoute
   '/pressing/commandes/': typeof AuthenticatedPressingCommandesIndexRoute
   '/pressing/tarif-kg/': typeof AuthenticatedPressingTarifKgIndexRoute
   '/rapports/financier/': typeof AuthenticatedRapportsFinancierIndexRoute
@@ -852,6 +860,7 @@ export interface FileRoutesByTo {
   '/marchandise/mouvements': typeof AuthenticatedMarchandiseMouvementsIndexRoute
   '/marchandise/statistiques': typeof AuthenticatedMarchandiseStatistiquesIndexRoute
   '/marchandise/ventes': typeof AuthenticatedMarchandiseVentesIndexRoute
+  '/pressing/catalogue': typeof AuthenticatedPressingCatalogueIndexRoute
   '/pressing/commandes': typeof AuthenticatedPressingCommandesIndexRoute
   '/pressing/tarif-kg': typeof AuthenticatedPressingTarifKgIndexRoute
   '/rapports/financier': typeof AuthenticatedRapportsFinancierIndexRoute
@@ -954,6 +963,7 @@ export interface FileRoutesById {
   '/_authenticated/marchandise/produits/': typeof AuthenticatedMarchandiseProduitsIndexRoute
   '/_authenticated/marchandise/statistiques/': typeof AuthenticatedMarchandiseStatistiquesIndexRoute
   '/_authenticated/marchandise/ventes/': typeof AuthenticatedMarchandiseVentesIndexRoute
+  '/_authenticated/pressing/catalogue/': typeof AuthenticatedPressingCatalogueIndexRoute
   '/_authenticated/pressing/commandes/': typeof AuthenticatedPressingCommandesIndexRoute
   '/_authenticated/pressing/tarif-kg/': typeof AuthenticatedPressingTarifKgIndexRoute
   '/_authenticated/rapports/financier/': typeof AuthenticatedRapportsFinancierIndexRoute
@@ -1056,6 +1066,7 @@ export interface FileRouteTypes {
     | '/marchandise/produits/'
     | '/marchandise/statistiques/'
     | '/marchandise/ventes/'
+    | '/pressing/catalogue/'
     | '/pressing/commandes/'
     | '/pressing/tarif-kg/'
     | '/rapports/financier/'
@@ -1155,6 +1166,7 @@ export interface FileRouteTypes {
     | '/marchandise/mouvements'
     | '/marchandise/statistiques'
     | '/marchandise/ventes'
+    | '/pressing/catalogue'
     | '/pressing/commandes'
     | '/pressing/tarif-kg'
     | '/rapports/financier'
@@ -1256,6 +1268,7 @@ export interface FileRouteTypes {
     | '/_authenticated/marchandise/produits/'
     | '/_authenticated/marchandise/statistiques/'
     | '/_authenticated/marchandise/ventes/'
+    | '/_authenticated/pressing/catalogue/'
     | '/_authenticated/pressing/commandes/'
     | '/_authenticated/pressing/tarif-kg/'
     | '/_authenticated/rapports/financier/'
@@ -1622,6 +1635,13 @@ declare module '@tanstack/react-router' {
       path: '/marchandise/ventes'
       fullPath: '/marchandise/ventes/'
       preLoaderRoute: typeof AuthenticatedMarchandiseVentesIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/pressing/catalogue/': {
+      id: '/_authenticated/pressing/catalogue/'
+      path: '/pressing/catalogue'
+      fullPath: '/pressing/catalogue/'
+      preLoaderRoute: typeof AuthenticatedPressingCatalogueIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/pressing/commandes/': {
@@ -2057,6 +2077,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedMarchandiseProduitsIndexRoute: typeof AuthenticatedMarchandiseProduitsIndexRoute
   AuthenticatedMarchandiseStatistiquesIndexRoute: typeof AuthenticatedMarchandiseStatistiquesIndexRoute
   AuthenticatedMarchandiseVentesIndexRoute: typeof AuthenticatedMarchandiseVentesIndexRoute
+  AuthenticatedPressingCatalogueIndexRoute: typeof AuthenticatedPressingCatalogueIndexRoute
   AuthenticatedPressingCommandesIndexRoute: typeof AuthenticatedPressingCommandesIndexRoute
   AuthenticatedPressingTarifKgIndexRoute: typeof AuthenticatedPressingTarifKgIndexRoute
   AuthenticatedRapportsFinancierIndexRoute: typeof AuthenticatedRapportsFinancierIndexRoute
@@ -2160,6 +2181,8 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
     AuthenticatedMarchandiseStatistiquesIndexRoute,
   AuthenticatedMarchandiseVentesIndexRoute:
     AuthenticatedMarchandiseVentesIndexRoute,
+  AuthenticatedPressingCatalogueIndexRoute:
+    AuthenticatedPressingCatalogueIndexRoute,
   AuthenticatedPressingCommandesIndexRoute:
     AuthenticatedPressingCommandesIndexRoute,
   AuthenticatedPressingTarifKgIndexRoute:
