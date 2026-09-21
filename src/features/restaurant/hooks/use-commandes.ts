@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
 	annulerCommande,
 	creerCommande,
+	encaisserCommande,
 	getCommande,
 	type ListCommandesParams,
 	listCommandes,
@@ -74,6 +75,25 @@ export function useAnnulerCommande() {
 	const invalider = useInvalidation();
 	return useMutation({
 		mutationFn: (id: string) => annulerCommande(id),
+		onSuccess: invalider,
+	});
+}
+
+/** Encaisse une commande (règlement intégral → facture soldée + `PAYEE`). */
+export function useEncaisserCommande() {
+	const invalider = useInvalidation();
+	return useMutation({
+		mutationFn: ({
+			id,
+			montant,
+			idMoyen,
+			date,
+		}: {
+			id: string;
+			montant: string;
+			idMoyen: string;
+			date?: string;
+		}) => encaisserCommande(id, { montant, idMoyen, date }),
 		onSuccess: invalider,
 	});
 }

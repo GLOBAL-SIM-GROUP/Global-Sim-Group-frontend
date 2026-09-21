@@ -23,6 +23,7 @@ import { cn } from "#/lib/utils";
 import {
 	useAnnulerCommande,
 	useCommandes,
+	useEncaisserCommande,
 	useMajStatutCommande,
 } from "../hooks/use-commandes";
 import { usePlats } from "../hooks/use-plats";
@@ -42,6 +43,7 @@ import { CommandeFactureDialog } from "./commande-facture-dialog";
 import { CommandeFormDialog } from "./commande-form-dialog";
 import { CommandeRefusDialog } from "./commande-refus-dialog";
 import { CommandeTable } from "./commande-table";
+import { EncaisserCommandeDialog } from "./encaisser-commande-dialog";
 
 /** Filtres/pagination reflétés dans l'URL. */
 export interface CommandesSearch {
@@ -72,6 +74,7 @@ export function CommandesPage({
 	const canModifier = useCan("RESTAURANT.MODIFIER");
 	const canSupprimer = useCan("RESTAURANT.SUPPRIMER");
 	const canValider = useCan("RESTAURANT.VALIDER");
+	const canEncaisser = useCan("FINANCES.ENCAISSER");
 
 	const [search, setSearch] = useState(initialSearch.search ?? "");
 	const [statut, setStatut] = useState<CommandeStatutFiltre>(
@@ -94,6 +97,7 @@ export function CommandesPage({
 	const moyensQuery = useMoyensPaiement();
 	const statutMutation = useMajStatutCommande();
 	const annulerMutation = useAnnulerCommande();
+	const encaisserMutation = useEncaisserCommande();
 
 	const commandes = commandesQuery.data ?? [];
 	const clientIds = useMemo(
@@ -121,6 +125,7 @@ export function CommandesPage({
 	const [aVoir, setAVoir] = useState<string | null>(null);
 	const [aAnnuler, setAAnnuler] = useState<CommandeRestaurant | null>(null);
 	const [aRefuser, setARefuser] = useState<CommandeRestaurant | null>(null);
+	const [aEncaisser, setAEncaisser] = useState<CommandeRestaurant | null>(null);
 
 	const changerFiltre = (patch: {
 		search?: string;
@@ -318,12 +323,14 @@ export function CommandesPage({
 					canModifier={canModifier}
 					canSupprimer={canSupprimer}
 					canValider={canValider}
+					canEncaisser={canEncaisser}
 					onVoirFacture={(commande) => setAVoir(commande.id)}
 					onStatut={(commande, suivant) =>
 						statutMutation.mutate({ id: commande.id, statut: suivant })
 					}
 					onAnnuler={(commande) => setAAnnuler(commande)}
 					onRefuser={(commande) => setARefuser(commande)}
+					onEncaisser={(commande) => setAEncaisser(commande)}
 				/>
 			)}
 
@@ -377,6 +384,23 @@ export function CommandesPage({
 				}
 				onOpenChange={(ouvert) => {
 					if (!ouvert) setAVoir(null);
+				}}
+			/>
+
+			<EncaisserCommandeDialog
+				commande={aEncaisser}
+				moyens={moyensQuery.data ?? []}
+				isPending={encaisserMutation.isPending}
+				onOpenChange={(ouvert) => {
+					if (!ouvert) setAEncaisser(null);
+				}}
+				onConfirm={({ idMoyen, date }) => {
+					if (aEncaisser) {
+						encaisserMutation.mutate(
+							{ id: aEncaisser.id, montant: aEncaisser.total, idMoyen, date },
+							{ onSettled: () => setAEncaisser(null) },
+						);
+					}
 				}}
 			/>
 

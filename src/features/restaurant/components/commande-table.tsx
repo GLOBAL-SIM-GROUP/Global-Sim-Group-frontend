@@ -27,6 +27,8 @@ interface CommandeTableProps {
 	canSupprimer: boolean;
 	/** `RESTAURANT.VALIDER` — valider/refuser une demande `EN_ATTENTE`. */
 	canValider: boolean;
+	/** `FINANCES.ENCAISSER` — encaisser une commande (règlement intégral). */
+	canEncaisser: boolean;
 	onVoirFacture: (commande: CommandeRestaurant) => void;
 	onStatut: (
 		commande: CommandeRestaurant,
@@ -34,6 +36,7 @@ interface CommandeTableProps {
 	) => void;
 	onAnnuler: (commande: CommandeRestaurant) => void;
 	onRefuser: (commande: CommandeRestaurant) => void;
+	onEncaisser: (commande: CommandeRestaurant) => void;
 }
 
 /** Tableau des commandes restaurant (M5). Le client est résolu par la page. */
@@ -43,10 +46,12 @@ export function CommandeTable({
 	canModifier,
 	canSupprimer,
 	canValider,
+	canEncaisser,
 	onVoirFacture,
 	onStatut,
 	onAnnuler,
 	onRefuser,
+	onEncaisser,
 }: CommandeTableProps) {
 	if (commandes.length === 0) {
 		return (
@@ -123,10 +128,12 @@ export function CommandeTable({
 									canModifier={canModifier}
 									canSupprimer={canSupprimer}
 									canValider={canValider}
+									canEncaisser={canEncaisser}
 									onVoirFacture={onVoirFacture}
 									onStatut={onStatut}
 									onAnnuler={onAnnuler}
 									onRefuser={onRefuser}
+									onEncaisser={onEncaisser}
 								/>
 							</td>
 						</tr>

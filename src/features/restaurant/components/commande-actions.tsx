@@ -1,4 +1,4 @@
-import { BadgeCheck, CheckCheck, Eye, RefreshCw, X } from "lucide-react";
+import { Banknote, CheckCheck, Eye, RefreshCw, X } from "lucide-react";
 
 import { Button } from "#/components/ui/button";
 import { DownloadReceiptIconButton } from "#/features/facturation/components/download-receipt-icon-button";
@@ -11,6 +11,8 @@ interface CommandeActionsProps {
 	canSupprimer: boolean;
 	/** `RESTAURANT.VALIDER` — valider/refuser une demande `EN_ATTENTE`. */
 	canValider: boolean;
+	/** `FINANCES.ENCAISSER` — encaisser une commande (règlement intégral). */
+	canEncaisser: boolean;
 	/** Voir la facture → ouvre la modale du détail. */
 	onVoirFacture: (commande: CommandeRestaurant) => void;
 	/** Changer le statut (prochaine étape selon l'état courant). */
@@ -22,13 +24,16 @@ interface CommandeActionsProps {
 	onAnnuler: (commande: CommandeRestaurant) => void;
 	/** Refuser une demande `EN_ATTENTE` (ANNULEE + motif pour le résident). */
 	onRefuser: (commande: CommandeRestaurant) => void;
+	/** Encaisser → `PAYEE` via l'encaissement physique (crée la facture). */
+	onEncaisser: (commande: CommandeRestaurant) => void;
 }
 
 /**
  * Actions d'une ligne commande restaurant : « Voir la facture », validation
  * d'une demande du portail `EN_ATTENTE` (valider → EN_COURS, refuser →
  * ANNULEE avec motif, gated `RESTAURANT.VALIDER`), « Modifier le statut »
- * (prochaine étape : En préparation → Servie → Payée) et « Annuler »
+ * (prochaine étape : En préparation → Servie), « Encaisser » (règlement
+ * intégral → PAYEE, gated `FINANCES.ENCAISSER`) et « Annuler »
  * (gated `RESTAURANT.SUPPRIMER`).
  */
 export function CommandeActions({
@@ -36,12 +41,18 @@ export function CommandeActions({
 	canModifier,
 	canSupprimer,
 	canValider,
+	canEncaisser,
 	onVoirFacture,
 	onStatut,
 	onAnnuler,
 	onRefuser,
+	onEncaisser,
 }: CommandeActionsProps) {
 	const enAttente = commande.statut === "EN_ATTENTE";
+	const encaissable =
+		commande.statut === "EN_COURS" ||
+		commande.statut === "EN_PREPARATION" ||
+		commande.statut === "SERVIE";
 	const prochaineEtape: {
 		statut: CommandeRestaurant["statut"];
 		label: string;
@@ -52,9 +63,7 @@ export function CommandeActions({
 			? { statut: "EN_PREPARATION", label: "En préparation", icon: RefreshCw }
 			: commande.statut === "EN_PREPARATION"
 				? { statut: "SERVIE", label: "Servie", icon: CheckCheck }
-				: commande.statut === "SERVIE"
-					? { statut: "PAYEE", label: "Payée", icon: BadgeCheck }
-					: null;
+				: null;
 
 	return (
 		<div className="flex items-center justify-end gap-1">
@@ -96,6 +105,18 @@ export function CommandeActions({
 				>
 					<prochaineEtape.icon className="size-4 text-lagoon" aria-hidden />
 					<span className="sr-only">Passer en « {prochaineEtape.label} »</span>
+				</Button>
+			) : null}
+
+			{encaissable && canEncaisser ? (
+				<Button
+					variant="ghost"
+					size="icon-sm"
+					title="Encaisser (règlement intégral → Payée)"
+					onClick={() => onEncaisser(commande)}
+				>
+					<Banknote className="size-4 text-emerald-600" aria-hidden />
+					<span className="sr-only">Encaisser la commande</span>
 				</Button>
 			) : null}
 

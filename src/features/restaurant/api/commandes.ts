@@ -118,6 +118,29 @@ export function majStatutCommande(
 	});
 }
 
+/**
+ * Encaissement physique d'une commande (POST
+ * `/api/v1/restaurant/commandes/{id}/encaisser`, `FINANCES.ENCAISSER`) :
+ * règlement intégral uniquement (400 si `montant ≠ total`), crée la facture
+ * `COMMANDE_RESTAURANT` soldée et passe la commande à `PAYEE`.
+ */
+export function encaisserCommande(
+	id: string,
+	body: { montant: string; idMoyen: string; date?: string },
+): Promise<unknown> {
+	return getApiClient().apiFetch(
+		`/api/v1/restaurant/commandes/${id}/encaisser`,
+		{
+			method: "POST",
+			body: JSON.stringify({
+				montant: body.montant,
+				id_moyen: body.idMoyen,
+				...(body.date ? { date: body.date } : {}),
+			}),
+		},
+	);
+}
+
 /** Annule une commande (POST `/api/v1/commandes/{id}/annuler`). */
 export function annulerCommande(id: string): Promise<unknown> {
 	return getApiClient().apiFetch(`/api/v1/restaurant/commandes/${id}/annuler`, {
