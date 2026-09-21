@@ -1,3 +1,4 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { act, render } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -35,6 +36,17 @@ vi.mock("#/components/layout/app-shell", () => ({
 vi.mock("#/core/notifications", () => ({
 	NotificationsProvider: ({ children }: { children: React.ReactNode }) =>
 		children,
+	useNotifications: () => ({
+		status: "idle" as const,
+		notifications: [],
+		unreadCount: 0,
+		connectedUser: null,
+		isRead: () => false,
+		markAsRead: () => {},
+		markAllAsRead: () => {},
+		clearAll: () => {},
+		refreshHistory: () => {},
+	}),
 }));
 
 /**
@@ -51,8 +63,16 @@ describe("AuthenticatedLayout — expiration de session en arrière-plan", () =>
 		mocks.auth.isAuthenticated = true;
 	});
 
+	function renderLayout() {
+		return render(
+			<QueryClientProvider client={new QueryClient()}>
+				<AuthenticatedLayout />
+			</QueryClientProvider>,
+		);
+	}
+
 	it("redirige vers /login avec expired=1 quand la session expire pendant le montage", () => {
-		render(<AuthenticatedLayout />);
+		renderLayout();
 
 		expect(mocks.navigate).not.toHaveBeenCalled();
 
@@ -70,7 +90,7 @@ describe("AuthenticatedLayout — expiration de session en arrière-plan", () =>
 	});
 
 	it("ne redirige pas si la session reste authentifiée", () => {
-		render(<AuthenticatedLayout />);
+		renderLayout();
 
 		act(() => {
 			for (const listener of mocks.listeners) listener();

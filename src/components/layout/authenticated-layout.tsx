@@ -5,6 +5,7 @@ import { NotificationsProvider } from "#/core/notifications";
 
 import { AppLaunchSplash } from "./app-launch-splash";
 import { AppShell } from "./app-shell";
+import { NotificationsBridge } from "./notifications-bridge";
 
 /**
  * Layout protégé (extrait de `routes/_authenticated.tsx` — un composant
@@ -19,6 +20,7 @@ export function AuthenticatedLayout() {
 		<AuthProvider session={auth}>
 			<NotificationsProvider client={notifications}>
 				<AppLaunchSplash ready={auth.isAuthenticated} />
+				<NotificationsBridge />
 				<AppShell>
 					<Outlet />
 				</AppShell>
