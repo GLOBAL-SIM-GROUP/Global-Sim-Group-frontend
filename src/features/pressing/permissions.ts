@@ -12,3 +12,6 @@ export const COMMANDES_PAGE_SIZE = 10;
  * tarif courant ») : une seule clé `list()`, pas de `detail(id)`.
  */
 export const tarifKgKeys = createQueryKeys("pressing.tarif-kg");
+
+/** Clés de requêtes du module Pressing — catalogue (types de vêtement + prestations). */
+export const cataloguePressingKeys = createQueryKeys("pressing.catalogue");

@@ -72,6 +72,7 @@ const ROUTES_REALLES: Record<
 	PRESSING: {
 		commandes: { to: "/pressing/commandes", exact: true },
 		tarif_kg: { to: "/pressing/tarif-kg", exact: true },
+		catalogue: { to: "/pressing/catalogue", exact: true },
 	},
 	SALLE_FETE: {
 		calendrier: { to: "/salle-fete/calendrier", exact: true },
