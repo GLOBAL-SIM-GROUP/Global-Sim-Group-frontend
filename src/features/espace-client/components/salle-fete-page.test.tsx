@@ -157,7 +157,7 @@ describe("SalleFetePage", () => {
 		expect(
 			screen.queryByRole("button", { name: /envoyer la demande/i }),
 		).not.toBeInTheDocument();
-		// La consultation des créneaux reste disponible (RESIDENT.VOIR).
+		// La consultation des créneaux reste disponible (PORTAIL.VOIR).
 		expect(screen.getByText("Occupation du jour")).toBeInTheDocument();
 	});
 });

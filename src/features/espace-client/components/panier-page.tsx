@@ -3,6 +3,7 @@ import { Minus, Plus, ShoppingCart, Trash2 } from "lucide-react";
 import { Toast } from "radix-ui";
 import { useState } from "react";
 
+import { Breadcrumb } from "#/components/ui/breadcrumb";
 import { Button } from "#/components/ui/button";
 import { useCan } from "#/core/auth";
 import { useCreerVentePortail } from "#/features/portail/hooks/use-market";

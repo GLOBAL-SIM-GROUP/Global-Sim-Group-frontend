@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { useState } from "react";
 
+import { Breadcrumb } from "#/components/ui/breadcrumb";
 import { Button } from "#/components/ui/button";
 import { useCan } from "#/core/auth";
 import { AnnulerDemandeDialog } from "#/features/portail/components/annuler-demande-dialog";

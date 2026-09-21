@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { ClipboardList, ShoppingCart, UserRound } from "lucide-react";
 
+import { Breadcrumb } from "#/components/ui/breadcrumb";
 import { useCurrentUser } from "#/core/auth";
 
 /**

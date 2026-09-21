@@ -4,6 +4,26 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ResidencePage } from "./residence-page";
 
+vi.mock("@tanstack/react-router", async (importOriginal) => {
+	const actual =
+		await importOriginal<typeof import("@tanstack/react-router")>();
+	return {
+		...actual,
+		Link: ({
+			to,
+			children,
+			...props
+		}: {
+			to: string;
+			children?: React.ReactNode;
+		}) => (
+			<a href={to} {...props}>
+				{children}
+			</a>
+		),
+	};
+});
+
 function remplirChampsValides() {
 	return {
 		dateArrivee: "2027-01-10",

@@ -11,6 +11,7 @@ import {
 	UtensilsCrossed,
 } from "lucide-react";
 
+import { Breadcrumb } from "#/components/ui/breadcrumb";
 import { useCurrentUser } from "#/core/auth";
 import { usePressingCommandes } from "#/features/portail/hooks/use-pressing";
 

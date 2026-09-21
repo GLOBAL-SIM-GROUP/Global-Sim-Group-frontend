@@ -5,6 +5,26 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { listerDemandes } from "../models/demandes";
 import { SignalementPage } from "./signalement-page";
 
+vi.mock("@tanstack/react-router", async (importOriginal) => {
+	const actual =
+		await importOriginal<typeof import("@tanstack/react-router")>();
+	return {
+		...actual,
+		Link: ({
+			to,
+			children,
+			...props
+		}: {
+			to: string;
+			children?: React.ReactNode;
+		}) => (
+			<a href={to} {...props}>
+				{children}
+			</a>
+		),
+	};
+});
+
 function saisirFormulaire(valeurs: Record<string, string>) {
 	for (const [name, valeur] of Object.entries(valeurs)) {
 		const champ = document.getElementsByName(name)[0] as HTMLElement;

@@ -3,6 +3,7 @@ import { AlertCircle, Loader2 } from "lucide-react";
 import { Tabs, Toast } from "radix-ui";
 import { useMemo, useState } from "react";
 
+import { Breadcrumb } from "#/components/ui/breadcrumb";
 import { produitImagePublicUrl } from "#/core/api/uploads";
 import {
 	listCategoriesProduits,
