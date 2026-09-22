@@ -110,7 +110,10 @@ function ServiceButtons({
 						<Link
 							to={service.to as never}
 							onClick={onNavigate}
-							activeProps={{ className: "bg-accent text-foreground" }}
+							activeProps={{
+								className:
+									"text-foreground underline decoration-lagoon decoration-2 underline-offset-4",
+							}}
 						>
 							<service.icon
 								className="size-4 shrink-0 text-lagoon"
@@ -155,7 +158,7 @@ function PanierButton() {
 			<Link
 				to="/espace-client/panier"
 				aria-label={nombre > 0 ? `Panier, ${nombre} article(s)` : "Panier"}
-				activeProps={{ className: "bg-accent text-foreground" }}
+				activeProps={{ className: "text-lagoon" }}
 			>
 				<ShoppingCart aria-hidden />
 				{nombre > 0 ? (
