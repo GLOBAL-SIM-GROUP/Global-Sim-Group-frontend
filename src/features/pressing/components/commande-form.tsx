@@ -4,10 +4,18 @@ import { useMemo, useState } from "react";
 import { Button } from "#/components/ui/button";
 import { InputField } from "#/components/ui/input-field";
 import { Label } from "#/components/ui/label";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "#/components/ui/select";
 import { useCan } from "#/core/auth";
 import { ClientRechercheField } from "#/features/residence/components/client-recherche-field";
 import { formatMontantFCFA } from "#/features/residence/models/format";
 
+import { useCataloguePressing } from "../hooks/use-catalogue";
 import {
 	useCreerCommande,
 	useModifierCommande,
@@ -35,8 +43,12 @@ interface LigneSaisie {
 	/** Clé stable (index insuffisant : lignes ajoutées/retirées). */
 	cle: number;
 	typeVetement: string;
+	/** Saisie libre du type de vêtement (hors catalogue). */
+	typeLibre: boolean;
 	quantite: string;
 	prestation: string;
+	/** Saisie libre de la prestation (hors catalogue). */
+	prestationLibre: boolean;
 	tarif: string;
 	poidsKg: string;
 }
@@ -44,11 +56,89 @@ interface LigneSaisie {
 const ligneVide = (cle: number): LigneSaisie => ({
 	cle,
 	typeVetement: "",
+	typeLibre: false,
 	quantite: "1",
 	prestation: "",
+	prestationLibre: false,
 	tarif: "",
 	poidsKg: "",
 });
+
+/** Sentinelle du Select : choix « Autre (saisie libre) ». */
+const CATALOGUE_LIBRE = "__libre__";
+
+/**
+ * Champ de libellé adossé au catalogue pressing : Select des entrées
+ * actives + option « Autre (saisie libre) » qui révèle le champ texte.
+ * Catalogue vide (ou inaccessible) → simple champ texte, le flag
+ * `hors_catalogue` partira de toute façon à `true`. Une valeur héritée
+ * absente du catalogue (commande d'avant le référentiel) est injectée
+ * comme option pour ne pas la perdre à l'édition.
+ */
+function ChampLibelleCatalogue({
+	ariaLabel,
+	placeholder,
+	valeur,
+	libre,
+	options,
+	onPatch,
+}: {
+	ariaLabel: string;
+	placeholder: string;
+	valeur: string;
+	libre: boolean;
+	options: { id: string; libelle: string }[];
+	onPatch: (patch: { valeur?: string; libre?: boolean }) => void;
+}) {
+	if (options.length === 0) {
+		return (
+			<InputField
+				aria-label={ariaLabel}
+				placeholder={placeholder}
+				value={valeur}
+				onChange={(event) => onPatch({ valeur: event.target.value })}
+			/>
+		);
+	}
+	const connues = new Set(options.map((option) => option.libelle));
+	return (
+		<div className="space-y-2">
+			<Select
+				value={libre ? CATALOGUE_LIBRE : valeur}
+				onValueChange={(choix) => {
+					if (choix === CATALOGUE_LIBRE) {
+						onPatch({ libre: true });
+					} else {
+						onPatch({ libre: false, valeur: choix });
+					}
+				}}
+			>
+				<SelectTrigger aria-label={ariaLabel} className="w-full">
+					<SelectValue placeholder={ariaLabel} />
+				</SelectTrigger>
+				<SelectContent>
+					{options.map((option) => (
+						<SelectItem key={option.id} value={option.libelle}>
+							{option.libelle}
+						</SelectItem>
+					))}
+					{!libre && valeur && !connues.has(valeur) ? (
+						<SelectItem value={valeur}>{valeur}</SelectItem>
+					) : null}
+					<SelectItem value={CATALOGUE_LIBRE}>Autre (saisie libre)…</SelectItem>
+				</SelectContent>
+			</Select>
+			{libre ? (
+				<InputField
+					aria-label={`${ariaLabel} (saisie libre)`}
+					placeholder={placeholder}
+					value={valeur}
+					onChange={(event) => onPatch({ valeur: event.target.value })}
+				/>
+			) : null}
+		</div>
+	);
+}
 
 /**
  * Formulaire « Dépôt — Pressing » (M4) : recherche client, mode de
@@ -75,6 +165,7 @@ export function CommandeForm({
 		commande?.mode_tarification ?? "UNITAIRE",
 	);
 	const tarifKgQuery = useTarifKg(mode === "POIDS");
+	const catalogueQuery = useCataloguePressing();
 
 	// `cle` dérivée de l'index de construction (pas de `ligne.id`, qui n'est
 	// pas forcément numérique) : garantit des clés 0..n-1 uniques quel que
@@ -84,8 +175,10 @@ export function CommandeForm({
 			? lignesInitiales.map((ligne, index) => ({
 					cle: index,
 					typeVetement: ligne.type_vetement,
+					typeLibre: false,
 					quantite: String(ligne.quantite),
 					prestation: ligne.prestation,
+					prestationLibre: false,
 					tarif: ligne.tarif ?? "",
 					poidsKg: ligne.poids_kg ?? "",
 				}))
@@ -152,6 +245,25 @@ export function CommandeForm({
 	const aucunTarifKgConfigure =
 		mode === "POIDS" && !tarifKgQuery.isLoading && tarifKgQuery.data === null;
 
+	// Référentiel des libellés (entrées actives uniquement) — les Selects
+	// proposent ces valeurs ; toute saisie hors liste part `hors_catalogue`.
+	const typesVetementCatalogue = useMemo(
+		() => (catalogueQuery.data?.typesVetement ?? []).filter((t) => t.actif),
+		[catalogueQuery.data],
+	);
+	const prestationsCatalogue = useMemo(
+		() => (catalogueQuery.data?.prestations ?? []).filter((p) => p.actif),
+		[catalogueQuery.data],
+	);
+	const typesConnus = useMemo(
+		() => new Set(typesVetementCatalogue.map((t) => t.libelle)),
+		[typesVetementCatalogue],
+	);
+	const prestationsConnues = useMemo(
+		() => new Set(prestationsCatalogue.map((p) => p.libelle)),
+		[prestationsCatalogue],
+	);
+
 	const valider = (): string | null => {
 		if (!commande && !idClient) return "Sélectionnez un client.";
 		if (lignes.length === 0) return "Ajoutez au moins un article.";
@@ -186,6 +298,14 @@ export function CommandeForm({
 			typeVetement: ligne.typeVetement.trim(),
 			quantite: ligne.quantite.trim(),
 			prestation: ligne.prestation.trim(),
+			// « Catalogue » seulement si les DEUX libellés sont dans le
+			// référentiel — le backend vérifie l'appartenance quand
+			// `hors_catalogue` est faux.
+			horsCatalogue:
+				ligne.typeLibre ||
+				ligne.prestationLibre ||
+				!typesConnus.has(ligne.typeVetement.trim()) ||
+				!prestationsConnues.has(ligne.prestation.trim()),
 			...(mode === "UNITAIRE"
 				? { tarif: ligne.tarif.trim() }
 				: { poidsKg: ligne.poidsKg.trim() }),
@@ -295,20 +415,44 @@ export function CommandeForm({
 						className="space-y-3 rounded-md border border-border p-3"
 					>
 						<div className="grid gap-3 sm:grid-cols-2">
-							<InputField
-								aria-label="Type de vêtement"
+							<ChampLibelleCatalogue
+								ariaLabel="Type de vêtement"
 								placeholder="Type de vêtement (ex : Chemise)"
-								value={ligne.typeVetement}
-								onChange={(event) =>
-									majLigne(ligne.cle, { typeVetement: event.target.value })
+								valeur={ligne.typeVetement}
+								libre={ligne.typeLibre}
+								options={typesVetementCatalogue.map((type) => ({
+									id: type.id_type_vetement,
+									libelle: type.libelle,
+								}))}
+								onPatch={(patch) =>
+									majLigne(ligne.cle, {
+										...(patch.valeur !== undefined
+											? { typeVetement: patch.valeur }
+											: {}),
+										...(patch.libre !== undefined
+											? { typeLibre: patch.libre }
+											: {}),
+									})
 								}
 							/>
-							<InputField
-								aria-label="Prestation"
+							<ChampLibelleCatalogue
+								ariaLabel="Prestation"
 								placeholder="Prestation (ex : Repassage)"
-								value={ligne.prestation}
-								onChange={(event) =>
-									majLigne(ligne.cle, { prestation: event.target.value })
+								valeur={ligne.prestation}
+								libre={ligne.prestationLibre}
+								options={prestationsCatalogue.map((prestation) => ({
+									id: prestation.id_prestation,
+									libelle: prestation.libelle,
+								}))}
+								onPatch={(patch) =>
+									majLigne(ligne.cle, {
+										...(patch.valeur !== undefined
+											? { prestation: patch.valeur }
+											: {}),
+										...(patch.libre !== undefined
+											? { prestationLibre: patch.libre }
+											: {}),
+									})
 								}
 							/>
 							{mode === "UNITAIRE" ? (

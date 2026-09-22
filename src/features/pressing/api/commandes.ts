@@ -76,13 +76,16 @@ export function getCommande(id: string): Promise<CommandePressingDetail> {
  * `validerLignesPressing` dans `models/commandes.ts`.
  *
  * `hors_catalogue` est requis par `LigneCommandePressingDto` depuis
- * l'introduction du catalogue pressing : le formulaire saisit les libellés
- * en texte libre (pas de sélection catalogue) → toujours `true`, sinon 400.
+ * l'introduction du catalogue pressing : `false` quand les libellés sont
+ * choisis dans le catalogue (le backend vérifie l'appartenance), `true`
+ * pour une saisie libre — sans lui la requête part en 400.
  */
 export interface LigneCommandeBody {
 	typeVetement: string;
 	quantite: string;
 	prestation: string;
+	/** `false` = libellés du catalogue ; défaut `true` (saisie libre/portail). */
+	horsCatalogue?: boolean;
 	tarif?: string;
 	poidsKg?: string;
 }
@@ -92,7 +95,7 @@ function ligneVersCorps(ligne: LigneCommandeBody) {
 		type_vetement: ligne.typeVetement,
 		quantite: ligne.quantite,
 		prestation: ligne.prestation,
-		hors_catalogue: true,
+		hors_catalogue: ligne.horsCatalogue ?? true,
 		...(ligne.tarif !== undefined ? { tarif: ligne.tarif } : {}),
 		...(ligne.poidsKg !== undefined ? { poids_kg: ligne.poidsKg } : {}),
 	};
