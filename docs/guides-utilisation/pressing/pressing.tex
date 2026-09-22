@@ -116,7 +116,7 @@ Le module \textbf{Pressing}, c'est exactement ce cahier, mais sur l'ordinateur. 
   \item \textbf{Imprimer un reçu} : un petit ticket à remettre au client.
 \end{itemize}
 
-\info{Chaque commande a un \textbf{statut}, comme un petit panneau de couleur : \textbf{Déposé} (bleu) → \textbf{En traitement} (orange) → \textbf{Prêt} (vert) → \textbf{Retiré} (gris). Une commande peut aussi être \textbf{Annulé} (rouge).}
+\info{Chaque commande a un \textbf{statut}, comme un petit panneau de couleur : \textbf{Déposé} (bleu) → \textbf{En traitement} (orange) → \textbf{Prêt} (vert) → \textbf{Retiré} (gris). Une commande peut aussi être \textbf{Annulé} (rouge). Les demandes déposées par les résidents depuis leur portail arrivent en \textbf{En attente de validation} (violet) : elles deviennent de vraies commandes seulement après ton chiffrage — voir la section « Les demandes du portail résident ».}
 
 \info{Deux façons de facturer : \textbf{à la pièce} (chaque vêtement a son prix — le mode habituel) ou \textbf{au kilo} (le linge est pesé, le prix se calcule avec le tarif au kilo en vigueur). Le choix se fait au dépôt et ne change plus ensuite — voir la section « La tarification au kilo ».}
 
@@ -129,8 +129,10 @@ Le module \textbf{Pressing}, c'est exactement ce cahier, mais sur l'ordinateur. 
 
 \begin{etapes}
   \item Connecte-toi à l'application.
-  \item Sur l'accueil, clique sur la carte \textbf{Pressing}, puis sur « Commandes » ; ou clique sur « Pressing » dans le menu latéral.
+  \item Sur l'accueil, clique sur la carte \textbf{Pressing}, puis sur « Commandes » ; ou clique sur « Blanchisserie » dans le menu latéral. Le menu propose trois entrées : \textbf{Commandes} (la liste ci-dessous), \textbf{Tarif au kilo} et \textbf{Catalogue} — les deux dernières sont réservées aux rôles autorisés.
 \end{etapes}
+
+\info{Une \textbf{pastille orange} avec un chiffre à côté de « Commandes » dans le menu signale les demandes du portail résident encore « En attente de validation » — elle disparaît quand tout est traité.}
 
 La page \textbf{Commandes — Pressing} s'ouvre :
 
@@ -155,7 +157,7 @@ Chaque ligne du tableau est une commande. Les colonnes sont :
   \item \textbf{DATE DÉPÔT} : quand les vêtements ont été apportés.
   \item \textbf{RETRAIT PRÉVU} : la date à laquelle le client doit revenir.
   \item \textbf{MONTANT} : le prix total de la commande.
-  \item \textbf{ACOMPTE} : l'argent déjà versé (les dépôts n'encaissent plus d'acompte : tout est payé au retrait — la colonne reste pour les anciennes commandes).
+  \item \textbf{ACOMPTE} : l'argent déjà versé. Le dépôt direct n'encaisse plus d'acompte (tout est payé au retrait) ; seule la validation d'une demande du portail peut en encaisser un — la colonne sert aussi pour les anciennes commandes.
   \item \textbf{RESTE} : ce qui reste à payer au retrait.
   \item \textbf{STATUT} : le petit panneau de couleur (Déposé, En traitement, Prêt, Retiré, Annulé).
   \item \textbf{ACTIONS} : les petites icônes pour voir, imprimer, modifier ou retirer la commande.
@@ -184,6 +186,7 @@ Clique sur le menu \textbf{Statut} pour ne montrer qu'un seul type de commandes 
 
 \begin{itemize}[label=\textcolor{lagoon}{\faFilter}]
   \item \textbf{Tous les statuts} : montre tout (c'est le choix par défaut).
+  \item \textbf{En attente de validation} : les demandes déposées par les résidents sur leur portail, en attente de chiffrage.
   \item \textbf{Déposé} : les commandes qui viennent d'arriver, pas encore traitées.
   \item \textbf{En traitement} : le linge est en train d'être lavé ou repassé.
   \item \textbf{Prêt} : le linge est propre, le client peut venir.
@@ -364,6 +367,46 @@ Quand le client revient chercher son linge, il paie ce qui reste. Le bouton \tex
 
 \newpage
 
+% Section 5a : Demandes du portail résident
+\section{Les demandes du portail résident}\label{sec:demandes}
+
+Les résidents peuvent déclarer un dépôt de linge depuis leur \textbf{portail résident}, sans passer à l'accueil. Ces demandes arrivent dans ta liste avec le statut \textbf{En attente de validation} (violet) : ce ne sont pas encore de vraies commandes — elles n'ont ni prix ni date de retrait, juste les articles déclarés par le résident.
+
+\screenshot{screenshots/pressing/19-demandes-attente.png}{Une demande « En attente de validation » (badge violet) dans la liste}
+
+Sur une ligne « En attente de validation », deux icônes spéciales apparaissent dans la colonne ACTIONS :
+
+\begin{itemize}[label=\textcolor{lagoon}{\faList}]
+  \item \textbf{Valider et chiffrer} (double coche, permission \texttt{PRESSING.CREER}) : ouvre la fenêtre de chiffrage.
+  \item \textbf{Refuser la demande} (croix rouge, permission \texttt{PRESSING.ANNULER}) : annule la demande définitivement — elle passe au statut « Annulé ».
+\end{itemize}
+
+\subsection{Valider et chiffrer une demande}
+
+\begin{etapes}
+  \item Clique sur l'icône \textbf{Valider et chiffrer} de la demande.
+  \item La fenêtre « Valider la demande de dépôt » s'ouvre. Elle rappelle le numéro de la demande : \textbf{vérifie les articles déclarés} par le résident et chiffre-les.
+\end{etapes}
+
+\screenshot{screenshots/pressing/20-valider-demande.png}{La fenêtre « Valider la demande de dépôt »}
+
+\begin{etapes}
+  \setcounter{etapesi}{3}
+  \item Choisis la \textbf{Tarification} : à la pièce ou au kilo (les mêmes règles que pour un dépôt classique).
+  \item Pour chaque article : type de vêtement, prestation, quantité et \textbf{tarif} (ou \textbf{poids} au kilo). Tu peux \textbf{Ajouter un article} ou en \textbf{Retirer} un si le résident s'est trompé — chaque ligne incomplète bloque la validation (« Indiquez le type de vêtement »).
+  \item Indique la \textbf{Date de retrait prévue}.
+  \item Si le résident a déjà payé une partie au comptoir, note-la dans \textbf{Acompte encaissé} (optionnel).
+  \item Clique sur \textbf{Valider et chiffrer} : la demande devient une vraie commande au statut \textbf{Déposé}, avec son montant et sa date de retrait.
+\end{etapes}
+
+\screenshot{screenshots/pressing/21-demande-validee.png}{La demande chiffrée est devenue une commande « Déposé »}
+
+\info{Après validation, la commande suit le cycle normal : En traitement → Prêt → Retiré. Le résident voit le prix et la date depuis son portail.}
+
+\attention{Un refus est \textbf{définitif} : la demande passe à « Annulé » et ne peut pas être rouverte. En cas de doute sur les articles, contacte le résident avant de refuser.}
+
+\newpage
+
 % Section 5b : Tarif au kilo
 \section{La tarification au kilo}\label{sec:kilo}
 
@@ -397,6 +440,25 @@ Sur la fiche, le badge « Tarification au kilo » apparaît à côté du numéro
 \screenshot{screenshots/pressing/17-fiche-poids.png}{Fiche d'une commande au kilo : badge et colonne « POIDS (KG) »}
 
 \attention{Sans tarif au kilo configuré, la création est bloquée : un bandeau orange « Aucun tarif au kilo n'est encore configuré » s'affiche dans la fenêtre — définis d'abord un tarif (ou demande à un responsable pressing).}
+
+\newpage
+
+% Section 5c : Catalogue
+\section{Le catalogue}\label{sec:catalogue}
+
+Les listes déroulantes « Type de vêtement » et « Prestation » des fenêtres de dépôt ne sont pas fixes : elles se règlent dans la page \textbf{Catalogue} (menu \textbf{Blanchisserie} → \textbf{Catalogue}).
+
+\screenshot{screenshots/pressing/18-catalogue.png}{La page « Catalogue — Pressing »}
+
+La page a deux blocs identiques — \textbf{Types de vêtement} (chemise, costume…) et \textbf{Prestations} (repassage, nettoyage à sec…). Pour chaque bloc :
+
+\begin{itemize}[label=\textcolor{lagoon}{\faList}]
+  \item \textbf{Ajouter} : tape le nouveau libellé dans la case « Nouveau libellé » puis clique sur \textbf{Ajouter}.
+  \item \textbf{Renommer} : l'icône crayon permet de corriger le libellé.
+  \item \textbf{Désactiver / Réactiver} : l'interrupteur retire le libellé des saisies futures \textbf{sans toucher les commandes passées} — la ligne reste visible avec son badge « Actif » disparu.
+\end{itemize}
+
+\info{Tout le monde peut \textbf{voir} le catalogue (permission de lecture du pressing), mais seuls les rôles ayant \texttt{PRESSING.GERER\_CATALOGUE} peuvent ajouter, renommer ou désactiver : sans elle, les cases et boutons n'apparaissent pas.}
 
 \newpage
 
@@ -449,6 +511,12 @@ Je ne vois pas « Tarif au kilo » dans le menu & Il te manque la permission \te
 
 Je ne peux pas changer la tarification d'une commande & C'est voulu : le mode (à la pièce ou au kilo) est fixé à la création et n'est jamais modifiable. Annule la commande et recrée-la si le mode était faux. \\
 
+Une ligne violette « En attente de validation » & C'est une demande déposée par un résident sur son portail. Chiffre-la avec la double coche (\texttt{PRESSING.CREER}) ou refuse-la avec la croix (\texttt{PRESSING.ANNULER}). \\
+
+Je ne vois pas les icônes de validation/refus & Elles n'apparaissent que sur les lignes « En attente de validation », et seulement si tu as les permissions \texttt{PRESSING.CREER} (valider) ou \texttt{PRESSING.ANNULER} (refuser). \\
+
+Je ne peux pas toucher au catalogue & La lecture du catalogue est libre, mais ajouter/renommer/désactiver demande \texttt{PRESSING.GERER\_CATALOGUE}. \\
+
 Le reçu ne s'imprime pas & Vérifie que l'imprimante à tickets est branchée et allumée. Vérifie aussi les réglages dans « Paramètres d'impression… ». \\
 
 \bottomrule
@@ -459,11 +527,14 @@ Le reçu ne s'imprime pas & Vérifie que l'imprimante à tickets est branchée e
 \section{Récapitulatif des permissions}
 
 \begin{itemize}[label=\textcolor{lagoon}{\faKey}]
-  \item Voir la liste et les fiches des commandes : permission de lecture du pressing.
-  \item \texttt{PRESSING.CREER} : créer une commande (bouton « Nouvelle commande »).
+  \item Voir la liste et les fiches des commandes : permission de lecture du pressing (\texttt{PRESSING.VOIR}, donne aussi la lecture du catalogue).
+  \item \texttt{PRESSING.CREER} : créer une commande (bouton « Nouvelle commande ») et \textbf{valider/chiffrer} les demandes du portail.
   \item \texttt{PRESSING.MODIFIER} : modifier une commande et changer son statut (« Passer en traitement », « Passer en « Prêt » »).
+  \item \texttt{PRESSING.ANNULER} : refuser une demande « En attente de validation » (annulation définitive).
   \item \texttt{PRESSING.CREER} + \texttt{FINANCES.VOIR} : retirer une commande (encaisser le solde).
   \item \texttt{PRESSING.GERER\_TARIFS} : voir et définir le tarif au kilo (page « Tarif au kilo », réservée au responsable pressing).
+  \item \texttt{PRESSING.GERER\_CATALOGUE} : ajouter, renommer ou désactiver les types de vêtement et prestations (page « Catalogue »).
+  \item \texttt{PRESSING.DECLARER} : permission des comptes \textbf{clients/résidents} — déclarer un dépôt depuis le portail. Elle ne concerne pas le personnel.
 \end{itemize}
 
 \info{Les permissions se règlent dans le module Administration (page Rôles). Si un bouton manque, ce n'est pas un bug : c'est que ton rôle n'a pas le droit.}
