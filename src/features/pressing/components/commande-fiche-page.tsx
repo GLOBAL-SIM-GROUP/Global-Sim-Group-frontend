@@ -262,7 +262,6 @@ export function CommandeFichePage({ id }: CommandeFichePageProps) {
 						label="Montant total"
 						valeur={formatMontantFCFA(commande.montant_total)}
 					/>
-					<Ligne label="Acompte" valeur={formatMontantFCFA(commande.acompte)} />
 					<Ligne
 						label="Reste à payer"
 						valeur={formatMontantFCFA(commande.reste_a_payer)}
