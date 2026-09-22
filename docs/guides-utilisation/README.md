@@ -5,7 +5,7 @@ Ce dossier contient le guide utilisateur du module Résidence de GLOBAL SIM GROU
 ## Fichiers
 
 - `residence.tex` : source LaTeX du guide.
-- `residence.pdf` : version PDF compilée (31 pages).
+- `residence.pdf` : version PDF compilée (63 pages).
 - `PROMPT-guide-residence.md` : prompt réutilisable pour faire générer/mettre à jour ce guide par une IA.
 - `screenshots/residence/` : captures d'écran générées automatiquement avec Playwright.
 
@@ -24,13 +24,12 @@ Les captures couvrent :
 
 ## Erreurs rencontrées pendant la génération
 
-Le serveur de développement a rencontré des erreurs qui ont empêché la capture complète des soumissions de formulaires :
+Les erreurs backend initiales (500 sur les logements, 403 sur les services
+d'abonnement) sont résolues : les captures ont été refaites depuis.
 
-- `500` sur `GET /api/v1/residence/logements` lors de la création d'un logement (« Erreur base de données »).
-- Aucune option de logement n'apparaissait ensuite dans les formulaires de contrat, séjour et charge.
-- Une erreur `403` est survenue lors de l'ouverture du menu des services dans le formulaire d'abonnement.
-
-Ces erreurs sont documentées dans l'annexe du PDF. Elles semblent liées au backend de développement ou au jeu de données de test, pas au guide lui-même.
+Scripts complémentaires : `scripts/capture-residence-fix.mjs`
+(2026-09-21 — formulaire séjour sans acompte, formulaire abonnement avec
+le bandeau « résidents uniquement » et le bouton « Créer un locataire »).
 
 ## Regénérer le PDF
 
