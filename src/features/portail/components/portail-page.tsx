@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import {
 	AlertCircle,
+	BedDouble,
 	CalendarDays,
 	Camera,
 	ChevronRight,
@@ -165,6 +166,12 @@ export function PortailPage() {
 						icon={UtensilsCrossed}
 						titre="Restaurant"
 						description="Commandez en ligne et suivez vos commandes."
+					/>
+					<ModuleCard
+						to="/residence/portail/sejours"
+						icon={BedDouble}
+						titre="Séjours courts"
+						description="Logements disponibles et demandes de séjour."
 					/>
 					<ModuleCard
 						to="/residence/portail/salle-fete"
