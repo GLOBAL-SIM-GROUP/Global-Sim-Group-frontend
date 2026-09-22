@@ -1159,6 +1159,150 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/residence/sejours/{id}/valider": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Valider Sejour
+         * @description Validation d’une demande EN_ATTENTE — assigne le logement et le tarif, passe le séjour à EN_COURS (409 si le logement est occupé sur la période)
+         */
+        post: operations["SejoursController_valider_v1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/residence/sejours/{id}/annuler": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Annuler Sejour
+         * @description Refus d’une demande EN_ATTENTE (motif optionnel) ou annulation d’un séjour EN_COURS — le logement est libéré
+         */
+        post: operations["SejoursController_annuler_v1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/residence/portail/sejours": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Mes séjours
+         * @description Liste des séjours du client connecté, plus récents d’abord
+         */
+        get: operations["SejoursPortailController_mesSejours_v1"];
+        put?: never;
+        /**
+         * Demander un séjour court
+         * @description Demande du client sur un logement choisi dans le catalogue — naît EN_ATTENTE, sans tarif : le staff chiffre à la validation (aucun paiement ici). 409 si le logement a été pris entre-temps.
+         */
+        post: operations["SejoursPortailController_creerSejour_v1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/residence/portail/sejours/logements": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Logements disponibles
+         * @description Catalogue proposable en séjour court — sans dates, tout le catalogue actif ; avec dates, les logements libres sur la période (exclut les séjours EN_COURS chevauchants et les contrats actifs couvrants). Projection réduite : aucune donnée interne.
+         */
+        get: operations["SejoursPortailController_logements_v1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/residence/portail/sejours/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Détail séjour
+         * @description Détail d’une demande du client — logement assigné et tarif une fois validés, motif d’annulation éventuel
+         */
+        get: operations["SejoursPortailController_detailSejour_v1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/residence/portail/sejours/{id}/facture": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Facture de mon séjour
+         * @description Facture SEJOUR du client — 404 tant qu’aucun paiement n’a été encaissé
+         */
+        get: operations["SejoursPortailController_factureSejour_v1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/residence/portail/sejours/{id}/annuler": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Annuler ma demande de séjour
+         * @description Annulation par le client d’une de ses demandes — possible uniquement tant qu’elle est EN_ATTENTE (avant validation staff)
+         */
+        post: operations["SejoursPortailController_annulerSejour_v1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/residence/categories-charges": {
         parameters: {
             query?: never;
@@ -5042,7 +5186,7 @@ export interface components {
              * @default EN_COURS
              * @enum {string}
              */
-            statut: "EN_COURS" | "TERMINE" | "ANNULE";
+            statut: "EN_ATTENTE" | "EN_COURS" | "TERMINE" | "ANNULE";
         };
         MajSejourDto: {
             /** @enum {string} */
@@ -5055,13 +5199,41 @@ export interface components {
             tarif?: string;
             id_moyen_paiement?: Record<string, never> | null;
             /** @enum {string} */
-            statut?: "EN_COURS" | "TERMINE" | "ANNULE";
+            statut?: "EN_ATTENTE" | "EN_COURS" | "TERMINE" | "ANNULE";
         };
         PayerSejourDto: {
             /** @example 35000.00 */
             montant: string;
             /** @example 1 */
             id_moyen: string;
+        };
+        ValiderSejourDto: {
+            /** @example 4 */
+            id_logement?: Record<string, never> | null;
+            /** @example 35000.00 */
+            tarif: string;
+            /** @example 35000.00 */
+            montant_total?: Record<string, never> | null;
+        };
+        AnnulerSejourDto: {
+            /** @example Aucun logement disponible sur la période */
+            motif?: Record<string, never> | null;
+        };
+        CreerSejourPortailDto: {
+            /**
+             * @description Logement choisi par le client.
+             * @example 4
+             */
+            id_logement: string;
+            /** @enum {string} */
+            type_prestation: "NUITEE" | "SIESTE";
+            /** @example 2026-10-02 14:00:00 */
+            date_heure_arrivee: string;
+            /** @example 2026-10-05 11:00:00 */
+            date_heure_depart_prevue?: Record<string, never> | null;
+            /** @example 2 */
+            nombre_personnes?: Record<string, never> | null;
+            observations?: Record<string, never> | null;
         };
         CreerCategorieChargeDto: {
             /** @example Électricité */
@@ -8149,7 +8321,7 @@ export interface operations {
                 limit?: number;
                 offset?: number;
                 type?: "NUITEE" | "SIESTE";
-                statut?: "EN_COURS" | "TERMINE" | "ANNULE";
+                statut?: "EN_ATTENTE" | "EN_COURS" | "TERMINE" | "ANNULE";
                 du?: string;
                 au?: string;
                 /** @description Id du client (bigint, string). */
@@ -8325,6 +8497,324 @@ export interface operations {
             };
             /** @description Permission refusée — requiert RESIDENCE.ENCAISSER */
             403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    SejoursController_valider_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identifiant de la ressource ciblée */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ValiderSejourDto"];
+            };
+        };
+        responses: {
+            /** @description Demande validée (EN_COURS) */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Tarif non positif */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Permission refusée — requiert RESIDENCE.VALIDER */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Séjour ou logement inconnu */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Le séjour n’est pas EN_ATTENTE, ou le logement est déjà occupé */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    SejoursController_annuler_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identifiant de la ressource ciblée */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AnnulerSejourDto"];
+            };
+        };
+        responses: {
+            /** @description Séjour annulé */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Permission refusée — requiert RESIDENCE.ANNULER */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Séjour inconnu */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Le séjour est déjà ANNULE ou TERMINE */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    SejoursPortailController_mesSejours_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Données renvoyées avec succès */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Permission refusée — requiert PORTAIL.VOIR */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    SejoursPortailController_creerSejour_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreerSejourPortailDto"];
+            };
+        };
+        responses: {
+            /** @description Demande créée (EN_ATTENTE) */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Date d’arrivée passée, départ antérieur à l’arrivée, effectif invalide */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Permission refusée — requiert RESIDENCE.DEMANDER */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Logement inconnu, ou aucun client lié au compte */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Logement indisponible sur la période (séjour en cours ou contrat actif) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    SejoursPortailController_logements_v1: {
+        parameters: {
+            query?: {
+                date_arrivee?: string;
+                date_depart?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Logements renvoyés avec succès */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Permission refusée — requiert PORTAIL.VOIR */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    SejoursPortailController_detailSejour_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identifiant du séjour */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Données renvoyées avec succès */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Permission refusée — requiert PORTAIL.VOIR */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Séjour inconnu ou n'appartenant pas au client */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    SejoursPortailController_factureSejour_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identifiant du séjour */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Facture et ses lignes */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Permission refusée — requiert PORTAIL.VOIR */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Séjour inconnu, n’appartenant pas au client, ou pas encore facturé */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    SejoursPortailController_annulerSejour_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identifiant du séjour */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AnnulerSejourDto"];
+            };
+        };
+        responses: {
+            /** @description Demande annulée */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Permission refusée — requiert RESIDENCE.DEMANDER */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Séjour inconnu ou n'appartenant pas au client */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description La demande n’est plus EN_ATTENTE — annulation impossible */
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };
