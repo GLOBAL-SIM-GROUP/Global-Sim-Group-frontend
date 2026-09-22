@@ -19,7 +19,10 @@ au kilo, page « Tarif au kilo », recapture du formulaire sans acompte) et
 `scripts/capture-pressing-portail.mjs` +
 `scripts/capture-pressing-portail-valider.mjs` (complément 2026-09-21 :
 catalogue, demandes portail « En attente de validation », chiffrage réel
-d'une demande → Déposé).
+d'une demande → Déposé) et
+`scripts/capture-pressing-catalogue-form.mjs` (complément 2026-09-22 :
+champs Type/Prestation adossés au catalogue, bascule « Saisir
+manuellement », ajout inline au catalogue, fiche sans ligne Acompte).
 
 ## Ce que couvre le guide
 
@@ -37,7 +40,10 @@ d'une demande → Déposé).
   (violet), pastille de compteur dans le menu, chiffrage (→ Déposé,
   acompte optionnel encaissé) ou refus définitif (→ Annulé).
 - Le catalogue : types de vêtement et prestations (ajout, renommage,
-  désactivation sans toucher l'historique).
+  désactivation sans toucher l'historique). Les champs Type/Prestation
+  du dépôt proposent les entrées actives, avec bascule « Saisir
+  manuellement » et ajout/réactivation express au catalogue
+  (`PRESSING.GERER_CATALOGUE`).
 - Imprimer le reçu de dépôt (ticket 58 mm / 80 mm).
 - Le retrait : encaisser le solde et clore la commande.
 - Vue mobile (320 px), FAQ et récapitulatif des permissions.

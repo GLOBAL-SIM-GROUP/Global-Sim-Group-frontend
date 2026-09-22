@@ -247,11 +247,17 @@ Le choix \textbf{Tarification} décide comment le prix est calculé :
 Un « article », c'est un type de vêtement avec sa prestation (par exemple : 2 chemises à laver et repasser, ou 4,5 kg de draps à laver).
 
 \begin{etapes}
-  \item Pour chaque article, remplis \textbf{Type de vêtement} (ex : Chemise) et \textbf{Prestation} (ex : Lavage + Repassage).
+  \item Pour chaque article, remplis \textbf{Type de vêtement} (ex : Chemise) et \textbf{Prestation} (ex : Lavage + Repassage). Ces deux champs sont des listes déroulantes alimentées par le \textbf{catalogue} — voir « Le catalogue ».
   \item Selon la tarification choisie : en mode \textbf{à la pièce}, ajoute la \textbf{Quantité} et le \textbf{Tarif} (prix d'une pièce, en FCFA) ; en mode \textbf{au kilo}, indique le \textbf{Poids (kg)} (ex : \texttt{4.500}) — la case Quantité disparaît, le poids fait office de quantité.
   \item Clique sur \textbf{Ajouter un article} s'il y a plusieurs sortes de vêtements.
   \item Clique sur \textbf{Retirer} sous un article pour le supprimer (il faut toujours garder au moins un article).
 \end{etapes}
+
+\screenshot{screenshots/pressing/23-select-catalogue.png}{Le « Type de vêtement » propose les entrées actives du catalogue}
+
+Si le mot exact n'est pas dans la liste, clique sur le petit lien \textbf{Saisir manuellement} sous le champ : il devient une case de texte libre (le lien devient « Choisir dans le catalogue » pour revenir en arrière). Avec la permission \texttt{PRESSING.GERER\_CATALOGUE}, un second lien \textbf{Ajouter « … » au catalogue} apparaît : un clic et le libellé est enregistré dans le catalogue sans quitter la fenêtre — pratique pour un article qu'on reverra. Si le libellé existait mais était désactivé, le lien propose « Réactiver « … » » à la place.
+
+\screenshot{screenshots/pressing/24-ajout-catalogue-inline.png}{Saisie manuelle + ajout direct au catalogue}
 
 \info{En mode \textbf{au kilo}, une ligne « Aperçu » estime le montant de chaque article avec le tarif du moment (ex : « Aperçu : 7 200 FCFA (1 600 FCFA/kg) ») et le récapitulatif affiche « Total (aperçu) » : le vrai total est toujours calculé par le serveur. Si aucun tarif au kilo n'est configuré, un bandeau orange bloque la création — voir « La tarification au kilo ».}
 
@@ -292,7 +298,7 @@ La fiche montre :
 
 \begin{itemize}[label=\textcolor{lagoon}{\faList}]
   \item \textbf{En haut} : le numéro de la commande, un badge « Tarification à la pièce » ou « Tarification au kilo », le nom du client, et les boutons d'action.
-  \item \textbf{Le bloc d'informations} : client, téléphone, date de dépôt, retrait prévu, retrait réel, montant total, acompte, reste à payer, et le statut en couleur.
+  \item \textbf{Le bloc d'informations} : client, téléphone, date de dépôt, retrait prévu, retrait réel, montant total, reste à payer, et le statut en couleur.
   \item \textbf{Le tableau Articles} : chaque vêtement avec sa quantité, sa prestation, puis son \textbf{tarif} (à la pièce) ou son \textbf{poids en kg} (au kilo — la colonne s'appelle alors « POIDS (KG) »), et son total.
 \end{itemize}
 
@@ -458,7 +464,7 @@ La page a deux blocs identiques — \textbf{Types de vêtement} (chemise, costum
   \item \textbf{Désactiver / Réactiver} : l'interrupteur retire le libellé des saisies futures \textbf{sans toucher les commandes passées} — la ligne reste visible avec son badge « Actif » disparu.
 \end{itemize}
 
-\info{Tout le monde peut \textbf{voir} le catalogue (permission de lecture du pressing), mais seuls les rôles ayant \texttt{PRESSING.GERER\_CATALOGUE} peuvent ajouter, renommer ou désactiver : sans elle, les cases et boutons n'apparaissent pas.}
+\info{Tout le monde peut \textbf{voir} le catalogue (permission de lecture du pressing), mais seuls les rôles ayant \texttt{PRESSING.GERER\_CATALOGUE} peuvent ajouter, renommer ou désactiver : sans elle, les cases et boutons n'apparaissent pas. La même permission débloque aussi l'ajout express « Ajouter « … » au catalogue » directement dans la fenêtre de dépôt, sous les champs Type et Prestation.}
 
 \newpage
 
@@ -516,6 +522,10 @@ Une ligne violette « En attente de validation » & C'est une demande déposée 
 Je ne vois pas les icônes de validation/refus & Elles n'apparaissent que sur les lignes « En attente de validation », et seulement si tu as les permissions \texttt{PRESSING.CREER} (valider) ou \texttt{PRESSING.ANNULER} (refuser). \\
 
 Je ne peux pas toucher au catalogue & La lecture du catalogue est libre, mais ajouter/renommer/désactiver demande \texttt{PRESSING.GERER\_CATALOGUE}. \\
+
+Mon type de vêtement n'est pas dans la liste & Clique sur « Saisir manuellement » sous le champ pour taper librement. Avec \texttt{PRESSING.GERER\_CATALOGUE}, le lien « Ajouter « … » au catalogue » l'enregistre pour les prochaines fois. \\
+
+Je ne vois pas le lien « Ajouter au catalogue » & Il n'apparaît que si tu as \texttt{PRESSING.GERER\_CATALOGUE} et que le libellé tapé n'existe pas déjà (ou est inactif — le lien propose alors « Réactiver »). \\
 
 Le reçu ne s'imprime pas & Vérifie que l'imprimante à tickets est branchée et allumée. Vérifie aussi les réglages dans « Paramètres d'impression… ». \\
 
