@@ -35,10 +35,13 @@ interface ServiceNavItem {
 	label: string;
 	icon: LucideIcon;
 	to?: string;
+	/** `true` → actif uniquement sur le chemin exact (accueil : `/espace-client`
+	 *  préfixe toutes les sous-pages et resterait actif partout sinon). */
+	exact?: boolean;
 }
 
 const SERVICES: readonly ServiceNavItem[] = [
-	{ id: "accueil", label: "Accueil", icon: Home, to: "/espace-client" },
+	{ id: "accueil", label: "Accueil", icon: Home, to: "/espace-client", exact: true },
 	{
 		id: "restaurant",
 		label: "Restaurant",
@@ -105,11 +108,12 @@ function ServiceButtons({
 						asChild
 						variant="ghost"
 						size="sm"
-						className="justify-start gap-2 text-muted-foreground hover:text-foreground"
+						className="justify-start gap-2 text-muted-foreground hover:bg-transparent hover:text-foreground"
 					>
 						<Link
 							to={service.to as never}
 							onClick={onNavigate}
+							activeOptions={{ exact: service.exact }}
 							activeProps={{
 								className:
 									"text-foreground underline decoration-lagoon decoration-2 underline-offset-4",
@@ -152,7 +156,7 @@ function PanierButton() {
 			asChild
 			variant="ghost"
 			size="icon"
-			className="relative"
+			className="relative hover:bg-transparent"
 			title="Panier"
 		>
 			<Link
@@ -244,7 +248,7 @@ export function ClientNavbar() {
 					<Button
 						variant="ghost"
 						size="icon-sm"
-						className="md:hidden"
+						className="hover:bg-transparent md:hidden"
 						aria-label={mobileOpen ? "Fermer le menu" : "Ouvrir le menu"}
 						aria-expanded={mobileOpen}
 						onClick={() => setMobileOpen((current) => !current)}
