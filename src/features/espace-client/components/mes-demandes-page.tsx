@@ -8,6 +8,7 @@ import { useMesVentesPortail } from "#/features/portail/hooks/use-market";
 import { usePressingCommandes } from "#/features/portail/hooks/use-pressing";
 import { useMesCommandesRestaurant } from "#/features/portail/hooks/use-restaurant";
 import { useMesReservationsSalleFete } from "#/features/portail/hooks/use-salle-fete";
+import { useMesSejoursPortail } from "#/features/portail/hooks/use-sejours";
 import {
 	VENTE_PORTAIL_STATUT_BADGE,
 	VENTE_PORTAIL_STATUT_LABELS,
@@ -28,9 +29,15 @@ import {
 	RESERVATION_PORTAIL_STATUT_LABELS,
 } from "#/features/portail/models/salle-fete";
 import {
+	SEJOUR_PORTAIL_STATUT_BADGE,
+	SEJOUR_PORTAIL_STATUT_LABELS,
+} from "#/features/portail/models/sejours";
+import {
+	formatDateHeureISO,
 	formatDateISO,
 	formatMontantFCFA,
 } from "#/features/residence/models/format";
+import { SEJOUR_TYPE_LABELS } from "#/features/residence/models/sejours";
 import { cn } from "#/lib/utils";
 
 import {
@@ -41,23 +48,26 @@ import {
 
 /**
  * « Mes demandes » de l'espace client : commandes restaurant, dépôts
- * pressing, réservations de salle de fête et demandes boutique viennent des
- * vrais endpoints portail (`/restaurant/portail`, `/pressing/portail`,
- * `/salle-fete/portail`, `/market/portail`) avec statuts en direct. Ne
- * subsistent en localStorage que les demandes sans endpoint résident
- * (séjour court, signalement) — cf. `models/demandes.ts`.
+ * pressing, réservations de salle de fête, demandes boutique et demandes de
+ * séjour court viennent des vrais endpoints portail (`/restaurant/portail`,
+ * `/pressing/portail`, `/salle-fete/portail`, `/market/portail`,
+ * `/residence/portail`) avec statuts en direct. Ne subsistent en localStorage
+ * que les demandes sans endpoint résident (signalement) — cf.
+ * `models/demandes.ts`.
  */
 export function MesDemandesPage() {
 	const commandesRestoQuery = useMesCommandesRestaurant();
 	const commandesPressingQuery = usePressingCommandes();
 	const reservationsQuery = useMesReservationsSalleFete();
 	const ventesQuery = useMesVentesPortail();
+	const sejoursQuery = useMesSejoursPortail();
 	const [demandes] = useState(() =>
 		listerDemandes().filter(
 			(demande) =>
 				demande.service !== "commande-restaurant" &&
 				demande.service !== "salle-fete" &&
-				demande.service !== "commande-boutique",
+				demande.service !== "commande-boutique" &&
+				demande.service !== "residence",
 		),
 	);
 
@@ -65,6 +75,7 @@ export function MesDemandesPage() {
 	const commandesPressing = commandesPressingQuery.data ?? [];
 	const reservations = reservationsQuery.data ?? [];
 	const ventes = ventesQuery.data ?? [];
+	const sejours = sejoursQuery.data ?? [];
 
 	return (
 		<div className="mx-auto w-full max-w-4xl space-y-8 px-4 pt-6 pb-16 sm:px-6 lg:px-8">
@@ -78,8 +89,8 @@ export function MesDemandesPage() {
 			<div className="space-y-1">
 				<h1 className="text-2xl font-semibold text-foreground">Mes demandes</h1>
 				<p className="text-sm text-muted-foreground">
-					Commandes restaurant, dépôts pressing, réservations de salle de fête
-					et demandes boutique — avec leur statut en temps réel.
+					Commandes restaurant, dépôts pressing, réservations de salle de fête,
+					demandes boutique et séjours courts — avec leur statut en temps réel.
 				</p>
 			</div>
 
@@ -243,6 +254,53 @@ export function MesDemandesPage() {
 							<p className="text-sm text-muted-foreground">
 								Envoyée le {formatDateISO(vente.date.slice(0, 10))} ·{" "}
 								{formatMontantFCFA(vente.total)}
+							</p>
+						</div>
+						<ChevronRight
+							className="size-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5"
+							aria-hidden
+						/>
+					</Link>
+				))}
+			</SectionDemande>
+
+			<SectionDemande
+				titre="Demandes de séjour"
+				isLoading={sejoursQuery.isLoading}
+				isError={sejoursQuery.isError}
+				onRetry={() => void sejoursQuery.refetch()}
+				vide="Aucune demande de séjour pour le moment. Consultez les logements disponibles depuis la page Résidence."
+			>
+				{sejours.map((sejour) => (
+					<Link
+						key={sejour.id}
+						to="/espace-client/residence/$id"
+						params={{ id: sejour.id }}
+						className="group flex items-center justify-between gap-3 rounded-lg border border-border bg-card p-4 shadow-sm transition-colors hover:border-lagoon/50 hover:bg-accent/40"
+					>
+						<div className="min-w-0 flex-1 space-y-1">
+							<div className="flex flex-wrap items-center gap-2">
+								<span className="truncate font-semibold text-foreground">
+									{SEJOUR_TYPE_LABELS[sejour.type_prestation]} —{" "}
+									{sejour.logement?.numero ??
+										sejour.numero_logement ??
+										"Logement"}
+								</span>
+								<span
+									className={cn(
+										"inline-flex shrink-0 items-center rounded-full px-2.5 py-1 text-xs font-medium",
+										SEJOUR_PORTAIL_STATUT_BADGE[sejour.statut] ??
+											"bg-[#95A5A6] text-white",
+									)}
+								>
+									{SEJOUR_PORTAIL_STATUT_LABELS[sejour.statut] ?? sejour.statut}
+								</span>
+							</div>
+							<p className="text-sm text-muted-foreground">
+								Arrivée le {formatDateHeureISO(sejour.date_heure_arrivee)}
+								{sejour.tarif
+									? ` · ${formatMontantFCFA(sejour.tarif)}`
+									: " · En attente de chiffrage"}
 							</p>
 						</div>
 						<ChevronRight

@@ -5,6 +5,7 @@ import type { VentePortail } from "#/features/portail/models/market";
 import type { PressingCommande } from "#/features/portail/models/pressing";
 import type { CommandeRestaurantPortail } from "#/features/portail/models/restaurant";
 import type { ReservationPortail } from "#/features/portail/models/salle-fete";
+import type { SejourPortail } from "#/features/portail/models/sejours";
 
 import { enregistrerDemande } from "../models/demandes";
 import { MesDemandesPage } from "./mes-demandes-page";
@@ -64,11 +65,36 @@ const ventes: VentePortail[] = [
 	},
 ];
 
+const sejours: SejourPortail[] = [
+	{
+		id: "21",
+		type_prestation: "NUITEE",
+		id_logement: "4",
+		logement: { id: "4", numero: "CH-102", type: "CHAMBRE" },
+		numero_logement: "CH-102",
+		date_heure_arrivee: "2026-10-02 14:00:00",
+		date_heure_depart_prevue: "2026-10-05 11:00:00",
+		date_heure_depart_reelle: null,
+		duree: null,
+		tarif: null,
+		montant_total: null,
+		montant_paye: "0.00",
+		reste_a_payer: null,
+		statut: "EN_ATTENTE",
+		type_logement: "CHAMBRE",
+		nombre_personnes: 2,
+		observations: null,
+		motif_annulation: null,
+		origine: "PORTAIL",
+	},
+];
+
 const mocks = vi.hoisted(() => ({
 	usePressingCommandes: vi.fn(),
 	useMesCommandesRestaurant: vi.fn(),
 	useMesReservationsSalleFete: vi.fn(),
 	useMesVentesPortail: vi.fn(),
+	useMesSejoursPortail: vi.fn(),
 }));
 
 vi.mock("#/features/portail/hooks/use-pressing", () => ({
@@ -85,6 +111,10 @@ vi.mock("#/features/portail/hooks/use-salle-fete", () => ({
 
 vi.mock("#/features/portail/hooks/use-market", () => ({
 	useMesVentesPortail: mocks.useMesVentesPortail,
+}));
+
+vi.mock("#/features/portail/hooks/use-sejours", () => ({
+	useMesSejoursPortail: mocks.useMesSejoursPortail,
 }));
 
 vi.mock("@tanstack/react-router", async (importOriginal) => {
@@ -112,11 +142,13 @@ function mockQueries({
 	restaurant = [],
 	reservations: resas = [],
 	ventes: vts = [],
+	sejours: sjrs = [],
 }: {
 	pressing?: PressingCommande[];
 	restaurant?: CommandeRestaurantPortail[];
 	reservations?: ReservationPortail[];
 	ventes?: VentePortail[];
+	sejours?: SejourPortail[];
 } = {}) {
 	mocks.usePressingCommandes.mockReturnValue({
 		isLoading: false,
@@ -138,6 +170,11 @@ function mockQueries({
 		isError: false,
 		data: vts,
 	});
+	mocks.useMesSejoursPortail.mockReturnValue({
+		isLoading: false,
+		isError: false,
+		data: sjrs,
+	});
 }
 
 describe("MesDemandesPage", () => {
@@ -146,18 +183,16 @@ describe("MesDemandesPage", () => {
 		mockQueries();
 	});
 
-	it("affiche les demandes locales sans endpoint (séjour, boutique…)", () => {
+	it("affiche les demandes locales sans endpoint (signalement)", () => {
 		enregistrerDemande({
-			service: "residence",
-			resume: "Chambre — du 2027-01-10 au 2027-01-17, 2 personne(s)",
+			service: "signalement",
+			resume: "Fuite d'eau — couloir B",
 		});
 
 		render(<MesDemandesPage />);
 
-		expect(screen.getByText("Résidence — séjour court")).toBeInTheDocument();
-		expect(
-			screen.getByText("Chambre — du 2027-01-10 au 2027-01-17, 2 personne(s)"),
-		).toBeInTheDocument();
+		expect(screen.getByText("Signalement")).toBeInTheDocument();
+		expect(screen.getByText("Fuite d'eau — couloir B")).toBeInTheDocument();
 		expect(
 			screen.getByText("Envoyée — en attente de réponse"),
 		).toBeInTheDocument();
@@ -226,6 +261,38 @@ describe("MesDemandesPage", () => {
 			"href",
 			"/espace-client/boutique/$id",
 		);
+	});
+
+	it("liste les demandes de séjour avec leur statut en direct", () => {
+		mockQueries({ sejours });
+
+		render(<MesDemandesPage />);
+
+		expect(screen.getByText(/Nuitée — CH-102/)).toBeInTheDocument();
+		expect(screen.getByText("En attente de validation")).toBeInTheDocument();
+		expect(screen.getByText(/En attente de chiffrage/)).toBeInTheDocument();
+		expect(screen.getByRole("link", { name: /nuitée/i })).toHaveAttribute(
+			"href",
+			"/espace-client/residence/$id",
+		);
+	});
+
+	it("ignore les anciennes traces locales des séjours", () => {
+		enregistrerDemande({
+			service: "residence",
+			resume: "Chambre — du 2027-01-10 au 2027-01-17, 2 personne(s)",
+		});
+
+		render(<MesDemandesPage />);
+
+		expect(
+			screen.queryByText(
+				"Chambre — du 2027-01-10 au 2027-01-17, 2 personne(s)",
+			),
+		).not.toBeInTheDocument();
+		expect(
+			screen.queryByText("Autres demandes envoyées"),
+		).not.toBeInTheDocument();
 	});
 
 	it("ignore les anciennes traces locales de la boutique", () => {

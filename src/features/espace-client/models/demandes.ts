@@ -1,13 +1,13 @@
 /**
  * Demandes locales de l'espace client (localStorage).
  *
- * Ne subsistent ici que les services SANS endpoint résident : séjour court
- * résidence et signalement — leur formulaire enregistre une trace locale
- * pour « Mes demandes ». Les commandes restaurant, dépôts pressing,
- * réservations de salle de fête et demandes boutique passent par les vrais
- * endpoints portail (features/portail) — ne plus les enregistrer ici.
- * `"commande-boutique"` reste dans le type pour la lecture des traces
- * historiques déjà en localStorage (filtrées de « Mes demandes »).
+ * Ne subsiste ici que le signalement — seul service SANS endpoint résident.
+ * Les commandes restaurant, dépôts pressing, réservations de salle de fête,
+ * demandes boutique et demandes de séjour court (residence 087+088) passent
+ * par les vrais endpoints portail (features/portail) — ne plus les
+ * enregistrer ici. `"residence"` et `"commande-boutique"` restent dans le
+ * type pour la lecture des traces historiques déjà en localStorage
+ * (filtrées de « Mes demandes »).
  * Ce n'est PAS de l'état serveur — pas de TanStack Query (cf. règle d'état
  * du projet, « le reste → useState », ici un simple module de
  * lecture/écriture).
