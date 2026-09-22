@@ -26,6 +26,7 @@ const CONTRAT_STATUT_BADGE: Record<ContratStatut, string> = {
 };
 
 const SEJOUR_STATUT_BADGE: Record<SejourStatut, string> = {
+	EN_ATTENTE: "bg-[#E67E22] text-white",
 	EN_COURS: "bg-[#2980B9] text-white",
 	TERMINE: "bg-[#27AE60] text-white",
 	ANNULE: "bg-[#95A5A6] text-white",

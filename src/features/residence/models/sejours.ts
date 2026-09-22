@@ -2,10 +2,24 @@
  * Séjour court (nuitée / sieste) — utilisé comme historique d'occupation d'un
  * logement (module M2.2). Types hand-typed revalidés sur le backend réel
  * (GET /residence/sejours). Clé primaire wire `id_sejour` → `id`.
+ *
+ * Depuis residence 087+088 : `EN_ATTENTE` = demande portail non encore
+ * traitée (n'occupe PAS le logement), `origine` distingue comptoir/portail,
+ * `tarif`/`montant_total`/`reste_a_payer` sont `null` tant que le séjour
+ * n'est pas chiffré à la validation.
  */
 export type SejourType = "NUITEE" | "SIESTE";
 
-export type SejourStatut = "EN_COURS" | "TERMINE" | "ANNULE";
+export type SejourStatut = "EN_ATTENTE" | "EN_COURS" | "TERMINE" | "ANNULE";
+
+export type SejourOrigine = "COMPTOIR" | "PORTAIL";
+
+/** Logement imbriqué renvoyé par le détail/liste (projection réduite). */
+export interface SejourLogement {
+	id: string;
+	numero: string;
+	type: string;
+}
 
 export interface Sejour {
 	id: string;
@@ -16,15 +30,25 @@ export interface Sejour {
 	date_heure_depart_prevue: string | null;
 	date_heure_depart_reelle: string | null;
 	duree: string | null;
-	tarif: string;
-	montant_total: string;
+	/** `null` tant que le séjour `EN_ATTENTE` n'a pas été chiffré. */
+	tarif: string | null;
+	montant_total: string | null;
 	montant_paye: string;
-	reste_a_payer: string;
+	reste_a_payer: string | null;
 	id_moyen_paiement: string | null;
 	statut: SejourStatut;
 	numero_logement: string;
 	client_nom: string | null;
 	client_prenoms: string | null;
+	origine: SejourOrigine;
+	/** Logement imbriqué (détail/liste) — absent des réponses de mutation. */
+	logement?: SejourLogement | null;
+	/** Type du logement choisi (déduit côté backend). */
+	type_logement?: string | null;
+	nombre_personnes?: number | null;
+	observations?: string | null;
+	/** Motif du refus staff / de l'annulation, visible par le client. */
+	motif_annulation?: string | null;
 }
 
 /** Libellés français des types de prestation. */
@@ -35,9 +59,16 @@ export const SEJOUR_TYPE_LABELS: Record<SejourType, string> = {
 
 /** Libellés français du statut de séjour. */
 export const SEJOUR_STATUT_LABELS: Record<SejourStatut, string> = {
+	EN_ATTENTE: "En attente de validation",
 	EN_COURS: "En cours",
 	TERMINE: "Terminé",
 	ANNULE: "Annulé",
+};
+
+/** Libellés français de l'origine du séjour. */
+export const SEJOUR_ORIGINE_LABELS: Record<SejourOrigine, string> = {
+	COMPTOIR: "Comptoir",
+	PORTAIL: "Portail",
 };
 
 /** Valeurs du filtre « Type » (URL : `?type=`). */
@@ -46,18 +77,22 @@ export type SejourTypeFiltre = "tous" | SejourType;
 /** Valeurs du filtre « Statut » (URL : `?statut=`). */
 export type SejourStatutFiltre = "tous" | SejourStatut;
 
+/** Valeurs du filtre « Origine » (URL : `?origine=`). */
+export type SejourOrigineFiltre = "tous" | SejourOrigine;
+
 /** Filtres de la liste des séjours (URL + côté client). */
 export interface SejourFiltres {
 	type: SejourTypeFiltre;
 	statut: SejourStatutFiltre;
+	origine: SejourOrigineFiltre;
 	du: string;
 	au: string;
 }
 
 /**
- * Filtre la liste. Type, statut et période (comparaison lexicographique sur le
- * jour d'arrivée `date_heure_arrivee` au format `YYYY-MM-DD HH:MM:SS`).
- * Fonction pure, sans dépendance React.
+ * Filtre la liste. Type, statut, origine et période (comparaison
+ * lexicographique sur le jour d'arrivée `date_heure_arrivee` au format
+ * `YYYY-MM-DD HH:MM:SS`). Fonction pure, sans dépendance React.
  */
 export function filtrerSejours(
 	sejours: readonly Sejour[],
@@ -68,6 +103,9 @@ export function filtrerSejours(
 			return false;
 		}
 		if (filtres.statut !== "tous" && sejour.statut !== filtres.statut) {
+			return false;
+		}
+		if (filtres.origine !== "tous" && sejour.origine !== filtres.origine) {
 			return false;
 		}
 		const jour = sejour.date_heure_arrivee.slice(0, 10);

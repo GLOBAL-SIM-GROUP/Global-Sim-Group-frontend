@@ -3,6 +3,7 @@ import { cn } from "#/lib/utils";
 
 import { formatDateHeureISO, formatMontantFCFA } from "../models/format";
 import {
+	SEJOUR_ORIGINE_LABELS,
 	SEJOUR_STATUT_LABELS,
 	SEJOUR_TYPE_LABELS,
 	type Sejour,
@@ -11,22 +12,38 @@ import {
 import { SejourActions } from "./sejour-actions";
 
 const SEJOUR_STATUT_BADGE: Record<SejourStatut, string> = {
+	EN_ATTENTE: "bg-[#E67E22] text-white",
 	EN_COURS: "bg-[#2980B9] text-white",
 	TERMINE: "bg-[#27AE60] text-white",
 	ANNULE: "bg-[#95A5A6] text-white",
+};
+
+const SEJOUR_ORIGINE_BADGE: Record<Sejour["origine"], string> = {
+	PORTAIL: "bg-lagoon/15 text-lagoon",
+	COMPTOIR: "bg-muted text-muted-foreground",
 };
 
 interface SejourTableProps {
 	sejours: Sejour[];
 	onEdit: (sejour: Sejour) => void;
 	onPayer: (sejour: Sejour) => void;
+	onValider: (sejour: Sejour) => void;
+	onRefuser: (sejour: Sejour) => void;
 }
 
 /**
  * Tableau des séjours courts (M2.3). Toute la ligne est cliquable (stretched
- * link) vers la fiche ; la cellule ACTIONS repasse au-dessus (z-10).
+ * link) vers la fiche ; la cellule ACTIONS repasse au-dessus (z-10). La
+ * colonne ORIGINE distingue les demandes portail (`EN_ATTENTE`) des séjours
+ * enregistrés au comptoir.
  */
-export function SejourTable({ sejours, onEdit, onPayer }: SejourTableProps) {
+export function SejourTable({
+	sejours,
+	onEdit,
+	onPayer,
+	onValider,
+	onRefuser,
+}: SejourTableProps) {
 	if (sejours.length === 0) {
 		return (
 			<div className="rounded-lg border border-border bg-card p-8 text-center text-sm text-muted-foreground">
@@ -54,6 +71,9 @@ export function SejourTable({ sejours, onEdit, onPayer }: SejourTableProps) {
 						</th>
 						<th scope="col" className="px-4 py-3 font-medium">
 							DÉPART
+						</th>
+						<th scope="col" className="px-4 py-3 font-medium">
+							ORIGINE
 						</th>
 						<th scope="col" className="px-4 py-3 font-medium">
 							STATUT
@@ -102,6 +122,17 @@ export function SejourTable({ sejours, onEdit, onPayer }: SejourTableProps) {
 								<span
 									className={cn(
 										"inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium",
+										SEJOUR_ORIGINE_BADGE[sejour.origine] ??
+											"bg-muted text-muted-foreground",
+									)}
+								>
+									{SEJOUR_ORIGINE_LABELS[sejour.origine] ?? sejour.origine}
+								</span>
+							</td>
+							<td className="px-4 py-3">
+								<span
+									className={cn(
+										"inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium",
 										SEJOUR_STATUT_BADGE[sejour.statut],
 									)}
 								>
@@ -109,13 +140,17 @@ export function SejourTable({ sejours, onEdit, onPayer }: SejourTableProps) {
 								</span>
 							</td>
 							<td className="px-4 py-3 text-foreground">
-								{formatMontantFCFA(sejour.montant_total)}
+								{sejour.montant_total
+									? formatMontantFCFA(sejour.montant_total)
+									: "—"}
 							</td>
 							<td className="relative z-10 px-4 py-3">
 								<SejourActions
 									sejour={sejour}
 									onEdit={onEdit}
 									onPayer={onPayer}
+									onValider={onValider}
+									onRefuser={onRefuser}
 								/>
 							</td>
 						</tr>

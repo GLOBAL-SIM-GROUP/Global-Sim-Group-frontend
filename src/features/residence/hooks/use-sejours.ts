@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import {
+	annulerSejour,
 	type CreerSejourBody,
 	creerSejour,
 	getSejour,
@@ -10,13 +11,50 @@ import {
 	modifierSejour,
 	payerSejour,
 	type SejourSansJointures,
+	validerSejour,
 } from "../api/sejours";
-import type { Sejour } from "../models/sejours";
+import type {
+	Sejour,
+	SejourOrigineFiltre,
+	SejourStatutFiltre,
+} from "../models/sejours";
 import { sejoursKeys } from "../permissions";
 
-/** Liste de tous les séjours (filtres appliqués côté client). */
-export function useSejours() {
-	return useQuery({ queryKey: sejoursKeys.list(), queryFn: listSejours });
+/**
+ * Liste des séjours. `statut`/`origine` sont envoyés au serveur (filtres
+ * réels `?statut=&origine=` — sans filtre, le backend inclut les
+ * `EN_ATTENTE` de la file de validation) ; type/période restent filtrés
+ * côté client dans la page.
+ */
+export function useSejours(filtres?: {
+	statut?: SejourStatutFiltre;
+	origine?: SejourOrigineFiltre;
+}) {
+	const statut =
+		filtres?.statut && filtres.statut !== "tous" ? filtres.statut : undefined;
+	const origine =
+		filtres?.origine && filtres.origine !== "tous"
+			? filtres.origine
+			: undefined;
+	return useQuery({
+		queryKey: sejoursKeys.list(statut ?? "tous", origine ?? "tous"),
+		queryFn: () => listSejours({ statut, origine }),
+	});
+}
+
+/**
+ * Compteur des demandes `EN_ATTENTE` — badge du menu Séjours courts (staff).
+ * Le socket `residence.sejour_demande_creee` invalide la clé ; le polling
+ * 60 s couvre les pertes d'événement.
+ */
+export function useSejoursEnAttenteCount(enabled: boolean) {
+	return useQuery({
+		queryKey: sejoursKeys.list("EN_ATTENTE", "tous"),
+		queryFn: () => listSejours({ statut: "EN_ATTENTE" }),
+		enabled,
+		select: (data) => data.length,
+		refetchInterval: 60_000,
+	});
 }
 
 /**
@@ -110,6 +148,49 @@ export function usePayerSejour() {
 			void queryClient.invalidateQueries({ queryKey: sejoursKeys.all });
 			void queryClient.invalidateQueries({
 				queryKey: sejoursKeys.facture(sejour.id),
+			});
+		},
+	});
+}
+
+/**
+ * Valide une demande `EN_ATTENTE` (POST `valider`) : chiffrage + passage
+ * `EN_COURS`. Le séjour renvoyé est fusionné en cache ; liste et facture
+ * invalidées. Un 409 (logement pris entre-temps / statut déjà traité) est
+ * laissé à l'appelant — c'est un cas normal, pas une erreur système.
+ */
+export function useValiderSejour() {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: ({
+			id,
+			...body
+		}: {
+			id: string;
+			tarif: string;
+			idLogement?: string;
+			montantTotal?: string;
+		}) => validerSejour(id, body),
+		onSuccess: (sejour) => {
+			fusionnerSejourEnCache(queryClient, sejour);
+			void queryClient.invalidateQueries({ queryKey: sejoursKeys.all });
+		},
+	});
+}
+
+/**
+ * Annule un séjour (POST `annuler`) : refus `EN_ATTENTE` ou annulation
+ * `EN_COURS`, avec motif optionnel restitué au client.
+ */
+export function useAnnulerSejour() {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: ({ id, motif }: { id: string; motif?: string }) =>
+			annulerSejour(id, { motif }),
+		onSuccess: (_data, { id }) => {
+			void queryClient.invalidateQueries({ queryKey: sejoursKeys.all });
+			void queryClient.invalidateQueries({
+				queryKey: sejoursKeys.detail(id),
 			});
 		},
 	});

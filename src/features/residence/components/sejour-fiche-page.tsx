@@ -1,5 +1,12 @@
 import { Link } from "@tanstack/react-router";
-import { AlertCircle, HandCoins, Pencil, Receipt } from "lucide-react";
+import {
+	AlertCircle,
+	CheckCircle2,
+	HandCoins,
+	Pencil,
+	Receipt,
+	XCircle,
+} from "lucide-react";
 import { useState } from "react";
 
 import { Breadcrumb } from "#/components/ui/breadcrumb";
@@ -16,6 +23,7 @@ import { useMoyensPaiement } from "../hooks/use-moyens-paiement";
 import { useSejour, useSejourFacture } from "../hooks/use-sejours";
 import { formatDateHeureISO, formatMontantFCFA } from "../models/format";
 import {
+	SEJOUR_ORIGINE_LABELS,
 	SEJOUR_STATUT_LABELS,
 	SEJOUR_TYPE_LABELS,
 	type Sejour,
@@ -23,8 +31,11 @@ import {
 } from "../models/sejours";
 import { PayerSejourFormDialog } from "./payer-sejour-form-dialog";
 import { SejourFormDialog } from "./sejour-form-dialog";
+import { RefuserSejourDialog } from "./sejour-refuser-dialog";
+import { ValiderSejourDialog } from "./sejour-valider-dialog";
 
 const SEJOUR_STATUT_BADGE: Record<SejourStatut, string> = {
+	EN_ATTENTE: "bg-[#E67E22] text-white",
 	EN_COURS: "bg-[#2980B9] text-white",
 	TERMINE: "bg-[#27AE60] text-white",
 	ANNULE: "bg-[#95A5A6] text-white",
@@ -60,9 +71,13 @@ export function SejourFichePage({ id }: SejourFichePageProps) {
 	const canEncaisser = useCan("RESIDENCE.ENCAISSER");
 	const canFinancesVoir = useCan("FINANCES.VOIR");
 	const canFacturationVoir = useCan("FACTURATION.VOIR");
+	const canValider = useCan("RESIDENCE.VALIDER");
+	const canAnnuler = useCan("RESIDENCE.ANNULER");
 	const moyensQuery = useMoyensPaiement();
 	const [aModifier, setAModifier] = useState<Sejour | null>(null);
 	const [aPayer, setAPayer] = useState<Sejour | null>(null);
+	const [aValider, setAValider] = useState<Sejour | null>(null);
+	const [aRefuser, setARefuser] = useState<Sejour | null>(null);
 
 	const sejourQuery = useSejour(id);
 	const factureQuery = useSejourFacture(id);
@@ -95,6 +110,7 @@ export function SejourFichePage({ id }: SejourFichePageProps) {
 	}
 
 	const sejour = sejourQuery.data;
+	const enAttente = sejour.statut === "EN_ATTENTE";
 	const aUnReste = Number(sejour.reste_a_payer) > 0;
 	const facture = factureQuery.data ?? null;
 
@@ -123,6 +139,22 @@ export function SejourFichePage({ id }: SejourFichePageProps) {
 					<Button variant="outline" asChild>
 						<Link to="/residence/sejours-courts">Retour aux séjours</Link>
 					</Button>
+					{canValider && enAttente ? (
+						<Button onClick={() => setAValider(sejour)}>
+							<CheckCircle2 className="size-4" aria-hidden />
+							Valider la demande
+						</Button>
+					) : null}
+					{canAnnuler && enAttente ? (
+						<Button
+							variant="outline"
+							className="text-destructive hover:bg-destructive/10"
+							onClick={() => setARefuser(sejour)}
+						>
+							<XCircle className="size-4" aria-hidden />
+							Refuser
+						</Button>
+					) : null}
 					{canModifier && sejour.statut !== "TERMINE" ? (
 						<Button onClick={() => setAModifier(sejour)}>
 							<Pencil className="size-4" aria-hidden />
@@ -154,6 +186,13 @@ export function SejourFichePage({ id }: SejourFichePageProps) {
 					/>
 					<Ligne label="Logement" valeur={sejour.numero_logement} />
 					<Ligne
+						label="Origine"
+						valeur={SEJOUR_ORIGINE_LABELS[sejour.origine] ?? sejour.origine}
+					/>
+					{sejour.nombre_personnes != null ? (
+						<Ligne label="Personnes" valeur={String(sejour.nombre_personnes)} />
+					) : null}
+					<Ligne
 						label="Arrivée"
 						valeur={formatDateHeureISO(sejour.date_heure_arrivee)}
 					/>
@@ -162,7 +201,14 @@ export function SejourFichePage({ id }: SejourFichePageProps) {
 						valeur={formatDateHeureISO(sejour.date_heure_depart_prevue)}
 					/>
 					<Ligne label="Durée" valeur={sejour.duree ?? "—"} />
-					<Ligne label="Tarif" valeur={formatMontantFCFA(sejour.tarif)} />
+					<Ligne
+						label="Tarif"
+						valeur={
+							sejour.tarif
+								? formatMontantFCFA(sejour.tarif)
+								: "En attente de chiffrage"
+						}
+					/>
 					<Ligne
 						label="Montant total"
 						valeur={formatMontantFCFA(sejour.montant_total)}
@@ -190,6 +236,20 @@ export function SejourFichePage({ id }: SejourFichePageProps) {
 					</div>
 				</dl>
 			</section>
+
+			{sejour.observations ? (
+				<section className="rounded-lg border border-border bg-card p-5 text-sm shadow-sm">
+					<p className="font-medium text-foreground">Observations du client</p>
+					<p className="mt-1 text-muted-foreground">{sejour.observations}</p>
+				</section>
+			) : null}
+
+			{sejour.motif_annulation ? (
+				<div className="rounded-lg border border-destructive/40 bg-destructive/10 p-4 text-sm">
+					<p className="font-medium text-destructive">Motif d'annulation</p>
+					<p className="mt-1 text-foreground">{sejour.motif_annulation}</p>
+				</div>
+			) : null}
 
 			<section className="space-y-3 rounded-lg border border-border bg-card p-5 shadow-sm">
 				<div className="flex flex-wrap items-center justify-between gap-3">
@@ -323,6 +383,24 @@ export function SejourFichePage({ id }: SejourFichePageProps) {
 					if (!ouvert) setAPayer(null);
 				}}
 				onSaved={() => setAPayer(null)}
+			/>
+
+			<ValiderSejourDialog
+				open={aValider !== null}
+				sejour={aValider}
+				onOpenChange={(ouvert) => {
+					if (!ouvert) setAValider(null);
+				}}
+				onSaved={() => setAValider(null)}
+			/>
+
+			<RefuserSejourDialog
+				open={aRefuser !== null}
+				sejour={aRefuser}
+				onOpenChange={(ouvert) => {
+					if (!ouvert) setARefuser(null);
+				}}
+				onSaved={() => setARefuser(null)}
 			/>
 		</div>
 	);

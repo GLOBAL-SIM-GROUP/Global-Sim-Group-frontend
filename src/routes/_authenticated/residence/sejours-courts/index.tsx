@@ -8,8 +8,10 @@ import {
 } from "#/features/residence/components/sejours-page";
 
 /**
- * Liste des séjours courts (M2.3). Filtres et page vivent dans l'URL pour le
- * partage de liens ; appliqués côté client. Page gated par `RESIDENCE.VOIR`.
+ * Liste des séjours courts (M2.3) — dont les demandes portail `EN_ATTENTE`
+ * (residence 087+088). Filtres et page vivent dans l'URL pour le partage de
+ * liens ; `statut`/`origine` sont des filtres serveur, le reste côté client.
+ * Page gated par `RESIDENCE.VOIR`.
  */
 export const Route = createFileRoute(
 	"/_authenticated/residence/sejours-courts/",
@@ -19,7 +21,10 @@ export const Route = createFileRoute(
 	},
 	validateSearch: z.object({
 		type: z.enum(["tous", "NUITEE", "SIESTE"]).optional(),
-		statut: z.enum(["tous", "EN_COURS", "TERMINE", "ANNULE"]).optional(),
+		statut: z
+			.enum(["tous", "EN_ATTENTE", "EN_COURS", "TERMINE", "ANNULE"])
+			.optional(),
+		origine: z.enum(["tous", "COMPTOIR", "PORTAIL"]).optional(),
 		du: z.string().optional(),
 		au: z.string().optional(),
 		page: z.coerce.number().int().positive().optional(),

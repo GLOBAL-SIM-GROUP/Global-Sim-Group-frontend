@@ -7,11 +7,17 @@ import type {
 	LigneFacture,
 } from "#/features/facturation/models/factures";
 
-import type { Sejour, SejourStatut, SejourType } from "../models/sejours";
+import type {
+	Sejour,
+	SejourOrigine,
+	SejourStatut,
+	SejourType,
+} from "../models/sejours";
 
 type CreerSejourDto = components["schemas"]["CreerSejourDto"];
 type MajSejourDto = components["schemas"]["MajSejourDto"];
 type PayerSejourDto = components["schemas"]["PayerSejourDto"];
+type ValiderSejourDto = components["schemas"]["ValiderSejourDto"];
 
 type SejourWire = Omit<Sejour, "id"> & { id_sejour: string };
 
@@ -36,7 +42,13 @@ export type SejourSansJointures = Omit<
 const toSejourSansJointures = ({
 	id_sejour: id,
 	...reste
-}: SejourMutationWire): SejourSansJointures => ({ id, ...reste });
+}: SejourMutationWire): SejourSansJointures =>
+	// Les réponses de mutation omettent les champs non concernés (ex. `origine`
+	// ou `motif_annulation` absents d'un `payer`) : on écarte les `undefined`
+	// pour ne pas écraser les valeurs déjà en cache à la fusion.
+	Object.fromEntries(
+		Object.entries({ id, ...reste }).filter(([, v]) => v !== undefined),
+	) as SejourSansJointures;
 
 const texteOuNull = (valeur: string | null | undefined): string | null =>
 	valeur?.trim() ? valeur : null;
@@ -44,12 +56,23 @@ const texteOuNull = (valeur: string | null | undefined): string | null =>
 /**
  * Appels API du module Résidence — séjours courts. Réponses hand-typed
  * revalidées sur le backend réel. Aucun endpoint inventé : GET lister, POST
- * création, PATCH par id, POST `payer`. « Générer une facture/reçu » n'a pas
- * d'endpoint réel → omis.
+ * création, PATCH par id, POST `payer`, POST `valider`, POST `annuler`
+ * (residence 087+088). « Générer une facture/reçu » n'a pas d'endpoint réel
+ * → omis.
+ *
+ * `statut`/`origine` sont des filtres serveur réels (`?statut=&origine=`) —
+ * sans filtre, la liste inclut les `EN_ATTENTE` (file de validation),
+ * triées par date d'arrivée décroissante.
  */
-export function listSejours(): Promise<Sejour[]> {
+export function listSejours(filtres?: {
+	statut?: SejourStatut;
+	origine?: SejourOrigine;
+}): Promise<Sejour[]> {
+	const params = new URLSearchParams({ limit: "200" });
+	if (filtres?.statut) params.set("statut", filtres.statut);
+	if (filtres?.origine) params.set("origine", filtres.origine);
 	return getApiClient()
-		.apiFetch<SejourWire[]>("/api/v1/residence/sejours?limit=200")
+		.apiFetch<SejourWire[]>(`/api/v1/residence/sejours?${params}`)
 		.then((data) =>
 			data.map(({ id_sejour: id, ...reste }) => ({ id, ...reste })),
 		);
@@ -78,6 +101,12 @@ export async function getSejour(id: string): Promise<Sejour> {
 		numero_logement: sejourWire.numero_logement,
 		client_nom: null,
 		client_prenoms: null,
+		origine: sejourWire.origine,
+		logement: sejourWire.logement,
+		type_logement: sejourWire.type_logement,
+		nombre_personnes: sejourWire.nombre_personnes,
+		observations: sejourWire.observations,
+		motif_annulation: sejourWire.motif_annulation,
 	};
 
 	// Enrichir avec les infos du client si id_client est fourni
@@ -269,4 +298,55 @@ export function payerSejour(
 			sejour: toSejourSansJointures(sejour),
 			...reste,
 		}));
+}
+
+/**
+ * Valide une demande de séjour `EN_ATTENTE` (POST `/sejours/{id}/valider`,
+ * `RESIDENCE.VALIDER`) — chiffre le séjour et le passe `EN_COURS`.
+ * `id_logement` omis = conserve le logement demandé ; le staff peut en
+ * affecter un autre si celui-ci a été pris entre-temps. `montant_total`
+ * optionnel : le tarif fait foi. 409 si le logement cible est devenu
+ * indisponible ou si le statut n'est plus `EN_ATTENTE`.
+ */
+export function validerSejour(
+	id: string,
+	body: { tarif: string; idLogement?: string; montantTotal?: string },
+): Promise<SejourSansJointures> {
+	const corps = {
+		tarif: body.tarif,
+		...(body.idLogement ? { id_logement: body.idLogement } : {}),
+		...(texteOuNull(body.montantTotal)
+			? { montant_total: body.montantTotal }
+			: {}),
+	} satisfies Omit<ValiderSejourDto, "id_logement" | "montant_total"> & {
+		id_logement?: string | null;
+		montant_total?: string | null;
+	};
+	return getApiClient()
+		.apiFetch<SejourMutationWire>(`/api/v1/residence/sejours/${id}/valider`, {
+			method: "POST",
+			body: JSON.stringify(corps),
+		})
+		.then(toSejourSansJointures);
+}
+
+/**
+ * Annule un séjour (POST `/sejours/{id}/annuler`, `RESIDENCE.ANNULER`) —
+ * refus d'une demande `EN_ATTENTE` ou annulation d'un séjour `EN_COURS` ;
+ * le `motif` (≤255) est conservé et visible par le client dans
+ * `motif_annulation`. 409 si le séjour est déjà `ANNULE`/`TERMINE`.
+ */
+export function annulerSejour(
+	id: string,
+	body?: { motif?: string },
+): Promise<unknown> {
+	// Corps conforme à `AnnulerSejourDto` — `motif` y est typé
+	// `Record<string, never>` (schéma opaque) : typé explicitement ici.
+	const corps: { motif?: string } = texteOuNull(body?.motif)
+		? { motif: body?.motif?.trim() }
+		: {};
+	return getApiClient().apiFetch(`/api/v1/residence/sejours/${id}/annuler`, {
+		method: "POST",
+		body: JSON.stringify(corps),
+	});
 }

@@ -22,9 +22,11 @@
  * (caissiers) et `RESIDENCE.*` (séjours courts — le caissier résidence a
  * `RESIDENCE.ENCAISSER` sans `RESIDENCE.CREER` : il encaisse mais ne crée pas
  * de séjour, contrairement au réceptionniste qui a `CREER` sans `ENCAISSER`).
- * D'autres verbes propres à RESIDENCE existent côté backend
- * (`SUPERVISER`/`VALIDER`, vus sur Responsable résidence) mais ne sont pas
- * modélisés ici faute d'usage frontend actuel — ajouter au besoin.
+ * `RESIDENCE.VALIDER`/`RESIDENCE.ANNULER` (residence 087+088) : validation
+ * (chiffrage) et refus des demandes de séjour portail `EN_ATTENTE` —
+ * accordés au réceptionniste. `RESIDENCE.DEMANDER` : création/annulation
+ * côté client/résident (`/residence/portail/sejours`). `SUPERVISER` reste
+ * non modélisé faute d'usage frontend.
  *
  * `GERER_TARIFS` (2026-09-16) : 6e verbe, propre à PRESSING (tarif au kilo).
  * Vérifié en direct : PRESSING a en réalité 9 verbes réels côté backend

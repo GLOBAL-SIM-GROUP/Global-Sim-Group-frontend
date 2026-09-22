@@ -8,8 +8,11 @@ import {
 } from "#/components/ui/select";
 
 import {
+	SEJOUR_ORIGINE_LABELS,
 	SEJOUR_STATUT_LABELS,
 	SEJOUR_TYPE_LABELS,
+	type SejourOrigine,
+	type SejourOrigineFiltre,
 	type SejourStatut,
 	type SejourStatutFiltre,
 	type SejourType,
@@ -19,25 +22,30 @@ import {
 interface SejourFiltersProps {
 	type: SejourTypeFiltre;
 	statut: SejourStatutFiltre;
+	origine: SejourOrigineFiltre;
 	du: string;
 	au: string;
 	onTypeChange: (value: SejourTypeFiltre) => void;
 	onStatutChange: (value: SejourStatutFiltre) => void;
+	onOrigineChange: (value: SejourOrigineFiltre) => void;
 	onDuChange: (value: string) => void;
 	onAuChange: (value: string) => void;
 }
 
 /**
- * Bandeau de filtres de la liste des séjours (M2.3). Tous appliqués côté
- * client (le lister ne documente aucun paramètre réel exploitable).
+ * Bandeau de filtres de la liste des séjours (M2.3). `statut` et `origine`
+ * sont aussi envoyés au serveur (paramètres réels depuis residence 087+088) ;
+ * type et période restent filtrés côté client.
  */
 export function SejourFilters({
 	type,
 	statut,
+	origine,
 	du,
 	au,
 	onTypeChange,
 	onStatutChange,
+	onOrigineChange,
 	onDuChange,
 	onAuChange,
 }: SejourFiltersProps) {
@@ -73,6 +81,25 @@ export function SejourFilters({
 						(valeur) => (
 							<SelectItem key={valeur} value={valeur}>
 								{SEJOUR_STATUT_LABELS[valeur]}
+							</SelectItem>
+						),
+					)}
+				</SelectContent>
+			</Select>
+
+			<Select
+				value={origine}
+				onValueChange={(value) => onOrigineChange(value as SejourOrigineFiltre)}
+			>
+				<SelectTrigger aria-label="Origine" className="w-40">
+					<SelectValue placeholder="Origine" />
+				</SelectTrigger>
+				<SelectContent>
+					<SelectItem value="tous">Toutes origines</SelectItem>
+					{(Object.keys(SEJOUR_ORIGINE_LABELS) as SejourOrigine[]).map(
+						(valeur) => (
+							<SelectItem key={valeur} value={valeur}>
+								{SEJOUR_ORIGINE_LABELS[valeur]}
 							</SelectItem>
 						),
 					)}
