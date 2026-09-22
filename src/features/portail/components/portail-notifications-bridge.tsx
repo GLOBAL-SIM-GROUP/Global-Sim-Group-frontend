@@ -48,15 +48,16 @@ interface ToastItem {
  * Pont notifications → portail résident : à chaque événement métier reçu sur
  * le socket (`restaurant.commande.statut`, `pressing.commande.statut`,
  * `pressing.commande_prete`, `salle_fete.reservation.statut`,
- * `market.vente.statut`), invalide les
- * requêtes concernées et affiche un toast avec le titre/corps déjà formatés
- * en français par le backend.
+ * `market.vente.statut`), invalide les requêtes concernées.
+ *
+ * Un seul toast « Vous avez de nouvelles notifications » est affiché par
+ * vague d'événements (remplacé si déjà visible) plutôt qu'un toast par
+ * notification : à la connexion, l'historique repoussé par le socket arrive
+ * après le montage et produirait sinon une rafale.
  *
  * Le client de notifications reçoit chaque événement deux fois (canal
  * générique `notification` + canal au nom de l'event) — le snapshot est déjà
- * dédoublonné par `id`, et `vusRef` évite tout re-traitement. L'historique
- * repoussé à la connexion n'est PAS toasté : seuls les ids arrivés après le
- * montage déclenchent un toast.
+ * dédoublonné par `id`, et `vusRef` évite tout re-traitement.
  */
 export function PortailNotificationsBridge() {
 	const { notifications } = useNotifications();
@@ -83,13 +84,15 @@ export function PortailNotificationsBridge() {
 				void queryClient.invalidateQueries({ queryKey: key });
 			}
 		}
-		setToasts((actuels) => [
-			...actuels,
-			...nouveaux.map((n) => ({
-				id: n.id,
-				title: n.message.title,
-				body: n.message.body,
-			})),
+		setToasts([
+			{
+				id: `nouvelles-${Date.now()}`,
+				title: "Nouvelles notifications",
+				body:
+					nouveaux.length > 1
+						? `Vous avez ${nouveaux.length} nouvelles notifications.`
+						: "Vous avez une nouvelle notification.",
+			},
 		]);
 	}, [notifications, queryClient]);
 
