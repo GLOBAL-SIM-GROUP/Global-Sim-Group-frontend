@@ -107,14 +107,15 @@
 
 Imagine que tu loues une grande salle pour les mariages, les anniversaires et les baptêmes. Tu as un calendrier accroché au mur et un registre : quand quelqu'un veut la salle, tu écris son nom, la date de sa fête, le prix, et l'argent qu'il a déjà versé.
 
-Le module \textbf{Salle de fête} fait exactement ça, sur l'ordinateur. Il a \textbf{deux pages} :
+Le module \textbf{Salle de fête} fait exactement ça, sur l'ordinateur. Il a \textbf{trois pages} :
 
 \begin{itemize}[label=\textcolor{lagoon}{\faGlassCheers}]
   \item \textbf{Réservations} : la liste de toutes les réservations, comme le registre.
   \item \textbf{Calendrier} : la vue par mois, comme le calendrier au mur, pour voir les jours occupés d'un coup d'\oe il.
+  \item \textbf{Catalogue} : les types de manifestation proposés dans les formulaires (mariage, baptême…).
 \end{itemize}
 
-\info{Chaque réservation a un \textbf{statut}, comme un petit panneau de couleur : \textbf{Réservée} (orange) → \textbf{Confirmée} (bleu) → \textbf{Réalisée} (gris). Une réservation peut aussi être \textbf{Annulée} (rouge). Tu verras parfois « Disponible » (vert) dans le filtre.}
+\info{Chaque réservation a un \textbf{statut}, comme un petit panneau de couleur : \textbf{Réservée} (orange) → \textbf{Confirmée} (bleu) → \textbf{Réalisée} (gris). Une réservation peut aussi être \textbf{Annulée} (rouge). Les demandes envoyées par les résidents depuis leur portail arrivent en \textbf{En attente de validation} (violet), sans tarif — voir « Les demandes du portail résident ». Tu verras parfois « Disponible » (vert) dans le filtre.}
 
 \info{Ce que tu vois dépend de tes \textbf{permissions}. Si un bouton manque, ce n'est pas un bug : ton rôle n'a pas le droit. Voir le récapitulatif à la fin du guide.}
 
@@ -125,7 +126,7 @@ Le module \textbf{Salle de fête} fait exactement ça, sur l'ordinateur. Il a \t
 
 \begin{etapes}
   \item Connecte-toi à l'application.
-  \item Sur l'accueil, clique sur la carte \textbf{Salle de fête}, puis « Réservations » ou « Calendrier » ; ou clique sur « Salle de fête » dans le menu latéral.
+  \item Sur l'accueil, clique sur la carte \textbf{Salle de fête}, puis « Réservations », « Calendrier » ou « Catalogue » ; ou clique sur « Salle de fête » dans le menu latéral.
 \end{etapes}
 
 \newpage
@@ -133,7 +134,7 @@ Le module \textbf{Salle de fête} fait exactement ça, sur l'ordinateur. Il a \t
 % Section 2 : La liste des réservations
 \section{La liste des réservations}\label{sec:liste}
 
-La page \textbf{Réservations — Salle de fête} montre toutes les réservations, une par ligne :
+La page \textbf{Réservations — Salle de fête} montre toutes les réservations, une par ligne. Une \textbf{pastille orange} avec un chiffre à côté de « Réservations » dans le menu signale les demandes du portail résident encore « En attente de validation » :
 
 \screenshot{screenshots/salle-fete/01-reservations-liste.png}{La liste des réservations}
 
@@ -147,7 +148,7 @@ Les colonnes du tableau :
   \item \textbf{ACOMPTE} : l'argent déjà versé à la réservation.
   \item \textbf{SOLDE} : ce qui reste à payer.
   \item \textbf{STATUT} : le petit panneau de couleur.
-  \item \textbf{ACTIONS} : les petites icônes pour modifier, confirmer, réaliser ou annuler.
+  \item \textbf{ACTIONS} : les petites icônes pour valider une demande, modifier, confirmer, réaliser ou annuler.
 \end{itemize}
 
 \astuce{Toute la ligne est cliquable : clique n'importe où sur une ligne pour ouvrir la fiche de la réservation.}
@@ -286,9 +287,36 @@ La réservation passe au statut \textbf{Réalisée} (gris) — elle est terminé
 
 \subsection{Annuler une réservation}
 
-Si le client renonce, clique sur \textbf{Annuler la réservation} (ou l'icône X dans le tableau) : une fenêtre de confirmation s'ouvre, clique sur \textbf{Annuler la réservation} pour confirmer ou \textbf{Fermer} pour renoncer.
+Si le client renonce, clique sur \textbf{Annuler la réservation} (ou l'icône X dans le tableau) : une fenêtre s'ouvre avec un champ \textbf{motif} (optionnel). Clique sur \textbf{Annuler} pour confirmer ou \textbf{Fermer} pour renoncer.
 
 \attention{Une réservation « Réalisée » ou « Annulée » est figée : plus de modification ni d'encaissement possible.}
+
+\subsection{Les demandes du portail résident}
+
+Les résidents peuvent demander la salle depuis leur \textbf{portail} : ils choisissent la date, l'heure et le type de fête, sans prix. Ces demandes arrivent dans la liste avec le statut \textbf{En attente de validation} (violet) et des cases vides pour le tarif, l'acompte et le solde — le prix n'est pas encore fixé :
+
+\screenshot{screenshots/salle-fete/15-reservation-attente.png}{Une demande « En attente de validation » (badge violet) dans la liste}
+
+Sur cette ligne, la colonne Actions propose (permission \texttt{SALLE\_FETE.VALIDER}) :
+
+\begin{itemize}[label=\textcolor{lagoon}{\faList}]
+  \item \textbf{Valider et tarifer} (coche) : ouvre la fenêtre « Valider la demande de réservation ».
+  \item \textbf{Annuler} (croix rouge) : sur une demande « En attente », c'est un \textbf{refus} — la fenêtre s'intitule « Refuser la demande » et son motif est communiqué au résident.
+\end{itemize}
+
+\screenshot{screenshots/salle-fete/16-refus-reservation.png}{La fenêtre « Refuser la demande » avec son motif}
+
+\begin{etapes}
+  \item Clique sur \textbf{Valider et tarifer}.
+  \item Renseigne le \textbf{Tarif (FCFA)} — obligatoire — et l'\textbf{Acompte convenu} (optionnel ; il ne peut pas dépasser le tarif).
+  \item Clique sur \textbf{Valider et tarifer} : la demande passe à \textbf{Réservée} avec son tarif.
+\end{etapes}
+
+\screenshot{screenshots/salle-fete/17-valider-tarifer.png}{La fenêtre « Valider la demande de réservation »}
+
+\attention{L'acompte indiqué ici est seulement \textbf{convenu} : rien n'est encaissé à cette étape. Le règlement réel de l'acompte se fait ensuite avec « Confirmer la réservation » (encaissement), comme pour une réservation classique.}
+
+\screenshot{screenshots/salle-fete/18-reservation-validee.png}{La demande validée est passée « Réservée » avec son tarif et l'acompte convenu}
 
 \newpage
 
@@ -310,6 +338,19 @@ La page \textbf{Calendrier — Salle de fête} montre le mois en entier, comme u
 \astuce{Le calendrier est parfait pour répondre vite à un client : « Est-ce que la salle est libre le 20 ? » — un coup d'\oe il suffit.}
 
 \attention{Les réservations annulées restent visibles sur le calendrier, mais estompées.}
+
+\newpage
+
+% Section 6b : Le catalogue
+\section{Le catalogue des manifestations}\label{sec:catalogue}
+
+La liste « Type de manifestation » du formulaire de réservation se règle dans la page \textbf{Catalogue} (menu \textbf{Salle de fête} → \textbf{Catalogue}) :
+
+\screenshot{screenshots/salle-fete/14-catalogue.png}{La page « Catalogue — Types de manifestation »}
+
+La page liste les \textbf{types existants} avec leur badge « Actif ». Avec la permission \texttt{SALLE\_FETE.GERER\_CATALOGUE}, une case « Nouveau libellé » et les boutons \textbf{Renommer} / \textbf{Désactiver} apparaissent : désactiver un type le retire des saisies futures \textbf{sans modifier les réservations passées} (même fonctionnement que le catalogue du pressing).
+
+\info{Sans \texttt{SALLE\_FETE.GERER\_CATALOGUE}, la page s'affiche en lecture seule — c'est le cas sur la capture ci-dessus.}
 
 \newpage
 
@@ -360,6 +401,10 @@ La réservation n'apparaît pas sur le calendrier & Vérifie que tu regardes le 
 
 Je ne peux plus modifier une réservation & C'est normal : une réservation « Réalisée » ou « Annulée » n'est plus modifiable. \\
 
+Une ligne violette « En attente de validation » & C'est une demande de salle envoyée par un résident depuis son portail. Valide-la et tarife-la (coche, \texttt{SALLE\_FETE.VALIDER}) ou refuse-la (croix — le motif est communiqué au résident). \\
+
+La page Catalogue ne propose pas d'ajout & Il te manque \texttt{SALLE\_FETE.GERER\_CATALOGUE} : sans elle, la liste des types de manifestation est en lecture seule. \\
+
 \bottomrule
 \end{longtable}
 
@@ -368,10 +413,13 @@ Je ne peux plus modifier une réservation & C'est normal : une réservation « R
 \section{Récapitulatif des permissions}
 
 \begin{itemize}[label=\textcolor{lagoon}{\faKey}]
-  \item \texttt{SALLE\_FETE.VOIR} : voir les réservations et le calendrier.
+  \item \texttt{SALLE\_FETE.VOIR} : voir les réservations, le calendrier et le catalogue.
   \item \texttt{SALLE\_FETE.CREER} : créer une réservation.
   \item \texttt{SALLE\_FETE.MODIFIER} : modifier ou annuler une réservation.
+  \item \texttt{SALLE\_FETE.VALIDER} : valider et tarifer (ou refuser) une demande « En attente » du portail.
+  \item \texttt{SALLE\_FETE.GERER\_CATALOGUE} : ajouter, renommer ou désactiver les types de manifestation.
   \item \texttt{SALLE\_FETE.MODIFIER} + \texttt{FINANCES.VOIR} : confirmer et réaliser (encaisser), voir le tableau des paiements.
+  \item \texttt{SALLE\_FETE.DEMANDER} : comptes \textbf{clients/résidents} uniquement — demander la salle depuis le portail. Pas pour le personnel.
 \end{itemize}
 
 \info{Les permissions se règlent dans le module Administration (page Rôles).}

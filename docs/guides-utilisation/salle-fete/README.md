@@ -17,6 +17,10 @@ Les scripts de capture sont à la racine du projet :
 - `scripts/capture-salle-fete-guide.mjs` — liste, création, calendrier, mobile.
 - `scripts/capture-salle-fete-fiche.mjs` — fiche + cycle Confirmer / Réaliser
   (re-capture ciblée, retrouve la réservation via le filtre « Manifestation »).
+- `scripts/capture-sallefete-portail.mjs` — catalogue « Types de
+  manifestation », demande portail « En attente de validation », refus avec
+  motif, « Valider et tarifer » (tarif + acompte convenu) → Réservée
+  (2026-09-21).
 
 ## Ce que couvre le guide
 
@@ -27,7 +31,13 @@ Les scripts de capture sont à la racine du projet :
 - La fiche : informations, observations, tableau des paiements
   (`FINANCES.VOIR`).
 - Le cycle de vie : Réservée → Confirmée → Réalisée, avec encaissement à
-  chaque étape ; annulation.
+  chaque étape ; annulation (avec motif optionnel).
+- Les demandes du portail résident : badge « En attente de validation »
+  (violet, sans tarif), « Valider et tarifer » (tarif + acompte **convenu**,
+  rien d'encaissé) → Réservée, ou refus avec motif communiqué au résident ;
+  pastille de compteur dans le menu.
+- Le catalogue des types de manifestation : lecture pour tous, mutations
+  (ajout / renommage / désactivation) réservées à `SALLE_FETE.GERER_CATALOGUE`.
 - Le calendrier mensuel : navigation, étiquettes colorées, légende.
 - Vue mobile (320 px), FAQ et récapitulatif des permissions.
 
@@ -62,5 +72,8 @@ Depuis ce dossier, dans PowerShell :
 | Voir réservations + calendrier | `SALLE_FETE.VOIR` |
 | Nouvelle réservation | `SALLE_FETE.CREER` |
 | Modifier / annuler | `SALLE_FETE.MODIFIER` |
+| Valider et tarifer / refuser une demande | `SALLE_FETE.VALIDER` |
+| Mutations du catalogue | `SALLE_FETE.GERER_CATALOGUE` |
+| Demander la salle (portail, client) | `SALLE_FETE.DEMANDER` |
 | Confirmer / réaliser (encaisser) | `SALLE_FETE.MODIFIER` + `FINANCES.VOIR` |
 | Voir le tableau des paiements | `FINANCES.VOIR` |
