@@ -15,7 +15,13 @@ import { useCan } from "#/core/auth";
 import { ClientRechercheField } from "#/features/residence/components/client-recherche-field";
 import { formatMontantFCFA } from "#/features/residence/models/format";
 
-import { useCataloguePressing } from "../hooks/use-catalogue";
+import {
+	useCataloguePressing,
+	useCreerPrestation,
+	useCreerTypeVetement,
+	useMajPrestation,
+	useMajTypeVetement,
+} from "../hooks/use-catalogue";
 import {
 	useCreerCommande,
 	useModifierCommande,
@@ -43,11 +49,11 @@ interface LigneSaisie {
 	/** Clé stable (index insuffisant : lignes ajoutées/retirées). */
 	cle: number;
 	typeVetement: string;
-	/** Saisie libre du type de vêtement (hors catalogue). */
+	/** Champ en saisie manuelle (sinon : choix dans le catalogue). */
 	typeLibre: boolean;
 	quantite: string;
 	prestation: string;
-	/** Saisie libre de la prestation (hors catalogue). */
+	/** Champ en saisie manuelle (sinon : choix dans le catalogue). */
 	prestationLibre: boolean;
 	tarif: string;
 	poidsKg: string;
@@ -64,77 +70,159 @@ const ligneVide = (cle: number): LigneSaisie => ({
 	poidsKg: "",
 });
 
-/** Sentinelle du Select : choix « Autre (saisie libre) ». */
-const CATALOGUE_LIBRE = "__libre__";
+/** Entrée de catalogue normalisée pour `ChampLibelleCatalogue`. */
+interface EntreeCatalogue {
+	id: string;
+	libelle: string;
+	actif: boolean;
+}
 
 /**
  * Champ de libellé adossé au catalogue pressing : Select des entrées
- * actives + option « Autre (saisie libre) » qui révèle le champ texte.
- * Catalogue vide (ou inaccessible) → simple champ texte, le flag
- * `hors_catalogue` partira de toute façon à `true`. Une valeur héritée
- * absente du catalogue (commande d'avant le référentiel) est injectée
- * comme option pour ne pas la perdre à l'édition.
+ * actives par défaut, bascule explicite « Saisir manuellement » /
+ * « Choisir dans le catalogue » pour le texte libre. Avec
+ * `PRESSING.GERER_CATALOGUE`, un libellé inconnu peut être ajouté au
+ * catalogue (ou réactivé s'il existe mais est inactif) sans quitter le
+ * formulaire ; le champ est alors aligné sur le libellé canonique. Une
+ * valeur héritée absente du catalogue (commande d'avant le référentiel)
+ * est injectée comme option pour ne pas la perdre à l'édition.
  */
 function ChampLibelleCatalogue({
 	ariaLabel,
 	placeholder,
 	valeur,
 	libre,
-	options,
+	entrees,
+	peutGerer,
 	onPatch,
+	onCreer,
+	onReactiver,
 }: {
 	ariaLabel: string;
 	placeholder: string;
 	valeur: string;
 	libre: boolean;
-	options: { id: string; libelle: string }[];
+	entrees: EntreeCatalogue[];
+	peutGerer: boolean;
 	onPatch: (patch: { valeur?: string; libre?: boolean }) => void;
+	onCreer: (libelle: string) => Promise<unknown>;
+	onReactiver: (id: string) => Promise<unknown>;
 }) {
-	if (options.length === 0) {
-		return (
-			<InputField
-				aria-label={ariaLabel}
-				placeholder={placeholder}
-				value={valeur}
-				onChange={(event) => onPatch({ valeur: event.target.value })}
-			/>
-		);
-	}
-	const connues = new Set(options.map((option) => option.libelle));
-	return (
-		<div className="space-y-2">
-			<Select
-				value={libre ? CATALOGUE_LIBRE : valeur}
-				onValueChange={(choix) => {
-					if (choix === CATALOGUE_LIBRE) {
-						onPatch({ libre: true });
-					} else {
-						onPatch({ libre: false, valeur: choix });
+	const [enCours, setEnCours] = useState(false);
+	const [erreur, setErreur] = useState<string | null>(null);
+
+	const actives = entrees.filter((entree) => entree.actif);
+	const connues = new Set(actives.map((entree) => entree.libelle));
+	const recherche = valeur.trim();
+	// Comparaison insensible à la casse pour éviter de créer un doublon
+	// (« chemise » vs « Chemise ») — l'appartenance stricte envoyée au
+	// backend reste décidée au submit sur le libellé exact.
+	const memeLibelle = (libelle: string) =>
+		libelle.localeCompare(recherche, "fr", { sensitivity: "base" }) === 0;
+	const existeActive = actives.some((entree) => memeLibelle(entree.libelle));
+	const entreeInactive = entrees.find(
+		(entree) => !entree.actif && memeLibelle(entree.libelle),
+	);
+
+	const action: { label: string; executer: () => Promise<void> } | null =
+		peutGerer && recherche.length > 0 && !existeActive
+			? entreeInactive
+				? {
+						label: `Réactiver « ${entreeInactive.libelle} »`,
+						executer: async () => {
+							await onReactiver(entreeInactive.id);
+							// Aligner sur le libellé canonique du catalogue.
+							onPatch({ valeur: entreeInactive.libelle });
+						},
 					}
-				}}
-			>
-				<SelectTrigger aria-label={ariaLabel} className="w-full">
-					<SelectValue placeholder={ariaLabel} />
-				</SelectTrigger>
-				<SelectContent>
-					{options.map((option) => (
-						<SelectItem key={option.id} value={option.libelle}>
-							{option.libelle}
-						</SelectItem>
-					))}
-					{!libre && valeur && !connues.has(valeur) ? (
-						<SelectItem value={valeur}>{valeur}</SelectItem>
-					) : null}
-					<SelectItem value={CATALOGUE_LIBRE}>Autre (saisie libre)…</SelectItem>
-				</SelectContent>
-			</Select>
-			{libre ? (
+				: {
+						label: `Ajouter « ${recherche} » au catalogue`,
+						executer: async () => {
+							await onCreer(recherche);
+							// Écarter les espaces de saisie du libellé canonique.
+							onPatch({ valeur: recherche });
+						},
+					}
+			: null;
+
+	const executerAction = (courante: NonNullable<typeof action>) => {
+		setEnCours(true);
+		setErreur(null);
+		courante
+			.executer()
+			.catch(() => setErreur("Échec de l'enregistrement au catalogue."))
+			.finally(() => setEnCours(false));
+	};
+
+	// Catalogue vide : rien à choisir → champ libre sans bascule.
+	const saisieLibre = libre || actives.length === 0;
+
+	return (
+		<div className="space-y-1.5">
+			{saisieLibre ? (
 				<InputField
-					aria-label={`${ariaLabel} (saisie libre)`}
+					aria-label={ariaLabel}
 					placeholder={placeholder}
 					value={valeur}
-					onChange={(event) => onPatch({ valeur: event.target.value })}
+					onChange={(event) => {
+						setErreur(null);
+						onPatch({ valeur: event.target.value });
+					}}
 				/>
+			) : (
+				<Select
+					value={valeur}
+					onValueChange={(choix) => onPatch({ valeur: choix })}
+				>
+					<SelectTrigger aria-label={ariaLabel} className="w-full">
+						<SelectValue placeholder={ariaLabel} />
+					</SelectTrigger>
+					<SelectContent>
+						{actives.map((entree) => (
+							<SelectItem key={entree.id} value={entree.libelle}>
+								{entree.libelle}
+							</SelectItem>
+						))}
+						{valeur && !connues.has(valeur) ? (
+							<SelectItem value={valeur}>{valeur}</SelectItem>
+						) : null}
+					</SelectContent>
+				</Select>
+			)}
+			<div className="flex flex-wrap gap-x-4">
+				{actives.length > 0 ? (
+					<Button
+						type="button"
+						variant="link"
+						size="sm"
+						className="h-auto px-0 text-xs"
+						onClick={() => onPatch({ libre: !saisieLibre })}
+					>
+						{saisieLibre ? "Choisir dans le catalogue" : "Saisir manuellement"}
+					</Button>
+				) : null}
+				{action ? (
+					<Button
+						type="button"
+						variant="link"
+						size="sm"
+						className="h-auto px-0 text-xs"
+						disabled={enCours}
+						onClick={() => executerAction(action)}
+					>
+						{enCours ? (
+							<Loader2 className="size-3 animate-spin" aria-hidden />
+						) : (
+							<Plus className="size-3" aria-hidden />
+						)}
+						{action.label}
+					</Button>
+				) : null}
+			</div>
+			{erreur ? (
+				<p role="alert" className="text-xs text-destructive">
+					{erreur}
+				</p>
 			) : null}
 		</div>
 	);
@@ -157,6 +245,7 @@ export function CommandeForm({
 	const createMutation = useCreerCommande();
 	const editMutation = useModifierCommande();
 	const canGererTarifs = useCan("PRESSING.GERER_TARIFS");
+	const peutGererCatalogue = useCan("PRESSING.GERER_CATALOGUE");
 	const [globalError, setGlobalError] = useState<string | null>(null);
 	const [idClient, setIdClient] = useState(commande?.id_client ?? "");
 	// Verrouillé en édition (le backend refuse de changer le mode d'une
@@ -166,6 +255,10 @@ export function CommandeForm({
 	);
 	const tarifKgQuery = useTarifKg(mode === "POIDS");
 	const catalogueQuery = useCataloguePressing();
+	const creerTypeMutation = useCreerTypeVetement();
+	const majTypeMutation = useMajTypeVetement();
+	const creerPrestationMutation = useCreerPrestation();
+	const majPrestationMutation = useMajPrestation();
 
 	// `cle` dérivée de l'index de construction (pas de `ligne.id`, qui n'est
 	// pas forcément numérique) : garantit des clés 0..n-1 uniques quel que
@@ -245,23 +338,44 @@ export function CommandeForm({
 	const aucunTarifKgConfigure =
 		mode === "POIDS" && !tarifKgQuery.isLoading && tarifKgQuery.data === null;
 
-	// Référentiel des libellés (entrées actives uniquement) — les Selects
-	// proposent ces valeurs ; toute saisie hors liste part `hors_catalogue`.
-	const typesVetementCatalogue = useMemo(
-		() => (catalogueQuery.data?.typesVetement ?? []).filter((t) => t.actif),
+	// Référentiel des libellés : les entrées actives alimentent les
+	// suggestions (datalist) ; les inactives servent à proposer une
+	// réactivation. Toute saisie hors liste part `hors_catalogue`.
+	const typesVetementEntrees = useMemo<EntreeCatalogue[]>(
+		() =>
+			(catalogueQuery.data?.typesVetement ?? []).map((type) => ({
+				id: type.id_type_vetement,
+				libelle: type.libelle,
+				actif: type.actif,
+			})),
 		[catalogueQuery.data],
 	);
-	const prestationsCatalogue = useMemo(
-		() => (catalogueQuery.data?.prestations ?? []).filter((p) => p.actif),
+	const prestationsEntrees = useMemo<EntreeCatalogue[]>(
+		() =>
+			(catalogueQuery.data?.prestations ?? []).map((prestation) => ({
+				id: prestation.id_prestation,
+				libelle: prestation.libelle,
+				actif: prestation.actif,
+			})),
 		[catalogueQuery.data],
 	);
 	const typesConnus = useMemo(
-		() => new Set(typesVetementCatalogue.map((t) => t.libelle)),
-		[typesVetementCatalogue],
+		() =>
+			new Set(
+				typesVetementEntrees
+					.filter((entree) => entree.actif)
+					.map((entree) => entree.libelle),
+			),
+		[typesVetementEntrees],
 	);
 	const prestationsConnues = useMemo(
-		() => new Set(prestationsCatalogue.map((p) => p.libelle)),
-		[prestationsCatalogue],
+		() =>
+			new Set(
+				prestationsEntrees
+					.filter((entree) => entree.actif)
+					.map((entree) => entree.libelle),
+			),
+		[prestationsEntrees],
 	);
 
 	const valider = (): string | null => {
@@ -299,11 +413,9 @@ export function CommandeForm({
 			quantite: ligne.quantite.trim(),
 			prestation: ligne.prestation.trim(),
 			// « Catalogue » seulement si les DEUX libellés sont dans le
-			// référentiel — le backend vérifie l'appartenance quand
+			// référentiel actif — le backend vérifie l'appartenance quand
 			// `hors_catalogue` est faux.
 			horsCatalogue:
-				ligne.typeLibre ||
-				ligne.prestationLibre ||
 				!typesConnus.has(ligne.typeVetement.trim()) ||
 				!prestationsConnues.has(ligne.prestation.trim()),
 			...(mode === "UNITAIRE"
@@ -420,10 +532,8 @@ export function CommandeForm({
 								placeholder="Type de vêtement (ex : Chemise)"
 								valeur={ligne.typeVetement}
 								libre={ligne.typeLibre}
-								options={typesVetementCatalogue.map((type) => ({
-									id: type.id_type_vetement,
-									libelle: type.libelle,
-								}))}
+								entrees={typesVetementEntrees}
+								peutGerer={peutGererCatalogue}
 								onPatch={(patch) =>
 									majLigne(ligne.cle, {
 										...(patch.valeur !== undefined
@@ -434,16 +544,18 @@ export function CommandeForm({
 											: {}),
 									})
 								}
+								onCreer={(libelle) => creerTypeMutation.mutateAsync(libelle)}
+								onReactiver={(id) =>
+									majTypeMutation.mutateAsync({ id, actif: true })
+								}
 							/>
 							<ChampLibelleCatalogue
 								ariaLabel="Prestation"
 								placeholder="Prestation (ex : Repassage)"
 								valeur={ligne.prestation}
 								libre={ligne.prestationLibre}
-								options={prestationsCatalogue.map((prestation) => ({
-									id: prestation.id_prestation,
-									libelle: prestation.libelle,
-								}))}
+								entrees={prestationsEntrees}
+								peutGerer={peutGererCatalogue}
 								onPatch={(patch) =>
 									majLigne(ligne.cle, {
 										...(patch.valeur !== undefined
@@ -453,6 +565,12 @@ export function CommandeForm({
 											? { prestationLibre: patch.libre }
 											: {}),
 									})
+								}
+								onCreer={(libelle) =>
+									creerPrestationMutation.mutateAsync(libelle)
+								}
+								onReactiver={(id) =>
+									majPrestationMutation.mutateAsync({ id, actif: true })
 								}
 							/>
 							{mode === "UNITAIRE" ? (
