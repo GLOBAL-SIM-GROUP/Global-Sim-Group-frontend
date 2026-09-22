@@ -121,7 +121,7 @@ Le module \textbf{Restaurant} fait exactement ça, sur l'ordinateur. Il a \textb
   \item \textbf{Statistiques} : pour voir le chiffre d'affaires et les plats les plus vendus.
 \end{itemize}
 
-\info{Chaque commande a un \textbf{statut}, comme un petit panneau de couleur qui suit le plat en cuisine : \textbf{En cours} (bleu) → \textbf{En préparation} (orange) → \textbf{Servie} (vert) → \textbf{Payée} (gris). Une commande peut aussi être \textbf{Annulée} (rouge).}
+\info{Chaque commande a un \textbf{statut}, comme un petit panneau de couleur qui suit le plat en cuisine : \textbf{En cours} (bleu) → \textbf{En préparation} (orange) → \textbf{Servie} (vert) → \textbf{Payée} (gris). Une commande peut aussi être \textbf{Annulée} (rouge). Les commandes passées par les résidents depuis leur portail arrivent en \textbf{En attente} (violet) et attendent ta validation — voir « Les demandes du portail résident ».}
 
 \info{Chaque commande a aussi un \textbf{type} : \textbf{Sur place} (le client mange au restaurant), \textbf{À emporter} (le client repart avec son repas) ou \textbf{Livraison} (on lui apporte).}
 
@@ -213,7 +213,7 @@ Sur chaque carte, en bas à droite, deux petites icônes :
 % Section 4 : Les commandes
 \section{La liste des commandes}\label{sec:commandes}
 
-La page \textbf{Commandes — Restaurant} montre l'historique de toutes les commandes, de la plus récente à la plus ancienne.
+La page \textbf{Commandes — Restaurant} montre l'historique de toutes les commandes, de la plus récente à la plus ancienne. Une \textbf{pastille orange} avec un chiffre à côté de « Commandes » dans le menu signale les demandes du portail résident encore « En attente » — elle disparaît quand tout est traité.
 
 \screenshot{screenshots/restaurant/06-commandes-liste.png}{La liste des commandes}
 
@@ -226,7 +226,7 @@ Chaque ligne du tableau est une commande :
   \item \textbf{TYPE} : Sur place, À emporter ou Livraison.
   \item \textbf{TOTAL} : le montant de la commande.
   \item \textbf{STATUT} : le petit panneau de couleur.
-  \item \textbf{ACTIONS} : les petites icônes pour voir la facture, avancer le statut ou annuler.
+  \item \textbf{ACTIONS} : les petites icônes pour voir la facture, valider/refuser une demande, avancer le statut, encaisser ou annuler.
 \end{itemize}
 
 \subsection{Retrouver une commande}
@@ -289,11 +289,11 @@ Quand un client commande à manger :
 
 \screenshot{screenshots/restaurant/12-commande-remplie.png}{La fenêtre remplie, prête à valider}
 
-La commande apparaît en haut de la liste avec le statut \textbf{En cours} :
+La commande apparaît en haut de la liste avec le statut \textbf{Payée} : le paiement est encaissé dès la prise de commande au comptoir :
 
 \screenshot{screenshots/restaurant/13-commande-creee.png}{La commande enregistrée dans la liste}
 
-\attention{Le moyen de paiement est \textbf{obligatoire} : la commande enregistre directement le paiement complet. Si tu oublies le moyen de paiement ou un plat, un message rouge te le rappelle.}
+\attention{Le moyen de paiement est \textbf{obligatoire} : la commande enregistre directement le paiement complet — elle naît donc « Payée » et ne passe pas par les statuts de cuisine. Les statuts « En cours → En préparation → Servie » servent aux commandes \textbf{non encore payées}, c'est-à-dire les demandes du portail résident validées (section suivante). Si tu oublies le moyen de paiement ou un plat, un message rouge te le rappelle.}
 
 \info{La facture de la commande est créée automatiquement en même temps que la commande.}
 
@@ -310,6 +310,25 @@ Clique sur l'icône \textbf{œil} dans la colonne Actions : une fenêtre « Fact
 
 Dans cette fenêtre, le bouton de \textbf{téléchargement} permet de récupérer le reçu de la commande pour l'imprimer.
 
+\subsection{Les demandes du portail résident}
+
+Les résidents peuvent commander depuis leur \textbf{portail}, sans passer au comptoir. Ces demandes arrivent dans la liste avec le statut \textbf{En attente} (violet) — elles n'ont pas encore été payées :
+
+\screenshot{screenshots/restaurant/20-demande-attente.png}{Une commande « En attente » (badge violet) dans la liste}
+
+Sur une ligne « En attente », la colonne Actions propose deux icônes spéciales (permission \texttt{RESTAURANT.VALIDER}) :
+
+\begin{itemize}[label=\textcolor{lagoon}{\faList}]
+  \item \textbf{Valider la demande} (coche orange) : la commande est prise en charge et passe directement à « En cours » — la cuisine peut commencer.
+  \item \textbf{Refuser la demande} (croix rouge) : ouvre une fenêtre où tu peux taper un \textbf{motif} (optionnel) — il sera montré au résident. Confirme avec \textbf{Refuser la demande} ou renonce avec \textbf{Retour}. La commande passe à « Annulée ».
+\end{itemize}
+
+\screenshot{screenshots/restaurant/21-refus-dialog.png}{La fenêtre de refus avec son champ « Motif »}
+
+Après validation, la commande suit le cycle normal de la cuisine :
+
+\screenshot{screenshots/restaurant/22-demande-validee.png}{La demande validée est passée « En cours »}
+
 \subsection{Faire avancer le statut}
 
 La cuisine avance, le statut suit. Dans la colonne Actions, une icône colorée fait passer la commande à l'étape suivante :
@@ -317,16 +336,29 @@ La cuisine avance, le statut suit. Dans la colonne Actions, une icône colorée 
 \begin{etapes}
   \item \textbf{En cours} → clique pour passer « En préparation » (la cuisine s'en occupe).
   \item \textbf{En préparation} → clique pour passer « Servie » (le plat est sur la table).
-  \item \textbf{Servie} → clique pour passer « Payée » (la note est réglée).
 \end{etapes}
 
 \screenshot{screenshots/restaurant/15-statut-avance.png}{Le statut de la commande a avancé}
 
-\info{Il n'y a qu'un seul bouton d'avancement : il fait toujours passer à l'étape suivante, dans l'ordre. Impossible de sauter une étape ou de revenir en arrière.}
+\info{Il n'y a qu'un seul bouton d'avancement : il fait toujours passer à l'étape suivante, dans l'ordre. Impossible de sauter une étape ou de revenir en arrière. Le passage à « Payée » n'est \textbf{pas} un statut : il se fait par l'encaissement (ci-dessous).}
+
+\subsection{Encaisser une commande}
+
+Les commandes « En cours », « En préparation » ou « Servie » qui n'ont pas encore été payées (les demandes du portail, typiquement) montrent une icône \textbf{billet} dans la colonne Actions — permission \texttt{FINANCES.ENCAISSER} :
+
+\begin{etapes}
+  \item Clique sur l'icône \textbf{Encaisser} : la fenêtre rappelle le montant à encaisser (le total de la commande, règlement intégral).
+  \item Choisis le \textbf{Moyen de paiement} et, si besoin, la \textbf{Date du règlement} (optionnel).
+  \item Clique sur \textbf{Encaisser} : la facture soldée est créée et la commande passe à \textbf{Payée}.
+\end{etapes}
+
+\screenshot{screenshots/restaurant/23-encaisser-dialog.png}{La fenêtre « Encaisser la commande »}
+
+\screenshot{screenshots/restaurant/24-commande-payee.png}{La commande encaissée est passée « Payée »}
 
 \subsection{Annuler une commande}
 
-Si le client se désiste ou si la commande est une erreur, clique sur l'icône \textbf{X} rouge :
+Si le client se désiste ou si la commande est une erreur, clique sur l'icône \textbf{X} rouge (attention : sur une ligne « En attente », la croix rouge \textbf{refuse} la demande avec motif — voir ci-dessus ; sur les autres statuts elle ouvre la simple confirmation ci-dessous) :
 
 \begin{etapes}
   \item Clique sur le \textbf{X} dans la colonne Actions.
@@ -402,7 +434,11 @@ Le plat que je cherche n'est pas dans la liste de la commande & Le plat est peut
 
 « Valider la commande » ne fait rien & Un message rouge s'affiche : il manque un plat, une quantité, ou le moyen de paiement (obligatoire). \\
 
-Je ne peux pas changer le statut & Il te manque \texttt{RESTAURANT.MODIFIER}, ou la commande est déjà « Payée »/« Annulée » (fin de cycle). \\
+Je ne peux pas changer le statut & Il te manque \texttt{RESTAURANT.MODIFIER}, ou la commande est déjà « Payée »/« Annulée » (fin de cycle). « Payée » ne s'atteint pas par le statut : utilise l'icône \textbf{Encaisser}. \\
+
+Une ligne violette « En attente » & C'est une commande passée par un résident sur son portail. Valide-la (coche, \texttt{RESTAURANT.VALIDER}) ou refuse-la (croix, avec motif). \\
+
+Je ne vois pas l'icône « Encaisser » & Elle n'apparaît que sur les commandes « En cours », « En préparation » ou « Servie » non payées, et demande la permission \texttt{FINANCES.ENCAISSER}. \\
 
 Je ne vois pas le X pour annuler & L'annulation demande la permission \texttt{RESTAURANT.SUPPRIMER}. \\
 
@@ -419,7 +455,10 @@ Les statistiques sont vides & Il n'y a eu aucune vente sur la période choisie. 
   \item \texttt{RESTAURANT.VOIR} : voir la carte, les commandes et les statistiques.
   \item \texttt{RESTAURANT.CREER} : ajouter un plat, créer une commande.
   \item \texttt{RESTAURANT.MODIFIER} : modifier un plat, l'activer/désactiver, faire avancer le statut d'une commande.
+  \item \texttt{RESTAURANT.VALIDER} : valider ou refuser une demande « En attente » du portail résident.
+  \item \texttt{FINANCES.ENCAISSER} : encaisser le règlement d'une commande non payée (→ « Payée »).
   \item \texttt{RESTAURANT.SUPPRIMER} : annuler une commande.
+  \item \texttt{RESTAURANT.COMMANDER} : permission des comptes \textbf{clients/résidents} — commander depuis le portail. Elle ne concerne pas le personnel.
 \end{itemize}
 
 \info{Les permissions se règlent dans le module Administration (page Rôles).}
