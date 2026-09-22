@@ -107,6 +107,7 @@ export function AbonnementForm({
 	);
 	const contratsQuery = useContrats();
 	const [globalError, setGlobalError] = useState<string | null>(null);
+	const [creationClientOuverte, setCreationClientOuverte] = useState(false);
 
 	const form = useForm({
 		defaultValues: {
@@ -214,14 +215,23 @@ export function AbonnementForm({
 			}}
 		>
 			{!abonnement ? (
-				<form.Field name="idClient">
-					{(field) => (
-						<ClientRechercheField
-							value={field.state.value}
-							onChange={(id) => field.handleChange(id)}
-						/>
-					)}
-				</form.Field>
+				<>
+					<form.Field name="idClient">
+						{(field) => (
+							<ClientRechercheField
+								value={field.state.value}
+								onChange={(id) => field.handleChange(id)}
+								creationLocataireComplete
+								onCreationOuverteChange={setCreationClientOuverte}
+							/>
+						)}
+					</form.Field>
+					<p className="rounded-md border border-border bg-accent/30 px-3 py-2 text-xs text-muted-foreground">
+						Seuls les résidents peuvent souscrire un abonnement — le compte doit
+						être un locataire avec un contrat de location actif. Les simples
+						clients (pressing, restaurant, boutique…) ne sont pas éligibles.
+					</p>
+				</>
 			) : null}
 
 			<form.Field name="service">
@@ -377,26 +387,28 @@ export function AbonnementForm({
 				</p>
 			) : null}
 
-			<form.Subscribe selector={(state) => state.isSubmitting}>
-				{(isSubmitting) => (
-					<div className="flex items-center justify-end gap-2 pt-2">
-						<Button
-							type="button"
-							variant="ghost"
-							disabled={isSubmitting}
-							onClick={onCancel}
-						>
-							Annuler
-						</Button>
-						<Button type="submit" disabled={isSubmitting}>
-							{isSubmitting ? (
-								<Loader2 className="size-4 animate-spin" aria-hidden />
-							) : null}
-							{isSubmitting ? "Enregistrement…" : "Enregistrer"}
-						</Button>
-					</div>
-				)}
-			</form.Subscribe>
+			{!creationClientOuverte ? (
+				<form.Subscribe selector={(state) => state.isSubmitting}>
+					{(isSubmitting) => (
+						<div className="flex items-center justify-end gap-2 pt-2">
+							<Button
+								type="button"
+								variant="ghost"
+								disabled={isSubmitting}
+								onClick={onCancel}
+							>
+								Annuler
+							</Button>
+							<Button type="submit" disabled={isSubmitting}>
+								{isSubmitting ? (
+									<Loader2 className="size-4 animate-spin" aria-hidden />
+								) : null}
+								{isSubmitting ? "Enregistrement…" : "Enregistrer"}
+							</Button>
+						</div>
+					)}
+				</form.Subscribe>
+			) : null}
 		</form>
 	);
 }
