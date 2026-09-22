@@ -74,6 +74,10 @@ export function getCommande(id: string): Promise<CommandePressingDetail> {
  * échouer la requête côté backend (500 constaté en direct, pas un 400
  * propre) — d'où la validation stricte côté client avant l'appel, voir
  * `validerLignesPressing` dans `models/commandes.ts`.
+ *
+ * `hors_catalogue` est requis par `LigneCommandePressingDto` depuis
+ * l'introduction du catalogue pressing : le formulaire saisit les libellés
+ * en texte libre (pas de sélection catalogue) → toujours `true`, sinon 400.
  */
 export interface LigneCommandeBody {
 	typeVetement: string;
@@ -88,6 +92,7 @@ function ligneVersCorps(ligne: LigneCommandeBody) {
 		type_vetement: ligne.typeVetement,
 		quantite: ligne.quantite,
 		prestation: ligne.prestation,
+		hors_catalogue: true,
 		...(ligne.tarif !== undefined ? { tarif: ligne.tarif } : {}),
 		...(ligne.poidsKg !== undefined ? { poids_kg: ligne.poidsKg } : {}),
 	};
@@ -187,8 +192,8 @@ export function annulerCommande(id: string): Promise<unknown> {
  * portail résident (`POST /pressing/commandes/{id}/valider` → `DEPOSE`,
  * PRESSING.CREER). Les lignes reprennent la déclaration du résident, chiffrée
  * selon `modeTarification` (`tarif` en UNITAIRE, `poidsKg` en POIDS) —
- * `hors_catalogue: true` est renvoyé ligne à ligne car le libellé saisi par
- * le résident est libre.
+ * `hors_catalogue: true` (ajouté par `ligneVersCorps`) car le libellé saisi
+ * par le résident est libre.
  */
 export interface ValiderDemandeBody {
 	modeTarification: ModeTarificationPressing;
@@ -204,10 +209,7 @@ export function validerDemande(
 	body: ValiderDemandeBody,
 ): Promise<unknown> {
 	const corps = {
-		lignes: body.lignes.map((ligne) => ({
-			...ligneVersCorps(ligne),
-			hors_catalogue: true,
-		})),
+		lignes: body.lignes.map(ligneVersCorps),
 		mode_tarification: body.modeTarification,
 		...(body.dateRetraitPrevue
 			? { date_retrait_prevue: body.dateRetraitPrevue }
