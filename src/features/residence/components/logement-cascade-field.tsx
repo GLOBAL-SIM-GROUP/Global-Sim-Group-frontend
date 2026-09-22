@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { Label } from "#/components/ui/label";
 import {
@@ -115,6 +115,21 @@ export function LogementCascadeField({
 	const logementsQuery = useLogements(batimentId, "tous", statutFiltre);
 	const batiment = batimentsQuery.data?.find((item) => item.id === batimentId);
 
+	// `logementActuel` est fusionné dans la liste (dédupliqué, en tête) plutôt
+	// que rendu comme item conditionnel : tous les `SelectItem` gardent une
+	// `key` et une position stable entre les rendus.
+	const logements = useMemo(() => {
+		const liste = logementsQuery.data ?? [];
+		if (
+			!logementActuel ||
+			batimentId !== logementActuel.id_batiment ||
+			liste.some((logement) => logement.id === logementActuel.id)
+		) {
+			return liste;
+		}
+		return [logementActuel, ...liste];
+	}, [logementsQuery.data, logementActuel, batimentId]);
+
 	return (
 		<div className="space-y-4">
 			<SelectField
@@ -146,17 +161,7 @@ export function LogementCascadeField({
 				onValueChange={onChange}
 				disabled={!batiment}
 			>
-				{logementActuel &&
-				batimentId === logementActuel.id_batiment &&
-				!(logementsQuery.data ?? []).some(
-					(logement) => logement.id === logementActuel.id,
-				) ? (
-					<SelectItem value={logementActuel.id}>
-						{logementActuel.numero} —{" "}
-						{LOGEMENT_TYPE_LABELS[logementActuel.type]}
-					</SelectItem>
-				) : null}
-				{(logementsQuery.data ?? []).map((logement) => (
+				{logements.map((logement) => (
 					<SelectItem key={logement.id} value={logement.id}>
 						{logement.numero} — {LOGEMENT_TYPE_LABELS[logement.type]}
 					</SelectItem>
