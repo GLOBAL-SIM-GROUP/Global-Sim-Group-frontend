@@ -119,7 +119,7 @@ Le module \textbf{Marchandise} (aussi appelé \textbf{Market}) fait exactement �
 
 \info{Chaque produit a un \textbf{seuil d'alerte} : quand le stock descend sous ce seuil, le produit apparaît dans « Alerte stock ». À zéro, le badge devient \textbf{ÉPUISÉ} (rouge).}
 
-\info{Chaque vente a un \textbf{statut} : \textbf{Payée} (vert), \textbf{En cours} (orange) ou \textbf{Annulée} (gris). Une vente enregistrée avec un moyen de paiement passe directement à « Payée ».}
+\info{Chaque vente a un \textbf{statut} : \textbf{Payée} (vert), \textbf{En cours} (orange), \textbf{En attente de validation} (violet) ou \textbf{Annulée} (gris). Une vente enregistrée avec un moyen de paiement passe directement à « Payée ». Les ventes « En attente » sont des demandes passées par les résidents depuis la boutique de leur portail — voir « Les demandes du portail résident ».}
 
 \info{Ce que tu vois dépend de tes \textbf{permissions}. Si un bouton manque, ce n'est pas un bug : ton rôle n'a pas le droit. Voir le récapitulatif à la fin du guide.}
 
@@ -318,8 +318,8 @@ Les colonnes du tableau :
   \item \textbf{DATE} : jour et heure.
   \item \textbf{CLIENT} : le client associé, ou « — » pour une vente au comptoir.
   \item \textbf{TOTAL} et \textbf{REMISE} en FCFA.
-  \item \textbf{STATUT} : Payée (vert), En cours (orange) ou Annulée (gris).
-  \item \textbf{ACTIONS} : \faEye\ voir la facture, imprimer le reçu, et \faTimes\ annuler la vente (réservé à l'administrateur).
+  \item \textbf{STATUT} : Payée (vert), En cours (orange), En attente de validation (violet) ou Annulée (gris). Un petit badge \textbf{Portail} sous le statut indique une vente venue de la boutique résident.
+  \item \textbf{ACTIONS} : \faEye\ voir la facture, imprimer le reçu ; sur une demande « En attente » : \faCheck\ valider et \faTimes\ refuser ; sur une vente « En cours » : le billet « Encaisser » ; et \faTimes\ annuler la vente (réservé à l'administrateur).
 \end{itemize}
 
 Les filtres permettent de chercher par texte (numéro, client, référence), par \textbf{statut}, par \textbf{client} et par \textbf{période} (deux cases de date).
@@ -352,6 +352,41 @@ Les filtres permettent de chercher par texte (numéro, client, référence), par
 \screenshot{screenshots/marchandise/18-facture-vente.png}{La fenêtre « Facture » d'une vente}
 
 \attention{Annuler une vente (icône \faTimes) demande la permission \texttt{MARCHANDISE.SUPPRIMER}, réservée à l'administrateur, et passe par une fenêtre de confirmation.}
+
+\subsection{Les demandes du portail résident}
+
+Les résidents peuvent commander des produits depuis la \textbf{boutique de leur portail}. Ces demandes arrivent dans la liste des ventes avec le statut \textbf{En attente de validation} (violet) et un badge \textbf{Portail} : le stock n'est pas encore décrémenté et rien n'a été payé.
+
+\screenshot{screenshots/marchandise/23-vente-attente.png}{Une vente « En attente de validation » avec le badge « Portail »}
+
+Le filtre \textbf{Statut} contient l'option « En attente de validation » pour les isoler :
+
+\screenshot{screenshots/marchandise/22-ventes-filtre-statut.png}{Le filtre « Statut » avec « En attente de validation »}
+
+Sur une ligne « En attente », deux icônes apparaissent (permission \texttt{MARCHANDISE.VALIDER}) :
+
+\begin{itemize}[label=\textcolor{lagoon}{\faList}]
+  \item \textbf{Valider la demande} (\faCheck) : une fenêtre de confirmation rappelle que \textbf{le stock sera décrémenté} et que le client pourra retirer sa commande au comptoir. Confirme avec \textbf{Valider la demande} : la vente passe à « En cours » et le message « Demande validée avec succès » s'affiche.
+  \item \textbf{Refuser la demande} (\faTimes) : ouvre une fenêtre avec un champ \textbf{motif} (optionnel, montré au résident). « Refuser la demande » annule définitivement ; « Retour » renonce.
+\end{itemize}
+
+\screenshot{screenshots/marchandise/25-valider-confirmation.png}{La confirmation avant validation : le stock sera décrémenté}
+
+\screenshot{screenshots/marchandise/24-refus-dialog.png}{La fenêtre de refus avec son champ « Motif »}
+
+\subsection{Encaisser une vente « En cours »}
+
+Une vente « En cours » (demande du portail validée, non encore payée) montre une icône \textbf{billet} — permission \texttt{FINANCES.ENCAISSER} :
+
+\begin{etapes}
+  \item Clique sur l'icône \textbf{Encaisser la vente} : la fenêtre rappelle le montant à encaisser (règlement intégral).
+  \item Choisis le \textbf{Moyen de paiement} puis clique sur \textbf{Encaisser}.
+  \item La vente passe à \textbf{Payée} — le résident a réglé sa commande au comptoir.
+\end{etapes}
+
+\screenshot{screenshots/marchandise/27-encaisser-dialog.png}{La fenêtre « Encaisser la vente »}
+
+\screenshot{screenshots/marchandise/28-vente-payee.png}{La vente encaissée est passée « Payée » (le badge « Portail » reste)}
 
 \newpage
 
@@ -415,6 +450,10 @@ Un produit épuisé continue d'apparaître en vente & Un produit à zéro reste 
 
 Je ne peux pas supprimer une catégorie & C'est normal : le backend ne permet ni modifier ni supprimer une catégorie. \\
 
+Une ligne violette « En attente de validation » & C'est une commande de la boutique passée par un résident sur son portail. Valide-la (\faCheck, \texttt{MARCHANDISE.VALIDER} — décrémente le stock) ou refuse-la (\faTimes, avec motif). \\
+
+Je ne vois pas l'icône « Encaisser la vente » & Elle n'apparaît que sur les ventes « En cours », et demande la permission \texttt{FINANCES.ENCAISSER}. \\
+
 \end{longtable}
 
 \newpage
@@ -439,7 +478,10 @@ Je ne peux pas supprimer une catégorie & C'est normal : le backend ne permet ni
 \texttt{MARCHANDISE.VOIR} & Ouvrir les cinq pages : produits, catégories, mouvements, ventes, statistiques ; voir l'alerte stock. \\
 \texttt{MARCHANDISE.CREER} & « Ajouter un produit », « Ajouter une catégorie », « Ajouter un mouvement », « Réception par scan », « Nouvelle vente ». \\
 \texttt{MARCHANDISE.MODIFIER} & Le crayon « Modifier » sur les cartes produits. \\
+\texttt{MARCHANDISE.VALIDER} & Valider ou refuser une demande « En attente » du portail (le stock est décrémenté à la validation). \\
+\texttt{FINANCES.ENCAISSER} & « Encaisser la vente » : règlement intégral d'une vente « En cours » (→ « Payée »). \\
 \texttt{MARCHANDISE.SUPPRIMER} & L'icône \faTimes\ « Annuler la vente » (administrateur). \\
+\texttt{MARCHANDISE.COMMANDER} & Comptes \textbf{clients/résidents} uniquement : commander depuis la boutique du portail. Pas pour le personnel. \\
 
 \end{longtable}
 
