@@ -24,6 +24,7 @@ import {
 } from "#/core/permissions/modules";
 import { usePortailResume } from "#/features/portail/hooks/use-portail";
 import { useCommandesEnAttenteCount as usePressingEnAttenteCount } from "#/features/pressing/hooks/use-commandes";
+import { useSejoursEnAttenteCount } from "#/features/residence/hooks/use-sejours";
 import { formatMontantFCFA } from "#/features/residence/models/format";
 import { useCommandesEnAttenteCount as useRestaurantEnAttenteCount } from "#/features/restaurant/hooks/use-commandes";
 import { useReservationsEnAttenteCount } from "#/features/salle-fete/hooks/use-reservations";
@@ -134,12 +135,15 @@ export function Sidebar({ onClose }: { onClose?: () => void } = {}) {
 	const canVoirSalleFete = useCan("SALLE_FETE.VOIR");
 	const canVoirRestaurant = useCan("RESTAURANT.VOIR");
 	const canVoirPressing = useCan("PRESSING.VOIR");
+	const canVoirResidence = useCan("RESIDENCE.VOIR");
 	const demandesSalleFeteEnAttente =
 		useReservationsEnAttenteCount(canVoirSalleFete).data;
 	const demandesRestaurantEnAttente =
 		useRestaurantEnAttenteCount(canVoirRestaurant).data;
 	const demandesPressingEnAttente =
 		usePressingEnAttenteCount(canVoirPressing).data;
+	const demandesSejoursEnAttente =
+		useSejoursEnAttenteCount(canVoirResidence).data;
 	const portailResumeQuery = usePortailResume(estResident);
 	const totalImpayes = portailResumeQuery.data?.total_impayes;
 	const accessibleModules = getAccessibleModules(permissions);
@@ -465,7 +469,10 @@ export function Sidebar({ onClose }: { onClose?: () => void } = {}) {
 															: module.code === "PRESSING" &&
 																	sub.id === "commandes"
 																? demandesPressingEnAttente
-																: undefined;
+																: module.code === "RESIDENCE" &&
+																		sub.id === "sejours_courts"
+																	? demandesSejoursEnAttente
+																	: undefined;
 												return (
 													<li key={sub.id}>
 														{route ? (
