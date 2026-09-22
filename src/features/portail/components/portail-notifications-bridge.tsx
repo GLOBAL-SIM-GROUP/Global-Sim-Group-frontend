@@ -5,12 +5,14 @@ import { useEffect, useRef, useState } from "react";
 import { useNotifications } from "#/core/notifications";
 
 import {
+	logementsPortailKeys,
 	marketVentesKeys,
 	pressingCommandesKeys,
 	recuPressingKeys,
 	restaurantCommandesKeys,
 	salleFeteDisponibilitesKeys,
 	salleFeteReservationsKeys,
+	sejoursPortailKeys,
 } from "../permissions";
 
 /** Événements portail → clés de requêtes à invalider. */
@@ -30,6 +32,10 @@ const INVALIDATIONS_PAR_EVENT: Record<string, readonly (readonly string[])[]> =
 			salleFeteDisponibilitesKeys.all,
 		],
 		"market.vente.statut": [marketVentesKeys.all],
+		"residence.sejour.statut": [
+			sejoursPortailKeys.all,
+			logementsPortailKeys.all,
+		],
 	};
 
 interface ToastItem {

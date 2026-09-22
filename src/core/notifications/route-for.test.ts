@@ -213,6 +213,42 @@ describe("routeFor", () => {
 		).toEqual({ to: "/residence/sejours-courts" });
 	});
 
+	it("residence.sejour_demande_creee -> file EN_ATTENTE staff", () => {
+		expect(
+			routeFor(envelope("residence.sejour_demande_creee", { id_sejour: "5" })),
+		).toEqual({
+			to: "/residence/sejours-courts",
+			search: { statut: "EN_ATTENTE" },
+		});
+	});
+
+	it("residence.sejour.statut -> détail séjour selon le compte", () => {
+		expect(
+			routeFor(
+				envelope("residence.sejour.statut", { id_sejour: "5" }),
+				"CLIENT",
+			),
+		).toEqual({ to: "/espace-client/residence/5" });
+		expect(
+			routeFor(
+				envelope("residence.sejour.statut", { id_sejour: "5" }),
+				undefined,
+				["PORTAIL.VOIR"],
+			),
+		).toEqual({ to: "/residence/portail/sejours/5" });
+		expect(
+			routeFor(
+				envelope("residence.sejour.statut", { id_sejour: "5" }),
+				undefined,
+				["RESIDENT.VOIR"],
+			),
+		).toEqual({ to: "/residence/portail/sejours/5" });
+		expect(
+			routeFor(envelope("residence.sejour.statut", { id_sejour: "5" })),
+		).toEqual({ to: "/residence/sejours-courts/5" });
+		expect(routeFor(envelope("residence.sejour.statut", {}))).toBeNull();
+	});
+
 	it("residence.charge_impayee -> charges staff, échéances portail", () => {
 		expect(routeFor(envelope("residence.charge_impayee"))).toEqual({
 			to: "/residence/charges",

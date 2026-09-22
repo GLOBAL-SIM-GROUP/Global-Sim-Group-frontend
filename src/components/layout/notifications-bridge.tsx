@@ -26,6 +26,7 @@ import {
 	restaurantCommandesKeys,
 	salleFeteDisponibilitesKeys,
 	salleFeteReservationsKeys,
+	sejoursPortailKeys,
 } from "#/features/portail/permissions";
 import { commandesKeys } from "#/features/pressing/permissions";
 import {
@@ -80,6 +81,8 @@ const INVALIDATIONS_PAR_EVENT: Record<string, readonly (readonly unknown[])[]> =
 		"residence.contrat_expire_bientot": [contratsKeys.all],
 		"residence.contrat_expire": [contratsKeys.all, clientsKeys.all],
 		"residence.sejour_depart_jour": [sejoursKeys.all],
+		"residence.sejour_demande_creee": [sejoursKeys.all],
+		"residence.sejour.statut": [sejoursKeys.all, sejoursPortailKeys.all],
 		"residence.charge_impayee": [chargesKeys.all],
 		"residence.caution_a_restituter": [contratsKeys.all, cautionKeys.all],
 		"finances.caisse_non_fermee": [["finances", "caisses"]],

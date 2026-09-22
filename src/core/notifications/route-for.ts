@@ -194,6 +194,24 @@ export function routeFor(
 				: { to: "/residence/contrats" };
 		}
 
+		case "residence.sejour_demande_creee":
+			// Nouvelle demande de séjour portail — alerte staff : file des
+			// demandes en attente de validation (residence 087+088).
+			return {
+				to: "/residence/sejours-courts",
+				search: { statut: "EN_ATTENTE" },
+			};
+
+		case "residence.sejour.statut": {
+			// Statut d'une demande de séjour — client (espace client), résident
+			// (portail) ou staff (fiche).
+			const id = asId(data.id_sejour);
+			if (!id) return null;
+			if (espaceClient) return { to: `/espace-client/residence/${id}` };
+			if (portailServices) return { to: `/residence/portail/sejours/${id}` };
+			return { to: `/residence/sejours-courts/${id}` };
+		}
+
 		case "residence.sejour_depart_jour": {
 			// Départ de séjour court aujourd'hui — alerte staff uniquement.
 			const id = asId(data.id_sejour);
