@@ -41,7 +41,13 @@ interface ServiceNavItem {
 }
 
 const SERVICES: readonly ServiceNavItem[] = [
-	{ id: "accueil", label: "Accueil", icon: Home, to: "/espace-client", exact: true },
+	{
+		id: "accueil",
+		label: "Accueil",
+		icon: Home,
+		to: "/espace-client",
+		exact: true,
+	},
 	{
 		id: "restaurant",
 		label: "Restaurant",

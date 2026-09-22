@@ -20,7 +20,7 @@ export function ClientShell() {
 		<div className="relative flex min-h-dvh flex-col">
 			<AppBackground />
 			<ClientNavbar />
-			<main className="relative z-10 min-w-0 flex-1">
+			<main className="relative z-10 mx-auto w-full max-w-7xl min-w-0 flex-1 px-4 sm:px-6 lg:px-8">
 				<Outlet />
 			</main>
 		</div>

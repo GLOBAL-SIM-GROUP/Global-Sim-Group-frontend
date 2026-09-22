@@ -40,7 +40,7 @@ export function PressingDetailPage({ id }: { id: string }) {
 
 	if (commandeQuery.isLoading) {
 		return (
-			<div className="mx-auto w-full max-w-6xl space-y-6 px-4 pt-6 pb-16 sm:px-6 lg:px-8">
+			<div className="w-full space-y-6 pt-6 pb-16">
 				<p className="text-sm text-muted-foreground">Chargement…</p>
 			</div>
 		);
@@ -48,7 +48,7 @@ export function PressingDetailPage({ id }: { id: string }) {
 
 	if (commandeQuery.isError || !commandeQuery.data) {
 		return (
-			<div className="mx-auto w-full max-w-6xl space-y-3 px-4 pt-6 pb-16 sm:px-6 lg:px-8">
+			<div className="w-full space-y-3 pt-6 pb-16">
 				<h1 className="text-2xl font-semibold text-foreground">
 					Commande de pressing
 				</h1>
@@ -74,7 +74,7 @@ export function PressingDetailPage({ id }: { id: string }) {
 	const etape = getEtapeActuelle(commande.statut);
 
 	return (
-		<div className="mx-auto w-full max-w-6xl space-y-6 px-4 pt-6 pb-16 sm:px-6 lg:px-8">
+		<div className="w-full space-y-6 pt-6 pb-16">
 			<Breadcrumb
 				items={[
 					{ label: "Espace client", to: "/espace-client" },

@@ -14,7 +14,7 @@ export function MonComptePage() {
 	const user = useCurrentUser();
 
 	return (
-		<div className="mx-auto w-full max-w-2xl space-y-6 px-4 pt-6 pb-16 sm:px-6 lg:px-8">
+		<div className="w-full space-y-6 pt-6 pb-16">
 			<Breadcrumb
 				items={[
 					{ label: "Espace client", to: "/espace-client" },

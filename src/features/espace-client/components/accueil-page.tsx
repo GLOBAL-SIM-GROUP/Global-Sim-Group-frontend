@@ -64,7 +64,7 @@ export function AccueilPage() {
 	).length;
 
 	return (
-		<div className="mx-auto w-full max-w-6xl space-y-8 px-4 pt-6 pb-16 sm:px-6 lg:px-8">
+		<div className="w-full space-y-8 pt-6 pb-16">
 			<Breadcrumb items={[{ label: "Espace client" }]} />
 
 			<div className="space-y-1">

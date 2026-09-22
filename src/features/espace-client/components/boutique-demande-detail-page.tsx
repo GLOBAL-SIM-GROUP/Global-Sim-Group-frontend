@@ -36,7 +36,7 @@ export function BoutiqueDemandeDetailPage({ id }: { id: string }) {
 
 	if (venteQuery.isLoading) {
 		return (
-			<div className="mx-auto w-full max-w-4xl space-y-6 px-4 pt-6 pb-16 sm:px-6 lg:px-8">
+			<div className="w-full space-y-6 pt-6 pb-16">
 				<p className="text-sm text-muted-foreground">Chargement…</p>
 			</div>
 		);
@@ -44,7 +44,7 @@ export function BoutiqueDemandeDetailPage({ id }: { id: string }) {
 
 	if (venteQuery.isError || !venteQuery.data) {
 		return (
-			<div className="mx-auto w-full max-w-4xl space-y-3 px-4 pt-6 pb-16 sm:px-6 lg:px-8">
+			<div className="w-full space-y-3 pt-6 pb-16">
 				<h1 className="text-2xl font-semibold text-foreground">
 					Demande boutique
 				</h1>
@@ -68,7 +68,7 @@ export function BoutiqueDemandeDetailPage({ id }: { id: string }) {
 	const vente = venteQuery.data;
 
 	return (
-		<div className="mx-auto w-full max-w-4xl space-y-6 px-4 pt-6 pb-16 sm:px-6 lg:px-8">
+		<div className="w-full space-y-6 pt-6 pb-16">
 			<Breadcrumb
 				items={[
 					{ label: "Espace client", to: "/espace-client" },

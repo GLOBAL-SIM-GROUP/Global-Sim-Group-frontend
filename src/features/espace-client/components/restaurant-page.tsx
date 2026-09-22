@@ -79,7 +79,7 @@ export function RestaurantPage() {
 
 	return (
 		<Toast.Provider swipeDirection="right" duration={2500}>
-			<div className="mx-auto max-w-6xl space-y-6 px-4 pt-6 pb-28 sm:px-6 lg:px-8">
+			<div className="w-full space-y-6 pt-6 pb-28">
 				<Breadcrumb
 					items={[
 						{ label: "Espace client", to: "/espace-client" },
