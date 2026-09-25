@@ -11,6 +11,7 @@ import {
 } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import { type ReactNode, useEffect } from "react";
+import { PwaInstallPrompt } from "#/components/pwa-install-prompt";
 import { Button } from "#/components/ui/button";
 import type { AuthSession } from "#/core/auth";
 import { AuthProvider } from "#/core/auth/auth-context";
@@ -81,6 +82,9 @@ function RootComponent() {
 	return (
 		<AuthProvider session={auth}>
 			<Outlet />
+			{/* Bannière « Installer » — visible tant que l'app est installable
+			    et non installée ; masquée en standalone/appinstalled. */}
+			<PwaInstallPrompt />
 		</AuthProvider>
 	);
 }
