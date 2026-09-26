@@ -69,6 +69,13 @@
  * `GERER_CATALOGUE` (salle de fête, spec OpenAPI live) : administration des
  * types de manifestation — `POST/PATCH /salle-fete/catalogue/types-manifestation`.
  * La lecture du catalogue reste sur `SALLE_FETE.VOIR`.
+ *
+ * `ABONNEMENT` (abonnements 089/090) : quotas prépayés pressing/restauration.
+ * Verbes propres au module : `VENDRE` (souscrire + encaisser un paiement
+ * complémentaire), `AJUSTER` (correction manuelle de quota + résiliation),
+ * `DECIDER_RELIQUAT` (reporter/perdre le reliquat d'une souscription
+ * expirée). Le catalogue des offres reste sur les verbes génériques
+ * (`VOIR`/`CREER`/`MODIFIER`/`SUPPRIMER`).
  */
 export const MODULES = [
 	"RESIDENCE",
@@ -87,6 +94,7 @@ export const MODULES = [
 	"SIGNALEMENT",
 	"DEPENSE",
 	"PORTAIL",
+	"ABONNEMENT",
 ] as const;
 
 export type ModuleCode = (typeof MODULES)[number];
@@ -104,6 +112,9 @@ export const PERMISSION_VERBS = [
 	"VALIDER",
 	"ANNULER",
 	"GERER_CATALOGUE",
+	"VENDRE",
+	"AJUSTER",
+	"DECIDER_RELIQUAT",
 ] as const;
 
 export type PermissionVerb = (typeof PERMISSION_VERBS)[number];
