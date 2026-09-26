@@ -5,7 +5,7 @@ Ce dossier contient le guide utilisateur du module Résidence de GLOBAL SIM GROU
 ## Fichiers
 
 - `residence.tex` : source LaTeX du guide.
-- `residence.pdf` : version PDF compilée (63 pages).
+- `residence.pdf` : version PDF compilée (57 pages).
 - `PROMPT-guide-residence.md` : prompt réutilisable pour faire générer/mettre à jour ce guide par une IA.
 - `screenshots/residence/` : captures d'écran générées automatiquement avec Playwright.
 
@@ -18,7 +18,7 @@ Les captures couvrent :
 - Liste, création et détails des bâtiments.
 - Liste, création des logements.
 - Liste des contrats et formulaire de création jusqu'à la sélection du bâtiment/logement.
-- Listes des séjours courts, charges et abonnements, ainsi que leurs formulaires vides.
+- Listes des séjours courts et charges, ainsi que leurs formulaires vides.
 - Liste des échéances.
 - Portail résident.
 
@@ -28,8 +28,12 @@ Les erreurs backend initiales (500 sur les logements, 403 sur les services
 d'abonnement) sont résolues : les captures ont été refaites depuis.
 
 Scripts complémentaires : `scripts/capture-residence-fix.mjs`
-(2026-09-21 — formulaire séjour sans acompte, formulaire abonnement avec
-le bandeau « résidents uniquement » et le bouton « Créer un locataire »).
+(2026-09-21 — formulaire séjour sans acompte).
+
+> **2026-09-25** : les abonnements ont quitté le module Résidence pour un
+> module dédié « Abonnements » (quotas prépayés pressing/restaurant) —
+> section remplacée par un renvoi, captures menu et charges recapturées.
+> Voir `abonnements/abonnements.pdf`.
 
 ## Regénérer le PDF
 

@@ -113,7 +113,6 @@ Imagine que GLOBAL SIM GROUP est une grande maison avec plusieurs pièces. La pi
   \item Les \textbf{contrats} (les promesses entre le propriétaire et le locataire)
   \item Les \textbf{séjours courts} (une nuit ou une sieste, comme à l'hôtel)
   \item Les \textbf{charges} (les petites factures annexes)
-  \item Les \textbf{abonnements} (des services récurrents pour un locataire)
   \item Les \textbf{échéances} (les dates où il faut payer le loyer)
 \end{itemize}
 
@@ -141,7 +140,7 @@ Sur la gauche, il y a une barre bleu foncé. C'est le menu principal.
 \begin{etapes}
   \item Cherche le mot \textbf{Résidence} dans le menu de gauche.
   \item Clique dessus. Le menu s'ouvre comme un accordéon.
-  \item Tu vois apparaître : Bâtiments, Contrats de location, Échéances de loyer, Séjours courts, Charges et abonnements.
+  \item Tu vois apparaître : Bâtiments, Contrats de location, Échéances de loyer, Séjours courts, Charges.
 \end{etapes}
 
 \screenshot{screenshots/residence/03-sidebar-residence.png}{Le menu Résidence est ouvert dans la barre latérale}
@@ -670,7 +669,7 @@ Une \textbf{charge} est une petite facture liée à un logement occupé : eau, �
 
 \subsection{Voir les charges}
 
-Dans le menu Résidence, clique sur \textbf{Charges et abonnements} : la page des charges facturées s'ouvre directement. En haut à droite, deux boutons relient les pages liées : \textbf{Catégories de charges} et \textbf{Abonnements}.
+Dans le menu Résidence, clique sur \textbf{Charges} : la page des charges facturées s'ouvre directement. En haut à droite, le bouton \textbf{Catégories de charges} mène à la page liée.
 
 \screenshot{screenshots/residence/26-charges-liste.png}{La liste des charges facturées}
 
@@ -763,106 +762,11 @@ Pour chaque catégorie, tu peux :
 % Abonnements
 \section{Les abonnements}
 
-Un \textbf{abonnement} est un service récurrent pour un locataire (par exemple un forfait internet, une prestation de nettoyage, un forfait restaurant).
+Les \textbf{abonnements} ne font plus partie du module Résidence : ils ont leur propre module, accessible depuis l'entrée \textbf{Abonnements} du menu latéral (icône de tickets), juste sous Marchandise.
 
-\subsection{Voir les abonnements}
+Ce ne sont plus des « services récurrents » liés au contrat de location : ce sont désormais des \textbf{quotas prépayés} (ex : 10 kg de pressing, 20 repas au restaurant) vendus à \textbf{n'importe quel client} — pas seulement aux locataires — et consommés directement dans les commandes du pressing et du restaurant.
 
-Dans le menu Résidence, clique sur \textbf{Charges et abonnements}, puis sur le bouton \textbf{Abonnements} en haut à droite de la page (le fil d'Ariane indique « Charges facturées → Abonnements »).
-
-\screenshot{screenshots/residence/30-abonnements-liste.png}{La liste des abonnements}
-
-\subsubsection{Comprendre le tableau}
-
-Chaque ligne correspond à un abonnement :
-
-\begin{itemize}
-  \item \textbf{Locataire} : le nom du résident abonné.
-  \item \textbf{Service} : le service souscrit (Internet fibre, Restaurant…).
-  \item \textbf{Type} : Mensuel, Annuel ou Périodique.
-  \item \textbf{Montant} : le prix de l'abonnement.
-  \item \textbf{Date début} et \textbf{Date fin} : la période de validité.
-  \item \textbf{Statut} : un badge coloré (Actif = vert, Suspendu = orange, Résilié = rouge, Expiré = gris).
-  \item \textbf{Actions} : Modifier et Résilier.
-\end{itemize}
-
-\subsubsection{Filtrer les abonnements}
-
-En haut de la page :
-
-\begin{etapes}
-  \item \textbf{Statut} : choisis un statut (Tous, Actif, Suspendu, Résilié, Expiré).
-  \item \textbf{Locataire} : tape un nom.
-  \item \textbf{Service} : tape le nom d'un service.
-\end{etapes}
-
-\screenshot{screenshots/residence/30b-abonnements-filtre-statut.png}{Le menu du filtre par statut}
-
-\screenshot{screenshots/residence/30c-abonnements-filtre-actifs.png}{La liste filtrée sur les abonnements actifs}
-
-\subsection{Ajouter un abonnement}
-
-\begin{etapes}
-  \item Clique sur \textbf{Nouvel abonnement}.
-  \item Choisis le locataire — le formulaire le rappelle dans un encart : \textit{« Seuls les résidents peuvent souscrire un abonnement — le compte doit être un locataire avec un contrat de location actif. Les simples clients (pressing, restaurant, boutique…) ne sont pas éligibles. »} Si le locataire n'existe pas, le bouton \textbf{Créer un locataire} ouvre la fiche complète de création sans quitter la fenêtre.
-  \item Choisis le service (la catégorie active).
-  \item Choisis le type : Mensuel, Annuel ou Périodique.
-  \item Tape le montant.
-  \item Indique la date de début et la date de fin.
-  \item Clique sur \textbf{Enregistrer}.
-\end{etapes}
-
-\screenshot{screenshots/residence/31-abonnement-formulaire-vide.png}{Le formulaire de création d'un abonnement}
-
-\astuce{Le système ne te laisse pas ajouter un abonnement à un locataire sans contrat actif. C'est pour éviter de facturer quelqu'un qui n'a pas de logement.}
-
-\subsection{Modifier un abonnement}
-
-\begin{etapes}
-  \item Sur la ligne de l'abonnement, clique sur l'icône \textbf{Modifier} (crayon).
-  \item Change le service, le type, le montant, les dates ou le statut.
-  \item Clique sur \textbf{Enregistrer}.
-\end{etapes}
-
-\astuce{Le bouton Modifier n'apparaît pas sur les abonnements \textbf{expirés} ou \textbf{résiliés} : ils sont figés, on ne les modifie plus.}
-
-\subsection{Résilier un abonnement}
-
-Pour mettre fin à un abonnement avant sa date de fin :
-
-\begin{etapes}
-  \item Sur la ligne de l'abonnement \textbf{actif}, clique sur l'icône \textbf{Résilier} (croix rouge).
-  \item Une fenêtre de confirmation s'ouvre.
-  \item Clique sur \textbf{Résilier} pour confirmer.
-\end{etapes}
-
-\screenshot{screenshots/residence/30d-abonnement-resilier.png}{La fenêtre de confirmation de résiliation}
-
-\attention{La résiliation est définitive : l'abonnement passe au statut \textbf{Résilié} et ne peut plus être modifié.}
-
-\subsection{Gérer les catégories d'abonnement}
-
-Les \textbf{catégories d'abonnement} sont les services proposables (Internet, eau, restaurant…). Elles alimentent le champ \textbf{Service} du formulaire d'abonnement.
-
-\begin{etapes}
-  \item Sur la page Abonnements, clique sur \textbf{Catégories d'abonnement}.
-  \item La page liste les catégories avec leur code et leur libellé.
-\end{etapes}
-
-\screenshot{screenshots/residence/32-categories-abonnements.png}{La liste des catégories d'abonnement}
-
-\subsubsection{Actions sur une catégorie d'abonnement}
-
-Pour chaque catégorie, tu peux :
-
-\begin{itemize}
-  \item \textbf{Ajouter une catégorie} (bouton en haut) : entre un \textbf{code} (ex : INTERNET) et un \textbf{libellé} (ex : Internet fibre).
-  \item \textbf{Modifier} (icône crayon) : change le code ou le libellé.
-  \item \textbf{Supprimer} (icône corbeille) : retire la catégorie, après confirmation.
-\end{itemize}
-
-\screenshot{screenshots/residence/32b-categorie-abonnement-form.png}{La fenêtre d'ajout d'une catégorie d'abonnement}
-
-\astuce{Seules les catégories \textbf{actives} sont proposées dans le champ \textbf{Service} du formulaire d'abonnement. Si tu ne vois pas le service voulu, vérifie que sa catégorie existe et qu'elle est active.}
+\info{La gestion complète (offres, vente des souscriptions, encaissements, ajustements de quota, résiliation, reliquats des souscriptions expirées) est décrite dans le \textbf{guide du module Abonnements}. Le personnel Résidence n'a rien à faire de particulier : c'est le module Abonnements qui porte ces opérations.}
 
 \newpage
 
@@ -946,7 +850,7 @@ Le menu des logements est vide quand je crée un contrat & Le bâtiment choisi n
 
 La création du logement donne \og{}Erreur base de données\fg{} & C'est une erreur côté serveur. Préviens l'administrateur ou réessaie plus tard. \\
 
-Je ne peux pas choisir un locataire dans un abonnement & Le locataire doit avoir un contrat \textbf{actif}. \\
+Je cherche la gestion des abonnements & Elle a déménagé : voir le module \textbf{Abonnements} du menu latéral (quotas prépayés pressing/restaurant, vendus à tout client). \\
 
 Je ne peux pas créer de charge & La charge doit concerner un logement \textbf{occupé} et une catégorie \textbf{active}. \\
 
