@@ -209,349 +209,352 @@ export function Sidebar({ onClose }: { onClose?: () => void } = {}) {
 	const subActiveClassName = "bg-lagoon/20 text-lagoon font-medium";
 
 	return (
-		<aside className="sticky top-0 h-dvh w-60 shrink-0 flex-col justify-between overflow-y-auto border-r border-palm bg-sea-ink px-3 py-4 flex [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-			<div className="space-y-6">
-				<div className="flex flex-col items-center gap-2 px-3">
-					{/* Logo de marque servi depuis public/ (sur fond sombre sea-ink). */}
-					<img
-						src="/logo.png"
-						alt=""
-						aria-hidden
-						className="size-32 shrink-0 rounded-md object-contain"
-					/>
-					<span className="text-center text-lg font-semibold text-white">
-						GLOBAL SIM GROUP
-					</span>
-				</div>
+		<aside className="sticky top-0 flex h-dvh w-60 shrink-0 flex-col border-r border-palm bg-sea-ink px-3 py-4">
+			{/* Logo épinglé : hors de la zone scrollable — seul le menu défile. */}
+			<div className="flex shrink-0 flex-col items-center gap-2 px-3">
+				{/* Logo de marque servi depuis public/ (sur fond sombre sea-ink). */}
+				<img
+					src="/logo.png"
+					alt=""
+					aria-hidden
+					className="size-32 shrink-0 rounded-md object-contain"
+				/>
+				<span className="text-center text-lg font-semibold text-white">
+					GLOBAL SIM GROUP
+				</span>
+			</div>
 
-				<nav aria-label="Navigation">
-					<ul className="space-y-1">
+			<nav
+				aria-label="Navigation"
+				className="mt-6 min-h-0 flex-1 overflow-y-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+			>
+				<ul className="space-y-1">
+					<li>
+						<Link
+							to="/home"
+							activeOptions={{ exact: true }}
+							activeProps={{ className: linkActiveClassName }}
+							className={linkClassName}
+							onClick={() => onClose?.()}
+						>
+							<LayoutGrid
+								className="size-4 text-gray-400 transition-colors"
+								aria-hidden
+							/>
+							Accueil
+						</Link>
+					</li>
+
+					{estResident ? (
 						<li>
 							<Link
-								to="/home"
+								to="/residence/portail"
 								activeOptions={{ exact: true }}
 								activeProps={{ className: linkActiveClassName }}
 								className={linkClassName}
 								onClick={() => onClose?.()}
 							>
-								<LayoutGrid
+								<Home
 									className="size-4 text-gray-400 transition-colors"
 									aria-hidden
 								/>
-								Accueil
+								Mon espace résident
+							</Link>
+
+							<ul className="ml-5 mt-1 space-y-1 border-l border-palm pl-2">
+								<li>
+									<Link
+										to="/residence/portail/echeances"
+										activeOptions={{ exact: true }}
+										activeProps={{ className: subActiveClassName }}
+										className={subLinkClassName}
+										onClick={() => onClose?.()}
+									>
+										<span className="inline-flex items-center gap-2">
+											<CalendarDays className="size-3.5" aria-hidden />
+											Mes échéances
+										</span>
+									</Link>
+								</li>
+								<li>
+									<Link
+										to="/residence/portail/paiements"
+										activeOptions={{ exact: true }}
+										activeProps={{ className: subActiveClassName }}
+										className={subLinkClassName}
+										onClick={() => onClose?.()}
+									>
+										<span className="inline-flex items-center gap-2">
+											<CreditCard className="size-3.5" aria-hidden />
+											Mon historique
+										</span>
+									</Link>
+								</li>
+								<li>
+									<Link
+										to="/residence/portail/caution"
+										activeOptions={{ exact: true }}
+										activeProps={{ className: subActiveClassName }}
+										className={subLinkClassName}
+										onClick={() => onClose?.()}
+									>
+										<span className="inline-flex items-center gap-2">
+											<ShieldCheck className="size-3.5" aria-hidden />
+											Ma caution
+										</span>
+									</Link>
+								</li>
+								<li>
+									{/* `exact: false` garde le lien actif sur le détail d'une commande. */}
+									<Link
+										to="/residence/portail/pressing"
+										activeOptions={{ exact: false }}
+										activeProps={{ className: subActiveClassName }}
+										className={subLinkClassName}
+										onClick={() => onClose?.()}
+									>
+										<span className="inline-flex items-center gap-2">
+											<Shirt className="size-3.5" aria-hidden />
+											Suivi Pressing
+										</span>
+									</Link>
+								</li>
+								<li>
+									<Link
+										to="/residence/portail/restaurant"
+										activeOptions={{ exact: false }}
+										activeProps={{ className: subActiveClassName }}
+										className={subLinkClassName}
+										onClick={() => onClose?.()}
+									>
+										<span className="inline-flex items-center gap-2">
+											<UtensilsCrossed className="size-3.5" aria-hidden />
+											Restaurant
+										</span>
+									</Link>
+								</li>
+								<li>
+									<Link
+										to="/residence/portail/salle-fete"
+										activeOptions={{ exact: false }}
+										activeProps={{ className: subActiveClassName }}
+										className={subLinkClassName}
+										onClick={() => onClose?.()}
+									>
+										<span className="inline-flex items-center gap-2">
+											<PartyPopper className="size-3.5" aria-hidden />
+											Salle de fête
+										</span>
+									</Link>
+								</li>
+								<li>
+									<Link
+										to="/residence/portail/boutique"
+										activeOptions={{ exact: false }}
+										activeProps={{ className: subActiveClassName }}
+										className={subLinkClassName}
+										onClick={() => onClose?.()}
+									>
+										<span className="inline-flex items-center gap-2">
+											<ShoppingBag className="size-3.5" aria-hidden />
+											Boutique
+										</span>
+									</Link>
+								</li>
+								<li>
+									<Link
+										to="/residence/portail/etat-des-lieux"
+										activeOptions={{ exact: true }}
+										activeProps={{ className: subActiveClassName }}
+										className={subLinkClassName}
+										onClick={() => onClose?.()}
+									>
+										<span className="inline-flex items-center gap-2">
+											<Camera className="size-3.5" aria-hidden />
+											Mes états des lieux
+										</span>
+									</Link>
+								</li>
+							</ul>
+
+							{totalImpayes !== undefined ? (
+								<div className="mx-1 mt-2 rounded-lg bg-sea-ink/70 px-3 py-2">
+									<p className="text-[0.65rem] font-medium uppercase tracking-wide text-gray-400">
+										Total impayés
+									</p>
+									<p className="text-sm font-semibold text-destructive">
+										{formatMontantFCFA(totalImpayes)}
+									</p>
+								</div>
+							) : null}
+						</li>
+					) : null}
+
+					{canVoirRapports ? (
+						<li>
+							<Link
+								to="/dashboard"
+								activeOptions={{ exact: false }}
+								activeProps={{ className: linkActiveClassName }}
+								className={linkClassName}
+								onClick={() => onClose?.()}
+							>
+								<BarChart2
+									className="size-4 text-gray-400 transition-colors"
+									aria-hidden
+								/>
+								Tableau de bord global
 							</Link>
 						</li>
+					) : null}
 
-						{estResident ? (
-							<li>
-								<Link
-									to="/residence/portail"
-									activeOptions={{ exact: true }}
-									activeProps={{ className: linkActiveClassName }}
-									className={linkClassName}
-									onClick={() => onClose?.()}
-								>
-									<Home
-										className="size-4 text-gray-400 transition-colors"
-										aria-hidden
-									/>
-									Mon espace résident
-								</Link>
+					{canVoirSignalements ? (
+						<li>
+							<Link
+								to="/signalements"
+								activeOptions={{ exact: false }}
+								activeProps={{ className: linkActiveClassName }}
+								className={linkClassName}
+								onClick={() => onClose?.()}
+							>
+								<AlertCircle
+									className="size-4 text-gray-400 transition-colors"
+									aria-hidden
+								/>
+								Signalements
+							</Link>
+						</li>
+					) : null}
 
-								<ul className="ml-5 mt-1 space-y-1 border-l border-palm pl-2">
-									<li>
-										<Link
-											to="/residence/portail/echeances"
-											activeOptions={{ exact: true }}
-											activeProps={{ className: subActiveClassName }}
-											className={subLinkClassName}
-											onClick={() => onClose?.()}
-										>
-											<span className="inline-flex items-center gap-2">
-												<CalendarDays className="size-3.5" aria-hidden />
-												Mes échéances
-											</span>
-										</Link>
-									</li>
-									<li>
-										<Link
-											to="/residence/portail/paiements"
-											activeOptions={{ exact: true }}
-											activeProps={{ className: subActiveClassName }}
-											className={subLinkClassName}
-											onClick={() => onClose?.()}
-										>
-											<span className="inline-flex items-center gap-2">
-												<CreditCard className="size-3.5" aria-hidden />
-												Mon historique
-											</span>
-										</Link>
-									</li>
-									<li>
-										<Link
-											to="/residence/portail/caution"
-											activeOptions={{ exact: true }}
-											activeProps={{ className: subActiveClassName }}
-											className={subLinkClassName}
-											onClick={() => onClose?.()}
-										>
-											<span className="inline-flex items-center gap-2">
-												<ShieldCheck className="size-3.5" aria-hidden />
-												Ma caution
-											</span>
-										</Link>
-									</li>
-									<li>
-										{/* `exact: false` garde le lien actif sur le détail d'une commande. */}
-										<Link
-											to="/residence/portail/pressing"
-											activeOptions={{ exact: false }}
-											activeProps={{ className: subActiveClassName }}
-											className={subLinkClassName}
-											onClick={() => onClose?.()}
-										>
-											<span className="inline-flex items-center gap-2">
-												<Shirt className="size-3.5" aria-hidden />
-												Suivi Pressing
-											</span>
-										</Link>
-									</li>
-									<li>
-										<Link
-											to="/residence/portail/restaurant"
-											activeOptions={{ exact: false }}
-											activeProps={{ className: subActiveClassName }}
-											className={subLinkClassName}
-											onClick={() => onClose?.()}
-										>
-											<span className="inline-flex items-center gap-2">
-												<UtensilsCrossed className="size-3.5" aria-hidden />
-												Restaurant
-											</span>
-										</Link>
-									</li>
-									<li>
-										<Link
-											to="/residence/portail/salle-fete"
-											activeOptions={{ exact: false }}
-											activeProps={{ className: subActiveClassName }}
-											className={subLinkClassName}
-											onClick={() => onClose?.()}
-										>
-											<span className="inline-flex items-center gap-2">
-												<PartyPopper className="size-3.5" aria-hidden />
-												Salle de fête
-											</span>
-										</Link>
-									</li>
-									<li>
-										<Link
-											to="/residence/portail/boutique"
-											activeOptions={{ exact: false }}
-											activeProps={{ className: subActiveClassName }}
-											className={subLinkClassName}
-											onClick={() => onClose?.()}
-										>
-											<span className="inline-flex items-center gap-2">
-												<ShoppingBag className="size-3.5" aria-hidden />
-												Boutique
-											</span>
-										</Link>
-									</li>
-									<li>
-										<Link
-											to="/residence/portail/etat-des-lieux"
-											activeOptions={{ exact: true }}
-											activeProps={{ className: subActiveClassName }}
-											className={subLinkClassName}
-											onClick={() => onClose?.()}
-										>
-											<span className="inline-flex items-center gap-2">
-												<Camera className="size-3.5" aria-hidden />
-												Mes états des lieux
-											</span>
-										</Link>
-									</li>
-								</ul>
-
-								{totalImpayes !== undefined ? (
-									<div className="mx-1 mt-2 rounded-lg bg-sea-ink/70 px-3 py-2">
-										<p className="text-[0.65rem] font-medium uppercase tracking-wide text-gray-400">
-											Total impayés
-										</p>
-										<p className="text-sm font-semibold text-destructive">
-											{formatMontantFCFA(totalImpayes)}
-										</p>
-									</div>
-								) : null}
-							</li>
-						) : null}
-
-						{canVoirRapports ? (
-							<li>
-								<Link
-									to="/dashboard"
-									activeOptions={{ exact: false }}
-									activeProps={{ className: linkActiveClassName }}
-									className={linkClassName}
-									onClick={() => onClose?.()}
-								>
-									<BarChart2
-										className="size-4 text-gray-400 transition-colors"
-										aria-hidden
-									/>
-									Tableau de bord global
-								</Link>
-							</li>
-						) : null}
-
-						{canVoirSignalements ? (
-							<li>
-								<Link
-									to="/signalements"
-									activeOptions={{ exact: false }}
-									activeProps={{ className: linkActiveClassName }}
-									className={linkClassName}
-									onClick={() => onClose?.()}
-								>
-									<AlertCircle
-										className="size-4 text-gray-400 transition-colors"
-										aria-hidden
-									/>
-									Signalements
-								</Link>
-							</li>
-						) : null}
-
-						{canVoirRapports ? (
-							<li>
-								{/* M10 : pas de module/permission RAPPORTS côté backend — le
+					{canVoirRapports ? (
+						<li>
+							{/* M10 : pas de module/permission RAPPORTS côté backend — le
 								    menu Rapports suit `ADMIN.VOIR` (administrateurs, dirigeants). */}
-								<Link
-									to="/rapports"
-									activeOptions={{ exact: false }}
-									activeProps={{ className: linkActiveClassName }}
-									className={linkClassName}
-									onClick={() => onClose?.()}
+							<Link
+								to="/rapports"
+								activeOptions={{ exact: false }}
+								activeProps={{ className: linkActiveClassName }}
+								className={linkClassName}
+								onClick={() => onClose?.()}
+							>
+								<BarChart3
+									className="size-4 text-gray-400 transition-colors"
+									aria-hidden
+								/>
+								Rapports
+							</Link>
+						</li>
+					) : null}
+
+					{accessibleModules.map((module) => {
+						const isOpen = openModule === module.code;
+						const subItems = getAccessibleModuleSubItems(module, permissions);
+
+						return (
+							<li key={module.code}>
+								<button
+									type="button"
+									onClick={() => toggleModule(module.code)}
+									className={headerClassName(isOpen)}
 								>
-									<BarChart3
-										className="size-4 text-gray-400 transition-colors"
+									<module.icon
+										className={cn(
+											"size-4 transition-colors",
+											isOpen ? "text-lagoon" : "text-gray-400",
+										)}
 										aria-hidden
 									/>
-									Rapports
-								</Link>
-							</li>
-						) : null}
-
-						{accessibleModules.map((module) => {
-							const isOpen = openModule === module.code;
-							const subItems = getAccessibleModuleSubItems(module, permissions);
-
-							return (
-								<li key={module.code}>
-									<button
-										type="button"
-										onClick={() => toggleModule(module.code)}
-										className={headerClassName(isOpen)}
-									>
-										<module.icon
+									<span className="flex-1 text-left">{module.title}</span>
+									{subItems.length > 0 && (
+										<ChevronDown
 											className={cn(
-												"size-4 transition-colors",
-												isOpen ? "text-lagoon" : "text-gray-400",
+												"size-4 text-gray-400 transition-all duration-200",
+												isOpen && "rotate-180 text-lagoon",
 											)}
 											aria-hidden
 										/>
-										<span className="flex-1 text-left">{module.title}</span>
-										{subItems.length > 0 && (
-											<ChevronDown
-												className={cn(
-													"size-4 text-gray-400 transition-all duration-200",
-													isOpen && "rotate-180 text-lagoon",
-												)}
-												aria-hidden
-											/>
-										)}
-									</button>
-
-									{subItems.length > 0 && isOpen && (
-										<ul className="ml-5 mt-1 space-y-1 border-l border-palm pl-2">
-											{subItems.map((sub) => {
-												const route = ROUTES_REALLES[module.code]?.[sub.id];
-												const badge =
-													module.code === "SALLE_FETE" &&
-													sub.id === "reservations"
-														? demandesSalleFeteEnAttente
-														: module.code === "RESTAURANT" &&
-																sub.id === "commandes"
-															? demandesRestaurantEnAttente
-															: module.code === "PRESSING" &&
-																	sub.id === "commandes"
-																? demandesPressingEnAttente
-																: module.code === "RESIDENCE" &&
-																		sub.id === "sejours_courts"
-																	? demandesSejoursEnAttente
-																	: module.code === "ABONNEMENT" &&
-																			sub.id === "reliquats"
-																		? reliquatsADecider
-																		: undefined;
-												return (
-													<li key={sub.id}>
-														{route ? (
-															// Route métier réelle : lien typé, les filtres vivent dans la
-															// search de cette route, pas ici.
-															<Link
-																to={route.to as never}
-																{...(route.search
-																	? { search: route.search as never }
-																	: {})}
-																activeOptions={{
-																	exact: route.exact,
-																	...(route.search
-																		? { includeSearch: true }
-																		: {}),
-																}}
-																activeProps={{ className: subActiveClassName }}
-																className={subLinkClassName}
-																onClick={() => onClose?.()}
-															>
-																<span className="flex items-center justify-between gap-2">
-																	{sub.label}
-																	{badge ? (
-																		<span className="inline-grid min-w-5 place-items-center rounded-full bg-amber-500/25 px-1.5 py-0.5 text-[0.65rem] font-semibold text-amber-300">
-																			{badge}
-																		</span>
-																	) : null}
-																</span>
-															</Link>
-														) : (
-															// Placeholder partagé tant que la route métier n'existe pas.
-															<Link
-																to="/en-cours"
-																search={{ module: module.code, page: sub.id }}
-																activeOptions={{ includeSearch: true }}
-																activeProps={{
-																	className: subActiveClassName,
-																}}
-																className={subLinkClassName}
-																onClick={() => onClose?.()}
-															>
-																{sub.label}
-															</Link>
-														)}
-													</li>
-												);
-											})}
-										</ul>
 									)}
-								</li>
-							);
-						})}
-					</ul>
-				</nav>
-			</div>
+								</button>
 
+								{subItems.length > 0 && isOpen && (
+									<ul className="ml-5 mt-1 space-y-1 border-l border-palm pl-2">
+										{subItems.map((sub) => {
+											const route = ROUTES_REALLES[module.code]?.[sub.id];
+											const badge =
+												module.code === "SALLE_FETE" &&
+												sub.id === "reservations"
+													? demandesSalleFeteEnAttente
+													: module.code === "RESTAURANT" &&
+															sub.id === "commandes"
+														? demandesRestaurantEnAttente
+														: module.code === "PRESSING" &&
+																sub.id === "commandes"
+															? demandesPressingEnAttente
+															: module.code === "RESIDENCE" &&
+																	sub.id === "sejours_courts"
+																? demandesSejoursEnAttente
+																: module.code === "ABONNEMENT" &&
+																		sub.id === "reliquats"
+																	? reliquatsADecider
+																	: undefined;
+											return (
+												<li key={sub.id}>
+													{route ? (
+														// Route métier réelle : lien typé, les filtres vivent dans la
+														// search de cette route, pas ici.
+														<Link
+															to={route.to as never}
+															{...(route.search
+																? { search: route.search as never }
+																: {})}
+															activeOptions={{
+																exact: route.exact,
+																...(route.search
+																	? { includeSearch: true }
+																	: {}),
+															}}
+															activeProps={{ className: subActiveClassName }}
+															className={subLinkClassName}
+															onClick={() => onClose?.()}
+														>
+															<span className="flex items-center justify-between gap-2">
+																{sub.label}
+																{badge ? (
+																	<span className="inline-grid min-w-5 place-items-center rounded-full bg-amber-500/25 px-1.5 py-0.5 text-[0.65rem] font-semibold text-amber-300">
+																		{badge}
+																	</span>
+																) : null}
+															</span>
+														</Link>
+													) : (
+														// Placeholder partagé tant que la route métier n'existe pas.
+														<Link
+															to="/en-cours"
+															search={{ module: module.code, page: sub.id }}
+															activeOptions={{ includeSearch: true }}
+															activeProps={{
+																className: subActiveClassName,
+															}}
+															className={subLinkClassName}
+															onClick={() => onClose?.()}
+														>
+															{sub.label}
+														</Link>
+													)}
+												</li>
+											);
+										})}
+									</ul>
+								)}
+							</li>
+						);
+					})}
+				</ul>
+			</nav>
+
+			{/* Footer utilisateur épinglé en bas — hors de la zone scrollable. */}
 			{user ? (
-				<div className="border-t border-palm/40 bg-sea-ink/50 -mx-3 px-3 py-4 mt-4 rounded-lg">
+				<div className="shrink-0 border-t border-palm/40 bg-sea-ink/50 -mx-3 px-3 py-4 mt-4 rounded-lg">
 					<UserMenu
 						avatar={
 							<div
