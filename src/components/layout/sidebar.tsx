@@ -228,7 +228,7 @@ export function Sidebar({ onClose }: { onClose?: () => void } = {}) {
 					<ul className="space-y-1">
 						<li>
 							<Link
-								to="/"
+								to="/home"
 								activeOptions={{ exact: true }}
 								activeProps={{ className: linkActiveClassName }}
 								className={linkClassName}
