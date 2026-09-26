@@ -34,6 +34,8 @@ export interface LigneCommandeRestaurant {
 	quantite: number;
 	prix_unitaire: string;
 	total: string;
+	/** Quantité couverte par l'abonnement (`null` = aucune couverture). */
+	quantite_couverte?: number | null;
 }
 
 /** Détail d'une commande : le GET par id embarque les lignes. */

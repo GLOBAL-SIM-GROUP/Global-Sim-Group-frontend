@@ -116,6 +116,13 @@ export function CommandeFactureDialog({
 												<tr key={ligne.id} className="border-t border-border">
 													<td className="px-3 py-2 text-foreground">
 														{plats?.get(ligne.id_plat) ?? ligne.id_plat}
+														{ligne.quantite_couverte != null &&
+														ligne.quantite_couverte > 0 ? (
+															<span className="block text-xs text-lagoon">
+																{ligne.quantite_couverte}/{ligne.quantite}{" "}
+																couvert(s) par abonnement
+															</span>
+														) : null}
 													</td>
 													<td className="px-3 py-2 text-foreground">
 														{ligne.quantite}

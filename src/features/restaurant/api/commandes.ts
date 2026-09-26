@@ -1,5 +1,6 @@
 import { getApiClient } from "#/core/api";
 import type { components } from "#/core/api/generated/schema";
+import type { ApercuAbonnementRestaurant } from "#/features/abonnement/models/abonnements";
 
 import type {
 	CommandeRestaurant,
@@ -13,6 +14,9 @@ import type { RapportRestaurant } from "../models/statistiques";
 type CreerCommandeRestaurantDto =
 	components["schemas"]["CreerCommandeRestaurantDto"];
 type MajStatutCommandeDto = components["schemas"]["MajStatutCommandeDto"];
+type EncaisserCommandeDto = components["schemas"]["EncaisserCommandeDto"];
+type ApercuAbonnementRestaurantDto =
+	components["schemas"]["ApercuAbonnementRestaurantDto"];
 
 type CommandeWire = Omit<CommandeRestaurant, "id"> & { id_commande: string };
 type LigneWire = Omit<LigneCommandeRestaurant, "id"> & { id_ligne: string };
@@ -71,7 +75,12 @@ export interface CommandeBody {
 	type: TypeCommande;
 	lignes: { idPlat: string; quantite: string }[];
 	idClient?: string | null;
-	paiement: { montant: string; idMoyen: string };
+	/** Optionnel : omis quand l'abonnement couvre la totalité (`total_du` 0). */
+	paiement?: { montant: string; idMoyen: string };
+	/** `true` (défaut) = consommer le quota abonnement du client. */
+	utiliserAbonnement?: boolean;
+	/** Renvoyer `true` après un 409 `ABONNEMENT_EXCEDENT` confirmé par le staff. */
+	accepterExcedent?: boolean;
 }
 
 /** Enregistre une commande (POST `CreerCommandeRestaurantDto`). */
@@ -83,10 +92,16 @@ export function creerCommande(body: CommandeBody): Promise<unknown> {
 			quantite: ligne.quantite,
 		})),
 		...(body.idClient ? { id_client: body.idClient } : {}),
-		paiement: {
-			montant: body.paiement.montant,
-			id_moyen: body.paiement.idMoyen,
-		},
+		...(body.paiement
+			? {
+					paiement: {
+						montant: body.paiement.montant,
+						id_moyen: body.paiement.idMoyen,
+					},
+				}
+			: {}),
+		utiliser_abonnement: body.utiliserAbonnement ?? true,
+		accepter_excedent: body.accepterExcedent ?? false,
 	} satisfies Omit<CreerCommandeRestaurantDto, "id_client"> & {
 		id_client?: string | null;
 	};
@@ -121,23 +136,68 @@ export function majStatutCommande(
 /**
  * Encaissement physique d'une commande (POST
  * `/api/v1/restaurant/commandes/{id}/encaisser`, `FINANCES.ENCAISSER`) :
- * règlement intégral uniquement (400 si `montant ≠ total`), crée la facture
- * `COMMANDE_RESTAURANT` soldée et passe la commande à `PAYEE`.
+ * règlement du montant **ajusté par l'aperçu abonnement** — `idMoyen` est
+ * omis quand la couverture solde tout (`montant` 0) ; `accepterExcedent:
+ * true` est renvoyé après le 409 `ABONNEMENT_EXCEDENT` confirmé par le staff.
  */
 export function encaisserCommande(
 	id: string,
-	body: { montant: string; idMoyen: string; date?: string },
+	body: {
+		montant: string;
+		idMoyen?: string;
+		date?: string;
+		utiliserAbonnement?: boolean;
+		accepterExcedent?: boolean;
+	},
 ): Promise<unknown> {
+	const corps = {
+		montant: body.montant,
+		...(body.idMoyen ? { id_moyen: body.idMoyen } : {}),
+		utiliser_abonnement: body.utiliserAbonnement ?? true,
+		accepter_excedent: body.accepterExcedent ?? false,
+		...(body.date ? { date: body.date } : {}),
+	} satisfies EncaisserCommandeDto;
 	return getApiClient().apiFetch(
 		`/api/v1/restaurant/commandes/${id}/encaisser`,
 		{
 			method: "POST",
-			body: JSON.stringify({
-				montant: body.montant,
-				id_moyen: body.idMoyen,
-				...(body.date ? { date: body.date } : {}),
-			}),
+			body: JSON.stringify(corps),
 		},
+	);
+}
+
+/**
+ * Aperçu de couverture pour de nouvelles lignes (POST
+ * `/restaurant/commandes/apercu-abonnement`, lecture seule) — relancé à
+ * chaque changement de lignes, débouncé ~300 ms côté écran.
+ */
+export function apercuAbonnementLignes(body: {
+	idClient: string;
+	lignes: { idPlat: string; quantite: string }[];
+}): Promise<ApercuAbonnementRestaurant> {
+	const corps = {
+		id_client: body.idClient,
+		lignes: body.lignes.map((ligne) => ({
+			id_plat: ligne.idPlat,
+			quantite: ligne.quantite,
+		})),
+	} satisfies ApercuAbonnementRestaurantDto;
+	return getApiClient().apiFetch<ApercuAbonnementRestaurant>(
+		"/api/v1/restaurant/commandes/apercu-abonnement",
+		{ method: "POST", body: JSON.stringify(corps) },
+	);
+}
+
+/**
+ * Aperçu de couverture d'une commande existante (GET
+ * `/restaurant/commandes/{id}/apercu-abonnement`) — lancé avant l'encaissement
+ * d'une commande du portail pour connaître le montant réellement dû.
+ */
+export function apercuAbonnementCommande(
+	id: string,
+): Promise<ApercuAbonnementRestaurant> {
+	return getApiClient().apiFetch<ApercuAbonnementRestaurant>(
+		`/api/v1/restaurant/commandes/${id}/apercu-abonnement`,
 	);
 }
 

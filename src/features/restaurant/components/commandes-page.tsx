@@ -13,7 +13,9 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "#/components/ui/select";
+import { toApiError } from "#/core/api";
 import { useCan } from "#/core/auth";
+import { CODE_EXCEDENT } from "#/features/abonnement/models/abonnements";
 import { ConfirmDialog } from "#/features/residence/components/confirm-dialog";
 import { useClientsDetails } from "#/features/residence/hooks/use-clients";
 import { useMoyensPaiement } from "#/features/residence/hooks/use-moyens-paiement";
@@ -126,6 +128,9 @@ export function CommandesPage({
 	const [aAnnuler, setAAnnuler] = useState<CommandeRestaurant | null>(null);
 	const [aRefuser, setARefuser] = useState<CommandeRestaurant | null>(null);
 	const [aEncaisser, setAEncaisser] = useState<CommandeRestaurant | null>(null);
+	// Message du 409 `ABONNEMENT_EXCEDENT` — affiché dans le dialogue
+	// d'encaissement (le resubmit part alors avec `accepter_excedent`).
+	const [erreurEncaisse, setErreurEncaisse] = useState<string | null>(null);
 
 	const changerFiltre = (patch: {
 		search?: string;
@@ -330,7 +335,10 @@ export function CommandesPage({
 					}
 					onAnnuler={(commande) => setAAnnuler(commande)}
 					onRefuser={(commande) => setARefuser(commande)}
-					onEncaisser={(commande) => setAEncaisser(commande)}
+					onEncaisser={(commande) => {
+						setErreurEncaisse(null);
+						setAEncaisser(commande);
+					}}
 				/>
 			)}
 
@@ -391,14 +399,47 @@ export function CommandesPage({
 				commande={aEncaisser}
 				moyens={moyensQuery.data ?? []}
 				isPending={encaisserMutation.isPending}
+				erreur={erreurEncaisse}
 				onOpenChange={(ouvert) => {
-					if (!ouvert) setAEncaisser(null);
+					if (!ouvert) {
+						setAEncaisser(null);
+						setErreurEncaisse(null);
+					}
 				}}
-				onConfirm={({ idMoyen, date }) => {
+				onConfirm={({
+					montant,
+					idMoyen,
+					date,
+					utiliserAbonnement,
+					accepterExcedent,
+				}) => {
 					if (aEncaisser) {
 						encaisserMutation.mutate(
-							{ id: aEncaisser.id, montant: aEncaisser.total, idMoyen, date },
-							{ onSettled: () => setAEncaisser(null) },
+							{
+								id: aEncaisser.id,
+								montant,
+								idMoyen,
+								date,
+								utiliserAbonnement,
+								accepterExcedent,
+							},
+							{
+								onSuccess: () => {
+									setAEncaisser(null);
+									setErreurEncaisse(null);
+								},
+								onError: (error) => {
+									const apiError = toApiError(error);
+									// 409 « dépassement de quota » : garder le dialogue
+									// ouvert avec le message du serveur.
+									setErreurEncaisse(
+										apiError.status === 409 && apiError.code === CODE_EXCEDENT
+											? apiError.message || "Dépassement de quota abonnement."
+											: apiError.message ||
+													"Une erreur est survenue lors de l'encaissement.",
+									);
+								},
+							},
 						);
 					}
 				}}

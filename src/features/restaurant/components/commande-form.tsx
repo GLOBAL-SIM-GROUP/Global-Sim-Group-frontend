@@ -11,10 +11,15 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "#/components/ui/select";
+import { toApiError } from "#/core/api";
+import { ApercuAbonnementPanel } from "#/features/abonnement/components/apercu-panel";
+import { useApercuDebounced } from "#/features/abonnement/hooks/use-apercu";
+import { CODE_EXCEDENT } from "#/features/abonnement/models/abonnements";
 import { ClientRechercheField } from "#/features/residence/components/client-recherche-field";
 import { formatMontantFCFA } from "#/features/residence/models/format";
 import type { MoyenPaiement } from "#/features/residence/models/moyens-paiement";
 
+import { apercuAbonnementLignes } from "../api/commandes";
 import { useCreerCommande } from "../hooks/use-commandes";
 import { TYPE_COMMANDE_LABELS, type TypeCommande } from "../models/commandes";
 import type { Plat } from "../models/plats";
@@ -52,6 +57,10 @@ export function CommandeForm({
 	]);
 	const [prochaineCle, setProchaineCle] = useState(1);
 	const [idMoyen, setIdMoyen] = useState("");
+	// Abonnements : ignorer = plein tarif ; `excedentConfirme` armé par le 409
+	// `ABONNEMENT_EXCEDENT` (message serveur affiché, resubmit confirmé).
+	const [ignorerAbonnement, setIgnorerAbonnement] = useState(false);
+	const [excedentConfirme, setExcedentConfirme] = useState(false);
 
 	const ajouterLigne = () => {
 		setLignes((current) => [
@@ -80,6 +89,28 @@ export function CommandeForm({
 		[lignes, plats],
 	);
 
+	// Aperçu de couverture abonnement (POST `/restaurant/commandes/apercu-abonnement`)
+	// — débouncé ~300 ms, relancé à chaque changement de lignes complètes.
+	const lignesCompletes =
+		lignes.length > 0 &&
+		lignes.every((ligne) => ligne.idPlat && Number(ligne.quantite) > 0);
+	const apercuRequest =
+		idClient && lignesCompletes && !ignorerAbonnement
+			? {
+					idClient,
+					lignes: lignes.map((ligne) => ({
+						idPlat: ligne.idPlat,
+						quantite: ligne.quantite.trim(),
+					})),
+				}
+			: null;
+	const apercu = useApercuDebounced(apercuAbonnementLignes, apercuRequest);
+
+	// Le montant dû est piloté par l'aperçu (`total_du`), pas le brut.
+	const montantDu = apercu.data ? Number(apercu.data.total_du) : total;
+	const sansPaiement =
+		apercu.data !== null && !ignorerAbonnement && montantDu === 0;
+
 	const valider = (): string | null => {
 		if (lignes.length === 0) return "Ajoutez au moins une ligne de plat.";
 		for (const ligne of lignes) {
@@ -91,7 +122,10 @@ export function CommandeForm({
 				return "Chaque ligne doit avoir un plat et une quantité positive.";
 			}
 		}
-		if (!idMoyen) return "Sélectionnez un moyen de paiement.";
+		// `paiement` omis quand l'abonnement couvre tout — sinon moyen requis.
+		if (!sansPaiement && !idMoyen) {
+			return "Sélectionnez un moyen de paiement.";
+		}
 		return null;
 	};
 
@@ -110,11 +144,21 @@ export function CommandeForm({
 					quantite: ligne.quantite.trim(),
 				})),
 				idClient: idClient || null,
-				paiement: { montant: String(total), idMoyen },
+				...(sansPaiement
+					? {}
+					: { paiement: { montant: String(montantDu), idMoyen } }),
+				utiliserAbonnement: !ignorerAbonnement,
+				accepterExcedent: excedentConfirme || apercu.data?.excedent === true,
 			});
 			onSaved();
-		} catch {
-			setGlobalError("Une erreur est survenue lors de l'enregistrement.");
+		} catch (error) {
+			const apiError = toApiError(error);
+			if (apiError.status === 409 && apiError.code === CODE_EXCEDENT) {
+				setExcedentConfirme(true);
+				setGlobalError(apiError.message || "Dépassement de quota abonnement.");
+			} else {
+				setGlobalError("Une erreur est survenue lors de l'enregistrement.");
+			}
 		}
 	};
 
@@ -218,30 +262,70 @@ export function CommandeForm({
 				))}
 			</div>
 
-			<div className="space-y-2">
-				<Label htmlFor="commande-moyen">Moyen de paiement</Label>
-				<Select value={idMoyen} onValueChange={setIdMoyen}>
-					<SelectTrigger id="commande-moyen" className="w-full">
-						<SelectValue placeholder="Sélectionner un moyen" />
-					</SelectTrigger>
-					<SelectContent>
-						{moyens.map((moyen) => (
-							<SelectItem key={moyen.id} value={moyen.id}>
-								{moyen.libelle}
-							</SelectItem>
-						))}
-					</SelectContent>
-				</Select>
-				{moyens.length === 0 ? (
-					<p className="text-xs text-muted-foreground">
-						Aucun moyen de paiement configuré (module Finances).
-					</p>
-				) : null}
-			</div>
+			{idClient ? (
+				<>
+					<ApercuAbonnementPanel
+						apercu={apercu.data}
+						pending={apercu.pending}
+						error={apercu.error}
+						visible={!ignorerAbonnement}
+					/>
+					{apercu.data && apercu.data.abonnements.length > 0 ? (
+						<label className="flex items-center gap-2 text-sm text-muted-foreground">
+							<input
+								type="checkbox"
+								checked={ignorerAbonnement}
+								onChange={(event) => setIgnorerAbonnement(event.target.checked)}
+							/>
+							Ne pas utiliser l'abonnement — facturer plein tarif
+						</label>
+					) : null}
+				</>
+			) : null}
+
+			{sansPaiement ? (
+				<p className="rounded-md border border-[#27AE60]/30 bg-[#27AE60]/10 px-3 py-2 text-sm text-[#27AE60]">
+					Commande entièrement couverte par l'abonnement — aucun paiement à
+					encaisser.
+				</p>
+			) : (
+				<div className="space-y-2">
+					<Label htmlFor="commande-moyen">Moyen de paiement</Label>
+					<Select value={idMoyen} onValueChange={setIdMoyen}>
+						<SelectTrigger id="commande-moyen" className="w-full">
+							<SelectValue placeholder="Sélectionner un moyen" />
+						</SelectTrigger>
+						<SelectContent>
+							{moyens.map((moyen) => (
+								<SelectItem key={moyen.id} value={moyen.id}>
+									{moyen.libelle}
+								</SelectItem>
+							))}
+						</SelectContent>
+					</Select>
+					{moyens.length === 0 ? (
+						<p className="text-xs text-muted-foreground">
+							Aucun moyen de paiement configuré (module Finances).
+						</p>
+					) : null}
+				</div>
+			)}
 
 			<p className="text-right text-base font-semibold text-foreground">
-				Total : {formatMontantFCFA(String(total))}
+				{apercu.data && !ignorerAbonnement
+					? `À payer : ${formatMontantFCFA(apercu.data.total_du)}`
+					: `Total : ${formatMontantFCFA(String(total))}`}
 			</p>
+
+			{excedentConfirme ? (
+				<p
+					role="alert"
+					className="rounded-md border border-amber-500/40 bg-amber-500/10 p-3 text-sm text-amber-700 dark:text-amber-400"
+				>
+					Excédent confirmé — cliquez à nouveau pour enregistrer la commande en
+					facturant le dépassement au client.
+				</p>
+			) : null}
 
 			{globalError ? (
 				<p role="alert" className="text-sm font-medium text-destructive">

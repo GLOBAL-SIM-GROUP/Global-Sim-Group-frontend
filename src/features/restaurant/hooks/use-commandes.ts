@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import {
 	annulerCommande,
+	apercuAbonnementCommande,
 	creerCommande,
 	encaisserCommande,
 	getCommande,
@@ -94,22 +95,37 @@ export function useAnnulerCommande() {
 	});
 }
 
-/** Encaisse une commande (règlement intégral → facture soldée + `PAYEE`). */
+/** Encaisse une commande (montant ajusté par l'abonnement → facture + `PAYEE`). */
 export function useEncaisserCommande() {
 	const invalider = useInvalidation();
 	return useMutation({
 		mutationFn: ({
 			id,
-			montant,
-			idMoyen,
-			date,
+			...body
 		}: {
 			id: string;
 			montant: string;
-			idMoyen: string;
+			idMoyen?: string;
 			date?: string;
-		}) => encaisserCommande(id, { montant, idMoyen, date }),
+			utiliserAbonnement?: boolean;
+			accepterExcedent?: boolean;
+		}) => encaisserCommande(id, body),
 		onSuccess: invalider,
+	});
+}
+
+/**
+ * Aperçu de couverture abonnement d'une commande existante (GET
+ * `/restaurant/commandes/{id}/apercu-abonnement`) — chargé à l'ouverture du
+ * dialogue d'encaissement pour connaître le montant réellement dû.
+ */
+export function useApercuAbonnementCommande(id: string | undefined) {
+	return useQuery({
+		queryKey: [...commandesRestaurantKeys.detail(id ?? "aucun"), "apercu"],
+		queryFn: () => apercuAbonnementCommande(id as string),
+		enabled: Boolean(id),
+		retry: false,
+		staleTime: 30_000,
 	});
 }
 
