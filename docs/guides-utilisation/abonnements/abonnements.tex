@@ -1,0 +1,416 @@
+\documentclass[12pt,a4paper]{article}
+
+% Encodage et langue
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[french]{babel}
+
+% Mise en page
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage[colorlinks=true,linkcolor=black,citecolor=black,filecolor=black,urlcolor=black]{hyperref}
+\usepackage{tikz}
+\usetikzlibrary{positioning}
+\usepackage{fontawesome5}
+\usepackage{float}
+
+% Couleurs personnalisées (identiques aux autres guides)
+\definecolor{lagoon}{RGB}{0, 128, 128}
+\definecolor{sea-ink}{RGB}{0, 45, 64}
+\definecolor{palm}{RGB}{46, 139, 87}
+\definecolor{warn}{RGB}{230, 126, 34}
+\definecolor{danger}{RGB}{231, 76, 60}
+\definecolor{success}{RGB}{39, 174, 96}
+\definecolor{muted}{RGB}{127, 140, 141}
+
+% Titres
+\titleformat{\section}
+  {\normalfont\Large\bfseries\color{sea-ink}}{\thesection}{1em}{}
+\titleformat{\subsection}
+  {\normalfont\large\bfseries\color{lagoon}}{\thesubsection}{1em}{}
+\titleformat{\subsubsection}
+  {\normalfont\normalsize\bfseries\color{palm}}{\thesubsubsection}{1em}{}
+
+% En-têtes et pieds de page
+\setlength{\headheight}{15pt}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\textcolor{sea-ink}{GLOBAL SIM GROUP — Guide Abonnements}}
+\fancyhead[R]{\textcolor{muted}{\leftmark}}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0pt}
+
+% Commandes pratiques (identiques aux autres guides)
+\newcommand{\screenshot}[2]{%
+  \begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{#1}
+    \caption{#2}
+  \end{figure}%
+}
+
+\newcommand{\etape}[1]{\textbf{\faHandPointRight\ #1}}
+\newcommand{\attention}[1]{\par\noindent\textcolor{warn}{\faExclamationTriangle\ Attention : #1}\par}
+\newcommand{\astuce}[1]{\par\noindent\textcolor{success}{\faLightbulb\ Astuce : #1}\par}
+\newcommand{\info}[1]{\par\noindent\textcolor{lagoon}{\faInfoCircle\ Info : #1}\par}
+
+\newlist{etapes}{enumerate}{1}
+\setlist[etapes]{label=\textcolor{lagoon}{\faArrowRight\ \arabic*.}, leftmargin=1.5cm, itemsep=0.4em}
+
+\begin{document}
+
+% Page de garde
+\begin{titlepage}
+  \noindent\colorbox{sea-ink}{%
+    \parbox{\dimexpr\textwidth-2\fboxsep}{%
+      \centering
+      \vspace{1.5cm}
+      \includegraphics[height=3cm]{../logo-gsg.png}\par
+      \vspace{0.6cm}
+      {\Huge\bfseries\color{white} GLOBAL SIM GROUP\par}
+      \vspace{0.5cm}
+      {\LARGE\color{white} Guide d'utilisation — Module Abonnements\par}
+      \vspace{1.5cm}
+    }%
+  }
+
+  \vfill
+  \begin{center}
+    {\Large\color{sea-ink} Apprends à vendre et suivre les quotas prépayés\par}
+    \vspace{0.4cm}
+
+    \begin{tikzpicture}
+      \node[fill=lagoon, text=white, rounded corners=10pt, minimum width=12cm, minimum height=1.5cm, font=\large\bfseries] {Offres · Souscriptions · Reliquats};
+    \end{tikzpicture}
+  \end{center}
+
+  \vfill
+  \begin{center}
+    \textcolor{muted}{Version 1.0}
+  \end{center}
+\end{titlepage}
+
+\newpage
+% Table des matières
+\tableofcontents
+\newpage
+
+% Introduction
+\section{Avant de commencer}
+
+\subsection{C'est quoi, un abonnement ?}
+
+Un \textbf{abonnement}, chez GLOBAL SIM GROUP, c'est un \textbf{quota prépayé} — pas un prélèvement automatique mensuel. Le client paie (en une fois, en partie ou plus tard) un forfait, par exemple \textit{« 10 kg de linge en lavage express »} ou \textit{« 20 repas »}, puis consomme ce quota au fil de ses commandes.
+
+Imagine une carte à tickets : chaque passage au pressing ou au restaurant utilise un ou plusieurs « tickets » du forfait. Quand la carte est vide ou périmée, elle ne couvre plus rien.
+
+\begin{center}
+\begin{tikzpicture}[node distance=0.6cm]
+  \node[fill=success!15, text=success!80!black, rounded corners=6pt, minimum width=3.1cm, minimum height=0.9cm] (active) {\textbf{Active}};
+  \node[fill=muted!15, text=muted, rounded corners=6pt, minimum width=3.1cm, minimum height=0.9cm, right=of active] (avenir) {\textbf{À venir}};
+  \node[fill=warn!15, text=warn!80!black, rounded corners=6pt, minimum width=3.1cm, minimum height=0.9cm, right=of avenir] (epuisee) {\textbf{Épuisée}};
+  \node[fill=danger!15, text=danger, rounded corners=6pt, minimum width=3.1cm, minimum height=0.9cm, below=0.6cm of avenir] (expiree) {\textbf{Expirée}};
+  \node[fill=muted!15, text=muted, rounded corners=6pt, minimum width=3.1cm, minimum height=0.9cm, left=of expiree] (resiliee) {\textbf{Résiliée}};
+  \node[fill=muted!15, text=muted, rounded corners=6pt, minimum width=3.1cm, minimum height=0.9cm, right=of expiree] (annulee) {\textbf{Annulée}};
+\end{tikzpicture}
+\end{center}
+
+L'\textbf{état} (badge coloré) est calculé en direct : une souscription \textbf{Active} a du solde et est dans sa période de validité ; \textbf{À venir} n'a pas encore commencé (date de début future) ; \textbf{Épuisée} a son quota à zéro ; \textbf{Expirée} a dépassé sa date de fin ; \textbf{Résiliée} et \textbf{Annulée} sont closes manuellement.
+
+\info{L'état n'est pas le statut : une souscription « Active » peut en pratique être \textbf{Épuisée} (solde à 0) ou \textbf{Expirée} (date passée) — c'est le badge coloré qui dit la vérité.}
+
+\subsection{Où se consomme le quota ?}
+
+\begin{itemize}[label=\textcolor{lagoon}{\faList}]
+  \item \textbf{Pressing} : la commande couvre uniquement la \textbf{prestation exacte} de l'offre (ex : « Lavage express (3h) »). Quota en \textbf{kg} ou en \textbf{pièces}.
+  \item \textbf{Restauration} : la commande couvre les plats — tous, ou une \textbf{catégorie} précise — avec un \textbf{plafond par jour} optionnel (ex : max 2 repas/jour). Quota en \textbf{repas}.
+\end{itemize}
+
+Dans les formulaires de commande, un panneau \textbf{« Couverture abonnement »} apparaît dès qu'un client abonné est choisi : il montre ligne par ligne ce qui est couvert et ce qui reste dû (voir « Utilisation au comptoir »).
+
+\info{Le client suit lui-même ses quotas depuis son espace : page \textbf{« Mes abonnements »} du portail résident et de l'espace client (solde, validité, reste à payer, historique des mouvements — lecture seule).}
+
+% Ouvrir le module
+\section{Ouvrir le module}
+
+Dans le menu latéral, clique sur \textbf{Abonnements} (icône de tickets). Trois entrées apparaissent :
+
+\begin{itemize}[label=\textcolor{lagoon}{\faList}]
+  \item \textbf{Offres} : le catalogue des forfaits vendables.
+  \item \textbf{Souscriptions} : les forfaits effectivement vendus aux clients.
+  \item \textbf{Reliquats à décider} : la file des souscriptions expirées avec du solde restant — une pastille orange indique combien attendent une décision (visible uniquement avec la permission \texttt{ABONNEMENT.DECIDER\_RELIQUAT}).
+\end{itemize}
+
+\info{Tu ne vois l'entrée Abonnements que si ton rôle a la permission \texttt{ABONNEMENT.VOIR}.}
+
+\newpage
+
+% Offres
+\section{Les offres (le catalogue)}\label{sec:offres}
+
+Une \textbf{offre} est le modèle vendable : ce qu'elle couvre, combien de quota, à quel prix et pendant combien de jours. La page \textbf{Offres} liste tout le catalogue.
+
+\screenshot{screenshots/abonnements/01-offres-liste.png}{La liste des offres d'abonnement}
+
+Chaque ligne montre : le \textbf{code} (identifiant unique), le \textbf{libellé}, l'\textbf{activité} (Pressing ou Restauration), la \textbf{couverture} (prestation exacte, ou catégorie de plats + plafond « max X/j »), le \textbf{quota} avec son unité, le \textbf{prix}, la \textbf{durée} en jours et le statut \textbf{Active}/\textbf{Inactive}.
+
+\subsection{Filtrer les offres}
+
+\begin{itemize}[label=\textcolor{lagoon}{\faList}]
+  \item \textbf{Recherche} : par code ou libellé.
+  \item \textbf{Activité} : Toutes, Pressing ou Restauration.
+  \item \textbf{Actif} : Toutes, Actives ou Inactives.
+\end{itemize}
+
+\subsection{Créer une offre}
+
+\begin{etapes}
+  \item Clique sur \textbf{Nouvelle offre} en haut à droite.
+  \item Remplis le formulaire (voir la liste des champs ci-dessous).
+  \item Clique sur \textbf{Créer l'offre}.
+\end{etapes}
+
+\screenshot{screenshots/abonnements/03-offre-form-remplie.png}{Le formulaire d'offre rempli (activité Pressing)}
+
+Les champs :
+
+\begin{itemize}[label=\textcolor{lagoon}{\faList}]
+  \item \textbf{Code} * : identifiant unique en majuscules (ex : \texttt{PRESS\_EXPRESS\_4KG}). S'il est déjà pris, un message rouge « Une offre avec le code '…' existe déjà » bloque la création.
+  \item \textbf{Libellé} * : le nom commercial affiché au client (ex : « Lavage express — 4 kg »).
+  \item \textbf{Durée de validité (jours)} * : nombre de jours d'utilisation à partir du début de la souscription.
+  \item \textbf{Activité} * : \textbf{Pressing} ou \textbf{Restauration} — le reste du formulaire s'adapte.
+  \item \textbf{Unité} * : \textbf{kg}, \textbf{pièce(s)} ou \textbf{repas}.
+  \item \textbf{Couverture} * : en Pressing, la \textbf{prestation couverte} (correspondance exacte — seules les lignes de commande portant cette prestation sont couvertes) ; en Restauration, la \textbf{catégorie de plats} (ou « Toutes ») et le \textbf{plafond de repas par jour} optionnel.
+  \item \textbf{Quota} * : le nombre d'unités vendues (ex : \texttt{10} kg).
+  \item \textbf{Prix (FCFA)} * : le prix du forfait.
+  \item \textbf{Description} (optionnel) : précisions affichées au staff.
+  \item \textbf{Offre active (vendable)} : décochée = l'offre existe mais n'est plus vendable.
+\end{itemize}
+
+\subsection{Modifier ou retirer une offre}
+
+\begin{itemize}[label=\textcolor{lagoon}{\faList}]
+  \item \textbf{Modifier} (icône crayon, \texttt{ABONNEMENT.MODIFIER}) : ajuste les champs de l'offre. \textbf{Les souscriptions déjà vendues gardent leur quota, prix et dates figés à la vente} — modifier l'offre ne les change pas rétroactivement.
+  \item \textbf{Supprimer} (icône corbeille, \texttt{ABONNEMENT.SUPPRIMER}) : retire l'offre après confirmation. Si l'offre a déjà été vendue, la suppression est impossible : la fenêtre propose alors \textbf{« Désactiver l'offre »} — elle est retirée des ventes sans perdre l'historique.
+\end{itemize}
+
+\astuce{Pour retirer une offre de la vente sans la supprimer, décoche « Offre active » en modification — ou laisse la confirmation de suppression te proposer la désactivation.}
+
+\newpage
+
+% Souscriptions
+\section{Les souscriptions}\label{sec:souscriptions}
+
+Une \textbf{souscription} est une offre effectivement vendue à un client : le quota et le prix sont \textbf{figés au moment de la vente} (l'offre peut changer ensuite sans l'affecter).
+
+\screenshot{screenshots/abonnements/05-souscriptions-liste.png}{La liste des souscriptions}
+
+Chaque ligne montre : le \textbf{client}, l'\textbf{offre} (avec son activité), le \textbf{solde} restant sur le quota (avec une jauge de progression), la \textbf{validité} (début → fin), l'\textbf{état} coloré, le \textbf{reste à payer} si le règlement n'est pas complet, et l'icône \textbf{Voir} qui ouvre la fiche.
+
+Une ligne supplémentaire « Reliquat à décider » apparaît en orange sous l'état quand une souscription expirée a encore du solde sans décision.
+
+\subsection{Filtrer les souscriptions}
+
+\begin{itemize}[label=\textcolor{lagoon}{\faList}]
+  \item \textbf{Recherche} : par client ou offre.
+  \item \textbf{Activité} : Toutes, Pressing ou Restauration.
+  \item \textbf{État} : Tous, Active, À venir, Épuisée, Expirée, Résiliée, Annulée.
+  \item \textbf{Reliquats à décider} : la case à cocher filtre sur les souscriptions expirées qui attendent une décision de reliquat — c'est la même vue que l'entrée de menu dédiée.
+\end{itemize}
+
+\subsection{Vendre une souscription}
+
+\begin{etapes}
+  \item Clique sur \textbf{Vendre une souscription} (\texttt{ABONNEMENT.VENDRE}).
+  \item Choisis le \textbf{client} (recherche par nom, prénom ou téléphone ; \textbf{Créer un client} permet de l'enregistrer au vol).
+  \item Choisis l'\textbf{offre} — seules les offres actives sont proposées, avec leur quota, prix et activité.
+  \item Optionnels : \textbf{début de validité} (défaut : aujourd'hui — une date future crée une souscription « À venir »), \textbf{prix négocié} (défaut : le prix de l'offre), \textbf{note}.
+  \item \textbf{Paiement encaissé} : laisse vide pour vendre sans paiement, saisis un montant partiel ou total — un montant saisi exige le \textbf{moyen de paiement}.
+  \item Clique sur \textbf{Vendre la souscription}.
+\end{etapes}
+
+\screenshot{screenshots/abonnements/06-vendre-form.png}{La fenêtre « Vendre une souscription » remplie}
+
+La confirmation affiche l'offre, le quota et la fin de validité. Si le paiement est partiel ou absent, un bandeau orange précise le \textbf{reste à payer} — encaissable plus tard depuis la fiche. \textbf{Voir la souscription} ouvre directement la fiche créée.
+
+\screenshot{screenshots/abonnements/07-vendre-confirm.png}{Vente confirmée avec reste à payer}
+
+\info{Une vente crée automatiquement une \textbf{facture} (visible sur la fiche, ex : GSG-FAC-2026-023) et le paiement éventuel est enregistré dans les Finances.}
+
+\newpage
+
+% Fiche
+\section{La fiche d'une souscription}\label{sec:fiche}
+
+Clique sur l'icône \textbf{Voir} (portefeuille) d'une ligne pour ouvrir la fiche. Elle regroupe :
+
+\begin{itemize}[label=\textcolor{lagoon}{\faList}]
+  \item \textbf{En haut} : le libellé de l'offre, le badge d'état, le client, l'activité et la couverture.
+  \item \textbf{Solde restant} : jauge de consommation (solde / quota).
+  \item \textbf{Validité} : dates de début et de fin ; en Restauration avec plafond, « Consommé aujourd'hui : X/Y repas ».
+  \item \textbf{Règlement} : montant payé / prix, et le reste à payer en orange.
+  \item \textbf{Détails} : statut, numéro de facture, note éventuelle.
+  \item \textbf{Journal des mouvements} : la timeline des consommations, ajustements, reports et pertes — chaque mouvement pressing renvoie vers la commande concernée.
+\end{itemize}
+
+\screenshot{screenshots/abonnements/08-souscription-fiche.png}{La fiche d'une souscription active}
+
+\subsection{Encaisser un reste à payer}
+
+Si le client n'a pas tout payé à la vente, le bouton \textbf{Encaisser X FCFA} apparaît (\texttt{ABONNEMENT.VENDRE}) :
+
+\begin{etapes}
+  \item Clique sur \textbf{Encaisser …}.
+  \item Le montant est pré-rempli avec le reste à payer — ajuste si le client paie une partie seulement.
+  \item Choisis le \textbf{moyen de paiement} puis \textbf{Encaisser}.
+\end{etapes}
+
+\screenshot{screenshots/abonnements/09-encaisser-dialog.png}{La fenêtre « Encaisser un paiement »}
+
+\attention{Un montant supérieur au reste à payer est refusé par le serveur.}
+
+\subsection{Ajuster le quota}
+
+Pour corriger manuellement un solde (erreur de saisie, geste commercial) :
+
+\begin{etapes}
+  \item Clique sur \textbf{Ajuster le quota} (\texttt{ABONNEMENT.AJUSTER}) — visible tant que la souscription n'est ni résiliée ni annulée.
+  \item Saisis la \textbf{quantité signée} : positive pour ajouter (\texttt{2}), négative pour retirer (\texttt{-1.5}).
+  \item Le \textbf{motif} est obligatoire — il est tracé dans le journal des mouvements.
+  \item Clique sur \textbf{Ajuster le quota}.
+\end{etapes}
+
+\screenshot{screenshots/abonnements/10-ajuster-dialog.png}{La fenêtre « Ajuster le quota »}
+
+\attention{Un retrait qui rendrait le solde négatif est refusé.}
+
+\subsection{Résilier une souscription}
+
+Pour clore une souscription active avant sa fin :
+
+\begin{etapes}
+  \item Clique sur \textbf{Résilier} (bouton rouge, \texttt{ABONNEMENT.AJUSTER}) — visible seulement sur les souscriptions au statut « Active ».
+  \item Saisis le \textbf{motif} (obligatoire).
+  \item Confirme : le statut passe à \textbf{Résiliée}, les actions d'ajustement disparaissent. Le reste à payer éventuel reste encaissable.
+\end{etapes}
+
+\screenshot{screenshots/abonnements/11-resilier-dialog.png}{La fenêtre de résiliation (motif obligatoire)}
+
+La fiche montre alors le badge « Résiliée » :
+
+\screenshot{screenshots/abonnements/11b-souscription-resiliee.png}{Une souscription résiliée}
+
+\newpage
+
+% Reliquats
+\section{Les reliquats à décider}\label{sec:reliquats}
+
+Quand une souscription \textbf{expire avec du solde restant}, elle rejoint la file \textbf{Reliquats à décider} : le staff doit choisir ce qu'il advient du reliquat.
+
+\begin{itemize}[label=\textcolor{lagoon}{\faList}]
+  \item Le menu \textbf{Reliquats à décider} ouvre la liste des souscriptions filtrée sur ce cas — avec une pastille de compteur quand la file n'est pas vide (\texttt{ABONNEMENT.DECIDER\_RELIQUAT}).
+  \item Sur la fiche concernée, un \textbf{bandeau orange} annonce « Souscription expirée avec un solde restant de X — une décision de reliquat est attendue » et le bouton \textbf{Décider le reliquat} apparaît.
+\end{itemize}
+
+La fenêtre propose deux choix :
+
+\begin{itemize}[label=\textcolor{lagoon}{\faList}]
+  \item \textbf{Reporter sur une autre souscription} : le solde restant est transféré à une autre souscription \textbf{du même client}, même activité, même unité et même couverture (prestation ou catégorie), encore utilisable (Active, À venir ou Épuisée). La liste déroulante ne propose que les cibles valides. Un mouvement « Report sortant » sur la source et « Report entrant » sur la cible est tracé.
+  \item \textbf{Reliquat perdu} : le solde est définitivement perdu (mouvement « Reliquat perdu »).
+\end{itemize}
+
+\info{Si aucune souscription compatible n'existe pour le report, seule la perte est possible — la liste des cibles serait vide.}
+
+\newpage
+
+% Utilisation au comptoir
+\section{Utilisation au comptoir}\label{sec:comptoir}
+
+L'abonnement se consomme tout seul dans les formulaires de commande du pressing et du restaurant.
+
+\subsection{Le panneau « Couverture abonnement »}
+
+Dès qu'un client abonné est choisi et que les lignes de la commande sont complètes, un panneau bleu \textbf{Couverture abonnement} s'affiche sous le total :
+
+\begin{itemize}[label=\textcolor{lagoon}{\faList}]
+  \item Les \textbf{abonnements utilisables} du client (offre, solde, état).
+  \item La couverture \textbf{ligne par ligne} : quantité couverte, excédent éventuel, montant réellement dû.
+  \item \textbf{Total brut} et \textbf{Reste dû} — le montant réellement à encaisser.
+\end{itemize}
+
+\screenshot{screenshots/abonnements/12-apercu-couverture.png}{Commande pressing entièrement couverte par l'abonnement (À payer : 0 FCFA)}
+
+\begin{itemize}[label=\textcolor{lagoon}{\faList}]
+  \item La case \textbf{« Ne pas utiliser l'abonnement — facturer plein tarif »} ignore la couverture pour cette commande.
+  \item Si une partie dépasse le quota, un bandeau orange prévient : le dépassement sera facturé au tarif normal ; à l'enregistrement, le serveur demande une confirmation (premier refus → re-clique sur Enregistrer pour confirmer l'excédent).
+  \item Une commande entièrement couverte affiche « À payer : 0 FCFA » — au pressing, le retrait affiche alors « Commande soldée » et n'encaisse rien ; au restaurant, aucun paiement n'est demandé à la création.
+\end{itemize}
+
+\astuce{La couverture pressing exige une \textbf{correspondance exacte} : prestation identique \textbf{et} même mode de quantité — une offre en kg ne couvre pas une commande tarifée à la pièce, et inversement.}
+
+\newpage
+
+% Mobile
+\section{Les abonnements sur téléphone}\label{sec:mobile}
+
+Sur un petit écran, les filtres et le tableau occupent toute la largeur ; le tableau défile horizontalement si nécessaire.
+
+\screenshot{screenshots/abonnements/13-souscriptions-mobile.png}{La liste des souscriptions sur téléphone (320 px)}
+
+\newpage
+
+% FAQ
+\section{J'ai un problème : que faire ?}\label{sec:faq}
+
+\begin{longtable}{@{}p{5.2cm}p{9.3cm}@{}}
+\toprule
+\textbf{Problème} & \textbf{Solution} \\
+\midrule
+\endhead
+
+Je ne vois pas « Abonnements » dans le menu & Ton rôle n'a pas \texttt{ABONNEMENT.VOIR}. Demande à un administrateur (module Administration → Permissions du rôle). \\
+
+Le bouton « Vendre une souscription » n'apparaît pas & La vente demande \texttt{ABONNEMENT.VENDRE} — la simple lecture (\texttt{VOIR}) ne suffit pas. \\
+
+La liste des offres est vide dans la fenêtre de vente & Seules les offres \textbf{actives} sont vendables : crée-en une ou réactive-la dans « Offres ». \\
+
+« Une offre avec le code '…' existe déjà » & Le code est unique. Change-le ou modifie l'offre existante. \\
+
+La commande n'est pas couverte alors que le client a un abonnement & Vérifie : même activité, prestation exactement identique (pressing), unité compatible, solde restant, validité en cours, et plafond journalier non atteint (restauration). \\
+
+« Une partie dépasse le quota » & C'est l'excédent : le supplément sera facturé au tarif normal. Confirme en re-cliquant sur Enregistrer, ou coche « Ne pas utiliser l'abonnement » pour tout facturer. \\
+
+Je ne peux pas supprimer une offre & Si elle a déjà été vendue, la suppression est refusée : la fenêtre propose de la \textbf{désactiver} à la place — c'est le seul recours, l'historique est conservé. \\
+
+« Ajuster le quota » est absent & La souscription est résiliée ou annulée (figée), ou ton rôle n'a pas \texttt{ABONNEMENT.AJUSTER}. \\
+
+Le reliquat ne propose aucune souscription cible & Le report exige une autre souscription du même client, même activité/unité/couverture, encore utilisable. Sans cible valide, seul « Reliquat perdu » est possible. \\
+
+\bottomrule
+\end{longtable}
+
+\newpage
+
+% Permissions
+\section{Récapitulatif des permissions}
+
+\begin{itemize}[label=\textcolor{lagoon}{\faKey}]
+  \item \texttt{ABONNEMENT.VOIR} : voir les offres, les souscriptions et les fiches.
+  \item \texttt{ABONNEMENT.CREER} / \texttt{ABONNEMENT.MODIFIER} : créer / modifier les offres du catalogue.
+  \item \texttt{ABONNEMENT.SUPPRIMER} : supprimer une offre jamais vendue (sinon désactivation).
+  \item \texttt{ABONNEMENT.VENDRE} : vendre une souscription et encaisser les paiements complémentaires.
+  \item \texttt{ABONNEMENT.AJUSTER} : ajuster le quota et résilier une souscription.
+  \item \texttt{ABONNEMENT.DECIDER\_RELIQUAT} : voir la file « Reliquats à décider » (pastille du menu) et décider report ou perte.
+\end{itemize}
+
+\info{Les panneaux de couverture dans les formulaires pressing/restaurant n'exigent pas de permission abonnement : ils suivent les permissions de leur module (\texttt{PRESSING.CREER}, \texttt{RESTAURANT.CREER}…).}
+
+\end{document}
