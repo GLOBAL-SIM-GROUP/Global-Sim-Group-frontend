@@ -24,3 +24,4 @@ export const salleFeteDisponibilitesKeys = createQueryKeys(
 export const marketVentesKeys = createQueryKeys("portail.market-ventes");
 export const sejoursPortailKeys = createQueryKeys("portail.sejours");
 export const logementsPortailKeys = createQueryKeys("portail.logements");
+export const abonnementsPortailKeys = createQueryKeys("portail.abonnements");

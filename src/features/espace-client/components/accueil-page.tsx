@@ -8,6 +8,7 @@ import {
 	Shirt,
 	ShoppingBag,
 	ShoppingCart,
+	Tickets,
 	UtensilsCrossed,
 } from "lucide-react";
 
@@ -45,6 +46,12 @@ const SERVICES = [
 		icon: BedDouble,
 		label: "Résidence",
 		description: "Formulez une demande de séjour court, chambre ou studio.",
+	},
+	{
+		to: "/espace-client/abonnements",
+		icon: Tickets,
+		label: "Mes abonnements",
+		description: "Suivez vos quotas prépayés pressing et restaurant.",
 	},
 ] as const;
 

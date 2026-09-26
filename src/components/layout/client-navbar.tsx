@@ -10,6 +10,7 @@ import {
 	Shirt,
 	ShoppingBag,
 	ShoppingCart,
+	Tickets,
 	UserRound,
 	UtensilsCrossed,
 	X,
@@ -77,6 +78,12 @@ const SERVICES: readonly ServiceNavItem[] = [
 		label: "Résidence",
 		icon: BedDouble,
 		to: "/espace-client/residence",
+	},
+	{
+		id: "abonnements",
+		label: "Abonnements",
+		icon: Tickets,
+		to: "/espace-client/abonnements",
 	},
 	{
 		id: "mes-demandes",

@@ -10,6 +10,7 @@ import {
 	ShieldCheck,
 	Shirt,
 	ShoppingBag,
+	Tickets,
 	UtensilsCrossed,
 } from "lucide-react";
 
@@ -184,6 +185,12 @@ export function PortailPage() {
 						icon={ShoppingBag}
 						titre="Boutique"
 						description="Suivi de vos demandes d'achat à la boutique."
+					/>
+					<ModuleCard
+						to="/residence/portail/abonnements"
+						icon={Tickets}
+						titre="Mes abonnements"
+						description="Quotas prépayés pressing et restaurant."
 					/>
 					<ModuleCard
 						to="/residence/portail/etat-des-lieux"
