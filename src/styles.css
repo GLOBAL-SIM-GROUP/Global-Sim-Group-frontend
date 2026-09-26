@@ -292,6 +292,17 @@ body::after {
   animation-delay: 1.4s;
 }
 
+/* Balancement doux de l'icône de la bannière d'installation PWA — mouvement
+   continu de faible amplitude pour attirer l'œil sans être agressif. */
+@keyframes pwaIconBob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
+.pwa-install-icon {
+  animation: pwaIconBob 1.6s ease-in-out infinite;
+}
+
 /* Liens globaux — on ne force AUCUNE couleur : une règle non-layée écraserait
    les utilities Tailwind (layered) et noirait en blanc les liens des pages à
    fond clair (nom de bâtiment, tuiles du lanceur…). Les couleurs viennent des

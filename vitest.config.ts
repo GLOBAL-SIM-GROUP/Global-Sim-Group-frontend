@@ -16,10 +16,10 @@ export default defineConfig({
 	test: {
 		environment: 'jsdom',
 		setupFiles: ['./src/test/setup.ts'],
-		// `client-fiche.spec.ts` (racine) est un test Playwright (`@playwright/test`),
-		// pas un test Vitest — il n'y a pas encore de `playwright.config.ts` pour le
-		// lancer séparément. Exclu ici pour éviter que Vitest l'exécute et échoue
-		// sur `test.describe()` (API Playwright, incompatible avec le runner Vitest).
-		exclude: ['node_modules/**', 'client-fiche.spec.ts'],
+		// Les `*.spec.ts` (racine) sont des tests Playwright (`@playwright/test`),
+		// pas des tests Vitest — il n'y a pas de `playwright.config.ts` pour les
+		// lancer séparément. Exclus ici pour éviter que Vitest les exécute et
+		// échoue sur `test.describe()` (API Playwright, runner incompatible).
+		exclude: ['node_modules/**', '*.spec.ts'],
 	},
 })

@@ -53,7 +53,7 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 			{ rel: "icon", type: "image/png", href: "/logo.png" },
 			// PWA : icône affichée par iOS quand l'app est ajoutée à l'écran
 			// d'accueil (Safari ne lit pas `manifest.icons`).
-			{ rel: "apple-touch-icon", href: "/logo.png" },
+			{ rel: "apple-touch-icon", href: "/icon-192.png" },
 			// PWA : manifeste statique (public/manifest.webmanifest).
 			{ rel: "manifest", href: "/manifest.webmanifest" },
 		],

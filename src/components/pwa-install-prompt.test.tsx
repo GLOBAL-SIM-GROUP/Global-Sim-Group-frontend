@@ -84,6 +84,38 @@ describe("PwaInstallPrompt", () => {
 		expect(screen.queryByText("Installer SIM")).toBeNull();
 	});
 
+	it("re-propose l'installation à la visite suivante après désinstallation", () => {
+		// 1re visite : installable → bannière → installation confirmée.
+		const premiereVisite = render(<PwaInstallPrompt />);
+		emitBeforeInstallPrompt();
+		emitAppInstalled();
+		expect(screen.queryByText("Installer SIM")).toBeNull();
+		premiereVisite.unmount();
+
+		// App désinstallée + nouvelle visite (composant remonté) : le
+		// navigateur réémet beforeinstallprompt → la bannière réapparaît.
+		render(<PwaInstallPrompt />);
+		emitBeforeInstallPrompt();
+
+		expect(screen.getByText("Installer SIM")).toBeInTheDocument();
+	});
+
+	it("re-propose si le dialogue natif est refusé puis l'événement réémis", async () => {
+		const user = userEvent.setup();
+		render(<PwaInstallPrompt />);
+
+		emitBeforeInstallPrompt();
+		await user.click(screen.getByRole("button", { name: "Installer" }));
+		// Refus côté dialogue natif : pas d'appinstalled, bannière masquée.
+		await waitFor(() => expect(screen.queryByText("Installer SIM")).toBeNull());
+
+		// Chrome réémet beforeinstallprompt au chargement suivant tant que
+		// l'app n'est pas installée → la bannière doit revenir.
+		emitBeforeInstallPrompt();
+
+		expect(screen.getByText("Installer SIM")).toBeInTheDocument();
+	});
+
 	it("n'affiche rien en display-mode standalone (app déjà installée)", () => {
 		vi.spyOn(window, "matchMedia").mockImplementation(
 			(query: string) =>

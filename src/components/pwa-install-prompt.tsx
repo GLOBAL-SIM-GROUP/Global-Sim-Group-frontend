@@ -85,7 +85,10 @@ export function PwaInstallPrompt() {
 
 	return (
 		<div className="fixed inset-x-4 bottom-4 z-50 flex items-center gap-3 rounded-xl border border-border bg-card p-3 shadow-lg sm:left-auto sm:right-6 sm:bottom-6 sm:max-w-sm">
-			<Download className="size-5 shrink-0 text-lagoon" aria-hidden />
+			<Download
+				className="pwa-install-icon size-5 shrink-0 text-lagoon"
+				aria-hidden
+			/>
 			<div className="min-w-0 flex-1">
 				<p className="text-sm font-semibold text-foreground">Installer SIM</p>
 				<p className="text-xs text-muted-foreground">
