@@ -27,6 +27,7 @@ import {
 } from "#/core/forms/montant";
 import { ConfirmDialog } from "#/features/residence/components/confirm-dialog";
 import {
+	dateLocaleISO,
 	formatDateISO,
 	formatMontantFCFA,
 } from "#/features/residence/models/format";
@@ -57,7 +58,7 @@ interface DepensesPageProps {
 }
 
 function dateAujourdhui(): string {
-	return new Date().toISOString().slice(0, 10);
+	return dateLocaleISO();
 }
 
 /** Modale « Ajouter / Modifier une dépense ». */

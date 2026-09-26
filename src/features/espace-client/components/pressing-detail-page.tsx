@@ -21,6 +21,7 @@ import {
 	PROGRESSION_ETAPES,
 } from "#/features/portail/models/pressing";
 import {
+	formatDateInstantUTC,
 	formatDateISO,
 	formatMontantFCFA,
 } from "#/features/residence/models/format";
@@ -102,7 +103,7 @@ export function PressingDetailPage({ id }: { id: string }) {
 					<p className="text-muted-foreground">
 						{libelleDateDepot(commande)}
 						{commande.date_retrait_reelle
-							? ` — retiré le ${formatDateISO(commande.date_retrait_reelle.slice(0, 10))}`
+							? ` — retiré le ${formatDateInstantUTC(commande.date_retrait_reelle)}`
 							: commande.date_retrait_prevue
 								? ` — retrait prévu le ${formatDateISO(commande.date_retrait_prevue)}`
 								: ""}

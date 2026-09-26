@@ -1,3 +1,5 @@
+import { parseInstantUTC } from "#/features/residence/models/format";
+
 /**
  * Journal d'audit (module M11, 12.5). Hand-typed revalidé sur le backend réel
  * (GET /audit/journal). Clé primaire wire `id_trace` → `id`. `avant`/`apres`
@@ -157,7 +159,8 @@ function formaterValeurChamp(valeur: unknown): string {
 	if (valeur === null || valeur === undefined || valeur === "") return "—";
 	if (typeof valeur === "boolean") return valeur ? "Oui" : "Non";
 	if (typeof valeur === "string" && /^\d{4}-\d{2}-\d{2}/.test(valeur)) {
-		const date = new Date(valeur);
+		// Instants serveur (UTC naïf) — `new Date` direct les lirait en local.
+		const date = parseInstantUTC(valeur);
 		if (!Number.isNaN(date.getTime())) {
 			const aUneHeure = valeur.includes("T") || valeur.includes(":");
 			return date.toLocaleString("fr-FR", {

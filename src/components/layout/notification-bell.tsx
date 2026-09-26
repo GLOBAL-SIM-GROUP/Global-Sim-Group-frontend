@@ -11,6 +11,7 @@ import {
 	routeFor,
 	useNotifications,
 } from "#/core/notifications";
+import { parseInstantUTC } from "#/features/residence/models/format";
 import { cn } from "#/lib/utils";
 
 const PRIORITY_BORDER: Record<NotificationPriority, string> = {
@@ -29,7 +30,8 @@ const PRIORITY_DOT: Record<NotificationPriority, string> = {
 
 /** Format court fr-FR (jj/mm/aa hh:mm) — pas de lib de date, un seul usage. */
 function formatHeure(iso: string): string {
-	const date = new Date(iso);
+	// Instants serveur (UTC naïf possible) — `new Date` direct lirait en local.
+	const date = parseInstantUTC(iso);
 	if (Number.isNaN(date.getTime())) return iso;
 	return date.toLocaleString("fr-FR", {
 		dateStyle: "short",

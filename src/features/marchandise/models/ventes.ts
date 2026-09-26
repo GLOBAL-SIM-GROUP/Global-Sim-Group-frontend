@@ -3,6 +3,8 @@
  * (GET /market/ventes, GET /market/ventes/{id}). Clé primaire wire `id_vente`
  * → `id`.
  */
+import { jourLocalInstant } from "#/features/residence/models/format";
+
 export type VenteStatut = "EN_ATTENTE" | "EN_COURS" | "PAYEE" | "ANNULEE";
 
 /** Origine de la vente : POS comptoir ou demande boutique du portail. */
@@ -81,7 +83,9 @@ export function filtrerVentes<T extends Vente>(
 		if (filtres.statut !== "tous" && vente.statut !== filtres.statut) {
 			return false;
 		}
-		const jour = vente.date.slice(0, 10);
+		// `vente.date` est un instant serveur (UTC naïf) — comparaison en jour
+		// civil local, comme les bornes `du`/`au` saisies.
+		const jour = jourLocalInstant(vente.date);
 		if (filtres.du && jour < filtres.du) return false;
 		if (filtres.au && jour > filtres.au) return false;
 		return true;

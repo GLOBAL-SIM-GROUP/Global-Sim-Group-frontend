@@ -3,6 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { Breadcrumb } from "#/components/ui/breadcrumb";
 import { Button } from "#/components/ui/button";
 import {
+	formatDateInstantUTC,
 	formatDateISO,
 	formatMontantFCFA,
 } from "#/features/residence/models/format";
@@ -168,7 +169,7 @@ export function PortailCautionPage() {
 											{evenement.evenement}
 										</td>
 										<td className="px-4 py-3 text-muted-foreground">
-											{formatDateHeureHeure(evenement.date)}
+											{formatDateInstantUTC(evenement.date)}
 										</td>
 										<td className="px-4 py-3 text-right text-foreground">
 											{evenement.montant
@@ -187,10 +188,4 @@ export function PortailCautionPage() {
 			</section>
 		</div>
 	);
-}
-
-/** Formate une date du wire (`YYYY-MM-DD` ou `YYYY-MM-DD HH:MM:SS`). */
-function formatDateHeureHeure(date: string): string {
-	const jour = date.slice(0, 10);
-	return jour ? formatDateISO(jour) : date;
 }

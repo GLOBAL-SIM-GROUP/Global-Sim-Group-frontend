@@ -6,9 +6,9 @@ import { useState } from "react";
 import { Button } from "#/components/ui/button";
 import { InputField } from "#/components/ui/input-field";
 import { getErrorMessageForCode, toApiError } from "#/core/api";
-
 import type { ContratResilie } from "../api/contrats";
 import { useResilierContrat } from "../hooks/use-contrats";
+import { dateLocaleISO } from "../models/format";
 
 interface ResilierContratFormDialogProps {
 	open: boolean;
@@ -18,7 +18,7 @@ interface ResilierContratFormDialogProps {
 }
 
 function dateAujourdhui(): string {
-	return new Date().toISOString().slice(0, 10);
+	return dateLocaleISO();
 }
 
 /**

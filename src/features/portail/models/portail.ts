@@ -2,6 +2,8 @@
  * Portail résident (module M2.5). Types hand-typed revalidés sur le backend
  * réel (GET /residence/portail/*). Clés primaires wire → `id`.
  */
+import { jourLocalInstant } from "#/features/residence/models/format";
+
 export interface PortailClient {
 	id: string;
 	nom: string;
@@ -254,7 +256,8 @@ export function filtrerPaiements(
 ): PortailPaiement[] {
 	return paiements.filter((paiement) => {
 		if (filtres.type !== "tous" && paiement.type !== filtres.type) return false;
-		const jour = paiement.date.slice(0, 10);
+		// `paiement.date` est un instant serveur (UTC naïf) → jour civil local.
+		const jour = jourLocalInstant(paiement.date);
 		if (filtres.du && jour < filtres.du) return false;
 		if (filtres.au && jour > filtres.au) return false;
 		return true;

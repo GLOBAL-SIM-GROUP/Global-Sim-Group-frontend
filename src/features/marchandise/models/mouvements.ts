@@ -3,6 +3,8 @@
  * backend réel (GET /market/stock/historique). Les lignes d'historique n'ont
  * PAS d'id (référence + nom du produit).
  */
+import { jourLocalInstant } from "#/features/residence/models/format";
+
 export type MouvementType = "ENTREE" | "SORTIE" | "AJUSTEMENT";
 
 export interface Mouvement {
@@ -45,7 +47,7 @@ export function filtrerMouvements(
 		if (filtres.type !== "tous" && mouvement.type !== filtres.type) {
 			return false;
 		}
-		const jour = mouvement.date.slice(0, 10);
+		const jour = jourLocalInstant(mouvement.date);
 		if (filtres.du && jour < filtres.du) return false;
 		if (filtres.au && jour > filtres.au) return false;
 		if (

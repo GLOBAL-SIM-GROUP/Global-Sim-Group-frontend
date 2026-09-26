@@ -34,6 +34,7 @@ import {
 } from "#/features/portail/models/sejours";
 import {
 	formatDateHeureISO,
+	formatDateInstantUTC,
 	formatDateISO,
 	formatMontantFCFA,
 } from "#/features/residence/models/format";
@@ -125,7 +126,7 @@ export function MesDemandesPage() {
 								</span>
 							</div>
 							<p className="text-sm text-muted-foreground">
-								Passée le {formatDateISO(commande.date.slice(0, 10))} ·{" "}
+								Passée le {formatDateInstantUTC(commande.date)} ·{" "}
 								{formatMontantFCFA(commande.total)}
 							</p>
 						</div>
@@ -252,7 +253,7 @@ export function MesDemandesPage() {
 								</span>
 							</div>
 							<p className="text-sm text-muted-foreground">
-								Envoyée le {formatDateISO(vente.date.slice(0, 10))} ·{" "}
+								Envoyée le {formatDateInstantUTC(vente.date)} ·{" "}
 								{formatMontantFCFA(vente.total)}
 							</p>
 						</div>
@@ -384,7 +385,7 @@ function DemandeLocaleCard({ demande }: { demande: DemandeLocale }) {
 					</span>
 				</div>
 				<span className="text-xs text-muted-foreground">
-					Envoyée le {formatDateISO(demande.dateEnvoi.slice(0, 10))}
+					Envoyée le {formatDateInstantUTC(demande.dateEnvoi)}
 				</span>
 			</div>
 			<p className="text-sm text-muted-foreground">{demande.resume}</p>

@@ -14,8 +14,8 @@ import {
 	normaliserMontantPourBackend,
 	validerMontant,
 } from "#/core/forms/montant";
-
 import { useVersementCaution } from "../hooks/use-contrats";
+import { dateLocaleISO } from "../models/format";
 
 interface VersementCautionFormDialogProps {
 	open: boolean;
@@ -27,7 +27,7 @@ interface VersementCautionFormDialogProps {
 }
 
 function dateAujourdhui(): string {
-	return new Date().toISOString().slice(0, 10);
+	return dateLocaleISO();
 }
 
 /**

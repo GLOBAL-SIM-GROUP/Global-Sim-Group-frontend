@@ -214,7 +214,7 @@ export function TableauDeBordPage() {
 			const chemin = estGlobal
 				? getTableauBordExcelPath(du, au)
 				: getDashboardActivitePath("xlsx", activite, du, au);
-			const nomFichier = `tableau-de-bord-financier-${new Date().toISOString().split("T")[0]}.xlsx`;
+			const nomFichier = `tableau-de-bord-financier-${formatDateISO(new Date())}.xlsx`;
 			await downloadTableauBordExcel(chemin, nomFichier);
 		} catch (error) {
 			setExportError("Impossible de générer l'Excel");

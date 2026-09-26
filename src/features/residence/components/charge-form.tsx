@@ -17,9 +17,9 @@ import {
 	normaliserMontantPourBackend,
 	validerMontant,
 } from "#/core/forms/montant";
-
 import { useCreerCharge } from "../hooks/use-charges";
 import type { CategorieCharge } from "../models/charges";
+import { dateLocaleISO } from "../models/format";
 import { LogementCascadeField } from "./logement-cascade-field";
 
 /** Champs du formulaire (noms cohérents avec le corps API). */
@@ -97,7 +97,7 @@ export function ChargeForm({
 		defaultValues: {
 			idLogement: logementIdParDefaut ?? "",
 			idCategorieCharge: "",
-			periode: new Date().toISOString().slice(0, 7),
+			periode: dateLocaleISO().slice(0, 7),
 			montant: "",
 		},
 		validators: {

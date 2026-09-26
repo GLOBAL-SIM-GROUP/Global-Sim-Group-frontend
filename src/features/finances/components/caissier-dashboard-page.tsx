@@ -7,7 +7,10 @@ import { Breadcrumb } from "#/components/ui/breadcrumb";
 import { Button } from "#/components/ui/button";
 import { toApiError } from "#/core/api";
 import { useCan } from "#/core/auth";
-import { formatMontantFCFA } from "#/features/residence/models/format";
+import {
+	formatDateInstantUTC,
+	formatMontantFCFA,
+} from "#/features/residence/models/format";
 import { cn } from "#/lib/utils";
 
 import {
@@ -331,7 +334,7 @@ export function CaissierDashboardPage() {
 										className="border-t border-border transition-colors hover:bg-accent/40"
 									>
 										<td className="px-6 py-3 text-muted-foreground">
-											{new Date(p.date).toLocaleDateString("fr-FR")}
+											{formatDateInstantUTC(p.date)}
 										</td>
 										<td className="px-6 py-3">
 											<span

@@ -1,4 +1,5 @@
 import { getApiClient } from "#/core/api";
+import { dateLocaleISO } from "#/features/residence/models/format";
 
 /**
  * Réponse réelle de `GET /rapports/synthese-globale` (revalidée en direct le
@@ -96,7 +97,9 @@ export function getSyntheseGlobale(
 
 /** Récupère les cinq prochaines réservations de la salle de fête. */
 export function getReservationsSalleFutures(): Promise<Reservation[]> {
-	const aujourdhui = new Date().toISOString().slice(0, 10);
+	// `dateLocaleISO`, pas `toISOString().slice(0,10)` (UTC) : décalerait `du`
+	// d'un jour entre 23h et minuit à Douala (UTC+1).
+	const aujourdhui = dateLocaleISO();
 	const params = new URLSearchParams({
 		du: aujourdhui,
 		sort: "date_evenement",

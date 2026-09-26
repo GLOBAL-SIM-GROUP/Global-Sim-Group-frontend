@@ -5,6 +5,7 @@ import { useState } from "react";
 import { Breadcrumb } from "#/components/ui/breadcrumb";
 import { Button } from "#/components/ui/button";
 import {
+	formatDateInstantUTC,
 	formatDateISO,
 	formatMontantFCFA,
 } from "#/features/residence/models/format";
@@ -178,7 +179,7 @@ export function PortailEcheancesPage() {
 								</td>
 								<td className="px-4 py-3 text-muted-foreground">
 									{echeance.date_paiement
-										? formatDateISO(echeance.date_paiement.slice(0, 10))
+										? formatDateInstantUTC(echeance.date_paiement)
 										: "—"}
 								</td>
 								<td className="px-4 py-3">

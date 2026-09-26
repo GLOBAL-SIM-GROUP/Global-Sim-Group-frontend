@@ -16,6 +16,7 @@ import {
 import { getErrorMessageForCode, toApiError } from "#/core/api";
 import { uploadImage } from "#/core/api/uploads";
 import { useUploadBlobUrl } from "#/core/api/use-upload-blob";
+import { dateLocaleISO } from "#/features/residence/models/format";
 import { cn } from "#/lib/utils";
 
 import { listClients } from "../api/clients";
@@ -192,9 +193,7 @@ export function ClientForm({
 				if (!value.typeClient) fields.typeClient = "Sélectionnez un type.";
 				if (!value.dateNaissance) {
 					fields.dateNaissance = "Ce champ est requis.";
-				} else if (
-					value.dateNaissance > new Date().toISOString().slice(0, 10)
-				) {
+				} else if (value.dateNaissance > dateLocaleISO()) {
 					fields.dateNaissance =
 						"La date de naissance ne peut pas être dans le futur.";
 				}

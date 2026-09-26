@@ -1,3 +1,5 @@
+import { parseInstantUTC } from "#/features/residence/models/format";
+
 /** Type de sauvegarde : automatique ou manuelle. */
 export type SauvegardeType = "automatique" | "manuelle";
 
@@ -52,7 +54,8 @@ export function formatTailleSauvegarde(octets: number): string {
 
 /** Formate une date ISO en format lisible. */
 export function formatDateSauvegarde(dateISO: string): string {
-	const date = new Date(dateISO);
+	// Instants serveur (UTC naïf) — `new Date` direct les lirait en local.
+	const date = parseInstantUTC(dateISO);
 	return date.toLocaleString("fr-FR", {
 		year: "numeric",
 		month: "2-digit",

@@ -2,6 +2,7 @@
  * Modèles du module Finances (M8). Types hand-typed revalidés sur le backend
  * réel (GET /finances/*). Clés primaires wire → `id`.
  */
+import { jourLocalInstant } from "#/features/residence/models/format";
 export interface LigneTableauBord {
 	periode: string;
 	encaissements: string;
@@ -89,7 +90,9 @@ export function filtrerPaiements(
 	filtres: PaiementFiltres,
 ): Paiement[] {
 	return paiements.filter((paiement) => {
-		const jour = paiement.date.slice(0, 10);
+		// `paiement.date` est un instant serveur (UTC naïf) — le ramener au jour
+		// civil LOCAL avant de le comparer aux bornes `du`/`au` saisies.
+		const jour = jourLocalInstant(paiement.date);
 		if (filtres.du && jour < filtres.du) return false;
 		if (filtres.au && jour > filtres.au) return false;
 		return true;

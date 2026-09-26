@@ -2,6 +2,8 @@
  * Commande restaurant (module M5). Types hand-typed revalidés sur le backend
  * réel (GET /restaurant/commandes). Clé primaire wire `id_commande` → `id`.
  */
+import { jourLocalInstant } from "#/features/residence/models/format";
+
 export type CommandeRestaurantStatut =
 	| "EN_ATTENTE"
 	| "EN_COURS"
@@ -93,7 +95,7 @@ export function filtrerCommandes(
 		if (filtres.type !== "tous" && commande.type !== filtres.type) {
 			return false;
 		}
-		const jour = commande.date.slice(0, 10);
+		const jour = jourLocalInstant(commande.date);
 		if (filtres.du && jour < filtres.du) return false;
 		if (filtres.au && jour > filtres.au) return false;
 		return true;

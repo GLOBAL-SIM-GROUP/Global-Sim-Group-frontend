@@ -7,7 +7,11 @@ import { cn } from "#/lib/utils";
 
 import { useCaution } from "../hooks/use-contrats";
 import { useMoyensPaiement } from "../hooks/use-moyens-paiement";
-import { formatDateISO, formatMontantFCFA } from "../models/format";
+import {
+	formatDateInstantUTC,
+	formatDateISO,
+	formatMontantFCFA,
+} from "../models/format";
 import { EncaisserCautionFormDialog } from "./encaisser-caution-form-dialog";
 import { RembourserCautionFormDialog } from "./rembourser-caution-form-dialog";
 import { VersementCautionFormDialog } from "./versement-caution-form-dialog";
@@ -173,7 +177,7 @@ export function CautionTab({ idContrat }: CautionTabProps) {
 											{evenement.evenement}
 										</td>
 										<td className="px-4 py-2 text-muted-foreground">
-											{formatDateISO(evenement.date.slice(0, 10))}
+											{formatDateInstantUTC(evenement.date)}
 										</td>
 										<td className="px-4 py-2 text-right text-foreground">
 											{evenement.montant

@@ -10,6 +10,8 @@
  * `tarif` (UNITAIRE) soit `poids_kg` (POIDS), jamais les deux — le champ non
  * pertinent vaut `null` côté backend.
  */
+import { jourLocalInstant } from "#/features/residence/models/format";
+
 export type CommandePressingStatut =
 	| "EN_ATTENTE"
 	| "DEPOSE"
@@ -187,7 +189,7 @@ export function filtrerCommandes(
 		}
 		// `date_depot` est `null` sur une demande `EN_ATTENTE` (portail) — elle
 		// reste visible quels que soient les filtres de dates.
-		const jour = commande.date_depot?.slice(0, 10) ?? "";
+		const jour = jourLocalInstant(commande.date_depot);
 		if (filtres.du && jour < filtres.du) return false;
 		if (filtres.au && jour > filtres.au) return false;
 		return true;
