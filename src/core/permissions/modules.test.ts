@@ -41,7 +41,7 @@ describe("getAccessibleModules", () => {
 		// Salle de fête, Facturation, Finances, RH, Client, Marchandise, Admin.
 		// Les modules de support (`RESIDENT`, `CORE`, `AUDIT`, `SIGNALEMENT`, `RAPPORTS`)
 		// n'ont pas de tuile lanceur : l'accès se fait par d'autres routes ou via le portail.
-		expect(MODULE_DEFINITIONS).toHaveLength(10);
+		expect(MODULE_DEFINITIONS).toHaveLength(11);
 		expect(new Set(MODULE_DEFINITIONS.map((def) => def.code))).toEqual(
 			new Set([
 				"RESIDENCE",
@@ -53,6 +53,7 @@ describe("getAccessibleModules", () => {
 				"RH",
 				"CLIENT",
 				"MARCHANDISE",
+				"ABONNEMENT",
 				"ADMIN",
 			]),
 		);
@@ -108,7 +109,7 @@ describe("getAccessibleModuleSubItems", () => {
 	});
 
 	it("expose des sous-menus pour les modules métier construits (la liste des pages)", () => {
-		// Les 10 modules avec sous-pages (tous les modules affichables en ont).
+		// Les 11 modules avec sous-pages (tous les modules affichables en ont).
 		const withSubItems = MODULE_DEFINITIONS.filter(
 			(def) => (def.subItems ?? []).length > 0,
 		).map((def) => def.code);
@@ -122,6 +123,7 @@ describe("getAccessibleModuleSubItems", () => {
 			"RH",
 			"CLIENT",
 			"MARCHANDISE",
+			"ABONNEMENT",
 			"ADMIN",
 		]);
 	});
@@ -131,8 +133,12 @@ describe("getAccessibleModuleSubItems", () => {
 		// pressing / PRESSING.SUPERVISER, pas à tout le personnel qui a
 		// PRESSING.VOIR — exception volontaire, vérifiée en direct 2026-09-16
 		// (voir core/permissions/types.ts, commentaire sur GERER_TARIFS).
+		// « Reliquats à décider » (Abonnement) est la file de travail des
+		// gestionnaires habilités à trancher les reliquats expirés —
+		// ABONNEMENT.DECIDER_RELIQUAT, pas la simple lecture.
 		const exceptions: Record<string, string> = {
 			tarif_kg: "PRESSING.GERER_TARIFS",
+			reliquats: "ABONNEMENT.DECIDER_RELIQUAT",
 		};
 		for (const def of MODULE_DEFINITIONS) {
 			for (const sub of def.subItems ?? []) {

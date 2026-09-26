@@ -65,24 +65,24 @@ function renderPage() {
 }
 
 /**
- * Correctif responsive (320px et en-dessous) : les 3 boutons d'en-tête
- * (« Catégories de charges », « Abonnements », « Nouvelle charge »)
- * restaient côte à côte sans jamais s'empiler. jsdom n'évalue pas les media
- * queries — on verrouille donc la présence des classes Tailwind
- * responsables du comportement.
+ * Correctif responsive (320px et en-dessous) : les boutons d'en-tête
+ * (« Catégories de charges », « Nouvelle charge ») restaient côte à côte
+ * sans jamais s'empiler. jsdom n'évalue pas les media queries — on
+ * verrouille donc la présence des classes Tailwind responsables du
+ * comportement.
  */
 describe("ChargesPage — responsive", () => {
 	it("empile les boutons d'en-tête sous `sm`", () => {
 		renderPage();
 
-		const boutonAbonnements = screen.getByRole("link", {
-			name: "Abonnements",
+		const boutonCategories = screen.getByRole("link", {
+			name: "Catégories de charges",
 		});
-		const conteneur = boutonAbonnements.parentElement;
+		const conteneur = boutonCategories.parentElement;
 		expect(conteneur?.className).toContain("flex-col");
 		expect(conteneur?.className).toContain("sm:flex-row");
-		expect(boutonAbonnements.className).toContain("w-full");
-		expect(boutonAbonnements.className).toContain("sm:w-auto");
+		expect(boutonCategories.className).toContain("w-full");
+		expect(boutonCategories.className).toContain("sm:w-auto");
 
 		const boutonNouvelle = screen.getByRole("button", {
 			name: /Nouvelle charge/,

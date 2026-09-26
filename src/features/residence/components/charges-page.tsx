@@ -108,14 +108,6 @@ export function ChargesPage({
 							Catégories de charges
 						</Link>
 					</Button>
-					<Button
-						variant="outline"
-						size="sm"
-						asChild
-						className="w-full sm:w-auto"
-					>
-						<Link to="/residence/abonnements">Abonnements</Link>
-					</Button>
 					{canCreer ? (
 						<Button
 							onClick={() => setFormOuvert(true)}

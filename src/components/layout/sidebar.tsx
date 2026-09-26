@@ -22,6 +22,7 @@ import {
 	getAccessibleModuleSubItems,
 	getAccessibleModules,
 } from "#/core/permissions/modules";
+import { useReliquatsADeciderCount } from "#/features/abonnement/hooks/use-souscriptions";
 import { usePortailResume } from "#/features/portail/hooks/use-portail";
 import { useCommandesEnAttenteCount as usePressingEnAttenteCount } from "#/features/pressing/hooks/use-commandes";
 import { useSejoursEnAttenteCount } from "#/features/residence/hooks/use-sejours";
@@ -51,7 +52,10 @@ function initialsOf(login: string): string {
  */
 const ROUTES_REALLES: Record<
 	string,
-	Record<string, { to: string; exact: boolean }>
+	Record<
+		string,
+		{ to: string; exact: boolean; search?: Record<string, string> }
+	>
 > = {
 	RESIDENCE: {
 		batiments: { to: "/residence/batiments", exact: true },
@@ -115,6 +119,17 @@ const ROUTES_REALLES: Record<
 		// `exact: false` garde le lien actif sur la fiche client.
 		clients: { to: "/client/clients", exact: false },
 	},
+	ABONNEMENT: {
+		offres: { to: "/abonnements/offres", exact: true },
+		// `exact: false` garde le lien actif sur la fiche souscription.
+		souscriptions: { to: "/abonnements/souscriptions", exact: false },
+		// File « reliquats à décider » = la liste filtrée côté search params.
+		reliquats: {
+			to: "/abonnements/souscriptions",
+			exact: true,
+			search: { reliquat: "a_decider" },
+		},
+	},
 };
 
 /**
@@ -136,6 +151,8 @@ export function Sidebar({ onClose }: { onClose?: () => void } = {}) {
 	const canVoirRestaurant = useCan("RESTAURANT.VOIR");
 	const canVoirPressing = useCan("PRESSING.VOIR");
 	const canVoirResidence = useCan("RESIDENCE.VOIR");
+	const canDeciderReliquat = useCan("ABONNEMENT.DECIDER_RELIQUAT");
+	const reliquatsADecider = useReliquatsADeciderCount(canDeciderReliquat).data;
 	const demandesSalleFeteEnAttente =
 		useReservationsEnAttenteCount(canVoirSalleFete).data;
 	const demandesRestaurantEnAttente =
@@ -165,6 +182,7 @@ export function Sidebar({ onClose }: { onClose?: () => void } = {}) {
 		if (chemin.startsWith("/finances")) return "FINANCES";
 		if (chemin.startsWith("/rh")) return "RH";
 		if (chemin.startsWith("/admin")) return "ADMIN";
+		if (chemin.startsWith("/abonnements")) return "ABONNEMENT";
 		return null;
 	};
 	const [openModule, setOpenModule] = useState<string | null>(
@@ -472,7 +490,10 @@ export function Sidebar({ onClose }: { onClose?: () => void } = {}) {
 																: module.code === "RESIDENCE" &&
 																		sub.id === "sejours_courts"
 																	? demandesSejoursEnAttente
-																	: undefined;
+																	: module.code === "ABONNEMENT" &&
+																			sub.id === "reliquats"
+																		? reliquatsADecider
+																		: undefined;
 												return (
 													<li key={sub.id}>
 														{route ? (
@@ -480,7 +501,15 @@ export function Sidebar({ onClose }: { onClose?: () => void } = {}) {
 															// search de cette route, pas ici.
 															<Link
 																to={route.to as never}
-																activeOptions={{ exact: route.exact }}
+																{...(route.search
+																	? { search: route.search as never }
+																	: {})}
+																activeOptions={{
+																	exact: route.exact,
+																	...(route.search
+																		? { includeSearch: true }
+																		: {}),
+																}}
 																activeProps={{ className: subActiveClassName }}
 																className={subLinkClassName}
 																onClick={() => onClose?.()}
