@@ -297,6 +297,20 @@ La commande apparaît en haut de la liste avec le statut \textbf{Payée} : le pa
 
 \info{La facture de la commande est créée automatiquement en même temps que la commande.}
 
+\subsection{Si le client a un abonnement}\label{sec:couverture}
+
+Quand le client choisi possède un \textbf{abonnement} restauration utilisable (quota de repas prépayé — voir le module Abonnements), un panneau bleu \textbf{« Couverture abonnement »} s'affiche sous les lignes de plats : abonnements utilisables (offre, solde), couverture ligne par ligne, et le \textbf{reste dû} réel.
+
+\begin{itemize}[label=\textcolor{lagoon}{\faList}]
+  \item L'offre peut couvrir \textbf{tous les plats} ou une \textbf{catégorie} seulement, parfois avec un \textbf{plafond de repas par jour} — le panneau indique ce qui est couvert et ce qui reste dû.
+  \item La case \textbf{« Ne pas utiliser l'abonnement — facturer plein tarif »} ignore la couverture pour cette commande.
+  \item \textbf{Commande entièrement couverte} : le champ Moyen de paiement disparaît et un bandeau vert annonce « Commande entièrement couverte par l'abonnement — aucun paiement à encaisser ». La commande naît « Payée » sans encaissement.
+  \item \textbf{Couverture partielle} : le total affiche « À payer : … » (montant réduit) et le moyen de paiement reste obligatoire.
+  \item \textbf{Dépassement de quota} : si les plats dépassent le solde ou le plafond journalier, un message « Dépassement de quota abonnement » bloque la validation — \textbf{re-clique sur Valider la commande} pour confirmer l'excédent, qui sera facturé au tarif normal.
+\end{itemize}
+
+Sur la fenêtre \textbf{Facture} d'une commande, les lignes couvertes sont marquées « couvert(s) par abonnement ». La fenêtre \textbf{Encaisser} affiche le même panneau de couverture : le montant est ajusté au reste dû, et le moyen de paiement disparaît si l'abonnement solde tout.
+
 \newpage
 
 % Section 6 : Suivre une commande
@@ -347,8 +361,8 @@ La cuisine avance, le statut suit. Dans la colonne Actions, une icône colorée 
 Les commandes « En cours », « En préparation » ou « Servie » qui n'ont pas encore été payées (les demandes du portail, typiquement) montrent une icône \textbf{billet} dans la colonne Actions — permission \texttt{FINANCES.ENCAISSER} :
 
 \begin{etapes}
-  \item Clique sur l'icône \textbf{Encaisser} : la fenêtre rappelle le montant à encaisser (le total de la commande, règlement intégral).
-  \item Choisis le \textbf{Moyen de paiement} et, si besoin, la \textbf{Date du règlement} (optionnel).
+  \item Clique sur l'icône \textbf{Encaisser} : la fenêtre rappelle le montant à encaisser. Si le client a un abonnement, le panneau de couverture ajuste le montant au \textbf{reste dû} (la case « Ne pas utiliser l'abonnement — encaisser le total brut » permet de tout facturer).
+  \item Choisis le \textbf{Moyen de paiement} et, si besoin, la \textbf{Date du règlement} (optionnel) — le champ disparaît si l'abonnement couvre la totalité.
   \item Clique sur \textbf{Encaisser} : la facture soldée est créée et la commande passe à \textbf{Payée}.
 \end{etapes}
 
