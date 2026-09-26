@@ -14,7 +14,7 @@ import {
 	UtensilsCrossed,
 	X,
 } from "lucide-react";
-import { useState } from "react";
+import { type RefObject, useEffect, useRef, useState } from "react";
 
 import { Button } from "#/components/ui/button";
 import { useCurrentUser } from "#/core/auth";
@@ -98,13 +98,35 @@ function initialsOf(login: string): string {
 		.join("");
 }
 
+/** Libellé qui « pousse » au survol ou quand la page est active : TanStack
+ *  Link pose `data-status="active"` sur l'ancre (qui porte aussi `group`),
+ *  le span s'ouvre alors en largeur animée — effet « liquide » — et reste
+ *  replié sinon, la navbar ne montrant que des icônes.
+ *  `grid-template-columns 0fr→1fr` suit la vraie largeur du texte (contrairement
+ *  à max-w) → ouverture ET fermeture progressivement fluides. */
+const LIBELLE_LIQUIDE = cn(
+	"grid overflow-hidden [grid-template-columns:0fr] opacity-0",
+	"motion-safe:transition-all motion-safe:duration-500 motion-safe:ease-out",
+	// Entrée plus vive que la sortie + maintien ~1 s avant repli au départ
+	// du curseur (délai asymétrique).
+	"group-hover:motion-safe:duration-300 motion-safe:delay-1000 group-hover:motion-safe:delay-0",
+	"group-hover:[grid-template-columns:1fr] group-hover:opacity-100",
+	"group-data-[status=active]:[grid-template-columns:1fr] group-data-[status=active]:opacity-100",
+);
+
 function ServiceButtons({
 	className,
 	onNavigate,
+	labelsAlwaysVisible = false,
 }: {
 	className?: string;
 	onNavigate?: () => void;
+	/** `true` (menu mobile vertical) → libellés toujours affichés ; sinon la
+	 *  navbar n'affiche que les icônes et le libellé se déploie au survol ou
+	 *  sur l'entrée active (animation liquide). */
+	labelsAlwaysVisible?: boolean;
 }) {
+	const libelle = labelsAlwaysVisible ? undefined : LIBELLE_LIQUIDE;
 	return (
 		<div className={className}>
 			{SERVICES.map((service) =>
@@ -114,22 +136,26 @@ function ServiceButtons({
 						asChild
 						variant="ghost"
 						size="sm"
-						className="justify-start gap-2 text-muted-foreground hover:bg-transparent hover:text-foreground"
+						className="group justify-start gap-2 text-muted-foreground transition-colors hover:bg-transparent hover:text-foreground"
 					>
 						<Link
 							to={service.to as never}
 							onClick={onNavigate}
+							aria-label={service.label}
 							activeOptions={{ exact: service.exact }}
 							activeProps={{
-								className:
-									"text-foreground underline decoration-lagoon decoration-2 underline-offset-4",
+								className: "text-foreground",
 							}}
 						>
 							<service.icon
 								className="size-4 shrink-0 text-lagoon"
 								aria-hidden
 							/>
-							{service.label}
+							<span className={libelle}>
+								<span className="block min-w-0 overflow-hidden whitespace-nowrap">
+									{service.label}
+								</span>
+							</span>
 						</Link>
 					</Button>
 				) : (
@@ -139,10 +165,15 @@ function ServiceButtons({
 						variant="ghost"
 						size="sm"
 						disabled
+						aria-label={service.label}
 						className="justify-start gap-2 text-muted-foreground disabled:opacity-60"
 					>
 						<service.icon className="size-4 shrink-0 text-lagoon" aria-hidden />
-						{service.label}
+						<span className={libelle}>
+							<span className="block min-w-0 overflow-hidden whitespace-nowrap">
+								{service.label}
+							</span>
+						</span>
 					</Button>
 				),
 			)}
@@ -218,14 +249,74 @@ function AccountMenu({ variant }: { variant: "navbar" | "sidebar" }) {
 
 /**
  * Navigation horizontale de l'espace client (comptes rôle CLIENT) : navbar
- * sticky avec un bouton par service, PAS la sidebar staff/résident
- * (`Sidebar`) ni un menu « Services » regroupé.
+ * sticky avec une ICÔNE par service, PAS la sidebar staff/résident
+ * (`Sidebar`) ni un menu « Services » regroupé. Le libellé se déploie en
+ * largeur animée (« liquide ») au survol et sur l'entrée de la page
+ * courante — sinon les 8 entrées ne tiendraient pas dans la navbar.
  *
  * Mobile : même motif de bascule (`mobileOpen`/hamburger) que `LandingHeader`,
- * mêmes boutons de service empilés au lieu d'alignés.
+ * mêmes entrées empilées avec libellés toujours visibles.
  */
+/**
+ * Spot « torche » UNIQUE qui glisse vers l'entrée active : barre néon au
+ * bord haut + cône descendant, positionné en `left`/`width` mesurés sur
+ * l'ancre `data-status="active"` (le `ResizeObserver` suit aussi le
+ * déploiement du libellé qui élargit la pilule). Une seule instance →
+ * la transition `left`/`width` produit le glissement au lieu d'un
+ * fade sortie/entrée.
+ */
+function TorchSpot({ navRef }: { navRef: RefObject<HTMLElement | null> }) {
+	const [spot, setSpot] = useState({ left: 0, width: 0, visible: false });
+
+	useEffect(() => {
+		const nav = navRef.current;
+		if (!nav) return;
+		const mesurer = () => {
+			const actif = nav.querySelector<HTMLElement>('a[data-status="active"]');
+			setSpot((prev) =>
+				actif
+					? { left: actif.offsetLeft, width: actif.offsetWidth, visible: true }
+					: { ...prev, visible: false },
+			);
+		};
+		mesurer();
+		const ancres = [...nav.querySelectorAll("a")];
+		// `data-status` change quand la navigation bascule l'entrée active ;
+		// le ResizeObserver suit le libellé qui élargit la pilule active.
+		const mo = new MutationObserver(mesurer);
+		for (const a of ancres)
+			mo.observe(a, { attributes: true, attributeFilter: ["data-status"] });
+		const ro =
+			typeof ResizeObserver === "undefined"
+				? null
+				: new ResizeObserver(mesurer);
+		ro?.observe(nav);
+		for (const a of ancres) ro?.observe(a);
+		return () => {
+			mo.disconnect();
+			ro?.disconnect();
+		};
+	}, [navRef]);
+
+	return (
+		<div
+			aria-hidden
+			className={cn(
+				"pointer-events-none absolute -top-4 left-0 hidden flex-col items-center lg:flex",
+				"motion-safe:transition-all motion-safe:duration-300 motion-safe:ease-out",
+				spot.visible ? "opacity-100" : "opacity-0",
+			)}
+			style={{ left: spot.left, width: spot.width }}
+		>
+			<span className="nav-torch-bar" />
+			<span className="nav-torch-beam" />
+		</div>
+	);
+}
+
 export function ClientNavbar() {
 	const [mobileOpen, setMobileOpen] = useState(false);
+	const navRef = useRef<HTMLElement>(null);
 
 	return (
 		<header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur">
@@ -241,8 +332,15 @@ export function ClientNavbar() {
 					</span>
 				</Link>
 
-				<nav aria-label="Services">
-					<ServiceButtons className="hidden items-center gap-1 md:flex" />
+				{/* Pas d'overflow-x-auto ici : il clipperait verticalement le
+				    spot « torche » dépassant au-dessus des boutons. */}
+				<nav
+					ref={navRef}
+					aria-label="Services"
+					className="relative hidden min-w-0 lg:block"
+				>
+					<ServiceButtons className="flex items-center gap-1" />
+					<TorchSpot navRef={navRef} />
 				</nav>
 
 				<div className="flex shrink-0 items-center gap-2">
@@ -254,7 +352,7 @@ export function ClientNavbar() {
 					<Button
 						variant="ghost"
 						size="icon-sm"
-						className="hover:bg-transparent md:hidden"
+						className="hover:bg-transparent lg:hidden"
 						aria-label={mobileOpen ? "Fermer le menu" : "Ouvrir le menu"}
 						aria-expanded={mobileOpen}
 						onClick={() => setMobileOpen((current) => !current)}
@@ -270,7 +368,7 @@ export function ClientNavbar() {
 
 			<div
 				className={cn(
-					"border-t border-border md:hidden",
+					"border-t border-border lg:hidden",
 					mobileOpen ? "block" : "hidden",
 				)}
 			>
@@ -278,6 +376,7 @@ export function ClientNavbar() {
 					<ServiceButtons
 						className="flex flex-col items-stretch gap-1"
 						onNavigate={() => setMobileOpen(false)}
+						labelsAlwaysVisible
 					/>
 
 					<div className="flex items-center gap-2 border-t border-border pt-4">

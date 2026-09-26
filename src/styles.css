@@ -314,6 +314,43 @@ body::after {
   animation: heroLogoFloat 5s ease-in-out infinite;
 }
 
+/* Spot lumineux au-dessus de l'entrée active de la navbar client : barre
+   néon lagoon + cône de lumière qui « descend » vers l'icône, façon
+   éclairage de scène. Le scintillement n'anime que le faisceau (l'entrée/
+   sortie du spot est gérée par l'opacity du conteneur). */
+.nav-torch-bar {
+  width: 100%;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--lagoon);
+  box-shadow: 0 0 12px 2px color-mix(in oklab, var(--lagoon) 60%, transparent);
+}
+
+.nav-torch-beam {
+  width: 100%;
+  height: 2.75rem;
+  background: linear-gradient(
+    to bottom,
+    color-mix(in oklab, var(--lagoon) 45%, transparent),
+    transparent
+  );
+  clip-path: polygon(12% 0, 88% 0, 100% 100%, 0 100%);
+  animation: navTorchFlicker 2.4s ease-in-out infinite;
+}
+
+@keyframes navTorchFlicker {
+  0%, 100% { opacity: 0.8; }
+  50% { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pwa-install-icon,
+  .hero-logo-float,
+  .nav-torch-beam {
+    animation: none;
+  }
+}
+
 /* Liens globaux — on ne force AUCUNE couleur : une règle non-layée écraserait
    les utilities Tailwind (layered) et noirait en blanc les liens des pages à
    fond clair (nom de bâtiment, tuiles du lanceur…). Les couleurs viennent des
