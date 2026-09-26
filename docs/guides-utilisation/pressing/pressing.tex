@@ -283,7 +283,26 @@ En bas, la ligne récapitulative calcule tout seul le \textbf{Total} :
 
 \attention{Les champs obligatoires : un client, au moins un article complet (type, prestation, et tarif + quantité à la pièce ou poids au kilo), et la date de retrait prévue. Si tu oublies quelque chose, un message rouge te dit quoi corriger.}
 
-\astuce{Le dépôt n'enregistre aucun paiement : le client paie la totalité quand il vient chercher son linge (voir « Le retrait »).}
+\astuce{Le dépôt n'enregistre aucun paiement : le client paie la totalité quand il vient chercher son linge (voir « Le retrait ») — sauf si un abonnement couvre tout ou partie de la commande (voir ci-dessous).}
+
+\subsection{Si le client a un abonnement}\label{sec:couverture}
+
+Quand le client choisi possède un \textbf{abonnement} pressing utilisable (quota prépayé — voir le module Abonnements), un panneau bleu \textbf{« Couverture abonnement »} apparaît sous les articles :
+
+\begin{itemize}[label=\textcolor{lagoon}{\faList}]
+  \item Les \textbf{abonnements utilisables} du client (offre, solde restant, état).
+  \item La couverture \textbf{ligne par ligne} : quantité couverte sur le quota, excédent éventuel, montant restant dû.
+  \item \textbf{Total brut} et \textbf{Reste dû} : ce que le client paiera réellement au retrait.
+\end{itemize}
+
+Points à connaître :
+
+\begin{itemize}[label=\textcolor{lagoon}{\faList}]
+  \item La couverture exige une \textbf{correspondance exacte} : même prestation que l'offre \textbf{et} même mode de quantité — une offre en kg ne couvre que les commandes tarifées \textbf{au kilo}, une offre en pièces que celles \textbf{à la pièce}.
+  \item La case \textbf{« Ne pas utiliser l'abonnement — facturer plein tarif »} ignore la couverture pour cette commande.
+  \item Si la commande dépasse le quota restant, un bandeau orange prévient : l'excédent est facturé au tarif normal. À l'enregistrement, le serveur refuse une première fois pour confirmation — \textbf{re-clique sur Enregistrer} pour accepter l'excédent.
+  \item Une commande entièrement couverte affiche « À payer : 0 FCFA » ; au retrait, elle est déjà \textbf{soldée} (rien à encaisser).
+\end{itemize}
 
 \newpage
 
