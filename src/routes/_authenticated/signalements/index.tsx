@@ -13,7 +13,6 @@ export const Route = createFileRoute("/_authenticated/signalements/")({
 	validateSearch: z.object({
 		recherche: z.string().optional(),
 		statut: z.string().optional(),
-		cible_type: z.string().optional(),
 		module_cible: z.string().optional(),
 		page: z.coerce.number().int().positive().optional(),
 	}),

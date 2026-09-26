@@ -12,7 +12,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "#/components/ui/select";
-import type { CibleType, ModuleCible } from "#/core/api/signalements";
+import type { ModuleCible } from "#/core/api/signalements";
 import { useCan } from "#/core/auth";
 import { formatDateHeureUTC } from "#/features/residence/models/format";
 import { cn } from "#/lib/utils";
@@ -36,7 +36,6 @@ import { SignalementFormDialog } from "./signalement-form-dialog";
 export interface SignalementsSearch {
 	recherche?: string;
 	statut?: string;
-	cible_type?: string;
 	module_cible?: string;
 	page?: number;
 }
@@ -50,7 +49,7 @@ interface SignalementsPageProps {
 
 /**
  * Page « Signalements » : liste (recherche et statut filtrés côté client,
- * pagination client ; `cible_type`/`module_cible` envoyés au serveur) et lien
+ * pagination client ; `module_cible` envoyé au serveur) et lien
  * « Nouveau signalement ». Mêmes conventions que les autres listes de l'app
  * (tableau, badge de statut, pagination).
  */
@@ -63,9 +62,6 @@ export function SignalementsPage({
 
 	const [recherche, setRecherche] = useState(initialSearch.recherche ?? "");
 	const [statut, setStatut] = useState(initialSearch.statut ?? "tous");
-	const [cibleType, setCibleType] = useState(
-		initialSearch.cible_type ?? "tous",
-	);
 	const [moduleCible, setModuleCible] = useState(
 		initialSearch.module_cible ?? "tous",
 	);
@@ -73,31 +69,18 @@ export function SignalementsPage({
 	const [formOuvert, setFormOuvert] = useState(false);
 
 	const signalementsQuery = useSignalements({
-		cibleType: cibleType === "tous" ? undefined : (cibleType as CibleType),
 		moduleCible:
-			cibleType === "MODULE" && moduleCible !== "tous"
-				? (moduleCible as ModuleCible)
-				: undefined,
+			moduleCible !== "tous" ? (moduleCible as ModuleCible) : undefined,
 	});
 	const signalements = signalementsQuery.data ?? [];
 
-	const changerFiltre = (patch: {
-		statut?: string;
-		cible_type?: string;
-		module_cible?: string;
-	}) => {
+	const changerFiltre = (patch: { statut?: string; module_cible?: string }) => {
 		if (patch.statut !== undefined) setStatut(patch.statut);
-		if (patch.cible_type !== undefined) {
-			setCibleType(patch.cible_type);
-			// Changer de type de cible invalide le module choisi précédemment.
-			setModuleCible("tous");
-		}
 		if (patch.module_cible !== undefined) setModuleCible(patch.module_cible);
 		setPage(1);
 		onSearchChange?.((prev) => ({
 			...prev,
 			...patch,
-			module_cible: patch.cible_type ? undefined : patch.module_cible,
 			page: 1,
 		}));
 	};
@@ -171,36 +154,21 @@ export function SignalementsPage({
 					</SelectContent>
 				</Select>
 				<Select
-					value={cibleType}
-					onValueChange={(valeur) => changerFiltre({ cible_type: valeur })}
+					value={moduleCible}
+					onValueChange={(valeur) => changerFiltre({ module_cible: valeur })}
 				>
-					<SelectTrigger aria-label="Type de cible" className="w-44">
-						<SelectValue placeholder="Type de cible" />
+					<SelectTrigger aria-label="Module concerné" className="w-52">
+						<SelectValue placeholder="Module concerné" />
 					</SelectTrigger>
 					<SelectContent>
-						<SelectItem value="tous">Toutes les cibles</SelectItem>
-						<SelectItem value="MODULE">Module</SelectItem>
-						<SelectItem value="ACTIVITE">Activité</SelectItem>
+						<SelectItem value="tous">Tous les modules</SelectItem>
+						{MODULES_CIBLE.map((module) => (
+							<SelectItem key={module} value={module}>
+								{MODULE_CIBLE_LABELS[module]}
+							</SelectItem>
+						))}
 					</SelectContent>
 				</Select>
-				{cibleType === "MODULE" ? (
-					<Select
-						value={moduleCible}
-						onValueChange={(valeur) => changerFiltre({ module_cible: valeur })}
-					>
-						<SelectTrigger aria-label="Module concerné" className="w-52">
-							<SelectValue placeholder="Module concerné" />
-						</SelectTrigger>
-						<SelectContent>
-							<SelectItem value="tous">Tous les modules</SelectItem>
-							{MODULES_CIBLE.map((module) => (
-								<SelectItem key={module} value={module}>
-									{MODULE_CIBLE_LABELS[module]}
-								</SelectItem>
-							))}
-						</SelectContent>
-					</Select>
-				) : null}
 			</div>
 
 			{signalementsQuery.isLoading ? (

@@ -1,7 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import {
-	type CibleType,
 	createSignalement,
 	getSignalement,
 	getSignalementPhotoBlobUrl,
@@ -20,26 +19,22 @@ import { usePermissions } from "#/core/auth";
 import { signalementsKeys } from "../permissions";
 
 export interface SignalementsFiltre {
-	cibleType?: CibleType;
 	moduleCible?: ModuleCible;
 }
 
 /**
  * Liste complète des signalements — statut et recherche texte sont filtrés
  * côté client (même pattern que `useFactures`/`useReservations`), mais
- * `cible_type`/`module_cible` sont envoyés au serveur (supportés nativement
- * par `GET /signalements`) : un changement de ces filtres refait la requête.
+ * `module_cible` est envoyé au serveur (supporté nativement par
+ * `GET /signalements`) : un changement de ce filtre refait la requête.
  */
 export function useSignalements(filtre: SignalementsFiltre = {}) {
-	const { cibleType, moduleCible } = filtre;
+	const { moduleCible } = filtre;
 	return useQuery({
-		queryKey: signalementsKeys.list(
-			`${cibleType ?? "tous"}:${moduleCible ?? "tous"}`,
-		),
+		queryKey: signalementsKeys.list(moduleCible ?? "tous"),
 		queryFn: () =>
 			listSignalements({
 				limit: 200,
-				cible_type: cibleType,
 				module_cible: moduleCible,
 			}),
 	});
