@@ -60,11 +60,13 @@ export function AnimatedContent({
 	style,
 	...props
 }: AnimatedContentProps) {
-	const ref = useRef<HTMLDivElement>(null);
+	const triggerRef = useRef<HTMLDivElement>(null);
+	const innerRef = useRef<HTMLDivElement>(null);
 
 	useEffect(() => {
-		const el = ref.current;
-		if (!el) return;
+		const trigger = triggerRef.current;
+		const el = innerRef.current;
+		if (!trigger || !el) return;
 
 		try {
 			const scrollerTarget =
@@ -76,6 +78,9 @@ export function AnimatedContent({
 			const offset = reverse ? -distance : distance;
 			const startPct = (1 - threshold) * 100;
 
+			// La translation est appliquée au div interne — jamais au trigger :
+			// animer le déclencheur déplacerait sa boîte mesurée par ScrollTrigger
+			// et referait franchir la limite (rebonds « monte-descend »).
 			gsap.set(el, {
 				[axis]: offset,
 				scale,
@@ -104,20 +109,39 @@ export function AnimatedContent({
 
 			tl.to(el, { [axis]: 0, scale: 1, opacity: 1, duration, ease });
 
+			// Le replay n'est armé qu'après une sortie COMPLÈTE par le bas du
+			// viewport : un va-et-vient autour de la limite de déclenchement
+			// (inertie tactile/trackpad) laisse l'élément visible et ne doit
+			// pas le faire sauter de `distance` px puis remonter.
+			let canReplay = true;
 			const st = ScrollTrigger.create({
-				trigger: el,
+				trigger,
 				scroller: scrollerTarget,
 				start: `top ${startPct}%`,
 				end: `bottom 0%`,
-				// Rejoue l'animation à chaque entrée en descendant ; en
-				// remontant, le contenu saute directement à l'état final.
-				onEnter: () => tl.restart(),
+				onEnter: () => {
+					if (canReplay && !tl.isActive()) {
+						tl.restart();
+						canReplay = false;
+					}
+				},
 				onEnterBack: () => tl.progress(1),
 				onLeaveBack: () => tl.progress(1),
 			});
 
+			const stVisibility = ScrollTrigger.create({
+				trigger,
+				scroller: scrollerTarget,
+				start: "top bottom",
+				end: "bottom top",
+				onLeaveBack: () => {
+					canReplay = true;
+				},
+			});
+
 			return () => {
 				st.kill();
+				stVisibility.kill();
 				tl.kill();
 			};
 		} catch {
@@ -145,13 +169,10 @@ export function AnimatedContent({
 	]);
 
 	return (
-		<div
-			ref={ref}
-			className={className}
-			style={{ visibility: "hidden", ...style }}
-			{...props}
-		>
-			{children}
+		<div ref={triggerRef} className={className} style={style} {...props}>
+			<div ref={innerRef} style={{ visibility: "hidden" }}>
+				{children}
+			</div>
 		</div>
 	);
 }

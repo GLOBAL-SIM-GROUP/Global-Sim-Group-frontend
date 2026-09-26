@@ -93,7 +93,7 @@ export function LandingHero() {
 					</div>
 
 					<div className="flex justify-center">
-						<div className="relative w-full max-w-md">
+						<div className="hero-logo-float relative w-full max-w-md">
 							<div
 								className="absolute inset-0 rounded-3xl bg-gradient-to-r from-lagoon to-palm opacity-20 blur-2xl"
 								aria-hidden

@@ -1,12 +1,11 @@
 import { useRouter } from "@tanstack/react-router";
 import { useEffect } from "react";
-
+import { SiteFooter } from "#/components/site-footer";
 import { SoftAurora } from "#/components/soft-aurora";
 import { useAuth } from "#/core/auth";
 
 import { LandingCta } from "./landing-cta";
 import { LandingDishes } from "./landing-dishes";
-import { LandingFooter } from "./landing-footer";
 import { LandingHeader } from "./landing-header";
 import { LandingHero } from "./landing-hero";
 import { LandingProducts } from "./landing-products";
@@ -67,7 +66,7 @@ export function LandingPage() {
 				<LandingSteps />
 				<LandingCta />
 			</main>
-			<LandingFooter />
+			<SiteFooter />
 		</div>
 	);
 }

@@ -1,5 +1,7 @@
 import { Outlet } from "@tanstack/react-router";
 
+import { SiteFooter } from "#/components/site-footer";
+
 import { AppBackground } from "./app-background";
 import { ClientNavbar } from "./client-navbar";
 
@@ -23,6 +25,9 @@ export function ClientShell() {
 			<main className="relative z-10 mx-auto w-full max-w-7xl min-w-0 flex-1 px-4 sm:px-6 lg:px-8">
 				<Outlet />
 			</main>
+			<div className="relative z-10 mt-10">
+				<SiteFooter variant="client" />
+			</div>
 		</div>
 	);
 }

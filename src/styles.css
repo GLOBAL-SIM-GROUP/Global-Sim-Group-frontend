@@ -303,6 +303,17 @@ body::after {
   animation: pwaIconBob 1.6s ease-in-out infinite;
 }
 
+/* Flottement continu du logo du hero — dérive verticale lente et de faible
+   amplitude, avec le halo qui suit (les deux bougent ensemble). */
+@keyframes heroLogoFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+
+.hero-logo-float {
+  animation: heroLogoFloat 5s ease-in-out infinite;
+}
+
 /* Liens globaux — on ne force AUCUNE couleur : une règle non-layée écraserait
    les utilities Tailwind (layered) et noirait en blanc les liens des pages à
    fond clair (nom de bâtiment, tuiles du lanceur…). Les couleurs viennent des

@@ -4,11 +4,47 @@ import { useState } from "react";
 import { ConditionsUtilisationDialog } from "./conditions-utilisation-dialog";
 import { PolitiqueConfidentialiteDialog } from "./politique-confidentialite-dialog";
 
-export function LandingFooter() {
+const LIEN = "text-white/70 hover:text-white transition-colors";
+
+/** Liens « Navigation » propres à chaque contexte. */
+const NAV_PUBLIC = [
+	{ label: "Accueil", to: "/" },
+	{ label: "S'inscrire", to: "/inscription" },
+	{ label: "Se connecter", to: "/login" },
+] as const;
+
+const NAV_CLIENT = [
+	{ label: "Accueil", to: "/espace-client" },
+	{ label: "Mon panier", to: "/espace-client/panier" },
+	{ label: "Mes demandes", to: "/espace-client/mes-demandes" },
+	{ label: "Mes abonnements", to: "/espace-client/abonnements" },
+	{ label: "Mon compte", to: "/espace-client/mon-compte" },
+] as const;
+
+/** Liens « Nos services » de l'espace client (pages internes). */
+const SERVICES_CLIENT = [
+	{ label: "Restaurant", to: "/espace-client/restaurant" },
+	{ label: "Boutique", to: "/espace-client/boutique" },
+	{ label: "Pressing", to: "/espace-client/pressing" },
+	{ label: "Salle de fête", to: "/espace-client/salle-fete" },
+	{ label: "Résidence — séjours courts", to: "/espace-client/residence" },
+] as const;
+
+/**
+ * Footer du site — `variant="public"` (landing : ancres + liens auth) ou
+ * `variant="client"` (espace client : les liens mènent aux pages internes
+ * correspondantes au lieu des ancres de la landing).
+ */
+export function SiteFooter({
+	variant = "public",
+}: {
+	variant?: "public" | "client";
+}) {
 	const currentYear = new Date().getFullYear();
 	const [legalOuvert, setLegalOuvert] = useState<
 		"confidentialite" | "conditions" | null
 	>(null);
+	const estClient = variant === "client";
 
 	return (
 		<footer
@@ -37,62 +73,59 @@ export function LandingFooter() {
 					<div className="space-y-2">
 						<h3 className="font-semibold">Navigation</h3>
 						<ul className="space-y-2 text-sm">
-							<li>
-								<Link
-									to="/"
-									className="text-white/70 hover:text-white transition-colors"
-								>
-									Accueil
-								</Link>
-							</li>
-							<li>
-								<Link
-									to="/inscription"
-									className="text-white/70 hover:text-white transition-colors"
-								>
-									S'inscrire
-								</Link>
-							</li>
-							<li>
-								<Link
-									to="/login"
-									className="text-white/70 hover:text-white transition-colors"
-								>
-									Se connecter
-								</Link>
-							</li>
-							<li>
-								<a
-									href="#services"
-									className="text-white/70 hover:text-white transition-colors"
-								>
-									Services
-								</a>
-							</li>
+							{(estClient ? NAV_CLIENT : NAV_PUBLIC).map((lien) => (
+								<li key={lien.label}>
+									<Link to={lien.to} className={LIEN}>
+										{lien.label}
+									</Link>
+								</li>
+							))}
+							{estClient ? null : (
+								<li>
+									<a href="#services" className={LIEN}>
+										Services
+									</a>
+								</li>
+							)}
 						</ul>
 					</div>
 
 					{/* Services */}
 					<div className="space-y-3">
 						<h3 className="font-semibold">Nos services</h3>
-						<ul className="space-y-2 text-sm text-white/70">
-							<li>
-								<a href="#carte" className="transition-colors hover:text-white">
-									Restaurant
-								</a>
-							</li>
-							<li>
-								<a
-									href="#boutique"
-									className="transition-colors hover:text-white"
-								>
-									Boutique
-								</a>
-							</li>
-							<li>Pressing</li>
-							<li>Salle de fête</li>
-							<li>Résidence — séjours courts</li>
-						</ul>
+						{estClient ? (
+							<ul className="space-y-2 text-sm">
+								{SERVICES_CLIENT.map((service) => (
+									<li key={service.label}>
+										<Link to={service.to} className={LIEN}>
+											{service.label}
+										</Link>
+									</li>
+								))}
+							</ul>
+						) : (
+							<ul className="space-y-2 text-sm text-white/70">
+								<li>
+									<a
+										href="#carte"
+										className="transition-colors hover:text-white"
+									>
+										Restaurant
+									</a>
+								</li>
+								<li>
+									<a
+										href="#boutique"
+										className="transition-colors hover:text-white"
+									>
+										Boutique
+									</a>
+								</li>
+								<li>Pressing</li>
+								<li>Salle de fête</li>
+								<li>Résidence — séjours courts</li>
+							</ul>
+						)}
 					</div>
 
 					{/* Contact */}
