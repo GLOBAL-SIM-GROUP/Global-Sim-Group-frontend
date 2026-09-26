@@ -11,10 +11,17 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "#/components/ui/select";
+import { toApiError } from "#/core/api";
 import { useCan } from "#/core/auth";
+import { ApercuAbonnementPanel } from "#/features/abonnement/components/apercu-panel";
+import { useApercuDebounced } from "#/features/abonnement/hooks/use-apercu";
+import { CODE_EXCEDENT } from "#/features/abonnement/models/abonnements";
 import { ClientRechercheField } from "#/features/residence/components/client-recherche-field";
 import { formatMontantFCFA } from "#/features/residence/models/format";
-
+import {
+	apercuAbonnementCommande,
+	type LigneCommandeBody,
+} from "../api/commandes";
 import {
 	useCataloguePressing,
 	useCreerPrestation,
@@ -289,6 +296,11 @@ export function CommandeForm({
 	const [dateRetrait, setDateRetrait] = useState(
 		commande?.date_retrait_prevue ?? "",
 	);
+	// Abonnements : `ignorerAbonnement` force le plein tarif ;
+	// `excedentConfirme` est armé par le 409 `ABONNEMENT_EXCEDENT` (le staff a
+	// vu le message du serveur, le resubmit part avec `accepter_excedent`).
+	const [ignorerAbonnement, setIgnorerAbonnement] = useState(false);
+	const [excedentConfirme, setExcedentConfirme] = useState(false);
 
 	const ajouterLigne = () => {
 		setLignes((current) => [...current, ligneVide(prochaineCle)]);
@@ -378,6 +390,50 @@ export function CommandeForm({
 		[prestationsEntrees],
 	);
 
+	// Corps des lignes partagé entre la prévisualisation d'abonnement et le
+	// submit — même normalisation pour que l'aperçu reflète exactement ce qui
+	// partira au backend.
+	const lignesCorps = useMemo<LigneCommandeBody[]>(
+		() =>
+			lignes.map((ligne) => ({
+				typeVetement: ligne.typeVetement.trim(),
+				quantite: ligne.quantite.trim(),
+				prestation: ligne.prestation.trim(),
+				// « Catalogue » seulement si les DEUX libellés sont dans le
+				// référentiel actif — le backend vérifie l'appartenance quand
+				// `hors_catalogue` est faux.
+				horsCatalogue:
+					!typesConnus.has(ligne.typeVetement.trim()) ||
+					!prestationsConnues.has(ligne.prestation.trim()),
+				...(mode === "UNITAIRE"
+					? { tarif: ligne.tarif.trim() }
+					: { poidsKg: ligne.poidsKg.trim() }),
+			})),
+		[lignes, mode, typesConnus, prestationsConnues],
+	);
+
+	// Aperçu appelé uniquement sur des lignes complètes (mêmes exigences que
+	// `validerLignePressing` — sinon le backend rejetterait la simulation).
+	const lignesCompletes = lignesCorps.every(
+		(ligne) =>
+			ligne.typeVetement !== "" &&
+			ligne.prestation !== "" &&
+			Number(ligne.quantite) > 0 &&
+			(mode === "UNITAIRE"
+				? Number(ligne.tarif) > 0
+				: Number(ligne.poidsKg) > 0),
+	);
+	const apercuRequest =
+		idClient && lignesCompletes && !ignorerAbonnement
+			? {
+					idClient,
+					modeTarification: mode,
+					dateRetraitPrevue: dateRetrait,
+					lignes: lignesCorps,
+				}
+			: null;
+	const apercu = useApercuDebounced(apercuAbonnementCommande, apercuRequest);
+
 	const valider = (): string | null => {
 		if (!commande && !idClient) return "Sélectionnez un client.";
 		if (lignes.length === 0) return "Ajoutez au moins un article.";
@@ -408,20 +464,13 @@ export function CommandeForm({
 			setGlobalError(erreur);
 			return;
 		}
-		const lignesCorps = lignes.map((ligne) => ({
-			typeVetement: ligne.typeVetement.trim(),
-			quantite: ligne.quantite.trim(),
-			prestation: ligne.prestation.trim(),
-			// « Catalogue » seulement si les DEUX libellés sont dans le
-			// référentiel actif — le backend vérifie l'appartenance quand
-			// `hors_catalogue` est faux.
-			horsCatalogue:
-				!typesConnus.has(ligne.typeVetement.trim()) ||
-				!prestationsConnues.has(ligne.prestation.trim()),
-			...(mode === "UNITAIRE"
-				? { tarif: ligne.tarif.trim() }
-				: { poidsKg: ligne.poidsKg.trim() }),
-		}));
+		const flagsAbonnement = {
+			utiliserAbonnement: !ignorerAbonnement,
+			// L'aperçu affiché « dépassement » vaut confirmation par le staff
+			// (il a vu le panneau avant de cliquer) ; le 409 reçu à la soumission
+			// précédente arme aussi `excedentConfirme`.
+			accepterExcedent: excedentConfirme || apercu.data?.excedent === true,
+		};
 		try {
 			if (commande) {
 				await editMutation.mutateAsync({
@@ -429,6 +478,7 @@ export function CommandeForm({
 					idClient,
 					dateRetraitPrevue: dateRetrait,
 					lignes: lignesCorps,
+					...flagsAbonnement,
 				});
 			} else {
 				await createMutation.mutateAsync({
@@ -436,11 +486,20 @@ export function CommandeForm({
 					modeTarification: mode,
 					dateRetraitPrevue: dateRetrait,
 					lignes: lignesCorps,
+					...flagsAbonnement,
 				});
 			}
 			onSaved();
-		} catch {
-			setGlobalError("Une erreur est survenue lors de l'enregistrement.");
+		} catch (error) {
+			const apiError = toApiError(error);
+			if (apiError.status === 409 && apiError.code === CODE_EXCEDENT) {
+				// « Refuser puis confirmer » : le message du serveur est affiché
+				// tel quel ; le prochain submit partira avec accepter_excedent.
+				setExcedentConfirme(true);
+				setGlobalError(apiError.message || "Dépassement de quota abonnement.");
+			} else {
+				setGlobalError("Une erreur est survenue lors de l'enregistrement.");
+			}
 		}
 	};
 
@@ -652,7 +711,43 @@ export function CommandeForm({
 					Total {mode === "POIDS" ? "(aperçu)" : ""} :{" "}
 					{formatMontantFCFA(String(total))}
 				</span>
+				{apercu.data && !ignorerAbonnement ? (
+					<span className="font-semibold text-foreground">
+						À payer : {formatMontantFCFA(apercu.data.total_du)}
+					</span>
+				) : null}
 			</div>
+
+			{idClient ? (
+				<>
+					<ApercuAbonnementPanel
+						apercu={apercu.data}
+						pending={apercu.pending}
+						error={apercu.error}
+						visible={!ignorerAbonnement}
+					/>
+					{apercu.data && apercu.data.abonnements.length > 0 ? (
+						<label className="flex items-center gap-2 text-sm text-muted-foreground">
+							<input
+								type="checkbox"
+								checked={ignorerAbonnement}
+								onChange={(event) => setIgnorerAbonnement(event.target.checked)}
+							/>
+							Ne pas utiliser l'abonnement — facturer plein tarif
+						</label>
+					) : null}
+				</>
+			) : null}
+
+			{excedentConfirme ? (
+				<p
+					role="alert"
+					className="rounded-md border border-amber-500/40 bg-amber-500/10 p-3 text-sm text-amber-700 dark:text-amber-400"
+				>
+					Excédent confirmé — cliquez à nouveau pour enregistrer la commande en
+					facturant le dépassement au client.
+				</p>
+			) : null}
 
 			{globalError ? (
 				<p role="alert" className="text-sm font-medium text-destructive">

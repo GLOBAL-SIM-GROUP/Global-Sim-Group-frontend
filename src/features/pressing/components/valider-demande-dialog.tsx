@@ -12,10 +12,18 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "#/components/ui/select";
+import { toApiError } from "#/core/api";
 import { useCan } from "#/core/auth";
+import { ApercuAbonnementPanel } from "#/features/abonnement/components/apercu-panel";
+import { useApercuDebounced } from "#/features/abonnement/hooks/use-apercu";
+import { CODE_EXCEDENT } from "#/features/abonnement/models/abonnements";
 import { formatMontantFCFA } from "#/features/residence/models/format";
 import type { MoyenPaiement } from "#/features/residence/models/moyens-paiement";
 
+import {
+	apercuAbonnementCommande,
+	type LigneCommandeBody,
+} from "../api/commandes";
 import { useTarifKg, useValiderDemande } from "../hooks/use-commandes";
 import {
 	apercuTotalLignePoids,
@@ -90,6 +98,10 @@ export function ValiderDemandeDialog({
 	);
 	const [acompte, setAcompte] = useState("");
 	const [idMoyen, setIdMoyen] = useState(moyens[0]?.id ?? "");
+	// Abonnements : ignorer = plein tarif ; `excedentConfirme` armé par le 409
+	// `ABONNEMENT_EXCEDENT` (message serveur affiché, resubmit confirmé).
+	const [ignorerAbonnement, setIgnorerAbonnement] = useState(false);
+	const [excedentConfirme, setExcedentConfirme] = useState(false);
 
 	const ajouterLigne = () => {
 		setLignes((current) => [...current, ligneVide(prochaineCle)]);
@@ -131,6 +143,42 @@ export function ValiderDemandeDialog({
 	const aucunTarifKgConfigure =
 		mode === "POIDS" && !tarifKgQuery.isLoading && tarifKgQuery.data === null;
 
+	// Aperçu de couverture abonnement sur les lignes chiffrées — débouncé
+	// (~300 ms), seulement quand toutes les lignes sont complètes.
+	const lignesCorps: LigneCommandeBody[] = lignes.map((ligne) => ({
+		typeVetement: ligne.typeVetement.trim(),
+		quantite: ligne.quantite.trim(),
+		prestation: ligne.prestation.trim(),
+		horsCatalogue: true,
+		...(mode === "UNITAIRE"
+			? { tarif: ligne.tarif.trim() }
+			: { poidsKg: ligne.poidsKg.trim() }),
+	}));
+	const lignesCompletes =
+		lignesCorps.length > 0 &&
+		lignesCorps.every(
+			(ligne) =>
+				ligne.typeVetement !== "" &&
+				ligne.prestation !== "" &&
+				Number(ligne.quantite) > 0 &&
+				(mode === "UNITAIRE"
+					? Number(ligne.tarif) > 0
+					: Number(ligne.poidsKg) > 0),
+		);
+	const apercuRequest =
+		commande && lignesCompletes && !ignorerAbonnement
+			? {
+					idClient: commande.id_client,
+					modeTarification: mode,
+					lignes: lignesCorps,
+				}
+			: null;
+	const apercu = useApercuDebounced(apercuAbonnementCommande, apercuRequest);
+	// Acompte inutile quand l'abonnement couvre la totalité.
+	const totalDu =
+		apercu.data && !ignorerAbonnement ? apercu.data.total_du : null;
+	const couvertureComplete = totalDu !== null && Number(totalDu) === 0;
+
 	const valider = (): string | null => {
 		if (lignes.length === 0) return "Ajoutez au moins un article.";
 		if (aucunTarifKgConfigure) {
@@ -171,21 +219,22 @@ export function ValiderDemandeDialog({
 				id: commande.id,
 				modeTarification: mode,
 				dateRetraitPrevue: dateRetrait.trim() || undefined,
-				lignes: lignes.map((ligne) => ({
-					typeVetement: ligne.typeVetement.trim(),
-					quantite: ligne.quantite.trim(),
-					prestation: ligne.prestation.trim(),
-					...(mode === "UNITAIRE"
-						? { tarif: ligne.tarif.trim() }
-						: { poidsKg: ligne.poidsKg.trim() }),
-				})),
+				lignes: lignesCorps,
 				...(acompte.trim()
 					? { paiement: { montant: acompte.trim(), idMoyen } }
 					: {}),
+				utiliserAbonnement: !ignorerAbonnement,
+				accepterExcedent: excedentConfirme || apercu.data?.excedent === true,
 			});
 			onSaved();
-		} catch {
-			setGlobalError("Une erreur est survenue lors de la validation.");
+		} catch (error) {
+			const apiError = toApiError(error);
+			if (apiError.status === 409 && apiError.code === CODE_EXCEDENT) {
+				setExcedentConfirme(true);
+				setGlobalError(apiError.message || "Dépassement de quota abonnement.");
+			} else {
+				setGlobalError("Une erreur est survenue lors de la validation.");
+			}
 		}
 	};
 
@@ -377,9 +426,48 @@ export function ValiderDemandeDialog({
 								Total {mode === "POIDS" ? "(aperçu)" : ""} :{" "}
 								{formatMontantFCFA(String(total))}
 							</span>
+							{totalDu !== null ? (
+								<span className="font-semibold text-foreground">
+									À payer : {formatMontantFCFA(totalDu)}
+								</span>
+							) : null}
 						</div>
 
+						<ApercuAbonnementPanel
+							apercu={apercu.data}
+							pending={apercu.pending}
+							error={apercu.error}
+							visible={!ignorerAbonnement}
+						/>
+						{apercu.data && apercu.data.abonnements.length > 0 ? (
+							<label className="flex items-center gap-2 text-sm text-muted-foreground">
+								<input
+									type="checkbox"
+									checked={ignorerAbonnement}
+									onChange={(event) =>
+										setIgnorerAbonnement(event.target.checked)
+									}
+								/>
+								Ne pas utiliser l'abonnement — facturer plein tarif
+							</label>
+						) : null}
+						{excedentConfirme ? (
+							<p
+								role="alert"
+								className="rounded-md border border-amber-500/40 bg-amber-500/10 p-3 text-sm text-amber-700 dark:text-amber-400"
+							>
+								Excédent confirmé — cliquez à nouveau pour valider en facturant
+								le dépassement au résident.
+							</p>
+						) : null}
+
 						<div className="grid gap-3 rounded-md border border-border p-3 sm:grid-cols-2">
+							{couvertureComplete ? (
+								<p className="text-xs text-[#27AE60] sm:col-span-2">
+									Commande entièrement couverte par l'abonnement — aucun acompte
+									à encaisser.
+								</p>
+							) : null}
 							<InputField
 								id="validation-acompte"
 								label="Acompte encaissé (FCFA, optionnel)"

@@ -1,5 +1,6 @@
 import { getApiClient } from "#/core/api";
 import type { components } from "#/core/api/generated/schema";
+import type { ApercuAbonnementPressing } from "#/features/abonnement/models/abonnements";
 import { getImprimanteThermique } from "#/lib/imprimante-thermique-store";
 import { imprimerHtml } from "#/lib/print-pdf";
 import { imprimerTicketQZ } from "#/lib/qz-tray-client";
@@ -15,6 +16,11 @@ type EncaisserSoldePressingDto =
 	components["schemas"]["EncaisserSoldePressingDto"];
 type ValiderDemandePressingDto =
 	components["schemas"]["ValiderDemandePressingDto"];
+type CreerCommandePressingDto =
+	components["schemas"]["CreerCommandePressingDto"];
+type MajCommandePressingDto = components["schemas"]["MajCommandePressingDto"];
+type ApercuAbonnementPressingDto =
+	components["schemas"]["ApercuAbonnementPressingDto"];
 
 type CommandeWire = Omit<CommandePressing, "id"> & { id_commande: string };
 type LigneWire = Omit<LigneCommandePressing, "id"> & { id_ligne: string };
@@ -108,6 +114,15 @@ export interface CommandeBody {
 	modeTarification: ModeTarificationPressing;
 	dateRetraitPrevue: string;
 	lignes: LigneCommandeBody[];
+	/** Acompte éventuel — omis quand la couverture abonnement solde la commande. */
+	paiement?: { montant: string; idMoyen: string };
+	/**
+	 * `true` (défaut) = consommer le quota abonnement du client ; `false`
+	 * force la facturation plein tarif.
+	 */
+	utiliserAbonnement?: boolean;
+	/** Renvoyer `true` après un 409 `ABONNEMENT_EXCEDENT` confirmé par le staff. */
+	accepterExcedent?: boolean;
 }
 
 /** Enregistre un dépôt (POST `/pressing/commandes`). */
@@ -117,7 +132,17 @@ export function creerCommande(body: CommandeBody): Promise<unknown> {
 		mode_tarification: body.modeTarification,
 		date_retrait_prevue: body.dateRetraitPrevue,
 		lignes: body.lignes.map(ligneVersCorps),
-	};
+		...(body.paiement
+			? {
+					paiement: {
+						montant: body.paiement.montant,
+						id_moyen: body.paiement.idMoyen,
+					},
+				}
+			: {}),
+		utiliser_abonnement: body.utiliserAbonnement ?? true,
+		accepter_excedent: body.accepterExcedent ?? false,
+	} satisfies CreerCommandePressingDto;
 	return getApiClient().apiFetch("/api/v1/pressing/commandes", {
 		method: "POST",
 		body: JSON.stringify(corps),
@@ -133,6 +158,8 @@ export interface ModifierCommandeBody {
 	idClient: string;
 	dateRetraitPrevue: string;
 	lignes: LigneCommandeBody[];
+	utiliserAbonnement?: boolean;
+	accepterExcedent?: boolean;
 }
 
 /** Modifie une commande (PATCH par id). */
@@ -144,7 +171,9 @@ export function modifierCommande(
 		id_client: body.idClient,
 		date_retrait_prevue: body.dateRetraitPrevue,
 		lignes: body.lignes.map(ligneVersCorps),
-	};
+		utiliser_abonnement: body.utiliserAbonnement ?? true,
+		accepter_excedent: body.accepterExcedent ?? false,
+	} satisfies MajCommandePressingDto;
 	return getApiClient().apiFetch(`/api/v1/pressing/commandes/${id}`, {
 		method: "PATCH",
 		body: JSON.stringify(corps),
@@ -168,15 +197,22 @@ export function pretCommande(id: string): Promise<unknown> {
 	});
 }
 
-/** Enregistre le retrait + encaisse le solde (POST `/api/v1/commandes/{id}/retirer`). */
+/**
+ * Enregistre le retrait + encaisse le solde (POST
+ * `/api/v1/commandes/{id}/retirer`). `solde: '0'` = commande entièrement
+ * couverte par un abonnement : `id_moyen` est alors omis (le schéma le
+ * déclare requis, le serveur tolère l'absence quand rien n'est à encaisser).
+ */
 export function retirerCommande(
 	id: string,
-	body: { solde: string; idMoyen: string },
+	body: { solde: string; idMoyen?: string },
 ): Promise<unknown> {
 	const corps = {
 		solde: body.solde,
-		id_moyen: body.idMoyen,
-	} satisfies EncaisserSoldePressingDto;
+		...(body.idMoyen ? { id_moyen: body.idMoyen } : {}),
+	} satisfies Omit<EncaisserSoldePressingDto, "id_moyen"> & {
+		id_moyen?: string;
+	};
 	return getApiClient().apiFetch(`/api/v1/pressing/commandes/${id}/retirer`, {
 		method: "POST",
 		body: JSON.stringify(corps),
@@ -204,6 +240,8 @@ export interface ValiderDemandeBody {
 	lignes: LigneCommandeBody[];
 	/** Acompte éventuel encaissé à la validation. */
 	paiement?: { montant: string; idMoyen: string };
+	utiliserAbonnement?: boolean;
+	accepterExcedent?: boolean;
 }
 
 /** Valide et chiffre une demande `EN_ATTENTE` (→ `DEPOSE`, PRESSING.CREER). */
@@ -225,11 +263,33 @@ export function validerDemande(
 					},
 				}
 			: {}),
+		utiliser_abonnement: body.utiliserAbonnement ?? true,
+		accepter_excedent: body.accepterExcedent ?? false,
 	} satisfies ValiderDemandePressingDto;
 	return getApiClient().apiFetch(`/api/v1/pressing/commandes/${id}/valider`, {
 		method: "POST",
 		body: JSON.stringify(corps),
 	});
+}
+
+/**
+ * Aperçu de couverture abonnement (POST `/pressing/commandes/apercu-abonnement`,
+ * lecture seule) : ce que les abonnements `PRESSING` actifs du client
+ * couvriraient sur ces lignes — à relancer à chaque changement de lignes
+ * (débouncé ~300 ms côté écran).
+ */
+export function apercuAbonnementCommande(
+	body: Pick<CommandeBody, "idClient" | "modeTarification" | "lignes">,
+): Promise<ApercuAbonnementPressing> {
+	const corps = {
+		id_client: body.idClient,
+		mode_tarification: body.modeTarification,
+		lignes: body.lignes.map(ligneVersCorps),
+	} satisfies ApercuAbonnementPressingDto;
+	return getApiClient().apiFetch<ApercuAbonnementPressing>(
+		"/api/v1/pressing/commandes/apercu-abonnement",
+		{ method: "POST", body: JSON.stringify(corps) },
+	);
 }
 
 /**

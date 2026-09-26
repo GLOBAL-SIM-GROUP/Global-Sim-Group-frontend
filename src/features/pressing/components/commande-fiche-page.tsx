@@ -342,6 +342,16 @@ export function CommandeFichePage({ id }: CommandeFichePageProps) {
 									</td>
 									<td className="px-4 py-3 text-right text-foreground">
 										{formatMontantFCFA(ligne.total)}
+										{ligne.quantite_couverte != null &&
+										Number(ligne.quantite_couverte) > 0 ? (
+											<span className="block text-xs font-normal text-[#27AE60]">
+												{ligne.quantite_couverte}/{ligne.quantite}{" "}
+												{commande.mode_tarification === "POIDS"
+													? "kg"
+													: "pièce(s)"}{" "}
+												couvert(s) par abonnement
+											</span>
+										) : null}
 									</td>
 								</tr>
 							))}

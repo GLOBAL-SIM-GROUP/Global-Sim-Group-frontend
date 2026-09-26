@@ -42,7 +42,13 @@ export function RetirerCommandeDialog({
 	const [solde, setSolde] = useState(commande?.reste_a_payer ?? "");
 	const [idMoyen, setIdMoyen] = useState(moyens[0]?.id ?? "");
 
+	// Commande entièrement couverte par un abonnement : reste à payer 0 →
+	// retrait sans encaissement (`id_moyen` non requis côté serveur).
+	const resteZero =
+		commande !== null && Number(commande.reste_a_payer ?? "0") === 0;
+
 	const valider = (): string | null => {
+		if (resteZero) return null;
 		if (!solde.trim() || Number(solde) <= 0) {
 			return "Saisissez un montant positif.";
 		}
@@ -61,8 +67,8 @@ export function RetirerCommandeDialog({
 		try {
 			await mutation.mutateAsync({
 				id: commande.id,
-				solde: solde.trim(),
-				idMoyen,
+				solde: resteZero ? "0" : solde.trim(),
+				...(resteZero ? {} : { idMoyen }),
 			});
 			onSaved();
 		} catch {
@@ -92,36 +98,45 @@ export function RetirerCommandeDialog({
 							void soumettre();
 						}}
 					>
-						<InputField
-							id="retrait-solde"
-							name="solde"
-							label="Montant du solde (FCFA)"
-							inputMode="numeric"
-							value={solde}
-							onChange={(event) => setSolde(event.target.value)}
-							error={undefined}
-						/>
+						{resteZero ? (
+							<p className="rounded-md border border-[#27AE60]/30 bg-[#27AE60]/10 px-3 py-2 text-sm text-[#27AE60]">
+								Commande soldée (entièrement couverte par abonnement ou déjà
+								payée) — le retrait n'encaissera rien.
+							</p>
+						) : (
+							<>
+								<InputField
+									id="retrait-solde"
+									name="solde"
+									label="Montant du solde (FCFA)"
+									inputMode="numeric"
+									value={solde}
+									onChange={(event) => setSolde(event.target.value)}
+									error={undefined}
+								/>
 
-						<div className="space-y-2">
-							<Label htmlFor="retrait-moyen">Moyen de paiement</Label>
-							<Select value={idMoyen} onValueChange={setIdMoyen}>
-								<SelectTrigger id="retrait-moyen" className="w-full">
-									<SelectValue placeholder="Sélectionner un moyen" />
-								</SelectTrigger>
-								<SelectContent>
-									{moyens.map((moyen) => (
-										<SelectItem key={moyen.id} value={moyen.id}>
-											{moyen.libelle}
-										</SelectItem>
-									))}
-								</SelectContent>
-							</Select>
-							{moyens.length === 0 ? (
-								<p className="text-xs text-muted-foreground">
-									Aucun moyen de paiement configuré (module Finances).
-								</p>
-							) : null}
-						</div>
+								<div className="space-y-2">
+									<Label htmlFor="retrait-moyen">Moyen de paiement</Label>
+									<Select value={idMoyen} onValueChange={setIdMoyen}>
+										<SelectTrigger id="retrait-moyen" className="w-full">
+											<SelectValue placeholder="Sélectionner un moyen" />
+										</SelectTrigger>
+										<SelectContent>
+											{moyens.map((moyen) => (
+												<SelectItem key={moyen.id} value={moyen.id}>
+													{moyen.libelle}
+												</SelectItem>
+											))}
+										</SelectContent>
+									</Select>
+									{moyens.length === 0 ? (
+										<p className="text-xs text-muted-foreground">
+											Aucun moyen de paiement configuré (module Finances).
+										</p>
+									) : null}
+								</div>
+							</>
+						)}
 
 						{globalError ? (
 							<p role="alert" className="text-sm font-medium text-destructive">

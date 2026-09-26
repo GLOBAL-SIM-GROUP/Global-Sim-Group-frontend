@@ -107,7 +107,7 @@ export function useRetirerCommande() {
 		}: {
 			id: string;
 			solde: string;
-			idMoyen: string;
+			idMoyen?: string;
 		}) => retirerCommande(id, body),
 		onSuccess: invalider,
 	});

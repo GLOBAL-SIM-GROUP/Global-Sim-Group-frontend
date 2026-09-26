@@ -62,6 +62,12 @@ export interface LigneCommandePressing {
 	poids_kg: string | null;
 	/** `null` tant que la demande `EN_ATTENTE` n'est pas chiffrée. */
 	total: string | null;
+	/**
+	 * Quantité couverte par un abonnement du client (même unité que
+	 * `quantite` — kg en POIDS, pièces en UNITAIRE) ; `null` = aucune
+	 * couverture. Renvoyé depuis abonnements 089/090.
+	 */
+	quantite_couverte?: string | null;
 }
 
 /** Libellés français du mode de tarification — badge fiche/dépôt. */
