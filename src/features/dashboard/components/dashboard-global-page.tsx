@@ -68,6 +68,13 @@ const PERIODES: Record<PeriodeFiltre, string> = {
  */
 export function DashboardGlobalPage() {
 	const canVoir = useCan("ADMIN.VOIR");
+	const canVoirResidence = useCan("RESIDENCE.VOIR");
+	const canVoirFinances = useCan("FINANCES.VOIR");
+	const canVoirSalleFete = useCan("SALLE_FETE.VOIR");
+	const canVoirMarchandise = useCan("MARCHANDISE.VOIR");
+	const canVoirPressing = useCan("PRESSING.VOIR");
+	const canVoirRestaurant = useCan("RESTAURANT.VOIR");
+	const canVoirRh = useCan("RH.VOIR");
 
 	const [periode, setPeriode] = useState<PeriodeFiltre>("ce_mois");
 	const [customDu, setCustomDu] = useState<string>("");
@@ -232,6 +239,7 @@ export function DashboardGlobalPage() {
 								label="Chambres disponibles"
 								valeur={String(logementsDispo.length)}
 								icon={CheckCircle2}
+								to={canVoirResidence ? "/residence/logements" : undefined}
 								loading={logementsDispoQuery.isLoading}
 							/>
 							<InfoCard
@@ -239,6 +247,7 @@ export function DashboardGlobalPage() {
 								valeur={String(impayes.length)}
 								icon={AlertCircle}
 								couleur="text-destructive"
+								to={canVoirFinances ? "/finances/impayes" : undefined}
 								loading={impayesQuery.isLoading}
 							/>
 							<InfoCard
@@ -246,6 +255,7 @@ export function DashboardGlobalPage() {
 								valeur={formatMontantFCFA(String(montantImpayes))}
 								icon={AlertCircle}
 								couleur="text-destructive"
+								to={canVoirFinances ? "/finances/impayes" : undefined}
 								loading={impayesQuery.isLoading}
 							/>
 						</div>
@@ -306,7 +316,17 @@ export function DashboardGlobalPage() {
 															className="relative border-t border-border transition-colors hover:bg-accent/40"
 														>
 															<td className="px-4 py-3 font-medium text-foreground">
-																{locataire}
+																{canVoirFinances ? (
+																	<Link
+																		to="/finances/impayes"
+																		title={`Voir les impayés de ${locataire}`}
+																		className="text-lagoon after:absolute after:inset-0 transition-colors hover:underline"
+																	>
+																		{locataire}
+																	</Link>
+																) : (
+																	locataire
+																)}
 															</td>
 															<td className="px-4 py-3 text-muted-foreground">
 																{reference}
@@ -369,7 +389,15 @@ export function DashboardGlobalPage() {
 										</tbody>
 									</table>
 								</div>
-								{impayes.length > 10 && (
+								{impayes.length > 10 && canVoirFinances && (
+									<Link
+										to="/finances/impayes"
+										className="block px-4 py-3 bg-muted/30 text-xs text-lagoon border-t border-border transition-colors hover:bg-muted/50 hover:underline"
+									>
+										Voir les {impayes.length - 10} autres impayés →
+									</Link>
+								)}
+								{impayes.length > 10 && !canVoirFinances && (
 									<div className="px-4 py-3 bg-muted/30 text-xs text-muted-foreground border-t border-border">
 										+{impayes.length - 10} autres impayés…
 									</div>
@@ -389,12 +417,14 @@ export function DashboardGlobalPage() {
 								valeur={formatMontantFCFA(String(synthese.total_recettes))}
 								couleur="text-emerald-600"
 								icon={TrendingUp}
+								to={canVoirFinances ? "/finances/encaissements" : undefined}
 							/>
 							<KPICard
 								label="Dépenses totales"
 								valeur={formatMontantFCFA(String(synthese.total_depenses))}
 								couleur="text-amber-600"
 								icon={AlertTriangle}
+								to={canVoirFinances ? "/finances/depenses" : undefined}
 							/>
 							<KPICard
 								label="Solde"
@@ -405,6 +435,7 @@ export function DashboardGlobalPage() {
 										: "text-destructive"
 								}
 								icon={TrendingUp}
+								to={canVoirFinances ? "/finances/tableau-de-bord" : undefined}
 							/>
 							<KPICard
 								label="Impayés"
@@ -412,6 +443,7 @@ export function DashboardGlobalPage() {
 								subtext={formatMontantFCFA(String(synthese.impayes.montant))}
 								couleur="text-destructive"
 								icon={AlertCircle}
+								to={canVoirFinances ? "/finances/impayes" : undefined}
 							/>
 						</div>
 					</div>
@@ -422,19 +454,41 @@ export function DashboardGlobalPage() {
 							Recettes par activité ce mois-ci
 						</h2>
 						<div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-							{synthese.recettes_par_activite.map((activite) => (
-								<div
-									key={activite.code}
-									className="rounded-lg border border-border bg-card p-4 shadow-sm"
-								>
-									<p className="text-sm font-medium text-muted-foreground">
-										{activite.libelle}
-									</p>
-									<p className="mt-2 text-xl font-bold text-foreground">
-										{formatMontantFCFA(String(activite.total_encaisse))}
-									</p>
-								</div>
-							))}
+							{synthese.recettes_par_activite.map((activite) => {
+								const to = destinationActivite(activite.code, {
+									residence: canVoirResidence,
+									marchandise: canVoirMarchandise,
+									pressing: canVoirPressing,
+									restaurant: canVoirRestaurant,
+									salleFete: canVoirSalleFete,
+								});
+								const contenu = (
+									<>
+										<p className="text-sm font-medium text-muted-foreground">
+											{activite.libelle}
+										</p>
+										<p className="mt-2 text-xl font-bold text-foreground">
+											{formatMontantFCFA(String(activite.total_encaisse))}
+										</p>
+									</>
+								);
+								return to ? (
+									<Link
+										key={activite.code}
+										to={to}
+										className="block rounded-lg border border-border bg-card p-4 shadow-sm transition-colors hover:bg-accent/40"
+									>
+										{contenu}
+									</Link>
+								) : (
+									<div
+										key={activite.code}
+										className="rounded-lg border border-border bg-card p-4 shadow-sm"
+									>
+										{contenu}
+									</div>
+								);
+							})}
 						</div>
 					</div>
 
@@ -447,6 +501,7 @@ export function DashboardGlobalPage() {
 								label="Réservations à venir"
 								valeur={String(reservations.length)}
 								icon={TrendingUp}
+								to={canVoirSalleFete ? "/salle-fete/reservations" : undefined}
 								loading={reservationsQuery.isLoading}
 							/>
 						</div>
@@ -497,45 +552,68 @@ export function DashboardGlobalPage() {
 														new Date(b.date_evenement || b.date || 0).getTime(),
 												)
 												.slice(0, 5)
-												.map((r, idx) => (
-													<tr
-														key={r.id ?? r.id_reservation ?? idx}
-														className="relative border-t border-border transition-colors hover:bg-accent/40"
-													>
-														<td className="px-4 py-3 font-medium text-foreground">
-															{nomClientReservation(
-																r,
-																reservationsClientsQuery.data,
-															)}
-														</td>
-														<td className="px-4 py-3 text-muted-foreground">
-															{new Date(
-																r.date_evenement || r.date || 0,
-															).toLocaleDateString("fr-FR")}
-														</td>
-														<td className="px-4 py-3 text-muted-foreground">
-															{r.type_manifestation}
-														</td>
-														<td className="px-4 py-3">
-															<span
-																className={cn(
-																	"inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium",
-																	r.statut === "CONFIRMEE"
-																		? "bg-emerald-600/20 text-emerald-600"
-																		: r.statut === "RESERVEE"
-																			? "bg-amber-600/20 text-amber-600"
-																			: "bg-gray-600/20 text-gray-600",
+												.map((r, idx) => {
+													const idReservation = r.id ?? r.id_reservation;
+													const nom = nomClientReservation(
+														r,
+														reservationsClientsQuery.data,
+													);
+													return (
+														<tr
+															key={idReservation ?? idx}
+															className="relative border-t border-border transition-colors hover:bg-accent/40"
+														>
+															<td className="px-4 py-3 font-medium text-foreground">
+																{canVoirSalleFete && idReservation ? (
+																	<Link
+																		to="/salle-fete/reservations/$id"
+																		params={{ id: idReservation }}
+																		title={`Voir la fiche de la réservation de ${nom}`}
+																		className="text-lagoon after:absolute after:inset-0 transition-colors hover:underline"
+																	>
+																		{nom}
+																	</Link>
+																) : (
+																	nom
 																)}
-															>
-																{r.statut}
-															</span>
-														</td>
-													</tr>
-												))}
+															</td>
+															<td className="px-4 py-3 text-muted-foreground">
+																{new Date(
+																	r.date_evenement || r.date || 0,
+																).toLocaleDateString("fr-FR")}
+															</td>
+															<td className="px-4 py-3 text-muted-foreground">
+																{r.type_manifestation}
+															</td>
+															<td className="px-4 py-3">
+																<span
+																	className={cn(
+																		"inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium",
+																		r.statut === "CONFIRMEE"
+																			? "bg-emerald-600/20 text-emerald-600"
+																			: r.statut === "RESERVEE"
+																				? "bg-amber-600/20 text-amber-600"
+																				: "bg-gray-600/20 text-gray-600",
+																	)}
+																>
+																	{r.statut}
+																</span>
+															</td>
+														</tr>
+													);
+												})}
 										</tbody>
 									</table>
 								</div>
-								{reservations.length > 5 && (
+								{reservations.length > 5 && canVoirSalleFete && (
+									<Link
+										to="/salle-fete/reservations"
+										className="block px-4 py-3 bg-muted/30 text-xs text-lagoon border-t border-border transition-colors hover:bg-muted/50 hover:underline"
+									>
+										Voir les {reservations.length - 5} autres réservations →
+									</Link>
+								)}
+								{reservations.length > 5 && !canVoirSalleFete && (
 									<div className="px-4 py-3 bg-muted/30 text-xs text-muted-foreground border-t border-border">
 										+{reservations.length - 5} autres réservations…
 									</div>
@@ -559,6 +637,7 @@ export function DashboardGlobalPage() {
 										? "text-destructive"
 										: "text-muted-foreground"
 								}
+								to={canVoirMarchandise ? "/marchandise/produits" : undefined}
 								loading={produitsCritiquesQuery.isLoading}
 							/>
 						</div>
@@ -574,6 +653,14 @@ export function DashboardGlobalPage() {
 										</li>
 									))}
 								</ul>
+								{canVoirMarchandise && (
+									<Link
+										to="/marchandise/produits"
+										className="mt-2 inline-block text-xs text-lagoon transition-colors hover:underline"
+									>
+										Voir les produits →
+									</Link>
+								)}
 							</div>
 						)}
 					</div>
@@ -588,7 +675,7 @@ export function DashboardGlobalPage() {
 								label="Commandes en cours"
 								valeur={String(commandesPressing.length)}
 								icon={Package}
-								to="/pressing/commandes"
+								to={canVoirPressing ? "/pressing/commandes" : undefined}
 								loading={commandesPressingQuery.isLoading}
 							/>
 						</div>
@@ -604,6 +691,7 @@ export function DashboardGlobalPage() {
 								label="Masse salariale à payer"
 								valeur={formatMontantFCFA(String(synthese.masse_salariale))}
 								icon={Users}
+								to={canVoirRh ? "/rh/bulletins" : undefined}
 								loading={syntheseQuery.isLoading}
 							/>
 						</div>
@@ -645,6 +733,41 @@ function nomClientReservation(
 	);
 }
 
+type RouteLien = ComponentProps<typeof Link>["to"];
+
+/**
+ * Page métier associée à un code `finances.activite.code` (les 6 codes réels
+ * du backend). La carte « Recettes par activité » n'est cliquable que si le
+ * module cible est connu **et** l'utilisateur autorisé à le voir — les codes
+ * inconnus (ex. futur module) restent des cartes inertes.
+ */
+function destinationActivite(
+	code: string,
+	perms: {
+		residence: boolean;
+		marchandise: boolean;
+		pressing: boolean;
+		restaurant: boolean;
+		salleFete: boolean;
+	},
+): RouteLien | undefined {
+	switch (code) {
+		case "LOCATION_RESIDENTIEL":
+		case "LOCATION_COMMERCIAL":
+			return perms.residence ? "/residence/contrats" : undefined;
+		case "VENTE_MARCHANDISES":
+			return perms.marchandise ? "/marchandise/ventes" : undefined;
+		case "PRESSING":
+			return perms.pressing ? "/pressing/commandes" : undefined;
+		case "RESTAURATION":
+			return perms.restaurant ? "/restaurant/commandes" : undefined;
+		case "SALLE_FETE":
+			return perms.salleFete ? "/salle-fete/reservations" : undefined;
+		default:
+			return undefined;
+	}
+}
+
 /**
  * Dérive un fond teinté + couleur d'icône à partir de la couleur sémantique
  * déjà passée à la carte (`couleur`, ex. `text-destructive`) — une seule
@@ -667,43 +790,62 @@ function KPICard({
 	subtext,
 	couleur,
 	icon: Icon = TrendingUp,
+	to,
 }: {
 	label: string;
 	valeur: string;
 	subtext?: string;
 	couleur: string;
 	icon?: typeof TrendingUp;
+	/** Rend la carte cliquable, vers la page métier concernée. */
+	to?: RouteLien;
 }) {
-	return (
-		<div className="rounded-lg border border-border bg-card p-4 shadow-sm">
-			<div className="flex items-start justify-between">
-				<div className="flex-1">
-					<p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-						{label}
-					</p>
-					<p
-						className={cn(
-							"mt-2 text-lg font-bold sm:text-2xl break-words",
-							couleur,
-						)}
-					>
-						{valeur}
-					</p>
-					{subtext && (
-						<p className="mt-1 text-xs text-muted-foreground">{subtext}</p>
-					)}
-				</div>
-				<div
+	const classNameCarte =
+		"rounded-lg border border-border bg-card p-4 shadow-sm";
+	const contenu = (
+		<div className="flex items-start justify-between">
+			<div className="flex-1">
+				<p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+					{label}
+				</p>
+				<p
 					className={cn(
-						"ml-4 flex size-10 shrink-0 items-center justify-center rounded-lg",
-						iconTint(couleur),
+						"mt-2 text-lg font-bold sm:text-2xl break-words",
+						couleur,
 					)}
 				>
-					<Icon className="size-5" />
-				</div>
+					{valeur}
+				</p>
+				{subtext && (
+					<p className="mt-1 text-xs text-muted-foreground">{subtext}</p>
+				)}
+			</div>
+			<div
+				className={cn(
+					"ml-4 flex size-10 shrink-0 items-center justify-center rounded-lg",
+					iconTint(couleur),
+				)}
+			>
+				<Icon className="size-5" />
 			</div>
 		</div>
 	);
+
+	if (to) {
+		return (
+			<Link
+				to={to}
+				className={cn(
+					"block transition-colors hover:bg-accent/40",
+					classNameCarte,
+				)}
+			>
+				{contenu}
+			</Link>
+		);
+	}
+
+	return <div className={classNameCarte}>{contenu}</div>;
 }
 
 function InfoCard({
