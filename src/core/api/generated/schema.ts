@@ -1411,70 +1411,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/residence/abonnements": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Lister
-         * @description Récupération des données pour abonnements
-         */
-        get: operations["AbonnementsController_lister_v1"];
-        put?: never;
-        /**
-         * Creer
-         * @description Exécution de abonnements
-         */
-        post: operations["AbonnementsController_creer_v1"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/residence/abonnements/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /**
-         * Maj
-         * @description Mise à jour partielle de abonnements/:id
-         */
-        patch: operations["AbonnementsController_maj_v1"];
-        trace?: never;
-    };
-    "/api/v1/residence/abonnements/{id}/resilier": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Resilier
-         * @description Exécution de abonnements/:id/resilier
-         */
-        post: operations["AbonnementsController_resilier_v1"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/v1/residence/portail/resume": {
         parameters: {
             query?: never;
@@ -2279,58 +2215,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/abonnement/categories": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Lister
-         * @description Récupération des données pour categories
-         */
-        get: operations["AbonnementController_lister_v1"];
-        put?: never;
-        /**
-         * Creer
-         * @description Exécution de categories
-         */
-        post: operations["AbonnementController_creer_v1"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/abonnement/categories/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Detail
-         * @description Récupération des données pour categories/:id
-         */
-        get: operations["AbonnementController_detail_v1"];
-        put?: never;
-        post?: never;
-        /**
-         * Supprimer
-         * @description Suppression de categories/:id
-         */
-        delete: operations["AbonnementController_supprimer_v1"];
-        options?: never;
-        head?: never;
-        /**
-         * Maj
-         * @description Mise à jour partielle de categories/:id
-         */
-        patch: operations["AbonnementController_maj_v1"];
-        trace?: never;
-    };
     "/api/v1/market/categories-produits": {
         parameters: {
             query?: never;
@@ -2947,6 +2831,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/restaurant/commandes/apercu-abonnement": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Aperçu abonnement
+         * @description Repas couverts par les abonnements du client, excédent et montant dû (lecture seule)
+         */
+        post: operations["RestaurantController_apercuAbonnement_v1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/restaurant/commandes/{id}/apercu-abonnement": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Aperçu abonnement d’une commande
+         * @description Couverture par abonnement que recevrait la commande à l’encaissement (lecture seule)
+         */
+        get: operations["RestaurantController_apercuAbonnementCommande_v1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/restaurant/commandes/{id}": {
         parameters: {
             query?: never;
@@ -3111,6 +3035,201 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/abonnement/offres": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Lister les offres
+         * @description Catalogue des offres d’abonnement (pressing, restauration)
+         */
+        get: operations["AbonnementController_listerOffres_v1"];
+        put?: never;
+        /**
+         * Créer une offre
+         * @description PRESSING : id_prestation requis (correspondance exacte), unité KG/PIECE. RESTAURATION : unité REPAS, catégorie et plafond journalier optionnels.
+         */
+        post: operations["AbonnementController_creerOffre_v1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/abonnement/offres/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Détail d’une offre */
+        get: operations["AbonnementController_detailOffre_v1"];
+        put?: never;
+        post?: never;
+        /** Supprimer une offre jamais vendue */
+        delete: operations["AbonnementController_supprimerOffre_v1"];
+        options?: never;
+        head?: never;
+        /**
+         * Modifier une offre
+         * @description Champs commerciaux uniquement — la couverture est immuable, les souscriptions vendues gardent leur quota/prix.
+         */
+        patch: operations["AbonnementController_majOffre_v1"];
+        trace?: never;
+    };
+    "/api/v1/abonnement/souscriptions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Lister les souscriptions
+         * @description Avec solde, reste à payer et état calculés (ACTIVE, A_VENIR, EPUISEE, EXPIREE, RESILIEE, ANNULEE). `reliquat_a_decider=true` liste les expirées en attente de décision.
+         */
+        get: operations["AbonnementController_listerSouscriptions_v1"];
+        put?: never;
+        /**
+         * Vendre une souscription
+         * @description Facture ABONNEMENT levée sur l’activité de l’offre ; paiement intégral, partiel ou différé (jamais bloquant, tracé).
+         */
+        post: operations["AbonnementController_vendre_v1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/abonnement/souscriptions/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Détail d’une souscription et de ses mouvements */
+        get: operations["AbonnementController_detailSouscription_v1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/abonnement/souscriptions/{id}/paiements": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Encaisser un paiement complémentaire */
+        post: operations["AbonnementController_encaisser_v1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/abonnement/souscriptions/{id}/ajustements": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Ajuster le quota
+         * @description Quantité signée + motif obligatoire ; le solde ne peut devenir négatif.
+         */
+        post: operations["AbonnementController_ajuster_v1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/abonnement/souscriptions/{id}/resilier": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Résilier une souscription */
+        post: operations["AbonnementController_resilier_v1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/abonnement/souscriptions/{id}/reliquat": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Décider du reliquat d’une souscription expirée
+         * @description PERDU : le quota restant est perdu. REPORTE : transféré sur `id_souscription_cible` (même client, même couverture, en cours).
+         */
+        post: operations["AbonnementController_deciderReliquat_v1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/abonnement/portail/souscriptions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Mes abonnements (solde, validité, reste à payer) */
+        get: operations["AbonnementPortailController_mesSouscriptions_v1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/abonnement/portail/souscriptions/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Détail d’un de mes abonnements et ses mouvements */
+        get: operations["AbonnementPortailController_maSouscription_v1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/pressing/commandes": {
         parameters: {
             query?: never;
@@ -3129,6 +3248,26 @@ export interface paths {
          * @description Exécution de commandes
          */
         post: operations["PressingController_creerCommande_v1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/pressing/commandes/apercu-abonnement": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Aperçu abonnement
+         * @description Ce que les abonnements du client couvrent sur ces lignes, l’excédent éventuel et le montant réellement dû (lecture seule)
+         */
+        post: operations["PressingController_apercuAbonnement_v1"];
         delete?: never;
         options?: never;
         head?: never;
@@ -5273,52 +5412,6 @@ export interface components {
             /** @example 1 */
             id_moyen: string;
         };
-        CreerAbonnementDto: {
-            /** @example 3 */
-            id_client: string;
-            /** @example 5 */
-            id_logement?: Record<string, never> | null;
-            /**
-             * @description Catégorie standardisée (abonnement/categories) — pré-remplit service/montant quand ils sont omis. Sans elle, service et montant restent obligatoires.
-             * @example 2
-             */
-            id_categorie_abonnement?: string;
-            /**
-             * @description Obligatoire si id_categorie_abonnement est omis ; sinon dérivé du libellé de la catégorie quand non fourni.
-             * @example Internet fibre
-             */
-            service?: string;
-            /** @enum {string} */
-            type: "MENSUEL" | "ANNUEL" | "PERIODIQUE";
-            /**
-             * @description Obligatoire si id_categorie_abonnement est omis ou sans prix_defaut ; sinon dérivé du prix_defaut de la catégorie quand non fourni.
-             * @example 20000.00
-             */
-            montant?: string;
-            /** @example 2026-08-01 */
-            date_debut: string;
-            date_fin?: Record<string, never> | null;
-            montant_paye?: string;
-            /**
-             * @default ACTIF
-             * @enum {string}
-             */
-            statut: "ACTIF" | "SUSPENDU" | "RESILIE" | "EXPIRE";
-        };
-        MajAbonnementDto: {
-            id_client?: string;
-            id_logement?: Record<string, never> | null;
-            id_categorie_abonnement?: Record<string, never> | null;
-            service?: string;
-            /** @enum {string} */
-            type?: "MENSUEL" | "ANNUEL" | "PERIODIQUE";
-            montant?: string;
-            date_debut?: string;
-            date_fin?: Record<string, never> | null;
-            montant_paye?: Record<string, never> | null;
-            /** @enum {string} */
-            statut?: "ACTIF" | "SUSPENDU" | "RESILIE" | "EXPIRE";
-        };
         PortailClientDto: {
             /** @example 12 */
             id_client: string;
@@ -5678,37 +5771,6 @@ export interface components {
             id_caisse?: string;
             note?: string;
         };
-        CreerCategorieAbonnementDto: {
-            /** @description Code unique de la catégorie */
-            code: string;
-            /** @description Libellé de la catégorie */
-            libelle: string;
-            /** @description Description de la catégorie */
-            description?: string;
-            /**
-             * @description Statut actif
-             * @default true
-             */
-            actif: boolean;
-            /**
-             * @description Prix par défaut suggéré à la création d’un abonnement de cette catégorie — pré-remplit le montant, reste modifiable au cas par cas.
-             * @example 20000.00
-             */
-            prix_defaut?: string;
-        };
-        MajCategorieAbonnementDto: {
-            /** @description Libellé de la catégorie */
-            libelle?: string;
-            /** @description Description de la catégorie */
-            description?: string;
-            /** @description Statut actif */
-            actif?: boolean;
-            /**
-             * @description Prix par défaut suggéré à la création d’un abonnement.
-             * @example 20000.00
-             */
-            prix_defaut?: string;
-        };
         CreerCategorieProduitDto: {
             /** @example Boissons */
             libelle: string;
@@ -5872,7 +5934,16 @@ export interface components {
             lignes: components["schemas"]["LigneCommandeRestaurantDto"][];
             /** @example 5 */
             id_client?: Record<string, never> | null;
-            paiement: components["schemas"]["PaiementCommandeDto"];
+            paiement?: components["schemas"]["PaiementCommandeDto"];
+            /** @default true */
+            utiliser_abonnement: boolean;
+            /** @default false */
+            accepter_excedent: boolean;
+        };
+        ApercuAbonnementRestaurantDto: {
+            /** @example 5 */
+            id_client: string;
+            lignes: components["schemas"]["LigneCommandeRestaurantDto"][];
         };
         MajStatutCommandeDto: {
             /** @enum {string} */
@@ -5882,8 +5953,12 @@ export interface components {
         EncaisserCommandeDto: {
             /** @example 7000.00 */
             montant: string;
-            /** @description Id du moyen de paiement (bigint, string). */
-            id_moyen: string;
+            /** @description Id du moyen de paiement (bigint, string) — requis dès qu’il reste un montant à payer. */
+            id_moyen?: string;
+            /** @default true */
+            utiliser_abonnement: boolean;
+            /** @default false */
+            accepter_excedent: boolean;
             date?: string;
         };
         CreerCommandePortailDto: {
@@ -5892,6 +5967,110 @@ export interface components {
             lignes: components["schemas"]["LigneCommandeRestaurantDto"][];
             adresse_livraison?: Record<string, never> | null;
             notes?: Record<string, never> | null;
+        };
+        CreerOffreDto: {
+            /** @example PRESS_LS_9KG */
+            code: string;
+            /** @example Lavage + séchage — 9 kg / mois */
+            libelle: string;
+            description?: string;
+            /** @enum {string} */
+            activite: "PRESSING" | "RESTAURATION";
+            /**
+             * @description PRESSING : KG ou PIECE — RESTAURATION : REPAS
+             * @enum {string}
+             */
+            unite: "KG" | "PIECE" | "REPAS";
+            /**
+             * @description Quota (entier pour PIECE/REPAS)
+             * @example 9
+             */
+            quota: string;
+            /** @example 5000.00 */
+            prix: string;
+            /**
+             * @description Durée de validité en jours
+             * @example 30
+             */
+            duree_jours: number;
+            /** @default true */
+            actif: boolean;
+            /**
+             * @description PRESSING (requis) : prestation couverte — correspondance exacte
+             * @example 3
+             */
+            id_prestation?: string;
+            /**
+             * @description RESTAURATION : catégorie de plats couverte (absent = tout plat)
+             * @example 2
+             */
+            id_categorie_plat?: string;
+            /**
+             * @description RESTAURATION : repas maximum par jour (absent = aucun plafond)
+             * @example 1
+             */
+            max_par_jour?: number;
+        };
+        MajOffreDto: {
+            libelle?: string;
+            description?: Record<string, never> | null;
+            /** @example 9 */
+            quota?: string;
+            /** @example 5000.00 */
+            prix?: string;
+            /** @example 30 */
+            duree_jours?: number;
+            actif?: boolean;
+        };
+        PaiementAbonnementDto: {
+            /** @example 5000.00 */
+            montant: string;
+            /** @example 1 */
+            id_moyen: string;
+        };
+        CreerSouscriptionDto: {
+            /** @example 12 */
+            id_client: string;
+            /** @example 1 */
+            id_offre: string;
+            /**
+             * @description Début de validité (absent = aujourd’hui)
+             * @example 2026-09-25
+             */
+            date_debut?: string;
+            /**
+             * @description Prix négocié (absent = prix de l’offre)
+             * @example 4500.00
+             */
+            prix?: string;
+            /** @description Paiement à la vente — intégral, partiel (accepté et tracé) ou absent */
+            paiement?: components["schemas"]["PaiementAbonnementDto"];
+            /** @example Solde convenu fin de mois */
+            note?: string;
+        };
+        AjusterQuotaDto: {
+            /**
+             * @description Quantité signée : positive = ajout, négative = retrait
+             * @example -1.5
+             */
+            quantite: string;
+            /** @example Geste commercial */
+            motif: string;
+        };
+        ResilierSouscriptionDto: {
+            /** @example Départ du client */
+            motif: string;
+        };
+        DeciderReliquatDto: {
+            /** @enum {string} */
+            decision: "REPORTE" | "PERDU";
+            /**
+             * @description REPORTE (requis) : souscription qui reçoit le reliquat — même client, même couverture, en cours
+             * @example 42
+             */
+            id_souscription_cible?: string;
+            /** @example Client absent pour maladie */
+            motif?: string;
         };
         LigneCommandePressingDto: {
             /** @example Chemise */
@@ -5931,6 +6110,20 @@ export interface components {
             mode_tarification: "UNITAIRE" | "POIDS";
             lignes: components["schemas"]["LigneCommandePressingDto"][];
             paiement?: components["schemas"]["PaiementAcompteDto"];
+            /** @default true */
+            utiliser_abonnement: boolean;
+            /** @default false */
+            accepter_excedent: boolean;
+        };
+        ApercuAbonnementPressingDto: {
+            /** @example 1 */
+            id_client: string;
+            /**
+             * @default UNITAIRE
+             * @enum {string}
+             */
+            mode_tarification: "UNITAIRE" | "POIDS";
+            lignes: components["schemas"]["LigneCommandePressingDto"][];
         };
         ValiderDemandePressingDto: {
             lignes: components["schemas"]["LigneCommandePressingDto"][];
@@ -5939,6 +6132,10 @@ export interface components {
             /** @example 2026-08-22 */
             date_retrait_prevue?: string;
             paiement?: components["schemas"]["PaiementAcompteDto"];
+            /** @default true */
+            utiliser_abonnement: boolean;
+            /** @default false */
+            accepter_excedent: boolean;
         };
         MajCommandePressingDto: {
             /** @example 1 */
@@ -5946,6 +6143,10 @@ export interface components {
             /** @example 2026-08-20 */
             date_retrait_prevue?: string;
             lignes?: components["schemas"]["LigneCommandePressingDto"][];
+            /** @default true */
+            utiliser_abonnement: boolean;
+            /** @default false */
+            accepter_excedent: boolean;
         };
         EncaisserSoldePressingDto: {
             /** @example 7000.00 */
@@ -9048,140 +9249,6 @@ export interface operations {
             };
         };
     };
-    AbonnementsController_lister_v1: {
-        parameters: {
-            query?: {
-                /** @description Recherche texte libre */
-                recherche?: string;
-                /** @description Colonne de tri */
-                sort?: string;
-                order?: "asc" | "desc";
-                limit?: number;
-                offset?: number;
-                /** @description Id du client (bigint, string). */
-                id_client?: string;
-                /** @description Id du logement (bigint, string). */
-                id_logement?: string;
-                /** @description Id de la catégorie d’abonnement (bigint, string). */
-                id_categorie_abonnement?: string;
-                service?: string;
-                type?: "MENSUEL" | "ANNUEL" | "PERIODIQUE";
-                montant?: string;
-                statut?: "ACTIF" | "SUSPENDU" | "RESILIE" | "EXPIRE";
-                du?: string;
-                au?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Données renvoyées avec succès */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Permission refusée — requiert RESIDENCE.VOIR */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    AbonnementsController_creer_v1: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreerAbonnementDto"];
-            };
-        };
-        responses: {
-            /** @description Opération effectuée avec succès */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Permission refusée — requiert RESIDENCE.CREER */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    AbonnementsController_maj_v1: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Identifiant de la ressource ciblée */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["MajAbonnementDto"];
-            };
-        };
-        responses: {
-            /** @description Opération effectuée avec succès */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Permission refusée — requiert RESIDENCE.MODIFIER */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    AbonnementsController_resilier_v1: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Identifiant de la ressource ciblée */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Opération effectuée avec succès */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Permission refusée — requiert RESIDENCE.MODIFIER */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
     PortailController_resume_v1: {
         parameters: {
             query?: never;
@@ -9705,7 +9772,7 @@ export interface operations {
                 limit?: number;
                 offset?: number;
                 statut?: "PAYEE" | "PARTIELLE" | "IMPAYEE" | "ANNULEE";
-                source_type?: "VENTE" | "COMMANDE_PRESSING" | "COMMANDE_RESTAURANT" | "SEJOUR" | "CHARGE" | "LOCATION" | "RESERVATION_FETE" | "PRESTATION" | "AUTRE";
+                source_type?: "VENTE" | "COMMANDE_PRESSING" | "COMMANDE_RESTAURANT" | "SEJOUR" | "CHARGE" | "LOCATION" | "RESERVATION_FETE" | "PRESTATION" | "AUTRE" | "ABONNEMENT";
                 id_client?: string;
                 id_activite?: string;
                 numero?: string;
@@ -10763,163 +10830,6 @@ export interface operations {
                 content?: never;
             };
             /** @description Permission refusée — requiert CLIENT.MODIFIER */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    AbonnementController_lister_v1: {
-        parameters: {
-            query?: {
-                /** @description Filtrer par code */
-                code?: string;
-                /** @description Filtrer par statut actif */
-                actif?: boolean;
-                /** @description Recherche textuelle */
-                recherche?: string;
-                /** @description Tri */
-                sort?: string;
-                /** @description Ordre */
-                order?: string;
-                /** @description Limite */
-                limit?: number;
-                /** @description Offset */
-                offset?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Données renvoyées avec succès */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Permission refusée — requiert ABONNEMENT.VOIR */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    AbonnementController_creer_v1: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreerCategorieAbonnementDto"];
-            };
-        };
-        responses: {
-            /** @description Opération effectuée avec succès */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Permission refusée — requiert ABONNEMENT.CREER */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    AbonnementController_detail_v1: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Identifiant de la ressource ciblée */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Données renvoyées avec succès */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Permission refusée — requiert ABONNEMENT.VOIR */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    AbonnementController_supprimer_v1: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Identifiant de la ressource ciblée */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Suppression effectuée avec succès */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Permission refusée — requiert ABONNEMENT.SUPPRIMER */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    AbonnementController_maj_v1: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Identifiant de la ressource ciblée */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["MajCategorieAbonnementDto"];
-            };
-        };
-        responses: {
-            /** @description Opération effectuée avec succès */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Permission refusée — requiert ABONNEMENT.MODIFIER */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -12250,6 +12160,63 @@ export interface operations {
             };
         };
     };
+    RestaurantController_apercuAbonnement_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ApercuAbonnementRestaurantDto"];
+            };
+        };
+        responses: {
+            /** @description Aperçu calculé */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Permission refusée — requiert RESTAURANT.CREER */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    RestaurantController_apercuAbonnementCommande_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identifiant de la commande */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Aperçu calculé */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Permission refusée — requiert RESTAURANT.VOIR */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     RestaurantController_detailCommande_v1: {
         parameters: {
             query?: never;
@@ -12571,6 +12538,532 @@ export interface operations {
             };
         };
     };
+    AbonnementController_listerOffres_v1: {
+        parameters: {
+            query?: {
+                /** @description Recherche texte libre */
+                recherche?: string;
+                /** @description Colonne de tri */
+                sort?: string;
+                order?: "asc" | "desc";
+                limit?: number;
+                offset?: number;
+                code?: string;
+                activite?: "PRESSING" | "RESTAURATION";
+                unite?: "KG" | "PIECE" | "REPAS";
+                actif?: boolean;
+                id_prestation?: string;
+                id_categorie_plat?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Offres avec leur couverture */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Requiert ABONNEMENT.VOIR */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AbonnementController_creerOffre_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreerOffreDto"];
+            };
+        };
+        responses: {
+            /** @description Offre créée */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Couverture incohérente avec l’activité */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Requiert ABONNEMENT.CREER */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Code déjà utilisé */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AbonnementController_detailOffre_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identifiant de l’offre */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Offre avec sa couverture */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Requiert ABONNEMENT.VOIR */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Offre inconnue */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AbonnementController_supprimerOffre_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identifiant de l’offre */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Offre supprimée */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Requiert ABONNEMENT.SUPPRIMER */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Offre déjà vendue — la désactiver */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AbonnementController_majOffre_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identifiant de l’offre */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MajOffreDto"];
+            };
+        };
+        responses: {
+            /** @description Offre modifiée */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Requiert ABONNEMENT.MODIFIER */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Offre inconnue */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AbonnementController_listerSouscriptions_v1: {
+        parameters: {
+            query?: {
+                /** @description Recherche texte libre */
+                recherche?: string;
+                /** @description Colonne de tri */
+                sort?: string;
+                order?: "asc" | "desc";
+                limit?: number;
+                offset?: number;
+                id_client?: string;
+                id_offre?: string;
+                activite?: "PRESSING" | "RESTAURATION";
+                unite?: "KG" | "PIECE" | "REPAS";
+                statut?: "ACTIVE" | "RESILIEE" | "ANNULEE";
+                etat?: "ACTIVE" | "A_VENIR" | "EPUISEE" | "EXPIREE" | "RESILIEE" | "ANNULEE";
+                reliquat?: "REPORTE" | "PERDU";
+                /** @description Souscriptions expirées avec solde et sans décision */
+                reliquat_a_decider?: boolean;
+                id_prestation?: string;
+                id_facture?: string;
+                fin_du?: string;
+                fin_au?: string;
+                debut_du?: string;
+                debut_au?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Souscriptions */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Requiert ABONNEMENT.VOIR */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AbonnementController_vendre_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreerSouscriptionDto"];
+            };
+        };
+        responses: {
+            /** @description Souscription vendue */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Requiert ABONNEMENT.VENDRE */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Offre ou client inconnu */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Offre inactive */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AbonnementController_detailSouscription_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identifiant de la souscription */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Souscription + journal des mouvements */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Requiert ABONNEMENT.VOIR */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Souscription inconnue */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AbonnementController_encaisser_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identifiant de la souscription */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PaiementAbonnementDto"];
+            };
+        };
+        responses: {
+            /** @description Paiement appliqué à la facture */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Montant invalide ou supérieur au reste */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Requiert ABONNEMENT.VENDRE */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AbonnementController_ajuster_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identifiant de la souscription */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AjusterQuotaDto"];
+            };
+        };
+        responses: {
+            /** @description Ajustement enregistré */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Requiert ABONNEMENT.AJUSTER */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AbonnementController_resilier_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identifiant de la souscription */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ResilierSouscriptionDto"];
+            };
+        };
+        responses: {
+            /** @description Souscription résiliée */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Requiert ABONNEMENT.AJUSTER */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Souscription non active */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AbonnementController_deciderReliquat_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identifiant de la souscription expirée */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DeciderReliquatDto"];
+            };
+        };
+        responses: {
+            /** @description Décision enregistrée */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Requiert ABONNEMENT.DECIDER_RELIQUAT */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Aucun reliquat à décider */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AbonnementPortailController_mesSouscriptions_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Souscriptions du client connecté */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Requiert PORTAIL.VOIR */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AbonnementPortailController_maSouscription_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identifiant de la souscription */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Souscription + mouvements */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Requiert PORTAIL.VOIR */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Souscription non trouvée */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     PressingController_commandes_v1: {
         parameters: {
             query?: {
@@ -12625,6 +13118,42 @@ export interface operations {
         responses: {
             /** @description Opération effectuée avec succès */
             200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Permission refusée — requiert PRESSING.CREER */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    PressingController_apercuAbonnement_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ApercuAbonnementPressingDto"];
+            };
+        };
+        responses: {
+            /** @description Aperçu calculé */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Lignes invalides */
+            400: {
                 headers: {
                     [name: string]: unknown;
                 };
