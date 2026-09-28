@@ -4422,6 +4422,70 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/signalements/portail": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Mes signalements
+         * @description Signalements déclarés par l’utilisateur connecté
+         */
+        get: operations["SignalementPortailController_lister_v1"];
+        put?: never;
+        /**
+         * Déclarer un signalement
+         * @description Déclaration par le client/résident connecté — naît OUVERT. Sans module_cible le signalement est général et affecté par le staff.
+         */
+        post: operations["SignalementPortailController_creer_v1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/signalements/portail/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Détail de mon signalement
+         * @description Statut, note de résolution, dates et photos
+         */
+        get: operations["SignalementPortailController_detail_v1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/signalements/portail/{id}/photos/upload": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Joindre une photo
+         * @description Upload direct sur son propre signalement, tant qu’il est OUVERT ou EN_COURS
+         */
+        post: operations["SignalementPortailController_uploadPhoto_v1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/signalements": {
         parameters: {
             query?: never;
@@ -4564,6 +4628,26 @@ export interface paths {
          * @description Exécution de signalements/:id/prendre-en-charge
          */
         post: operations["SignalementController_prendreEnCharge_v1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/signalements/{id}/affecter": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Affecter à un module
+         * @description Requalifie un signalement GENERAL (portail, sans cible choisie) en MODULE
+         */
+        post: operations["SignalementController_affecter_v1"];
         delete?: never;
         options?: never;
         head?: never;
@@ -6395,6 +6479,19 @@ export interface components {
              */
             donnees: Record<string, never>;
         };
+        CreerSignalementPortailDto: {
+            /** @example Fuite d’eau */
+            titre: string;
+            /** @example Fuite sous le lavabo, le sol est mouillé. */
+            description: string;
+            /** @example Chambre 12 */
+            lieu?: string;
+            /**
+             * @description Service concerné — facultatif ; absent = signalement général affecté par le staff.
+             * @enum {string}
+             */
+            module_cible?: "RESIDENCE" | "MARCHANDISE" | "PRESSING" | "RESTAURANT" | "SALLE_FETE";
+        };
         AjouterPhotoSignalementDto: {
             /** @description Clé objet S3/MinIO renvoyée par POST /uploads (catégorie signalement-photo). */
             cle_objet: string;
@@ -6416,6 +6513,13 @@ export interface components {
              * @enum {string}
              */
             module_cible?: "RESIDENCE" | "MARCHANDISE" | "PRESSING" | "RESTAURANT" | "SALLE_FETE" | "FACTURATION" | "FINANCES" | "RH" | "ADMIN" | "AUDIT";
+        };
+        AffecterSignalementDto: {
+            /**
+             * @example RESTAURANT
+             * @enum {string}
+             */
+            module_cible: "RESIDENCE" | "MARCHANDISE" | "PRESSING" | "RESTAURANT" | "SALLE_FETE" | "FACTURATION" | "FINANCES" | "RH" | "ADMIN" | "AUDIT";
         };
         ClotureSignalementDto: {
             /** @example Plombier intervenu le 22/08, fuite réparée. */
@@ -15448,6 +15552,155 @@ export interface operations {
             };
         };
     };
+    SignalementPortailController_lister_v1: {
+        parameters: {
+            query?: {
+                /** @description Recherche texte libre */
+                recherche?: string;
+                /** @description Colonne de tri */
+                sort?: string;
+                order?: "asc" | "desc";
+                limit?: number;
+                offset?: number;
+                cible_type?: "ACTIVITE" | "MODULE" | "GENERAL";
+                module_cible?: "RESIDENCE" | "MARCHANDISE" | "PRESSING" | "RESTAURANT" | "SALLE_FETE" | "FACTURATION" | "FINANCES" | "RH" | "ADMIN" | "AUDIT";
+                statut?: "OUVERT" | "EN_COURS" | "RESOLU" | "REJETE";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Données renvoyées avec succès */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Permission refusée — requiert PORTAIL.VOIR */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    SignalementPortailController_creer_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreerSignalementPortailDto"];
+            };
+        };
+        responses: {
+            /** @description Signalement créé (OUVERT) */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Titre/description manquants ou module_cible hors catalogue */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Permission refusée — requiert PORTAIL.VOIR */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    SignalementPortailController_detail_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identifiant du signalement */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Données renvoyées avec succès */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Permission refusée — requiert PORTAIL.VOIR */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Signalement inconnu ou déclaré par quelqu'un d'autre */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    SignalementPortailController_uploadPhoto_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identifiant du signalement */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Photo ajoutée */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Permission refusée — requiert PORTAIL.VOIR */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Signalement inconnu ou déclaré par quelqu'un d'autre */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Signalement clôturé (RESOLU/REJETE) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     SignalementController_lister_v1: {
         parameters: {
             query?: {
@@ -15458,7 +15711,7 @@ export interface operations {
                 order?: "asc" | "desc";
                 limit?: number;
                 offset?: number;
-                cible_type?: "ACTIVITE" | "MODULE";
+                cible_type?: "ACTIVITE" | "MODULE" | "GENERAL";
                 /** @description Id de l’activité concernée (bigint, string). */
                 id_activite?: string;
                 module_cible?: "RESIDENCE" | "MARCHANDISE" | "PRESSING" | "RESTAURANT" | "SALLE_FETE" | "FACTURATION" | "FINANCES" | "RH" | "ADMIN" | "AUDIT";
@@ -15699,6 +15952,38 @@ export interface operations {
             cookie?: never;
         };
         requestBody?: never;
+        responses: {
+            /** @description Opération effectuée avec succès */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Permission refusée — requiert SIGNALEMENT.MODIFIER */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    SignalementController_affecter_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identifiant de la ressource ciblée */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AffecterSignalementDto"];
+            };
+        };
         responses: {
             /** @description Opération effectuée avec succès */
             200: {
