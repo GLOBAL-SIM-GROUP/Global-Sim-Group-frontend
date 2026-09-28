@@ -41,7 +41,7 @@
   --popover: #ffffff;
   --popover-foreground: #1A2B4C;
   --primary: #E67E22;
-  --primary-foreground: #1A2B4C;
+  --primary-foreground: #ffffff;
   --secondary: #E9EDF4;
   --secondary-foreground: #1A2B4C;
   --muted: #EEF1F7;
@@ -58,6 +58,19 @@
   --chart-3: #F4A35E;
   --chart-4: #4A5D7E;
   --chart-5: #B7C3D6;
+  /* Nuancier de statuts sémantiques — remplace les hex flat-ui épars
+     (#8E44AD, #2980B9, #27AE60, …). Fond doux + texte plein, chaque paire
+     fonctionne en clair ET sombre via les variantes `.dark` ci-dessous. */
+  --status-success: #1E7B4D;
+  --status-success-bg: #E7F6EF;
+  --status-warning: #B45309;
+  --status-warning-bg: #FBEEDC;
+  --status-info: #2D5A9E;
+  --status-info-bg: #E8EEF7;
+  --status-danger: #C0392B;
+  --status-danger-bg: #FBEAE7;
+  --status-neutral: #5A6985;
+  --status-neutral-bg: #EEF1F7;
   --radius: 0.625rem;
   --sidebar: #1A2B4C;
   --sidebar-foreground: #F4F6F9;
@@ -114,6 +127,16 @@
   --chart-3: #F0954D;
   --chart-4: #7A8DAE;
   --chart-5: #9DADC4;
+  --status-success: #5BD79C;
+  --status-success-bg: rgba(91, 215, 156, 0.14);
+  --status-warning: #F4A35E;
+  --status-warning-bg: rgba(244, 163, 94, 0.16);
+  --status-info: #8FB3E8;
+  --status-info-bg: rgba(143, 179, 232, 0.15);
+  --status-danger: #EE7B6B;
+  --status-danger-bg: rgba(238, 123, 107, 0.15);
+  --status-neutral: #9DADC4;
+  --status-neutral-bg: rgba(157, 173, 196, 0.14);
   --sidebar: #1A2B4C;
   --sidebar-foreground: #E4ECF8;
   --sidebar-primary: #F0954D;
@@ -150,6 +173,17 @@
   --color-chart-3: var(--chart-3);
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
+  /* Statuts → utilitaires `bg-success-bg text-success`, `border-warning/30`… */
+  --color-success: var(--status-success);
+  --color-success-bg: var(--status-success-bg);
+  --color-warning: var(--status-warning);
+  --color-warning-bg: var(--status-warning-bg);
+  --color-info: var(--status-info);
+  --color-info-bg: var(--status-info-bg);
+  --color-danger: var(--status-danger);
+  --color-danger-bg: var(--status-danger-bg);
+  --color-neutral: var(--status-neutral);
+  --color-neutral-bg: var(--status-neutral-bg);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -227,37 +261,6 @@ body::after {
   mask-image: radial-gradient(circle at 50% 30%, black, transparent 78%);
 }
 
-/* Fond spécifique à la page de connexion — dégradé vertical de la palette
-   (haut clair → bas navy). Scopé à la route /login : le reste du site garde le
-   fond global de `body`. Les halos radiaux reprennent la lumière de marque de
-   `body::before`. Règle hors layer (les règles en layer perdent face aux
-   utilitaires Tailwind). */
-.login-bg {
-  background:
-    radial-gradient(1100px 620px at -8% -10%, var(--hero-a), transparent 58%),
-    radial-gradient(1050px 620px at 112% -12%, var(--hero-b), transparent 62%),
-    linear-gradient(
-      180deg,
-      color-mix(in oklab, var(--sand) 85%, white) 0%,
-      var(--foam) 34%,
-      color-mix(in oklab, var(--lagoon) 34%, var(--bg-base)) 64%,
-      var(--sea-ink) 100%
-    );
-}
-
-.dark .login-bg {
-  background:
-    radial-gradient(1100px 620px at -8% -10%, var(--hero-a), transparent 58%),
-    radial-gradient(1050px 620px at 112% -12%, var(--hero-b), transparent 62%),
-    linear-gradient(
-      180deg,
-      var(--bg-base) 0%,
-      var(--foam) 38%,
-      color-mix(in oklab, var(--lagoon) 22%, var(--bg-base)) 66%,
-      var(--bg-base) 100%
-    );
-}
-
 /* Fond de l'app connectée (AppBackground) — reprend l'ambiance de marque du
    fond public (halos --hero-a/--hero-b) au lieu de la couvrir d'un aplat
    `background` uni, mais reste assez doux pour rester lisible sous les
@@ -268,28 +271,6 @@ body::after {
     radial-gradient(820px 560px at 108% -8%, var(--hero-b), transparent 58%),
     radial-gradient(680px 460px at 60% 112%, rgba(230, 126, 34, 0.06), transparent 68%),
     linear-gradient(180deg, color-mix(in oklab, var(--sand) 72%, white) 0%, var(--foam) 42%, var(--bg-base) 100%);
-}
-
-/* Dérive très lente des halos décoratifs de l'app connectée — perceptible en
-   vision périphérique seulement (faible amplitude/opacité), pour un rendu
-   vivant sans distraire de la lecture des données. */
-@keyframes appHaloDrift1 {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  50% { transform: translate(-16px, 18px) scale(1.06); }
-}
-
-@keyframes appHaloDrift2 {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  50% { transform: translate(14px, -14px) scale(1.05); }
-}
-
-.app-bg-halo-1 {
-  animation: appHaloDrift1 17s ease-in-out infinite;
-}
-
-.app-bg-halo-2 {
-  animation: appHaloDrift2 20s ease-in-out infinite;
-  animation-delay: 1.4s;
 }
 
 /* Balancement doux de l'icône de la bannière d'installation PWA — mouvement
@@ -314,39 +295,9 @@ body::after {
   animation: heroLogoFloat 5s ease-in-out infinite;
 }
 
-/* Spot lumineux au-dessus de l'entrée active de la navbar client : barre
-   néon lagoon + cône de lumière qui « descend » vers l'icône, façon
-   éclairage de scène. Le scintillement n'anime que le faisceau (l'entrée/
-   sortie du spot est gérée par l'opacity du conteneur). */
-.nav-torch-bar {
-  width: 100%;
-  height: 4px;
-  border-radius: 999px;
-  background: var(--lagoon);
-  box-shadow: 0 0 12px 2px color-mix(in oklab, var(--lagoon) 60%, transparent);
-}
-
-.nav-torch-beam {
-  width: 100%;
-  height: 2.75rem;
-  background: linear-gradient(
-    to bottom,
-    color-mix(in oklab, var(--lagoon) 45%, transparent),
-    transparent
-  );
-  clip-path: polygon(12% 0, 88% 0, 100% 100%, 0 100%);
-  animation: navTorchFlicker 2.4s ease-in-out infinite;
-}
-
-@keyframes navTorchFlicker {
-  0%, 100% { opacity: 0.8; }
-  50% { opacity: 1; }
-}
-
 @media (prefers-reduced-motion: reduce) {
   .pwa-install-icon,
-  .hero-logo-float,
-  .nav-torch-beam {
+  .hero-logo-float {
     animation: none;
   }
 }
@@ -363,124 +314,8 @@ a:not([data-slot="button"]) {
   text-underline-offset: 2px;
 }
 
-code {
-  font-size: 0.9em;
-  border: 1px solid var(--line);
-  background: color-mix(in oklab, var(--surface-strong) 82%, white 18%);
-  border-radius: 7px;
-  padding: 2px 7px;
-}
-
-pre code {
-  border: 0;
-  background: transparent;
-  padding: 0;
-  border-radius: 0;
-  font-size: inherit;
-  color: inherit;
-}
-
-.prose pre {
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  background: #16233B;
-  color: #E8EFF9;
-}
-
-.page-wrap {
-  width: min(1080px, calc(100% - 2rem));
-  margin-inline: auto;
-}
-
 .display-title {
   font-family: 'Fraunces', Georgia, serif;
-}
-
-.island-shell {
-  border: 1px solid var(--line);
-  background: linear-gradient(165deg, var(--surface-strong), var(--surface));
-  box-shadow:
-    0 1px 0 var(--inset-glint) inset,
-    0 22px 44px rgba(26, 43, 76, 0.1),
-    0 6px 18px rgba(26, 43, 76, 0.08);
-  backdrop-filter: blur(4px);
-}
-
-.feature-card {
-  background: linear-gradient(165deg, color-mix(in oklab, var(--surface-strong) 93%, white 7%), var(--surface));
-  box-shadow:
-    0 1px 0 var(--inset-glint) inset,
-    0 18px 34px rgba(26, 43, 76, 0.1),
-    0 4px 14px rgba(26, 43, 76, 0.06);
-}
-
-.feature-card:hover {
-  transform: translateY(-2px);
-  border-color: color-mix(in oklab, var(--lagoon-deep) 35%, var(--line));
-}
-
-button,
-.island-shell,
-a {
-  transition: background-color 180ms ease, color 180ms ease, border-color 180ms ease,
-    transform 180ms ease;
-}
-
-.island-kicker {
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  font-weight: 700;
-  font-size: 0.69rem;
-  color: var(--kicker);
-}
-
-.nav-link {
-  position: relative;
-  text-decoration: none;
-  color: var(--sea-ink-soft);
-}
-
-.nav-link::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  bottom: -8px;
-  width: 100%;
-  height: 2px;
-  transform: scaleX(0);
-  transform-origin: left;
-  background: linear-gradient(90deg, var(--lagoon), #F4A35E);
-  transition: transform 170ms ease;
-}
-
-.nav-link:hover,
-.nav-link.is-active {
-  color: var(--sea-ink);
-}
-
-.nav-link:hover::after,
-.nav-link.is-active::after {
-  transform: scaleX(1);
-}
-
-.rise-in {
-  animation: rise-in 700ms cubic-bezier(0.16, 1, 0.3, 1) both;
-}
-
-@keyframes rise-in {
-  from {
-    opacity: 0;
-    transform: translateY(12px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.site-footer {
-  border-top: 1px solid var(--line);
-  background: color-mix(in oklab, var(--header-bg) 84%, transparent 16%);
 }
 
 @layer base {
