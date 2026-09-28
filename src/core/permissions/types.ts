@@ -25,20 +25,35 @@
  * `RESIDENCE.VALIDER`/`RESIDENCE.ANNULER` (residence 087+088) : validation
  * (chiffrage) et refus des demandes de séjour portail `EN_ATTENTE` —
  * accordés au réceptionniste. `RESIDENCE.DEMANDER` : création/annulation
- * côté client/résident (`/residence/portail/sejours`). `SUPERVISER` reste
- * non modélisé faute d'usage frontend.
+ * côté client/résident (`/residence/portail/sejours`).
  *
- * `GERER_TARIFS` (2026-09-16) : 6e verbe, propre à PRESSING (tarif au kilo).
- * Vérifié en direct : PRESSING a en réalité 9 verbes réels côté backend
- * (VOIR/CREER/MODIFIER/SUPPRIMER/ANNULER/TRAITER/MARQUER_PRET/RETIRER/
- * SUPERVISER/GERER_TARIFS — Responsable pressing les a tous ; Agent
- * d'accueil pressing n'a que CREER+VOIR ; Opérateur lavage TRAITER+VOIR ;
- * Caissier pressing RETIRER+VOIR ; Contrôleur qualité VALIDER+VOIR). Seul
- * `GERER_TARIFS` est modélisé ici (requis pour cette feature) — le frontend
- * actuel continue de gater les actions de statut/retrait avec les verbes
- * génériques `MODIFIER`/`CREER` plutôt que `TRAITER`/`MARQUER_PRET`/
- * `RETIRER` réels, un écart pré-existant non corrigé ici (hors périmètre de
- * cette tâche) — voir `features/pressing/permissions.ts`.
+ * `SUPERVISER` (2026-09-27) : existe sur 5 modules (RESIDENCE, RESTAURANT,
+ * RH, MARCHANDISE, PRESSING) mais un seul endpoint le vérifie réellement à ce
+ * jour — `POST /market/stock/reesolde` (`MARCHANDISE.SUPERVISER`), une
+ * fonctionnalité de réconciliation de stock pas encore construite côté
+ * frontend. Modélisé pour que le catalogue reste correct, sans UI à gater
+ * pour l'instant.
+ *
+ * `GERER_TARIFS` (2026-09-16) : propre à PRESSING (tarif au kilo). PRESSING a
+ * en réalité 9 verbes réels côté backend, tous désormais modélisés et
+ * correctement câblés (corrigé le 2026-09-27, vérifié rôle par rôle via
+ * `GET /admin/roles/:id/permissions` et les 403 documentés dans `/docs-json`) :
+ * `TRAITER` (DEPOSE→EN_TRAITEMENT, `POST .../traitement`) — Opérateur
+ * lavage/séchage ; `MARQUER_PRET` (EN_TRAITEMENT→PRET, `POST .../pret`) —
+ * Opérateur repassage (verbe **distinct** de `TRAITER`, pas le même
+ * opérateur) ; `RETIRER` (encaissement du solde, `POST .../retirer`) —
+ * Caissier pressing (a aussi `FINANCES.VOIR`) ; `SUPERVISER` — n'est
+ * actuellement vérifié par **aucun** endpoint pressing (seul
+ * `POST /market/stock/reesolde` le requiert, sur `MARCHANDISE.SUPERVISER` —
+ * fonctionnalité pas encore construite côté frontend) ; `VALIDER` (Contrôleur
+ * qualité) — n'est vérifié par **aucun** endpoint pressing à ce jour, un
+ * verbe présent au catalogue sans usage backend encore câblé, à ne pas
+ * confondre avec `PRESSING.CREER`, qui lui gate réellement
+ * `POST .../valider` (validation/chiffrage d'une demande portail
+ * `EN_ATTENTE`, malgré son nom). Avant cette correction, le frontend gatait
+ * « Passer en traitement »/« Passer en Prêt »/« Retirer » avec les verbes
+ * génériques `MODIFIER`/`CREER` : un Opérateur lavage/séchage/repassage ou un
+ * Caissier pressing ne voyait alors **aucun** de ces boutons.
  *
  * `COMMANDER`/`DECLARER`/`DEMANDER` (portail résident « demandes », endpoints
  * `/restaurant/portail/commandes`, `/pressing/portail/commandes`,
@@ -76,6 +91,18 @@
  * `DECIDER_RELIQUAT` (reporter/perdre le reliquat d'une souscription
  * expirée). Le catalogue des offres reste sur les verbes génériques
  * (`VOIR`/`CREER`/`MODIFIER`/`SUPPRIMER`).
+ *
+ * `RAPPORTS` (2026-09-27, vérifié en direct via `GET /admin/permissions` —
+ * catalogue complet, 18 modules/94 codes) : module désormais réel et
+ * **distinct** d'`ADMIN`, contrairement à ce que supposait tout le code
+ * avant cette date (« pas de permission RAPPORTS, suit ADMIN.VOIR »). Seul
+ * verbe : `VOIR`. Vérifié rôle par rôle : Administrateur et Dirigeant ont
+ * les deux (`ADMIN.VOIR` + `RAPPORTS.VOIR`), mais les 5 rôles
+ * Responsable (résidence/magasin/pressing/restaurant/salle de fête) n'ont
+ * **que** `RAPPORTS.VOIR`, jamais `ADMIN.VOIR` — gater Rapports/le tableau de
+ * bord global sur `ADMIN.VOIR` (l'ancien code partout : routes `/rapports/**`,
+ * `/dashboard`, sidebar, accueil, Ctrl-K) leur bloquait entièrement l'accès à
+ * leurs propres rapports. Corrigé à cette date pour utiliser `RAPPORTS.VOIR`.
  */
 export const MODULES = [
 	"RESIDENCE",
@@ -95,6 +122,7 @@ export const MODULES = [
 	"DEPENSE",
 	"PORTAIL",
 	"ABONNEMENT",
+	"RAPPORTS",
 ] as const;
 
 export type ModuleCode = (typeof MODULES)[number];
@@ -115,6 +143,10 @@ export const PERMISSION_VERBS = [
 	"VENDRE",
 	"AJUSTER",
 	"DECIDER_RELIQUAT",
+	"TRAITER",
+	"MARQUER_PRET",
+	"RETIRER",
+	"SUPERVISER",
 ] as const;
 
 export type PermissionVerb = (typeof PERMISSION_VERBS)[number];

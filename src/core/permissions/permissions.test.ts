@@ -57,8 +57,8 @@ describe("hasAllPermissions", () => {
 });
 
 describe("modèle de permissions (réel, pas inventé)", () => {
-	it("expose les 17 modules renvoyés par GET /auth/me (DEPENSE ajouté 2026-09-07, PORTAIL — market 085, ABONNEMENT — quotas prépayés 089/090)", () => {
-		expect(MODULES).toHaveLength(17);
+	it("expose les 18 modules du catalogue réel (GET /admin/permissions, vérifié en direct 2026-09-27 : 94 codes)", () => {
+		expect(MODULES).toHaveLength(18);
 		expect(MODULES).toEqual(
 			expect.arrayContaining([
 				"RESIDENCE",
@@ -78,6 +78,7 @@ describe("modèle de permissions (réel, pas inventé)", () => {
 				"DEPENSE",
 				"PORTAIL",
 				"ABONNEMENT",
+				"RAPPORTS",
 			]),
 		);
 		// Le spec (§9) liste `MARKET` ; la réponse réelle de /me ne le contient
@@ -85,7 +86,7 @@ describe("modèle de permissions (réel, pas inventé)", () => {
 		expect(MODULES).not.toContain("MARKET");
 	});
 
-	it("expose les 15 verbes modélisés, dont SUPPRIMER, ENCAISSER, GERER_TARIFS, les verbes du portail, VALIDER/ANNULER (validation des demandes), GERER_CATALOGUE (salle de fête) et les verbes abonnement VENDRE/AJUSTER/DECIDER_RELIQUAT", () => {
+	it("expose les 19 verbes modélisés, dont les 4 verbes réels du cycle de vie pressing (TRAITER/MARQUER_PRET/RETIRER/SUPERVISER, corrigés le 2026-09-27)", () => {
 		expect(PERMISSION_VERBS).toEqual([
 			"VOIR",
 			"CREER",
@@ -102,6 +103,10 @@ describe("modèle de permissions (réel, pas inventé)", () => {
 			"VENDRE",
 			"AJUSTER",
 			"DECIDER_RELIQUAT",
+			"TRAITER",
+			"MARQUER_PRET",
+			"RETIRER",
+			"SUPERVISER",
 		]);
 	});
 });
