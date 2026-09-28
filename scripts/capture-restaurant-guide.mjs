@@ -28,9 +28,9 @@ const OUT_DIR =
 
 const errors = [];
 
-async function capture(page, name) {
+async function capture(page, name, { fullPage = true } = {}) {
 	const filePath = path.join(OUT_DIR, `${name}.png`);
-	await page.screenshot({ path: filePath, fullPage: true });
+	await page.screenshot({ path: filePath, fullPage });
 	console.log(`📸 ${name}`);
 }
 
@@ -51,19 +51,22 @@ async function login(page) {
 	await waitForLoad(page);
 }
 
-/** Sélectionne le premier item d'un Select Radix via le clavier. */
+/** Sélectionne le premier item d'un Select Radix (clic d'option —
+ *  le clavier Enter soumet le formulaire si le select est fermé). */
 async function selectFirst(page, triggerLocator) {
 	await triggerLocator.click({ timeout: 10000 });
 	await page.waitForTimeout(1200);
-	await page.keyboard.press("Enter");
+	await page.locator('[data-slot="select-item"]').first().click({ timeout: 8000 });
 	await page.waitForTimeout(500);
 }
 
-/** Choisit un client via le champ de recherche (optionnel : saute si rien). */
+/** Choisit un client via le champ de recherche (optionnel : saute si rien).
+ *  « TEST Devin » n'a pas d'abonnement : le panneau « Couverture
+ *  abonnement » ne vient pas masquer le formulaire. */
 async function choisirClient(page) {
 	const champ = page.locator("#client-recherche");
 	if (!(await champ.isVisible().catch(() => false))) return;
-	await champ.fill("Guide");
+	await champ.fill("Devin");
 	await page.waitForTimeout(1500);
 	const premierResultat = page.locator("ul.divide-y li button").first();
 	if (await premierResultat.isVisible().catch(() => false)) {
@@ -99,7 +102,7 @@ async function main() {
 	const catTrigger = page.locator('button[aria-label="Catégorie"]');
 	await catTrigger.click({ timeout: 10000 });
 	await page.waitForTimeout(1200);
-	await capture(page, "02-plats-filtre-categorie");
+	await capture(page, "02-plats-filtre-categorie", { fullPage: false });
 	await page.keyboard.press("Escape");
 	await page.waitForTimeout(400);
 
@@ -136,7 +139,7 @@ async function main() {
 	const statutTrigger = page.locator('button[aria-label="Statut"]');
 	await statutTrigger.click({ timeout: 10000 });
 	await page.waitForTimeout(1200);
-	await capture(page, "07-commandes-filtre-statut");
+	await capture(page, "07-commandes-filtre-statut", { fullPage: false });
 	await page.keyboard.press("Escape");
 	await page.waitForTimeout(400);
 
@@ -144,7 +147,7 @@ async function main() {
 	const typeTrigger = page.locator('button[aria-label="Type"]');
 	await typeTrigger.click({ timeout: 10000 });
 	await page.waitForTimeout(1200);
-	await capture(page, "08-commandes-filtre-type");
+	await capture(page, "08-commandes-filtre-type", { fullPage: false });
 	await page.keyboard.press("Escape");
 	await page.waitForTimeout(400);
 
@@ -157,19 +160,21 @@ async function main() {
 	const typeCommande = page.locator("#commande-type");
 	await typeCommande.click();
 	await page.waitForTimeout(1200);
-	await capture(page, "10-commande-type-ouvert");
+	await capture(page, "10-commande-type-ouvert", { fullPage: false });
 	await page.keyboard.press("ArrowDown");
 	await page.keyboard.press("Enter");
 	await page.waitForTimeout(500);
 
 	await choisirClient(page);
 
-	// Choisir un plat dans la première ligne.
+	// Choisir un plat dans la première ligne — clic direct sur l'option
+	// (Enter soumet le formulaire et ferme la modale).
 	const platTrigger = page.locator('button[aria-label="Plat"]').first();
 	await platTrigger.click();
 	await page.waitForTimeout(1200);
-	await capture(page, "11-commande-plat-ouvert");
-	await page.keyboard.press("Enter");
+	// fullPage referme le dropdown Radix (resize du viewport) → viewport only.
+	await capture(page, "11-commande-plat-ouvert", { fullPage: false });
+	await page.locator('[data-slot="select-item"]').first().click();
 	await page.waitForTimeout(500);
 	await page.locator('input[aria-label="Quantité"]').first().fill("2");
 
@@ -185,10 +190,8 @@ async function main() {
 	await page.waitForTimeout(2500);
 	await capture(page, "13-commande-creee");
 
-	// Modale « Voir la facture » (icône œil de la première ligne).
-	const voirFacture = page
-		.getByRole("button", { name: "Voir la facture" })
-		.first();
+	// Modale « Voir la facture » (icône œil — présente sur chaque ligne).
+	const voirFacture = page.locator('button[title="Voir la facture"]').first();
 	if (await voirFacture.isVisible().catch(() => false)) {
 		await voirFacture.click();
 		await page.waitForTimeout(1500);
@@ -197,25 +200,31 @@ async function main() {
 		await page.waitForTimeout(500);
 	}
 
-	// Avancer le statut de la première commande (icône « Passer en… »).
-	const avancer = page
-		.locator('button[title^="Passer en"]')
-		.first();
-	if (await avancer.isVisible().catch(() => false)) {
+	// Avancer le statut : valide une demande EN_ATTENTE (→ En cours) ou
+	// « Passer en… » si une commande est déjà en cours/préparation.
+	const valider = page.locator('button[title^="Valider la demande"]').first();
+	const avancer = page.locator('button[title^="Passer en"]').first();
+	if (await valider.isVisible().catch(() => false)) {
+		await valider.click();
+		await page.waitForTimeout(2000);
+		await capture(page, "15-statut-avance");
+	} else if (await avancer.isVisible().catch(() => false)) {
 		await avancer.click();
 		await page.waitForTimeout(2000);
 		await capture(page, "15-statut-avance");
 	}
 
-	// Modale de confirmation « Annuler la commande » (icône X).
-	const annulerBouton = page
-		.getByRole("button", { name: "Annuler", exact: true })
-		.first();
+	// Modale de confirmation « Annuler la commande » (icône X d'une ligne
+	// non EN_ATTENTE — son title est « Annuler », pas « Refuser »).
+	const annulerBouton = page.locator('button[title="Annuler"]').first();
 	if (await annulerBouton.isVisible().catch(() => false)) {
 		await annulerBouton.click();
 		await page.waitForTimeout(1000);
 		await capture(page, "16-annuler-dialog");
-		await page.getByRole("button", { name: "Fermer" }).click();
+		await page
+			.getByRole("button", { name: "Fermer" })
+			.first()
+			.click();
 		await page.waitForTimeout(500);
 	}
 

@@ -115,23 +115,13 @@ async function main() {
 		await page.keyboard.press("Escape");
 		await page.waitForTimeout(500);
 
-		// Type de cible « Module » + filtre module déplié
-		await choisirOptionParTexte(
-			page,
-			page.locator('button[aria-label="Type de cible"]'),
-			"Module",
-		);
+		// Filtre « Module concerné » déplié (le filtre « Type de cible » a
+		// été retiré — module_cible suffit).
 		await page.locator('button[aria-label="Module concerné"]').click();
 		await page.waitForTimeout(800);
 		await capture(page, "03-filtre-module", { fullPage: false });
 		await page.keyboard.press("Escape");
 		await page.waitForTimeout(500);
-		// Remet le filtre cible sur « Toutes les cibles »
-		await choisirOptionParTexte(
-			page,
-			page.locator('button[aria-label="Type de cible"]'),
-			"Toutes les cibles",
-		);
 
 		// ── 2. Modale « Nouveau signalement » remplie ─────────────────────
 		await page
@@ -217,11 +207,11 @@ async function main() {
 			await mobile.waitForTimeout(800);
 			await capture(mobile, "10-mobile-liste");
 
-			const lienGuide = mobile.getByRole("link", {
-				name: /Ascenseur du bloc B/,
-			});
-			if (await lienGuide.isVisible().catch(() => false)) {
-				await lienGuide.first().click();
+			const lienGuide = mobile
+				.locator("a", { hasText: "Ascenseur du bloc B" })
+				.first();
+			if (await lienGuide.waitFor({ timeout: 8000 }).then(() => true).catch(() => false)) {
+				await lienGuide.click();
 				await waitForLoad(mobile);
 				await mobile.waitForTimeout(1000);
 				await capture(mobile, "11-mobile-fiche");

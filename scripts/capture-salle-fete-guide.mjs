@@ -52,11 +52,12 @@ async function login(page) {
 	await waitForLoad(page);
 }
 
-/** Une date dans le mois courant (jour 20 si possible), format YYYY-MM-DD. */
+/** Une date libre : le 21 dans 2 mois (le 20 du mois courant est souvent
+ *  déjà réservé par un run précédent → « Créneau déjà réservé »). */
 function dateDansMois() {
 	const d = new Date();
-	const jour = Math.min(20, new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate());
-	return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(jour).padStart(2, "0")}`;
+	const mois = new Date(d.getFullYear(), d.getMonth() + 2, 21);
+	return `${mois.getFullYear()}-${String(mois.getMonth() + 1).padStart(2, "0")}-21`;
 }
 
 /** Choisit un client via le champ de recherche (ou le crée en inline). */

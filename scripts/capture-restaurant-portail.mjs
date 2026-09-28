@@ -116,14 +116,22 @@ async function main() {
 		await encaisserBtn.click();
 		const dlg = page.getByRole("dialog");
 		await dlg.waitFor({ timeout: 10000 });
-		await page.waitForTimeout(600);
-		await dlg.locator("#encaisser-moyen").click();
-		await page.waitForTimeout(800);
-		await page.getByRole("option").first().click();
-		await page.waitForTimeout(500);
+		// L'aperçu abonnement se charge : s'il couvre tout, le champ moyen
+		// n'existe pas (message « entièrement couverte » + « Clôturer »).
+		await page.waitForTimeout(1500);
+		const moyenField = dlg.locator("#encaisser-moyen");
+		if (await moyenField.isVisible().catch(() => false)) {
+			await moyenField.click();
+			await page.waitForTimeout(800);
+			await page
+				.locator('[data-slot="select-item"]')
+				.first()
+				.click();
+			await page.waitForTimeout(500);
+		}
 		await capture(page, "23-encaisser-dialog");
 		await dlg
-			.getByRole("button", { name: /Encaisser|Valider|Confirmer/ })
+			.getByRole("button", { name: /Clôturer sans encaissement|Encaisser|Valider|Confirmer/ })
 			.last()
 			.click();
 		await page.waitForTimeout(2500);

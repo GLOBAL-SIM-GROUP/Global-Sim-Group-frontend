@@ -29,9 +29,9 @@ const OUT_DIR =
 
 const errors = [];
 
-async function capture(page, name) {
+async function capture(page, name, { fullPage = true } = {}) {
 	const filePath = path.join(OUT_DIR, `${name}.png`);
-	await page.screenshot({ path: filePath, fullPage: true });
+	await page.screenshot({ path: filePath, fullPage });
 	console.log(`📸 ${name}`);
 }
 
@@ -111,7 +111,7 @@ async function main() {
 	const statutTrigger = page.locator('button[aria-label="Statut"]');
 	await statutTrigger.click({ timeout: 10000 });
 	await page.waitForTimeout(1200);
-	await capture(page, "02-filtre-statut-ouvert");
+	await capture(page, "02-filtre-statut-ouvert", { fullPage: false });
 	await page.keyboard.press("Escape");
 	await page.waitForTimeout(400);
 
@@ -119,7 +119,7 @@ async function main() {
 	const sourceTrigger = page.locator('button[aria-label="Source"]');
 	await sourceTrigger.click({ timeout: 10000 });
 	await page.waitForTimeout(1200);
-	await capture(page, "03-filtre-source-ouvert");
+	await capture(page, "03-filtre-source-ouvert", { fullPage: false });
 	await page.keyboard.press("Escape");
 	await page.waitForTimeout(400);
 
@@ -134,7 +134,7 @@ async function main() {
 	const prestationTrigger = page.locator('button[aria-label="Prestation"]');
 	await prestationTrigger.click();
 	await page.waitForTimeout(1200);
-	await capture(page, "05-facture-prestation-ouvert");
+	await capture(page, "05-facture-prestation-ouvert", { fullPage: false });
 	await page.keyboard.press("ArrowDown"); // surligne le premier item
 	await page.keyboard.press("Enter"); // le choisit
 	await page.waitForTimeout(500);
@@ -191,7 +191,7 @@ async function main() {
 	if (await ticketBouton.isVisible().catch(() => false)) {
 		await ticketBouton.click();
 		await page.waitForTimeout(800);
-		await capture(page, "08-ticket-menu");
+		await capture(page, "08-ticket-menu", { fullPage: false });
 		// Le menu Ticket est un simple div : il ne se ferme que par un
 		// second clic sur le bouton (pas d'Escape ni de clic dehors).
 		await ticketBouton.click();

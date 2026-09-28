@@ -91,7 +91,10 @@ async function main() {
 		await page.waitForTimeout(800);
 		await dlg.locator('button[role="combobox"], [id*="moyen"]').first().click();
 		await page.waitForTimeout(800);
-		await page.getByRole("option").first().click();
+		await page
+			.locator('[data-slot="select-item"]')
+			.first()
+			.click();
 		await page.waitForTimeout(500);
 		await capture(page, "27-encaisser-dialog");
 		await dlg

@@ -44,8 +44,8 @@ const dlg = page.getByRole("dialog");
 await dlg.waitFor({ timeout: 8000 });
 await page.waitForTimeout(500);
 await shot("02-offre-form-vide");
-await dlg.locator("#code").fill("GUIDE-PR10");
-await dlg.locator("#libelle").fill("Guide pressing 10 kg");
+await dlg.locator("#code").fill("GUIDE-PR30");
+await dlg.locator("#libelle").fill("Guide pressing 30 kg");
 await dlg.locator("#activite").click();
 await page.getByRole("option", { name: "Pressing" }).click();
 await page.waitForTimeout(300);
@@ -54,8 +54,8 @@ await page.getByRole("option", { name: /kg/i }).click();
 await dlg.locator("#idPrestation").click();
 await page.waitForTimeout(400);
 await page.getByRole("option").first().click();
-await dlg.locator("#quota").fill("10");
-await dlg.locator("#prix").fill("14000");
+await dlg.locator("#quota").fill("20");
+await dlg.locator("#prix").fill("25000");
 await dlg.locator("#dureeJours").fill("30");
 await page.waitForTimeout(300);
 await shot("03-offre-form-remplie");
@@ -122,13 +122,15 @@ await pdlg.locator("#client-recherche").fill("Guide");
 await page.waitForTimeout(1500);
 await pdlg.locator("ul button", { hasText: "Guide" }).first().click();
 await page.waitForTimeout(500);
-// article couvert par l'offre (même prestation que l'offre)
+// Les souscriptions « Guide pressing 10 kg » sont en kg : couverture
+// totale seulement en tarification au kilo.
+await pdlg.getByRole("radio", { name: /kilo/i }).click();
+await page.waitForTimeout(800);
 await pdlg.getByRole("combobox", { name: "Type de vêtement" }).click();
 await page.getByRole("option").first().click();
 await pdlg.getByRole("combobox", { name: "Prestation" }).click();
 await page.getByRole("option").first().click();
-await pdlg.getByRole("spinbutton", { name: "Quantité" }).or(pdlg.locator('input[aria-label="Quantité"]')).first().fill("2");
-await pdlg.locator('input[aria-label="Tarif"]').fill("1500");
+await pdlg.locator('input[aria-label="Poids (kg)"]').fill("3");
 await page.waitForTimeout(2500); // aperçu debounced
 await shot("12-apercu-couverture", OUT);
 await page.screenshot({ path: `${OUT_PRESSING}/27-apercu-abonnement.png` });

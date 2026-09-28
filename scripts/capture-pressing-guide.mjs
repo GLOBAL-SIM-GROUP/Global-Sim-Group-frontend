@@ -29,9 +29,9 @@ const OUT_DIR =
 
 const errors = [];
 
-async function capture(page, name) {
+async function capture(page, name, { fullPage = true } = {}) {
 	const filePath = path.join(OUT_DIR, `${name}.png`);
-	await page.screenshot({ path: filePath, fullPage: true });
+	await page.screenshot({ path: filePath, fullPage });
 	console.log(`📸 ${name}`);
 }
 
@@ -87,22 +87,32 @@ async function choisirClient(page) {
 	await page.waitForTimeout(2000);
 }
 
-/** Remplit la première ligne d'article du formulaire de dépôt. */
+/** Remplit la première ligne d'article du formulaire de dépôt.
+ *  Type/Prestation sont des selects adossés au catalogue depuis la
+ *  refonte (sélection d'une entrée active, pas du texte libre). */
 async function remplirArticle(page) {
+	// Select « Type de vêtement » → première entrée du catalogue.
 	await page
-		.getByPlaceholder("Type de vêtement (ex : Chemise)")
+		.locator('button[aria-label="Type de vêtement"]')
 		.first()
-		.fill("Chemise");
+		.click();
+	await page.waitForTimeout(800);
+	await page.getByRole("option").first().click();
+	await page.waitForTimeout(400);
+	// Select « Prestation » → première entrée du catalogue.
 	await page
-		.getByPlaceholder("Prestation (ex : Repassage)")
+		.locator('button[aria-label="Prestation"]')
 		.first()
-		.fill("Lavage + Repassage");
+		.click();
+	await page.waitForTimeout(800);
+	await page.getByRole("option").first().click();
+	await page.waitForTimeout(400);
 	await page
 		.locator('input[aria-label="Quantité"]')
 		.first()
 		.fill("2");
 	await page
-		.getByPlaceholder("Tarif (FCFA)")
+		.locator('input[aria-label="Tarif"]')
 		.first()
 		.fill("1500");
 	await page.locator("#commande-retrait").fill(demain());
@@ -134,7 +144,7 @@ async function main() {
 	const statutTrigger = page.locator('button[aria-label="Statut"]');
 	await statutTrigger.click({ timeout: 10000 });
 	await page.waitForTimeout(1200);
-	await capture(page, "02-filtre-statut-ouvert");
+	await capture(page, "02-filtre-statut-ouvert", { fullPage: false });
 	await page.keyboard.press("Escape");
 	await page.waitForTimeout(400);
 
@@ -163,12 +173,30 @@ async function main() {
 	await capture(page, "06-commande-remplie");
 
 	// Soumettre : la modale se ferme, la commande apparaît dans la liste.
+	// On intercepte la réponse POST pour connaître le n° exact — la liste
+	// n'est pas triée par n°, la première ligne n'est pas forcément la
+	// commande créée.
+	const reponseCreation = page.waitForResponse(
+		(r) =>
+			r.url().includes("/api/v1/pressing/commandes") &&
+			r.request().method() === "POST",
+		{ timeout: 20000 },
+	);
 	await page.getByRole("button", { name: "Enregistrer" }).click();
+	const creee = await reponseCreation.then((r) => r.json()).catch(() => null);
+	const numeroCree =
+		creee?.numero_commande ?? creee?.commande?.numero_commande ?? null;
 	await page.waitForTimeout(2500);
 	await capture(page, "07-commande-creee");
 
 	// --- Fiche commande --------------------------------------------------
-	// Ouvre la première commande de la liste (lien numéro de commande).
+	// Recherche la commande créée par son n° puis ouvre sa fiche.
+	if (numeroCree) {
+		await page
+			.locator('input[aria-label="Rechercher une commande"]')
+			.fill(numeroCree);
+		await page.waitForTimeout(1500);
+	}
 	const lienCommande = page
 		.locator("table tbody tr td a")
 		.first();
@@ -184,7 +212,7 @@ async function main() {
 	if (await recuBouton.isVisible().catch(() => false)) {
 		await recuBouton.click();
 		await page.waitForTimeout(1000);
-		await capture(page, "09-recu-depot-menu");
+		await capture(page, "09-recu-depot-menu", { fullPage: false });
 		await page.keyboard.press("Escape");
 		await page.waitForTimeout(400);
 	}
@@ -242,6 +270,12 @@ async function main() {
 	await waitForLoad(mpage);
 	await capture(mpage, "13-commandes-mobile");
 
+	if (numeroCree) {
+		await mpage
+			.locator('input[aria-label="Rechercher une commande"]')
+			.fill(numeroCree);
+		await mpage.waitForTimeout(1500);
+	}
 	const mLien = mpage.locator("table tbody tr td a").first();
 	if (await mLien.isVisible().catch(() => false)) {
 		await mLien.click();

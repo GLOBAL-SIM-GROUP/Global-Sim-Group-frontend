@@ -272,10 +272,13 @@ async function main() {
 			await boutonVoir.click();
 			await page.waitForTimeout(2500);
 			await capture(page, "12-photos-piece", { fullPage: false });
+			// La modale a 2 boutons « Fermer » (icône X + bouton bas) :
+			// .first() = la croix, qui appelle onOpenChange(false).
 			await page
+				.getByRole("dialog")
 				.getByRole("button", { name: "Fermer" })
-				.click()
-				.catch(() => page.keyboard.press("Escape"));
+				.first()
+				.click();
 			await page.waitForTimeout(800);
 		}
 

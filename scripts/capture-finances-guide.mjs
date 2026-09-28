@@ -29,9 +29,9 @@ const OUT_DIR =
 
 const errors = [];
 
-async function capture(page, name) {
+async function capture(page, name, { fullPage = true } = {}) {
 	const filePath = path.join(OUT_DIR, `${name}.png`);
-	await page.screenshot({ path: filePath, fullPage: true });
+	await page.screenshot({ path: filePath, fullPage });
 	console.log(`📸 ${name}`);
 }
 
@@ -94,7 +94,7 @@ async function main() {
 	const periodeTrigger = page.locator("#tableau-bord-filtre-periode");
 	await periodeTrigger.click({ timeout: 10000 });
 	await page.waitForTimeout(1200);
-	await capture(page, "02-tdb-periode-ouvert");
+	await capture(page, "02-tdb-periode-ouvert", { fullPage: false });
 	await page.keyboard.press("Escape");
 	await page.waitForTimeout(400);
 
@@ -102,7 +102,7 @@ async function main() {
 	const activiteTrigger = page.locator("#tableau-bord-filtre-activite");
 	await activiteTrigger.click({ timeout: 10000 });
 	await page.waitForTimeout(1200);
-	await capture(page, "03-tdb-activite-ouvert");
+	await capture(page, "03-tdb-activite-ouvert", { fullPage: false });
 	// Choisir « Pressing » pour montrer le résumé par activité.
 	await page
 		.locator('[data-slot="select-item"]', { hasText: "Pressing" })
@@ -153,7 +153,7 @@ async function main() {
 	if (await typeTrigger.isVisible().catch(() => false)) {
 		await typeTrigger.click();
 		await page.waitForTimeout(1200);
-		await capture(page, "07-encaissements-type-ouvert");
+		await capture(page, "07-encaissements-type-ouvert", { fullPage: false });
 		await page.keyboard.press("Escape");
 		await page.waitForTimeout(400);
 	}
@@ -207,7 +207,7 @@ async function main() {
 	if (await typeImpaye.isVisible().catch(() => false)) {
 		await typeImpaye.click();
 		await page.waitForTimeout(1200);
-		await capture(page, "13-impayes-type-ouvert");
+		await capture(page, "13-impayes-type-ouvert", { fullPage: false });
 		await page.keyboard.press("Escape");
 		await page.waitForTimeout(400);
 	}

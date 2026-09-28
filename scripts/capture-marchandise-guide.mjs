@@ -160,7 +160,9 @@ async function main() {
 			.click();
 		await page.locator("#reference").waitFor({ timeout: 8000 });
 		await page.waitForTimeout(400);
-		await page.locator("#reference").fill("GUIDE-EAU-1L");
+		await page
+			.locator("#reference")
+			.fill(`GUIDE-EAU-${String(Date.now()).slice(-6)}`);
 		await page.locator("#nom").fill("Guide-Eau minérale 1L");
 		await choisirDansSelect(page, page.locator("#idCategorieProduit"), 0);
 		await choisirDansSelect(page, page.locator("#idFournisseur"), 0);
@@ -168,7 +170,9 @@ async function main() {
 		await page.locator("#prixVente").fill("500");
 		await page.locator("#stockInitial").fill("24");
 		await page.locator("#seuilAlerte").fill("6");
-		await page.locator("#codeBarre").fill("3700000000001");
+		// Code-barres unique à chaque run (contrainte d'unicité backend —
+		// un doublon laisse la modale ouverte sur l'erreur « already exists »).
+		await page.locator("#codeBarre").fill(`37${String(Date.now()).slice(-11)}`);
 		await page.waitForTimeout(300);
 		await capture(page, "05-nouveau-produit", { fullPage: false });
 		await page
@@ -176,6 +180,13 @@ async function main() {
 			.last()
 			.click();
 		await page.waitForTimeout(3000);
+		// Si la modale est encore ouverte (erreur de validation), la fermer.
+		await page
+			.getByRole("dialog")
+			.getByRole("button", { name: "Annuler" })
+			.click()
+			.catch(() => {});
+		await page.waitForTimeout(600);
 
 		// ── 4. Le produit dans la grille + modale Modifier + code-barres ──
 		await champRecherche.fill("Guide-Eau");
@@ -244,7 +255,8 @@ async function main() {
 			page.locator("#idProduit"),
 			"Guide-Eau",
 		);
-		await choisirDansSelect(page, page.locator("#type"), 0); // Entrée
+		// « Entrée » par texte (ArrowDown part de l'item courant, pas du 1er).
+		await choisirOptionParTexte(page, page.locator("#type"), "Entrée");
 		await page.locator("#quantite").fill("12");
 		await page.locator("#motif").fill("Réappro fournisseur");
 		await page.locator("#documentRef").fill("BL-2026-GUIDE");
@@ -255,6 +267,13 @@ async function main() {
 			.last()
 			.click();
 		await page.waitForTimeout(3000);
+		// Fermer la modale si encore ouverte (erreur de validation).
+		await page
+			.getByRole("dialog")
+			.getByRole("button", { name: "Annuler" })
+			.click()
+			.catch(() => {});
+		await page.waitForTimeout(600);
 
 		// Modale « Alerte stock »
 		await page

@@ -27,10 +27,20 @@ const OUT_DIR =
 
 const errors = [];
 
-async function capture(page, name) {
+async function capture(page, name, { fullPage = true } = {}) {
 	const filePath = path.join(OUT_DIR, `${name}.png`);
-	await page.screenshot({ path: filePath, fullPage: true });
+	await page.screenshot({ path: filePath, fullPage });
 	console.log(`📸 ${name}`);
+}
+
+/** Masque les toasts de notification qui recouvrent parfois les captures. */
+async function hideToasts(page) {
+	await page
+		.addStyleTag({
+			content:
+				'[data-sonner-toaster], [class*="toaster"], [role="status"] { display: none !important; }',
+		})
+		.catch(() => {});
 }
 
 async function waitForLoad(page) {
@@ -103,14 +113,19 @@ async function main() {
 		errors.push(`[pageerror:home] ${err.message}`),
 	);
 
+	await hideToasts(loginPage);
 	await capture(loginPage, "03-accueil");
 
-	// Détail d'une tuile de module : survol pour montrer les sous-liens.
-	const firstTile = loginPage.locator(".rounded-xl.border.bg-card").first();
+	// Détail d'une tuile de module : capture de la première carte (les
+	// sous-liens sont toujours visibles — le survol active le halo).
+	const firstTile = loginPage.locator(".border-glow-card").first();
 	if (await firstTile.isVisible().catch(() => false)) {
 		await firstTile.hover();
 		await loginPage.waitForTimeout(500);
-		await capture(loginPage, "04-accueil-tuile-survol");
+		await firstTile.screenshot({
+			path: path.join(OUT_DIR, "04-accueil-tuile-survol.png"),
+		});
+		console.log("📸 04-accueil-tuile-survol");
 	}
 
 	// Menu utilisateur déployé (sidebar).
@@ -138,32 +153,45 @@ async function main() {
 		.locator("#dashboard-global-filtre-periode")
 		.waitFor({ state: "visible", timeout: 10000 })
 		.catch(() => {});
-	await dpage.waitForTimeout(1000);
+	// Attendre la fin du chargement des données (le libellé « Chargement… »
+	// disparaît quand les sections sont rendues).
+	await dpage
+		.getByText("Chargement…")
+		.waitFor({ state: "hidden", timeout: 30000 })
+		.catch(() => {});
+	await dpage.waitForTimeout(800);
 	await capture(dpage, "09-dashboard-global");
 
 	// Filtre période : ouvrir le sélecteur.
 	const periodeTrigger = dpage.locator("#dashboard-global-filtre-periode");
+	const choisirPeriode = async (label) => {
+		await periodeTrigger.click({ timeout: 10000 });
+		await dpage.waitForTimeout(800);
+		await dpage
+			.locator('[data-slot="select-item"]', { hasText: label })
+			.first()
+			.click();
+	};
 	await periodeTrigger.click({ timeout: 10000 });
 	await dpage.waitForTimeout(1500);
-	await capture(dpage, "10-dashboard-filtre-periode-ouvert");
+	await capture(dpage, "10-dashboard-filtre-periode-ouvert", {
+		fullPage: false,
+	});
 
-	// Choisir « Aujourd'hui » via le clavier (plus fiable que le clic d'item
-	// Radix dans un portail).
-	await dpage.keyboard.press("ArrowDown");
-	await dpage.waitForTimeout(300);
-	await dpage.keyboard.press("Enter");
+	// Choisir « Aujourd'hui ».
+	await dpage
+		.locator('[data-slot="select-item"]', { hasText: "Aujourd'hui" })
+		.first()
+		.click();
 	await waitForLoad(dpage);
+	await dpage
+		.getByText("Chargement…")
+		.waitFor({ state: "hidden", timeout: 30000 })
+		.catch(() => {});
 	await capture(dpage, "11-dashboard-periode-aujourdhui");
 
-	// Période personnalisée : rouvrir et descendre jusqu'à « Personnalisée ».
-	await periodeTrigger.click({ timeout: 10000 });
-	await dpage.waitForTimeout(1500);
-	// « Personnalisée » est le dernier item (7e) — 6× ArrowDown.
-	for (let i = 0; i < 6; i++) {
-		await dpage.keyboard.press("ArrowDown");
-		await dpage.waitForTimeout(150);
-	}
-	await dpage.keyboard.press("Enter");
+	// Période personnalisée.
+	await choisirPeriode("Personnalisée");
 	await dpage.waitForTimeout(800);
 	await capture(dpage, "12-dashboard-periode-personnalisee");
 
@@ -177,15 +205,13 @@ async function main() {
 		await capture(dpage, "13-dashboard-periode-personnalisee-remplie");
 	}
 
-	// Revenir à « Ce mois » (4e item) pour les captures des sections.
-	await periodeTrigger.click({ timeout: 10000 });
-	await dpage.waitForTimeout(1500);
-	for (let i = 0; i < 3; i++) {
-		await dpage.keyboard.press("ArrowDown");
-		await dpage.waitForTimeout(150);
-	}
-	await dpage.keyboard.press("Enter");
+	// Revenir à « Ce mois » pour les captures des sections.
+	await choisirPeriode("Ce mois");
 	await waitForLoad(dpage);
+	await dpage
+		.getByText("Chargement…")
+		.waitFor({ state: "hidden", timeout: 30000 })
+		.catch(() => {});
 
 	// Captures des sections (scroll successif).
 	await captureSection(dpage, "Résidence", "14-dashboard-section-residence");

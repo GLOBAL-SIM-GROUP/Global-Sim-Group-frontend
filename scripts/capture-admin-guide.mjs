@@ -29,7 +29,8 @@ const BASE_URL = process.env.BASE_URL || "http://localhost:3000";
 const LOGIN = process.env.LOGIN || "admin";
 const PASSWORD = process.env.PASSWORD || "motdepasse";
 const OUT_DIR =
-	process.env.OUT_DIR || "docs/guides-utilisation/admin/screenshots/admin";
+	process.env.OUT_DIR ||
+	"docs/guides-utilisation/administration/screenshots/administration";
 
 const errors = [];
 
