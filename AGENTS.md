@@ -3,12 +3,17 @@
 Ce projet est le client web de la plateforme multiservice GLOBAL SIM GROUP.
 La quasi-totalité des modules métier est implémentée (résidence, restaurant,
 pressing, salle de fête, facturation, finances, RH, clients, marchandise,
-administration, rapports, signalements, portail résident). Les conventions
-détaillées sont dans [`docs/`](docs/). [`prompt-adapted.md`](prompt-adapted.md)
-décrit l'intention initiale du projet (jour 1) — ne plus s'y fier pour le
-modèle de permissions ou le périmètre réel : se fier au code
-(`src/core/permissions/`, `src/features/`). Ne pas inventer de module ou
-d'endpoint hors de ce qui existe réellement côté backend.
+abonnements, administration, rapports, signalements, portail résident, espace
+client). Les conventions détaillées sont dans [`docs/`](docs/).
+[`prompt-adapted.md`](prompt-adapted.md) décrit l'intention initiale du projet
+(jour 1) — ne plus s'y fier pour le modèle de permissions ou le périmètre
+réel : se fier au code (`src/core/permissions/`, `src/features/`). Ne pas
+inventer de module ou d'endpoint hors de ce qui existe réellement côté
+backend — et ne pas supposer non plus qu'un module/verbe est absent sans
+l'avoir vérifié (`GET /admin/permissions` liste le catalogue complet ;
+`GET /auth/me` donne les permissions du compte connecté) : le modèle réel
+évolue vite et a déjà dépassé cette page plusieurs fois (17→18 modules,
+~15→~20 verbes entre septembre et le dernier audit du 2026-09-27).
 
 1. **Ne pas contourner les frontières de features** — les écrans d'un module
    vivent dans `src/features/<module>/`, le réutilisable dans `src/core/` et
@@ -35,8 +40,10 @@ d'endpoint hors de ce qui existe réellement côté backend.
    `src/core/api/generated/**` : les régénérer par les scripts
    (`generate-routes`, `api:gen`).
 10. **Ne pas inventer d'endpoints ou de permissions** — utiliser uniquement ce
-    que le backend réel expose (spec `/docs-json`, `docs/api.md`) et les 13
-    préfixes de permission réels (pas de `DELETE`).
+    que le backend réel expose (spec `/docs-json`, `docs/api.md`) et les
+    modules/verbes réels du catalogue (`GET /admin/permissions` — 18 modules,
+    ~94 codes au dernier audit, voir `src/core/permissions/types.ts`).
+    `SUPPRIMER` (DELETE) existe bien sur la plupart des modules.
 11. **Lancer `npm run check` et `npm test` avant de considérer le travail fini** —
     ainsi que `npm run build` pour tout changement de structure.
 

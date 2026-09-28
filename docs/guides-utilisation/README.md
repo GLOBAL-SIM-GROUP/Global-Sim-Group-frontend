@@ -35,6 +35,16 @@ Scripts complémentaires : `scripts/capture-residence-fix.mjs`
 > section remplacée par un renvoi, captures menu et charges recapturées.
 > Voir `abonnements/abonnements.pdf`.
 
+> **2026-09-28** : le portail résident (`/residence/portail`) dispose
+> désormais de son propre guide utilisateur — captures réelles du compte
+> `resident`, parcours échéances/caution/séjours/restaurant/salle de
+> fête/signalements. Voir `portail-resident/portail-resident.pdf`.
+>
+> **2026-09-28** : l'espace client (`/espace-client`) dispose aussi de son
+> propre guide utilisateur — captures réelles du compte `client`, parcours
+> restaurant/boutique/panier/demandes/pressing/séjours/salle de
+> fête/abonnements/signalements. Voir `espace-client/espace-client.pdf`.
+
 ## Regénérer le PDF
 
 ```bash

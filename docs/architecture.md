@@ -10,7 +10,7 @@ données) — le rendu SSR est utilisé par le framework pour la structure HTML.
 ```
 ┌─────────────────────────────────────────────────────────┐
 │  src/routes/         colle de routing (guards, layouts)  │
-│  src/features/       (vide) fonctionnalités métier        │
+│  src/features/       19 modules métier (résidence, ...)  │
 │  src/components/     ui/ (shadcn) + layout/ (coquille)    │
 │  src/core/           fondation technique                  │
 │    api/ auth/ permissions/ query/ config/                 │
@@ -22,12 +22,16 @@ données) — le rendu SSR est utilisé par le framework pour la structure HTML.
         https://dev.sim.strife-cyber.org/api/v1
 ```
 
+> Mis à jour 2026-09-27. `features/` est passé de « vide » (fondation jour 1)
+> à 19 modules — voir le tableau et les règles dans
+> [`src/features/README.md`](../src/features/README.md).
+
 ## Couches et règles
 
 | Couche | Contenu | Règle |
 | --- | --- | --- |
 | `core/` | Fondation technique générique (auth, api, permissions, query, env) | Aucune logique métier, aucun couplage aux modules. Importé par toutes les autres couches. |
-| `features/` | Un dossier par module métier réel (M0–M11) | Vide tant que la fondation ne l'exige pas. La logique métier vit ici, jamais dans les routes. |
+| `features/` | Un dossier par module métier réel (résidence, pressing, restaurant, salle de fête, facturation, finances, RH, clients, marchandise, abonnements, admin, rapports, signalements, portail résident, espace client, landing…) | La logique métier vit ici, jamais dans les routes. |
 | `routes/` | Fichiers de route TanStack Router | Colle d'orchestration uniquement : guards, layouts, mise en page. |
 | `components/ui` | shadcn/ui générés | Ne pas les modifier pour du métier ; composer à la place. |
 | `components/layout` | Coquille applicative (header, logout, notifications) | Générique, partagée par les écrans authentifiés. |

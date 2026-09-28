@@ -6,8 +6,8 @@ finances, RH et administration.
 
 > **État actuel — la quasi-totalité des modules métier est implémentée**
 > (résidence, restaurant, pressing, salle de fête, facturation, finances, RH,
-> clients, marchandise, administration, rapports, signalements, portail
-> résident). L'architecture, l'authentification JWT, le système de
+> clients, marchandise, abonnements, administration, rapports, signalements,
+> portail résident, espace client). L'architecture, l'authentification JWT, le système de
 > permissions et la couche API générée depuis la spec OpenAPI réelle servent
 > de fondation à ces modules. L'interface est en français (texte en dur).
 > `prompt-adapted.md` décrit l'intention initiale du projet (jour 1) — il ne
@@ -70,8 +70,10 @@ Instance dev déployée : `https://dev.sim.strife-cyber.org`.
   voir [`src/core/auth/token-store.ts`](src/core/auth/token-store.ts)) : la
   session survit au rechargement de la page, restaurée par `auth.restore()`
   au démarrage.
-- Le modèle de permissions reflète le backend réel (`MODULE.{VOIR,CREER,MODIFIER}`,
-  13 préfixes, pas de `DELETE`) ; l'UI n'affiche que ce que `/auth/me` retourne.
+- Le modèle de permissions reflète le backend réel (`MODULE.VERBE` — 18
+  modules, ~94 codes au dernier audit, `SUPPRIMER` inclus sur la plupart des
+  modules ; voir [`docs/authorization.md`](docs/authorization.md)) ; l'UI
+  n'affiche que ce que `/auth/me` retourne.
 - Voir [`docs/api.md`](docs/api.md) et [`docs/authentication.md`](docs/authentication.md).
 
 ## Langue

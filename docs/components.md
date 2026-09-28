@@ -29,6 +29,11 @@ dans `src/components/`.
 - Classes utilitaires Tailwind 4 + variables CSS de shadcn (`.border`, `bg-card`,
   `text-muted-foreground`, `text-destructive`, …) définies dans `styles.css`.
 - Éviter les couleurs hexadécimales en dur : utiliser les tokens du thème.
+- **Statuts** : `<Badge variant="success|warning|info|danger|neutral">`
+  (`components/ui/badge.tsx`) — plus de `bg-[#hex] text-white`.
+- En-têtes de page, tableaux, modales, états vides : primitives
+  `page-header`, `table`, `dialog`, `empty-state` dans `components/ui/`.
+- Système complet : [`docs/design-system.md`](design-system.md).
 
 ## À ne pas faire
 
