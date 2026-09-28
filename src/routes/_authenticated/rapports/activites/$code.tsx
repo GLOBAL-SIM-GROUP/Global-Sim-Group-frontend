@@ -6,13 +6,14 @@ import { RapportActivitePage } from "#/features/rapports/components/rapport-acti
 
 /**
  * Rapport par activité (M10). Code dans l'URL, période dans la search (défaut :
- * mois courant). Page gated par `ADMIN.VOIR`.
+ * mois courant). Page gated par `RAPPORTS.VOIR` (module réel, distinct
+ * d'`ADMIN` — vérifié en direct 2026-09-27).
  */
 export const Route = createFileRoute(
 	"/_authenticated/rapports/activites/$code",
 )({
 	beforeLoad: ({ context }) => {
-		requirePermissions(context.auth, "ADMIN.VOIR");
+		requirePermissions(context.auth, "RAPPORTS.VOIR");
 	},
 	validateSearch: z.object({
 		du: z.string().optional(),

@@ -6,11 +6,12 @@ import { RapportFinancierPage } from "#/features/rapports/components/rapport-fin
 
 /**
  * Rapport financier (M10). Période dans l'URL (défaut : mois courant). Page
- * gated par `ADMIN.VOIR`.
+ * gated par `RAPPORTS.VOIR` (module réel, distinct d'`ADMIN` — vérifié en
+ * direct 2026-09-27).
  */
 export const Route = createFileRoute("/_authenticated/rapports/financier/")({
 	beforeLoad: ({ context }) => {
-		requirePermissions(context.auth, "ADMIN.VOIR");
+		requirePermissions(context.auth, "RAPPORTS.VOIR");
 	},
 	validateSearch: z.object({
 		du: z.string().optional(),

@@ -6,11 +6,12 @@ import { RapportRhPage } from "#/features/rapports/components/rapport-rh-page";
 
 /**
  * Rapport RH (M10). Période dans l'URL (défaut : mois courant). Page gated par
- * `ADMIN.VOIR`.
+ * `RAPPORTS.VOIR` (module réel, distinct d'`ADMIN` — vérifié en direct
+ * 2026-09-27).
  */
 export const Route = createFileRoute("/_authenticated/rapports/rh/")({
 	beforeLoad: ({ context }) => {
-		requirePermissions(context.auth, "ADMIN.VOIR");
+		requirePermissions(context.auth, "RAPPORTS.VOIR");
 	},
 	validateSearch: z.object({
 		du: z.string().optional(),

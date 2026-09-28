@@ -6,13 +6,14 @@ import { SyntheseGlobalePage } from "#/features/rapports/components/synthese-glo
 
 /**
  * Rapport de synthèse globale (M10). Période dans l'URL (défaut : mois
- * courant). Page gated par `ADMIN.VOIR`.
+ * courant). Page gated par `RAPPORTS.VOIR` (module réel, distinct d'`ADMIN`
+ * — vérifié en direct 2026-09-27).
  */
 export const Route = createFileRoute(
 	"/_authenticated/rapports/synthese-globale/",
 )({
 	beforeLoad: ({ context }) => {
-		requirePermissions(context.auth, "ADMIN.VOIR");
+		requirePermissions(context.auth, "RAPPORTS.VOIR");
 	},
 	validateSearch: z.object({
 		du: z.string().optional(),

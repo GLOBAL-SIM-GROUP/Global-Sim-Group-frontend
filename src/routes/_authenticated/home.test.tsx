@@ -108,9 +108,9 @@ describe("HomePage", () => {
 		expect(screen.queryByText("Signalements")).not.toBeInTheDocument();
 	});
 
-	it("affiche Tableau de bord global et Rapports avec ADMIN.VOIR", () => {
+	it("affiche Tableau de bord global et Rapports avec RAPPORTS.VOIR", () => {
 		mocks.can.clear();
-		mocks.can.add("ADMIN.VOIR");
+		mocks.can.add("RAPPORTS.VOIR");
 		mocks.permissions = [];
 
 		render(<HomePage />);
@@ -123,7 +123,7 @@ describe("HomePage", () => {
 		).toHaveAttribute("href", "/rapports");
 	});
 
-	it("n'affiche pas Tableau de bord global ni Rapports sans ADMIN.VOIR", () => {
+	it("n'affiche pas Tableau de bord global ni Rapports sans RAPPORTS.VOIR", () => {
 		mocks.can.clear();
 		mocks.permissions = [];
 
