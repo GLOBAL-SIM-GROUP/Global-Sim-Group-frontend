@@ -1,37 +1,40 @@
 import { Link } from "@tanstack/react-router";
 import { ChevronRight } from "lucide-react";
-import { useState } from "react";
 
-import { Breadcrumb } from "#/components/ui/breadcrumb";
+import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
+import { EmptyState } from "#/components/ui/empty-state";
+import { PageHeader } from "#/components/ui/page-header";
 import { useMesVentesPortail } from "#/features/portail/hooks/use-market";
 import { usePressingCommandes } from "#/features/portail/hooks/use-pressing";
 import { useMesCommandesRestaurant } from "#/features/portail/hooks/use-restaurant";
 import { useMesReservationsSalleFete } from "#/features/portail/hooks/use-salle-fete";
 import { useMesSejoursPortail } from "#/features/portail/hooks/use-sejours";
+import { useMesSignalements } from "#/features/portail/hooks/use-signalements";
 import {
-	VENTE_PORTAIL_STATUT_BADGE,
 	VENTE_PORTAIL_STATUT_LABELS,
+	VENTE_PORTAIL_STATUT_VARIANT,
 } from "#/features/portail/models/market";
 import {
 	libelleDateDepot,
 	libelleMontantPressing,
-	PRESSING_STATUT_BADGE,
 	PRESSING_STATUT_LABELS,
+	PRESSING_STATUT_VARIANT,
 } from "#/features/portail/models/pressing";
 import {
-	COMMANDE_PORTAIL_STATUT_BADGE,
 	COMMANDE_PORTAIL_STATUT_LABELS,
+	COMMANDE_PORTAIL_STATUT_VARIANT,
 	TYPE_COMMANDE_PORTAIL_LABELS,
 } from "#/features/portail/models/restaurant";
 import {
-	RESERVATION_PORTAIL_STATUT_BADGE,
 	RESERVATION_PORTAIL_STATUT_LABELS,
+	RESERVATION_PORTAIL_STATUT_VARIANT,
 } from "#/features/portail/models/salle-fete";
 import {
-	SEJOUR_PORTAIL_STATUT_BADGE,
 	SEJOUR_PORTAIL_STATUT_LABELS,
+	SEJOUR_PORTAIL_STATUT_VARIANT,
 } from "#/features/portail/models/sejours";
+import { libelleCiblePortail } from "#/features/portail/models/signalements";
 import {
 	formatDateHeureISO,
 	formatDateInstantUTC,
@@ -39,22 +42,19 @@ import {
 	formatMontantFCFA,
 } from "#/features/residence/models/format";
 import { SEJOUR_TYPE_LABELS } from "#/features/residence/models/sejours";
-import { cn } from "#/lib/utils";
-
 import {
-	DEMANDE_SERVICE_LABELS,
-	type DemandeLocale,
-	listerDemandes,
-} from "../models/demandes";
+	SIGNALEMENT_STATUT_LABELS,
+	SIGNALEMENT_STATUT_VARIANT,
+} from "#/features/signalements/models/signalements";
 
 /**
  * « Mes demandes » de l'espace client : commandes restaurant, dépôts
- * pressing, réservations de salle de fête, demandes boutique et demandes de
- * séjour court viennent des vrais endpoints portail (`/restaurant/portail`,
- * `/pressing/portail`, `/salle-fete/portail`, `/market/portail`,
- * `/residence/portail`) avec statuts en direct. Ne subsistent en localStorage
- * que les demandes sans endpoint résident (signalement) — cf.
- * `models/demandes.ts`.
+ * pressing, réservations de salle de fête, demandes boutique, demandes de
+ * séjour court et signalements viennent des vrais endpoints portail
+ * (`/restaurant/portail`, `/pressing/portail`, `/salle-fete/portail`,
+ * `/market/portail`, `/residence/portail`, `/signalements/portail`) avec
+ * statuts en direct — plus aucune donnée localStorage (backend 091 a doté
+ * le signalement d'endpoints portail).
  */
 export function MesDemandesPage() {
 	const commandesRestoQuery = useMesCommandesRestaurant();
@@ -62,38 +62,25 @@ export function MesDemandesPage() {
 	const reservationsQuery = useMesReservationsSalleFete();
 	const ventesQuery = useMesVentesPortail();
 	const sejoursQuery = useMesSejoursPortail();
-	const [demandes] = useState(() =>
-		listerDemandes().filter(
-			(demande) =>
-				demande.service !== "commande-restaurant" &&
-				demande.service !== "salle-fete" &&
-				demande.service !== "commande-boutique" &&
-				demande.service !== "residence",
-		),
-	);
+	const signalementsQuery = useMesSignalements();
 
 	const commandesResto = commandesRestoQuery.data ?? [];
 	const commandesPressing = commandesPressingQuery.data ?? [];
 	const reservations = reservationsQuery.data ?? [];
 	const ventes = ventesQuery.data ?? [];
 	const sejours = sejoursQuery.data ?? [];
+	const signalements = signalementsQuery.data ?? [];
 
 	return (
 		<div className="w-full space-y-8 pt-6 pb-16">
-			<Breadcrumb
-				items={[
+			<PageHeader
+				breadcrumb={[
 					{ label: "Espace client", to: "/espace-client" },
 					{ label: "Mes demandes" },
 				]}
+				title="Mes demandes"
+				description="Commandes restaurant, dépôts pressing, réservations de salle de fête, demandes boutique, séjours courts et signalements — avec leur statut en temps réel."
 			/>
-
-			<div className="space-y-1">
-				<h1 className="text-2xl font-semibold text-foreground">Mes demandes</h1>
-				<p className="text-sm text-muted-foreground">
-					Commandes restaurant, dépôts pressing, réservations de salle de fête,
-					demandes boutique et séjours courts — avec leur statut en temps réel.
-				</p>
-			</div>
 
 			<SectionDemande
 				titre="Commandes restaurant"
@@ -107,23 +94,19 @@ export function MesDemandesPage() {
 						key={commande.id}
 						to="/espace-client/restaurant/$id"
 						params={{ id: commande.id }}
-						className="group flex items-center justify-between gap-3 rounded-lg border border-border bg-card p-4 shadow-sm transition-colors hover:border-lagoon/50 hover:bg-accent/40"
+						className="group flex items-center justify-between gap-3 rounded-xl border border-border bg-card p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-lagoon/50 hover:bg-accent/40 hover:shadow-md"
 					>
 						<div className="min-w-0 flex-1 space-y-1">
 							<div className="flex flex-wrap items-center gap-2">
 								<span className="truncate font-semibold text-foreground">
 									{TYPE_COMMANDE_PORTAIL_LABELS[commande.type] ?? commande.type}
 								</span>
-								<span
-									className={cn(
-										"inline-flex shrink-0 items-center rounded-full px-2.5 py-1 text-xs font-medium",
-										COMMANDE_PORTAIL_STATUT_BADGE[commande.statut] ??
-											"bg-[#95A5A6] text-white",
-									)}
+								<Badge
+									variant={COMMANDE_PORTAIL_STATUT_VARIANT[commande.statut]}
 								>
 									{COMMANDE_PORTAIL_STATUT_LABELS[commande.statut] ??
 										commande.statut}
-								</span>
+								</Badge>
 							</div>
 							<p className="text-sm text-muted-foreground">
 								Passée le {formatDateInstantUTC(commande.date)} ·{" "}
@@ -150,22 +133,16 @@ export function MesDemandesPage() {
 						key={commande.id}
 						to="/espace-client/pressing/$id"
 						params={{ id: commande.id }}
-						className="group flex items-center justify-between gap-3 rounded-lg border border-border bg-card p-4 shadow-sm transition-colors hover:border-lagoon/50 hover:bg-accent/40"
+						className="group flex items-center justify-between gap-3 rounded-xl border border-border bg-card p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-lagoon/50 hover:bg-accent/40 hover:shadow-md"
 					>
 						<div className="min-w-0 flex-1 space-y-1">
 							<div className="flex flex-wrap items-center gap-2">
 								<span className="truncate font-semibold text-foreground">
 									{commande.numero_commande}
 								</span>
-								<span
-									className={cn(
-										"inline-flex shrink-0 items-center rounded-full px-2.5 py-1 text-xs font-medium",
-										PRESSING_STATUT_BADGE[commande.statut] ??
-											"bg-[#95A5A6] text-white",
-									)}
-								>
+								<Badge variant={PRESSING_STATUT_VARIANT[commande.statut]}>
 									{PRESSING_STATUT_LABELS[commande.statut] ?? commande.statut}
-								</span>
+								</Badge>
 							</div>
 							<p className="text-sm text-muted-foreground">
 								{libelleDateDepot(commande)} ·{" "}
@@ -192,23 +169,21 @@ export function MesDemandesPage() {
 						key={reservation.id}
 						to="/espace-client/salle-fete/$id"
 						params={{ id: reservation.id }}
-						className="group flex items-center justify-between gap-3 rounded-lg border border-border bg-card p-4 shadow-sm transition-colors hover:border-lagoon/50 hover:bg-accent/40"
+						className="group flex items-center justify-between gap-3 rounded-xl border border-border bg-card p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-lagoon/50 hover:bg-accent/40 hover:shadow-md"
 					>
 						<div className="min-w-0 flex-1 space-y-1">
 							<div className="flex flex-wrap items-center gap-2">
 								<span className="truncate font-semibold text-foreground">
 									{reservation.type_manifestation}
 								</span>
-								<span
-									className={cn(
-										"inline-flex shrink-0 items-center rounded-full px-2.5 py-1 text-xs font-medium",
-										RESERVATION_PORTAIL_STATUT_BADGE[reservation.statut] ??
-											"bg-[#95A5A6] text-white",
-									)}
+								<Badge
+									variant={
+										RESERVATION_PORTAIL_STATUT_VARIANT[reservation.statut]
+									}
 								>
 									{RESERVATION_PORTAIL_STATUT_LABELS[reservation.statut] ??
 										reservation.statut}
-								</span>
+								</Badge>
 							</div>
 							<p className="text-sm text-muted-foreground">
 								Le {formatDateISO(reservation.date_evenement)} à{" "}
@@ -235,22 +210,16 @@ export function MesDemandesPage() {
 						key={vente.id}
 						to="/espace-client/boutique/$id"
 						params={{ id: vente.id }}
-						className="group flex items-center justify-between gap-3 rounded-lg border border-border bg-card p-4 shadow-sm transition-colors hover:border-lagoon/50 hover:bg-accent/40"
+						className="group flex items-center justify-between gap-3 rounded-xl border border-border bg-card p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-lagoon/50 hover:bg-accent/40 hover:shadow-md"
 					>
 						<div className="min-w-0 flex-1 space-y-1">
 							<div className="flex flex-wrap items-center gap-2">
 								<span className="truncate font-semibold text-foreground">
 									Demande n° {vente.id}
 								</span>
-								<span
-									className={cn(
-										"inline-flex shrink-0 items-center rounded-full px-2.5 py-1 text-xs font-medium",
-										VENTE_PORTAIL_STATUT_BADGE[vente.statut] ??
-											"bg-[#95A5A6] text-white",
-									)}
-								>
+								<Badge variant={VENTE_PORTAIL_STATUT_VARIANT[vente.statut]}>
 									{VENTE_PORTAIL_STATUT_LABELS[vente.statut] ?? vente.statut}
-								</span>
+								</Badge>
 							</div>
 							<p className="text-sm text-muted-foreground">
 								Envoyée le {formatDateInstantUTC(vente.date)} ·{" "}
@@ -277,7 +246,7 @@ export function MesDemandesPage() {
 						key={sejour.id}
 						to="/espace-client/residence/$id"
 						params={{ id: sejour.id }}
-						className="group flex items-center justify-between gap-3 rounded-lg border border-border bg-card p-4 shadow-sm transition-colors hover:border-lagoon/50 hover:bg-accent/40"
+						className="group flex items-center justify-between gap-3 rounded-xl border border-border bg-card p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-lagoon/50 hover:bg-accent/40 hover:shadow-md"
 					>
 						<div className="min-w-0 flex-1 space-y-1">
 							<div className="flex flex-wrap items-center gap-2">
@@ -287,15 +256,9 @@ export function MesDemandesPage() {
 										sejour.numero_logement ??
 										"Logement"}
 								</span>
-								<span
-									className={cn(
-										"inline-flex shrink-0 items-center rounded-full px-2.5 py-1 text-xs font-medium",
-										SEJOUR_PORTAIL_STATUT_BADGE[sejour.statut] ??
-											"bg-[#95A5A6] text-white",
-									)}
-								>
+								<Badge variant={SEJOUR_PORTAIL_STATUT_VARIANT[sejour.statut]}>
 									{SEJOUR_PORTAIL_STATUT_LABELS[sejour.statut] ?? sejour.statut}
-								</span>
+								</Badge>
 							</div>
 							<p className="text-sm text-muted-foreground">
 								Arrivée le {formatDateHeureISO(sejour.date_heure_arrivee)}
@@ -312,18 +275,42 @@ export function MesDemandesPage() {
 				))}
 			</SectionDemande>
 
-			{demandes.length > 0 ? (
-				<section className="space-y-3">
-					<h2 className="text-lg font-semibold text-foreground">
-						Autres demandes envoyées
-					</h2>
-					<div className="space-y-3">
-						{demandes.map((demande) => (
-							<DemandeLocaleCard key={demande.id} demande={demande} />
-						))}
-					</div>
-				</section>
-			) : null}
+			<SectionDemande
+				titre="Signalements"
+				isLoading={signalementsQuery.isLoading}
+				isError={signalementsQuery.isError}
+				onRetry={() => void signalementsQuery.refetch()}
+				vide="Aucun signalement pour le moment. Décrivez un problème depuis la page Signalement."
+			>
+				{signalements.map((signalement) => (
+					<Link
+						key={signalement.id}
+						to="/espace-client/signalement/$id"
+						params={{ id: signalement.id }}
+						className="group flex items-center justify-between gap-3 rounded-xl border border-border bg-card p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-lagoon/50 hover:bg-accent/40 hover:shadow-md"
+					>
+						<div className="min-w-0 flex-1 space-y-1">
+							<div className="flex flex-wrap items-center gap-2">
+								<span className="truncate font-semibold text-foreground">
+									{signalement.titre}
+								</span>
+								<Badge variant={SIGNALEMENT_STATUT_VARIANT[signalement.statut]}>
+									{SIGNALEMENT_STATUT_LABELS[signalement.statut] ??
+										signalement.statut}
+								</Badge>
+							</div>
+							<p className="text-sm text-muted-foreground">
+								{libelleCiblePortail(signalement)} · signalé le{" "}
+								{formatDateInstantUTC(signalement.date_signalement)}
+							</p>
+						</div>
+						<ChevronRight
+							className="size-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5"
+							aria-hidden
+						/>
+					</Link>
+				))}
+			</SectionDemande>
 		</div>
 	);
 }
@@ -348,7 +335,7 @@ function SectionDemande({
 
 	return (
 		<section className="space-y-3">
-			<h2 className="text-lg font-semibold text-foreground">{titre}</h2>
+			<h2 className="text-base font-semibold text-foreground">{titre}</h2>
 			{isLoading ? (
 				<p className="text-sm text-muted-foreground">Chargement…</p>
 			) : isError ? (
@@ -357,43 +344,20 @@ function SectionDemande({
 					className="space-y-3 rounded-lg border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive"
 				>
 					<p>Impossible de charger cette section.</p>
-					<Button variant="outline" size="sm" onClick={onRetry}>
+					<Button
+						variant="outline"
+						size="sm"
+						className="rounded-full"
+						onClick={onRetry}
+					>
 						Réessayer
 					</Button>
 				</div>
 			) : estVide ? (
-				<div className="rounded-lg border border-border bg-card p-6 text-sm text-muted-foreground">
-					{vide}
-				</div>
+				<EmptyState title={vide} />
 			) : (
 				<div className="space-y-3">{children}</div>
 			)}
 		</section>
-	);
-}
-
-function DemandeLocaleCard({ demande }: { demande: DemandeLocale }) {
-	return (
-		<div className="space-y-1 rounded-lg border border-border bg-card p-4 shadow-sm">
-			<div className="flex flex-wrap items-center justify-between gap-2">
-				<div className="flex flex-wrap items-center gap-2">
-					<span className="font-semibold text-foreground">
-						{DEMANDE_SERVICE_LABELS[demande.service]}
-					</span>
-					<span className="inline-flex items-center rounded-full bg-[#E67E22] px-2.5 py-1 text-xs font-medium text-white">
-						Envoyée — en attente de réponse
-					</span>
-				</div>
-				<span className="text-xs text-muted-foreground">
-					Envoyée le {formatDateInstantUTC(demande.dateEnvoi)}
-				</span>
-			</div>
-			<p className="text-sm text-muted-foreground">{demande.resume}</p>
-			{demande.observations ? (
-				<p className="text-sm text-muted-foreground italic">
-					« {demande.observations} »
-				</p>
-			) : null}
-		</div>
 	);
 }

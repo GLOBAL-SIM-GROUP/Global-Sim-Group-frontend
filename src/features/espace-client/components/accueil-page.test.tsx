@@ -32,11 +32,33 @@ const commandes: PressingCommande[] = [
 
 const mocks = vi.hoisted(() => ({
 	usePressingCommandes: vi.fn(),
+	useMesCommandesRestaurant: vi.fn(),
+	useMesVentesPortail: vi.fn(),
+	useMesReservationsSalleFete: vi.fn(),
+	useMesSejoursPortail: vi.fn(),
 	useCurrentUser: vi.fn(),
 }));
 
+const AUCUNE_DONNEE = { isLoading: false, isError: false, data: [] };
+
 vi.mock("#/features/portail/hooks/use-pressing", () => ({
 	usePressingCommandes: mocks.usePressingCommandes,
+}));
+
+vi.mock("#/features/portail/hooks/use-restaurant", () => ({
+	useMesCommandesRestaurant: mocks.useMesCommandesRestaurant,
+}));
+
+vi.mock("#/features/portail/hooks/use-market", () => ({
+	useMesVentesPortail: mocks.useMesVentesPortail,
+}));
+
+vi.mock("#/features/portail/hooks/use-salle-fete", () => ({
+	useMesReservationsSalleFete: mocks.useMesReservationsSalleFete,
+}));
+
+vi.mock("#/features/portail/hooks/use-sejours", () => ({
+	useMesSejoursPortail: mocks.useMesSejoursPortail,
 }));
 
 vi.mock("#/core/auth", () => ({
@@ -69,15 +91,17 @@ describe("AccueilPage", () => {
 			login: "aya.kouassi",
 			role: "CLIENT",
 		});
-		mocks.usePressingCommandes.mockReturnValue({
-			isLoading: false,
-			isError: false,
-			data: [],
-		});
+		mocks.usePressingCommandes.mockReturnValue(AUCUNE_DONNEE);
+		mocks.useMesCommandesRestaurant.mockReturnValue(AUCUNE_DONNEE);
+		mocks.useMesVentesPortail.mockReturnValue(AUCUNE_DONNEE);
+		mocks.useMesReservationsSalleFete.mockReturnValue(AUCUNE_DONNEE);
+		mocks.useMesSejoursPortail.mockReturnValue(AUCUNE_DONNEE);
 
 		render(<AccueilPage />);
 
-		expect(screen.getByText(/aya\.kouassi/i)).toBeInTheDocument();
+		expect(
+			screen.getByRole("heading", { level: 1, name: /aya\.kouassi/i }),
+		).toBeInTheDocument();
 		expect(screen.getByRole("link", { name: /^restaurant/i })).toHaveAttribute(
 			"href",
 			"/espace-client/restaurant",
@@ -102,7 +126,7 @@ describe("AccueilPage", () => {
 		).toHaveAttribute("href", "/espace-client/mes-demandes");
 	});
 
-	it("résume les commandes pressing en cours, hors retirées/annulées", () => {
+	it("met en avant la commande pressing active, hors retirées/annulées", () => {
 		mocks.useCurrentUser.mockReturnValue({
 			login: "aya.kouassi",
 			role: "CLIENT",
@@ -112,11 +136,18 @@ describe("AccueilPage", () => {
 			isError: false,
 			data: commandes,
 		});
+		mocks.useMesCommandesRestaurant.mockReturnValue(AUCUNE_DONNEE);
+		mocks.useMesVentesPortail.mockReturnValue(AUCUNE_DONNEE);
+		mocks.useMesReservationsSalleFete.mockReturnValue(AUCUNE_DONNEE);
+		mocks.useMesSejoursPortail.mockReturnValue(AUCUNE_DONNEE);
 
 		render(<AccueilPage />);
 
+		expect(screen.getByText("Suivi en direct")).toBeInTheDocument();
+		expect(screen.getByText(/PR-0001/)).toBeInTheDocument();
+		expect(screen.getByText("En traitement")).toBeInTheDocument();
 		expect(
-			screen.getByText(/1 commande pressing en cours/),
+			screen.getByText(/Vous avez 1 demande en cours/),
 		).toBeInTheDocument();
 	});
 });

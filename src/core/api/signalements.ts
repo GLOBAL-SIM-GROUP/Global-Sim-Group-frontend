@@ -9,11 +9,17 @@ import { getApiClient } from "./client";
  * Schéma revalidé en direct sur le backend de dev le 2026-09-12 (la base a été
  * remise à zéro entre-temps) : un signalement cible désormais explicitement
  * soit une activité (`cible_type: "ACTIVITE"` + `id_activite`), soit un module
- * (`cible_type: "MODULE"` + `module_cible`) — plus de type "général" implicite
- * comme avant. `module_cible` liste 10 valeurs (ni `CORE` ni `CLIENT`, absents
- * du nouveau contrat).
+ * (`cible_type: "MODULE"` + `module_cible`). `module_cible` liste 10 valeurs
+ * (ni `CORE` ni `CLIENT`, absents du nouveau contrat).
+ *
+ * Backend 091 : `"GENERAL"` réapparaît en lecture — les signalements déclarés
+ * depuis le portail client (`POST /signalements/portail`, sans `module_cible`)
+ * sont stockés avec `cible_type: "GENERAL"` et attendent une affectation
+ * staff (`POST /signalements/:id/affecter`). Jamais envoyé par le frontend —
+ * ni la création staff (exige une cible explicite) ni le portail (le serveur
+ * l'assigne). `lieu` : texte libre renseigné par le déclarant portail.
  */
-export type CibleType = "ACTIVITE" | "MODULE";
+export type CibleType = "ACTIVITE" | "MODULE" | "GENERAL";
 
 export type ModuleCible =
 	| "RESIDENCE"
@@ -36,6 +42,8 @@ export interface Signalement {
 	id_activite: string | null;
 	/** Non-null ssi `cible_type === "MODULE"`. */
 	module_cible: ModuleCible | null;
+	/** Lieu libre saisi par le déclarant (portail) — informatif, pas une clé. */
+	lieu?: string | null;
 	statut: "OUVERT" | "EN_COURS" | "RESOLU" | "REJETE";
 	id_utilisateur_declarant: string;
 	id_utilisateur_traitant?: string | null;

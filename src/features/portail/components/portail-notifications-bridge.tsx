@@ -13,6 +13,7 @@ import {
 	salleFeteDisponibilitesKeys,
 	salleFeteReservationsKeys,
 	sejoursPortailKeys,
+	signalementsPortailKeys,
 } from "../permissions";
 
 /** Événements portail → clés de requêtes à invalider. */
@@ -36,7 +37,24 @@ const INVALIDATIONS_PAR_EVENT: Record<string, readonly (readonly string[])[]> =
 			sejoursPortailKeys.all,
 			logementsPortailKeys.all,
 		],
+		// Statut d'un signalement portail (backend 091) — `signalement.cree`
+		// est staff-only, non reçu par le déclarant.
+		"signalement.pris_en_charge": [signalementsPortailKeys.all],
+		"signalement.resolu": [signalementsPortailKeys.all],
+		"signalement.rejete": [signalementsPortailKeys.all],
 	};
+
+/**
+ * Corps de toast spécifique pour un changement de statut de signalement —
+ * le déclarant voit le nouveau statut plutôt qu'un compteur générique.
+ * Uniquement appliqué quand l'événement arrive seul dans la vague.
+ */
+const TOASTS_EVENEMENT_SIGNALEMENT: Record<string, string> = {
+	"signalement.pris_en_charge":
+		"Votre signalement a été pris en charge par nos équipes.",
+	"signalement.resolu": "Votre signalement a été résolu.",
+	"signalement.rejete": "Votre signalement a été rejeté.",
+};
 
 interface ToastItem {
 	id: string;
@@ -84,14 +102,19 @@ export function PortailNotificationsBridge() {
 				void queryClient.invalidateQueries({ queryKey: key });
 			}
 		}
+		const statutSignalement =
+			nouveaux.length === 1
+				? TOASTS_EVENEMENT_SIGNALEMENT[nouveaux[0].event]
+				: undefined;
 		setToasts([
 			{
 				id: `nouvelles-${Date.now()}`,
-				title: "Nouvelles notifications",
+				title: statutSignalement ? "Signalement" : "Nouvelles notifications",
 				body:
-					nouveaux.length > 1
+					statutSignalement ??
+					(nouveaux.length > 1
 						? `Vous avez ${nouveaux.length} nouvelles notifications.`
-						: "Vous avez une nouvelle notification.",
+						: "Vous avez une nouvelle notification."),
 			},
 		]);
 	}, [notifications, queryClient]);

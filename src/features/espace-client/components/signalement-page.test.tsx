@@ -1,9 +1,22 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { listerDemandes } from "../models/demandes";
 import { SignalementPage } from "./signalement-page";
+
+const mocks = vi.hoisted(() => ({
+	useCreerSignalementPortail: vi.fn(),
+	useUploaderPhotoSignalementPortail: vi.fn(),
+	creerMutateAsync: vi.fn(),
+	uploadMutateAsync: vi.fn(),
+}));
+
+vi.mock("#/features/portail/hooks/use-signalements", () => ({
+	useMesSignalements: vi.fn(() => ({ data: [], isLoading: false })),
+	useSignalementPortail: vi.fn(() => ({ data: undefined })),
+	useCreerSignalementPortail: mocks.useCreerSignalementPortail,
+	useUploaderPhotoSignalementPortail: mocks.useUploaderPhotoSignalementPortail,
+}));
 
 vi.mock("@tanstack/react-router", async (importOriginal) => {
 	const actual =
@@ -33,15 +46,27 @@ function saisirFormulaire(valeurs: Record<string, string>) {
 }
 
 describe("SignalementPage", () => {
-	let fetchSpy: ReturnType<typeof vi.spyOn>;
-
 	beforeEach(() => {
-		fetchSpy = vi.spyOn(global, "fetch");
-		localStorage.clear();
-	});
-
-	afterEach(() => {
-		fetchSpy.mockRestore();
+		mocks.creerMutateAsync.mockReset().mockResolvedValue({
+			id: "42",
+			titre: "Climatiseur en panne",
+			description: "Le climatiseur ne s'allume plus depuis hier.",
+			cible_type: "GENERAL",
+			module_cible: null,
+			lieu: "Chambre 12",
+			statut: "OUVERT",
+			id_utilisateur_declarant: "7",
+			date_signalement: "2026-09-15T10:00:00.000Z",
+		});
+		mocks.uploadMutateAsync.mockReset().mockResolvedValue({ id: "p1" });
+		mocks.useCreerSignalementPortail.mockReturnValue({
+			mutateAsync: mocks.creerMutateAsync,
+			isPending: false,
+		});
+		mocks.useUploaderPhotoSignalementPortail.mockReturnValue({
+			mutateAsync: mocks.uploadMutateAsync,
+			isPending: false,
+		});
 	});
 
 	it("affiche une erreur par champ obligatoire manquant à la soumission", async () => {
@@ -54,15 +79,15 @@ describe("SignalementPage", () => {
 
 		expect(await screen.findByText("Le sujet est requis.")).toBeInTheDocument();
 		expect(screen.getByText("La description est requis.")).toBeInTheDocument();
-		expect(fetchSpy).not.toHaveBeenCalled();
+		expect(mocks.creerMutateAsync).not.toHaveBeenCalled();
 	});
 
-	it("enregistre le signalement et désactive le formulaire, sans appel réseau", async () => {
+	it("soumet le signalement à POST /signalements/portail, sans module_cible si général", async () => {
 		const user = userEvent.setup();
 		render(<SignalementPage />);
 
 		saisirFormulaire({
-			sujet: "Climatiseur en panne",
+			titre: "  Climatiseur en panne  ",
 			lieu: "Chambre 12",
 			description: "Le climatiseur ne s'allume plus depuis hier.",
 		});
@@ -70,16 +95,29 @@ describe("SignalementPage", () => {
 			screen.getByRole("button", { name: /envoyer mon signalement/i }),
 		);
 
+		expect(mocks.creerMutateAsync).toHaveBeenCalledWith({
+			titre: "Climatiseur en panne",
+			description: "Le climatiseur ne s'allume plus depuis hier.",
+			lieu: "Chambre 12",
+		});
+		expect(await screen.findByText("Signalement envoyé")).toBeInTheDocument();
+		// Lien de suivi vers la fiche du signalement créé.
 		expect(
-			await screen.findByText("Signalement enregistré"),
+			screen.getByRole("link", { name: /suivre mon signalement/i }),
+		).toHaveAttribute("href", "/espace-client/signalement/$id");
+	});
+
+	it("propose les 5 modules du portail et laisse le choix « général » par défaut", () => {
+		render(<SignalementPage />);
+
+		expect(
+			screen.getByText("Service concerné (optionnel)"),
 		).toBeInTheDocument();
-		expect(
-			screen.getByRole("button", { name: /signalement envoyé/i }),
-		).toBeDisabled();
-		const demandes = listerDemandes();
-		expect(demandes).toHaveLength(1);
-		expect(demandes[0].service).toBe("signalement");
-		expect(demandes[0].resume).toContain("Chambre 12");
-		expect(fetchSpy).not.toHaveBeenCalled();
+		// Le Select affiche « général » par défaut — rien n'est envoyé.
+		// (Le libellé apparaît aussi dans l'item Radix caché : on cible le
+		// combobox déclencheur pour lever l'ambiguïté.)
+		expect(screen.getByRole("combobox")).toHaveTextContent(
+			"Je ne sais pas / signalement général",
+		);
 	});
 });

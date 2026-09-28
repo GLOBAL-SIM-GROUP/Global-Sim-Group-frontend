@@ -52,12 +52,24 @@ export function routeFor(
 		(hasPermission(permissions, "PORTAIL.VOIR") || portailResident);
 
 	switch (event) {
-		case "signalement.cree":
+		case "signalement.cree": {
+			// Nouveau signalement — alerte staff uniquement (file de triage) ;
+			// le déclarant portail ne reçoit pas cet événement (backend 091).
+			const id = asId(data.id_signalement);
+			return id ? { to: `/signalements/${id}` } : null;
+		}
+
 		case "signalement.pris_en_charge":
 		case "signalement.resolu":
 		case "signalement.rejete": {
+			// Statut d'un signalement — déclarant (client espace-client,
+			// résident portail) ou staff (fiche de traitement).
 			const id = asId(data.id_signalement);
-			return id ? { to: `/signalements/${id}` } : null;
+			if (!id) return null;
+			if (espaceClient) return { to: `/espace-client/signalement/${id}` };
+			if (portailServices)
+				return { to: `/residence/portail/signalements/${id}` };
+			return { to: `/signalements/${id}` };
 		}
 
 		case "restaurant.commande_creee":

@@ -3,8 +3,9 @@ import { Minus, Plus, ShoppingCart, Trash2 } from "lucide-react";
 import { Toast } from "radix-ui";
 import { useState } from "react";
 
-import { Breadcrumb } from "#/components/ui/breadcrumb";
 import { Button } from "#/components/ui/button";
+import { EmptyState } from "#/components/ui/empty-state";
+import { PageHeader } from "#/components/ui/page-header";
 import { useCan } from "#/core/auth";
 import { useCreerVentePortail } from "#/features/portail/hooks/use-market";
 import { useCreerCommandeRestaurant } from "#/features/portail/hooks/use-restaurant";
@@ -54,6 +55,7 @@ function LignePanierItem({
 					type="button"
 					variant="outline"
 					size="icon-sm"
+					className="rounded-full"
 					aria-label={`Réduire la quantité de ${ligne.nom}`}
 					disabled={disabled}
 					onClick={() => onQuantite(ligne.quantite - 1)}
@@ -71,6 +73,7 @@ function LignePanierItem({
 					type="button"
 					variant="outline"
 					size="icon-sm"
+					className="rounded-full"
 					aria-label={`Augmenter la quantité de ${ligne.nom}`}
 					disabled={disabled}
 					onClick={() => onQuantite(ligne.quantite + 1)}
@@ -115,22 +118,28 @@ function PanierVide({
 	catalogueLabel: string;
 }) {
 	return (
-		<div className="rounded-lg border border-border bg-card p-6 text-sm text-muted-foreground">
-			Panier vide — ajoutez des articles depuis{" "}
-			<Link
-				to={catalogueTo}
-				className="font-medium text-lagoon hover:underline"
-			>
-				{catalogueLabel}
-			</Link>
-			.
-		</div>
+		<EmptyState
+			icon={ShoppingCart}
+			title="Panier vide"
+			description={
+				<>
+					Ajoutez des articles depuis{" "}
+					<Link
+						to={catalogueTo}
+						className="font-medium text-lagoon hover:underline"
+					>
+						{catalogueLabel}
+					</Link>
+					.
+				</>
+			}
+		/>
 	);
 }
 
 function DemandeEnvoyee() {
 	return (
-		<div className="rounded-lg border border-lagoon/40 bg-lagoon/5 p-6 text-sm text-foreground">
+		<div className="rounded-lg border border-success/30 bg-success-bg p-6 text-sm text-foreground">
 			Demande envoyée — nos équipes vous répondront prochainement. Retrouvez-la
 			dans{" "}
 			<Link
@@ -199,7 +208,7 @@ function SectionPanierRestaurant({
 	return (
 		<section className="space-y-3">
 			<div className="flex items-center justify-between">
-				<h2 className="text-lg font-semibold text-foreground">Restaurant</h2>
+				<h2 className="text-base font-semibold text-foreground">Restaurant</h2>
 				{panier.lignes.length > 0 ? (
 					<span className="text-sm text-muted-foreground">
 						{panier.nombreArticles} article
@@ -227,7 +236,7 @@ function SectionPanierRestaurant({
 						{canCommander ? (
 							<Button
 								type="button"
-								className="bg-lagoon text-white hover:bg-lagoon/90"
+								className="rounded-full"
 								onClick={() => setDialogOuvert(true)}
 							>
 								Envoyer ma commande
@@ -305,7 +314,7 @@ function SectionPanierBoutique({
 	return (
 		<section className="space-y-3">
 			<div className="flex items-center justify-between">
-				<h2 className="text-lg font-semibold text-foreground">Boutique</h2>
+				<h2 className="text-base font-semibold text-foreground">Boutique</h2>
 				{panier.lignes.length > 0 ? (
 					<span className="text-sm text-muted-foreground">
 						{panier.nombreArticles} article
@@ -333,7 +342,7 @@ function SectionPanierBoutique({
 						{canCommander ? (
 							<Button
 								type="button"
-								className="bg-lagoon text-white hover:bg-lagoon/90"
+								className="rounded-full"
 								onClick={() => setDialogOuvert(true)}
 							>
 								Envoyer ma demande
@@ -376,20 +385,14 @@ export function PanierPage() {
 	return (
 		<Toast.Provider swipeDirection="right">
 			<div className="w-full space-y-8 pt-6 pb-16">
-				<Breadcrumb
-					items={[
+				<PageHeader
+					breadcrumb={[
 						{ label: "Espace client", to: "/espace-client" },
 						{ label: "Mon panier" },
 					]}
+					title="Mon panier"
+					description="Vérifiez vos articles puis envoyez votre demande — nos équipes vous répondront pour confirmer et régler le paiement."
 				/>
-
-				<div className="space-y-1">
-					<h1 className="text-2xl font-semibold text-foreground">Mon panier</h1>
-					<p className="text-sm text-muted-foreground">
-						Vérifiez vos articles puis envoyez votre demande — nos équipes vous
-						répondront pour confirmer et régler le paiement.
-					</p>
-				</div>
 
 				<SectionPanierRestaurant onDemandeEnvoyee={onDemandeEnvoyee} />
 				<SectionPanierBoutique onDemandeEnvoyee={onDemandeEnvoyee} />

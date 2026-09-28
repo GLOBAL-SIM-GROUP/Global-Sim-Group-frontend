@@ -19,15 +19,31 @@ function envelope(
 }
 
 describe("routeFor", () => {
+	it("signalement.cree -> fiche staff (alerte triage, jamais chez le client)", () => {
+		expect(
+			routeFor(envelope("signalement.cree", { id_signalement: "42" })),
+		).toEqual({ to: "/signalements/42" });
+	});
+
 	it.each([
-		"signalement.cree",
 		"signalement.pris_en_charge",
 		"signalement.resolu",
 		"signalement.rejete",
-	])("%s -> /signalements/{id}", (event) => {
+	])("%s -> fiche signalement selon le compte", (event) => {
+		// Staff : fiche de traitement.
 		expect(routeFor(envelope(event, { id_signalement: "42" }))).toEqual({
 			to: "/signalements/42",
 		});
+		// Déclarant CLIENT : fiche espace client.
+		expect(
+			routeFor(envelope(event, { id_signalement: "42" }), "CLIENT"),
+		).toEqual({ to: "/espace-client/signalement/42" });
+		// Déclarant résident : fiche du portail résident.
+		expect(
+			routeFor(envelope(event, { id_signalement: "42" }), undefined, [
+				"PORTAIL.VOIR",
+			]),
+		).toEqual({ to: "/residence/portail/signalements/42" });
 	});
 
 	it("pressing.commande_prete -> /pressing/commandes/{id}", () => {

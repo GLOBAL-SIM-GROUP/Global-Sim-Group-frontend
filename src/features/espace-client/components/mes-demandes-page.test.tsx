@@ -1,13 +1,13 @@
 import { render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import type { Signalement } from "#/core/api/signalements";
 import type { VentePortail } from "#/features/portail/models/market";
 import type { PressingCommande } from "#/features/portail/models/pressing";
 import type { CommandeRestaurantPortail } from "#/features/portail/models/restaurant";
 import type { ReservationPortail } from "#/features/portail/models/salle-fete";
 import type { SejourPortail } from "#/features/portail/models/sejours";
 
-import { enregistrerDemande } from "../models/demandes";
 import { MesDemandesPage } from "./mes-demandes-page";
 
 const commandesPressing: PressingCommande[] = [
@@ -89,12 +89,46 @@ const sejours: SejourPortail[] = [
 	},
 ];
 
+const signalements: Signalement[] = [
+	{
+		id: "33",
+		titre: "Fuite d'eau — couloir B",
+		description: "Flaques d'eau devant la chambre 12.",
+		cible_type: "MODULE",
+		id_activite: null,
+		module_cible: "RESIDENCE",
+		lieu: "Couloir B",
+		statut: "EN_COURS",
+		id_utilisateur_declarant: "9",
+		id_utilisateur_traitant: "2",
+		note_resolution: null,
+		date_signalement: "2026-09-10T08:30:00.000Z",
+		date_resolution: null,
+	},
+	{
+		id: "34",
+		titre: "Bruit nocturne",
+		description: "Musique forte dans le hall après 23h.",
+		cible_type: "GENERAL",
+		id_activite: null,
+		module_cible: null,
+		lieu: null,
+		statut: "RESOLU",
+		id_utilisateur_declarant: "9",
+		id_utilisateur_traitant: "2",
+		note_resolution: "Rappel du règlement intérieur effectué.",
+		date_signalement: "2026-09-05T23:10:00.000Z",
+		date_resolution: "2026-09-06T09:00:00.000Z",
+	},
+];
+
 const mocks = vi.hoisted(() => ({
 	usePressingCommandes: vi.fn(),
 	useMesCommandesRestaurant: vi.fn(),
 	useMesReservationsSalleFete: vi.fn(),
 	useMesVentesPortail: vi.fn(),
 	useMesSejoursPortail: vi.fn(),
+	useMesSignalements: vi.fn(),
 }));
 
 vi.mock("#/features/portail/hooks/use-pressing", () => ({
@@ -115,6 +149,10 @@ vi.mock("#/features/portail/hooks/use-market", () => ({
 
 vi.mock("#/features/portail/hooks/use-sejours", () => ({
 	useMesSejoursPortail: mocks.useMesSejoursPortail,
+}));
+
+vi.mock("#/features/portail/hooks/use-signalements", () => ({
+	useMesSignalements: mocks.useMesSignalements,
 }));
 
 vi.mock("@tanstack/react-router", async (importOriginal) => {
@@ -143,12 +181,14 @@ function mockQueries({
 	reservations: resas = [],
 	ventes: vts = [],
 	sejours: sjrs = [],
+	signalements: sig = [],
 }: {
 	pressing?: PressingCommande[];
 	restaurant?: CommandeRestaurantPortail[];
 	reservations?: ReservationPortail[];
 	ventes?: VentePortail[];
 	sejours?: SejourPortail[];
+	signalements?: Signalement[];
 } = {}) {
 	mocks.usePressingCommandes.mockReturnValue({
 		isLoading: false,
@@ -175,44 +215,40 @@ function mockQueries({
 		isError: false,
 		data: sjrs,
 	});
+	mocks.useMesSignalements.mockReturnValue({
+		isLoading: false,
+		isError: false,
+		data: sig,
+	});
 }
 
 describe("MesDemandesPage", () => {
 	beforeEach(() => {
-		localStorage.clear();
 		mockQueries();
 	});
 
-	it("affiche les demandes locales sans endpoint (signalement)", () => {
-		enregistrerDemande({
-			service: "signalement",
-			resume: "Fuite d'eau — couloir B",
-		});
+	it("liste les signalements avec leur statut en direct", () => {
+		mockQueries({ signalements });
 
 		render(<MesDemandesPage />);
 
-		expect(screen.getByText("Signalement")).toBeInTheDocument();
+		expect(screen.getByText("Signalements")).toBeInTheDocument();
 		expect(screen.getByText("Fuite d'eau — couloir B")).toBeInTheDocument();
-		expect(
-			screen.getByText("Envoyée — en attente de réponse"),
-		).toBeInTheDocument();
+		expect(screen.getByText("En cours")).toBeInTheDocument();
+		expect(screen.getByText("Bruit nocturne")).toBeInTheDocument();
+		expect(screen.getByText("Résolu")).toBeInTheDocument();
+		expect(screen.getByRole("link", { name: /fuite d'eau/i })).toHaveAttribute(
+			"href",
+			"/espace-client/signalement/$id",
+		);
 	});
 
-	it("ignore les anciennes traces locales des services désormais en ligne", () => {
-		enregistrerDemande({
-			service: "commande-restaurant",
-			resume: "2× Poulet braisé — 5 000 FCFA",
-		});
-		enregistrerDemande({ service: "salle-fete", resume: "Mariage" });
-
+	it("affiche l'état vide des signalements quand il n'y en a pas", () => {
 		render(<MesDemandesPage />);
 
 		expect(
-			screen.queryByText("2× Poulet braisé — 5 000 FCFA"),
-		).not.toBeInTheDocument();
-		expect(
-			screen.queryByText("Autres demandes envoyées"),
-		).not.toBeInTheDocument();
+			screen.getByText(/aucun signalement pour le moment/i),
+		).toBeInTheDocument();
 	});
 
 	it("liste les commandes restaurant avec leur statut en direct", () => {
@@ -275,37 +311,5 @@ describe("MesDemandesPage", () => {
 			"href",
 			"/espace-client/residence/$id",
 		);
-	});
-
-	it("ignore les anciennes traces locales des séjours", () => {
-		enregistrerDemande({
-			service: "residence",
-			resume: "Chambre — du 2027-01-10 au 2027-01-17, 2 personne(s)",
-		});
-
-		render(<MesDemandesPage />);
-
-		expect(
-			screen.queryByText(
-				"Chambre — du 2027-01-10 au 2027-01-17, 2 personne(s)",
-			),
-		).not.toBeInTheDocument();
-		expect(
-			screen.queryByText("Autres demandes envoyées"),
-		).not.toBeInTheDocument();
-	});
-
-	it("ignore les anciennes traces locales de la boutique", () => {
-		enregistrerDemande({
-			service: "commande-boutique",
-			resume: "3× Savon — 1 500 FCFA",
-		});
-
-		render(<MesDemandesPage />);
-
-		expect(screen.queryByText("3× Savon — 1 500 FCFA")).not.toBeInTheDocument();
-		expect(
-			screen.queryByText("Autres demandes envoyées"),
-		).not.toBeInTheDocument();
 	});
 });

@@ -85,6 +85,9 @@ export function libelleCible(signalement: Signalement): string {
 			signalement.activite_libelle ?? signalement.activite_code ?? "Activité"
 		);
 	}
+	// `GENERAL` (déclaré via le portail sans module choisi) n'a pas de
+	// `module_cible` — afficher « Général », pas « — », jusqu'à l'affectation.
+	if (signalement.cible_type === "GENERAL") return "Général";
 	return libelleModuleCible(signalement.module_cible);
 }
 
@@ -96,15 +99,18 @@ export const SIGNALEMENT_STATUT_LABELS: Record<SignalementStatut, string> = {
 	REJETE: "Rejeté",
 };
 
-/** Classes de badge (fond/texte) par statut — mêmes teintes que les cycles de
- * vie analogues ailleurs dans l'app (ex. commande pressing : déposé/bleu →
- * en traitement/orange → prêt/vert ; annulé/rejeté en rouge). */
-export const SIGNALEMENT_STATUT_BADGE: Record<SignalementStatut, string> = {
-	OUVERT: "bg-[#2980B9] text-white",
-	EN_COURS: "bg-[#E67E22] text-white",
-	RESOLU: "bg-[#27AE60] text-white",
-	REJETE: "bg-[#E74C3C] text-white",
-};
+/** Variante `<Badge>` par statut — même logique que les cycles de vie
+ * analogues ailleurs dans l'app (déposé/info → en traitement/warning →
+ * résolu/success ; rejeté/danger). */
+export const SIGNALEMENT_STATUT_VARIANT = {
+	OUVERT: "info",
+	EN_COURS: "warning",
+	RESOLU: "success",
+	REJETE: "danger",
+} as const satisfies Record<
+	SignalementStatut,
+	"info" | "warning" | "success" | "danger"
+>;
 
 /** Recherche texte libre côté client (titre, description, déclarant). */
 export function rechercherSignalements(

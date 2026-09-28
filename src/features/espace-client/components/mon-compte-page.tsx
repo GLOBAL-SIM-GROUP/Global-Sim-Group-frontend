@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { ClipboardList, ShoppingCart, UserRound } from "lucide-react";
 
-import { Breadcrumb } from "#/components/ui/breadcrumb";
+import { PageHeader } from "#/components/ui/page-header";
 import { useCurrentUser } from "#/core/auth";
 
 /**
@@ -15,19 +15,14 @@ export function MonComptePage() {
 
 	return (
 		<div className="w-full space-y-6 pt-6 pb-16">
-			<Breadcrumb
-				items={[
+			<PageHeader
+				breadcrumb={[
 					{ label: "Espace client", to: "/espace-client" },
 					{ label: "Mon compte" },
 				]}
+				title="Mon compte"
+				description="Vos informations de compte GLOBAL SIM GROUP."
 			/>
-
-			<div className="space-y-1">
-				<h1 className="text-2xl font-semibold text-foreground">Mon compte</h1>
-				<p className="text-sm text-muted-foreground">
-					Vos informations de compte GLOBAL SIM GROUP.
-				</p>
-			</div>
 
 			<div className="flex items-center gap-4 rounded-xl border border-border bg-card p-5 shadow-sm sm:p-6">
 				<span className="grid size-14 shrink-0 place-items-center rounded-full bg-lagoon/15">
@@ -44,7 +39,7 @@ export function MonComptePage() {
 			<div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
 				<Link
 					to="/espace-client/mes-demandes"
-					className="group flex items-center gap-3 rounded-xl border border-border bg-card p-4 shadow-sm transition-colors hover:border-lagoon/50 hover:bg-accent/40"
+					className="group flex items-center gap-3 rounded-xl border border-border bg-card p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-lagoon/50 hover:bg-accent/40 hover:shadow-md"
 				>
 					<ClipboardList className="size-5 shrink-0 text-lagoon" aria-hidden />
 					<div className="min-w-0">
@@ -58,7 +53,7 @@ export function MonComptePage() {
 				</Link>
 				<Link
 					to="/espace-client/panier"
-					className="group flex items-center gap-3 rounded-xl border border-border bg-card p-4 shadow-sm transition-colors hover:border-lagoon/50 hover:bg-accent/40"
+					className="group flex items-center gap-3 rounded-xl border border-border bg-card p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-lagoon/50 hover:bg-accent/40 hover:shadow-md"
 				>
 					<ShoppingCart className="size-5 shrink-0 text-lagoon" aria-hidden />
 					<div className="min-w-0">

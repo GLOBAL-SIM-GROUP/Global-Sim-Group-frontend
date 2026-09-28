@@ -2,10 +2,11 @@ import { useNavigate } from "@tanstack/react-router";
 import { CalendarDays, ChevronRight } from "lucide-react";
 import { useMemo, useState } from "react";
 
-import { Breadcrumb } from "#/components/ui/breadcrumb";
+import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
 import { Input } from "#/components/ui/input";
 import { Label } from "#/components/ui/label";
+import { PageHeader } from "#/components/ui/page-header";
 import { Textarea } from "#/components/ui/textarea";
 import { useCan } from "#/core/auth";
 import {
@@ -15,11 +16,10 @@ import {
 } from "#/features/portail/hooks/use-salle-fete";
 import type { CreneauOccupe } from "#/features/portail/models/salle-fete";
 import {
-	RESERVATION_PORTAIL_STATUT_BADGE,
 	RESERVATION_PORTAIL_STATUT_LABELS,
+	RESERVATION_PORTAIL_STATUT_VARIANT,
 } from "#/features/portail/models/salle-fete";
 import { formatDateISO } from "#/features/residence/models/format";
-import { cn } from "#/lib/utils";
 
 function dateAujourdhui(): string {
 	const maintenant = new Date();
@@ -141,50 +141,39 @@ export function SalleFetePage() {
 
 	return (
 		<div className="w-full space-y-6 pt-6 pb-16">
-			<Breadcrumb
-				items={[
+			<PageHeader
+				breadcrumb={[
 					{ label: "Espace client", to: "/espace-client" },
 					{ label: "Salle de fête" },
 				]}
+				title="Salle de fête"
+				description="Consultez les créneaux déjà réservés puis demandez une date pour votre événement. Le personnel confirme la disponibilité et le tarif — le règlement se fait sur place."
 			/>
-
-			<div className="space-y-1">
-				<h1 className="text-2xl font-semibold text-foreground">
-					Salle de fête
-				</h1>
-				<p className="text-sm text-muted-foreground">
-					Consultez les créneaux déjà réservés puis demandez une date pour votre
-					événement. Le personnel confirme la disponibilité et le tarif — le
-					règlement se fait sur place.
-				</p>
-			</div>
 
 			{reservations.length > 0 ? (
 				<section className="space-y-3">
-					<h2 className="text-lg font-semibold text-foreground">
+					<h2 className="text-base font-semibold text-foreground">
 						Mes demandes de réservation
 					</h2>
 					<div className="space-y-3">
 						{reservations.map((reservation) => (
 							<div
 								key={reservation.id}
-								className="flex items-center justify-between gap-4 rounded-lg border border-border bg-card p-4 shadow-sm"
+								className="flex items-center justify-between gap-4 rounded-xl border border-border bg-card p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
 							>
 								<div className="min-w-0 space-y-1">
 									<div className="flex flex-wrap items-center gap-2">
 										<p className="font-medium text-foreground">
 											{reservation.type_manifestation}
 										</p>
-										<span
-											className={cn(
-												"inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium",
-												RESERVATION_PORTAIL_STATUT_BADGE[reservation.statut] ??
-													"bg-[#95A5A6] text-white",
-											)}
+										<Badge
+											variant={
+												RESERVATION_PORTAIL_STATUT_VARIANT[reservation.statut]
+											}
 										>
 											{RESERVATION_PORTAIL_STATUT_LABELS[reservation.statut] ??
 												reservation.statut}
-										</span>
+										</Badge>
 									</div>
 									<p className="text-sm text-muted-foreground">
 										Le {formatDateISO(reservation.date_evenement)} à{" "}
@@ -194,6 +183,7 @@ export function SalleFetePage() {
 								<Button
 									variant="outline"
 									size="sm"
+									className="rounded-full"
 									onClick={() =>
 										void navigate({
 											to: "/espace-client/salle-fete/$id",
@@ -210,8 +200,8 @@ export function SalleFetePage() {
 				</section>
 			) : null}
 
-			<section className="space-y-4 rounded-lg border border-border bg-card p-5 shadow-sm">
-				<h2 className="flex items-center gap-2 text-lg font-semibold text-foreground">
+			<section className="space-y-4 rounded-xl border border-border bg-card p-5 shadow-sm">
+				<h2 className="flex items-center gap-2 text-base font-semibold text-foreground">
 					<CalendarDays className="size-5" aria-hidden />
 					Occupation du jour
 				</h2>
@@ -235,7 +225,7 @@ export function SalleFetePage() {
 						Impossible de charger les disponibilités.
 					</p>
 				) : creneauxOccupes.length === 0 ? (
-					<p className="rounded-md bg-[#27AE60]/10 px-3 py-2 text-sm text-[#1E8449]">
+					<p className="rounded-md bg-success-bg px-3 py-2 text-sm text-success">
 						Aucune réservation confirmée ce jour-là — la salle est libre.
 					</p>
 				) : (
@@ -263,9 +253,9 @@ export function SalleFetePage() {
 			{canDemander ? (
 				<form
 					onSubmit={soumettre}
-					className="space-y-4 rounded-lg border border-border bg-card p-5 shadow-sm"
+					className="space-y-4 rounded-xl border border-border bg-card p-5 shadow-sm"
 				>
-					<h2 className="text-lg font-semibold text-foreground">
+					<h2 className="text-base font-semibold text-foreground">
 						Demander une réservation
 					</h2>
 					<div className="grid gap-4 sm:grid-cols-3">
@@ -355,7 +345,7 @@ export function SalleFetePage() {
 					) : null}
 					<Button
 						type="submit"
-						className="bg-lagoon text-white hover:bg-lagoon/90"
+						className="rounded-full"
 						disabled={demander.isPending || chevauchement}
 					>
 						{demander.isPending ? "Envoi en cours…" : "Envoyer la demande"}
