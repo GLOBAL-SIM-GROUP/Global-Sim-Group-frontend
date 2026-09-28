@@ -1,8 +1,8 @@
 import { Plus } from "lucide-react";
 import { useMemo, useState } from "react";
 
-import { Breadcrumb } from "#/components/ui/breadcrumb";
 import { Button } from "#/components/ui/button";
+import { PageHeader } from "#/components/ui/page-header";
 import { useCan } from "#/core/auth";
 import { ConfirmDialog } from "#/features/residence/components/confirm-dialog";
 import { useMoyensPaiement } from "#/features/residence/hooks/use-moyens-paiement";
@@ -56,6 +56,9 @@ export function CommandesPage({
 	const canModifier = useCan("PRESSING.MODIFIER");
 	const canFinancesVoir = useCan("FINANCES.VOIR");
 	const canAnnuler = useCan("PRESSING.ANNULER");
+	const canTraiter = useCan("PRESSING.TRAITER");
+	const canMarquerPret = useCan("PRESSING.MARQUER_PRET");
+	const canRetirer = useCan("PRESSING.RETIRER");
 
 	const moyensQuery = useMoyensPaiement();
 	const traitementMutation = useTraitementCommande();
@@ -131,30 +134,22 @@ export function CommandesPage({
 
 	return (
 		<div className="w-full space-y-6 p-6">
-			<Breadcrumb
-				items={[
+			<PageHeader
+				breadcrumb={[
 					{ label: "Accueil", to: "/" },
 					{ label: "Commandes — Pressing" },
 				]}
+				title="Commandes — Pressing"
+				description="Liste de toutes les commandes de pressing et leur statut."
+				actions={
+					canCreer ? (
+						<Button onClick={() => setFormOuvert(true)}>
+							<Plus className="size-4" aria-hidden />
+							Nouvelle commande
+						</Button>
+					) : undefined
+				}
 			/>
-
-			<div className="flex flex-wrap items-end justify-between gap-4">
-				<section className="space-y-1">
-					<h1 className="text-2xl font-semibold text-foreground">
-						Commandes — Pressing
-					</h1>
-					<p className="text-muted-foreground">
-						Liste de toutes les commandes de pressing et leur statut.
-					</p>
-				</section>
-
-				{canCreer ? (
-					<Button onClick={() => setFormOuvert(true)}>
-						<Plus className="size-4" aria-hidden />
-						Nouvelle commande
-					</Button>
-				) : null}
-			</div>
 
 			<CommandeFilters
 				recherche={recherche}
@@ -192,6 +187,9 @@ export function CommandesPage({
 					canCreer={canCreer}
 					canFinancesVoir={canFinancesVoir}
 					canAnnuler={canAnnuler}
+					canTraiter={canTraiter}
+					canMarquerPret={canMarquerPret}
+					canRetirer={canRetirer}
 					onEdit={(commande) => setAModifier(commande)}
 					onTraitement={(commande) => traitementMutation.mutate(commande.id)}
 					onPret={(commande) => pretMutation.mutate(commande.id)}

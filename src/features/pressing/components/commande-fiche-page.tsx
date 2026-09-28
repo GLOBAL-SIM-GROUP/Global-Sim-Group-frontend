@@ -2,8 +2,17 @@ import { Link } from "@tanstack/react-router";
 import { CheckCheck, HandCoins, Pencil, RefreshCw, X } from "lucide-react";
 import { useState } from "react";
 
-import { Breadcrumb } from "#/components/ui/breadcrumb";
+import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
+import { PageHeader } from "#/components/ui/page-header";
+import {
+	DataTable,
+	DataTableHead,
+	TableShell,
+	Td,
+	Th,
+	Tr,
+} from "#/components/ui/table";
 import { useCan } from "#/core/auth";
 import { DownloadReceiptButton } from "#/features/facturation/components/download-receipt-button";
 import { ConfirmDialog } from "#/features/residence/components/confirm-dialog";
@@ -12,7 +21,6 @@ import {
 	formatDateHeureUTC,
 	formatMontantFCFA,
 } from "#/features/residence/models/format";
-import { cn } from "#/lib/utils";
 import {
 	useAnnulerCommande,
 	useCommande,
@@ -31,14 +39,17 @@ import { RecuDepotButton } from "./recu-depot-button";
 import { RetirerCommandeDialog } from "./retirer-commande-dialog";
 import { ValiderDemandeDialog } from "./valider-demande-dialog";
 
-const PRESSING_STATUT_BADGE: Record<CommandePressingStatut, string> = {
-	EN_ATTENTE: "bg-[#8E44AD] text-white",
-	DEPOSE: "bg-[#2980B9] text-white",
-	EN_TRAITEMENT: "bg-[#E67E22] text-white",
-	PRET: "bg-[#27AE60] text-white",
-	RETIRE: "bg-[#95A5A6] text-white",
-	ANNULEE: "bg-[#E74C3C] text-white",
-};
+const PRESSING_STATUT_VARIANT = {
+	EN_ATTENTE: "warning",
+	DEPOSE: "info",
+	EN_TRAITEMENT: "warning",
+	PRET: "success",
+	RETIRE: "neutral",
+	ANNULEE: "danger",
+} as const satisfies Record<
+	CommandePressingStatut,
+	"success" | "warning" | "info" | "danger" | "neutral"
+>;
 
 /** Ligne lecture seule. */
 function Ligne({ label, valeur }: { label: string; valeur: string }) {
@@ -57,16 +68,21 @@ interface CommandeFichePageProps {
 
 /**
  * Page « Fiche commande — [N°] » (module Pressing, M4) : informations client,
- * liste des articles, montants et statut. Actions : Modifier, Changer le statut
- * (En traitement / Prêt), Retirer (encaissement du solde) et impression du
- * reçu de dépôt. L'historique des changements de statut n'est pas exposé par
- * le backend → omis.
+ * liste des articles, montants et statut. Actions gated chacune par son verbe
+ * réel : Passer en traitement (`PRESSING.TRAITER`), Passer en Prêt
+ * (`PRESSING.MARQUER_PRET`), Modifier (`PRESSING.MODIFIER`), Retirer
+ * (`PRESSING.RETIRER`) — pas de repli sur `MODIFIER`/`CREER` génériques
+ * (corrigé le 2026-09-27). Impression du reçu de dépôt. L'historique des
+ * changements de statut n'est pas exposé par le backend → omis.
  */
 export function CommandeFichePage({ id }: CommandeFichePageProps) {
 	const canModifier = useCan("PRESSING.MODIFIER");
 	const canCreer = useCan("PRESSING.CREER");
 	const canFinancesVoir = useCan("FINANCES.VOIR");
 	const canAnnuler = useCan("PRESSING.ANNULER");
+	const canTraiter = useCan("PRESSING.TRAITER");
+	const canMarquerPret = useCan("PRESSING.MARQUER_PRET");
+	const canRetirer = useCan("PRESSING.RETIRER");
 	const moyensQuery = useMoyensPaiement();
 	const traitementMutation = useTraitementCommande();
 	const pretMutation = usePretCommande();
@@ -118,125 +134,115 @@ export function CommandeFichePage({ id }: CommandeFichePageProps) {
 
 	return (
 		<div className="w-full space-y-4 p-3 sm:space-y-6 sm:p-6">
-			<Breadcrumb
-				items={[
+			<PageHeader
+				breadcrumb={[
 					{ label: "Accueil", to: "/" },
 					{ label: "Commandes — Pressing", to: "/pressing/commandes" },
 					{ label: commande.numero_commande },
 				]}
-			/>
-
-			<div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
-				<section className="space-y-1">
-					<div className="flex flex-wrap items-center gap-2">
-						<h1 className="text-lg font-semibold text-foreground sm:text-2xl">
-							Fiche commande — {commande.numero_commande}
-						</h1>
+				title={
+					<span className="inline-flex flex-wrap items-center gap-2">
+						Fiche commande — {commande.numero_commande}
 						{commande.mode_tarification ? (
-							<span className="inline-flex items-center rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground">
+							<Badge variant="neutral">
 								{MODE_TARIFICATION_LABELS[commande.mode_tarification]}
-							</span>
+							</Badge>
+						) : null}
+					</span>
+				}
+				description={nomComplet}
+				actions={
+					<div className="flex flex-col gap-2 w-full sm:w-auto sm:flex-row sm:items-center sm:gap-2">
+						<Button
+							variant="outline"
+							size="sm"
+							asChild
+							className="w-full sm:w-auto justify-center"
+						>
+							<Link to="/pressing/commandes">Retour aux commandes</Link>
+						</Button>
+						<RecuDepotButton
+							idCommande={commande.id}
+							variant="outline"
+							size="sm"
+							showLabel={true}
+						/>
+						<DownloadReceiptButton
+							sourceType="COMMANDE_PRESSING"
+							idClient={commande.id_client ?? null}
+							montantTotal={commande.montant_total ?? undefined}
+							isPaid={Number(commande.reste_a_payer) === 0}
+							variant="outline"
+							size="sm"
+							showLabel={true}
+						/>
+						{enAttente && canCreer ? (
+							<Button
+								size="sm"
+								onClick={() => setValiderOuvert(true)}
+								className="w-full sm:w-auto justify-center"
+							>
+								<CheckCheck className="size-4" aria-hidden />
+								Valider et chiffrer
+							</Button>
+						) : null}
+						{enAttente && canAnnuler ? (
+							<Button
+								variant="destructive"
+								size="sm"
+								onClick={() => setRefuserOuvert(true)}
+								className="w-full sm:w-auto justify-center"
+							>
+								<X className="size-4" aria-hidden />
+								Refuser
+							</Button>
+						) : null}
+						{canTraiter && commande.statut === "DEPOSE" ? (
+							<Button
+								variant="outline"
+								size="sm"
+								disabled={traitementMutation.isPending}
+								onClick={() => traitementMutation.mutate(commande.id)}
+								className="w-full sm:w-auto justify-center"
+							>
+								<RefreshCw className="size-4" aria-hidden />
+								Passer en traitement
+							</Button>
+						) : null}
+						{canMarquerPret && commande.statut === "EN_TRAITEMENT" ? (
+							<Button
+								variant="outline"
+								size="sm"
+								disabled={pretMutation.isPending}
+								onClick={() => pretMutation.mutate(commande.id)}
+								className="w-full sm:w-auto justify-center"
+							>
+								<CheckCheck className="size-4" aria-hidden />
+								Passer en « Prêt »
+							</Button>
+						) : null}
+						{canModifier && !estTerminee && !enAttente ? (
+							<Button
+								onClick={() => setAModifier(commande)}
+								className="w-full sm:w-auto justify-center"
+							>
+								<Pencil className="size-4" aria-hidden />
+								Modifier
+							</Button>
+						) : null}
+						{canRetirer && canFinancesVoir && aUnReste && !estTerminee ? (
+							<Button
+								disabled={retirerMutation.isPending}
+								onClick={() => setRetraitOuvert(true)}
+								className="w-full sm:w-auto justify-center"
+							>
+								<HandCoins className="size-4" aria-hidden />
+								Retirer
+							</Button>
 						) : null}
 					</div>
-					<p className="text-xs text-muted-foreground sm:text-sm">
-						{nomComplet}
-					</p>
-				</section>
-
-				<div className="flex flex-col gap-2 w-full sm:w-auto sm:flex-row sm:items-center sm:gap-2">
-					<Button
-						variant="outline"
-						size="sm"
-						asChild
-						className="w-full sm:w-auto justify-center"
-					>
-						<Link to="/pressing/commandes">Retour aux commandes</Link>
-					</Button>
-					<RecuDepotButton
-						idCommande={commande.id}
-						variant="outline"
-						size="sm"
-						showLabel={true}
-					/>
-					<DownloadReceiptButton
-						sourceType="COMMANDE_PRESSING"
-						idClient={commande.id_client ?? null}
-						montantTotal={commande.montant_total ?? undefined}
-						isPaid={Number(commande.reste_a_payer) === 0}
-						variant="outline"
-						size="sm"
-						showLabel={true}
-					/>
-					{enAttente && canCreer ? (
-						<Button
-							size="sm"
-							onClick={() => setValiderOuvert(true)}
-							className="w-full sm:w-auto justify-center"
-						>
-							<CheckCheck className="size-4" aria-hidden />
-							Valider et chiffrer
-						</Button>
-					) : null}
-					{enAttente && canAnnuler ? (
-						<Button
-							variant="destructive"
-							size="sm"
-							onClick={() => setRefuserOuvert(true)}
-							className="w-full sm:w-auto justify-center"
-						>
-							<X className="size-4" aria-hidden />
-							Refuser
-						</Button>
-					) : null}
-					{canModifier ? (
-						<>
-							{commande.statut === "DEPOSE" ? (
-								<Button
-									variant="outline"
-									size="sm"
-									disabled={traitementMutation.isPending}
-									onClick={() => traitementMutation.mutate(commande.id)}
-									className="w-full sm:w-auto justify-center"
-								>
-									<RefreshCw className="size-4" aria-hidden />
-									Passer en traitement
-								</Button>
-							) : null}
-							{commande.statut === "EN_TRAITEMENT" ? (
-								<Button
-									variant="outline"
-									size="sm"
-									disabled={pretMutation.isPending}
-									onClick={() => pretMutation.mutate(commande.id)}
-									className="w-full sm:w-auto justify-center"
-								>
-									<CheckCheck className="size-4" aria-hidden />
-									Passer en « Prêt »
-								</Button>
-							) : null}
-							{!estTerminee && !enAttente ? (
-								<Button
-									onClick={() => setAModifier(commande)}
-									className="w-full sm:w-auto justify-center"
-								>
-									<Pencil className="size-4" aria-hidden />
-									Modifier
-								</Button>
-							) : null}
-						</>
-					) : null}
-					{canCreer && canFinancesVoir && aUnReste && !estTerminee ? (
-						<Button
-							disabled={retirerMutation.isPending}
-							onClick={() => setRetraitOuvert(true)}
-							className="w-full sm:w-auto justify-center"
-						>
-							<HandCoins className="size-4" aria-hidden />
-							Retirer
-						</Button>
-					) : null}
-				</div>
-			</div>
+				}
+			/>
 
 			<section className="rounded-lg border border-border bg-card p-5 shadow-sm">
 				<dl className="grid gap-4 sm:grid-cols-2">
@@ -269,14 +275,9 @@ export function CommandeFichePage({ id }: CommandeFichePageProps) {
 					<div className="grid grid-cols-[10rem_1fr] gap-3 text-sm">
 						<dt className="text-muted-foreground">Statut</dt>
 						<dd>
-							<span
-								className={cn(
-									"inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium",
-									PRESSING_STATUT_BADGE[commande.statut],
-								)}
-							>
+							<Badge variant={PRESSING_STATUT_VARIANT[commande.statut]}>
 								{PRESSING_STATUT_LABELS[commande.statut]}
-							</span>
+							</Badge>
 						</dd>
 					</div>
 				</dl>
@@ -300,51 +301,37 @@ export function CommandeFichePage({ id }: CommandeFichePageProps) {
 
 			<section className="space-y-3">
 				<h2 className="text-base font-semibold text-foreground">Articles</h2>
-				<div className="overflow-x-auto rounded-lg border border-border bg-card shadow-sm">
-					<table className="w-full border-collapse text-sm">
-						<thead className="bg-sea-ink text-left text-white">
+				<TableShell>
+					<DataTable>
+						<DataTableHead>
 							<tr>
-								<th scope="col" className="px-4 py-3 font-medium">
-									TYPE
-								</th>
-								<th scope="col" className="px-4 py-3 font-medium">
-									QTÉ
-								</th>
-								<th scope="col" className="px-4 py-3 font-medium">
-									PRESTATION
-								</th>
-								<th scope="col" className="px-4 py-3 font-medium">
+								<Th>TYPE</Th>
+								<Th>QTÉ</Th>
+								<Th>PRESTATION</Th>
+								<Th>
 									{commande.mode_tarification === "POIDS"
 										? "POIDS (KG)"
 										: "TARIF"}
-								</th>
-								<th scope="col" className="px-4 py-3 text-right font-medium">
-									TOTAL
-								</th>
+								</Th>
+								<Th className="text-right">TOTAL</Th>
 							</tr>
-						</thead>
+						</DataTableHead>
 						<tbody>
 							{commande.lignes.map((ligne) => (
-								<tr key={ligne.id} className="border-t border-border">
-									<td className="px-4 py-3 text-foreground">
-										{ligne.type_vetement}
-									</td>
-									<td className="px-4 py-3 text-foreground">
-										{ligne.quantite}
-									</td>
-									<td className="px-4 py-3 text-foreground">
-										{ligne.prestation}
-									</td>
-									<td className="px-4 py-3 text-foreground">
+								<Tr key={ligne.id}>
+									<Td className="text-foreground">{ligne.type_vetement}</Td>
+									<Td className="text-foreground">{ligne.quantite}</Td>
+									<Td className="text-foreground">{ligne.prestation}</Td>
+									<Td className="text-foreground">
 										{commande.mode_tarification === "POIDS"
 											? (ligne.poids_kg ?? "—")
 											: formatMontantFCFA(ligne.tarif)}
-									</td>
-									<td className="px-4 py-3 text-right text-foreground">
+									</Td>
+									<Td className="text-right text-foreground">
 										{formatMontantFCFA(ligne.total)}
 										{ligne.quantite_couverte != null &&
 										Number(ligne.quantite_couverte) > 0 ? (
-											<span className="block text-xs font-normal text-[#27AE60]">
+											<span className="block text-xs font-normal text-success">
 												{ligne.quantite_couverte}/{ligne.quantite}{" "}
 												{commande.mode_tarification === "POIDS"
 													? "kg"
@@ -352,12 +339,12 @@ export function CommandeFichePage({ id }: CommandeFichePageProps) {
 												couvert(s) par abonnement
 											</span>
 										) : null}
-									</td>
-								</tr>
+									</Td>
+								</Tr>
 							))}
 						</tbody>
-					</table>
-				</div>
+					</DataTable>
+				</TableShell>
 			</section>
 
 			<CommandeFormDialog

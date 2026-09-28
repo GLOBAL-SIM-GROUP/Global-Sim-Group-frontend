@@ -14,6 +14,12 @@ interface CommandeActionsProps {
 	canFinancesVoir: boolean;
 	/** `PRESSING.ANNULER` — refuser une demande `EN_ATTENTE`. */
 	canAnnuler: boolean;
+	/** `PRESSING.TRAITER` — passer en traitement (opérateur lavage/séchage). */
+	canTraiter: boolean;
+	/** `PRESSING.MARQUER_PRET` — passer en « Prêt » (opérateur repassage). */
+	canMarquerPret: boolean;
+	/** `PRESSING.RETIRER` — encaisser le solde (caissier pressing). */
+	canRetirer: boolean;
 	/** Modifier → ouvre la modale d'édition. */
 	onEdit: (commande: CommandePressing) => void;
 	/** Passer en traitement (statut DEPOSE). */
@@ -29,9 +35,14 @@ interface CommandeActionsProps {
 }
 
 /**
- * Actions d'une ligne commande pressing : « Voir la fiche » (œil), « Modifier »,
- * « Changer le statut » (En traitement / Prêt selon l'état courant) et
- * « Retirer » (solde > 0). Tout gated par les verbes réels `PRESSING.*`.
+ * Actions d'une ligne commande pressing : « Voir la fiche » (œil), « Modifier »
+ * (`PRESSING.MODIFIER`), « Passer en traitement » (`PRESSING.TRAITER` —
+ * opérateur lavage/séchage), « Passer en Prêt » (`PRESSING.MARQUER_PRET` —
+ * opérateur repassage, verbe distinct de TRAITER) et « Retirer »
+ * (`PRESSING.RETIRER` — caissier pressing, solde > 0). Chaque action son
+ * propre verbe réel — pas de repli sur `MODIFIER`/`CREER` génériques
+ * (corrigé le 2026-09-27 : ces 3 rôles opérateurs/caissier ne voyaient
+ * auparavant aucun de ces boutons).
  */
 export function CommandeActions({
 	commande,
@@ -39,6 +50,9 @@ export function CommandeActions({
 	canCreer,
 	canFinancesVoir,
 	canAnnuler,
+	canTraiter,
+	canMarquerPret,
+	canRetirer,
 	onEdit,
 	onTraitement,
 	onPret,
@@ -93,45 +107,43 @@ export function CommandeActions({
 				</Button>
 			) : null}
 
-			{canModifier ? (
-				<>
-					{commande.statut === "DEPOSE" ? (
-						<Button
-							variant="ghost"
-							size="icon-sm"
-							title="Passer en traitement"
-							onClick={() => onTraitement(commande)}
-						>
-							<RefreshCw className="size-4 text-lagoon" aria-hidden />
-							<span className="sr-only">Passer en traitement</span>
-						</Button>
-					) : null}
-					{commande.statut === "EN_TRAITEMENT" ? (
-						<Button
-							variant="ghost"
-							size="icon-sm"
-							title="Passer en « Prêt »"
-							onClick={() => onPret(commande)}
-						>
-							<CheckCheck className="size-4 text-lagoon" aria-hidden />
-							<span className="sr-only">Passer en « Prêt »</span>
-						</Button>
-					) : null}
-					{!estTerminee && !enAttente ? (
-						<Button
-							variant="ghost"
-							size="icon-sm"
-							title="Modifier"
-							onClick={() => onEdit(commande)}
-						>
-							<Pencil className="size-4" aria-hidden />
-							<span className="sr-only">Modifier</span>
-						</Button>
-					) : null}
-				</>
+			{canTraiter && commande.statut === "DEPOSE" ? (
+				<Button
+					variant="ghost"
+					size="icon-sm"
+					title="Passer en traitement"
+					onClick={() => onTraitement(commande)}
+				>
+					<RefreshCw className="size-4 text-lagoon" aria-hidden />
+					<span className="sr-only">Passer en traitement</span>
+				</Button>
 			) : null}
 
-			{canCreer && canFinancesVoir && reste && !estTerminee ? (
+			{canMarquerPret && commande.statut === "EN_TRAITEMENT" ? (
+				<Button
+					variant="ghost"
+					size="icon-sm"
+					title="Passer en « Prêt »"
+					onClick={() => onPret(commande)}
+				>
+					<CheckCheck className="size-4 text-lagoon" aria-hidden />
+					<span className="sr-only">Passer en « Prêt »</span>
+				</Button>
+			) : null}
+
+			{canModifier && !estTerminee && !enAttente ? (
+				<Button
+					variant="ghost"
+					size="icon-sm"
+					title="Modifier"
+					onClick={() => onEdit(commande)}
+				>
+					<Pencil className="size-4" aria-hidden />
+					<span className="sr-only">Modifier</span>
+				</Button>
+			) : null}
+
+			{canRetirer && canFinancesVoir && reste && !estTerminee ? (
 				<Button
 					variant="ghost"
 					size="icon-sm"

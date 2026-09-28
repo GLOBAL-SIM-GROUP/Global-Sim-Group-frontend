@@ -1,9 +1,18 @@
 import { Link } from "@tanstack/react-router";
+import { Badge } from "#/components/ui/badge";
+import { EmptyState } from "#/components/ui/empty-state";
+import {
+	DataTable,
+	DataTableHead,
+	TableShell,
+	Td,
+	Th,
+	Tr,
+} from "#/components/ui/table";
 import {
 	formatDateHeureUTC,
 	formatMontantFCFA,
 } from "#/features/residence/models/format";
-import { cn } from "#/lib/utils";
 import {
 	type CommandePressing,
 	type CommandePressingStatut,
@@ -11,14 +20,17 @@ import {
 } from "../models/commandes";
 import { CommandeActions } from "./commande-actions";
 
-const PRESSING_STATUT_BADGE: Record<CommandePressingStatut, string> = {
-	EN_ATTENTE: "bg-[#8E44AD] text-white",
-	DEPOSE: "bg-[#2980B9] text-white",
-	EN_TRAITEMENT: "bg-[#E67E22] text-white",
-	PRET: "bg-[#27AE60] text-white",
-	RETIRE: "bg-[#95A5A6] text-white",
-	ANNULEE: "bg-[#E74C3C] text-white",
-};
+const PRESSING_STATUT_VARIANT = {
+	EN_ATTENTE: "warning",
+	DEPOSE: "info",
+	EN_TRAITEMENT: "warning",
+	PRET: "success",
+	RETIRE: "neutral",
+	ANNULEE: "danger",
+} as const satisfies Record<
+	CommandePressingStatut,
+	"success" | "warning" | "info" | "danger" | "neutral"
+>;
 
 interface CommandeTableProps {
 	commandes: CommandePressing[];
@@ -27,6 +39,9 @@ interface CommandeTableProps {
 	canFinancesVoir: boolean;
 	/** `PRESSING.ANNULER` — refuser une demande `EN_ATTENTE`. */
 	canAnnuler: boolean;
+	canTraiter: boolean;
+	canMarquerPret: boolean;
+	canRetirer: boolean;
 	onEdit: (commande: CommandePressing) => void;
 	onTraitement: (commande: CommandePressing) => void;
 	onPret: (commande: CommandePressing) => void;
@@ -45,6 +60,9 @@ export function CommandeTable({
 	canCreer,
 	canFinancesVoir,
 	canAnnuler,
+	canTraiter,
+	canMarquerPret,
+	canRetirer,
 	onEdit,
 	onTraitement,
 	onPret,
@@ -53,54 +71,29 @@ export function CommandeTable({
 	onRefuser,
 }: CommandeTableProps) {
 	if (commandes.length === 0) {
-		return (
-			<div className="rounded-lg border border-border bg-card p-8 text-center text-sm text-muted-foreground">
-				Aucune commande trouvée.
-			</div>
-		);
+		return <EmptyState title="Aucune commande trouvée." />;
 	}
 
 	return (
-		<div className="overflow-x-auto rounded-lg border border-border bg-card shadow-sm">
-			<table className="w-full border-collapse text-sm">
-				<thead className="bg-sea-ink text-left text-white">
+		<TableShell>
+			<DataTable>
+				<DataTableHead>
 					<tr>
-						<th scope="col" className="px-4 py-3 font-medium">
-							N° COMMANDE
-						</th>
-						<th scope="col" className="px-4 py-3 font-medium">
-							CLIENT
-						</th>
-						<th scope="col" className="px-4 py-3 font-medium">
-							DATE DÉPÔT
-						</th>
-						<th scope="col" className="px-4 py-3 font-medium">
-							RETRAIT PRÉVU
-						</th>
-						<th scope="col" className="px-4 py-3 font-medium">
-							MONTANT
-						</th>
-						<th scope="col" className="px-4 py-3 font-medium">
-							ACOMPTE
-						</th>
-						<th scope="col" className="px-4 py-3 font-medium">
-							RESTE
-						</th>
-						<th scope="col" className="px-4 py-3 font-medium">
-							STATUT
-						</th>
-						<th scope="col" className="px-4 py-3 text-right font-medium">
-							ACTIONS
-						</th>
+						<Th>N° COMMANDE</Th>
+						<Th>CLIENT</Th>
+						<Th>DATE DÉPÔT</Th>
+						<Th>RETRAIT PRÉVU</Th>
+						<Th>MONTANT</Th>
+						<Th>ACOMPTE</Th>
+						<Th>RESTE</Th>
+						<Th>STATUT</Th>
+						<Th className="text-right">ACTIONS</Th>
 					</tr>
-				</thead>
+				</DataTableHead>
 				<tbody>
 					{commandes.map((commande) => (
-						<tr
-							key={commande.id}
-							className="relative border-t border-border transition-colors hover:bg-accent/40"
-						>
-							<td className="px-4 py-3">
+						<Tr key={commande.id}>
+							<Td>
 								{/* Toute la ligne est cliquable (stretched link) vers la fiche ;
 								    la cellule ACTIONS repasse au-dessus (z-10). */}
 								<Link
@@ -111,42 +104,40 @@ export function CommandeTable({
 								>
 									{commande.numero_commande}
 								</Link>
-							</td>
-							<td className="px-4 py-3 text-foreground">
+							</Td>
+							<Td className="text-foreground">
 								{`${commande.client_nom} ${commande.client_prenoms}`.trim()}
-							</td>
-							<td className="px-4 py-3 text-muted-foreground">
+							</Td>
+							<Td className="text-muted-foreground">
 								{formatDateHeureUTC(commande.date_depot)}
-							</td>
-							<td className="px-4 py-3 text-muted-foreground">
+							</Td>
+							<Td className="text-muted-foreground">
 								{commande.date_retrait_prevue ?? "—"}
-							</td>
-							<td className="px-4 py-3 text-foreground">
+							</Td>
+							<Td className="text-foreground">
 								{formatMontantFCFA(commande.montant_total)}
-							</td>
-							<td className="px-4 py-3 text-foreground">
+							</Td>
+							<Td className="text-foreground">
 								{formatMontantFCFA(commande.acompte)}
-							</td>
-							<td className="px-4 py-3 text-muted-foreground">
+							</Td>
+							<Td className="text-muted-foreground">
 								{formatMontantFCFA(commande.reste_a_payer)}
-							</td>
-							<td className="px-4 py-3">
-								<span
-									className={cn(
-										"inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium",
-										PRESSING_STATUT_BADGE[commande.statut],
-									)}
-								>
+							</Td>
+							<Td>
+								<Badge variant={PRESSING_STATUT_VARIANT[commande.statut]}>
 									{PRESSING_STATUT_LABELS[commande.statut]}
-								</span>
-							</td>
-							<td className="relative z-10 px-4 py-3">
+								</Badge>
+							</Td>
+							<Td className="relative z-10">
 								<CommandeActions
 									commande={commande}
 									canModifier={canModifier}
 									canCreer={canCreer}
 									canFinancesVoir={canFinancesVoir}
 									canAnnuler={canAnnuler}
+									canTraiter={canTraiter}
+									canMarquerPret={canMarquerPret}
+									canRetirer={canRetirer}
 									onEdit={onEdit}
 									onTraitement={onTraitement}
 									onPret={onPret}
@@ -154,11 +145,11 @@ export function CommandeTable({
 									onValider={onValider}
 									onRefuser={onRefuser}
 								/>
-							</td>
-						</tr>
+							</Td>
+						</Tr>
 					))}
 				</tbody>
-			</table>
-		</div>
+			</DataTable>
+		</TableShell>
 	);
 }
