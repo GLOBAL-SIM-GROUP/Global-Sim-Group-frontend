@@ -121,7 +121,7 @@ Le module \textbf{Restaurant} fait exactement ça, sur l'ordinateur. Il a \textb
   \item \textbf{Statistiques} : pour voir le chiffre d'affaires et les plats les plus vendus.
 \end{itemize}
 
-\info{Chaque commande a un \textbf{statut}, comme un petit panneau de couleur qui suit le plat en cuisine : \textbf{En cours} (bleu) → \textbf{En préparation} (orange) → \textbf{Servie} (vert) → \textbf{Payée} (gris). Une commande peut aussi être \textbf{Annulée} (rouge). Les commandes passées par les résidents depuis leur portail arrivent en \textbf{En attente} (violet) et attendent ta validation — voir « Les demandes du portail résident ».}
+\info{Chaque commande a un \textbf{statut}, comme un petit panneau de couleur qui suit le plat en cuisine : \textbf{En cours} (bleu) → \textbf{En préparation} (orange) → \textbf{Servie} (vert) → \textbf{Payée} (gris). Une commande peut aussi être \textbf{Annulée} (rouge). Les commandes passées par les résidents depuis leur portail arrivent en \textbf{En attente} (orange) et attendent ta validation — voir « Les demandes du portail résident ».}
 
 \info{Chaque commande a aussi un \textbf{type} : \textbf{Sur place} (le client mange au restaurant), \textbf{À emporter} (le client repart avec son repas) ou \textbf{Livraison} (on lui apporte).}
 
@@ -326,9 +326,9 @@ Dans cette fenêtre, le bouton de \textbf{téléchargement} permet de récupére
 
 \subsection{Les demandes du portail résident}
 
-Les résidents peuvent commander depuis leur \textbf{portail}, sans passer au comptoir. Ces demandes arrivent dans la liste avec le statut \textbf{En attente} (violet) — elles n'ont pas encore été payées :
+Les résidents peuvent commander depuis leur \textbf{portail}, sans passer au comptoir. Ces demandes arrivent dans la liste avec le statut \textbf{En attente} (orange) — elles n'ont pas encore été payées :
 
-\screenshot{screenshots/restaurant/20-demande-attente.png}{Une commande « En attente » (badge violet) dans la liste}
+\screenshot{screenshots/restaurant/20-demande-attente.png}{Une commande « En attente » (badge orange) dans la liste}
 
 Sur une ligne « En attente », la colonne Actions propose deux icônes spéciales (permission \texttt{RESTAURANT.VALIDER}) :
 
@@ -450,7 +450,7 @@ Le plat que je cherche n'est pas dans la liste de la commande & Le plat est peut
 
 Je ne peux pas changer le statut & Il te manque \texttt{RESTAURANT.MODIFIER}, ou la commande est déjà « Payée »/« Annulée » (fin de cycle). « Payée » ne s'atteint pas par le statut : utilise l'icône \textbf{Encaisser}. \\
 
-Une ligne violette « En attente » & C'est une commande passée par un résident sur son portail. Valide-la (coche, \texttt{RESTAURANT.VALIDER}) ou refuse-la (croix, avec motif). \\
+Une ligne orange « En attente » & C'est une commande passée par un résident sur son portail. Valide-la (coche, \texttt{RESTAURANT.VALIDER}) ou refuse-la (croix, avec motif). \\
 
 Je ne vois pas l'icône « Encaisser » & Elle n'apparaît que sur les commandes « En cours », « En préparation » ou « Servie » non payées, et demande la permission \texttt{FINANCES.ENCAISSER}. \\
 

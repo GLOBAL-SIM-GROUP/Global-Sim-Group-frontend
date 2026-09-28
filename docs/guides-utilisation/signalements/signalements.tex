@@ -109,7 +109,7 @@
 
 Imagine le cahier de doléances posé à l'accueil : quand quelque chose ne va pas -- une fuite d'eau, un ascenseur en panne, un souci de facturation -- on y écrit le problème, la date et son nom. Le responsable passe, lit, écrit « pris en charge », puis « réparé » ou « sans suite » avec un mot d'explication.
 
-Le module \textbf{Signalements} fait exactement ça, sur l'ordinateur, avec des photos en plus. Deux écrans :
+Le module \textbf{Signalements} fait exactement ça, sur l'ordinateur, avec des photos en plus. Les problèmes sont écrits par le \textbf{personnel} depuis ce module, mais aussi par les \textbf{résidents} et les \textbf{clients} depuis leurs espaces en ligne -- tout arrive dans le même cahier. Deux écrans :
 
 \begin{itemize}[label=\textcolor{lagoon}{\faExclamationCircle}]
   \item \textbf{La liste} : tous les problèmes remontés, avec leur état d'avancement.
@@ -161,7 +161,7 @@ Les colonnes du tableau :
 
 \begin{itemize}[label=\textcolor{lagoon}{\faTable}]
   \item \textbf{TITRE} : le résumé du problème (en orange -- cliquable), avec un extrait de la description en petit dessous.
-  \item \textbf{CIBLE} : le secteur concerné, sous forme de badge gris -- un \textbf{module} (Résidence, Restaurant, Finances\ldots) ou une \textbf{activité} (Restauration et plats\ldots).
+  \item \textbf{CIBLE} : le secteur concerné, sous forme de badge gris -- un \textbf{module} (Résidence, Restaurant, Finances\ldots), une \textbf{activité} (Restauration et plats\ldots) ou « \textbf{Général} » quand le déclarant n'a pas visé de module en particulier (cas fréquent des signalements venus du portail).
   \item \textbf{DÉCLARANT} : qui a signalé le problème (nom ou login).
   \item \textbf{DATE} : date et heure de la déclaration.
   \item \textbf{STATUT} : le badge de couleur du cycle de vie.
@@ -173,18 +173,17 @@ En bas de page, la \textbf{pagination} indique « Affichage de 1 à 10 sur N ré
 
 \subsection{Retrouver un signalement}
 
-Quatre filtres au-dessus du tableau, combinables :
+Trois filtres au-dessus du tableau, combinables :
 
 \begin{itemize}[label=\textcolor{lagoon}{\faFilter}]
   \item \textbf{Rechercher par titre, description ou déclarant\ldots} : tape quelques lettres, la liste se met à jour toute seule.
   \item \textbf{Statut} : ne montre qu'un état (par exemple seulement les « Ouvert » à traiter).
-  \item \textbf{Type de cible} : « Module » ou « Activité ».
-  \item \textbf{Module concerné} : apparaît quand le type « Module » est choisi, pour viser un module précis.
+  \item \textbf{Module concerné} : ne montre que les signalements visant ce module (Résidence, Restaurant, Pressing\ldots).
 \end{itemize}
 
 \screenshot{screenshots/signalements/02-filtre-statut.png}{Le filtre « Statut » ouvert}
 
-\screenshot{screenshots/signalements/03-filtre-module.png}{Le filtre « Module concerné » (type de cible = Module)}
+\screenshot{screenshots/signalements/03-filtre-module.png}{Le filtre « Module concerné » ouvert}
 
 \newpage
 
@@ -208,6 +207,19 @@ Les champs :
 \end{itemize}
 
 \attention{Les photos sont envoyées \textbf{après} la création du signalement (le bouton affiche « Envoi des photos\ldots ») : si la connexion coupe à ce moment, le signalement existe mais sans ses photos.}
+
+\subsection{Les résidents et les clients signalent aussi}
+
+Les problèmes n'arrivent pas que du personnel : les \textbf{résidents} et les \textbf{clients} déclarent eux-mêmes depuis leurs espaces, sans passer par l'accueil :
+
+\begin{itemize}[label=\textcolor{lagoon}{\faArrowRight}]
+  \item \textbf{Portail résident} : entrée « Signalements » du portail (\texttt{/residence/portail/signalements}) -- liste de ses signalements, bouton « Nouveau » et suivi de chaque déclaration.
+  \item \textbf{Espace client} : entrée « Signalement » (\texttt{/espace-client/signalement}) -- même principe pour les clients extérieurs.
+\end{itemize}
+
+Leur formulaire est simplifié par rapport au tien : \textbf{Sujet} et \textbf{Description} obligatoires, \textbf{Lieu} et \textbf{Module concerné} optionnels (sans module choisi, le signalement arrive en \textbf{général} et c'est le personnel qui le trie), photos en option. Le déclarant est identifié automatiquement par son compte -- il ne choisit pas son nom. Ces signalements arrivent dans \textbf{ta liste} avec le statut « Ouvert » et se traitent exactement comme les autres (Prendre en charge, Résoudre, Rejeter) ; le résident ou le client suit l'avancement depuis son espace.
+
+\info{Ce canal portail est réservé aux comptes ayant la permission \texttt{PORTAIL.VOIR} (résidents et clients). Le staff déclare toujours depuis le module Signalements décrit ici.}
 
 \newpage
 
@@ -315,6 +327,8 @@ Sur un écran étroit (320 px), la liste et la fiche restent utilisables :
 \texttt{SIGNALEMENT.MODIFIER} & La carte « Actions » de la fiche : Prendre en charge, Résoudre, Rejeter. \\
 \addlinespace
 \texttt{SIGNALEMENT.DECLARER\_TIERS} & Déclarer un problème sur \textbf{n'importe quel} module, même hors de son périmètre (réservé aux Administrateur, Dirigeant et RH). Sans elle, la liste « Module concerné » est limitée à tes modules. \\
+\addlinespace
+\texttt{PORTAIL.VOIR} & Côté résidents et clients (pas le staff) : déclarer et suivre ses signalements depuis le portail résident ou l'espace client. \\
 \bottomrule
 \end{longtable}
 \end{center}

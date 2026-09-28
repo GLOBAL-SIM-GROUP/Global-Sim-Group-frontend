@@ -115,7 +115,7 @@ Le module \textbf{Salle de fête} fait exactement ça, sur l'ordinateur. Il a \t
   \item \textbf{Catalogue} : les types de manifestation proposés dans les formulaires (mariage, baptême…).
 \end{itemize}
 
-\info{Chaque réservation a un \textbf{statut}, comme un petit panneau de couleur : \textbf{Réservée} (orange) → \textbf{Confirmée} (bleu) → \textbf{Réalisée} (gris). Une réservation peut aussi être \textbf{Annulée} (rouge). Les demandes envoyées par les résidents depuis leur portail arrivent en \textbf{En attente de validation} (violet), sans tarif — voir « Les demandes du portail résident ». Tu verras parfois « Disponible » (vert) dans le filtre.}
+\info{Chaque réservation a un \textbf{statut}, comme un petit panneau de couleur : \textbf{Réservée} (orange) → \textbf{Confirmée} (bleu) → \textbf{Réalisée} (gris). Une réservation peut aussi être \textbf{Annulée} (rouge). Les demandes envoyées par les résidents depuis leur portail arrivent en \textbf{En attente de validation} (orange), sans tarif — voir « Les demandes du portail résident ». Tu verras parfois « Disponible » (vert) dans le filtre.}
 
 \info{Ce que tu vois dépend de tes \textbf{permissions}. Si un bouton manque, ce n'est pas un bug : ton rôle n'a pas le droit. Voir le récapitulatif à la fin du guide.}
 
@@ -293,9 +293,9 @@ Si le client renonce, clique sur \textbf{Annuler la réservation} (ou l'icône X
 
 \subsection{Les demandes du portail résident}
 
-Les résidents peuvent demander la salle depuis leur \textbf{portail} : ils choisissent la date, l'heure et le type de fête, sans prix. Ces demandes arrivent dans la liste avec le statut \textbf{En attente de validation} (violet) et des cases vides pour le tarif, l'acompte et le solde — le prix n'est pas encore fixé :
+Les résidents peuvent demander la salle depuis leur \textbf{portail} : ils choisissent la date, l'heure et le type de fête, sans prix. Ces demandes arrivent dans la liste avec le statut \textbf{En attente de validation} (orange) et des cases vides pour le tarif, l'acompte et le solde — le prix n'est pas encore fixé :
 
-\screenshot{screenshots/salle-fete/15-reservation-attente.png}{Une demande « En attente de validation » (badge violet) dans la liste}
+\screenshot{screenshots/salle-fete/15-reservation-attente.png}{Une demande « En attente de validation » (badge orange) dans la liste}
 
 Sur cette ligne, la colonne Actions propose (permission \texttt{SALLE\_FETE.VALIDER}) :
 
@@ -401,7 +401,7 @@ La réservation n'apparaît pas sur le calendrier & Vérifie que tu regardes le 
 
 Je ne peux plus modifier une réservation & C'est normal : une réservation « Réalisée » ou « Annulée » n'est plus modifiable. \\
 
-Une ligne violette « En attente de validation » & C'est une demande de salle envoyée par un résident depuis son portail. Valide-la et tarife-la (coche, \texttt{SALLE\_FETE.VALIDER}) ou refuse-la (croix — le motif est communiqué au résident). \\
+Une ligne orange « En attente de validation » & C'est une demande de salle envoyée par un résident depuis son portail. Valide-la et tarife-la (coche, \texttt{SALLE\_FETE.VALIDER}) ou refuse-la (croix — le motif est communiqué au résident). \\
 
 La page Catalogue ne propose pas d'ajout & Il te manque \texttt{SALLE\_FETE.GERER\_CATALOGUE} : sans elle, la liste des types de manifestation est en lecture seule. \\
 

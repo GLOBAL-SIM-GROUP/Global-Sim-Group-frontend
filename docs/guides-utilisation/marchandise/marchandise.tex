@@ -119,7 +119,7 @@ Le module \textbf{Marchandise} (aussi appelé \textbf{Market}) fait exactement �
 
 \info{Chaque produit a un \textbf{seuil d'alerte} : quand le stock descend sous ce seuil, le produit apparaît dans « Alerte stock ». À zéro, le badge devient \textbf{ÉPUISÉ} (rouge).}
 
-\info{Chaque vente a un \textbf{statut} : \textbf{Payée} (vert), \textbf{En cours} (orange), \textbf{En attente de validation} (violet) ou \textbf{Annulée} (gris). Une vente enregistrée avec un moyen de paiement passe directement à « Payée ». Les ventes « En attente » sont des demandes passées par les résidents depuis la boutique de leur portail — voir « Les demandes du portail résident ».}
+\info{Chaque vente a un \textbf{statut} : \textbf{Payée} (vert), \textbf{En cours} (orange), \textbf{En attente de validation} (orange) ou \textbf{Annulée} (gris). Une vente enregistrée avec un moyen de paiement passe directement à « Payée ». Les ventes « En attente » sont des demandes passées par les résidents depuis la boutique de leur portail — voir « Les demandes du portail résident ».}
 
 \info{Ce que tu vois dépend de tes \textbf{permissions}. Si un bouton manque, ce n'est pas un bug : ton rôle n'a pas le droit. Voir le récapitulatif à la fin du guide.}
 
@@ -318,7 +318,7 @@ Les colonnes du tableau :
   \item \textbf{DATE} : jour et heure.
   \item \textbf{CLIENT} : le client associé, ou « — » pour une vente au comptoir.
   \item \textbf{TOTAL} et \textbf{REMISE} en FCFA.
-  \item \textbf{STATUT} : Payée (vert), En cours (orange), En attente de validation (violet) ou Annulée (gris). Un petit badge \textbf{Portail} sous le statut indique une vente venue de la boutique résident.
+  \item \textbf{STATUT} : Payée (vert), En cours (orange), En attente de validation (orange) ou Annulée (gris). Un petit badge \textbf{Portail} sous le statut indique une vente venue de la boutique résident.
   \item \textbf{ACTIONS} : \faEye\ voir la facture, imprimer le reçu ; sur une demande « En attente » : \faCheck\ valider et \faTimes\ refuser ; sur une vente « En cours » : le billet « Encaisser » ; et \faTimes\ annuler la vente (réservé à l'administrateur).
 \end{itemize}
 
@@ -355,7 +355,7 @@ Les filtres permettent de chercher par texte (numéro, client, référence), par
 
 \subsection{Les demandes du portail résident}
 
-Les résidents peuvent commander des produits depuis la \textbf{boutique de leur portail}. Ces demandes arrivent dans la liste des ventes avec le statut \textbf{En attente de validation} (violet) et un badge \textbf{Portail} : le stock n'est pas encore décrémenté et rien n'a été payé.
+Les résidents peuvent commander des produits depuis la \textbf{boutique de leur portail}. Ces demandes arrivent dans la liste des ventes avec le statut \textbf{En attente de validation} (orange) et un badge \textbf{Portail} : le stock n'est pas encore décrémenté et rien n'a été payé.
 
 \screenshot{screenshots/marchandise/23-vente-attente.png}{Une vente « En attente de validation » avec le badge « Portail »}
 
@@ -450,7 +450,7 @@ Un produit épuisé continue d'apparaître en vente & Un produit à zéro reste 
 
 Je ne peux pas supprimer une catégorie & C'est normal : le backend ne permet ni modifier ni supprimer une catégorie. \\
 
-Une ligne violette « En attente de validation » & C'est une commande de la boutique passée par un résident sur son portail. Valide-la (\faCheck, \texttt{MARCHANDISE.VALIDER} — décrémente le stock) ou refuse-la (\faTimes, avec motif). \\
+Une ligne orange « En attente de validation » & C'est une commande de la boutique passée par un résident sur son portail. Valide-la (\faCheck, \texttt{MARCHANDISE.VALIDER} — décrémente le stock) ou refuse-la (\faTimes, avec motif). \\
 
 Je ne vois pas l'icône « Encaisser la vente » & Elle n'apparaît que sur les ventes « En cours », et demande la permission \texttt{FINANCES.ENCAISSER}. \\
 

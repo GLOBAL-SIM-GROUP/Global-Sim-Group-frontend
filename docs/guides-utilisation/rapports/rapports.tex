@@ -116,7 +116,7 @@ Le module \textbf{Rapports}, c'est la page où tu demandes à l'application de \
 
 L'application lit les données, te montre le résumé à l'écran, et tu peux l'\textbf{exporter} (télécharger) en PDF, Excel ou CSV pour l'imprimer ou l'envoyer.
 
-\info{Les rapports sont réservés aux \textbf{Administrateurs} et \textbf{Dirigeants}. Si tu n'as pas la permission \texttt{ADMIN.VOIR}, tu verras « Vous n'avez pas accès aux rapports. »}
+\info{Les rapports sont réservés aux rôles ayant la permission \texttt{RAPPORTS.VOIR} — \textbf{Administrateurs}, \textbf{Dirigeants} et \textbf{Responsables} en général. Si tu ne l'as pas, tu verras « Vous n'avez pas accès aux rapports. »}
 
 \newpage
 
@@ -445,7 +445,7 @@ Le rapport lui-même s'affiche aussi en pleine largeur, les cartes les unes en d
 \bottomrule
 \endfoot
 
-Je ne vois pas le module Rapports & Tu n'as pas la permission \texttt{ADMIN.VOIR}. Demande à l'administrateur de te l'ajouter. \\
+Je ne vois pas le module Rapports & Tu n'as pas la permission \texttt{RAPPORTS.VOIR}. Demande à l'administrateur de te l'ajouter. \\
 
 Le rapport est vide & Vérifie la période. Si la période est « Ce mois » et qu'il n'y a pas eu d'activité, les chiffres seront à zéro. Essaie « Cette année ». \\
 
@@ -467,10 +467,10 @@ Les chiffres ne correspondent pas au tableau de bord & Le tableau de bord et les
 \section{Récapitulatif des permissions}
 
 \begin{itemize}[label=\textcolor{lagoon}{\faKey}]
-  \item \texttt{ADMIN.VOIR} : voir et générer tous les rapports.
+  \item \texttt{RAPPORTS.VOIR} : voir et générer tous les rapports.
 \end{itemize}
 
-\info{Tous les types de rapports (synthèse, financier, RH, par activité) nécessitent la même permission \texttt{ADMIN.VOIR}. Il n'y a pas de permission séparée par type de rapport.}
+\info{Tous les types de rapports (synthèse, financier, RH, par activité) nécessitent la même permission \texttt{RAPPORTS.VOIR}. Il n'y a pas de permission séparée par type de rapport.}
 
 \vfill
 
