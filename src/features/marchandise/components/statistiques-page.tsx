@@ -1,11 +1,20 @@
 import { Link } from "@tanstack/react-router";
 import { useState } from "react";
 
-import { Breadcrumb } from "#/components/ui/breadcrumb";
+import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
+import { EmptyState } from "#/components/ui/empty-state";
 import { Input } from "#/components/ui/input";
+import { PageHeader } from "#/components/ui/page-header";
+import {
+	DataTable,
+	DataTableHead,
+	TableShell,
+	Td,
+	Th,
+	Tr,
+} from "#/components/ui/table";
 import { formatMontantFCFA } from "#/features/residence/models/format";
-import { cn } from "#/lib/utils";
 
 import { useStockAlerte } from "../hooks/use-mouvements";
 import { useRapportVentes } from "../hooks/use-ventes";
@@ -57,49 +66,41 @@ export function StatistiquesPage({
 
 	return (
 		<div className="w-full space-y-4 p-3 sm:space-y-6 sm:p-6">
-			<Breadcrumb
-				items={[
+			<PageHeader
+				breadcrumb={[
 					{ label: "Accueil", to: "/" },
 					{ label: "Produits — Market", to: "/marchandise/produits" },
 					{ label: "Statistiques — Market" },
 				]}
+				title="Statistiques — Market"
+				description="Indicateurs de performance du Market."
+				actions={
+					<div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
+						<Input
+							type="date"
+							value={du}
+							onChange={(event) => changerPeriode({ du: event.target.value })}
+							aria-label="Début de période"
+							className="w-full sm:w-40"
+						/>
+						<Input
+							type="date"
+							value={au}
+							onChange={(event) => changerPeriode({ au: event.target.value })}
+							aria-label="Fin de période"
+							className="w-full sm:w-40"
+						/>
+						<Button
+							variant="outline"
+							size="sm"
+							asChild
+							className="w-full justify-center sm:w-auto"
+						>
+							<Link to="/marchandise/ventes">Ventes</Link>
+						</Button>
+					</div>
+				}
 			/>
-
-			<div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
-				<section className="space-y-1">
-					<h1 className="text-lg font-semibold text-foreground sm:text-2xl">
-						Statistiques — Market
-					</h1>
-					<p className="text-xs text-muted-foreground sm:text-sm">
-						Indicateurs de performance du Market.
-					</p>
-				</section>
-
-				<div className="flex flex-col gap-2 w-full sm:w-auto sm:flex-row sm:items-center sm:gap-2">
-					<Input
-						type="date"
-						value={du}
-						onChange={(event) => changerPeriode({ du: event.target.value })}
-						aria-label="Début de période"
-						className="w-full sm:w-40"
-					/>
-					<Input
-						type="date"
-						value={au}
-						onChange={(event) => changerPeriode({ au: event.target.value })}
-						aria-label="Fin de période"
-						className="w-full sm:w-40"
-					/>
-					<Button
-						variant="outline"
-						size="sm"
-						asChild
-						className="w-full sm:w-auto justify-center"
-					>
-						<Link to="/marchandise/ventes">Ventes</Link>
-					</Button>
-				</div>
-			</div>
 
 			{rapportQuery.isLoading ? (
 				<p className="text-sm text-muted-foreground">Chargement…</p>
@@ -128,85 +129,60 @@ export function StatistiquesPage({
 						<h2 className="text-base font-semibold text-foreground">
 							Ventes par statut
 						</h2>
-						<div className="overflow-x-auto rounded-lg border border-border bg-card shadow-sm">
-							<table className="w-full border-collapse text-sm">
-								<thead className="bg-sea-ink text-left text-white">
+						<TableShell>
+							<DataTable>
+								<DataTableHead>
 									<tr>
-										<th scope="col" className="px-4 py-3 font-medium">
-											STATUT
-										</th>
-										<th scope="col" className="px-4 py-3 font-medium">
-											NB VENTES
-										</th>
-										<th scope="col" className="px-4 py-3 font-medium">
-											CA
-										</th>
+										<Th>STATUT</Th>
+										<Th>NB VENTES</Th>
+										<Th>CA</Th>
 									</tr>
-								</thead>
+								</DataTableHead>
 								<tbody>
 									{rapport.par_type.map((entree) => (
-										<tr key={entree.statut} className="border-t border-border">
-											<td className="px-4 py-3 text-foreground">
-												{entree.statut}
-											</td>
-											<td className="px-4 py-3 text-foreground">
-												{entree.nb_ventes}
-											</td>
-											<td className="px-4 py-3 text-foreground">
+										<Tr key={entree.statut}>
+											<Td className="text-foreground">{entree.statut}</Td>
+											<Td className="text-foreground">{entree.nb_ventes}</Td>
+											<Td className="text-foreground">
 												{formatMontantFCFA(entree.ca)}
-											</td>
-										</tr>
+											</Td>
+										</Tr>
 									))}
 								</tbody>
-							</table>
-						</div>
+							</DataTable>
+						</TableShell>
 					</section>
 
 					<section className="space-y-3">
 						<h2 className="text-base font-semibold text-foreground">
 							Top produits les plus vendus
 						</h2>
-						<div className="overflow-x-auto rounded-lg border border-border bg-card shadow-sm">
-							<table className="w-full border-collapse text-sm">
-								<thead className="bg-sea-ink text-left text-white">
+						<TableShell>
+							<DataTable>
+								<DataTableHead>
 									<tr>
-										<th scope="col" className="px-4 py-3 font-medium">
-											PRODUIT
-										</th>
-										<th scope="col" className="px-4 py-3 font-medium">
-											QUANTITÉ
-										</th>
-										<th scope="col" className="px-4 py-3 font-medium">
-											CA
-										</th>
-										<th scope="col" className="px-4 py-3 font-medium">
-											MARGE
-										</th>
+										<Th>PRODUIT</Th>
+										<Th>QUANTITÉ</Th>
+										<Th>CA</Th>
+										<Th>MARGE</Th>
 									</tr>
-								</thead>
+								</DataTableHead>
 								<tbody>
 									{rapport.top_produits.map((produit) => (
-										<tr
-											key={produit.libelle}
-											className="border-t border-border"
-										>
-											<td className="px-4 py-3 text-foreground">
-												{produit.libelle}
-											</td>
-											<td className="px-4 py-3 text-foreground">
-												{produit.quantite}
-											</td>
-											<td className="px-4 py-3 text-foreground">
+										<Tr key={produit.libelle}>
+											<Td className="text-foreground">{produit.libelle}</Td>
+											<Td className="text-foreground">{produit.quantite}</Td>
+											<Td className="text-foreground">
 												{formatMontantFCFA(produit.ca)}
-											</td>
-											<td className="px-4 py-3 text-foreground">
+											</Td>
+											<Td className="text-foreground">
 												{formatMontantFCFA(produit.marge)}
-											</td>
-										</tr>
+											</Td>
+										</Tr>
 									))}
 								</tbody>
-							</table>
-						</div>
+							</DataTable>
+						</TableShell>
 					</section>
 
 					<section className="space-y-3">
@@ -216,9 +192,7 @@ export function StatistiquesPage({
 						{alerteQuery.isLoading ? (
 							<p className="text-sm text-muted-foreground">Chargement…</p>
 						) : (alerteQuery.data ?? []).length === 0 ? (
-							<p className="rounded-lg border border-border bg-card p-6 text-center text-sm text-muted-foreground">
-								Aucun produit en alerte.
-							</p>
+							<EmptyState title="Aucun produit en alerte." />
 						) : (
 							<ul className="divide-y divide-border rounded-lg border border-border bg-card shadow-sm">
 								{(alerteQuery.data ?? []).map((produit) => (
@@ -227,16 +201,15 @@ export function StatistiquesPage({
 										className="flex items-center justify-between gap-3 px-4 py-2 text-sm"
 									>
 										<span className="text-foreground">{produit.nom}</span>
-										<span
-											className={cn(
-												"inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium",
+										<Badge
+											variant={
 												Number(produit.quantite_stock) <= 0
-													? "bg-[#E74C3C] text-white"
-													: "bg-[#E67E22] text-white",
-											)}
+													? "danger"
+													: "warning"
+											}
 										>
 											{produit.niveau}
-										</span>
+										</Badge>
 									</li>
 								))}
 							</ul>

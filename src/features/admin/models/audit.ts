@@ -37,15 +37,20 @@ export function libelleOperation(operation: string): string {
 	return LIBELLES_OPERATIONS[operation] ?? operation;
 }
 
-/** Couleurs de badge par opération — mêmes teintes que le reste de l'app. */
-const COULEURS_OPERATIONS: Record<string, string> = {
-	INSERT: "bg-[#27AE60] text-white",
-	UPDATE: "bg-[#E67E22] text-white",
-	DELETE: "bg-[#E74C3C] text-white",
+/** Variante `<Badge>` par opération (enum ouvert → repli neutre). */
+const VARIANTES_OPERATIONS: Record<
+	string,
+	"success" | "warning" | "danger" | "neutral"
+> = {
+	INSERT: "success",
+	UPDATE: "warning",
+	DELETE: "danger",
 };
 
-export function couleurOperation(operation: string): string {
-	return COULEURS_OPERATIONS[operation] ?? "bg-[#95A5A6] text-white";
+export function varianteOperation(
+	operation: string,
+): "success" | "warning" | "danger" | "neutral" {
+	return VARIANTES_OPERATIONS[operation] ?? "neutral";
 }
 
 /**

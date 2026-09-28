@@ -1,25 +1,26 @@
 import { HandCoins, Wallet } from "lucide-react";
 import { useState } from "react";
 
+import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
+import { EmptyState } from "#/components/ui/empty-state";
+import {
+	DataTable,
+	DataTableHead,
+	TableShell,
+	Td,
+	Th,
+	Tr,
+} from "#/components/ui/table";
 import { useCan } from "#/core/auth";
-import { cn } from "#/lib/utils";
 
 import { useMoyensPaiement } from "../hooks/use-moyens-paiement";
 import { dateEcheanceEffective, type Echeance } from "../models/contrats";
-import { echanceStatutLabel } from "../models/echeances";
+import { echanceStatutLabel, echanceStatutVariant } from "../models/echeances";
 import { formatDateISO, formatMontantFCFA } from "../models/format";
 import { EcheanceRecuButton } from "./echeance-recu-button";
 import { EncaisserFormDialog } from "./encaisser-form-dialog";
 import { EncaisserLotFormDialog } from "./encaisser-lot-form-dialog";
-
-const ECHANCE_STATUT_BADGE: Record<string, string> = {
-	PAYE: "bg-[#27AE60] text-white",
-	IMPAYE: "bg-[#E74C3C] text-white",
-	PARTIEL: "bg-[#E67E22] text-white",
-	A_VENIR: "bg-[#95A5A6] text-white",
-	EN_ATTENTE: "bg-[#95A5A6] text-white",
-};
 
 interface ContratEcheancesTabProps {
 	idContrat: string;
@@ -57,11 +58,7 @@ export function ContratEcheancesTab({
 	}, 0);
 
 	if (echeances.length === 0) {
-		return (
-			<p className="rounded-lg border border-border bg-card p-6 text-center text-sm text-muted-foreground">
-				Aucune échéance générée pour ce contrat.
-			</p>
-		);
+		return <EmptyState title="Aucune échéance générée pour ce contrat." />;
 	}
 
 	return (
@@ -79,58 +76,39 @@ export function ContratEcheancesTab({
 				</div>
 			) : null}
 
-			<div className="overflow-x-auto rounded-lg border border-border bg-card shadow-sm">
-				<table className="w-full border-collapse text-sm">
-					<thead className="bg-sea-ink text-left text-white">
+			<TableShell>
+				<DataTable>
+					<DataTableHead>
 						<tr>
-							<th scope="col" className="px-4 py-3 font-medium">
-								MOIS
-							</th>
-							<th scope="col" className="px-4 py-3 font-medium">
-								MONTANT
-							</th>
-							<th scope="col" className="px-4 py-3 font-medium">
-								STATUT
-							</th>
-							<th scope="col" className="px-4 py-3 font-medium">
-								DATE D'ÉCHÉANCE
-							</th>
-							<th scope="col" className="px-4 py-3 text-right font-medium">
-								ACTIONS
-							</th>
+							<Th>MOIS</Th>
+							<Th>MONTANT</Th>
+							<Th>STATUT</Th>
+							<Th>DATE D'ÉCHÉANCE</Th>
+							<Th className="text-right">ACTIONS</Th>
 						</tr>
-					</thead>
+					</DataTableHead>
 					<tbody>
 						{echeances.map((echeance) => {
 							const dateEffective = dateEcheanceEffective(echeance, dateDebut);
 							return (
-								<tr
-									key={echeance.id}
-									className="border-t border-border transition-colors hover:bg-accent/40"
-								>
-									<td className="px-4 py-3 font-semibold text-foreground">
+								<Tr key={echeance.id}>
+									<Td className="font-semibold text-foreground">
 										{dateEffective
 											? formatDateISO(dateEffective)
 											: `${echeance.mois}/${echeance.annee}`}
-									</td>
-									<td className="px-4 py-3 text-foreground">
+									</Td>
+									<Td className="text-foreground">
 										{formatMontantFCFA(echeance.montant)}
-									</td>
-									<td className="px-4 py-3">
-										<span
-											className={cn(
-												"inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium",
-												ECHANCE_STATUT_BADGE[echeance.statut] ??
-													"bg-[#95A5A6] text-white",
-											)}
-										>
+									</Td>
+									<Td>
+										<Badge variant={echanceStatutVariant(echeance.statut)}>
 											{echanceStatutLabel(echeance.statut)}
-										</span>
-									</td>
-									<td className="px-4 py-3 text-muted-foreground">
+										</Badge>
+									</Td>
+									<Td className="text-muted-foreground">
 										{formatDateISO(dateEffective)}
-									</td>
-									<td className="px-4 py-3">
+									</Td>
+									<Td>
 										<div className="flex items-center justify-end gap-2">
 											<EcheanceRecuButton echeance={echeance} />
 											{peutEncaisser && echeance.statut !== "PAYE" ? (
@@ -144,13 +122,13 @@ export function ContratEcheancesTab({
 												</Button>
 											) : null}
 										</div>
-									</td>
-								</tr>
+									</Td>
+								</Tr>
 							);
 						})}
 					</tbody>
-				</table>
-			</div>
+				</DataTable>
+			</TableShell>
 
 			<EncaisserFormDialog
 				open={aEncaisser !== null}

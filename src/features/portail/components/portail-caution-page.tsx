@@ -1,16 +1,18 @@
 import { Link } from "@tanstack/react-router";
 
-import { Breadcrumb } from "#/components/ui/breadcrumb";
+import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
+import { EmptyState } from "#/components/ui/empty-state";
+import { PageHeader } from "#/components/ui/page-header";
+import { DataTable, DataTableHead, Td, Th, Tr } from "#/components/ui/table";
 import {
 	formatDateInstantUTC,
 	formatDateISO,
 	formatMontantFCFA,
 } from "#/features/residence/models/format";
-import { cn } from "#/lib/utils";
 
 import { usePortailCaution } from "../hooks/use-portail";
-import { CAUTION_STATUT_BADGE, CAUTION_STATUT_LABELS } from "../models/portail";
+import { CAUTION_STATUT_LABELS, cautionStatutVariant } from "../models/portail";
 
 /** Ligne lecture seule. */
 function Ligne({ label, valeur }: { label: string; valeur: string }) {
@@ -49,6 +51,7 @@ export function PortailCautionPage() {
 					<Button
 						variant="outline"
 						size="sm"
+						className="rounded-full"
 						onClick={() => void cautionQuery.refetch()}
 					>
 						Réessayer
@@ -62,28 +65,23 @@ export function PortailCautionPage() {
 
 	return (
 		<div className="w-full space-y-6 p-6">
-			<Breadcrumb
-				items={[
+			<PageHeader
+				breadcrumb={[
 					{ label: "Accueil", to: "/" },
 					{ label: "Mon espace résident", to: "/residence/portail" },
 					{ label: "Ma caution" },
 				]}
+				title="Ma caution"
+				description="Suivi de votre caution de location."
+				actions={
+					<Button variant="outline" size="sm" className="rounded-full" asChild>
+						<Link to="/residence/portail">Retour à mon espace</Link>
+					</Button>
+				}
 			/>
 
-			<div className="flex flex-wrap items-end justify-between gap-4">
-				<section className="space-y-1">
-					<h1 className="text-2xl font-semibold text-foreground">Ma caution</h1>
-					<p className="text-muted-foreground">
-						Suivi de votre caution de location.
-					</p>
-				</section>
-				<Button variant="outline" size="sm" asChild>
-					<Link to="/residence/portail">Retour à mon espace</Link>
-				</Button>
-			</div>
-
 			{caution ? (
-				<section className="rounded-lg border border-border bg-card p-5 shadow-sm">
+				<section className="rounded-xl border border-border bg-card p-5 shadow-sm">
 					<dl className="grid gap-4 sm:grid-cols-2">
 						<Ligne
 							label="Montant"
@@ -109,15 +107,9 @@ export function PortailCautionPage() {
 						/>
 					</dl>
 					<div className="mt-4 flex flex-wrap items-center gap-3">
-						<span
-							className={cn(
-								"inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium",
-								CAUTION_STATUT_BADGE[caution.statut] ??
-									"bg-[#95A5A6] text-white",
-							)}
-						>
+						<Badge variant={cautionStatutVariant(caution.statut)}>
 							{CAUTION_STATUT_LABELS[caution.statut] ?? caution.statut}
-						</span>
+						</Badge>
 					</div>
 					{caution.motif_retenue ? (
 						<p className="mt-4 border-t border-border pt-4 text-sm text-muted-foreground">
@@ -127,63 +119,48 @@ export function PortailCautionPage() {
 					) : null}
 				</section>
 			) : (
-				<div className="rounded-lg border border-border bg-card p-8 text-center text-sm text-muted-foreground">
-					Aucune caution enregistrée.
-				</div>
+				<EmptyState title="Aucune caution enregistrée." />
 			)}
 
-			<section className="space-y-3 rounded-lg border border-border bg-card p-5 shadow-sm">
+			<section className="space-y-3 rounded-xl border border-border bg-card p-5 shadow-sm">
 				<h2 className="text-lg font-semibold text-foreground">
 					Historique de la caution
 				</h2>
 				{historique.length === 0 ? (
-					<p className="rounded-lg border border-border bg-sea-ink/5 p-4 text-center text-sm text-muted-foreground">
-						Aucun événement enregistré.
-					</p>
+					<EmptyState title="Aucun événement enregistré." />
 				) : (
-					<div className="overflow-x-auto">
-						<table className="w-full border-collapse text-sm">
-							<thead className="bg-sea-ink text-left text-white">
-								<tr>
-									<th scope="col" className="px-4 py-3 font-medium">
-										ÉVÉNEMENT
-									</th>
-									<th scope="col" className="px-4 py-3 font-medium">
-										DATE
-									</th>
-									<th scope="col" className="px-4 py-3 text-right font-medium">
-										MONTANT
-									</th>
-									<th scope="col" className="px-4 py-3 font-medium">
-										MOTIF
-									</th>
-								</tr>
-							</thead>
-							<tbody>
-								{historique.map((evenement) => (
-									<tr
-										key={`${evenement.evenement}-${evenement.date}-${evenement.montant ?? ""}`}
-										className="border-t border-border transition-colors hover:bg-accent/40"
-									>
-										<td className="px-4 py-3 font-medium text-foreground">
-											{evenement.evenement}
-										</td>
-										<td className="px-4 py-3 text-muted-foreground">
-											{formatDateInstantUTC(evenement.date)}
-										</td>
-										<td className="px-4 py-3 text-right text-foreground">
-											{evenement.montant
-												? formatMontantFCFA(evenement.montant)
-												: "—"}
-										</td>
-										<td className="px-4 py-3 text-muted-foreground">
-											{evenement.motif ?? "—"}
-										</td>
-									</tr>
-								))}
-							</tbody>
-						</table>
-					</div>
+					<DataTable>
+						<DataTableHead>
+							<tr>
+								<Th>ÉVÉNEMENT</Th>
+								<Th>DATE</Th>
+								<Th className="text-right">MONTANT</Th>
+								<Th>MOTIF</Th>
+							</tr>
+						</DataTableHead>
+						<tbody>
+							{historique.map((evenement) => (
+								<Tr
+									key={`${evenement.evenement}-${evenement.date}-${evenement.montant ?? ""}`}
+								>
+									<Td className="font-medium text-foreground">
+										{evenement.evenement}
+									</Td>
+									<Td className="text-muted-foreground">
+										{formatDateInstantUTC(evenement.date)}
+									</Td>
+									<Td className="text-right text-foreground">
+										{evenement.montant
+											? formatMontantFCFA(evenement.montant)
+											: "—"}
+									</Td>
+									<Td className="text-muted-foreground">
+										{evenement.motif ?? "—"}
+									</Td>
+								</Tr>
+							))}
+						</tbody>
+					</DataTable>
 				)}
 			</section>
 		</div>

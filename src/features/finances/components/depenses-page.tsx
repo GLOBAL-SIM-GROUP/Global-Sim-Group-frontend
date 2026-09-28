@@ -1,13 +1,19 @@
 import { useForm } from "@tanstack/react-form";
 import { AlertTriangle, Loader2, Pencil, Plus, Trash2 } from "lucide-react";
-import { Dialog } from "radix-ui";
 import { useState } from "react";
 
-import { Breadcrumb } from "#/components/ui/breadcrumb";
 import { Button } from "#/components/ui/button";
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogTitle,
+} from "#/components/ui/dialog";
+import { EmptyState } from "#/components/ui/empty-state";
 import { Input } from "#/components/ui/input";
 import { InputField } from "#/components/ui/input-field";
 import { Label } from "#/components/ui/label";
+import { PageHeader } from "#/components/ui/page-header";
 import {
 	Select,
 	SelectContent,
@@ -15,6 +21,14 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "#/components/ui/select";
+import {
+	DataTable,
+	DataTableHead,
+	TableShell,
+	Td,
+	Th,
+	Tr,
+} from "#/components/ui/table";
 import {
 	getErrorMessageForCode,
 	isCaisseFermeeError,
@@ -138,84 +152,35 @@ function DepenseFormDialog({
 		},
 	});
 	return (
-		<Dialog.Root open={open} onOpenChange={onOpenChange}>
-			<Dialog.Portal>
-				<Dialog.Overlay className="fixed inset-0 z-50 bg-black/50" />
-				<Dialog.Content className="fixed top-1/2 left-1/2 z-50 w-[calc(100vw-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-lg border border-border bg-card p-6 shadow-lg">
-					<Dialog.Title className="text-base font-semibold text-foreground">
-						{depense ? "Modifier la dépense" : "Ajouter une dépense"}
-					</Dialog.Title>
-					<Dialog.Description className="mt-1 text-sm text-muted-foreground">
-						Enregistrement d'une sortie de trésorerie.
-					</Dialog.Description>
-					<form
-						className="mt-4 space-y-4"
-						onSubmit={(event) => {
-							event.preventDefault();
-							event.stopPropagation();
-							void form.handleSubmit();
-						}}
-					>
-						<div className="grid grid-cols-2 gap-4">
-							<form.Field name="date">
-								{(field) => (
-									<div className="space-y-1.5">
-										<Label htmlFor={field.name}>Date</Label>
-										<Input
-											id={field.name}
-											name={field.name}
-											type="date"
-											value={field.state.value}
-											onBlur={field.handleBlur}
-											onChange={(event) =>
-												field.handleChange(event.target.value)
-											}
-										/>
-										{field.state.meta.errors[0] ? (
-											<p className="text-xs text-destructive">
-												{field.state.meta.errors[0]}
-											</p>
-										) : null}
-									</div>
-								)}
-							</form.Field>
-							<form.Field name="montant">
-								{(field) => (
-									<InputField
+		<Dialog open={open} onOpenChange={onOpenChange}>
+			<DialogContent className="max-w-md">
+				<DialogTitle>
+					{depense ? "Modifier la dépense" : "Ajouter une dépense"}
+				</DialogTitle>
+				<DialogDescription>
+					Enregistrement d'une sortie de trésorerie.
+				</DialogDescription>
+				<form
+					className="mt-4 space-y-4"
+					onSubmit={(event) => {
+						event.preventDefault();
+						event.stopPropagation();
+						void form.handleSubmit();
+					}}
+				>
+					<div className="grid grid-cols-2 gap-4">
+						<form.Field name="date">
+							{(field) => (
+								<div className="space-y-1.5">
+									<Label htmlFor={field.name}>Date</Label>
+									<Input
 										id={field.name}
 										name={field.name}
-										label="Montant (FCFA)"
-										inputMode="numeric"
+										type="date"
 										value={field.state.value}
 										onBlur={field.handleBlur}
 										onChange={(event) => field.handleChange(event.target.value)}
-										error={field.state.meta.errors[0]}
 									/>
-								)}
-							</form.Field>
-						</div>
-						<form.Field name="idCategorieDepense">
-							{(field) => (
-								<div className="space-y-1.5">
-									<Label htmlFor={field.name}>Catégorie</Label>
-									<Select
-										value={field.state.value}
-										onValueChange={field.handleChange}
-									>
-										<SelectTrigger
-											id={field.name}
-											aria-label="Catégorie de dépense"
-										>
-											<SelectValue placeholder="Sélectionner une catégorie" />
-										</SelectTrigger>
-										<SelectContent>
-											{categories.map((categorie) => (
-												<SelectItem key={categorie.id} value={categorie.id}>
-													{categorie.libelle}
-												</SelectItem>
-											))}
-										</SelectContent>
-									</Select>
 									{field.state.meta.errors[0] ? (
 										<p className="text-xs text-destructive">
 											{field.state.meta.errors[0]}
@@ -224,12 +189,13 @@ function DepenseFormDialog({
 								</div>
 							)}
 						</form.Field>
-						<form.Field name="libelle">
+						<form.Field name="montant">
 							{(field) => (
 								<InputField
 									id={field.name}
 									name={field.name}
-									label="Libellé"
+									label="Montant (FCFA)"
+									inputMode="numeric"
 									value={field.state.value}
 									onBlur={field.handleBlur}
 									onChange={(event) => field.handleChange(event.target.value)}
@@ -237,60 +203,103 @@ function DepenseFormDialog({
 								/>
 							)}
 						</form.Field>
-						<form.Field name="justificatif">
-							{(field) => (
-								<InputField
-									id={field.name}
-									name={field.name}
-									label="Justificatif (optionnel)"
+					</div>
+					<form.Field name="idCategorieDepense">
+						{(field) => (
+							<div className="space-y-1.5">
+								<Label htmlFor={field.name}>Catégorie</Label>
+								<Select
 									value={field.state.value}
-									onBlur={field.handleBlur}
-									onChange={(event) => field.handleChange(event.target.value)}
-									error={field.state.meta.errors[0]}
-								/>
-							)}
-						</form.Field>
-						{!userCaisse && (
-							<CaisseSelector
-								value={form.getFieldValue("idCaisse") as string | undefined}
-								onChange={(id) => form.setFieldValue("idCaisse", id)}
+									onValueChange={field.handleChange}
+								>
+									<SelectTrigger
+										id={field.name}
+										aria-label="Catégorie de dépense"
+									>
+										<SelectValue placeholder="Sélectionner une catégorie" />
+									</SelectTrigger>
+									<SelectContent>
+										{categories.map((categorie) => (
+											<SelectItem key={categorie.id} value={categorie.id}>
+												{categorie.libelle}
+											</SelectItem>
+										))}
+									</SelectContent>
+								</Select>
+								{field.state.meta.errors[0] ? (
+									<p className="text-xs text-destructive">
+										{field.state.meta.errors[0]}
+									</p>
+								) : null}
+							</div>
+						)}
+					</form.Field>
+					<form.Field name="libelle">
+						{(field) => (
+							<InputField
+								id={field.name}
+								name={field.name}
+								label="Libellé"
+								value={field.state.value}
+								onBlur={field.handleBlur}
+								onChange={(event) => field.handleChange(event.target.value)}
+								error={field.state.meta.errors[0]}
 							/>
 						)}
-						{caisseFermee ? (
-							<div
-								role="alert"
-								className="flex items-start gap-2 rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 text-sm text-amber-700 dark:text-amber-400"
-							>
-								<AlertTriangle className="mt-0.5 size-4 shrink-0" aria-hidden />
-								<span>{globalError}</span>
-							</div>
-						) : globalError ? (
-							<p role="alert" className="text-sm font-medium text-destructive">
-								{globalError}
-							</p>
-						) : null}
-						<div className="flex items-center justify-end gap-2 pt-2">
-							<Button
-								type="button"
-								variant="ghost"
-								onClick={() => onOpenChange(false)}
-							>
-								Annuler
-							</Button>
-							<Button
-								type="submit"
-								disabled={createMutation.isPending || editMutation.isPending}
-							>
-								{createMutation.isPending || editMutation.isPending ? (
-									<Loader2 className="size-4 animate-spin" aria-hidden />
-								) : null}
-								Enregistrer
-							</Button>
+					</form.Field>
+					<form.Field name="justificatif">
+						{(field) => (
+							<InputField
+								id={field.name}
+								name={field.name}
+								label="Justificatif (optionnel)"
+								value={field.state.value}
+								onBlur={field.handleBlur}
+								onChange={(event) => field.handleChange(event.target.value)}
+								error={field.state.meta.errors[0]}
+							/>
+						)}
+					</form.Field>
+					{!userCaisse && (
+						<CaisseSelector
+							value={form.getFieldValue("idCaisse") as string | undefined}
+							onChange={(id) => form.setFieldValue("idCaisse", id)}
+						/>
+					)}
+					{caisseFermee ? (
+						<div
+							role="alert"
+							className="flex items-start gap-2 rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 text-sm text-amber-700 dark:text-amber-400"
+						>
+							<AlertTriangle className="mt-0.5 size-4 shrink-0" aria-hidden />
+							<span>{globalError}</span>
 						</div>
-					</form>
-				</Dialog.Content>
-			</Dialog.Portal>
-		</Dialog.Root>
+					) : globalError ? (
+						<p role="alert" className="text-sm font-medium text-destructive">
+							{globalError}
+						</p>
+					) : null}
+					<div className="flex items-center justify-end gap-2 pt-2">
+						<Button
+							type="button"
+							variant="ghost"
+							onClick={() => onOpenChange(false)}
+						>
+							Annuler
+						</Button>
+						<Button
+							type="submit"
+							disabled={createMutation.isPending || editMutation.isPending}
+						>
+							{createMutation.isPending || editMutation.isPending ? (
+								<Loader2 className="size-4 animate-spin" aria-hidden />
+							) : null}
+							Enregistrer
+						</Button>
+					</div>
+				</form>
+			</DialogContent>
+		</Dialog>
 	);
 }
 
@@ -370,24 +379,19 @@ export function DepensesPage({
 
 	return (
 		<div className="w-full space-y-6 p-6">
-			<Breadcrumb
-				items={[{ label: "Accueil", to: "/" }, { label: "Dépenses" }]}
+			<PageHeader
+				breadcrumb={[{ label: "Accueil", to: "/" }, { label: "Dépenses" }]}
+				title="Dépenses"
+				description="Sorties de trésorerie enregistrées."
+				actions={
+					canCreer ? (
+						<Button onClick={() => setFormOuvert(true)}>
+							<Plus className="size-4" aria-hidden />
+							Ajouter une dépense
+						</Button>
+					) : undefined
+				}
 			/>
-
-			<div className="flex flex-wrap items-end justify-between gap-4">
-				<section className="space-y-1">
-					<h1 className="text-2xl font-semibold text-foreground">Dépenses</h1>
-					<p className="text-muted-foreground">
-						Sorties de trésorerie enregistrées.
-					</p>
-				</section>
-				{canCreer ? (
-					<Button onClick={() => setFormOuvert(true)}>
-						<Plus className="size-4" aria-hidden />
-						Ajouter une dépense
-					</Button>
-				) : null}
-			</div>
 
 			<div className="space-y-3 rounded-lg border border-border bg-card p-4 shadow-sm">
 				<div className="flex flex-wrap items-center gap-3">
@@ -447,50 +451,35 @@ export function DepensesPage({
 					</Button>
 				</div>
 			) : depenses.length === 0 ? (
-				<div className="rounded-lg border border-border bg-card p-8 text-center text-sm text-muted-foreground">
-					Aucune dépense trouvée.
-				</div>
+				<EmptyState title="Aucune dépense trouvée." />
 			) : (
-				<div className="overflow-x-auto rounded-lg border border-border bg-card shadow-sm">
-					<table className="w-full border-collapse text-sm">
-						<thead className="bg-sea-ink text-left text-white">
+				<TableShell>
+					<DataTable>
+						<DataTableHead>
 							<tr>
-								<th scope="col" className="px-4 py-3 font-medium">
-									DATE
-								</th>
-								<th scope="col" className="px-4 py-3 font-medium">
-									LIBELLÉ
-								</th>
-								<th scope="col" className="px-4 py-3 font-medium">
-									CATÉGORIE
-								</th>
-								<th scope="col" className="px-4 py-3 text-right font-medium">
-									MONTANT
-								</th>
-								<th scope="col" className="px-4 py-3 text-right font-medium">
-									ACTIONS
-								</th>
+								<Th>DATE</Th>
+								<Th>LIBELLÉ</Th>
+								<Th>CATÉGORIE</Th>
+								<Th className="text-right">MONTANT</Th>
+								<Th className="text-right">ACTIONS</Th>
 							</tr>
-						</thead>
+						</DataTableHead>
 						<tbody>
 							{pagination.items.map((depense) => (
-								<tr
-									key={depense.id}
-									className="border-t border-border transition-colors hover:bg-accent/40"
-								>
-									<td className="px-4 py-3 text-muted-foreground">
+								<Tr key={depense.id}>
+									<Td className="text-muted-foreground">
 										{formatDateISO(depense.date.slice(0, 10))}
-									</td>
-									<td className="px-4 py-3 font-medium text-foreground">
+									</Td>
+									<Td className="font-medium text-foreground">
 										{depense.libelle}
-									</td>
-									<td className="px-4 py-3 text-muted-foreground">
+									</Td>
+									<Td className="text-muted-foreground">
 										{categories.get(depense.id_categorie_depense) ?? "—"}
-									</td>
-									<td className="px-4 py-3 text-right font-semibold text-destructive">
+									</Td>
+									<Td className="text-right font-semibold text-destructive">
 										- {formatMontantFCFA(depense.montant)}
-									</td>
-									<td className="px-4 py-3">
+									</Td>
+									<Td>
 										<div className="flex items-center justify-end gap-1">
 											{canModifier ? (
 												<Button
@@ -516,12 +505,12 @@ export function DepensesPage({
 												</Button>
 											) : null}
 										</div>
-									</td>
-								</tr>
+									</Td>
+								</Tr>
 							))}
 						</tbody>
-					</table>
-				</div>
+					</DataTable>
+				</TableShell>
 			)}
 
 			{pagination.total > 0 ? (

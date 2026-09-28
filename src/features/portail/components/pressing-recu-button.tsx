@@ -26,6 +26,7 @@ export function PressingRecuButton({
 			<Button
 				variant="outline"
 				size="sm"
+				className="rounded-full"
 				onClick={() => setOuvert(true)}
 				title={`Voir le reçu de ${numeroCommande}`}
 			>

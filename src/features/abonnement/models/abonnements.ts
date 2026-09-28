@@ -218,15 +218,18 @@ export const ETAT_LABELS: Record<EtatSouscription, string> = {
 	ANNULEE: "Annulée",
 };
 
-/** Classes du badge `etat` (vert/gris/orange/rouge/estompé). */
-export const ETAT_BADGE_CLASSES: Record<EtatSouscription, string> = {
-	ACTIVE: "bg-[#27AE60]/10 text-[#27AE60] border-[#27AE60]/30",
-	A_VENIR: "bg-muted text-muted-foreground border-border",
-	EPUISEE: "bg-amber-500/10 text-amber-600 border-amber-500/30",
-	EXPIREE: "bg-destructive/10 text-destructive border-destructive/30",
-	RESILIEE: "bg-muted text-muted-foreground border-border",
-	ANNULEE: "bg-muted text-muted-foreground border-border",
-};
+/** Variante `<Badge>` de l'état d'une souscription. */
+export const ETAT_VARIANT = {
+	ACTIVE: "success",
+	A_VENIR: "neutral",
+	EPUISEE: "warning",
+	EXPIREE: "danger",
+	RESILIEE: "neutral",
+	ANNULEE: "neutral",
+} as const satisfies Record<
+	EtatSouscription,
+	"success" | "neutral" | "warning" | "danger"
+>;
 
 export const STATUT_LABELS: Record<StatutSouscription, string> = {
 	ACTIVE: "Active",

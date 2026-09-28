@@ -2,10 +2,19 @@ import { Link } from "@tanstack/react-router";
 import { Pencil, Plus, Power, PowerOff } from "lucide-react";
 import { useState } from "react";
 
-import { Breadcrumb } from "#/components/ui/breadcrumb";
+import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
+import { EmptyState } from "#/components/ui/empty-state";
+import { PageHeader } from "#/components/ui/page-header";
+import {
+	DataTable,
+	DataTableHead,
+	TableShell,
+	Td,
+	Th,
+	Tr,
+} from "#/components/ui/table";
 import { useCan } from "#/core/auth";
-import { cn } from "#/lib/utils";
 
 import {
 	useCategoriesCharges,
@@ -36,31 +45,23 @@ export function CategoriesChargesPage() {
 
 	return (
 		<div className="w-full space-y-6 p-6">
-			<Breadcrumb
-				items={[
+			<PageHeader
+				breadcrumb={[
 					{ label: "Accueil", to: "/" },
 					{ label: "Charges facturées", to: "/residence/charges" },
 					{ label: "Catégories de charges" },
 				]}
+				title="Catégories de charges"
+				description="Catégories configurables (électricité, eau, autres…)."
+				actions={
+					canCreer ? (
+						<Button onClick={() => setFormOuvert(true)}>
+							<Plus className="size-4" aria-hidden />
+							Ajouter une catégorie
+						</Button>
+					) : null
+				}
 			/>
-
-			<div className="flex flex-wrap items-end justify-between gap-4">
-				<section className="space-y-1">
-					<h1 className="text-2xl font-semibold text-foreground">
-						Catégories de charges
-					</h1>
-					<p className="text-muted-foreground">
-						Catégories configurables (électricité, eau, autres…).
-					</p>
-				</section>
-
-				{canCreer ? (
-					<Button onClick={() => setFormOuvert(true)}>
-						<Plus className="size-4" aria-hidden />
-						Ajouter une catégorie
-					</Button>
-				) : null}
-			</div>
 
 			{categoriesQuery.isLoading ? (
 				<p className="text-sm text-muted-foreground">Chargement…</p>
@@ -79,47 +80,29 @@ export function CategoriesChargesPage() {
 					</Button>
 				</div>
 			) : (categoriesQuery.data ?? []).length === 0 ? (
-				<div className="rounded-lg border border-border bg-card p-8 text-center text-sm text-muted-foreground">
-					Aucune catégorie trouvée.
-				</div>
+				<EmptyState title="Aucune catégorie trouvée." />
 			) : (
-				<div className="overflow-x-auto rounded-lg border border-border bg-card shadow-sm">
-					<table className="w-full border-collapse text-sm">
-						<thead className="bg-sea-ink text-left text-white">
+				<TableShell>
+					<DataTable>
+						<DataTableHead>
 							<tr>
-								<th scope="col" className="px-4 py-3 font-medium">
-									LIBELLÉ
-								</th>
-								<th scope="col" className="px-4 py-3 font-medium">
-									ACTIF
-								</th>
-								<th scope="col" className="px-4 py-3 text-right font-medium">
-									ACTIONS
-								</th>
+								<Th>LIBELLÉ</Th>
+								<Th>ACTIF</Th>
+								<Th className="text-right">ACTIONS</Th>
 							</tr>
-						</thead>
+						</DataTableHead>
 						<tbody>
 							{(categoriesQuery.data ?? []).map((categorie) => (
-								<tr
-									key={categorie.id}
-									className="border-t border-border transition-colors hover:bg-accent/40"
-								>
-									<td className="px-4 py-3 font-medium text-foreground">
+								<Tr key={categorie.id}>
+									<Td className="font-medium text-foreground">
 										{categorie.libelle}
-									</td>
-									<td className="px-4 py-3">
-										<span
-											className={cn(
-												"inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium",
-												categorie.actif
-													? "bg-[#27AE60] text-white"
-													: "bg-[#95A5A6] text-white",
-											)}
-										>
+									</Td>
+									<Td>
+										<Badge variant={categorie.actif ? "success" : "neutral"}>
 											{categorie.actif ? "Oui" : "Non"}
-										</span>
-									</td>
-									<td className="px-4 py-3">
+										</Badge>
+									</Td>
+									<Td>
 										<div className="flex items-center justify-end gap-1">
 											{canModifier ? (
 												<>
@@ -155,12 +138,12 @@ export function CategoriesChargesPage() {
 												</>
 											) : null}
 										</div>
-									</td>
-								</tr>
+									</Td>
+								</Tr>
 							))}
 						</tbody>
-					</table>
-				</div>
+					</DataTable>
+				</TableShell>
 			)}
 
 			<div className="flex justify-end">

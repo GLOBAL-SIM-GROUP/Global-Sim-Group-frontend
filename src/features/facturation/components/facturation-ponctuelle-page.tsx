@@ -2,9 +2,11 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { Plus } from "lucide-react";
 import { useMemo, useState } from "react";
 
-import { Breadcrumb } from "#/components/ui/breadcrumb";
+import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
+import { EmptyState } from "#/components/ui/empty-state";
 import { Input } from "#/components/ui/input";
+import { PageHeader } from "#/components/ui/page-header";
 import {
 	Select,
 	SelectContent,
@@ -12,6 +14,14 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "#/components/ui/select";
+import {
+	DataTable,
+	DataTableHead,
+	TableShell,
+	Td,
+	Th,
+	Tr,
+} from "#/components/ui/table";
 import { useCan } from "#/core/auth";
 import { useClientsDetails } from "#/features/residence/hooks/use-clients";
 import { nomComplet } from "#/features/residence/models/clients";
@@ -19,13 +29,12 @@ import {
 	formatDateHeureUTC,
 	formatMontantFCFA,
 } from "#/features/residence/models/format";
-import { cn } from "#/lib/utils";
 
 import { useFactures } from "../hooks/use-factures";
 import {
 	FACTURE_SOURCE_LABELS,
-	FACTURE_STATUT_BADGE,
 	FACTURE_STATUT_LABELS,
+	FACTURE_STATUT_VARIANT,
 	type FactureStatut,
 	filtrerFactures,
 	paginerFactures,
@@ -118,29 +127,22 @@ export function FacturationPonctuellePage({
 
 	return (
 		<div className="w-full space-y-6 p-6">
-			<Breadcrumb
-				items={[
+			<PageHeader
+				breadcrumb={[
 					{ label: "Accueil", to: "/" },
 					{ label: "Facturation ponctuelle" },
 				]}
+				title="Facturation ponctuelle"
+				description="Factures émises (ponctuelles et issues des autres modules)."
+				actions={
+					canCreer && canFinancesVoir ? (
+						<Button onClick={() => setFormOuvert(true)}>
+							<Plus className="size-4" aria-hidden />
+							Nouvelle facture ponctuelle
+						</Button>
+					) : null
+				}
 			/>
-
-			<div className="flex flex-wrap items-end justify-between gap-4">
-				<section className="space-y-1">
-					<h1 className="text-2xl font-semibold text-foreground">
-						Facturation ponctuelle
-					</h1>
-					<p className="text-muted-foreground">
-						Factures émises (ponctuelles et issues des autres modules).
-					</p>
-				</section>
-				{canCreer && canFinancesVoir ? (
-					<Button onClick={() => setFormOuvert(true)}>
-						<Plus className="size-4" aria-hidden />
-						Nouvelle facture ponctuelle
-					</Button>
-				) : null}
-			</div>
 
 			<div className="flex flex-wrap items-center gap-3 rounded-lg border border-border bg-card p-4 shadow-sm">
 				<Input
@@ -203,47 +205,26 @@ export function FacturationPonctuellePage({
 					</Button>
 				</div>
 			) : pagination.total === 0 ? (
-				<div className="rounded-lg border border-border bg-card p-8 text-center text-sm text-muted-foreground">
-					Aucune facture trouvée.
-				</div>
+				<EmptyState title="Aucune facture trouvée." />
 			) : (
-				<div className="overflow-x-auto rounded-lg border border-border bg-card shadow-sm">
-					<table className="w-full border-collapse text-sm">
-						<thead className="bg-sea-ink text-left text-white">
+				<TableShell>
+					<DataTable>
+						<DataTableHead>
 							<tr>
-								<th scope="col" className="px-4 py-3 font-medium">
-									NUMÉRO
-								</th>
-								<th scope="col" className="px-4 py-3 font-medium">
-									DATE
-								</th>
-								<th scope="col" className="px-4 py-3 font-medium">
-									CLIENT
-								</th>
-								<th scope="col" className="px-4 py-3 font-medium">
-									SOURCE
-								</th>
-								<th scope="col" className="px-4 py-3 text-right font-medium">
-									MONTANT
-								</th>
-								<th scope="col" className="px-4 py-3 text-right font-medium">
-									PAYÉ
-								</th>
-								<th scope="col" className="px-4 py-3 text-right font-medium">
-									RESTE
-								</th>
-								<th scope="col" className="px-4 py-3 font-medium">
-									STATUT
-								</th>
+								<Th>NUMÉRO</Th>
+								<Th>DATE</Th>
+								<Th>CLIENT</Th>
+								<Th>SOURCE</Th>
+								<Th className="text-right">MONTANT</Th>
+								<Th className="text-right">PAYÉ</Th>
+								<Th className="text-right">RESTE</Th>
+								<Th>STATUT</Th>
 							</tr>
-						</thead>
+						</DataTableHead>
 						<tbody>
 							{pagination.items.map((facture) => (
-								<tr
-									key={facture.id}
-									className="relative border-t border-border transition-colors hover:bg-accent/40"
-								>
-									<td className="px-4 py-3">
+								<Tr key={facture.id}>
+									<Td>
 										{/* Toute la ligne ouvre la fiche (stretched link). */}
 										<Link
 											to="/facturation/factures/$id"
@@ -253,45 +234,40 @@ export function FacturationPonctuellePage({
 										>
 											{facture.numero}
 										</Link>
-									</td>
-									<td className="px-4 py-3 text-muted-foreground">
+									</Td>
+									<Td className="text-muted-foreground">
 										{formatDateHeureUTC(facture.date)}
-									</td>
-									<td className="px-4 py-3 text-foreground">
+									</Td>
+									<Td className="text-foreground">
 										{facture.id_client
 											? (clients.get(facture.id_client) ?? "…")
 											: "—"}
-									</td>
-									<td className="px-4 py-3 text-muted-foreground">
+									</Td>
+									<Td className="text-muted-foreground">
 										{facture.source_type
 											? (FACTURE_SOURCE_LABELS[facture.source_type] ??
 												facture.source_type)
 											: "—"}
-									</td>
-									<td className="px-4 py-3 text-right text-foreground">
+									</Td>
+									<Td className="text-right text-foreground">
 										{formatMontantFCFA(facture.montant_total)}
-									</td>
-									<td className="px-4 py-3 text-right text-[#27AE60]">
+									</Td>
+									<Td className="text-right text-success">
 										{formatMontantFCFA(facture.montant_paye)}
-									</td>
-									<td className="px-4 py-3 text-right font-semibold text-destructive">
+									</Td>
+									<Td className="text-right font-semibold text-destructive">
 										{formatMontantFCFA(facture.reste)}
-									</td>
-									<td className="px-4 py-3">
-										<span
-											className={cn(
-												"inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium",
-												FACTURE_STATUT_BADGE[facture.statut],
-											)}
-										>
+									</Td>
+									<Td>
+										<Badge variant={FACTURE_STATUT_VARIANT[facture.statut]}>
 											{FACTURE_STATUT_LABELS[facture.statut]}
-										</span>
-									</td>
-								</tr>
+										</Badge>
+									</Td>
+								</Tr>
 							))}
 						</tbody>
-					</table>
-				</div>
+					</DataTable>
+				</TableShell>
 			)}
 
 			{pagination.total > 0 ? (

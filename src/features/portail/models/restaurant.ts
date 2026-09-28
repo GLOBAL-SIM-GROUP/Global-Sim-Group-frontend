@@ -55,18 +55,18 @@ export const COMMANDE_PORTAIL_STATUT_LABELS: Record<
 	ANNULEE: "Annulée",
 };
 
-/** Classes de badge (fond/texte) par statut — palette portail. */
-export const COMMANDE_PORTAIL_STATUT_BADGE: Record<
+/** Variante `<Badge>` par statut de commande portail. */
+export const COMMANDE_PORTAIL_STATUT_VARIANT = {
+	EN_ATTENTE: "warning",
+	EN_COURS: "info",
+	EN_PREPARATION: "warning",
+	SERVIE: "info",
+	PAYEE: "success",
+	ANNULEE: "danger",
+} as const satisfies Record<
 	CommandeRestaurantPortailStatut,
-	string
-> = {
-	EN_ATTENTE: "bg-[#E67E22] text-white",
-	EN_COURS: "bg-[#2980B9] text-white",
-	EN_PREPARATION: "bg-[#E67E22] text-white",
-	SERVIE: "bg-[#2980B9] text-white",
-	PAYEE: "bg-[#27AE60] text-white",
-	ANNULEE: "bg-[#E74C3C] text-white",
-};
+	"warning" | "info" | "success" | "danger"
+>;
 
 export const TYPE_COMMANDE_PORTAIL_LABELS: Record<TypeCommandePortail, string> =
 	{

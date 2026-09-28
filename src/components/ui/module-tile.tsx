@@ -40,7 +40,7 @@ function ModuleTile({
 			borderRadius={12}
 			glowRadius={24}
 			glowColor="27 90 60"
-			colors={["#E67E22", "#F0954D", "#4A9FD8"]}
+			colors={["#E67E22", "#F0954D", "#8FA3C2"]}
 			className={className}
 		>
 			<div className="flex h-full flex-col p-4">

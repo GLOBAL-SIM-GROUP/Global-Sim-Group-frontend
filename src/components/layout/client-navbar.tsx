@@ -105,35 +105,17 @@ function initialsOf(login: string): string {
 		.join("");
 }
 
-/** Libellé qui « pousse » au survol ou quand la page est active : TanStack
- *  Link pose `data-status="active"` sur l'ancre (qui porte aussi `group`),
- *  le span s'ouvre alors en largeur animée — effet « liquide » — et reste
- *  replié sinon, la navbar ne montrant que des icônes.
- *  `grid-template-columns 0fr→1fr` suit la vraie largeur du texte (contrairement
- *  à max-w) → ouverture ET fermeture progressivement fluides. */
-const LIBELLE_LIQUIDE = cn(
-	"grid overflow-hidden [grid-template-columns:0fr] opacity-0",
-	"motion-safe:transition-all motion-safe:duration-500 motion-safe:ease-out",
-	// Entrée plus vive que la sortie + maintien ~1 s avant repli au départ
-	// du curseur (délai asymétrique).
-	"group-hover:motion-safe:duration-300 motion-safe:delay-1000 group-hover:motion-safe:delay-0",
-	"group-hover:[grid-template-columns:1fr] group-hover:opacity-100",
-	"group-data-[status=active]:[grid-template-columns:1fr] group-data-[status=active]:opacity-100",
-);
-
 function ServiceButtons({
 	className,
 	onNavigate,
-	labelsAlwaysVisible = false,
+	underlineActive = false,
 }: {
 	className?: string;
 	onNavigate?: () => void;
-	/** `true` (menu mobile vertical) → libellés toujours affichés ; sinon la
-	 *  navbar n'affiche que les icônes et le libellé se déploie au survol ou
-	 *  sur l'entrée active (animation liquide). */
-	labelsAlwaysVisible?: boolean;
+	/** `true` (menu mobile vertical, sans barre glissante) → l'entrée active
+	 *  est soulignée en lagoon sur le lien lui-même. */
+	underlineActive?: boolean;
 }) {
-	const libelle = labelsAlwaysVisible ? undefined : LIBELLE_LIQUIDE;
 	return (
 		<div className={className}>
 			{SERVICES.map((service) =>
@@ -143,26 +125,23 @@ function ServiceButtons({
 						asChild
 						variant="ghost"
 						size="sm"
-						className="group justify-start gap-2 text-muted-foreground transition-colors hover:bg-transparent hover:text-foreground"
+						className="justify-start gap-2 whitespace-nowrap text-muted-foreground transition-colors hover:bg-transparent hover:text-foreground"
 					>
 						<Link
 							to={service.to as never}
 							onClick={onNavigate}
-							aria-label={service.label}
 							activeOptions={{ exact: service.exact }}
 							activeProps={{
-								className: "text-foreground",
+								className: underlineActive
+									? "text-foreground underline decoration-lagoon decoration-2 underline-offset-4"
+									: "text-foreground",
 							}}
 						>
 							<service.icon
 								className="size-4 shrink-0 text-lagoon"
 								aria-hidden
 							/>
-							<span className={libelle}>
-								<span className="block min-w-0 overflow-hidden whitespace-nowrap">
-									{service.label}
-								</span>
-							</span>
+							{service.label}
 						</Link>
 					</Button>
 				) : (
@@ -172,15 +151,10 @@ function ServiceButtons({
 						variant="ghost"
 						size="sm"
 						disabled
-						aria-label={service.label}
-						className="justify-start gap-2 text-muted-foreground disabled:opacity-60"
+						className="justify-start gap-2 whitespace-nowrap text-muted-foreground disabled:opacity-60"
 					>
 						<service.icon className="size-4 shrink-0 text-lagoon" aria-hidden />
-						<span className={libelle}>
-							<span className="block min-w-0 overflow-hidden whitespace-nowrap">
-								{service.label}
-							</span>
-						</span>
+						{service.label}
 					</Button>
 				),
 			)}
@@ -256,31 +230,37 @@ function AccountMenu({ variant }: { variant: "navbar" | "sidebar" }) {
 
 /**
  * Navigation horizontale de l'espace client (comptes rôle CLIENT) : navbar
- * sticky avec une ICÔNE par service, PAS la sidebar staff/résident
- * (`Sidebar`) ni un menu « Services » regroupé. Le libellé se déploie en
- * largeur animée (« liquide ») au survol et sur l'entrée de la page
- * courante — sinon les 8 entrées ne tiendraient pas dans la navbar.
+ * sticky avec une entrée LIBELLÉE par service, PAS la sidebar staff/résident
+ * (`Sidebar`) ni un menu « Services » regroupé. L'entrée de la page courante
+ * est marquée par une barre lagoon qui GLISSE vers elle (`IndicateurGlissant`,
+ * une seule instance animée en `left`/`width` au lieu d'un soulignement
+ * fade sortie/entrée par lien).
  *
- * Mobile : même motif de bascule (`mobileOpen`/hamburger) que `LandingHeader`,
- * mêmes entrées empilées avec libellés toujours visibles.
+ * La rangée libellée ne tient qu'à partir de `xl` (~1280 px) : en dessous le
+ * hamburger reprend le relais (même motif `mobileOpen` que `LandingHeader`,
+ * entrées empilées ; l'actif y est souligné faute de barre glissante).
  */
+
 /**
- * Spot « torche » UNIQUE qui glisse vers l'entrée active : barre néon au
- * bord haut + cône descendant, positionné en `left`/`width` mesurés sur
- * l'ancre `data-status="active"` (le `ResizeObserver` suit aussi le
- * déploiement du libellé qui élargit la pilule). Une seule instance →
- * la transition `left`/`width` produit le glissement au lieu d'un
- * fade sortie/entrée.
+ * Barre de soulignement UNIQUE qui glisse vers l'entrée active : position
+ * `left`/`width` mesurée sur l'ancre `data-status="active"`, transitionnée —
+ * la barre se déplace d'un item à l'autre au lieu de réapparaître.
+ * `MutationObserver` sur `data-status` suit le changement de page ;
+ * `ResizeObserver` suit les variations de largeur (polices, redimension).
  */
-function TorchSpot({ navRef }: { navRef: RefObject<HTMLElement | null> }) {
-	const [spot, setSpot] = useState({ left: 0, width: 0, visible: false });
+function IndicateurGlissant({
+	navRef,
+}: {
+	navRef: RefObject<HTMLElement | null>;
+}) {
+	const [pos, setPos] = useState({ left: 0, width: 0, visible: false });
 
 	useEffect(() => {
 		const nav = navRef.current;
 		if (!nav) return;
 		const mesurer = () => {
 			const actif = nav.querySelector<HTMLElement>('a[data-status="active"]');
-			setSpot((prev) =>
+			setPos((prev) =>
 				actif
 					? { left: actif.offsetLeft, width: actif.offsetWidth, visible: true }
 					: { ...prev, visible: false },
@@ -288,8 +268,6 @@ function TorchSpot({ navRef }: { navRef: RefObject<HTMLElement | null> }) {
 		};
 		mesurer();
 		const ancres = [...nav.querySelectorAll("a")];
-		// `data-status` change quand la navigation bascule l'entrée active ;
-		// le ResizeObserver suit le libellé qui élargit la pilule active.
 		const mo = new MutationObserver(mesurer);
 		for (const a of ancres)
 			mo.observe(a, { attributes: true, attributeFilter: ["data-status"] });
@@ -309,15 +287,96 @@ function TorchSpot({ navRef }: { navRef: RefObject<HTMLElement | null> }) {
 		<div
 			aria-hidden
 			className={cn(
-				"pointer-events-none absolute -top-4 left-0 hidden flex-col items-center lg:flex",
+				"pointer-events-none absolute bottom-0 left-0 h-0.5 rounded-full bg-lagoon",
 				"motion-safe:transition-all motion-safe:duration-300 motion-safe:ease-out",
-				spot.visible ? "opacity-100" : "opacity-0",
+				pos.visible ? "opacity-100" : "opacity-0",
 			)}
-			style={{ left: spot.left, width: spot.width }}
+			style={{ left: pos.left, width: pos.width }}
+		/>
+	);
+}
+
+/** Une entrée normale (icône + libellé) de la barre d'onglets mobile. */
+function TabBarLink({
+	to,
+	icon: Icon,
+	label,
+	exact,
+	badge,
+}: {
+	to: string;
+	icon: LucideIcon;
+	label: string;
+	exact?: boolean;
+	badge?: number;
+}) {
+	return (
+		<Link
+			to={to as never}
+			activeOptions={{ exact }}
+			className="relative flex flex-1 flex-col items-center gap-1 py-1.5 text-muted-foreground"
+			activeProps={{ className: "text-lagoon" }}
 		>
-			<span className="nav-torch-bar" />
-			<span className="nav-torch-beam" />
-		</div>
+			<Icon className="size-5" aria-hidden />
+			<span className="text-[0.65rem] font-semibold">{label}</span>
+			{badge && badge > 0 ? (
+				<span
+					aria-hidden
+					className="absolute top-0 right-[calc(50%-18px)] flex h-3.5 min-w-3.5 items-center justify-center rounded-full bg-lagoon px-0.5 text-[0.55rem] font-bold text-white"
+				>
+					{badge > 99 ? "99+" : badge}
+				</span>
+			) : null}
+		</Link>
+	);
+}
+
+/**
+ * Barre d'onglets basse (téléphone uniquement, `sm:hidden`) : pattern des
+ * apps mobiles modernes (Accueil / Mes demandes / geste central mis en avant
+ * / Panier / Compte) — remplace le seul menu hamburger comme accès principal
+ * sur petit écran. `PanierBar` (barre panier flottante des pages
+ * Restaurant/Boutique) se positionne au-dessus (`bottom-16`) pour ne pas se
+ * superposer.
+ */
+export function MobileTabBar() {
+	const nombreArticles = useNombreArticlesPaniers();
+
+	return (
+		<nav
+			aria-label="Navigation principale"
+			className="fixed inset-x-0 bottom-0 z-40 flex h-16 items-stretch border-t border-border bg-card/95 px-1 backdrop-blur sm:hidden"
+		>
+			<TabBarLink to="/espace-client" icon={Home} label="Accueil" exact />
+			<TabBarLink
+				to="/espace-client/mes-demandes"
+				icon={ClipboardList}
+				label="Demandes"
+			/>
+			<div className="relative flex flex-1 justify-center">
+				<Link
+					to="/espace-client/restaurant"
+					aria-label="Commander"
+					className="absolute -top-6 grid size-14 place-items-center rounded-full bg-lagoon text-white shadow-lg shadow-lagoon/40 transition-transform active:scale-95"
+				>
+					<UtensilsCrossed className="size-6" aria-hidden />
+				</Link>
+				<span className="mt-auto pb-1.5 text-[0.65rem] font-semibold text-muted-foreground">
+					Commander
+				</span>
+			</div>
+			<TabBarLink
+				to="/espace-client/panier"
+				icon={ShoppingCart}
+				label="Panier"
+				badge={nombreArticles}
+			/>
+			<TabBarLink
+				to="/espace-client/mon-compte"
+				icon={UserRound}
+				label="Compte"
+			/>
+		</nav>
 	);
 }
 
@@ -334,20 +393,25 @@ export function ClientNavbar() {
 						alt="GLOBAL SIM GROUP"
 						className="h-9 w-auto object-contain"
 					/>
-					<span className="hidden text-lg font-bold text-foreground sm:inline">
+					{/* Texte de marque masqué à partir de `xl` : la rangée des 8
+					    entrées libellées a besoin de toute la largeur du conteneur
+					    `max-w-7xl` ; le logo seul suffit (le nom reste visible en
+					    mobile/tablette où le menu passe par le hamburger). */}
+					<span className="hidden text-lg font-bold text-foreground sm:inline xl:hidden">
 						GLOBAL SIM GROUP
 					</span>
 				</Link>
 
-				{/* Pas d'overflow-x-auto ici : il clipperait verticalement le
-				    spot « torche » dépassant au-dessus des boutons. */}
+				{/* Filet de sécurité `overflow-x-auto` (scrollbar masquée) : les 8
+				    entrées libellées (~950 px) peuvent être légèrement justes à
+				    1280 px une fois logo et actions déduits. */}
 				<nav
 					ref={navRef}
 					aria-label="Services"
-					className="relative hidden min-w-0 lg:block"
+					className="relative hidden min-w-0 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden xl:block"
 				>
 					<ServiceButtons className="flex items-center gap-1" />
-					<TorchSpot navRef={navRef} />
+					<IndicateurGlissant navRef={navRef} />
 				</nav>
 
 				<div className="flex shrink-0 items-center gap-2">
@@ -359,7 +423,7 @@ export function ClientNavbar() {
 					<Button
 						variant="ghost"
 						size="icon-sm"
-						className="hover:bg-transparent lg:hidden"
+						className="hover:bg-transparent xl:hidden"
 						aria-label={mobileOpen ? "Fermer le menu" : "Ouvrir le menu"}
 						aria-expanded={mobileOpen}
 						onClick={() => setMobileOpen((current) => !current)}
@@ -375,7 +439,7 @@ export function ClientNavbar() {
 
 			<div
 				className={cn(
-					"border-t border-border lg:hidden",
+					"border-t border-border xl:hidden",
 					mobileOpen ? "block" : "hidden",
 				)}
 			>
@@ -383,7 +447,7 @@ export function ClientNavbar() {
 					<ServiceButtons
 						className="flex flex-col items-stretch gap-1"
 						onNavigate={() => setMobileOpen(false)}
-						labelsAlwaysVisible
+						underlineActive
 					/>
 
 					<div className="flex items-center gap-2 border-t border-border pt-4">

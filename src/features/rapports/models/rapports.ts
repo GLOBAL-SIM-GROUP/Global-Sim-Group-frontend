@@ -37,7 +37,7 @@ export interface SyntheseGlobale {
 }
 
 export interface EncaissementRapport {
-	id: string;
+	id_paiement: string;
 	date: string;
 	montant: string;
 	reference: string | null;
@@ -47,7 +47,7 @@ export interface EncaissementRapport {
 }
 
 export interface DepenseRapport {
-	id: string;
+	id_depense: string;
 	date: string;
 	montant: string;
 	libelle: string;

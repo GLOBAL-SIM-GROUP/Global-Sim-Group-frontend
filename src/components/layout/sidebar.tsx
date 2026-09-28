@@ -7,6 +7,7 @@ import {
 	Camera,
 	ChevronDown,
 	CreditCard,
+	Flag,
 	Home,
 	LayoutGrid,
 	PartyPopper,
@@ -144,7 +145,10 @@ const ROUTES_REALLES: Record<
 export function Sidebar({ onClose }: { onClose?: () => void } = {}) {
 	const user = useCurrentUser();
 	const permissions = usePermissions();
-	const canVoirRapports = useCan("ADMIN.VOIR");
+	// M10 : module RAPPORTS réel et distinct d'ADMIN (vérifié en direct
+	// 2026-09-27) — les rôles Responsable (résidence/magasin/pressing/
+	// restaurant/salle de fête) ont RAPPORTS.VOIR sans ADMIN.VOIR.
+	const canVoirRapports = useCan("RAPPORTS.VOIR");
 	const canVoirSignalements = useCan("SIGNALEMENT.VOIR");
 	const estResident = useCan("RESIDENT.VOIR");
 	const canVoirSalleFete = useCan("SALLE_FETE.VOIR");
@@ -375,6 +379,20 @@ export function Sidebar({ onClose }: { onClose?: () => void } = {}) {
 										</span>
 									</Link>
 								</li>
+								<li>
+									<Link
+										to="/residence/portail/signalements"
+										activeOptions={{ exact: false }}
+										activeProps={{ className: subActiveClassName }}
+										className={subLinkClassName}
+										onClick={() => onClose?.()}
+									>
+										<span className="inline-flex items-center gap-2">
+											<Flag className="size-3.5" aria-hidden />
+											Mes signalements
+										</span>
+									</Link>
+								</li>
 							</ul>
 
 							{totalImpayes !== undefined ? (
@@ -428,8 +446,9 @@ export function Sidebar({ onClose }: { onClose?: () => void } = {}) {
 
 					{canVoirRapports ? (
 						<li>
-							{/* M10 : pas de module/permission RAPPORTS côté backend — le
-								    menu Rapports suit `ADMIN.VOIR` (administrateurs, dirigeants). */}
+							{/* M10 : module RAPPORTS.VOIR réel, distinct d'ADMIN.VOIR
+								    (vérifié en direct 2026-09-27) — accordé aussi aux
+								    5 rôles Responsable, pas seulement admin/dirigeant. */}
 							<Link
 								to="/rapports"
 								activeOptions={{ exact: false }}

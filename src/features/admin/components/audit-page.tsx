@@ -1,9 +1,11 @@
 import { FileDown, Loader2, Printer } from "lucide-react";
 import { useMemo, useState } from "react";
 
-import { Breadcrumb } from "#/components/ui/breadcrumb";
+import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
+import { EmptyState } from "#/components/ui/empty-state";
 import { Input } from "#/components/ui/input";
+import { PageHeader } from "#/components/ui/page-header";
 import {
 	Select,
 	SelectContent,
@@ -11,6 +13,14 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "#/components/ui/select";
+import {
+	DataTable,
+	DataTableHead,
+	TableShell,
+	Td,
+	Th,
+	Tr,
+} from "#/components/ui/table";
 import { formatDateHeureUTC } from "#/features/residence/models/format";
 
 import {
@@ -21,12 +31,12 @@ import {
 import { useJournal } from "../hooks/use-audit";
 import { useUtilisateurs } from "../hooks/use-utilisateurs";
 import {
-	couleurOperation,
 	libelleObjet,
 	libelleOperation,
 	paginerAudit,
 	rechercherAudit,
 	resumerDetailAudit,
+	varianteOperation,
 } from "../models/audit";
 import { JOURNAL_PAGE_SIZE } from "../permissions";
 
@@ -135,50 +145,43 @@ export function AuditPage({ initialSearch, onSearchChange }: AuditPageProps) {
 
 	return (
 		<div className="w-full space-y-6 p-6">
-			<Breadcrumb
-				items={[
+			<PageHeader
+				breadcrumb={[
 					{ label: "Accueil", to: "/" },
 					{ label: "Historique des opérations" },
 				]}
+				title="Historique des opérations"
+				description="Journal d'audit — qui, quoi, quand."
+				actions={
+					<div className="flex items-center gap-2">
+						<Button
+							size="sm"
+							variant="outline"
+							onClick={() => void handleExporterExcel()}
+							disabled={traces.length === 0 || exportEnCours !== null}
+						>
+							{exportEnCours === "xlsx" ? (
+								<Loader2 className="size-4 animate-spin" aria-hidden />
+							) : (
+								<FileDown className="size-4" aria-hidden />
+							)}
+							Exporter en Excel
+						</Button>
+						<Button
+							size="sm"
+							onClick={() => void handleImprimerPdf()}
+							disabled={traces.length === 0 || exportEnCours !== null}
+						>
+							{exportEnCours === "pdf" ? (
+								<Loader2 className="size-4 animate-spin" aria-hidden />
+							) : (
+								<Printer className="size-4" aria-hidden />
+							)}
+							Imprimer en PDF
+						</Button>
+					</div>
+				}
 			/>
-
-			<div className="flex flex-wrap items-end justify-between gap-4">
-				<section className="space-y-1">
-					<h1 className="text-2xl font-semibold text-foreground">
-						Historique des opérations
-					</h1>
-					<p className="text-muted-foreground">
-						Journal d'audit — qui, quoi, quand.
-					</p>
-				</section>
-				<div className="flex items-center gap-2">
-					<Button
-						size="sm"
-						variant="outline"
-						onClick={() => void handleExporterExcel()}
-						disabled={traces.length === 0 || exportEnCours !== null}
-					>
-						{exportEnCours === "xlsx" ? (
-							<Loader2 className="size-4 animate-spin" aria-hidden />
-						) : (
-							<FileDown className="size-4" aria-hidden />
-						)}
-						Exporter en Excel
-					</Button>
-					<Button
-						size="sm"
-						onClick={() => void handleImprimerPdf()}
-						disabled={traces.length === 0 || exportEnCours !== null}
-					>
-						{exportEnCours === "pdf" ? (
-							<Loader2 className="size-4 animate-spin" aria-hidden />
-						) : (
-							<Printer className="size-4" aria-hidden />
-						)}
-						Imprimer en PDF
-					</Button>
-				</div>
-			</div>
 
 			<div className="flex flex-wrap items-center gap-3 rounded-lg border border-border bg-card p-4 shadow-sm">
 				<Input
@@ -253,71 +256,52 @@ export function AuditPage({ initialSearch, onSearchChange }: AuditPageProps) {
 					</Button>
 				</div>
 			) : pagination.total === 0 ? (
-				<div className="rounded-lg border border-border bg-card p-8 text-center text-sm text-muted-foreground">
-					Aucune opération trouvée.
-				</div>
+				<EmptyState title="Aucune opération trouvée." />
 			) : (
-				<div className="overflow-x-auto rounded-lg border border-border bg-card shadow-sm">
-					<table className="w-full border-collapse text-sm">
-						<thead className="bg-sea-ink text-left text-white">
+				<TableShell>
+					<DataTable>
+						<DataTableHead>
 							<tr>
-								<th scope="col" className="px-4 py-3 font-medium">
-									DATE
-								</th>
-								<th scope="col" className="px-4 py-3 font-medium">
-									UTILISATEUR
-								</th>
-								<th scope="col" className="px-4 py-3 font-medium">
-									MODULE
-								</th>
-								<th scope="col" className="px-4 py-3 font-medium">
-									ACTION
-								</th>
-								<th scope="col" className="px-4 py-3 font-medium">
-									OBJET
-								</th>
-								<th scope="col" className="px-4 py-3 font-medium">
-									DÉTAIL
-								</th>
+								<Th>DATE</Th>
+								<Th>UTILISATEUR</Th>
+								<Th>MODULE</Th>
+								<Th>ACTION</Th>
+								<Th>OBJET</Th>
+								<Th>DÉTAIL</Th>
 							</tr>
-						</thead>
+						</DataTableHead>
 						<tbody>
 							{pagination.items.map((trace) => (
-								<tr
-									key={trace.id}
-									className="border-t border-border transition-colors hover:bg-accent/40"
-								>
-									<td className="whitespace-nowrap px-4 py-3 text-muted-foreground">
+								<Tr key={trace.id}>
+									<Td className="whitespace-nowrap text-muted-foreground">
 										{formatDateHeureUTC(trace.date_heure)}
-									</td>
-									<td className="px-4 py-3 text-foreground">
+									</Td>
+									<Td className="text-foreground">
 										{trace.id_utilisateur
 											? (loginParId.get(trace.id_utilisateur) ??
 												trace.id_utilisateur)
 											: "—"}
-									</td>
-									<td className="px-4 py-3 text-foreground">{trace.module}</td>
-									<td className="px-4 py-3">
-										<span
-											className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ${couleurOperation(trace.operation)}`}
-										>
+									</Td>
+									<Td className="text-foreground">{trace.module}</Td>
+									<Td>
+										<Badge variant={varianteOperation(trace.operation)}>
 											{libelleOperation(trace.operation)}
-										</span>
-									</td>
-									<td className="px-4 py-3 text-muted-foreground">
+										</Badge>
+									</Td>
+									<Td className="text-muted-foreground">
 										{libelleObjet(trace)}
-									</td>
-									<td
-										className="max-w-md truncate px-4 py-3 text-muted-foreground"
+									</Td>
+									<Td
+										className="max-w-md truncate text-muted-foreground"
 										title={resumerDetailAudit(trace)}
 									>
 										{resumerDetailAudit(trace)}
-									</td>
-								</tr>
+									</Td>
+								</Tr>
 							))}
 						</tbody>
-					</table>
-				</div>
+					</DataTable>
+				</TableShell>
 			)}
 
 			{pagination.total > 0 ? (

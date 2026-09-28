@@ -2,8 +2,8 @@ import { Link } from "@tanstack/react-router";
 import { Check, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 
-import { Breadcrumb } from "#/components/ui/breadcrumb";
 import { Button } from "#/components/ui/button";
+import { PageHeader } from "#/components/ui/page-header";
 import { getErrorMessageForCode, toApiError } from "#/core/api";
 import { useCan } from "#/core/auth";
 import { cn } from "#/lib/utils";
@@ -73,49 +73,42 @@ export function RolePermissionsPage({ id }: RolePermissionsPageProps) {
 
 	return (
 		<div className="w-full space-y-6 p-6">
-			<Breadcrumb
-				items={[
+			<PageHeader
+				breadcrumb={[
 					{ label: "Accueil", to: "/" },
 					{ label: "Rôles", to: "/admin/roles" },
 					{ label: `Permissions — ${role?.libelle ?? id}` },
 				]}
-			/>
-
-			<div className="flex flex-wrap items-end justify-between gap-4">
-				<section className="space-y-1">
-					<h1 className="text-2xl font-semibold text-foreground">
-						Permissions — {role?.libelle ?? id}
-					</h1>
-					<p className="text-muted-foreground">
-						Attribuez les accès par module et action.
-					</p>
-				</section>
-				<div className="flex items-center gap-2">
-					<Button variant="outline" size="sm" asChild>
-						<Link to="/admin/roles">Retour aux rôles</Link>
-					</Button>
-					{canModifier ? (
-						<Button
-							size="sm"
-							onClick={enregistrer}
-							disabled={majMutation.isPending}
-						>
-							{majMutation.isPending ? (
-								<Loader2 className="size-4 animate-spin" aria-hidden />
-							) : (
-								<Check className="size-4" aria-hidden />
-							)}
-							Enregistrer
+				title={`Permissions — ${role?.libelle ?? id}`}
+				description="Attribuez les accès par module et action."
+				actions={
+					<div className="flex items-center gap-2">
+						<Button variant="outline" size="sm" asChild>
+							<Link to="/admin/roles">Retour aux rôles</Link>
 						</Button>
-					) : null}
-				</div>
-			</div>
+						{canModifier ? (
+							<Button
+								size="sm"
+								onClick={enregistrer}
+								disabled={majMutation.isPending}
+							>
+								{majMutation.isPending ? (
+									<Loader2 className="size-4 animate-spin" aria-hidden />
+								) : (
+									<Check className="size-4" aria-hidden />
+								)}
+								Enregistrer
+							</Button>
+						) : null}
+					</div>
+				}
+			/>
 
 			{saved ? (
 				<output
 					className={cn(
 						"block rounded-md border px-4 py-2 text-sm",
-						"border-[#27AE60]/40 bg-[#27AE60]/10 text-[#27AE60]",
+						"border-success/30 bg-success-bg text-success",
 					)}
 				>
 					Permissions enregistrées — prend effet pour les utilisateurs de ce

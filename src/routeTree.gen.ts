@@ -29,7 +29,6 @@ import { Route as EspaceClientEspaceClientIndexRouteImport } from './routes/_esp
 import { Route as EspaceClientEspaceClientMesDemandesRouteImport } from './routes/_espace-client/espace-client/mes-demandes'
 import { Route as EspaceClientEspaceClientMonCompteRouteImport } from './routes/_espace-client/espace-client/mon-compte'
 import { Route as EspaceClientEspaceClientPanierRouteImport } from './routes/_espace-client/espace-client/panier'
-import { Route as EspaceClientEspaceClientSignalementRouteImport } from './routes/_espace-client/espace-client/signalement'
 import { Route as AuthenticatedAbonnementsOffresIndexRouteImport } from './routes/_authenticated/abonnements/offres/index'
 import { Route as AuthenticatedAbonnementsSouscriptionsIndexRouteImport } from './routes/_authenticated/abonnements/souscriptions/index'
 import { Route as AuthenticatedAbonnementsSouscriptionsIdRouteImport } from './routes/_authenticated/abonnements/souscriptions/$id'
@@ -100,6 +99,8 @@ import { Route as EspaceClientEspaceClientRestaurantIndexRouteImport } from './r
 import { Route as EspaceClientEspaceClientRestaurantIdRouteImport } from './routes/_espace-client/espace-client/restaurant/$id'
 import { Route as EspaceClientEspaceClientSalleFeteIndexRouteImport } from './routes/_espace-client/espace-client/salle-fete/index'
 import { Route as EspaceClientEspaceClientSalleFeteIdRouteImport } from './routes/_espace-client/espace-client/salle-fete/$id'
+import { Route as EspaceClientEspaceClientSignalementIndexRouteImport } from './routes/_espace-client/espace-client/signalement/index'
+import { Route as EspaceClientEspaceClientSignalementIdRouteImport } from './routes/_espace-client/espace-client/signalement/$id'
 import { Route as AuthenticatedFinancesCaissesIdDashboardRouteImport } from './routes/_authenticated/finances/caisses/$id/dashboard'
 import { Route as AuthenticatedResidencePortailAbonnementsIndexRouteImport } from './routes/_authenticated/residence/portail/abonnements/index'
 import { Route as AuthenticatedResidencePortailAbonnementsIdRouteImport } from './routes/_authenticated/residence/portail/abonnements/$id'
@@ -117,6 +118,9 @@ import { Route as AuthenticatedResidencePortailSalleFeteIndexRouteImport } from 
 import { Route as AuthenticatedResidencePortailSalleFeteIdRouteImport } from './routes/_authenticated/residence/portail/salle-fete/$id'
 import { Route as AuthenticatedResidencePortailSejoursIndexRouteImport } from './routes/_authenticated/residence/portail/sejours/index'
 import { Route as AuthenticatedResidencePortailSejoursIdRouteImport } from './routes/_authenticated/residence/portail/sejours/$id'
+import { Route as AuthenticatedResidencePortailSignalementsIndexRouteImport } from './routes/_authenticated/residence/portail/signalements/index'
+import { Route as AuthenticatedResidencePortailSignalementsIdRouteImport } from './routes/_authenticated/residence/portail/signalements/$id'
+import { Route as AuthenticatedResidencePortailSignalementsNouveauRouteImport } from './routes/_authenticated/residence/portail/signalements/nouveau'
 import { Route as AuthenticatedRhPointageConsultationIndexRouteImport } from './routes/_authenticated/rh/pointage/consultation/index'
 import { Route as AuthenticatedAdminRolesIdPermissionsIndexRouteImport } from './routes/_authenticated/admin/roles/$id/permissions/index'
 
@@ -225,12 +229,6 @@ const EspaceClientEspaceClientPanierRoute =
   EspaceClientEspaceClientPanierRouteImport.update({
     id: '/espace-client/panier',
     path: '/espace-client/panier',
-    getParentRoute: () => EspaceClientRoute,
-  } as any)
-const EspaceClientEspaceClientSignalementRoute =
-  EspaceClientEspaceClientSignalementRouteImport.update({
-    id: '/espace-client/signalement',
-    path: '/espace-client/signalement',
     getParentRoute: () => EspaceClientRoute,
   } as any)
 const AuthenticatedAbonnementsOffresIndexRoute =
@@ -653,6 +651,18 @@ const EspaceClientEspaceClientSalleFeteIdRoute =
     path: '/espace-client/salle-fete/$id',
     getParentRoute: () => EspaceClientRoute,
   } as any)
+const EspaceClientEspaceClientSignalementIndexRoute =
+  EspaceClientEspaceClientSignalementIndexRouteImport.update({
+    id: '/espace-client/signalement/',
+    path: '/espace-client/signalement/',
+    getParentRoute: () => EspaceClientRoute,
+  } as any)
+const EspaceClientEspaceClientSignalementIdRoute =
+  EspaceClientEspaceClientSignalementIdRouteImport.update({
+    id: '/espace-client/signalement/$id',
+    path: '/espace-client/signalement/$id',
+    getParentRoute: () => EspaceClientRoute,
+  } as any)
 const AuthenticatedFinancesCaissesIdDashboardRoute =
   AuthenticatedFinancesCaissesIdDashboardRouteImport.update({
     id: '/finances/caisses/$id/dashboard',
@@ -755,6 +765,24 @@ const AuthenticatedResidencePortailSejoursIdRoute =
     path: '/residence/portail/sejours/$id',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedResidencePortailSignalementsIndexRoute =
+  AuthenticatedResidencePortailSignalementsIndexRouteImport.update({
+    id: '/residence/portail/signalements/',
+    path: '/residence/portail/signalements/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedResidencePortailSignalementsIdRoute =
+  AuthenticatedResidencePortailSignalementsIdRouteImport.update({
+    id: '/residence/portail/signalements/$id',
+    path: '/residence/portail/signalements/$id',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedResidencePortailSignalementsNouveauRoute =
+  AuthenticatedResidencePortailSignalementsNouveauRouteImport.update({
+    id: '/residence/portail/signalements/nouveau',
+    path: '/residence/portail/signalements/nouveau',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedRhPointageConsultationIndexRoute =
   AuthenticatedRhPointageConsultationIndexRouteImport.update({
     id: '/rh/pointage/consultation/',
@@ -782,7 +810,6 @@ export interface FileRoutesByFullPath {
   '/espace-client/mes-demandes': typeof EspaceClientEspaceClientMesDemandesRoute
   '/espace-client/mon-compte': typeof EspaceClientEspaceClientMonCompteRoute
   '/espace-client/panier': typeof EspaceClientEspaceClientPanierRoute
-  '/espace-client/signalement': typeof EspaceClientEspaceClientSignalementRoute
   '/abonnements/': typeof AuthenticatedAbonnementsIndexRoute
   '/dashboard/': typeof AuthenticatedDashboardIndexRoute
   '/rapports/': typeof AuthenticatedRapportsIndexRoute
@@ -806,6 +833,7 @@ export interface FileRoutesByFullPath {
   '/espace-client/residence/$id': typeof EspaceClientEspaceClientResidenceIdRoute
   '/espace-client/restaurant/$id': typeof EspaceClientEspaceClientRestaurantIdRoute
   '/espace-client/salle-fete/$id': typeof EspaceClientEspaceClientSalleFeteIdRoute
+  '/espace-client/signalement/$id': typeof EspaceClientEspaceClientSignalementIdRoute
   '/abonnements/offres/': typeof AuthenticatedAbonnementsOffresIndexRoute
   '/abonnements/souscriptions/': typeof AuthenticatedAbonnementsSouscriptionsIndexRoute
   '/admin/journal/': typeof AuthenticatedAdminJournalIndexRoute
@@ -858,6 +886,7 @@ export interface FileRoutesByFullPath {
   '/espace-client/residence/': typeof EspaceClientEspaceClientResidenceIndexRoute
   '/espace-client/restaurant/': typeof EspaceClientEspaceClientRestaurantIndexRoute
   '/espace-client/salle-fete/': typeof EspaceClientEspaceClientSalleFeteIndexRoute
+  '/espace-client/signalement/': typeof EspaceClientEspaceClientSignalementIndexRoute
   '/finances/caisses/$id/dashboard': typeof AuthenticatedFinancesCaissesIdDashboardRoute
   '/residence/portail/abonnements/$id': typeof AuthenticatedResidencePortailAbonnementsIdRoute
   '/residence/portail/boutique/$id': typeof AuthenticatedResidencePortailBoutiqueIdRoute
@@ -865,6 +894,8 @@ export interface FileRoutesByFullPath {
   '/residence/portail/restaurant/$id': typeof AuthenticatedResidencePortailRestaurantIdRoute
   '/residence/portail/salle-fete/$id': typeof AuthenticatedResidencePortailSalleFeteIdRoute
   '/residence/portail/sejours/$id': typeof AuthenticatedResidencePortailSejoursIdRoute
+  '/residence/portail/signalements/$id': typeof AuthenticatedResidencePortailSignalementsIdRoute
+  '/residence/portail/signalements/nouveau': typeof AuthenticatedResidencePortailSignalementsNouveauRoute
   '/residence/portail/abonnements/': typeof AuthenticatedResidencePortailAbonnementsIndexRoute
   '/residence/portail/boutique/': typeof AuthenticatedResidencePortailBoutiqueIndexRoute
   '/residence/portail/caution/': typeof AuthenticatedResidencePortailCautionIndexRoute
@@ -875,6 +906,7 @@ export interface FileRoutesByFullPath {
   '/residence/portail/restaurant/': typeof AuthenticatedResidencePortailRestaurantIndexRoute
   '/residence/portail/salle-fete/': typeof AuthenticatedResidencePortailSalleFeteIndexRoute
   '/residence/portail/sejours/': typeof AuthenticatedResidencePortailSejoursIndexRoute
+  '/residence/portail/signalements/': typeof AuthenticatedResidencePortailSignalementsIndexRoute
   '/rh/pointage/consultation/': typeof AuthenticatedRhPointageConsultationIndexRoute
   '/admin/roles/$id/permissions/': typeof AuthenticatedAdminRolesIdPermissionsIndexRoute
 }
@@ -892,7 +924,6 @@ export interface FileRoutesByTo {
   '/espace-client/mes-demandes': typeof EspaceClientEspaceClientMesDemandesRoute
   '/espace-client/mon-compte': typeof EspaceClientEspaceClientMonCompteRoute
   '/espace-client/panier': typeof EspaceClientEspaceClientPanierRoute
-  '/espace-client/signalement': typeof EspaceClientEspaceClientSignalementRoute
   '/abonnements': typeof AuthenticatedAbonnementsIndexRoute
   '/dashboard': typeof AuthenticatedDashboardIndexRoute
   '/rapports': typeof AuthenticatedRapportsIndexRoute
@@ -916,6 +947,7 @@ export interface FileRoutesByTo {
   '/espace-client/residence/$id': typeof EspaceClientEspaceClientResidenceIdRoute
   '/espace-client/restaurant/$id': typeof EspaceClientEspaceClientRestaurantIdRoute
   '/espace-client/salle-fete/$id': typeof EspaceClientEspaceClientSalleFeteIdRoute
+  '/espace-client/signalement/$id': typeof EspaceClientEspaceClientSignalementIdRoute
   '/abonnements/offres': typeof AuthenticatedAbonnementsOffresIndexRoute
   '/abonnements/souscriptions': typeof AuthenticatedAbonnementsSouscriptionsIndexRoute
   '/admin/journal': typeof AuthenticatedAdminJournalIndexRoute
@@ -966,6 +998,7 @@ export interface FileRoutesByTo {
   '/espace-client/residence': typeof EspaceClientEspaceClientResidenceIndexRoute
   '/espace-client/restaurant': typeof EspaceClientEspaceClientRestaurantIndexRoute
   '/espace-client/salle-fete': typeof EspaceClientEspaceClientSalleFeteIndexRoute
+  '/espace-client/signalement': typeof EspaceClientEspaceClientSignalementIndexRoute
   '/finances/caisses/$id/dashboard': typeof AuthenticatedFinancesCaissesIdDashboardRoute
   '/residence/portail/abonnements/$id': typeof AuthenticatedResidencePortailAbonnementsIdRoute
   '/residence/portail/boutique/$id': typeof AuthenticatedResidencePortailBoutiqueIdRoute
@@ -973,6 +1006,8 @@ export interface FileRoutesByTo {
   '/residence/portail/restaurant/$id': typeof AuthenticatedResidencePortailRestaurantIdRoute
   '/residence/portail/salle-fete/$id': typeof AuthenticatedResidencePortailSalleFeteIdRoute
   '/residence/portail/sejours/$id': typeof AuthenticatedResidencePortailSejoursIdRoute
+  '/residence/portail/signalements/$id': typeof AuthenticatedResidencePortailSignalementsIdRoute
+  '/residence/portail/signalements/nouveau': typeof AuthenticatedResidencePortailSignalementsNouveauRoute
   '/residence/portail/abonnements': typeof AuthenticatedResidencePortailAbonnementsIndexRoute
   '/residence/portail/boutique': typeof AuthenticatedResidencePortailBoutiqueIndexRoute
   '/residence/portail/caution': typeof AuthenticatedResidencePortailCautionIndexRoute
@@ -983,6 +1018,7 @@ export interface FileRoutesByTo {
   '/residence/portail/restaurant': typeof AuthenticatedResidencePortailRestaurantIndexRoute
   '/residence/portail/salle-fete': typeof AuthenticatedResidencePortailSalleFeteIndexRoute
   '/residence/portail/sejours': typeof AuthenticatedResidencePortailSejoursIndexRoute
+  '/residence/portail/signalements': typeof AuthenticatedResidencePortailSignalementsIndexRoute
   '/rh/pointage/consultation': typeof AuthenticatedRhPointageConsultationIndexRoute
   '/admin/roles/$id/permissions': typeof AuthenticatedAdminRolesIdPermissionsIndexRoute
 }
@@ -1003,7 +1039,6 @@ export interface FileRoutesById {
   '/_espace-client/espace-client/mes-demandes': typeof EspaceClientEspaceClientMesDemandesRoute
   '/_espace-client/espace-client/mon-compte': typeof EspaceClientEspaceClientMonCompteRoute
   '/_espace-client/espace-client/panier': typeof EspaceClientEspaceClientPanierRoute
-  '/_espace-client/espace-client/signalement': typeof EspaceClientEspaceClientSignalementRoute
   '/_authenticated/abonnements/': typeof AuthenticatedAbonnementsIndexRoute
   '/_authenticated/dashboard/': typeof AuthenticatedDashboardIndexRoute
   '/_authenticated/rapports/': typeof AuthenticatedRapportsIndexRoute
@@ -1027,6 +1062,7 @@ export interface FileRoutesById {
   '/_espace-client/espace-client/residence/$id': typeof EspaceClientEspaceClientResidenceIdRoute
   '/_espace-client/espace-client/restaurant/$id': typeof EspaceClientEspaceClientRestaurantIdRoute
   '/_espace-client/espace-client/salle-fete/$id': typeof EspaceClientEspaceClientSalleFeteIdRoute
+  '/_espace-client/espace-client/signalement/$id': typeof EspaceClientEspaceClientSignalementIdRoute
   '/_authenticated/abonnements/offres/': typeof AuthenticatedAbonnementsOffresIndexRoute
   '/_authenticated/abonnements/souscriptions/': typeof AuthenticatedAbonnementsSouscriptionsIndexRoute
   '/_authenticated/admin/journal/': typeof AuthenticatedAdminJournalIndexRoute
@@ -1079,6 +1115,7 @@ export interface FileRoutesById {
   '/_espace-client/espace-client/residence/': typeof EspaceClientEspaceClientResidenceIndexRoute
   '/_espace-client/espace-client/restaurant/': typeof EspaceClientEspaceClientRestaurantIndexRoute
   '/_espace-client/espace-client/salle-fete/': typeof EspaceClientEspaceClientSalleFeteIndexRoute
+  '/_espace-client/espace-client/signalement/': typeof EspaceClientEspaceClientSignalementIndexRoute
   '/_authenticated/finances/caisses/$id/dashboard': typeof AuthenticatedFinancesCaissesIdDashboardRoute
   '/_authenticated/residence/portail/abonnements/$id': typeof AuthenticatedResidencePortailAbonnementsIdRoute
   '/_authenticated/residence/portail/boutique/$id': typeof AuthenticatedResidencePortailBoutiqueIdRoute
@@ -1086,6 +1123,8 @@ export interface FileRoutesById {
   '/_authenticated/residence/portail/restaurant/$id': typeof AuthenticatedResidencePortailRestaurantIdRoute
   '/_authenticated/residence/portail/salle-fete/$id': typeof AuthenticatedResidencePortailSalleFeteIdRoute
   '/_authenticated/residence/portail/sejours/$id': typeof AuthenticatedResidencePortailSejoursIdRoute
+  '/_authenticated/residence/portail/signalements/$id': typeof AuthenticatedResidencePortailSignalementsIdRoute
+  '/_authenticated/residence/portail/signalements/nouveau': typeof AuthenticatedResidencePortailSignalementsNouveauRoute
   '/_authenticated/residence/portail/abonnements/': typeof AuthenticatedResidencePortailAbonnementsIndexRoute
   '/_authenticated/residence/portail/boutique/': typeof AuthenticatedResidencePortailBoutiqueIndexRoute
   '/_authenticated/residence/portail/caution/': typeof AuthenticatedResidencePortailCautionIndexRoute
@@ -1096,6 +1135,7 @@ export interface FileRoutesById {
   '/_authenticated/residence/portail/restaurant/': typeof AuthenticatedResidencePortailRestaurantIndexRoute
   '/_authenticated/residence/portail/salle-fete/': typeof AuthenticatedResidencePortailSalleFeteIndexRoute
   '/_authenticated/residence/portail/sejours/': typeof AuthenticatedResidencePortailSejoursIndexRoute
+  '/_authenticated/residence/portail/signalements/': typeof AuthenticatedResidencePortailSignalementsIndexRoute
   '/_authenticated/rh/pointage/consultation/': typeof AuthenticatedRhPointageConsultationIndexRoute
   '/_authenticated/admin/roles/$id/permissions/': typeof AuthenticatedAdminRolesIdPermissionsIndexRoute
 }
@@ -1115,7 +1155,6 @@ export interface FileRouteTypes {
     | '/espace-client/mes-demandes'
     | '/espace-client/mon-compte'
     | '/espace-client/panier'
-    | '/espace-client/signalement'
     | '/abonnements/'
     | '/dashboard/'
     | '/rapports/'
@@ -1139,6 +1178,7 @@ export interface FileRouteTypes {
     | '/espace-client/residence/$id'
     | '/espace-client/restaurant/$id'
     | '/espace-client/salle-fete/$id'
+    | '/espace-client/signalement/$id'
     | '/abonnements/offres/'
     | '/abonnements/souscriptions/'
     | '/admin/journal/'
@@ -1191,6 +1231,7 @@ export interface FileRouteTypes {
     | '/espace-client/residence/'
     | '/espace-client/restaurant/'
     | '/espace-client/salle-fete/'
+    | '/espace-client/signalement/'
     | '/finances/caisses/$id/dashboard'
     | '/residence/portail/abonnements/$id'
     | '/residence/portail/boutique/$id'
@@ -1198,6 +1239,8 @@ export interface FileRouteTypes {
     | '/residence/portail/restaurant/$id'
     | '/residence/portail/salle-fete/$id'
     | '/residence/portail/sejours/$id'
+    | '/residence/portail/signalements/$id'
+    | '/residence/portail/signalements/nouveau'
     | '/residence/portail/abonnements/'
     | '/residence/portail/boutique/'
     | '/residence/portail/caution/'
@@ -1208,6 +1251,7 @@ export interface FileRouteTypes {
     | '/residence/portail/restaurant/'
     | '/residence/portail/salle-fete/'
     | '/residence/portail/sejours/'
+    | '/residence/portail/signalements/'
     | '/rh/pointage/consultation/'
     | '/admin/roles/$id/permissions/'
   fileRoutesByTo: FileRoutesByTo
@@ -1225,7 +1269,6 @@ export interface FileRouteTypes {
     | '/espace-client/mes-demandes'
     | '/espace-client/mon-compte'
     | '/espace-client/panier'
-    | '/espace-client/signalement'
     | '/abonnements'
     | '/dashboard'
     | '/rapports'
@@ -1249,6 +1292,7 @@ export interface FileRouteTypes {
     | '/espace-client/residence/$id'
     | '/espace-client/restaurant/$id'
     | '/espace-client/salle-fete/$id'
+    | '/espace-client/signalement/$id'
     | '/abonnements/offres'
     | '/abonnements/souscriptions'
     | '/admin/journal'
@@ -1299,6 +1343,7 @@ export interface FileRouteTypes {
     | '/espace-client/residence'
     | '/espace-client/restaurant'
     | '/espace-client/salle-fete'
+    | '/espace-client/signalement'
     | '/finances/caisses/$id/dashboard'
     | '/residence/portail/abonnements/$id'
     | '/residence/portail/boutique/$id'
@@ -1306,6 +1351,8 @@ export interface FileRouteTypes {
     | '/residence/portail/restaurant/$id'
     | '/residence/portail/salle-fete/$id'
     | '/residence/portail/sejours/$id'
+    | '/residence/portail/signalements/$id'
+    | '/residence/portail/signalements/nouveau'
     | '/residence/portail/abonnements'
     | '/residence/portail/boutique'
     | '/residence/portail/caution'
@@ -1316,6 +1363,7 @@ export interface FileRouteTypes {
     | '/residence/portail/restaurant'
     | '/residence/portail/salle-fete'
     | '/residence/portail/sejours'
+    | '/residence/portail/signalements'
     | '/rh/pointage/consultation'
     | '/admin/roles/$id/permissions'
   id:
@@ -1335,7 +1383,6 @@ export interface FileRouteTypes {
     | '/_espace-client/espace-client/mes-demandes'
     | '/_espace-client/espace-client/mon-compte'
     | '/_espace-client/espace-client/panier'
-    | '/_espace-client/espace-client/signalement'
     | '/_authenticated/abonnements/'
     | '/_authenticated/dashboard/'
     | '/_authenticated/rapports/'
@@ -1359,6 +1406,7 @@ export interface FileRouteTypes {
     | '/_espace-client/espace-client/residence/$id'
     | '/_espace-client/espace-client/restaurant/$id'
     | '/_espace-client/espace-client/salle-fete/$id'
+    | '/_espace-client/espace-client/signalement/$id'
     | '/_authenticated/abonnements/offres/'
     | '/_authenticated/abonnements/souscriptions/'
     | '/_authenticated/admin/journal/'
@@ -1411,6 +1459,7 @@ export interface FileRouteTypes {
     | '/_espace-client/espace-client/residence/'
     | '/_espace-client/espace-client/restaurant/'
     | '/_espace-client/espace-client/salle-fete/'
+    | '/_espace-client/espace-client/signalement/'
     | '/_authenticated/finances/caisses/$id/dashboard'
     | '/_authenticated/residence/portail/abonnements/$id'
     | '/_authenticated/residence/portail/boutique/$id'
@@ -1418,6 +1467,8 @@ export interface FileRouteTypes {
     | '/_authenticated/residence/portail/restaurant/$id'
     | '/_authenticated/residence/portail/salle-fete/$id'
     | '/_authenticated/residence/portail/sejours/$id'
+    | '/_authenticated/residence/portail/signalements/$id'
+    | '/_authenticated/residence/portail/signalements/nouveau'
     | '/_authenticated/residence/portail/abonnements/'
     | '/_authenticated/residence/portail/boutique/'
     | '/_authenticated/residence/portail/caution/'
@@ -1428,6 +1479,7 @@ export interface FileRouteTypes {
     | '/_authenticated/residence/portail/restaurant/'
     | '/_authenticated/residence/portail/salle-fete/'
     | '/_authenticated/residence/portail/sejours/'
+    | '/_authenticated/residence/portail/signalements/'
     | '/_authenticated/rh/pointage/consultation/'
     | '/_authenticated/admin/roles/$id/permissions/'
   fileRoutesById: FileRoutesById
@@ -1584,13 +1636,6 @@ declare module '@tanstack/react-router' {
       path: '/espace-client/panier'
       fullPath: '/espace-client/panier'
       preLoaderRoute: typeof EspaceClientEspaceClientPanierRouteImport
-      parentRoute: typeof EspaceClientRoute
-    }
-    '/_espace-client/espace-client/signalement': {
-      id: '/_espace-client/espace-client/signalement'
-      path: '/espace-client/signalement'
-      fullPath: '/espace-client/signalement'
-      preLoaderRoute: typeof EspaceClientEspaceClientSignalementRouteImport
       parentRoute: typeof EspaceClientRoute
     }
     '/_authenticated/abonnements/offres/': {
@@ -2083,6 +2128,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EspaceClientEspaceClientSalleFeteIdRouteImport
       parentRoute: typeof EspaceClientRoute
     }
+    '/_espace-client/espace-client/signalement/': {
+      id: '/_espace-client/espace-client/signalement/'
+      path: '/espace-client/signalement'
+      fullPath: '/espace-client/signalement/'
+      preLoaderRoute: typeof EspaceClientEspaceClientSignalementIndexRouteImport
+      parentRoute: typeof EspaceClientRoute
+    }
+    '/_espace-client/espace-client/signalement/$id': {
+      id: '/_espace-client/espace-client/signalement/$id'
+      path: '/espace-client/signalement/$id'
+      fullPath: '/espace-client/signalement/$id'
+      preLoaderRoute: typeof EspaceClientEspaceClientSignalementIdRouteImport
+      parentRoute: typeof EspaceClientRoute
+    }
     '/_authenticated/finances/caisses/$id/dashboard': {
       id: '/_authenticated/finances/caisses/$id/dashboard'
       path: '/finances/caisses/$id/dashboard'
@@ -2202,6 +2261,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedResidencePortailSejoursIdRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/residence/portail/signalements/': {
+      id: '/_authenticated/residence/portail/signalements/'
+      path: '/residence/portail/signalements'
+      fullPath: '/residence/portail/signalements/'
+      preLoaderRoute: typeof AuthenticatedResidencePortailSignalementsIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/residence/portail/signalements/$id': {
+      id: '/_authenticated/residence/portail/signalements/$id'
+      path: '/residence/portail/signalements/$id'
+      fullPath: '/residence/portail/signalements/$id'
+      preLoaderRoute: typeof AuthenticatedResidencePortailSignalementsIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/residence/portail/signalements/nouveau': {
+      id: '/_authenticated/residence/portail/signalements/nouveau'
+      path: '/residence/portail/signalements/nouveau'
+      fullPath: '/residence/portail/signalements/nouveau'
+      preLoaderRoute: typeof AuthenticatedResidencePortailSignalementsNouveauRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/rh/pointage/consultation/': {
       id: '/_authenticated/rh/pointage/consultation/'
       path: '/rh/pointage/consultation'
@@ -2292,6 +2372,8 @@ interface AuthenticatedRouteChildren {
   AuthenticatedResidencePortailRestaurantIdRoute: typeof AuthenticatedResidencePortailRestaurantIdRoute
   AuthenticatedResidencePortailSalleFeteIdRoute: typeof AuthenticatedResidencePortailSalleFeteIdRoute
   AuthenticatedResidencePortailSejoursIdRoute: typeof AuthenticatedResidencePortailSejoursIdRoute
+  AuthenticatedResidencePortailSignalementsIdRoute: typeof AuthenticatedResidencePortailSignalementsIdRoute
+  AuthenticatedResidencePortailSignalementsNouveauRoute: typeof AuthenticatedResidencePortailSignalementsNouveauRoute
   AuthenticatedResidencePortailAbonnementsIndexRoute: typeof AuthenticatedResidencePortailAbonnementsIndexRoute
   AuthenticatedResidencePortailBoutiqueIndexRoute: typeof AuthenticatedResidencePortailBoutiqueIndexRoute
   AuthenticatedResidencePortailCautionIndexRoute: typeof AuthenticatedResidencePortailCautionIndexRoute
@@ -2302,6 +2384,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedResidencePortailRestaurantIndexRoute: typeof AuthenticatedResidencePortailRestaurantIndexRoute
   AuthenticatedResidencePortailSalleFeteIndexRoute: typeof AuthenticatedResidencePortailSalleFeteIndexRoute
   AuthenticatedResidencePortailSejoursIndexRoute: typeof AuthenticatedResidencePortailSejoursIndexRoute
+  AuthenticatedResidencePortailSignalementsIndexRoute: typeof AuthenticatedResidencePortailSignalementsIndexRoute
   AuthenticatedRhPointageConsultationIndexRoute: typeof AuthenticatedRhPointageConsultationIndexRoute
   AuthenticatedAdminRolesIdPermissionsIndexRoute: typeof AuthenticatedAdminRolesIdPermissionsIndexRoute
 }
@@ -2431,6 +2514,10 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
     AuthenticatedResidencePortailSalleFeteIdRoute,
   AuthenticatedResidencePortailSejoursIdRoute:
     AuthenticatedResidencePortailSejoursIdRoute,
+  AuthenticatedResidencePortailSignalementsIdRoute:
+    AuthenticatedResidencePortailSignalementsIdRoute,
+  AuthenticatedResidencePortailSignalementsNouveauRoute:
+    AuthenticatedResidencePortailSignalementsNouveauRoute,
   AuthenticatedResidencePortailAbonnementsIndexRoute:
     AuthenticatedResidencePortailAbonnementsIndexRoute,
   AuthenticatedResidencePortailBoutiqueIndexRoute:
@@ -2451,6 +2538,8 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
     AuthenticatedResidencePortailSalleFeteIndexRoute,
   AuthenticatedResidencePortailSejoursIndexRoute:
     AuthenticatedResidencePortailSejoursIndexRoute,
+  AuthenticatedResidencePortailSignalementsIndexRoute:
+    AuthenticatedResidencePortailSignalementsIndexRoute,
   AuthenticatedRhPointageConsultationIndexRoute:
     AuthenticatedRhPointageConsultationIndexRoute,
   AuthenticatedAdminRolesIdPermissionsIndexRoute:
@@ -2465,7 +2554,6 @@ interface EspaceClientRouteChildren {
   EspaceClientEspaceClientMesDemandesRoute: typeof EspaceClientEspaceClientMesDemandesRoute
   EspaceClientEspaceClientMonCompteRoute: typeof EspaceClientEspaceClientMonCompteRoute
   EspaceClientEspaceClientPanierRoute: typeof EspaceClientEspaceClientPanierRoute
-  EspaceClientEspaceClientSignalementRoute: typeof EspaceClientEspaceClientSignalementRoute
   EspaceClientEspaceClientIndexRoute: typeof EspaceClientEspaceClientIndexRoute
   EspaceClientEspaceClientAbonnementsIdRoute: typeof EspaceClientEspaceClientAbonnementsIdRoute
   EspaceClientEspaceClientBoutiqueIdRoute: typeof EspaceClientEspaceClientBoutiqueIdRoute
@@ -2473,12 +2561,14 @@ interface EspaceClientRouteChildren {
   EspaceClientEspaceClientResidenceIdRoute: typeof EspaceClientEspaceClientResidenceIdRoute
   EspaceClientEspaceClientRestaurantIdRoute: typeof EspaceClientEspaceClientRestaurantIdRoute
   EspaceClientEspaceClientSalleFeteIdRoute: typeof EspaceClientEspaceClientSalleFeteIdRoute
+  EspaceClientEspaceClientSignalementIdRoute: typeof EspaceClientEspaceClientSignalementIdRoute
   EspaceClientEspaceClientAbonnementsIndexRoute: typeof EspaceClientEspaceClientAbonnementsIndexRoute
   EspaceClientEspaceClientBoutiqueIndexRoute: typeof EspaceClientEspaceClientBoutiqueIndexRoute
   EspaceClientEspaceClientPressingIndexRoute: typeof EspaceClientEspaceClientPressingIndexRoute
   EspaceClientEspaceClientResidenceIndexRoute: typeof EspaceClientEspaceClientResidenceIndexRoute
   EspaceClientEspaceClientRestaurantIndexRoute: typeof EspaceClientEspaceClientRestaurantIndexRoute
   EspaceClientEspaceClientSalleFeteIndexRoute: typeof EspaceClientEspaceClientSalleFeteIndexRoute
+  EspaceClientEspaceClientSignalementIndexRoute: typeof EspaceClientEspaceClientSignalementIndexRoute
 }
 
 const EspaceClientRouteChildren: EspaceClientRouteChildren = {
@@ -2487,8 +2577,6 @@ const EspaceClientRouteChildren: EspaceClientRouteChildren = {
   EspaceClientEspaceClientMonCompteRoute:
     EspaceClientEspaceClientMonCompteRoute,
   EspaceClientEspaceClientPanierRoute: EspaceClientEspaceClientPanierRoute,
-  EspaceClientEspaceClientSignalementRoute:
-    EspaceClientEspaceClientSignalementRoute,
   EspaceClientEspaceClientIndexRoute: EspaceClientEspaceClientIndexRoute,
   EspaceClientEspaceClientAbonnementsIdRoute:
     EspaceClientEspaceClientAbonnementsIdRoute,
@@ -2502,6 +2590,8 @@ const EspaceClientRouteChildren: EspaceClientRouteChildren = {
     EspaceClientEspaceClientRestaurantIdRoute,
   EspaceClientEspaceClientSalleFeteIdRoute:
     EspaceClientEspaceClientSalleFeteIdRoute,
+  EspaceClientEspaceClientSignalementIdRoute:
+    EspaceClientEspaceClientSignalementIdRoute,
   EspaceClientEspaceClientAbonnementsIndexRoute:
     EspaceClientEspaceClientAbonnementsIndexRoute,
   EspaceClientEspaceClientBoutiqueIndexRoute:
@@ -2514,6 +2604,8 @@ const EspaceClientRouteChildren: EspaceClientRouteChildren = {
     EspaceClientEspaceClientRestaurantIndexRoute,
   EspaceClientEspaceClientSalleFeteIndexRoute:
     EspaceClientEspaceClientSalleFeteIndexRoute,
+  EspaceClientEspaceClientSignalementIndexRoute:
+    EspaceClientEspaceClientSignalementIndexRoute,
 }
 
 const EspaceClientRouteWithChildren = EspaceClientRoute._addFileChildren(

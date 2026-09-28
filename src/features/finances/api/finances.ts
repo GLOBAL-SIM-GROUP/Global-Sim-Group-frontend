@@ -100,12 +100,14 @@ export function listPaiements(filtres?: {
 	au?: string;
 	type?: string;
 	id_caisse?: string;
+	limit?: number;
 }): Promise<Paiement[]> {
 	const params = new URLSearchParams();
 	if (filtres?.du) params.set("du", filtres.du);
 	if (filtres?.au) params.set("au", filtres.au);
 	if (filtres?.type) params.set("type", filtres.type);
 	if (filtres?.id_caisse) params.set("id_caisse", filtres.id_caisse);
+	if (filtres?.limit) params.set("limit", String(filtres.limit));
 	const qs = params.toString();
 	return getApiClient()
 		.apiFetch<PaiementWire[]>(`/api/v1/finances/paiements${qs ? `?${qs}` : ""}`)

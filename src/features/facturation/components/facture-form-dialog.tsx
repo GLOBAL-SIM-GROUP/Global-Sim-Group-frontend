@@ -1,9 +1,14 @@
 import { useForm } from "@tanstack/react-form";
 import { Loader2 } from "lucide-react";
-import { Dialog } from "radix-ui";
 import { useState } from "react";
 
 import { Button } from "#/components/ui/button";
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogTitle,
+} from "#/components/ui/dialog";
 import { InputField } from "#/components/ui/input-field";
 import { Label } from "#/components/ui/label";
 import {
@@ -100,164 +105,159 @@ export function FactureFormDialog({
 		prestations.find((prestation) => prestation.id === idPrestation) ?? null;
 
 	return (
-		<Dialog.Root open={open} onOpenChange={onOpenChange}>
-			<Dialog.Portal>
-				<Dialog.Overlay className="fixed inset-0 z-50 bg-black/50" />
-				<Dialog.Content className="fixed top-1/2 left-1/2 z-50 max-h-[85dvh] w-[calc(100vw-2rem)] max-w-lg -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-lg border border-border bg-card p-6 shadow-lg">
-					<Dialog.Title className="text-base font-semibold text-foreground">
-						Nouvelle facture ponctuelle
-					</Dialog.Title>
-					<Dialog.Description className="mt-1 text-sm text-muted-foreground">
-						Facturez une prestation avec un premier paiement (le solde peut être
-						encaissé plus tard).
-					</Dialog.Description>
-					<form
-						className="mt-4 space-y-4"
-						onSubmit={(event) => {
-							event.preventDefault();
-							event.stopPropagation();
-							void form.handleSubmit();
-						}}
-					>
-						<form.Field name="idPrestation">
-							{(field) => (
-								<div className="space-y-1.5">
-									<Label htmlFor={field.name}>Prestation</Label>
-									<Select
-										value={field.state.value}
-										onValueChange={(valeur) => {
-											field.handleChange(valeur);
-											const prestation = prestationSelectionnee(valeur);
-											if (prestation) {
-												form.setFieldValue("montant", (precedent) =>
-													precedent.trim() ? precedent : prestation.prix,
-												);
-											}
-										}}
-									>
-										<SelectTrigger
-											id={field.name}
-											aria-label="Prestation"
-											className="w-full"
-										>
-											<SelectValue placeholder="Sélectionner une prestation" />
-										</SelectTrigger>
-										<SelectContent>
-											{prestations.map((prestation) => (
-												<SelectItem key={prestation.id} value={prestation.id}>
-													{prestation.libelle} —{" "}
-													{formatMontantFCFA(prestation.prix)}
-												</SelectItem>
-											))}
-										</SelectContent>
-									</Select>
-									{field.state.meta.errors[0] ? (
-										<p className="text-xs text-destructive">
-											{field.state.meta.errors[0]}
-										</p>
-									) : null}
-								</div>
-							)}
-						</form.Field>
-
-						<form.Field name="idClient">
-							{(field) => (
-								<ClientRechercheField
+		<Dialog open={open} onOpenChange={onOpenChange}>
+			<DialogContent className="max-h-[85dvh] max-w-lg overflow-y-auto">
+				<DialogTitle>Nouvelle facture ponctuelle</DialogTitle>
+				<DialogDescription>
+					Facturez une prestation avec un premier paiement (le solde peut être
+					encaissé plus tard).
+				</DialogDescription>
+				<form
+					className="mt-4 space-y-4"
+					onSubmit={(event) => {
+						event.preventDefault();
+						event.stopPropagation();
+						void form.handleSubmit();
+					}}
+				>
+					<form.Field name="idPrestation">
+						{(field) => (
+							<div className="space-y-1.5">
+								<Label htmlFor={field.name}>Prestation</Label>
+								<Select
 									value={field.state.value}
-									onChange={(id) => field.handleChange(id)}
+									onValueChange={(valeur) => {
+										field.handleChange(valeur);
+										const prestation = prestationSelectionnee(valeur);
+										if (prestation) {
+											form.setFieldValue("montant", (precedent) =>
+												precedent.trim() ? precedent : prestation.prix,
+											);
+										}
+									}}
+								>
+									<SelectTrigger
+										id={field.name}
+										aria-label="Prestation"
+										className="w-full"
+									>
+										<SelectValue placeholder="Sélectionner une prestation" />
+									</SelectTrigger>
+									<SelectContent>
+										{prestations.map((prestation) => (
+											<SelectItem key={prestation.id} value={prestation.id}>
+												{prestation.libelle} —{" "}
+												{formatMontantFCFA(prestation.prix)}
+											</SelectItem>
+										))}
+									</SelectContent>
+								</Select>
+								{field.state.meta.errors[0] ? (
+									<p className="text-xs text-destructive">
+										{field.state.meta.errors[0]}
+									</p>
+								) : null}
+							</div>
+						)}
+					</form.Field>
+
+					<form.Field name="idClient">
+						{(field) => (
+							<ClientRechercheField
+								value={field.state.value}
+								onChange={(id) => field.handleChange(id)}
+							/>
+						)}
+					</form.Field>
+
+					<div className="grid grid-cols-2 gap-4">
+						<form.Field name="montant">
+							{(field) => (
+								<InputField
+									id={field.name}
+									name={field.name}
+									label="Montant payé (FCFA)"
+									inputMode="numeric"
+									placeholder="0"
+									value={field.state.value}
+									onBlur={field.handleBlur}
+									onChange={(event) => field.handleChange(event.target.value)}
+									error={field.state.meta.errors[0]}
 								/>
 							)}
 						</form.Field>
-
-						<div className="grid grid-cols-2 gap-4">
-							<form.Field name="montant">
-								{(field) => (
-									<InputField
-										id={field.name}
-										name={field.name}
-										label="Montant payé (FCFA)"
-										inputMode="numeric"
-										placeholder="0"
-										value={field.state.value}
-										onBlur={field.handleBlur}
-										onChange={(event) => field.handleChange(event.target.value)}
-										error={field.state.meta.errors[0]}
-									/>
-								)}
-							</form.Field>
-							<form.Field name="remise">
-								{(field) => (
-									<InputField
-										id={field.name}
-										name={field.name}
-										label="Remise (FCFA)"
-										inputMode="numeric"
-										placeholder="0"
-										value={field.state.value}
-										onBlur={field.handleBlur}
-										onChange={(event) => field.handleChange(event.target.value)}
-										error={field.state.meta.errors[0]}
-									/>
-								)}
-							</form.Field>
-						</div>
-
-						<form.Field name="idMoyen">
+						<form.Field name="remise">
 							{(field) => (
-								<div className="space-y-1.5">
-									<Label htmlFor={field.name}>Moyen de paiement</Label>
-									<Select
-										value={field.state.value}
-										onValueChange={field.handleChange}
-									>
-										<SelectTrigger
-											id={field.name}
-											aria-label="Moyen de paiement"
-											className="w-full"
-										>
-											<SelectValue placeholder="Sélectionner un moyen" />
-										</SelectTrigger>
-										<SelectContent>
-											{moyens.map((moyen) => (
-												<SelectItem key={moyen.id} value={moyen.id}>
-													{moyen.libelle}
-												</SelectItem>
-											))}
-										</SelectContent>
-									</Select>
-									{field.state.meta.errors[0] ? (
-										<p className="text-xs text-destructive">
-											{field.state.meta.errors[0]}
-										</p>
-									) : null}
-								</div>
+								<InputField
+									id={field.name}
+									name={field.name}
+									label="Remise (FCFA)"
+									inputMode="numeric"
+									placeholder="0"
+									value={field.state.value}
+									onBlur={field.handleBlur}
+									onChange={(event) => field.handleChange(event.target.value)}
+									error={field.state.meta.errors[0]}
+								/>
 							)}
 						</form.Field>
+					</div>
 
-						{globalError ? (
-							<p role="alert" className="text-sm font-medium text-destructive">
-								{globalError}
-							</p>
-						) : null}
-
-						<div className="flex items-center justify-end gap-2 pt-2">
-							<Button
-								type="button"
-								variant="ghost"
-								onClick={() => onOpenChange(false)}
-							>
-								Annuler
-							</Button>
-							<Button type="submit" disabled={facturerMutation.isPending}>
-								{facturerMutation.isPending ? (
-									<Loader2 className="size-4 animate-spin" aria-hidden />
+					<form.Field name="idMoyen">
+						{(field) => (
+							<div className="space-y-1.5">
+								<Label htmlFor={field.name}>Moyen de paiement</Label>
+								<Select
+									value={field.state.value}
+									onValueChange={field.handleChange}
+								>
+									<SelectTrigger
+										id={field.name}
+										aria-label="Moyen de paiement"
+										className="w-full"
+									>
+										<SelectValue placeholder="Sélectionner un moyen" />
+									</SelectTrigger>
+									<SelectContent>
+										{moyens.map((moyen) => (
+											<SelectItem key={moyen.id} value={moyen.id}>
+												{moyen.libelle}
+											</SelectItem>
+										))}
+									</SelectContent>
+								</Select>
+								{field.state.meta.errors[0] ? (
+									<p className="text-xs text-destructive">
+										{field.state.meta.errors[0]}
+									</p>
 								) : null}
-								Facturer
-							</Button>
-						</div>
-					</form>
-				</Dialog.Content>
-			</Dialog.Portal>
-		</Dialog.Root>
+							</div>
+						)}
+					</form.Field>
+
+					{globalError ? (
+						<p role="alert" className="text-sm font-medium text-destructive">
+							{globalError}
+						</p>
+					) : null}
+
+					<div className="flex items-center justify-end gap-2 pt-2">
+						<Button
+							type="button"
+							variant="ghost"
+							onClick={() => onOpenChange(false)}
+						>
+							Annuler
+						</Button>
+						<Button type="submit" disabled={facturerMutation.isPending}>
+							{facturerMutation.isPending ? (
+								<Loader2 className="size-4 animate-spin" aria-hidden />
+							) : null}
+							Facturer
+						</Button>
+					</div>
+				</form>
+			</DialogContent>
+		</Dialog>
 	);
 }

@@ -1,9 +1,14 @@
 import { useForm } from "@tanstack/react-form";
 import { Loader2 } from "lucide-react";
-import { Dialog } from "radix-ui";
 import { useMemo, useState } from "react";
 
 import { Button } from "#/components/ui/button";
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogTitle,
+} from "#/components/ui/dialog";
 import { InputField } from "#/components/ui/input-field";
 import { Label } from "#/components/ui/label";
 import {
@@ -153,30 +158,44 @@ export function UtilisateurFormDialog({
 	});
 
 	return (
-		<Dialog.Root open={open} onOpenChange={onOpenChange}>
-			<Dialog.Portal>
-				<Dialog.Overlay className="fixed inset-0 z-50 bg-black/50" />
-				<Dialog.Content className="fixed top-1/2 left-1/2 z-50 max-h-[85dvh] w-[calc(100vw-2rem)] max-w-lg -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-lg border border-border bg-card p-6 shadow-lg">
-					<Dialog.Title className="text-base font-semibold text-foreground">
-						{utilisateur ? "Modifier l'utilisateur" : "Ajouter un utilisateur"}
-					</Dialog.Title>
-					<Dialog.Description className="mt-1 text-sm text-muted-foreground">
-						Compte d'accès à l'application et rôle attribué.
-					</Dialog.Description>
-					<form
-						className="mt-4 space-y-4"
-						onSubmit={(event) => {
-							event.preventDefault();
-							event.stopPropagation();
-							void form.handleSubmit();
-						}}
-					>
-						<form.Field name="login">
+		<Dialog open={open} onOpenChange={onOpenChange}>
+			<DialogContent className="max-h-[85dvh] max-w-lg overflow-y-auto">
+				<DialogTitle>
+					{utilisateur ? "Modifier l'utilisateur" : "Ajouter un utilisateur"}
+				</DialogTitle>
+				<DialogDescription>
+					Compte d'accès à l'application et rôle attribué.
+				</DialogDescription>
+				<form
+					className="mt-4 space-y-4"
+					onSubmit={(event) => {
+						event.preventDefault();
+						event.stopPropagation();
+						void form.handleSubmit();
+					}}
+				>
+					<form.Field name="login">
+						{(field) => (
+							<InputField
+								id={field.name}
+								name={field.name}
+								label="Login (unique)"
+								value={field.state.value}
+								onBlur={field.handleBlur}
+								onChange={(event) => field.handleChange(event.target.value)}
+								error={field.state.meta.errors[0]}
+							/>
+						)}
+					</form.Field>
+
+					{!utilisateur ? (
+						<form.Field name="motDePasse">
 							{(field) => (
 								<InputField
 									id={field.name}
 									name={field.name}
-									label="Login (unique)"
+									label="Mot de passe"
+									type="password"
 									value={field.state.value}
 									onBlur={field.handleBlur}
 									onChange={(event) => field.handleChange(event.target.value)}
@@ -184,231 +203,213 @@ export function UtilisateurFormDialog({
 								/>
 							)}
 						</form.Field>
+					) : null}
 
-						{!utilisateur ? (
-							<form.Field name="motDePasse">
-								{(field) => (
-									<InputField
-										id={field.name}
-										name={field.name}
-										label="Mot de passe"
-										type="password"
-										value={field.state.value}
-										onBlur={field.handleBlur}
-										onChange={(event) => field.handleChange(event.target.value)}
-										error={field.state.meta.errors[0]}
-									/>
-								)}
-							</form.Field>
-						) : null}
-
-						{/*
+					{/*
 							Employé et client/locataire sont mutuellement exclusifs : un
 							compte représente soit un membre du personnel, soit un
 							client/résident, jamais les deux à la fois. Choisir l'un
 							efface et désactive l'autre.
 						*/}
-						<form.Field name="idEmploye">
-							{(field) => (
-								<form.Subscribe selector={(state) => state.values.idClient}>
-									{(idClient) => (
+					<form.Field name="idEmploye">
+						{(field) => (
+							<form.Subscribe selector={(state) => state.values.idClient}>
+								{(idClient) => (
+									<div className="space-y-1.5">
+										<Label htmlFor={field.name}>
+											Employé associé (optionnel)
+										</Label>
+										<Select
+											value={field.state.value}
+											onValueChange={(valeur) => {
+												field.handleChange(valeur);
+												if (valeur) form.setFieldValue("idClient", "");
+											}}
+											disabled={!!idClient}
+										>
+											<SelectTrigger
+												id={field.name}
+												aria-label="Employé associé"
+												className="w-full"
+											>
+												<SelectValue placeholder="Aucun" />
+											</SelectTrigger>
+											<SelectContent>
+												<SelectItem value="">Aucun</SelectItem>
+												{employes.map((employe) => (
+													<SelectItem key={employe.id} value={employe.id}>
+														{employe.prenom} {employe.nom} — {employe.fonction}
+													</SelectItem>
+												))}
+											</SelectContent>
+										</Select>
+										{idClient ? (
+											<p className="text-xs text-muted-foreground">
+												Un client/locataire est déjà associé — retirez-le pour
+												choisir un employé.
+											</p>
+										) : null}
+									</div>
+								)}
+							</form.Subscribe>
+						)}
+					</form.Field>
+
+					<form.Field name="idClient">
+						{(field) => (
+							<form.Subscribe selector={(state) => state.values.idEmploye}>
+								{(idEmploye) =>
+									idEmploye ? (
+										<div className="space-y-1.5">
+											<Label>Client / locataire associé (optionnel)</Label>
+											<p className="rounded-md border border-dashed border-border px-3 py-2 text-xs text-muted-foreground">
+												Un employé est déjà associé — retirez-le pour choisir un
+												client/locataire.
+											</p>
+										</div>
+									) : (
+										<ClientRechercheField
+											value={field.state.value}
+											onChange={(id) => {
+												field.handleChange(id);
+												if (id) form.setFieldValue("idEmploye", "");
+											}}
+											excludeIds={clientIdsAssocies}
+										/>
+									)
+								}
+							</form.Subscribe>
+						)}
+					</form.Field>
+
+					<form.Field name="idRole">
+						{(field) => (
+							<div className="space-y-1.5">
+								<Label htmlFor={field.name}>Rôle</Label>
+								<Select
+									value={field.state.value}
+									onValueChange={field.handleChange}
+								>
+									<SelectTrigger
+										id={field.name}
+										aria-label="Rôle"
+										className="w-full"
+									>
+										<SelectValue placeholder="Sélectionner un rôle" />
+									</SelectTrigger>
+									<SelectContent>
+										{roles.map((role) => (
+											<SelectItem key={role.id} value={role.id}>
+												{role.libelle}
+											</SelectItem>
+										))}
+									</SelectContent>
+								</Select>
+								{utilisateur && field.state.value !== utilisateur.id_role ? (
+									<p className="text-xs text-muted-foreground">
+										Changer le rôle remplace entièrement les permissions
+										actuelles de ce compte par celles du nouveau rôle — ce n'est
+										pas cumulatif.
+									</p>
+								) : null}
+								{field.state.meta.errors[0] ? (
+									<p className="text-xs text-destructive">
+										{field.state.meta.errors[0]}
+									</p>
+								) : null}
+							</div>
+						)}
+					</form.Field>
+
+					<form.Field name="idActiviteScope">
+						{(field) => (
+							<form.Subscribe selector={(state) => state.values.idRole}>
+								{(idRole) => {
+									const roleSelectionne = roles.find((r) => r.id === idRole);
+									const estRoleCaisse = roleSelectionne
+										? /caiss/i.test(roleSelectionne.code) ||
+											/caiss/i.test(roleSelectionne.libelle)
+										: false;
+									return (
 										<div className="space-y-1.5">
 											<Label htmlFor={field.name}>
-												Employé associé (optionnel)
+												Activité (scope
+												{estRoleCaisse
+													? " — obligatoire pour les caissiers"
+													: ", pour les caissiers — optionnel"}
+												)
 											</Label>
 											<Select
 												value={field.state.value}
-												onValueChange={(valeur) => {
-													field.handleChange(valeur);
-													if (valeur) form.setFieldValue("idClient", "");
-												}}
-												disabled={!!idClient}
+												onValueChange={field.handleChange}
 											>
 												<SelectTrigger
 													id={field.name}
-													aria-label="Employé associé"
+													aria-label="Activité"
 													className="w-full"
 												>
-													<SelectValue placeholder="Aucun" />
+													<SelectValue placeholder="Aucune" />
 												</SelectTrigger>
 												<SelectContent>
-													<SelectItem value="">Aucun</SelectItem>
-													{employes.map((employe) => (
-														<SelectItem key={employe.id} value={employe.id}>
-															{employe.prenom} {employe.nom} —{" "}
-															{employe.fonction}
+													<SelectItem value="">Aucune</SelectItem>
+													{activites.map((activite) => (
+														<SelectItem key={activite.id} value={activite.id}>
+															{activite.libelle}
 														</SelectItem>
 													))}
 												</SelectContent>
 											</Select>
-											{idClient ? (
-												<p className="text-xs text-muted-foreground">
-													Un client/locataire est déjà associé — retirez-le pour
-													choisir un employé.
+											{field.state.meta.errors[0] ? (
+												<p className="text-xs text-destructive">
+													{field.state.meta.errors[0]}
 												</p>
 											) : null}
 										</div>
-									)}
-								</form.Subscribe>
-							)}
-						</form.Field>
+									);
+								}}
+							</form.Subscribe>
+						)}
+					</form.Field>
 
-						<form.Field name="idClient">
-							{(field) => (
-								<form.Subscribe selector={(state) => state.values.idEmploye}>
-									{(idEmploye) =>
-										idEmploye ? (
-											<div className="space-y-1.5">
-												<Label>Client / locataire associé (optionnel)</Label>
-												<p className="rounded-md border border-dashed border-border px-3 py-2 text-xs text-muted-foreground">
-													Un employé est déjà associé — retirez-le pour choisir
-													un client/locataire.
-												</p>
-											</div>
-										) : (
-											<ClientRechercheField
-												value={field.state.value}
-												onChange={(id) => {
-													field.handleChange(id);
-													if (id) form.setFieldValue("idEmploye", "");
-												}}
-												excludeIds={clientIdsAssocies}
-											/>
-										)
-									}
-								</form.Subscribe>
-							)}
-						</form.Field>
+					<form.Field name="actif">
+						{(field) => (
+							<div className="flex items-center gap-3">
+								<Label htmlFor={field.name}>Compte actif</Label>
+								<Switch
+									id={field.name}
+									checked={field.state.value}
+									onCheckedChange={field.handleChange}
+								/>
+							</div>
+						)}
+					</form.Field>
 
-						<form.Field name="idRole">
-							{(field) => (
-								<div className="space-y-1.5">
-									<Label htmlFor={field.name}>Rôle</Label>
-									<Select
-										value={field.state.value}
-										onValueChange={field.handleChange}
-									>
-										<SelectTrigger
-											id={field.name}
-											aria-label="Rôle"
-											className="w-full"
-										>
-											<SelectValue placeholder="Sélectionner un rôle" />
-										</SelectTrigger>
-										<SelectContent>
-											{roles.map((role) => (
-												<SelectItem key={role.id} value={role.id}>
-													{role.libelle}
-												</SelectItem>
-											))}
-										</SelectContent>
-									</Select>
-									{utilisateur && field.state.value !== utilisateur.id_role ? (
-										<p className="text-xs text-muted-foreground">
-											Changer le rôle remplace entièrement les permissions
-											actuelles de ce compte par celles du nouveau rôle — ce
-											n'est pas cumulatif.
-										</p>
-									) : null}
-									{field.state.meta.errors[0] ? (
-										<p className="text-xs text-destructive">
-											{field.state.meta.errors[0]}
-										</p>
-									) : null}
-								</div>
-							)}
-						</form.Field>
+					{globalError ? (
+						<p role="alert" className="text-sm font-medium text-destructive">
+							{globalError}
+						</p>
+					) : null}
 
-						<form.Field name="idActiviteScope">
-							{(field) => (
-								<form.Subscribe selector={(state) => state.values.idRole}>
-									{(idRole) => {
-										const roleSelectionne = roles.find((r) => r.id === idRole);
-										const estRoleCaisse = roleSelectionne
-											? /caiss/i.test(roleSelectionne.code) ||
-												/caiss/i.test(roleSelectionne.libelle)
-											: false;
-										return (
-											<div className="space-y-1.5">
-												<Label htmlFor={field.name}>
-													Activité (scope
-													{estRoleCaisse
-														? " — obligatoire pour les caissiers"
-														: ", pour les caissiers — optionnel"}
-													)
-												</Label>
-												<Select
-													value={field.state.value}
-													onValueChange={field.handleChange}
-												>
-													<SelectTrigger
-														id={field.name}
-														aria-label="Activité"
-														className="w-full"
-													>
-														<SelectValue placeholder="Aucune" />
-													</SelectTrigger>
-													<SelectContent>
-														<SelectItem value="">Aucune</SelectItem>
-														{activites.map((activite) => (
-															<SelectItem key={activite.id} value={activite.id}>
-																{activite.libelle}
-															</SelectItem>
-														))}
-													</SelectContent>
-												</Select>
-												{field.state.meta.errors[0] ? (
-													<p className="text-xs text-destructive">
-														{field.state.meta.errors[0]}
-													</p>
-												) : null}
-											</div>
-										);
-									}}
-								</form.Subscribe>
-							)}
-						</form.Field>
-
-						<form.Field name="actif">
-							{(field) => (
-								<div className="flex items-center gap-3">
-									<Label htmlFor={field.name}>Compte actif</Label>
-									<Switch
-										id={field.name}
-										checked={field.state.value}
-										onCheckedChange={field.handleChange}
-									/>
-								</div>
-							)}
-						</form.Field>
-
-						{globalError ? (
-							<p role="alert" className="text-sm font-medium text-destructive">
-								{globalError}
-							</p>
-						) : null}
-
-						<div className="flex items-center justify-end gap-2 pt-2">
-							<Button
-								type="button"
-								variant="ghost"
-								onClick={() => onOpenChange(false)}
-							>
-								Annuler
-							</Button>
-							<Button
-								type="submit"
-								disabled={createMutation.isPending || editMutation.isPending}
-							>
-								{createMutation.isPending || editMutation.isPending ? (
-									<Loader2 className="size-4 animate-spin" aria-hidden />
-								) : null}
-								Enregistrer
-							</Button>
-						</div>
-					</form>
-				</Dialog.Content>
-			</Dialog.Portal>
-		</Dialog.Root>
+					<div className="flex items-center justify-end gap-2 pt-2">
+						<Button
+							type="button"
+							variant="ghost"
+							onClick={() => onOpenChange(false)}
+						>
+							Annuler
+						</Button>
+						<Button
+							type="submit"
+							disabled={createMutation.isPending || editMutation.isPending}
+						>
+							{createMutation.isPending || editMutation.isPending ? (
+								<Loader2 className="size-4 animate-spin" aria-hidden />
+							) : null}
+							Enregistrer
+						</Button>
+					</div>
+				</form>
+			</DialogContent>
+		</Dialog>
 	);
 }

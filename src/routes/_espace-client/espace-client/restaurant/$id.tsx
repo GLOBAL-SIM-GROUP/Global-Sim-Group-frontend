@@ -4,8 +4,9 @@ import { RestaurantCommandeDetailPage } from "#/features/espace-client/component
 
 /**
  * Détail d'une commande restaurant de l'espace client
- * (`/espace-client/restaurant/$id`) — `GET /restaurant/portail/commandes/:id`
- * (`RESIDENT.VOIR`). Annulation possible tant que `EN_ATTENTE`.
+ * (`/espace-client/restaurant/$id`) — `GET /restaurant/portail/commandes/:id`,
+ * gardé par `PORTAIL.VOIR` (accessible à un compte CLIENT, vérifié en direct
+ * 2026-09-27). Annulation possible tant que `EN_ATTENTE`.
  */
 export const Route = createFileRoute(
 	"/_espace-client/espace-client/restaurant/$id",

@@ -1,8 +1,14 @@
 import { Camera, Loader2, X } from "lucide-react";
-import { Dialog } from "radix-ui";
 import { useState } from "react";
 
 import { Button } from "#/components/ui/button";
+import {
+	Dialog,
+	DialogClose,
+	DialogContent,
+	DialogDescription,
+	DialogTitle,
+} from "#/components/ui/dialog";
 import type { SignalementPhoto } from "#/core/api/signalements";
 import { formatDateHeureUTC } from "#/features/residence/models/format";
 
@@ -106,43 +112,38 @@ function PhotoViewer({
 	const { blobUrl, isLoading } = useSignalementPhotoBlobUrl(photo?.id);
 
 	return (
-		<Dialog.Root open={photo !== null} onOpenChange={onOpenChange}>
-			<Dialog.Portal>
-				<Dialog.Overlay className="fixed inset-0 z-50 bg-black/70" />
-				<Dialog.Content className="fixed top-1/2 left-1/2 z-50 w-[calc(100vw-2rem)] max-w-3xl -translate-x-1/2 -translate-y-1/2 rounded-lg border border-border bg-card p-4 shadow-lg">
-					<div className="flex items-start justify-between gap-3">
-						<div>
-							<Dialog.Title className="text-base font-semibold text-foreground">
-								Photo du signalement
-							</Dialog.Title>
-							<Dialog.Description className="text-sm text-muted-foreground">
-								{photo ? formatDateHeureUTC(photo.date_ajout) : ""}
-							</Dialog.Description>
-						</div>
-						<Dialog.Close asChild>
-							<Button variant="ghost" size="icon-sm">
-								<X className="size-4" aria-hidden />
-								<span className="sr-only">Fermer</span>
-							</Button>
-						</Dialog.Close>
+		<Dialog open={photo !== null} onOpenChange={onOpenChange}>
+			<DialogContent className="max-w-3xl">
+				<div className="flex items-start justify-between gap-3">
+					<div>
+						<DialogTitle>Photo du signalement</DialogTitle>
+						<DialogDescription>
+							{photo ? formatDateHeureUTC(photo.date_ajout) : ""}
+						</DialogDescription>
 					</div>
-					<div className="mt-3 flex max-h-[75vh] items-center justify-center overflow-hidden rounded-md bg-muted">
-						{isLoading ? (
-							<p className="p-8 text-sm text-muted-foreground">Chargement…</p>
-						) : blobUrl ? (
-							<img
-								src={blobUrl}
-								alt="Pièce jointe agrandie"
-								className="max-h-[75vh] w-full object-contain"
-							/>
-						) : (
-							<p className="p-8 text-sm text-muted-foreground">
-								Image indisponible.
-							</p>
-						)}
-					</div>
-				</Dialog.Content>
-			</Dialog.Portal>
-		</Dialog.Root>
+					<DialogClose asChild>
+						<Button variant="ghost" size="icon-sm">
+							<X className="size-4" aria-hidden />
+							<span className="sr-only">Fermer</span>
+						</Button>
+					</DialogClose>
+				</div>
+				<div className="mt-3 flex max-h-[75vh] items-center justify-center overflow-hidden rounded-md bg-muted">
+					{isLoading ? (
+						<p className="p-8 text-sm text-muted-foreground">Chargement…</p>
+					) : blobUrl ? (
+						<img
+							src={blobUrl}
+							alt="Pièce jointe agrandie"
+							className="max-h-[75vh] w-full object-contain"
+						/>
+					) : (
+						<p className="p-8 text-sm text-muted-foreground">
+							Image indisponible.
+						</p>
+					)}
+				</div>
+			</DialogContent>
+		</Dialog>
 	);
 }

@@ -1,9 +1,16 @@
 import { useLocation, useNavigate } from "@tanstack/react-router";
 import { Search, X } from "lucide-react";
-import { Dialog } from "radix-ui";
 import { useEffect, useMemo, useState } from "react";
 
 import { Button } from "#/components/ui/button";
+import {
+	Dialog,
+	DialogClose,
+	DialogContent,
+	DialogDescription,
+	DialogTitle,
+	DialogTrigger,
+} from "#/components/ui/dialog";
 import { Input } from "#/components/ui/input";
 import { usePermissions } from "#/core/auth";
 import { hasPermission } from "#/core/permissions";
@@ -26,7 +33,9 @@ const SPECIAL_ENTRIES: Array<
 		label: "Tableau de bord global",
 		path: "/dashboard",
 		group: "Navigation",
-		permission: "ADMIN.VOIR",
+		// RAPPORTS.VOIR (module réel, distinct d'ADMIN.VOIR — vérifié en
+		// direct 2026-09-27) : accordé aussi aux 5 rôles Responsable.
+		permission: "RAPPORTS.VOIR",
 	},
 	{
 		label: "Signalements",
@@ -38,7 +47,7 @@ const SPECIAL_ENTRIES: Array<
 		label: "Rapports",
 		path: "/rapports",
 		group: "Navigation",
-		permission: "ADMIN.VOIR",
+		permission: "RAPPORTS.VOIR",
 	},
 ];
 
@@ -162,14 +171,14 @@ export function QuickNavigation() {
 	};
 
 	return (
-		<Dialog.Root
+		<Dialog
 			open={open}
 			onOpenChange={(next) => {
 				setOpen(next);
 				if (!next) setSearch("");
 			}}
 		>
-			<Dialog.Trigger asChild>
+			<DialogTrigger asChild>
 				<Button
 					variant="outline"
 					className="hidden w-56 justify-between text-muted-foreground md:flex lg:w-72"
@@ -182,64 +191,61 @@ export function QuickNavigation() {
 						Ctrl K
 					</kbd>
 				</Button>
-			</Dialog.Trigger>
-			<Dialog.Portal>
-				<Dialog.Overlay className="fixed inset-0 z-50 bg-black/50" />
-				<Dialog.Content className="fixed top-[15vh] left-1/2 z-50 w-[calc(100vw-2rem)] max-w-xl -translate-x-1/2 overflow-hidden rounded-xl border border-border bg-card shadow-xl">
-					<Dialog.Title className="sr-only">Rechercher une page</Dialog.Title>
-					<Dialog.Description className="sr-only">
-						Recherchez parmi les pages auxquelles vous avez accès.
-					</Dialog.Description>
-					<div className="flex items-center gap-2 border-b border-border p-3">
-						<Search
-							className="size-5 shrink-0 text-muted-foreground"
-							aria-hidden
-						/>
-						<Input
-							autoFocus
-							value={search}
-							onChange={(event) => setSearch(event.target.value)}
-							onKeyDown={(event) => {
-								if (event.key === "Enter" && results[0]) openEntry(results[0]);
-							}}
-							placeholder="Rechercher une page…"
-							className="border-0 shadow-none focus-visible:ring-0"
-						/>
-						<Dialog.Close asChild>
-							<Button variant="ghost" size="icon-sm">
-								<X className="size-4" aria-hidden />
-								<span className="sr-only">Fermer</span>
-							</Button>
-						</Dialog.Close>
-					</div>
-					<div className="max-h-[55vh] overflow-y-auto p-2">
-						{results.length === 0 ? (
-							<p className="px-3 py-8 text-center text-sm text-muted-foreground">
-								Aucune page trouvée.
-							</p>
-						) : (
-							<ul className="space-y-1">
-								{results.map((entry) => (
-									<li key={entry.path}>
-										<button
-											type="button"
-											onClick={() => openEntry(entry)}
-											className="flex w-full items-center justify-between gap-4 rounded-lg px-3 py-2 text-left transition-colors hover:bg-accent"
-										>
-											<span className="text-sm font-medium text-foreground">
-												{entry.label}
-											</span>
-											<span className="text-xs text-muted-foreground">
-												{entry.group}
-											</span>
-										</button>
-									</li>
-								))}
-							</ul>
-						)}
-					</div>
-				</Dialog.Content>
-			</Dialog.Portal>
-		</Dialog.Root>
+			</DialogTrigger>
+			<DialogContent className="top-[15vh] max-w-xl translate-y-0 overflow-hidden rounded-xl p-0 shadow-xl">
+				<DialogTitle className="sr-only">Rechercher une page</DialogTitle>
+				<DialogDescription className="sr-only">
+					Recherchez parmi les pages auxquelles vous avez accès.
+				</DialogDescription>
+				<div className="flex items-center gap-2 border-b border-border p-3">
+					<Search
+						className="size-5 shrink-0 text-muted-foreground"
+						aria-hidden
+					/>
+					<Input
+						autoFocus
+						value={search}
+						onChange={(event) => setSearch(event.target.value)}
+						onKeyDown={(event) => {
+							if (event.key === "Enter" && results[0]) openEntry(results[0]);
+						}}
+						placeholder="Rechercher une page…"
+						className="border-0 shadow-none focus-visible:ring-0"
+					/>
+					<DialogClose asChild>
+						<Button variant="ghost" size="icon-sm">
+							<X className="size-4" aria-hidden />
+							<span className="sr-only">Fermer</span>
+						</Button>
+					</DialogClose>
+				</div>
+				<div className="max-h-[55vh] overflow-y-auto p-2">
+					{results.length === 0 ? (
+						<p className="px-3 py-8 text-center text-sm text-muted-foreground">
+							Aucune page trouvée.
+						</p>
+					) : (
+						<ul className="space-y-1">
+							{results.map((entry) => (
+								<li key={entry.path}>
+									<button
+										type="button"
+										onClick={() => openEntry(entry)}
+										className="flex w-full items-center justify-between gap-4 rounded-lg px-3 py-2 text-left transition-colors hover:bg-accent"
+									>
+										<span className="text-sm font-medium text-foreground">
+											{entry.label}
+										</span>
+										<span className="text-xs text-muted-foreground">
+											{entry.group}
+										</span>
+									</button>
+								</li>
+							))}
+						</ul>
+					)}
+				</div>
+			</DialogContent>
+		</Dialog>
 	);
 }

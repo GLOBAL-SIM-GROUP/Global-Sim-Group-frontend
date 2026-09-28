@@ -38,13 +38,22 @@ export const ECHEANCE_STATUT_LABELS: Record<string, string> = {
 	A_VENIR: "À venir",
 };
 
-/** Classes de badge (fond/texte) par statut — vert payé, rouge impayé, orange. */
-export const ECHEANCE_STATUT_BADGE: Record<string, string> = {
-	PAYE: "bg-[#27AE60] text-white",
-	IMPAYE: "bg-[#E74C3C] text-white",
-	PARTIEL: "bg-[#E67E22] text-white",
-	A_VENIR: "bg-[#E67E22] text-white",
+/** Variante de badge par statut d'échéance (enum ouvert → repli neutre). */
+const ECHEANCE_STATUT_VARIANT_MAP: Record<
+	string,
+	"success" | "danger" | "warning" | "neutral"
+> = {
+	PAYE: "success",
+	IMPAYE: "danger",
+	PARTIEL: "warning",
+	A_VENIR: "warning",
 };
+
+export function echeancePortailStatutVariant(
+	statut: string,
+): "success" | "danger" | "warning" | "neutral" {
+	return ECHEANCE_STATUT_VARIANT_MAP[statut] ?? "neutral";
+}
 
 export interface ProchaineEcheance {
 	mois: number;
@@ -109,11 +118,20 @@ export const CAUTION_STATUT_LABELS: Record<string, string> = {
 	RETENUE: "Retenue",
 };
 
-export const CAUTION_STATUT_BADGE: Record<string, string> = {
-	EN_COURS: "bg-[#2980B9] text-white",
-	RESTITUEE: "bg-[#27AE60] text-white",
-	RETENUE: "bg-[#E74C3C] text-white",
+const CAUTION_STATUT_VARIANT_MAP: Record<
+	string,
+	"info" | "success" | "danger" | "neutral"
+> = {
+	EN_COURS: "info",
+	RESTITUEE: "success",
+	RETENUE: "danger",
 };
+
+export function cautionStatutVariant(
+	statut: string,
+): "info" | "success" | "danger" | "neutral" {
+	return CAUTION_STATUT_VARIANT_MAP[statut] ?? "neutral";
+}
 
 export interface PortailCaution {
 	id: string;
@@ -211,13 +229,19 @@ export const ETAT_DES_LIEUX_TYPE_LABELS: Record<
 	SORTIE: "Sortie",
 };
 
-export const ETAT_DES_LIEUX_TYPE_BADGE: Record<
-	PortailEtatDesLieuxType,
-	string
+const ETAT_DES_LIEUX_TYPE_VARIANT_MAP: Record<
+	string,
+	"success" | "lagoon" | "neutral"
 > = {
-	ENTREE: "bg-[#27AE60] text-white",
-	SORTIE: "bg-[#E67E22] text-white",
+	ENTREE: "success",
+	SORTIE: "lagoon",
 };
+
+export function etatDesLieuxTypeVariant(
+	type: string,
+): "success" | "lagoon" | "neutral" {
+	return ETAT_DES_LIEUX_TYPE_VARIANT_MAP[type] ?? "neutral";
+}
 
 /**
  * Photo d'état des lieux du résident (GET /portail/etat-des-lieux). Contrairement

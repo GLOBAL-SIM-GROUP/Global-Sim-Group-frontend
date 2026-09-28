@@ -15,16 +15,16 @@ import { parseInstantUTC } from "#/features/residence/models/format";
 import { cn } from "#/lib/utils";
 
 const PRIORITY_BORDER: Record<NotificationPriority, string> = {
-	CRITICAL: "border-l-[#E74C3C]",
-	HIGH: "border-l-[#E67E22]",
-	MEDIUM: "border-l-[#2980B9]",
+	CRITICAL: "border-l-danger",
+	HIGH: "border-l-warning",
+	MEDIUM: "border-l-info",
 	LOW: "border-l-transparent",
 };
 
 const PRIORITY_DOT: Record<NotificationPriority, string> = {
-	CRITICAL: "bg-[#E74C3C]",
-	HIGH: "bg-[#E67E22]",
-	MEDIUM: "bg-[#2980B9]",
+	CRITICAL: "bg-danger",
+	HIGH: "bg-warning",
+	MEDIUM: "bg-info",
 	LOW: "bg-gray-400",
 };
 

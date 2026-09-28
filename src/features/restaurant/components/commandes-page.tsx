@@ -2,10 +2,10 @@ import { Link } from "@tanstack/react-router";
 import { Plus, X } from "lucide-react";
 import { useMemo, useState } from "react";
 
-import { Breadcrumb } from "#/components/ui/breadcrumb";
 import { Button } from "#/components/ui/button";
 import { Input } from "#/components/ui/input";
 import { InputField } from "#/components/ui/input-field";
+import { PageHeader } from "#/components/ui/page-header";
 import {
 	Select,
 	SelectContent,
@@ -15,7 +15,7 @@ import {
 } from "#/components/ui/select";
 import { toApiError } from "#/core/api";
 import { useCan } from "#/core/auth";
-import { CODE_EXCEDENT } from "#/features/abonnement/models/abonnements";
+import { messageSiExcedent } from "#/features/abonnement/hooks/use-excedent-confirmation";
 import { ConfirmDialog } from "#/features/residence/components/confirm-dialog";
 import { useClientsDetails } from "#/features/residence/hooks/use-clients";
 import { useMoyensPaiement } from "#/features/residence/hooks/use-moyens-paiement";
@@ -168,51 +168,43 @@ export function CommandesPage({
 
 	return (
 		<div className="w-full space-y-4 p-3 sm:space-y-6 sm:p-6">
-			<Breadcrumb
-				items={[
+			<PageHeader
+				breadcrumb={[
 					{ label: "Accueil", to: "/" },
 					{ label: "Commandes — Restaurant" },
 				]}
-			/>
-
-			<div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
-				<section className="space-y-1">
-					<h1 className="text-lg font-semibold text-foreground sm:text-2xl">
-						Commandes — Restaurant
-					</h1>
-					<p className="text-xs text-muted-foreground sm:text-sm">
-						Historique des commandes restaurant et leur statut.
-					</p>
-				</section>
-
-				<div className="flex flex-col gap-2 w-full sm:w-auto sm:flex-row sm:items-center sm:gap-2">
-					<Button
-						variant="outline"
-						size="sm"
-						asChild
-						className="w-full sm:w-auto justify-center"
-					>
-						<Link to="/restaurant/plats">Carte des plats</Link>
-					</Button>
-					<Button
-						variant="outline"
-						size="sm"
-						asChild
-						className="w-full sm:w-auto justify-center"
-					>
-						<Link to="/restaurant/statistiques">Statistiques</Link>
-					</Button>
-					{canCreer ? (
+				title="Commandes — Restaurant"
+				description="Historique des commandes restaurant et leur statut."
+				actions={
+					<div className="flex flex-col gap-2 w-full sm:w-auto sm:flex-row sm:items-center sm:gap-2">
 						<Button
-							onClick={() => setFormOuvert(true)}
+							variant="outline"
+							size="sm"
+							asChild
 							className="w-full sm:w-auto justify-center"
 						>
-							<Plus className="size-4" aria-hidden />
-							Nouvelle commande
+							<Link to="/restaurant/plats">Carte des plats</Link>
 						</Button>
-					) : null}
-				</div>
-			</div>
+						<Button
+							variant="outline"
+							size="sm"
+							asChild
+							className="w-full sm:w-auto justify-center"
+						>
+							<Link to="/restaurant/statistiques">Statistiques</Link>
+						</Button>
+						{canCreer ? (
+							<Button
+								onClick={() => setFormOuvert(true)}
+								className="w-full sm:w-auto justify-center"
+							>
+								<Plus className="size-4" aria-hidden />
+								Nouvelle commande
+							</Button>
+						) : null}
+					</div>
+				}
+			/>
 
 			{feedback ? (
 				<div
@@ -221,7 +213,7 @@ export function CommandesPage({
 						"flex items-center justify-between gap-3 rounded-md border px-4 py-2 text-sm",
 						feedback.type === "error"
 							? "border-destructive/40 bg-destructive/10 text-destructive"
-							: "border-[#27AE60]/40 bg-[#27AE60]/10 text-[#27AE60]",
+							: "border-success/30 bg-success-bg text-success",
 					)}
 				>
 					<span>{feedback.texte}</span>
@@ -429,14 +421,12 @@ export function CommandesPage({
 									setErreurEncaisse(null);
 								},
 								onError: (error) => {
-									const apiError = toApiError(error);
 									// 409 « dépassement de quota » : garder le dialogue
 									// ouvert avec le message du serveur.
 									setErreurEncaisse(
-										apiError.status === 409 && apiError.code === CODE_EXCEDENT
-											? apiError.message || "Dépassement de quota abonnement."
-											: apiError.message ||
-													"Une erreur est survenue lors de l'encaissement.",
+										messageSiExcedent(error) ??
+											toApiError(error).message ??
+											"Une erreur est survenue lors de l'encaissement.",
 									);
 								},
 							},

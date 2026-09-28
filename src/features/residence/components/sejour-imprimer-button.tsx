@@ -1,8 +1,14 @@
 import { Loader2, Printer } from "lucide-react";
-import { Dialog } from "radix-ui";
 import { useState } from "react";
 
 import { Button } from "#/components/ui/button";
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogTitle,
+	DialogTrigger,
+} from "#/components/ui/dialog";
 import { FactureDownloadButtons } from "#/features/facturation/components/facture-download-buttons";
 
 import { useSejourFacture } from "../hooks/use-sejours";
@@ -32,8 +38,8 @@ export function SejourImprimerButton({ sejour }: SejourImprimerButtonProps) {
 		.join(" ");
 
 	return (
-		<Dialog.Root open={ouvert} onOpenChange={setOuvert}>
-			<Dialog.Trigger asChild>
+		<Dialog open={ouvert} onOpenChange={setOuvert}>
+			<DialogTrigger asChild>
 				<Button
 					variant="ghost"
 					size="icon-sm"
@@ -42,45 +48,40 @@ export function SejourImprimerButton({ sejour }: SejourImprimerButtonProps) {
 					<Printer className="size-4 text-lagoon" aria-hidden />
 					<span className="sr-only">Imprimer la facture ou le ticket</span>
 				</Button>
-			</Dialog.Trigger>
-			<Dialog.Portal>
-				<Dialog.Overlay className="fixed inset-0 z-50 bg-black/50" />
-				<Dialog.Content className="fixed top-1/2 left-1/2 z-50 w-[calc(100vw-2rem)] max-w-sm -translate-x-1/2 -translate-y-1/2 space-y-4 rounded-lg border border-border bg-card p-6 shadow-lg">
-					<div className="space-y-1">
-						<Dialog.Title className="text-base font-semibold text-foreground">
-							Imprimer
-						</Dialog.Title>
-						<Dialog.Description className="text-sm text-muted-foreground">
-							Séjour {sejour.numero_logement}
-							{client ? ` — ${client}` : ""}
-						</Dialog.Description>
-					</div>
+			</DialogTrigger>
+			<DialogContent className="max-w-sm space-y-4">
+				<div className="space-y-1">
+					<DialogTitle>Imprimer</DialogTitle>
+					<DialogDescription>
+						Séjour {sejour.numero_logement}
+						{client ? ` — ${client}` : ""}
+					</DialogDescription>
+				</div>
 
-					{factureQuery.isLoading ? (
-						<p className="flex items-center gap-2 text-sm text-muted-foreground">
-							<Loader2 className="size-4 animate-spin" aria-hidden />
-							Chargement…
-						</p>
-					) : factureQuery.isError ? (
-						<p role="alert" className="text-sm text-destructive">
-							Impossible de charger la facture.
-						</p>
-					) : !facture ? (
-						<p className="text-sm text-muted-foreground">
-							Aucune facture — ce séjour n'a encore fait l'objet d'aucun
-							encaissement.
-						</p>
-					) : (
-						<FactureDownloadButtons idFacture={facture.id} layout="vertical" />
-					)}
+				{factureQuery.isLoading ? (
+					<p className="flex items-center gap-2 text-sm text-muted-foreground">
+						<Loader2 className="size-4 animate-spin" aria-hidden />
+						Chargement…
+					</p>
+				) : factureQuery.isError ? (
+					<p role="alert" className="text-sm text-destructive">
+						Impossible de charger la facture.
+					</p>
+				) : !facture ? (
+					<p className="text-sm text-muted-foreground">
+						Aucune facture — ce séjour n'a encore fait l'objet d'aucun
+						encaissement.
+					</p>
+				) : (
+					<FactureDownloadButtons idFacture={facture.id} layout="vertical" />
+				)}
 
-					<div className="flex justify-end">
-						<Button variant="ghost" onClick={() => setOuvert(false)}>
-							Fermer
-						</Button>
-					</div>
-				</Dialog.Content>
-			</Dialog.Portal>
-		</Dialog.Root>
+				<div className="flex justify-end">
+					<Button variant="ghost" onClick={() => setOuvert(false)}>
+						Fermer
+					</Button>
+				</div>
+			</DialogContent>
+		</Dialog>
 	);
 }

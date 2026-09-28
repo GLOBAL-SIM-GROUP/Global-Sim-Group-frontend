@@ -1,8 +1,17 @@
+import { Badge } from "#/components/ui/badge";
+import { EmptyState } from "#/components/ui/empty-state";
+import {
+	DataTable,
+	DataTableHead,
+	TableShell,
+	Td,
+	Th,
+	Tr,
+} from "#/components/ui/table";
 import {
 	formatDateHeureUTC,
 	formatMontantFCFA,
 } from "#/features/residence/models/format";
-import { cn } from "#/lib/utils";
 import {
 	COMMANDE_STATUT_LABELS,
 	type CommandeRestaurant,
@@ -11,14 +20,17 @@ import {
 } from "../models/commandes";
 import { CommandeActions } from "./commande-actions";
 
-const COMMANDE_STATUT_BADGE: Record<CommandeRestaurantStatut, string> = {
-	EN_ATTENTE: "bg-[#8E44AD] text-white",
-	EN_COURS: "bg-[#2980B9] text-white",
-	EN_PREPARATION: "bg-[#E67E22] text-white",
-	SERVIE: "bg-[#27AE60] text-white",
-	PAYEE: "bg-[#95A5A6] text-white",
-	ANNULEE: "bg-[#E74C3C] text-white",
-};
+const COMMANDE_STATUT_VARIANT = {
+	EN_ATTENTE: "warning",
+	EN_COURS: "info",
+	EN_PREPARATION: "warning",
+	SERVIE: "success",
+	PAYEE: "neutral",
+	ANNULEE: "danger",
+} as const satisfies Record<
+	CommandeRestaurantStatut,
+	"success" | "warning" | "info" | "danger" | "neutral"
+>;
 
 interface CommandeTableProps {
 	commandes: CommandeRestaurant[];
@@ -54,75 +66,47 @@ export function CommandeTable({
 	onEncaisser,
 }: CommandeTableProps) {
 	if (commandes.length === 0) {
-		return (
-			<div className="rounded-lg border border-border bg-card p-8 text-center text-sm text-muted-foreground">
-				Aucune commande trouvée.
-			</div>
-		);
+		return <EmptyState title="Aucune commande trouvée." />;
 	}
 
 	return (
-		<div className="overflow-x-auto rounded-lg border border-border bg-card shadow-sm">
-			<table className="w-full border-collapse text-sm">
-				<thead className="bg-sea-ink text-left text-white">
+		<TableShell>
+			<DataTable>
+				<DataTableHead>
 					<tr>
-						<th scope="col" className="px-4 py-3 font-medium">
-							N° COMMANDE
-						</th>
-						<th scope="col" className="px-4 py-3 font-medium">
-							CLIENT
-						</th>
-						<th scope="col" className="px-4 py-3 font-medium">
-							DATE
-						</th>
-						<th scope="col" className="px-4 py-3 font-medium">
-							TYPE
-						</th>
-						<th scope="col" className="px-4 py-3 font-medium">
-							TOTAL
-						</th>
-						<th scope="col" className="px-4 py-3 font-medium">
-							STATUT
-						</th>
-						<th scope="col" className="px-4 py-3 text-right font-medium">
-							ACTIONS
-						</th>
+						<Th>N° COMMANDE</Th>
+						<Th>CLIENT</Th>
+						<Th>DATE</Th>
+						<Th>TYPE</Th>
+						<Th>TOTAL</Th>
+						<Th>STATUT</Th>
+						<Th className="text-right">ACTIONS</Th>
 					</tr>
-				</thead>
+				</DataTableHead>
 				<tbody>
 					{commandes.map((commande) => (
-						<tr
-							key={commande.id}
-							className="border-t border-border transition-colors hover:bg-accent/40"
-						>
-							<td className="px-4 py-3 font-semibold text-foreground">
-								{commande.id}
-							</td>
-							<td className="px-4 py-3 text-foreground">
+						<Tr key={commande.id}>
+							<Td className="font-semibold text-foreground">{commande.id}</Td>
+							<Td className="text-foreground">
 								{commande.id_client
 									? (clients.get(commande.id_client) ?? "…")
 									: "—"}
-							</td>
-							<td className="px-4 py-3 text-muted-foreground">
+							</Td>
+							<Td className="text-muted-foreground">
 								{formatDateHeureUTC(commande.date)}
-							</td>
-							<td className="px-4 py-3 text-foreground">
+							</Td>
+							<Td className="text-foreground">
 								{TYPE_COMMANDE_LABELS[commande.type]}
-							</td>
-							<td className="px-4 py-3 text-foreground">
+							</Td>
+							<Td className="text-foreground">
 								{formatMontantFCFA(commande.total)}
-							</td>
-							<td className="px-4 py-3">
-								<span
-									className={cn(
-										"inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium",
-										COMMANDE_STATUT_BADGE[commande.statut],
-									)}
-								>
+							</Td>
+							<Td>
+								<Badge variant={COMMANDE_STATUT_VARIANT[commande.statut]}>
 									{COMMANDE_STATUT_LABELS[commande.statut]}
-								</span>
-							</td>
-							<td className="px-4 py-3">
+								</Badge>
+							</Td>
+							<Td>
 								<CommandeActions
 									commande={commande}
 									canModifier={canModifier}
@@ -135,11 +119,11 @@ export function CommandeTable({
 									onRefuser={onRefuser}
 									onEncaisser={onEncaisser}
 								/>
-							</td>
-						</tr>
+							</Td>
+						</Tr>
 					))}
 				</tbody>
-			</table>
-		</div>
+			</DataTable>
+		</TableShell>
 	);
 }

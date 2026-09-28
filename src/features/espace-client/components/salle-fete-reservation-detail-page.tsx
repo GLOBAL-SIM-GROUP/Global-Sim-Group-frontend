@@ -1,8 +1,9 @@
 import { Link } from "@tanstack/react-router";
 import { useState } from "react";
 
-import { Breadcrumb } from "#/components/ui/breadcrumb";
+import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
+import { PageHeader } from "#/components/ui/page-header";
 import { useCan } from "#/core/auth";
 import { AnnulerDemandeDialog } from "#/features/portail/components/annuler-demande-dialog";
 import { StatutTimeline } from "#/features/portail/components/statut-timeline";
@@ -13,14 +14,13 @@ import {
 import {
 	estReservationAnnulable,
 	RESERVATION_PORTAIL_ETAPES,
-	RESERVATION_PORTAIL_STATUT_BADGE,
 	RESERVATION_PORTAIL_STATUT_LABELS,
+	RESERVATION_PORTAIL_STATUT_VARIANT,
 } from "#/features/portail/models/salle-fete";
 import {
 	formatDateISO,
 	formatMontantFCFA,
 } from "#/features/residence/models/format";
-import { cn } from "#/lib/utils";
 
 /**
  * Détail d'une demande de réservation de salle de fête (espace client) :
@@ -56,6 +56,7 @@ export function SalleFeteReservationDetailPage({ id }: { id: string }) {
 					<Button
 						variant="outline"
 						size="sm"
+						className="rounded-full"
 						onClick={() => void reservationQuery.refetch()}
 					>
 						Réessayer
@@ -69,52 +70,49 @@ export function SalleFeteReservationDetailPage({ id }: { id: string }) {
 
 	return (
 		<div className="w-full space-y-6 pt-6 pb-16">
-			<Breadcrumb
-				items={[
+			<PageHeader
+				breadcrumb={[
 					{ label: "Espace client", to: "/espace-client" },
 					{ label: "Salle de fête", to: "/espace-client/salle-fete" },
 					{ label: reservation.type_manifestation },
 				]}
-			/>
-
-			<div className="flex flex-wrap items-end justify-between gap-4">
-				<section className="space-y-1">
-					<div className="flex flex-wrap items-center gap-2">
-						<h1 className="text-2xl font-semibold text-foreground">
-							{reservation.type_manifestation}
-						</h1>
-						<span
-							className={cn(
-								"inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium",
-								RESERVATION_PORTAIL_STATUT_BADGE[reservation.statut] ??
-									"bg-[#95A5A6] text-white",
-							)}
+				title={
+					<span className="inline-flex flex-wrap items-center gap-2">
+						{reservation.type_manifestation}
+						<Badge
+							variant={RESERVATION_PORTAIL_STATUT_VARIANT[reservation.statut]}
 						>
 							{RESERVATION_PORTAIL_STATUT_LABELS[reservation.statut] ??
 								reservation.statut}
-						</span>
-					</div>
-					<p className="text-muted-foreground">
-						Le {formatDateISO(reservation.date_evenement)} à{" "}
-						{reservation.heure_debut} — {reservation.duree} h
-					</p>
-				</section>
-				<div className="flex flex-wrap items-center gap-2">
-					{canDemander && estReservationAnnulable(reservation) ? (
+						</Badge>
+					</span>
+				}
+				description={`Le ${formatDateISO(reservation.date_evenement)} à ${reservation.heure_debut} — ${reservation.duree} h`}
+				actions={
+					<div className="flex flex-wrap items-center gap-2">
+						{canDemander && estReservationAnnulable(reservation) ? (
+							<Button
+								variant="outline"
+								size="sm"
+								className="rounded-full text-destructive hover:bg-destructive/10"
+								onClick={() => setConfirmOuvert(true)}
+							>
+								Annuler la demande
+							</Button>
+						) : null}
 						<Button
 							variant="outline"
 							size="sm"
-							className="text-destructive hover:bg-destructive/10"
-							onClick={() => setConfirmOuvert(true)}
+							className="rounded-full"
+							asChild
 						>
-							Annuler la demande
+							<Link to="/espace-client/mes-demandes">
+								Retour à mes demandes
+							</Link>
 						</Button>
-					) : null}
-					<Button variant="outline" size="sm" asChild>
-						<Link to="/espace-client/mes-demandes">Retour à mes demandes</Link>
-					</Button>
-				</div>
-			</div>
+					</div>
+				}
+			/>
 
 			{reservation.motif_annulation ? (
 				<div className="rounded-lg border border-destructive/40 bg-destructive/10 p-4 text-sm">
@@ -126,7 +124,7 @@ export function SalleFeteReservationDetailPage({ id }: { id: string }) {
 			{reservation.tarif != null || reservation.solde != null ? (
 				<div className="grid gap-4 sm:grid-cols-2">
 					{reservation.tarif != null ? (
-						<div className="rounded-lg border border-border bg-card p-4 shadow-sm">
+						<div className="rounded-xl border border-border bg-card p-4 shadow-sm">
 							<p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
 								Tarif
 							</p>
@@ -136,7 +134,7 @@ export function SalleFeteReservationDetailPage({ id }: { id: string }) {
 						</div>
 					) : null}
 					{reservation.solde != null ? (
-						<div className="rounded-lg border border-border bg-card p-4 shadow-sm">
+						<div className="rounded-xl border border-border bg-card p-4 shadow-sm">
 							<p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
 								Solde restant
 							</p>
@@ -149,7 +147,7 @@ export function SalleFeteReservationDetailPage({ id }: { id: string }) {
 			) : null}
 
 			{reservation.observations ? (
-				<section className="rounded-lg border border-border bg-card p-5 text-sm shadow-sm">
+				<section className="rounded-xl border border-border bg-card p-5 text-sm shadow-sm">
 					<p className="font-medium text-foreground">Votre message</p>
 					<p className="mt-1 text-muted-foreground">
 						{reservation.observations}

@@ -48,13 +48,16 @@ export const PAIE_STATUT_LABELS: Record<PaieStatut, string> = {
 	ANNULEE: "Annulée",
 };
 
-/** Classes de badge (fond/texte) par statut de bulletin. */
-export const PAIE_STATUT_BADGE: Record<PaieStatut, string> = {
-	CALCULEE: "bg-[#2980B9] text-white",
-	VALIDEE: "bg-[#E67E22] text-white",
-	PAYEE: "bg-[#27AE60] text-white",
-	ANNULEE: "bg-[#95A5A6] text-white",
-};
+/** Variante `<Badge>` par statut de bulletin. */
+export const PAIE_STATUT_VARIANT = {
+	CALCULEE: "info",
+	VALIDEE: "warning",
+	PAYEE: "success",
+	ANNULEE: "neutral",
+} as const satisfies Record<
+	PaieStatut,
+	"info" | "warning" | "success" | "neutral"
+>;
 
 /** Libellés français des types d'élément de salaire (ouvert : repli sur valeur). */
 export const ELEMENT_PAIE_LABELS: Record<string, string> = {

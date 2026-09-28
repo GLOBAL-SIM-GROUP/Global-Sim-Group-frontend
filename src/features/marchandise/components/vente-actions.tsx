@@ -69,7 +69,7 @@ export function VenteActions({
 					title="Valider la demande"
 					onClick={() => onValider(vente)}
 				>
-					<Check className="size-4 text-[#27AE60]" aria-hidden />
+					<Check className="size-4 text-success" aria-hidden />
 					<span className="sr-only">Valider la demande</span>
 				</Button>
 			) : null}
@@ -93,7 +93,7 @@ export function VenteActions({
 					title="Encaisser la vente"
 					onClick={() => onEncaisser(vente)}
 				>
-					<Banknote className="size-4 text-[#27AE60]" aria-hidden />
+					<Banknote className="size-4 text-success" aria-hidden />
 					<span className="sr-only">Encaisser la vente</span>
 				</Button>
 			) : null}

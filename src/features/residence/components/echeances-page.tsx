@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 
-import { Breadcrumb } from "#/components/ui/breadcrumb";
 import { Button } from "#/components/ui/button";
+import { PageHeader } from "#/components/ui/page-header";
 
 import { useContrats } from "../hooks/use-contrats";
 import { useEcheances } from "../hooks/use-echeances";
@@ -91,17 +91,14 @@ export function EcheancesPage({
 
 	return (
 		<div className="w-full space-y-6 p-6">
-			<Breadcrumb
-				items={[{ label: "Accueil", to: "/" }, { label: "Échéances de loyer" }]}
+			<PageHeader
+				breadcrumb={[
+					{ label: "Accueil", to: "/" },
+					{ label: "Échéances de loyer" },
+				]}
+				title="Échéances de loyer"
+				description="Vue consolidée des échéances de loyer (payées, impayées, à venir)."
 			/>
-			<section className="space-y-1">
-				<h1 className="text-2xl font-semibold text-foreground">
-					Échéances de loyer
-				</h1>
-				<p className="text-muted-foreground">
-					Vue consolidée des échéances de loyer (payées, impayées, à venir).
-				</p>
-			</section>
 
 			<EcheancesFilters
 				statut={statut}

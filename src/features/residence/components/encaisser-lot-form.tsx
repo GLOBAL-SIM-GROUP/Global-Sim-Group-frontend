@@ -12,6 +12,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "#/components/ui/select";
+import { DataTable, DataTableHead, Td, Th, Tr } from "#/components/ui/table";
 import {
 	getErrorMessageForCode,
 	isCaisseFermeeError,
@@ -137,43 +138,37 @@ export function EncaisserLotForm({
 				</p>
 
 				<div className="overflow-x-auto rounded-lg border border-border">
-					<table className="w-full border-collapse text-sm">
-						<thead className="bg-muted text-left">
+					<DataTable>
+						<DataTableHead>
 							<tr>
-								<th scope="col" className="px-3 py-2 font-medium">
-									Échéance
-								</th>
-								<th scope="col" className="px-3 py-2 font-medium">
-									Montant appliqué
-								</th>
-								<th scope="col" className="px-3 py-2 font-medium">
-									Statut
-								</th>
+								<Th>Échéance</Th>
+								<Th>Montant appliqué</Th>
+								<Th>Statut</Th>
 							</tr>
-						</thead>
+						</DataTableHead>
 						<tbody>
 							{resultat.echeances.map((e) => {
 								const echeance = echeanceParId.get(e.id);
 								return (
-									<tr key={e.id} className="border-t border-border">
-										<td className="px-3 py-2 text-foreground">
+									<Tr key={e.id}>
+										<Td className="text-foreground">
 											{echeance ? `${echeance.mois}/${echeance.annee}` : e.id}
-										</td>
-										<td className="px-3 py-2 text-foreground">
+										</Td>
+										<Td className="text-foreground">
 											{formatMontantFCFA(e.montantApplique)}
-										</td>
-										<td className="px-3 py-2 text-muted-foreground">
+										</Td>
+										<Td className="text-muted-foreground">
 											{echanceStatutLabel(e.statut)}
-										</td>
-									</tr>
+										</Td>
+									</Tr>
 								);
 							})}
 						</tbody>
-					</table>
+					</DataTable>
 				</div>
 
 				{resultat.montantNonAffecte !== undefined ? (
-					<output className="block rounded-lg border border-[#E67E22]/40 bg-[#E67E22]/10 p-3 text-sm text-[#E67E22]">
+					<output className="block rounded-lg border border-warning/30 bg-warning-bg p-3 text-sm text-warning">
 						{resultat.avertissement ??
 							`${formatMontantFCFA(String(resultat.montantNonAffecte))} n'ont pu être affectés à aucune échéance.`}
 					</output>

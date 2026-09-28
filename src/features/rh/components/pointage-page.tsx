@@ -2,8 +2,10 @@ import { Link } from "@tanstack/react-router";
 import { DoorClosed, DoorOpen } from "lucide-react";
 import { useMemo, useState } from "react";
 
-import { Breadcrumb } from "#/components/ui/breadcrumb";
+import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
+import { EmptyState } from "#/components/ui/empty-state";
+import { PageHeader } from "#/components/ui/page-header";
 import {
 	Select,
 	SelectContent,
@@ -11,12 +13,12 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "#/components/ui/select";
+import { DataTable, DataTableHead, Td, Th, Tr } from "#/components/ui/table";
 import { useCan } from "#/core/auth";
 import {
 	formatDateHeureUTC,
 	formatDateISO,
 } from "#/features/residence/models/format";
-import { cn } from "#/lib/utils";
 
 import { useEmployes } from "../hooks/use-employes";
 import {
@@ -26,8 +28,8 @@ import {
 } from "../hooks/use-pointages";
 import {
 	nomCompletPointage,
-	POINTAGE_STATUT_BADGE,
 	POINTAGE_STATUT_LABELS,
+	pointageStatutVariant,
 } from "../models/pointages";
 
 function aujourdhuiISO(): string {
@@ -67,22 +69,16 @@ export function PointagePage() {
 
 	return (
 		<div className="w-full space-y-6 p-6">
-			<Breadcrumb
-				items={[{ label: "Accueil", to: "/" }, { label: "Pointage" }]}
+			<PageHeader
+				breadcrumb={[{ label: "Accueil", to: "/" }, { label: "Pointage" }]}
+				title="Pointage"
+				description={`Arrivée / départ de ${formatDateISO(jour)} — heure enregistrée automatiquement.`}
+				actions={
+					<Button variant="outline" size="sm" asChild>
+						<Link to="/rh/pointage/consultation">Consulter les pointages</Link>
+					</Button>
+				}
 			/>
-
-			<div className="flex flex-wrap items-end justify-between gap-4">
-				<section className="space-y-1">
-					<h1 className="text-2xl font-semibold text-foreground">Pointage</h1>
-					<p className="text-muted-foreground">
-						Arrivée / départ de {formatDateISO(jour)} — heure enregistrée
-						automatiquement.
-					</p>
-				</section>
-				<Button variant="outline" size="sm" asChild>
-					<Link to="/rh/pointage/consultation">Consulter les pointages</Link>
-				</Button>
-			</div>
 
 			<section className="space-y-4 rounded-lg border border-border bg-card p-5 shadow-sm">
 				<div className="max-w-md space-y-1.5">
@@ -115,16 +111,10 @@ export function PointagePage() {
 									{formatDateHeureUTC(pointageDuJour.heure_depart)}
 								</span>
 							</span>
-							<span
-								className={cn(
-									"inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium",
-									POINTAGE_STATUT_BADGE[pointageDuJour.statut] ??
-										"bg-[#95A5A6] text-white",
-								)}
-							>
+							<Badge variant={pointageStatutVariant(pointageDuJour.statut)}>
 								{POINTAGE_STATUT_LABELS[pointageDuJour.statut] ??
 									pointageDuJour.statut}
-							</span>
+							</Badge>
 						</div>
 						{!pointageDuJour.heure_depart && canCreer ? (
 							<Button
@@ -168,59 +158,40 @@ export function PointagePage() {
 				{pointagesQuery.isLoading ? (
 					<p className="text-sm text-muted-foreground">Chargement…</p>
 				) : pointagesJour.length === 0 ? (
-					<p className="rounded-lg border border-border bg-sea-ink/5 p-4 text-center text-sm text-muted-foreground">
-						Aucun pointage enregistré aujourd'hui.
-					</p>
+					<EmptyState title="Aucun pointage enregistré aujourd'hui." />
 				) : (
 					<div className="overflow-x-auto">
-						<table className="w-full border-collapse text-sm">
-							<thead className="bg-sea-ink text-left text-white">
+						<DataTable>
+							<DataTableHead>
 								<tr>
-									<th scope="col" className="px-4 py-3 font-medium">
-										EMPLOYÉ
-									</th>
-									<th scope="col" className="px-4 py-3 font-medium">
-										ARRIVÉE
-									</th>
-									<th scope="col" className="px-4 py-3 font-medium">
-										DÉPART
-									</th>
-									<th scope="col" className="px-4 py-3 font-medium">
-										STATUT
-									</th>
+									<Th>EMPLOYÉ</Th>
+									<Th>ARRIVÉE</Th>
+									<Th>DÉPART</Th>
+									<Th>STATUT</Th>
 								</tr>
-							</thead>
+							</DataTableHead>
 							<tbody>
 								{pointagesJour.map((pointage) => (
-									<tr
-										key={pointage.id}
-										className="border-t border-border transition-colors hover:bg-accent/40"
-									>
-										<td className="px-4 py-3 font-medium text-foreground">
+									<Tr key={pointage.id}>
+										<Td className="font-medium text-foreground">
 											{nomCompletPointage(pointage)}
-										</td>
-										<td className="px-4 py-3 text-muted-foreground">
+										</Td>
+										<Td className="text-muted-foreground">
 											{formatDateHeureUTC(pointage.heure_arrivee)}
-										</td>
-										<td className="px-4 py-3 text-muted-foreground">
+										</Td>
+										<Td className="text-muted-foreground">
 											{formatDateHeureUTC(pointage.heure_depart)}
-										</td>
-										<td className="px-4 py-3">
-											<span
-												className={cn(
-													"inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium",
-													POINTAGE_STATUT_BADGE[pointage.statut] ??
-														"bg-[#95A5A6] text-white",
-												)}
-											>
+										</Td>
+										<Td>
+											<Badge variant={pointageStatutVariant(pointage.statut)}>
 												{POINTAGE_STATUT_LABELS[pointage.statut] ??
 													pointage.statut}
-											</span>
-										</td>
-									</tr>
+											</Badge>
+										</Td>
+									</Tr>
 								))}
 							</tbody>
-						</table>
+						</DataTable>
 					</div>
 				)}
 			</section>

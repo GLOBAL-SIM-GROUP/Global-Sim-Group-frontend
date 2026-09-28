@@ -22,8 +22,8 @@ export const ETAT_DES_LIEUX_TYPE_LABELS: Record<EtatDesLieuxType, string> = {
 	SORTIE: "Sortie",
 };
 
-/** Classes de badge par type — vert entrée, orange sortie. */
-export const ETAT_DES_LIEUX_TYPE_BADGE: Record<EtatDesLieuxType, string> = {
-	ENTREE: "bg-[#27AE60] text-white",
-	SORTIE: "bg-[#E67E22] text-white",
-};
+/** Variante `<Badge>` par type — succès (vert) entrée, lagoon (orange) sortie. */
+export const ETAT_DES_LIEUX_TYPE_VARIANT = {
+	ENTREE: "success",
+	SORTIE: "lagoon",
+} as const satisfies Record<EtatDesLieuxType, "success" | "lagoon">;

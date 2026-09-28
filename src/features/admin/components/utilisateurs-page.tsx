@@ -1,10 +1,17 @@
 import { KeyRound, Pencil, Plus, Power, PowerOff } from "lucide-react";
-import { Dialog } from "radix-ui";
 import { useMemo, useState } from "react";
 
-import { Breadcrumb } from "#/components/ui/breadcrumb";
+import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogTitle,
+} from "#/components/ui/dialog";
+import { EmptyState } from "#/components/ui/empty-state";
 import { InputField } from "#/components/ui/input-field";
+import { PageHeader } from "#/components/ui/page-header";
 import {
 	Select,
 	SelectContent,
@@ -12,9 +19,16 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "#/components/ui/select";
+import {
+	DataTable,
+	DataTableHead,
+	TableShell,
+	Td,
+	Th,
+	Tr,
+} from "#/components/ui/table";
 import { useCan } from "#/core/auth";
 import { formatDateHeureUTC } from "#/features/residence/models/format";
-import { cn } from "#/lib/utils";
 import { useRoles } from "../hooks/use-roles";
 import {
 	useModifierUtilisateur,
@@ -71,55 +85,50 @@ function ReinitialiserMdpDialog({
 	};
 
 	return (
-		<Dialog.Root open={utilisateur !== null} onOpenChange={onOpenChange}>
-			<Dialog.Portal>
-				<Dialog.Overlay className="fixed inset-0 z-50 bg-black/50" />
-				<Dialog.Content className="fixed top-1/2 left-1/2 z-50 w-[calc(100vw-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-lg border border-border bg-card p-6 shadow-lg">
-					<Dialog.Title className="text-base font-semibold text-foreground">
-						Réinitialiser le mot de passe
-					</Dialog.Title>
-					<Dialog.Description className="mt-1 text-sm text-muted-foreground">
-						Compte {utilisateur?.login ?? ""} — le nouveau mot de passe est
-						appliqué immédiatement.
-					</Dialog.Description>
-					<div className="mt-4 space-y-4">
-						<InputField
-							id="nouveau-mdp"
-							label="Nouveau mot de passe"
-							type="password"
-							value={motDePasse}
-							onChange={(event) => setMotDePasse(event.target.value)}
-							error={
-								erreur
-									? "Le mot de passe doit contenir au moins 6 caractères."
-									: undefined
-							}
-						/>
-						{resetMutation.isError ? (
-							<p role="alert" className="text-sm font-medium text-destructive">
-								Impossible de réinitialiser le mot de passe.
-							</p>
-						) : null}
-						<div className="flex items-center justify-end gap-2">
-							<Button
-								type="button"
-								variant="ghost"
-								onClick={() => onOpenChange(false)}
-							>
-								Annuler
-							</Button>
-							<Button
-								type="button"
-								onClick={confirmer}
-								disabled={resetMutation.isPending}
-							>
-								Réinitialiser
-							</Button>
-						</div>
+		<Dialog open={utilisateur !== null} onOpenChange={onOpenChange}>
+			<DialogContent className="max-w-md">
+				<DialogTitle>Réinitialiser le mot de passe</DialogTitle>
+				<DialogDescription>
+					Compte {utilisateur?.login ?? ""} — le nouveau mot de passe est
+					appliqué immédiatement.
+				</DialogDescription>
+				<div className="mt-4 space-y-4">
+					<InputField
+						id="nouveau-mdp"
+						label="Nouveau mot de passe"
+						type="password"
+						value={motDePasse}
+						onChange={(event) => setMotDePasse(event.target.value)}
+						error={
+							erreur
+								? "Le mot de passe doit contenir au moins 6 caractères."
+								: undefined
+						}
+					/>
+					{resetMutation.isError ? (
+						<p role="alert" className="text-sm font-medium text-destructive">
+							Impossible de réinitialiser le mot de passe.
+						</p>
+					) : null}
+					<div className="flex items-center justify-end gap-2">
+						<Button
+							type="button"
+							variant="ghost"
+							onClick={() => onOpenChange(false)}
+						>
+							Annuler
+						</Button>
+						<Button
+							type="button"
+							onClick={confirmer}
+							disabled={resetMutation.isPending}
+						>
+							Réinitialiser
+						</Button>
 					</div>
-				</Dialog.Content>
-			</Dialog.Portal>
-		</Dialog.Root>
+				</div>
+			</DialogContent>
+		</Dialog>
 	);
 }
 
@@ -179,26 +188,19 @@ export function UtilisateursPage({
 
 	return (
 		<div className="w-full space-y-6 p-6">
-			<Breadcrumb
-				items={[{ label: "Accueil", to: "/" }, { label: "Utilisateurs" }]}
+			<PageHeader
+				breadcrumb={[{ label: "Accueil", to: "/" }, { label: "Utilisateurs" }]}
+				title="Utilisateurs"
+				description="Comptes d'accès à l'application, rôles et statut."
+				actions={
+					canCreer ? (
+						<Button onClick={() => setFormOuvert(true)}>
+							<Plus className="size-4" aria-hidden />
+							Ajouter un utilisateur
+						</Button>
+					) : undefined
+				}
 			/>
-
-			<div className="flex flex-wrap items-end justify-between gap-4">
-				<section className="space-y-1">
-					<h1 className="text-2xl font-semibold text-foreground">
-						Utilisateurs
-					</h1>
-					<p className="text-muted-foreground">
-						Comptes d'accès à l'application, rôles et statut.
-					</p>
-				</section>
-				{canCreer ? (
-					<Button onClick={() => setFormOuvert(true)}>
-						<Plus className="size-4" aria-hidden />
-						Ajouter un utilisateur
-					</Button>
-				) : null}
-			</div>
 
 			<div className="flex gap-2">
 				<div className="flex-1">
@@ -259,70 +261,44 @@ export function UtilisateursPage({
 					</Button>
 				</div>
 			) : pagination.total === 0 ? (
-				<div className="rounded-lg border border-border bg-card p-8 text-center text-sm text-muted-foreground">
-					Aucun utilisateur trouvé.
-				</div>
+				<EmptyState title="Aucun utilisateur trouvé." />
 			) : (
-				<div className="overflow-x-auto rounded-lg border border-border bg-card shadow-sm">
-					<table className="w-full border-collapse text-sm">
-						<thead className="bg-sea-ink text-left text-white">
+				<TableShell>
+					<DataTable>
+						<DataTableHead>
 							<tr>
-								<th scope="col" className="px-4 py-3 font-medium">
-									LOGIN
-								</th>
-								<th scope="col" className="px-4 py-3 font-medium">
-									EMPLOYÉ
-								</th>
-								<th scope="col" className="px-4 py-3 font-medium">
-									RÔLE
-								</th>
-								<th scope="col" className="px-4 py-3 font-medium">
-									DERNIÈRE CONNEXION
-								</th>
-								<th scope="col" className="px-4 py-3 font-medium">
-									STATUT
-								</th>
-								{canModifier ? (
-									<th scope="col" className="px-4 py-3 text-right font-medium">
-										ACTIONS
-									</th>
-								) : null}
+								<Th>LOGIN</Th>
+								<Th>EMPLOYÉ</Th>
+								<Th>RÔLE</Th>
+								<Th>DERNIÈRE CONNEXION</Th>
+								<Th>STATUT</Th>
+								{canModifier ? <Th className="text-right">ACTIONS</Th> : null}
 							</tr>
-						</thead>
+						</DataTableHead>
 						<tbody>
 							{pagination.items.map((utilisateur) => (
-								<tr
-									key={utilisateur.id}
-									className="border-t border-border transition-colors hover:bg-accent/40"
-								>
-									<td className="px-4 py-3 font-medium text-foreground">
+								<Tr key={utilisateur.id}>
+									<Td className="font-medium text-foreground">
 										{utilisateur.login}
-									</td>
-									<td className="px-4 py-3 text-muted-foreground">
+									</Td>
+									<Td className="text-muted-foreground">
 										{nomComplet(utilisateur)}
-									</td>
-									<td className="px-4 py-3 text-foreground">
+									</Td>
+									<Td className="text-foreground">
 										{utilisateur.id_role
 											? (roleParId.get(utilisateur.id_role) ?? "—")
 											: "—"}
-									</td>
-									<td className="px-4 py-3 text-muted-foreground">
+									</Td>
+									<Td className="text-muted-foreground">
 										{formatDateHeureUTC(utilisateur.dernier_connexion)}
-									</td>
-									<td className="px-4 py-3">
-										<span
-											className={cn(
-												"inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium",
-												utilisateur.actif
-													? "bg-[#27AE60] text-white"
-													: "bg-[#95A5A6] text-white",
-											)}
-										>
+									</Td>
+									<Td>
+										<Badge variant={utilisateur.actif ? "success" : "neutral"}>
 											{utilisateur.actif ? "Actif" : "Inactif"}
-										</span>
-									</td>
+										</Badge>
+									</Td>
 									{canModifier ? (
-										<td className="px-4 py-3">
+										<Td>
 											<div className="flex items-center justify-end gap-1">
 												<Button
 													variant="ghost"
@@ -366,13 +342,13 @@ export function UtilisateursPage({
 													</span>
 												</Button>
 											</div>
-										</td>
+										</Td>
 									) : null}
-								</tr>
+								</Tr>
 							))}
 						</tbody>
-					</table>
-				</div>
+					</DataTable>
+				</TableShell>
 			)}
 
 			{pagination.total > 0 ? (

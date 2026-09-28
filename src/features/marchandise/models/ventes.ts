@@ -55,6 +55,14 @@ export const VENTE_STATUT_LABELS: Record<VenteStatut, string> = {
 	ANNULEE: "Annulée",
 };
 
+/** Variante `<Badge>` par statut de vente. */
+export const VENTE_STATUT_VARIANT = {
+	EN_ATTENTE: "warning",
+	EN_COURS: "warning",
+	PAYEE: "success",
+	ANNULEE: "neutral",
+} as const satisfies Record<VenteStatut, "warning" | "success" | "neutral">;
+
 /** Vrai tant que la demande portail attend la validation du personnel. */
 export function estVenteEnAttente(vente: Pick<Vente, "statut">): boolean {
 	return vente.statut === "EN_ATTENTE";

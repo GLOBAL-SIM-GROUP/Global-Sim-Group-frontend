@@ -1,16 +1,19 @@
+import { Badge } from "#/components/ui/badge";
+import { EmptyState } from "#/components/ui/empty-state";
+import {
+	DataTable,
+	DataTableHead,
+	TableShell,
+	Td,
+	Th,
+	Tr,
+} from "#/components/ui/table";
 import { formatDateHeureUTC } from "#/features/residence/models/format";
-import { cn } from "#/lib/utils";
 import {
 	MOUVEMENT_TYPE_LABELS,
+	MOUVEMENT_TYPE_VARIANT,
 	type Mouvement,
-	type MouvementType,
 } from "../models/mouvements";
-
-const MOUVEMENT_TYPE_BADGE: Record<MouvementType, string> = {
-	ENTREE: "bg-[#27AE60] text-white",
-	SORTIE: "bg-[#E74C3C] text-white",
-	AJUSTEMENT: "bg-[#E67E22] text-white",
-};
 
 interface MouvementTableProps {
 	mouvements: Mouvement[];
@@ -23,68 +26,46 @@ interface MouvementTableProps {
  */
 export function MouvementTable({ mouvements }: MouvementTableProps) {
 	if (mouvements.length === 0) {
-		return (
-			<div className="rounded-lg border border-border bg-card p-8 text-center text-sm text-muted-foreground">
-				Aucun mouvement trouvé.
-			</div>
-		);
+		return <EmptyState title="Aucun mouvement trouvé." />;
 	}
 
 	return (
-		<div className="overflow-x-auto rounded-lg border border-border bg-card shadow-sm">
-			<table className="w-full border-collapse text-sm">
-				<thead className="bg-sea-ink text-left text-white">
+		<TableShell>
+			<DataTable>
+				<DataTableHead>
 					<tr>
-						<th scope="col" className="px-4 py-3 font-medium">
-							DATE
-						</th>
-						<th scope="col" className="px-4 py-3 font-medium">
-							PRODUIT
-						</th>
-						<th scope="col" className="px-4 py-3 font-medium">
-							TYPE
-						</th>
-						<th scope="col" className="px-4 py-3 font-medium">
-							QUANTITÉ
-						</th>
-						<th scope="col" className="px-4 py-3 font-medium">
-							STOCK RÉSULTANT
-						</th>
+						<Th>DATE</Th>
+						<Th>PRODUIT</Th>
+						<Th>TYPE</Th>
+						<Th>QUANTITÉ</Th>
+						<Th>STOCK RÉSULTANT</Th>
 					</tr>
-				</thead>
+				</DataTableHead>
 				<tbody>
 					{mouvements.map((mouvement) => (
-						<tr
+						<Tr
 							key={`${mouvement.reference}-${mouvement.date}-${mouvement.delta}-${mouvement.stock_resultant}`}
-							className="border-t border-border transition-colors hover:bg-accent/40"
 						>
-							<td className="px-4 py-3 text-muted-foreground">
+							<Td className="text-muted-foreground">
 								{formatDateHeureUTC(mouvement.date)}
-							</td>
-							<td className="px-4 py-3 text-foreground">
+							</Td>
+							<Td className="text-foreground">
 								<span className="font-medium">{mouvement.reference}</span> —{" "}
 								{mouvement.nom}
-							</td>
-							<td className="px-4 py-3">
-								<span
-									className={cn(
-										"inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium",
-										MOUVEMENT_TYPE_BADGE[mouvement.type],
-									)}
-								>
+							</Td>
+							<Td>
+								<Badge variant={MOUVEMENT_TYPE_VARIANT[mouvement.type]}>
 									{MOUVEMENT_TYPE_LABELS[mouvement.type]}
-								</span>
-							</td>
-							<td className="px-4 py-3 text-foreground">
+								</Badge>
+							</Td>
+							<Td className="text-foreground">
 								{mouvement.quantite_mouvement}
-							</td>
-							<td className="px-4 py-3 text-foreground">
-								{mouvement.stock_resultant}
-							</td>
-						</tr>
+							</Td>
+							<Td className="text-foreground">{mouvement.stock_resultant}</Td>
+						</Tr>
 					))}
 				</tbody>
-			</table>
-		</div>
+			</DataTable>
+		</TableShell>
 	);
 }

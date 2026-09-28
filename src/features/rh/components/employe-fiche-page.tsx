@@ -2,19 +2,19 @@ import { Link } from "@tanstack/react-router";
 import { Pencil, Power, PowerOff } from "lucide-react";
 import { useState } from "react";
 
-import { Breadcrumb } from "#/components/ui/breadcrumb";
+import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
+import { PageHeader } from "#/components/ui/page-header";
 import { useCan } from "#/core/auth";
 import {
 	formatDateISO,
 	formatMontantFCFA,
 } from "#/features/residence/models/format";
-import { cn } from "#/lib/utils";
 
 import { useEmploye, useModifierEmploye } from "../hooks/use-employes";
 import {
-	EMPLOYE_STATUT_BADGE,
 	EMPLOYE_STATUT_LABELS,
+	EMPLOYE_STATUT_VARIANT,
 	nomCompletEmploye,
 	TYPE_CONTRAT_LABELS,
 } from "../models/employes";
@@ -76,55 +76,46 @@ export function EmployeFichePage({ id }: EmployeFichePageProps) {
 
 	return (
 		<div className="w-full space-y-6 p-6">
-			<Breadcrumb
-				items={[
+			<PageHeader
+				breadcrumb={[
 					{ label: "Accueil", to: "/" },
 					{ label: "Employés — RH", to: "/rh/employes" },
 					{ label: nomCompletEmploye(employe) },
 				]}
+				title={`Fiche employé — ${nomCompletEmploye(employe)}`}
+				description={`${employe.fonction}${employe.service_libelle ? ` · ${employe.service_libelle}` : ""}.`}
+				actions={
+					<div className="flex items-center gap-2">
+						{canModifier ? (
+							<>
+								<Button variant="outline" onClick={() => setFormOuvert(true)}>
+									<Pencil className="size-4" aria-hidden />
+									Modifier
+								</Button>
+								<Button
+									variant="outline"
+									onClick={() =>
+										modifierMutation.mutate({
+											id: employe.id,
+											statut: employe.statut === "ACTIF" ? "INACTIF" : "ACTIF",
+										})
+									}
+								>
+									{employe.statut === "ACTIF" ? (
+										<PowerOff className="size-4 text-destructive" aria-hidden />
+									) : (
+										<Power className="size-4 text-lagoon" aria-hidden />
+									)}
+									{employe.statut === "ACTIF" ? "Désactiver" : "Activer"}
+								</Button>
+							</>
+						) : null}
+						<Button variant="outline" asChild>
+							<Link to="/rh/employes">Retour</Link>
+						</Button>
+					</div>
+				}
 			/>
-
-			<div className="flex flex-wrap items-end justify-between gap-4">
-				<section className="space-y-1">
-					<h1 className="text-2xl font-semibold text-foreground">
-						Fiche employé — {nomCompletEmploye(employe)}
-					</h1>
-					<p className="text-muted-foreground">
-						{employe.fonction}
-						{employe.service_libelle ? ` · ${employe.service_libelle}` : ""}.
-					</p>
-				</section>
-
-				<div className="flex items-center gap-2">
-					{canModifier ? (
-						<>
-							<Button variant="outline" onClick={() => setFormOuvert(true)}>
-								<Pencil className="size-4" aria-hidden />
-								Modifier
-							</Button>
-							<Button
-								variant="outline"
-								onClick={() =>
-									modifierMutation.mutate({
-										id: employe.id,
-										statut: employe.statut === "ACTIF" ? "INACTIF" : "ACTIF",
-									})
-								}
-							>
-								{employe.statut === "ACTIF" ? (
-									<PowerOff className="size-4 text-destructive" aria-hidden />
-								) : (
-									<Power className="size-4 text-lagoon" aria-hidden />
-								)}
-								{employe.statut === "ACTIF" ? "Désactiver" : "Activer"}
-							</Button>
-						</>
-					) : null}
-					<Button variant="outline" asChild>
-						<Link to="/rh/employes">Retour</Link>
-					</Button>
-				</div>
-			</div>
 
 			<section className="rounded-lg border border-border bg-card p-5 shadow-sm">
 				<dl className="grid gap-4 sm:grid-cols-2">
@@ -147,14 +138,9 @@ export function EmployeFichePage({ id }: EmployeFichePageProps) {
 					/>
 				</dl>
 				<div className="mt-4">
-					<span
-						className={cn(
-							"inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium",
-							EMPLOYE_STATUT_BADGE[employe.statut],
-						)}
-					>
+					<Badge variant={EMPLOYE_STATUT_VARIANT[employe.statut]}>
 						{EMPLOYE_STATUT_LABELS[employe.statut]}
-					</span>
+					</Badge>
 				</div>
 				{employe.autres_infos ? (
 					<p className="mt-4 border-t border-border pt-4 text-sm text-muted-foreground">

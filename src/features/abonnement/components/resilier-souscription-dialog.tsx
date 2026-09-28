@@ -1,8 +1,13 @@
 import { Loader2 } from "lucide-react";
-import { Dialog } from "radix-ui";
 import { useState } from "react";
 
 import { Button } from "#/components/ui/button";
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogTitle,
+} from "#/components/ui/dialog";
 import { Label } from "#/components/ui/label";
 import { Textarea } from "#/components/ui/textarea";
 import { toApiError } from "#/core/api";
@@ -115,28 +120,23 @@ export function ResilierSouscriptionDialog({
 	onSaved,
 }: ResilierSouscriptionDialogProps) {
 	return (
-		<Dialog.Root open={open} onOpenChange={onOpenChange}>
-			<Dialog.Portal>
-				<Dialog.Overlay className="fixed inset-0 z-50 bg-black/50" />
-				<Dialog.Content className="fixed top-1/2 left-1/2 z-50 w-[calc(100vw-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-lg border border-border bg-card p-6 shadow-lg">
-					<Dialog.Title className="text-base font-semibold text-foreground">
-						Résilier la souscription
-					</Dialog.Title>
-					<Dialog.Description className="mt-1 text-sm text-muted-foreground">
-						{souscription
-							? `${souscription.offre_libelle} — ${souscription.client_nom} ${souscription.client_prenoms}`
-							: "Terminer la souscription avant son échéance."}
-					</Dialog.Description>
-					{open && souscription ? (
-						<ResilierForm
-							key={souscription.id_souscription}
-							souscription={souscription}
-							onOpenChange={onOpenChange}
-							onSaved={onSaved}
-						/>
-					) : null}
-				</Dialog.Content>
-			</Dialog.Portal>
-		</Dialog.Root>
+		<Dialog open={open} onOpenChange={onOpenChange}>
+			<DialogContent className="max-w-md">
+				<DialogTitle>Résilier la souscription</DialogTitle>
+				<DialogDescription>
+					{souscription
+						? `${souscription.offre_libelle} — ${souscription.client_nom} ${souscription.client_prenoms}`
+						: "Terminer la souscription avant son échéance."}
+				</DialogDescription>
+				{open && souscription ? (
+					<ResilierForm
+						key={souscription.id_souscription}
+						souscription={souscription}
+						onOpenChange={onOpenChange}
+						onSaved={onSaved}
+					/>
+				) : null}
+			</DialogContent>
+		</Dialog>
 	);
 }

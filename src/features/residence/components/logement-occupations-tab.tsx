@@ -1,10 +1,20 @@
 import { Link } from "@tanstack/react-router";
-import { cn } from "#/lib/utils";
+
+import { Badge } from "#/components/ui/badge";
+import { EmptyState } from "#/components/ui/empty-state";
+import {
+	DataTable,
+	DataTableHead,
+	TableShell,
+	Td,
+	Th,
+	Tr,
+} from "#/components/ui/table";
 
 import {
 	CONTRAT_STATUT_LABELS,
+	CONTRAT_STATUT_VARIANT,
 	type Contrat,
-	type ContratStatut,
 } from "../models/contrats";
 import {
 	formatDateHeureISO,
@@ -13,24 +23,10 @@ import {
 } from "../models/format";
 import {
 	SEJOUR_STATUT_LABELS,
+	SEJOUR_STATUT_VARIANT,
 	SEJOUR_TYPE_LABELS,
 	type Sejour,
-	type SejourStatut,
 } from "../models/sejours";
-
-const CONTRAT_STATUT_BADGE: Record<ContratStatut, string> = {
-	EN_ATTENTE: "bg-[#E67E22] text-white",
-	ACTIF: "bg-[#27AE60] text-white",
-	RESILIE: "bg-[#E74C3C] text-white",
-	TERMINE: "bg-[#2980B9] text-white",
-};
-
-const SEJOUR_STATUT_BADGE: Record<SejourStatut, string> = {
-	EN_ATTENTE: "bg-[#E67E22] text-white",
-	EN_COURS: "bg-[#2980B9] text-white",
-	TERMINE: "bg-[#27AE60] text-white",
-	ANNULE: "bg-[#95A5A6] text-white",
-};
 
 interface LogementOccupationsTabProps {
 	/** Contrats du logement (filtrés côté client par `id_logement`). */
@@ -54,41 +50,24 @@ export function LogementOccupationsTab({
 					Contrats de location
 				</h2>
 				{contrats.length === 0 ? (
-					<p className="rounded-lg border border-border bg-card p-6 text-center text-sm text-muted-foreground">
-						Aucun contrat pour ce logement.
-					</p>
+					<EmptyState title="Aucun contrat pour ce logement." />
 				) : (
-					<div className="overflow-x-auto rounded-lg border border-border bg-card shadow-sm">
-						<table className="w-full border-collapse text-sm">
-							<thead className="bg-sea-ink text-left text-white">
+					<TableShell>
+						<DataTable>
+							<DataTableHead>
 								<tr>
-									<th scope="col" className="px-4 py-3 font-medium">
-										CONTRAT
-									</th>
-									<th scope="col" className="px-4 py-3 font-medium">
-										TYPE
-									</th>
-									<th scope="col" className="px-4 py-3 font-medium">
-										DU
-									</th>
-									<th scope="col" className="px-4 py-3 font-medium">
-										AU
-									</th>
-									<th scope="col" className="px-4 py-3 font-medium">
-										LOYER
-									</th>
-									<th scope="col" className="px-4 py-3 font-medium">
-										STATUT
-									</th>
+									<Th>CONTRAT</Th>
+									<Th>TYPE</Th>
+									<Th>DU</Th>
+									<Th>AU</Th>
+									<Th>LOYER</Th>
+									<Th>STATUT</Th>
 								</tr>
-							</thead>
+							</DataTableHead>
 							<tbody>
 								{contrats.map((contrat) => (
-									<tr
-										key={contrat.id}
-										className="border-t border-border transition-colors hover:bg-accent/40"
-									>
-										<td className="px-4 py-3 font-semibold">
+									<Tr key={contrat.id}>
+										<Td className="font-semibold">
 											<Link
 												to="/residence/contrats/$id"
 												params={{ id: contrat.id }}
@@ -96,36 +75,31 @@ export function LogementOccupationsTab({
 											>
 												{contrat.numero_contrat}
 											</Link>
-										</td>
-										<td className="px-4 py-3 text-foreground">
+										</Td>
+										<Td className="text-foreground">
 											{contrat.type_location === "MENSUEL"
 												? "Mensuel"
 												: "Annuel"}
-										</td>
-										<td className="px-4 py-3 text-muted-foreground">
+										</Td>
+										<Td className="text-muted-foreground">
 											{formatDateISO(contrat.date_debut)}
-										</td>
-										<td className="px-4 py-3 text-muted-foreground">
+										</Td>
+										<Td className="text-muted-foreground">
 											{formatDateISO(contrat.date_fin_prevue)}
-										</td>
-										<td className="px-4 py-3 text-foreground">
+										</Td>
+										<Td className="text-foreground">
 											{formatMontantFCFA(contrat.montant_loyer)}
-										</td>
-										<td className="px-4 py-3">
-											<span
-												className={cn(
-													"inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium",
-													CONTRAT_STATUT_BADGE[contrat.statut],
-												)}
-											>
+										</Td>
+										<Td>
+											<Badge variant={CONTRAT_STATUT_VARIANT[contrat.statut]}>
 												{CONTRAT_STATUT_LABELS[contrat.statut]}
-											</span>
-										</td>
-									</tr>
+											</Badge>
+										</Td>
+									</Tr>
 								))}
 							</tbody>
-						</table>
-					</div>
+						</DataTable>
+					</TableShell>
 				)}
 			</section>
 
@@ -134,72 +108,50 @@ export function LogementOccupationsTab({
 					Séjours courts
 				</h2>
 				{sejours.length === 0 ? (
-					<p className="rounded-lg border border-border bg-card p-6 text-center text-sm text-muted-foreground">
-						Aucun séjour pour ce logement.
-					</p>
+					<EmptyState title="Aucun séjour pour ce logement." />
 				) : (
-					<div className="overflow-x-auto rounded-lg border border-border bg-card shadow-sm">
-						<table className="w-full border-collapse text-sm">
-							<thead className="bg-sea-ink text-left text-white">
+					<TableShell>
+						<DataTable>
+							<DataTableHead>
 								<tr>
-									<th scope="col" className="px-4 py-3 font-medium">
-										PRESTATION
-									</th>
-									<th scope="col" className="px-4 py-3 font-medium">
-										CLIENT
-									</th>
-									<th scope="col" className="px-4 py-3 font-medium">
-										ARRIVÉE
-									</th>
-									<th scope="col" className="px-4 py-3 font-medium">
-										DÉPART
-									</th>
-									<th scope="col" className="px-4 py-3 font-medium">
-										TARIF
-									</th>
-									<th scope="col" className="px-4 py-3 font-medium">
-										STATUT
-									</th>
+									<Th>PRESTATION</Th>
+									<Th>CLIENT</Th>
+									<Th>ARRIVÉE</Th>
+									<Th>DÉPART</Th>
+									<Th>TARIF</Th>
+									<Th>STATUT</Th>
 								</tr>
-							</thead>
+							</DataTableHead>
 							<tbody>
 								{sejours.map((sejour) => (
-									<tr
-										key={sejour.id}
-										className="border-t border-border transition-colors hover:bg-accent/40"
-									>
-										<td className="px-4 py-3 text-foreground">
+									<Tr key={sejour.id}>
+										<Td className="text-foreground">
 											{SEJOUR_TYPE_LABELS[sejour.type_prestation]}
-										</td>
-										<td className="px-4 py-3 text-foreground">
+										</Td>
+										<Td className="text-foreground">
 											{[sejour.client_nom, sejour.client_prenoms]
 												.filter(Boolean)
 												.join(" ") || "—"}
-										</td>
-										<td className="px-4 py-3 text-muted-foreground">
+										</Td>
+										<Td className="text-muted-foreground">
 											{formatDateHeureISO(sejour.date_heure_arrivee)}
-										</td>
-										<td className="px-4 py-3 text-muted-foreground">
+										</Td>
+										<Td className="text-muted-foreground">
 											{formatDateHeureISO(sejour.date_heure_depart_prevue)}
-										</td>
-										<td className="px-4 py-3 text-foreground">
+										</Td>
+										<Td className="text-foreground">
 											{formatMontantFCFA(sejour.tarif)}
-										</td>
-										<td className="px-4 py-3">
-											<span
-												className={cn(
-													"inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium",
-													SEJOUR_STATUT_BADGE[sejour.statut],
-												)}
-											>
+										</Td>
+										<Td>
+											<Badge variant={SEJOUR_STATUT_VARIANT[sejour.statut]}>
 												{SEJOUR_STATUT_LABELS[sejour.statut]}
-											</span>
-										</td>
-									</tr>
+											</Badge>
+										</Td>
+									</Tr>
 								))}
 							</tbody>
-						</table>
-					</div>
+						</DataTable>
+					</TableShell>
 				)}
 			</section>
 		</div>

@@ -71,6 +71,23 @@ export const SEJOUR_ORIGINE_LABELS: Record<SejourOrigine, string> = {
 	PORTAIL: "Portail",
 };
 
+/** Variante `<Badge>` par statut de séjour. */
+export const SEJOUR_STATUT_VARIANT = {
+	EN_ATTENTE: "warning",
+	EN_COURS: "info",
+	TERMINE: "success",
+	ANNULE: "neutral",
+} as const satisfies Record<
+	SejourStatut,
+	"success" | "warning" | "info" | "neutral"
+>;
+
+/** Variante `<Badge>` par origine du séjour. */
+export const SEJOUR_ORIGINE_VARIANT = {
+	PORTAIL: "lagoon",
+	COMPTOIR: "neutral",
+} as const satisfies Record<SejourOrigine, "lagoon" | "neutral">;
+
 /** Valeurs du filtre « Type » (URL : `?type=`). */
 export type SejourTypeFiltre = "tous" | SejourType;
 

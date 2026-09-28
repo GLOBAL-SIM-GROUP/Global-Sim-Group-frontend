@@ -37,6 +37,25 @@ export function echanceStatutLabel(statut: string): string {
 	return ECHANCE_STATUT_LABELS[statut] ?? statut;
 }
 
+/** Variante de badge par statut d'échéance (enum ouvert → repli neutre). */
+const ECHANCE_STATUT_VARIANT: Record<
+	string,
+	"success" | "warning" | "info" | "danger" | "neutral"
+> = {
+	PAYE: "success",
+	IMPAYE: "danger",
+	PARTIEL: "warning",
+	A_VENIR: "neutral",
+	EN_ATTENTE: "neutral",
+};
+
+/** Variante de badge d'un statut d'échéance, avec repli neutre. */
+export function echanceStatutVariant(
+	statut: string,
+): "success" | "warning" | "info" | "danger" | "neutral" {
+	return ECHANCE_STATUT_VARIANT[statut] ?? "neutral";
+}
+
 /** Filtres du suivi des échéances (URL + côté client). */
 export interface EcheancesFiltres {
 	statut: string;

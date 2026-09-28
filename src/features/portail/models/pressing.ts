@@ -91,15 +91,18 @@ export const PRESSING_STATUT_LABELS: Record<PressingStatut, string> = {
 	ANNULEE: "Annulée",
 };
 
-/** Classes de badge (fond/texte) par statut — même palette que les autres statuts du portail. */
-export const PRESSING_STATUT_BADGE: Record<PressingStatut, string> = {
-	EN_ATTENTE: "bg-[#E67E22] text-white",
-	DEPOSE: "bg-[#95A5A6] text-white",
-	EN_TRAITEMENT: "bg-[#E67E22] text-white",
-	PRET: "bg-[#2980B9] text-white",
-	RETIRE: "bg-[#27AE60] text-white",
-	ANNULEE: "bg-[#E74C3C] text-white",
-};
+/** Variante `<Badge>` par statut — même logique que les autres statuts du portail. */
+export const PRESSING_STATUT_VARIANT = {
+	EN_ATTENTE: "warning",
+	DEPOSE: "neutral",
+	EN_TRAITEMENT: "warning",
+	PRET: "info",
+	RETIRE: "success",
+	ANNULEE: "danger",
+} as const satisfies Record<
+	PressingStatut,
+	"warning" | "neutral" | "info" | "success" | "danger"
+>;
 
 /** Progression des étapes. */
 export const PROGRESSION_ETAPES: PressingStatut[] = [

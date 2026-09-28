@@ -1,6 +1,15 @@
 import { Link } from "@tanstack/react-router";
 
-import { cn } from "#/lib/utils";
+import { Badge } from "#/components/ui/badge";
+import { EmptyState } from "#/components/ui/empty-state";
+import {
+	DataTable,
+	DataTableHead,
+	TableShell,
+	Td,
+	Th,
+	Tr,
+} from "#/components/ui/table";
 
 import type { Batiment } from "../models/batiments";
 import { BuildingActions } from "./building-actions";
@@ -12,10 +21,7 @@ interface BuildingTableProps {
 	onDelete: (batiment: Batiment) => void;
 }
 
-/**
- * Tableau des bâtiments (HTML sémantique — pas de composant Table shadcn
- * installé). En-têtes en navy `bg-sea-ink`, badges de statut dédiés.
- */
+/** Tableau des bâtiments. */
 export function BuildingTable({
 	batiments,
 	onToggle,
@@ -23,45 +29,26 @@ export function BuildingTable({
 	onDelete,
 }: BuildingTableProps) {
 	if (batiments.length === 0) {
-		return (
-			<div className="rounded-lg border border-border bg-card p-8 text-center text-sm text-muted-foreground">
-				Aucun bâtiment trouvé.
-			</div>
-		);
+		return <EmptyState title="Aucun bâtiment trouvé." />;
 	}
 
 	return (
-		<div className="overflow-x-auto rounded-lg border border-border bg-card shadow-sm">
-			<table className="w-full border-collapse text-sm">
-				<thead className="bg-sea-ink text-left text-white">
+		<TableShell>
+			<DataTable>
+				<DataTableHead>
 					<tr>
-						<th scope="col" className="px-4 py-3 font-medium">
-							CODE
-						</th>
-						<th scope="col" className="px-4 py-3 font-medium">
-							NOM
-						</th>
-						<th scope="col" className="px-4 py-3 font-medium">
-							ADRESSE
-						</th>
-						<th scope="col" className="px-4 py-3 font-medium">
-							STATUT
-						</th>
-						<th scope="col" className="px-4 py-3 text-right font-medium">
-							ACTIONS
-						</th>
+						<Th>CODE</Th>
+						<Th>NOM</Th>
+						<Th>ADRESSE</Th>
+						<Th>STATUT</Th>
+						<Th className="text-right">ACTIONS</Th>
 					</tr>
-				</thead>
+				</DataTableHead>
 				<tbody>
 					{batiments.map((batiment) => (
-						<tr
-							key={batiment.id}
-							className="relative border-t border-border transition-colors hover:bg-accent/40"
-						>
-							<td className="px-4 py-3 font-semibold text-foreground">
-								{batiment.code}
-							</td>
-							<td className="px-4 py-3">
+						<Tr key={batiment.id}>
+							<Td className="font-semibold text-foreground">{batiment.code}</Td>
+							<Td>
 								{/* Toute la ligne est cliquable : le lien (stretched) du nom
 								    couvre le <tr> via `after:inset-0` (le <tr> est `relative`).
 								    La cellule ACTIONS repasse au-dessus (`relative z-10`) pour
@@ -74,34 +61,27 @@ export function BuildingTable({
 								>
 									{batiment.nom}
 								</Link>
-							</td>
-							<td className="px-4 py-3 text-muted-foreground">
+							</Td>
+							<Td className="text-muted-foreground">
 								{batiment.adresse ?? "—"}
-							</td>
-							<td className="px-4 py-3">
-								<span
-									className={cn(
-										"inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium",
-										batiment.actif
-											? "bg-[#27AE60] text-white"
-											: "bg-[#95A5A6] text-white",
-									)}
-								>
+							</Td>
+							<Td>
+								<Badge variant={batiment.actif ? "success" : "neutral"}>
 									{batiment.actif ? "Actif" : "Inactif"}
-								</span>
-							</td>
-							<td className="relative z-10 px-4 py-3">
+								</Badge>
+							</Td>
+							<Td className="relative z-10 text-right">
 								<BuildingActions
 									batiment={batiment}
 									onToggle={onToggle}
 									onEdit={onEdit}
 									onDelete={onDelete}
 								/>
-							</td>
-						</tr>
+							</Td>
+						</Tr>
 					))}
 				</tbody>
-			</table>
-		</div>
+			</DataTable>
+		</TableShell>
 	);
 }

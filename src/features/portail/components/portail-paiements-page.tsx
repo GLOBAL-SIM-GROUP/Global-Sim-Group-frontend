@@ -2,9 +2,11 @@ import { Link } from "@tanstack/react-router";
 import { FileDown } from "lucide-react";
 import { useState } from "react";
 
-import { Breadcrumb } from "#/components/ui/breadcrumb";
+import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
+import { EmptyState } from "#/components/ui/empty-state";
 import { Input } from "#/components/ui/input";
+import { PageHeader } from "#/components/ui/page-header";
 import {
 	Select,
 	SelectContent,
@@ -13,10 +15,17 @@ import {
 	SelectValue,
 } from "#/components/ui/select";
 import {
+	DataTable,
+	DataTableHead,
+	TableShell,
+	Td,
+	Th,
+	Tr,
+} from "#/components/ui/table";
+import {
 	formatDateHeureISO,
 	formatMontantFCFA,
 } from "#/features/residence/models/format";
-import { cn } from "#/lib/utils";
 
 import { usePortailPaiements } from "../hooks/use-portail";
 import {
@@ -42,22 +51,9 @@ interface PortailPaiementsPageProps {
 
 function BadgeType({ type }: { type: string }) {
 	const libelle = PAIEMENT_TYPE_LABELS[type] ?? type;
-	const couleur =
-		type === "LOYER"
-			? "bg-[#2E86C1] text-white"
-			: type === "CHARGE"
-				? "bg-[#D35400] text-white"
-				: "bg-[#95A5A6] text-white";
-	return (
-		<span
-			className={cn(
-				"inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium",
-				couleur,
-			)}
-		>
-			{libelle}
-		</span>
-	);
+	const variant =
+		type === "LOYER" ? "info" : type === "CHARGE" ? "warning" : "neutral";
+	return <Badge variant={variant}>{libelle}</Badge>;
 }
 
 /**
@@ -107,6 +103,7 @@ export function PortailPaiementsPage({
 					<Button
 						variant="outline"
 						size="sm"
+						className="rounded-full"
 						onClick={() => void paiementsQuery.refetch()}
 					>
 						Réessayer
@@ -124,27 +121,20 @@ export function PortailPaiementsPage({
 
 	return (
 		<div className="w-full space-y-6 p-6">
-			<Breadcrumb
-				items={[
+			<PageHeader
+				breadcrumb={[
 					{ label: "Accueil", to: "/" },
 					{ label: "Mon espace résident", to: "/residence/portail" },
 					{ label: "Mon historique de paiements" },
 				]}
+				title="Mon historique de paiements"
+				description="Loyers, charges et autres paiements effectués."
+				actions={
+					<Button variant="outline" size="sm" className="rounded-full" asChild>
+						<Link to="/residence/portail">Retour à mon espace</Link>
+					</Button>
+				}
 			/>
-
-			<div className="flex flex-wrap items-end justify-between gap-4">
-				<section className="space-y-1">
-					<h1 className="text-2xl font-semibold text-foreground">
-						Mon historique de paiements
-					</h1>
-					<p className="text-muted-foreground">
-						Loyers, charges et autres paiements effectués.
-					</p>
-				</section>
-				<Button variant="outline" size="sm" asChild>
-					<Link to="/residence/portail">Retour à mon espace</Link>
-				</Button>
-			</div>
 
 			<div className="flex flex-wrap items-center gap-3 rounded-lg border border-border bg-card p-4 shadow-sm">
 				<Input
@@ -182,72 +172,54 @@ export function PortailPaiementsPage({
 			</div>
 
 			{paiements.length === 0 ? (
-				<div className="rounded-lg border border-border bg-card p-8 text-center text-sm text-muted-foreground">
-					Aucun paiement trouvé.
-				</div>
+				<EmptyState title="Aucun paiement trouvé." />
 			) : (
-				<div className="overflow-x-auto rounded-lg border border-border bg-card shadow-sm">
-					<table className="w-full border-collapse text-sm">
-						<thead className="bg-sea-ink text-left text-white">
+				<TableShell>
+					<DataTable>
+						<DataTableHead>
 							<tr>
-								<th scope="col" className="px-4 py-3 font-medium">
-									DATE
-								</th>
-								<th scope="col" className="px-4 py-3 text-right font-medium">
-									MONTANT
-								</th>
-								<th scope="col" className="px-4 py-3 font-medium">
-									TYPE
-								</th>
-								<th scope="col" className="px-4 py-3 font-medium">
-									MODE
-								</th>
-								<th scope="col" className="px-4 py-3 font-medium">
-									RÉFÉRENCE
-								</th>
-								<th scope="col" className="px-4 py-3 text-right font-medium">
-									REÇU
-								</th>
+								<Th>DATE</Th>
+								<Th className="text-right">MONTANT</Th>
+								<Th>TYPE</Th>
+								<Th>MODE</Th>
+								<Th>RÉFÉRENCE</Th>
+								<Th className="text-right">REÇU</Th>
 							</tr>
-						</thead>
+						</DataTableHead>
 						<tbody>
 							{paiements.map((paiement) => (
-								<tr
-									key={paiement.id}
-									className="border-t border-border transition-colors hover:bg-accent/40"
-								>
-									<td className="px-4 py-3 text-muted-foreground">
+								<Tr key={paiement.id}>
+									<Td className="text-muted-foreground">
 										{formatDateHeureISO(paiement.date)}
-									</td>
-									<td className="px-4 py-3 text-right font-medium text-foreground">
+									</Td>
+									<Td className="text-right font-medium text-foreground">
 										{formatMontantFCFA(paiement.montant)}
-									</td>
-									<td className="px-4 py-3">
+									</Td>
+									<Td>
 										<BadgeType type={paiement.type} />
-									</td>
-									<td className="px-4 py-3 text-foreground">
-										{paiement.mode_paiement}
-									</td>
-									<td className="px-4 py-3 text-muted-foreground">
+									</Td>
+									<Td className="text-foreground">{paiement.mode_paiement}</Td>
+									<Td className="text-muted-foreground">
 										{paiement.reference ?? "—"}
-									</td>
-									<td className="px-4 py-3">
+									</Td>
+									<Td>
 										<div className="flex items-center justify-end">
 											<Button
 												variant="ghost"
 												size="sm"
+												className="rounded-full"
 												onClick={() => setRecuId(paiement.id)}
 											>
 												<FileDown className="size-4" aria-hidden />
 												Reçu
 											</Button>
 										</div>
-									</td>
-								</tr>
+									</Td>
+								</Tr>
 							))}
 						</tbody>
-					</table>
-				</div>
+					</DataTable>
+				</TableShell>
 			)}
 
 			<RecuDialog

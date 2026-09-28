@@ -9,13 +9,19 @@ import {
 	UserRound,
 	X,
 } from "lucide-react";
-import { Dialog } from "radix-ui";
 import { useEffect, useState } from "react";
 
-import { Breadcrumb } from "#/components/ui/breadcrumb";
 import { Button } from "#/components/ui/button";
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogTitle,
+} from "#/components/ui/dialog";
+import { EmptyState } from "#/components/ui/empty-state";
 import { InputField } from "#/components/ui/input-field";
 import { Label } from "#/components/ui/label";
+import { PageHeader } from "#/components/ui/page-header";
 import {
 	Select,
 	SelectContent,
@@ -23,6 +29,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "#/components/ui/select";
+import { DataTable, DataTableHead, Td, Th, Tr } from "#/components/ui/table";
 import { getErrorMessageForCode, toApiError } from "#/core/api";
 import { downloadUploadedFile, uploadImage } from "#/core/api/uploads";
 import { useUploadBlobUrl } from "#/core/api/use-upload-blob";
@@ -142,111 +149,106 @@ function PiecePhotosDialog({
 	const hasNoPhotos = !piece.copie_num && !piece.copie_num_verso;
 
 	return (
-		<Dialog.Root open={piece !== null} onOpenChange={onOpenChange}>
-			<Dialog.Portal>
-				<Dialog.Overlay className="fixed inset-0 z-50 bg-black/50" />
-				<Dialog.Content className="fixed top-1/2 left-1/2 z-50 w-[calc(100vw-2rem)] max-w-2xl -translate-x-1/2 -translate-y-1/2 rounded-lg border border-border bg-card p-6 shadow-lg max-h-[90vh] overflow-y-auto">
-					<div className="flex items-center justify-between mb-4">
-						<div>
-							<Dialog.Title className="text-lg font-semibold text-foreground">
-								{TYPE_PIECE_LABELS[piece.type_piece] ?? piece.type_piece}
-							</Dialog.Title>
-							<Dialog.Description className="mt-1 text-sm text-muted-foreground">
-								Numéro: {piece.numero}
-							</Dialog.Description>
-						</div>
-						<Button
-							variant="ghost"
-							size="icon"
-							onClick={() => onOpenChange(false)}
-						>
-							<X className="size-4" aria-hidden />
-							<span className="sr-only">Fermer</span>
-						</Button>
+		<Dialog open={piece !== null} onOpenChange={onOpenChange}>
+			<DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+				<div className="flex items-center justify-between mb-4">
+					<div>
+						<DialogTitle>
+							{TYPE_PIECE_LABELS[piece.type_piece] ?? piece.type_piece}
+						</DialogTitle>
+						<DialogDescription>Numéro: {piece.numero}</DialogDescription>
 					</div>
+					<Button
+						variant="ghost"
+						size="icon"
+						onClick={() => onOpenChange(false)}
+					>
+						<X className="size-4" aria-hidden />
+						<span className="sr-only">Fermer</span>
+					</Button>
+				</div>
 
-					{hasNoPhotos ? (
-						<div className="rounded-lg border border-border bg-muted/30 p-8 text-center">
-							<ImageIcon
-								className="mx-auto mb-2 size-8 text-muted-foreground"
-								aria-hidden
-							/>
-							<p className="text-sm text-muted-foreground">
-								Aucune photo n'a été enregistrée pour cette pièce.
-							</p>
-						</div>
-					) : (
-						<div className="grid gap-6 sm:grid-cols-2">
-							{piece.copie_num && (
-								<div className="space-y-2">
-									<h3 className="text-sm font-medium text-foreground">Recto</h3>
-									<div className="rounded-lg border border-border bg-muted overflow-hidden">
-										{loadingRecto ? (
-											<div className="flex h-64 items-center justify-center">
-												<Loader2
-													className="size-5 animate-spin text-muted-foreground"
-													aria-hidden
-												/>
-											</div>
-										) : rectoUrl ? (
-											<img
-												src={rectoUrl}
-												alt="Recto"
-												className="w-full h-auto max-h-96 object-contain"
-											/>
-										) : (
-											<div className="flex h-64 items-center justify-center bg-muted">
-												<p className="text-xs text-muted-foreground">
-													Impossible de charger l'image
-												</p>
-											</div>
-										)}
-									</div>
-								</div>
-							)}
-
-							{piece.copie_num_verso && (
-								<div className="space-y-2">
-									<h3 className="text-sm font-medium text-foreground">Verso</h3>
-									<div className="rounded-lg border border-border bg-muted overflow-hidden">
-										{loadingVerso ? (
-											<div className="flex h-64 items-center justify-center">
-												<Loader2
-													className="size-5 animate-spin text-muted-foreground"
-													aria-hidden
-												/>
-											</div>
-										) : versoUrl ? (
-											<img
-												src={versoUrl}
-												alt="Verso"
-												className="w-full h-auto max-h-96 object-contain"
-											/>
-										) : (
-											<div className="flex h-64 items-center justify-center bg-muted">
-												<p className="text-xs text-muted-foreground">
-													Impossible de charger l'image
-												</p>
-											</div>
-										)}
-									</div>
-								</div>
-							)}
-						</div>
-					)}
-
-					<div className="flex items-center justify-end gap-2 pt-4 mt-4 border-t border-border">
-						<Button
-							type="button"
-							variant="ghost"
-							onClick={() => onOpenChange(false)}
-						>
-							Fermer
-						</Button>
+				{hasNoPhotos ? (
+					<div className="rounded-lg border border-border bg-muted/30 p-8 text-center">
+						<ImageIcon
+							className="mx-auto mb-2 size-8 text-muted-foreground"
+							aria-hidden
+						/>
+						<p className="text-sm text-muted-foreground">
+							Aucune photo n'a été enregistrée pour cette pièce.
+						</p>
 					</div>
-				</Dialog.Content>
-			</Dialog.Portal>
-		</Dialog.Root>
+				) : (
+					<div className="grid gap-6 sm:grid-cols-2">
+						{piece.copie_num && (
+							<div className="space-y-2">
+								<h3 className="text-sm font-medium text-foreground">Recto</h3>
+								<div className="rounded-lg border border-border bg-muted overflow-hidden">
+									{loadingRecto ? (
+										<div className="flex h-64 items-center justify-center">
+											<Loader2
+												className="size-5 animate-spin text-muted-foreground"
+												aria-hidden
+											/>
+										</div>
+									) : rectoUrl ? (
+										<img
+											src={rectoUrl}
+											alt="Recto"
+											className="w-full h-auto max-h-96 object-contain"
+										/>
+									) : (
+										<div className="flex h-64 items-center justify-center bg-muted">
+											<p className="text-xs text-muted-foreground">
+												Impossible de charger l'image
+											</p>
+										</div>
+									)}
+								</div>
+							</div>
+						)}
+
+						{piece.copie_num_verso && (
+							<div className="space-y-2">
+								<h3 className="text-sm font-medium text-foreground">Verso</h3>
+								<div className="rounded-lg border border-border bg-muted overflow-hidden">
+									{loadingVerso ? (
+										<div className="flex h-64 items-center justify-center">
+											<Loader2
+												className="size-5 animate-spin text-muted-foreground"
+												aria-hidden
+											/>
+										</div>
+									) : versoUrl ? (
+										<img
+											src={versoUrl}
+											alt="Verso"
+											className="w-full h-auto max-h-96 object-contain"
+										/>
+									) : (
+										<div className="flex h-64 items-center justify-center bg-muted">
+											<p className="text-xs text-muted-foreground">
+												Impossible de charger l'image
+											</p>
+										</div>
+									)}
+								</div>
+							</div>
+						)}
+					</div>
+				)}
+
+				<div className="flex items-center justify-end gap-2 pt-4 mt-4 border-t border-border">
+					<Button
+						type="button"
+						variant="ghost"
+						onClick={() => onOpenChange(false)}
+					>
+						Fermer
+					</Button>
+				</div>
+			</DialogContent>
+		</Dialog>
 	);
 }
 
@@ -303,59 +305,27 @@ function ContactDialog({
 		},
 	});
 	return (
-		<Dialog.Root open onOpenChange={onOpenChange}>
-			<Dialog.Portal>
-				<Dialog.Overlay className="fixed inset-0 z-50 bg-black/50" />
-				<Dialog.Content className="fixed top-1/2 left-1/2 z-50 w-[calc(100vw-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-lg border border-border bg-card p-6 shadow-lg">
-					<Dialog.Title className="text-base font-semibold text-foreground">
-						Ajouter un contact d'urgence
-					</Dialog.Title>
-					<Dialog.Description className="mt-1 text-sm text-muted-foreground">
-						Personne à contacter en cas de besoin.
-					</Dialog.Description>
-					<form
-						className="mt-4 space-y-4"
-						onSubmit={(event) => {
-							event.preventDefault();
-							event.stopPropagation();
-							void form.handleSubmit();
-						}}
-					>
-						<div className="grid grid-cols-2 gap-4">
-							<form.Field name="nom">
-								{(field) => (
-									<InputField
-										id={field.name}
-										name={field.name}
-										label="Nom"
-										value={field.state.value}
-										onBlur={field.handleBlur}
-										onChange={(event) => field.handleChange(event.target.value)}
-										error={field.state.meta.errors[0]}
-									/>
-								)}
-							</form.Field>
-							<form.Field name="prenom">
-								{(field) => (
-									<InputField
-										id={field.name}
-										name={field.name}
-										label="Prénom"
-										value={field.state.value}
-										onBlur={field.handleBlur}
-										onChange={(event) => field.handleChange(event.target.value)}
-										error={field.state.meta.errors[0]}
-									/>
-								)}
-							</form.Field>
-						</div>
-						<form.Field name="lien">
+		<Dialog open onOpenChange={onOpenChange}>
+			<DialogContent className="max-w-md">
+				<DialogTitle>Ajouter un contact d'urgence</DialogTitle>
+				<DialogDescription>
+					Personne à contacter en cas de besoin.
+				</DialogDescription>
+				<form
+					className="mt-4 space-y-4"
+					onSubmit={(event) => {
+						event.preventDefault();
+						event.stopPropagation();
+						void form.handleSubmit();
+					}}
+				>
+					<div className="grid grid-cols-2 gap-4">
+						<form.Field name="nom">
 							{(field) => (
 								<InputField
 									id={field.name}
 									name={field.name}
-									label="Lien avec le locataire"
-									placeholder="ex : Frère, Conjoint…"
+									label="Nom"
 									value={field.state.value}
 									onBlur={field.handleBlur}
 									onChange={(event) => field.handleChange(event.target.value)}
@@ -363,40 +333,12 @@ function ContactDialog({
 								/>
 							)}
 						</form.Field>
-						<div className="grid grid-cols-2 gap-4">
-							<form.Field name="telPrincipal">
-								{(field) => (
-									<InputField
-										id={field.name}
-										name={field.name}
-										label="Téléphone principal"
-										value={field.state.value}
-										onBlur={field.handleBlur}
-										onChange={(event) => field.handleChange(event.target.value)}
-										error={field.state.meta.errors[0]}
-									/>
-								)}
-							</form.Field>
-							<form.Field name="telSecondaire">
-								{(field) => (
-									<InputField
-										id={field.name}
-										name={field.name}
-										label="Deuxième numéro"
-										value={field.state.value}
-										onBlur={field.handleBlur}
-										onChange={(event) => field.handleChange(event.target.value)}
-										error={field.state.meta.errors[0]}
-									/>
-								)}
-							</form.Field>
-						</div>
-						<form.Field name="adresse">
+						<form.Field name="prenom">
 							{(field) => (
 								<InputField
 									id={field.name}
 									name={field.name}
-									label="Adresse"
+									label="Prénom"
 									value={field.state.value}
 									onBlur={field.handleBlur}
 									onChange={(event) => field.handleChange(event.target.value)}
@@ -404,13 +346,28 @@ function ContactDialog({
 								/>
 							)}
 						</form.Field>
-						<form.Field name="email">
+					</div>
+					<form.Field name="lien">
+						{(field) => (
+							<InputField
+								id={field.name}
+								name={field.name}
+								label="Lien avec le locataire"
+								placeholder="ex : Frère, Conjoint…"
+								value={field.state.value}
+								onBlur={field.handleBlur}
+								onChange={(event) => field.handleChange(event.target.value)}
+								error={field.state.meta.errors[0]}
+							/>
+						)}
+					</form.Field>
+					<div className="grid grid-cols-2 gap-4">
+						<form.Field name="telPrincipal">
 							{(field) => (
 								<InputField
 									id={field.name}
 									name={field.name}
-									label="Adresse e-mail"
-									type="email"
+									label="Téléphone principal"
 									value={field.state.value}
 									onBlur={field.handleBlur}
 									onChange={(event) => field.handleChange(event.target.value)}
@@ -418,30 +375,70 @@ function ContactDialog({
 								/>
 							)}
 						</form.Field>
-						{globalError ? (
-							<p role="alert" className="text-sm font-medium text-destructive">
-								{globalError}
-							</p>
-						) : null}
-						<div className="flex items-center justify-end gap-2 pt-2">
-							<Button
-								type="button"
-								variant="ghost"
-								onClick={() => onOpenChange(false)}
-							>
-								Annuler
-							</Button>
-							<Button type="submit" disabled={creerMutation.isPending}>
-								{creerMutation.isPending ? (
-									<Loader2 className="size-4 animate-spin" aria-hidden />
-								) : null}
-								Enregistrer
-							</Button>
-						</div>
-					</form>
-				</Dialog.Content>
-			</Dialog.Portal>
-		</Dialog.Root>
+						<form.Field name="telSecondaire">
+							{(field) => (
+								<InputField
+									id={field.name}
+									name={field.name}
+									label="Deuxième numéro"
+									value={field.state.value}
+									onBlur={field.handleBlur}
+									onChange={(event) => field.handleChange(event.target.value)}
+									error={field.state.meta.errors[0]}
+								/>
+							)}
+						</form.Field>
+					</div>
+					<form.Field name="adresse">
+						{(field) => (
+							<InputField
+								id={field.name}
+								name={field.name}
+								label="Adresse"
+								value={field.state.value}
+								onBlur={field.handleBlur}
+								onChange={(event) => field.handleChange(event.target.value)}
+								error={field.state.meta.errors[0]}
+							/>
+						)}
+					</form.Field>
+					<form.Field name="email">
+						{(field) => (
+							<InputField
+								id={field.name}
+								name={field.name}
+								label="Adresse e-mail"
+								type="email"
+								value={field.state.value}
+								onBlur={field.handleBlur}
+								onChange={(event) => field.handleChange(event.target.value)}
+								error={field.state.meta.errors[0]}
+							/>
+						)}
+					</form.Field>
+					{globalError ? (
+						<p role="alert" className="text-sm font-medium text-destructive">
+							{globalError}
+						</p>
+					) : null}
+					<div className="flex items-center justify-end gap-2 pt-2">
+						<Button
+							type="button"
+							variant="ghost"
+							onClick={() => onOpenChange(false)}
+						>
+							Annuler
+						</Button>
+						<Button type="submit" disabled={creerMutation.isPending}>
+							{creerMutation.isPending ? (
+								<Loader2 className="size-4 animate-spin" aria-hidden />
+							) : null}
+							Enregistrer
+						</Button>
+					</div>
+				</form>
+			</DialogContent>
+		</Dialog>
 	);
 }
 
@@ -532,192 +529,169 @@ function PieceDialog({
 		creerMutation.isPending || modifierMutation.isPending || uploading;
 
 	return (
-		<Dialog.Root open onOpenChange={onOpenChange}>
-			<Dialog.Portal>
-				<Dialog.Overlay className="fixed inset-0 z-50 bg-black/50" />
-				<Dialog.Content className="fixed top-1/2 left-1/2 z-50 w-[calc(100vw-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-lg border border-border bg-card p-6 shadow-lg max-h-[90vh] overflow-y-auto">
-					<Dialog.Title className="text-base font-semibold text-foreground">
-						Ajouter une pièce d'identité
-					</Dialog.Title>
-					<Dialog.Description className="mt-1 text-sm text-muted-foreground">
-						Pièce fournie par le client.
-					</Dialog.Description>
-					<form
-						className="mt-4 space-y-4"
-						onSubmit={(event) => {
-							event.preventDefault();
-							event.stopPropagation();
-							void form.handleSubmit();
-						}}
-					>
-						<form.Field name="typePiece">
+		<Dialog open onOpenChange={onOpenChange}>
+			<DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
+				<DialogTitle>Ajouter une pièce d'identité</DialogTitle>
+				<DialogDescription>Pièce fournie par le client.</DialogDescription>
+				<form
+					className="mt-4 space-y-4"
+					onSubmit={(event) => {
+						event.preventDefault();
+						event.stopPropagation();
+						void form.handleSubmit();
+					}}
+				>
+					<form.Field name="typePiece">
+						{(field) => (
+							<div className="space-y-1.5">
+								<Label htmlFor={field.name}>Type de pièce</Label>
+								<Select
+									value={field.state.value}
+									onValueChange={field.handleChange}
+								>
+									<SelectTrigger
+										id={field.name}
+										aria-label="Type de pièce"
+										className="w-full"
+									>
+										<SelectValue />
+									</SelectTrigger>
+									<SelectContent>
+										{Object.entries(TYPE_PIECE_LABELS).map(
+											([valeur, libelle]) => (
+												<SelectItem key={valeur} value={valeur}>
+													{libelle}
+												</SelectItem>
+											),
+										)}
+									</SelectContent>
+								</Select>
+							</div>
+						)}
+					</form.Field>
+					<form.Field name="numero">
+						{(field) => (
+							<InputField
+								id={field.name}
+								name={field.name}
+								label="Numéro de la pièce"
+								value={field.state.value}
+								onBlur={field.handleBlur}
+								onChange={(event) => field.handleChange(event.target.value)}
+								error={field.state.meta.errors[0]}
+							/>
+						)}
+					</form.Field>
+					<div className="grid grid-cols-2 gap-4">
+						<div className="space-y-1.5">
+							<Label htmlFor="fileRecto">Recto (photo)</Label>
+							<div className="relative">
+								<input
+									id="fileRecto"
+									type="file"
+									accept="image/jpeg,image/png,image/webp,application/pdf"
+									onChange={(e) => setFileRecto(e.target.files?.[0] ?? null)}
+									disabled={isPending}
+									className="absolute inset-0 cursor-pointer opacity-0"
+								/>
+								<div className="flex h-20 items-center justify-center rounded-md border border-dashed border-input bg-muted/30 text-center">
+									{fileRecto ? (
+										<div className="text-xs text-foreground">
+											<ImageIcon className="mx-auto mb-1 size-4" aria-hidden />
+											{fileRecto.name.substring(0, 20)}
+										</div>
+									) : (
+										<div className="text-xs text-muted-foreground">
+											<ImageIcon className="mx-auto mb-1 size-4" aria-hidden />
+											Choisir une image
+										</div>
+									)}
+								</div>
+							</div>
+						</div>
+						<div className="space-y-1.5">
+							<Label htmlFor="fileVerso">Verso (photo)</Label>
+							<div className="relative">
+								<input
+									id="fileVerso"
+									type="file"
+									accept="image/jpeg,image/png,image/webp,application/pdf"
+									onChange={(e) => setFileVerso(e.target.files?.[0] ?? null)}
+									disabled={isPending}
+									className="absolute inset-0 cursor-pointer opacity-0"
+								/>
+								<div className="flex h-20 items-center justify-center rounded-md border border-dashed border-input bg-muted/30 text-center">
+									{fileVerso ? (
+										<div className="text-xs text-foreground">
+											<ImageIcon className="mx-auto mb-1 size-4" aria-hidden />
+											{fileVerso.name.substring(0, 20)}
+										</div>
+									) : (
+										<div className="text-xs text-muted-foreground">
+											<ImageIcon className="mx-auto mb-1 size-4" aria-hidden />
+											Choisir une image
+										</div>
+									)}
+								</div>
+							</div>
+						</div>
+					</div>
+					<div className="grid grid-cols-2 gap-4">
+						<form.Field name="dateDelivrance">
 							{(field) => (
 								<div className="space-y-1.5">
-									<Label htmlFor={field.name}>Type de pièce</Label>
-									<Select
+									<Label htmlFor={field.name}>Délivrance</Label>
+									<input
+										id={field.name}
+										name={field.name}
+										type="date"
 										value={field.state.value}
-										onValueChange={field.handleChange}
-									>
-										<SelectTrigger
-											id={field.name}
-											aria-label="Type de pièce"
-											className="w-full"
-										>
-											<SelectValue />
-										</SelectTrigger>
-										<SelectContent>
-											{Object.entries(TYPE_PIECE_LABELS).map(
-												([valeur, libelle]) => (
-													<SelectItem key={valeur} value={valeur}>
-														{libelle}
-													</SelectItem>
-												),
-											)}
-										</SelectContent>
-									</Select>
+										onChange={(event) => field.handleChange(event.target.value)}
+										className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
+									/>
 								</div>
 							)}
 						</form.Field>
-						<form.Field name="numero">
+						<form.Field name="dateExpiration">
 							{(field) => (
-								<InputField
-									id={field.name}
-									name={field.name}
-									label="Numéro de la pièce"
-									value={field.state.value}
-									onBlur={field.handleBlur}
-									onChange={(event) => field.handleChange(event.target.value)}
-									error={field.state.meta.errors[0]}
-								/>
+								<div className="space-y-1.5">
+									<Label htmlFor={field.name}>Expiration</Label>
+									<input
+										id={field.name}
+										name={field.name}
+										type="date"
+										value={field.state.value}
+										onChange={(event) => field.handleChange(event.target.value)}
+										className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
+									/>
+								</div>
 							)}
 						</form.Field>
-						<div className="grid grid-cols-2 gap-4">
-							<div className="space-y-1.5">
-								<Label htmlFor="fileRecto">Recto (photo)</Label>
-								<div className="relative">
-									<input
-										id="fileRecto"
-										type="file"
-										accept="image/jpeg,image/png,image/webp,application/pdf"
-										onChange={(e) => setFileRecto(e.target.files?.[0] ?? null)}
-										disabled={isPending}
-										className="absolute inset-0 cursor-pointer opacity-0"
-									/>
-									<div className="flex h-20 items-center justify-center rounded-md border border-dashed border-input bg-muted/30 text-center">
-										{fileRecto ? (
-											<div className="text-xs text-foreground">
-												<ImageIcon
-													className="mx-auto mb-1 size-4"
-													aria-hidden
-												/>
-												{fileRecto.name.substring(0, 20)}
-											</div>
-										) : (
-											<div className="text-xs text-muted-foreground">
-												<ImageIcon
-													className="mx-auto mb-1 size-4"
-													aria-hidden
-												/>
-												Choisir une image
-											</div>
-										)}
-									</div>
-								</div>
-							</div>
-							<div className="space-y-1.5">
-								<Label htmlFor="fileVerso">Verso (photo)</Label>
-								<div className="relative">
-									<input
-										id="fileVerso"
-										type="file"
-										accept="image/jpeg,image/png,image/webp,application/pdf"
-										onChange={(e) => setFileVerso(e.target.files?.[0] ?? null)}
-										disabled={isPending}
-										className="absolute inset-0 cursor-pointer opacity-0"
-									/>
-									<div className="flex h-20 items-center justify-center rounded-md border border-dashed border-input bg-muted/30 text-center">
-										{fileVerso ? (
-											<div className="text-xs text-foreground">
-												<ImageIcon
-													className="mx-auto mb-1 size-4"
-													aria-hidden
-												/>
-												{fileVerso.name.substring(0, 20)}
-											</div>
-										) : (
-											<div className="text-xs text-muted-foreground">
-												<ImageIcon
-													className="mx-auto mb-1 size-4"
-													aria-hidden
-												/>
-												Choisir une image
-											</div>
-										)}
-									</div>
-								</div>
-							</div>
-						</div>
-						<div className="grid grid-cols-2 gap-4">
-							<form.Field name="dateDelivrance">
-								{(field) => (
-									<div className="space-y-1.5">
-										<Label htmlFor={field.name}>Délivrance</Label>
-										<input
-											id={field.name}
-											name={field.name}
-											type="date"
-											value={field.state.value}
-											onChange={(event) =>
-												field.handleChange(event.target.value)
-											}
-											className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
-										/>
-									</div>
-								)}
-							</form.Field>
-							<form.Field name="dateExpiration">
-								{(field) => (
-									<div className="space-y-1.5">
-										<Label htmlFor={field.name}>Expiration</Label>
-										<input
-											id={field.name}
-											name={field.name}
-											type="date"
-											value={field.state.value}
-											onChange={(event) =>
-												field.handleChange(event.target.value)
-											}
-											className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
-										/>
-									</div>
-								)}
-							</form.Field>
-						</div>
-						{globalError ? (
-							<p role="alert" className="text-sm font-medium text-destructive">
-								{globalError}
-							</p>
-						) : null}
-						<div className="flex items-center justify-end gap-2 pt-2">
-							<Button
-								type="button"
-								variant="ghost"
-								onClick={() => onOpenChange(false)}
-								disabled={isPending}
-							>
-								Annuler
-							</Button>
-							<Button type="submit" disabled={isPending}>
-								{isPending ? (
-									<Loader2 className="size-4 animate-spin" aria-hidden />
-								) : null}
-								Enregistrer
-							</Button>
-						</div>
-					</form>
-				</Dialog.Content>
-			</Dialog.Portal>
-		</Dialog.Root>
+					</div>
+					{globalError ? (
+						<p role="alert" className="text-sm font-medium text-destructive">
+							{globalError}
+						</p>
+					) : null}
+					<div className="flex items-center justify-end gap-2 pt-2">
+						<Button
+							type="button"
+							variant="ghost"
+							onClick={() => onOpenChange(false)}
+							disabled={isPending}
+						>
+							Annuler
+						</Button>
+						<Button type="submit" disabled={isPending}>
+							{isPending ? (
+								<Loader2 className="size-4 animate-spin" aria-hidden />
+							) : null}
+							Enregistrer
+						</Button>
+					</div>
+				</form>
+			</DialogContent>
+		</Dialog>
 	);
 }
 
@@ -770,39 +744,33 @@ export function ClientFichePage({ id }: ClientFichePageProps) {
 
 	return (
 		<div className="w-full space-y-6 p-6">
-			<Breadcrumb
-				items={[
+			<PageHeader
+				breadcrumb={[
 					{ label: "Accueil", to: "/" },
 					{ label: "Locataires et clients", to: "/client/clients" },
 					{ label: nomComplet(client) },
 				]}
-			/>
-
-			<div className="flex flex-wrap items-end justify-between gap-4">
-				<section className="flex items-center gap-4">
-					<PhotoClientAvatar cle={client.photo} nom={nomComplet(client)} />
-					<div className="space-y-1">
-						<h1 className="text-2xl font-semibold text-foreground">
-							Fiche client — {nomComplet(client)}
-						</h1>
-						<p className="text-muted-foreground">
-							{TYPE_CLIENT_LABELS[client.type_client]} ·{" "}
-							{client.profession ?? "profession non renseignée"}.
-						</p>
-					</div>
-				</section>
-				<div className="flex items-center gap-2">
-					{canModifier ? (
-						<Button variant="outline" onClick={() => setFormOuvert(true)}>
-							<Pencil className="size-4" aria-hidden />
-							Modifier
+				title={
+					<span className="inline-flex items-center gap-4">
+						<PhotoClientAvatar cle={client.photo} nom={nomComplet(client)} />
+						Fiche client — {nomComplet(client)}
+					</span>
+				}
+				description={`${TYPE_CLIENT_LABELS[client.type_client]} · ${client.profession ?? "profession non renseignée"}.`}
+				actions={
+					<div className="flex items-center gap-2">
+						{canModifier ? (
+							<Button variant="outline" onClick={() => setFormOuvert(true)}>
+								<Pencil className="size-4" aria-hidden />
+								Modifier
+							</Button>
+						) : null}
+						<Button variant="outline" asChild>
+							<Link to="/client/clients">Retour</Link>
 						</Button>
-					) : null}
-					<Button variant="outline" asChild>
-						<Link to="/client/clients">Retour</Link>
-					</Button>
-				</div>
-			</div>
+					</div>
+				}
+			/>
 
 			<div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
 				<section className="space-y-3 rounded-lg border border-border bg-card p-4 sm:p-5 shadow-sm">
@@ -875,57 +843,38 @@ export function ClientFichePage({ id }: ClientFichePageProps) {
 						) : null}
 					</div>
 					{client.pieces.length === 0 ? (
-						<p className="rounded-lg border border-border bg-sea-ink/5 p-4 text-center text-sm text-muted-foreground">
-							Aucune pièce enregistrée.
-						</p>
+						<EmptyState title="Aucune pièce enregistrée." />
 					) : (
 						<div className="overflow-x-auto">
-							<table className="w-full border-collapse text-sm">
-								<thead className="bg-sea-ink text-left text-white">
+							<DataTable>
+								<DataTableHead>
 									<tr>
-										<th scope="col" className="px-4 py-3 font-medium">
-											TYPE
-										</th>
-										<th scope="col" className="px-4 py-3 font-medium">
-											NUMÉRO
-										</th>
-										<th scope="col" className="px-4 py-3 font-medium">
-											DÉLIVRANCE
-										</th>
-										<th scope="col" className="px-4 py-3 font-medium">
-											EXPIRATION
-										</th>
-										<th scope="col" className="px-4 py-3 font-medium">
-											AUTORITÉ
-										</th>
-										<th scope="col" className="px-4 py-3 font-medium">
-											PHOTOS
-										</th>
+										<Th>TYPE</Th>
+										<Th>NUMÉRO</Th>
+										<Th>DÉLIVRANCE</Th>
+										<Th>EXPIRATION</Th>
+										<Th>AUTORITÉ</Th>
+										<Th>PHOTOS</Th>
 									</tr>
-								</thead>
+								</DataTableHead>
 								<tbody>
 									{client.pieces.map((piece) => (
-										<tr
-											key={piece.id}
-											className="border-t border-border transition-colors hover:bg-accent/40"
-										>
-											<td className="px-4 py-3 font-medium text-foreground">
+										<Tr key={piece.id}>
+											<Td className="font-medium text-foreground">
 												{TYPE_PIECE_LABELS[piece.type_piece] ??
 													piece.type_piece}
-											</td>
-											<td className="px-4 py-3 text-foreground">
-												{piece.numero}
-											</td>
-											<td className="px-4 py-3 text-muted-foreground">
+											</Td>
+											<Td className="text-foreground">{piece.numero}</Td>
+											<Td className="text-muted-foreground">
 												{formatDateISO(piece.date_delivrance)}
-											</td>
-											<td className="px-4 py-3 text-muted-foreground">
+											</Td>
+											<Td className="text-muted-foreground">
 												{formatDateISO(piece.date_expiration)}
-											</td>
-											<td className="px-4 py-3 text-muted-foreground">
+											</Td>
+											<Td className="text-muted-foreground">
 												{piece.autorite_delivrance ?? "—"}
-											</td>
-											<td className="px-4 py-3 text-center">
+											</Td>
+											<Td className="text-center">
 												{piece.copie_num || piece.copie_num_verso ? (
 													<Button
 														variant="ghost"
@@ -941,11 +890,11 @@ export function ClientFichePage({ id }: ClientFichePageProps) {
 														—
 													</span>
 												)}
-											</td>
-										</tr>
+											</Td>
+										</Tr>
 									))}
 								</tbody>
-							</table>
+							</DataTable>
 						</div>
 					)}
 				</section>
@@ -965,55 +914,40 @@ export function ClientFichePage({ id }: ClientFichePageProps) {
 						) : null}
 					</div>
 					{client.contacts.length === 0 ? (
-						<p className="rounded-lg border border-border bg-sea-ink/5 p-4 text-center text-sm text-muted-foreground">
-							Aucun contact d'urgence enregistré.
-						</p>
+						<EmptyState title="Aucun contact d'urgence enregistré." />
 					) : (
 						<div className="overflow-x-auto">
-							<table className="w-full border-collapse text-sm">
-								<thead className="bg-sea-ink text-left text-white">
+							<DataTable>
+								<DataTableHead>
 									<tr>
-										<th scope="col" className="px-4 py-3 font-medium">
-											CONTACT
-										</th>
-										<th scope="col" className="px-4 py-3 font-medium">
-											LIEN
-										</th>
-										<th scope="col" className="px-4 py-3 font-medium">
-											TÉLÉPHONE
-										</th>
-										<th scope="col" className="px-4 py-3 font-medium">
-											E-MAIL
-										</th>
+										<Th>CONTACT</Th>
+										<Th>LIEN</Th>
+										<Th>TÉLÉPHONE</Th>
+										<Th>E-MAIL</Th>
 									</tr>
-								</thead>
+								</DataTableHead>
 								<tbody>
 									{client.contacts.map((contact) => (
-										<tr
-											key={contact.id}
-											className="border-t border-border transition-colors hover:bg-accent/40"
-										>
-											<td className="px-4 py-3 font-medium text-foreground">
+										<Tr key={contact.id}>
+											<Td className="font-medium text-foreground">
 												{[contact.prenom, contact.nom]
 													.filter(Boolean)
 													.join(" ") || contact.nom}
-											</td>
-											<td className="px-4 py-3 text-muted-foreground">
-												{contact.lien}
-											</td>
-											<td className="px-4 py-3 text-foreground">
+											</Td>
+											<Td className="text-muted-foreground">{contact.lien}</Td>
+											<Td className="text-foreground">
 												{contact.tel_principal}
 												{contact.tel_secondaire
 													? ` · ${contact.tel_secondaire}`
 													: ""}
-											</td>
-											<td className="px-4 py-3 text-muted-foreground">
+											</Td>
+											<Td className="text-muted-foreground">
 												{contact.email ?? "—"}
-											</td>
-										</tr>
+											</Td>
+										</Tr>
 									))}
 								</tbody>
-							</table>
+							</DataTable>
 						</div>
 					)}
 				</section>

@@ -1,8 +1,10 @@
 import { useState } from "react";
 
-import { Breadcrumb } from "#/components/ui/breadcrumb";
+import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
+import { EmptyState } from "#/components/ui/empty-state";
 import { Input } from "#/components/ui/input";
+import { PageHeader } from "#/components/ui/page-header";
 import {
 	Select,
 	SelectContent,
@@ -10,6 +12,14 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "#/components/ui/select";
+import {
+	DataTable,
+	DataTableHead,
+	TableShell,
+	Td,
+	Th,
+	Tr,
+} from "#/components/ui/table";
 import { useCan } from "#/core/auth";
 import {
 	formatDateHeureISO,
@@ -95,18 +105,11 @@ export function PaiementsPage({
 
 	return (
 		<div className="w-full space-y-6 p-6">
-			<Breadcrumb
-				items={[{ label: "Accueil", to: "/" }, { label: "Encaissements" }]}
+			<PageHeader
+				breadcrumb={[{ label: "Accueil", to: "/" }, { label: "Encaissements" }]}
+				title="Encaissements"
+				description="Historique des paiements reçus sur la plateforme."
 			/>
-
-			<section className="space-y-1">
-				<h1 className="text-2xl font-semibold text-foreground">
-					Encaissements
-				</h1>
-				<p className="text-muted-foreground">
-					Historique des paiements reçus sur la plateforme.
-				</p>
-			</section>
 
 			<div className="space-y-3 rounded-lg border border-border bg-card p-4 shadow-sm">
 				<div className="flex flex-wrap items-center gap-3">
@@ -163,57 +166,42 @@ export function PaiementsPage({
 					</Button>
 				</div>
 			) : paiements.length === 0 ? (
-				<div className="rounded-lg border border-border bg-card p-8 text-center text-sm text-muted-foreground">
-					Aucun encaissement trouvé.
-				</div>
+				<EmptyState title="Aucun encaissement trouvé." />
 			) : (
-				<div className="overflow-x-auto rounded-lg border border-border bg-card shadow-sm">
-					<table className="w-full border-collapse text-sm">
-						<thead className="bg-sea-ink text-left text-white">
+				<TableShell>
+					<DataTable>
+						<DataTableHead>
 							<tr>
-								<th scope="col" className="px-4 py-3 font-medium">
-									DATE
-								</th>
-								<th scope="col" className="px-4 py-3 font-medium">
-									RÉFÉRENCE
-								</th>
-								<th scope="col" className="px-4 py-3 font-medium">
-									TYPE
-								</th>
-								<th scope="col" className="px-4 py-3 font-medium">
-									MOTIF
-								</th>
-								<th scope="col" className="px-4 py-3 text-right font-medium">
-									MONTANT
-								</th>
+								<Th>DATE</Th>
+								<Th>RÉFÉRENCE</Th>
+								<Th>TYPE</Th>
+								<Th>MOTIF</Th>
+								<Th className="text-right">MONTANT</Th>
 							</tr>
-						</thead>
+						</DataTableHead>
 						<tbody>
 							{pagination.items.map((paiement) => (
-								<tr
-									key={paiement.id}
-									className="border-t border-border transition-colors hover:bg-accent/40"
-								>
-									<td className="px-4 py-3 text-muted-foreground">
+								<Tr key={paiement.id}>
+									<Td className="text-muted-foreground">
 										{formatDateHeureISO(paiement.date)}
-									</td>
-									<td className="px-4 py-3 font-medium text-foreground">
+									</Td>
+									<Td className="font-medium text-foreground">
 										{paiement.reference ?? "—"}
-									</td>
-									<td className="px-4 py-3">
+									</Td>
+									<Td>
 										<BadgeType type={paiement.type} />
-									</td>
-									<td className="px-4 py-3 text-muted-foreground">
+									</Td>
+									<Td className="text-muted-foreground">
 										{paiement.motif ?? "—"}
-									</td>
-									<td className="px-4 py-3 text-right font-semibold text-foreground">
+									</Td>
+									<Td className="text-right font-semibold text-foreground">
 										{formatMontantFCFA(paiement.montant)}
-									</td>
-								</tr>
+									</Td>
+								</Tr>
 							))}
 						</tbody>
-					</table>
-				</div>
+					</DataTable>
+				</TableShell>
 			)}
 
 			{pagination.total > 0 ? (
@@ -252,23 +240,18 @@ export function PaiementsPage({
 function BadgeType({ type }: { type: string }) {
 	// `type` du wire est le sens du flux (ENCAISSEMENT/DECAISSEMENT), le motif
 	// (ex. « Loyer CON-2026-003 ») vit dans `motif`.
-	const couleurs: Record<string, string> = {
-		ENCAISSEMENT: "bg-[#27AE60] text-white",
-		DECAISSEMENT: "bg-[#E74C3C] text-white",
+	const variantes: Record<string, "success" | "danger"> = {
+		ENCAISSEMENT: "success",
+		DECAISSEMENT: "danger",
 	};
 	const libelles: Record<string, string> = {
 		ENCAISSEMENT: "Encaissement",
 		DECAISSEMENT: "Décaissement",
 	};
-	const label = libelles[type] ?? type;
 	return (
-		<span
-			className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ${
-				couleurs[type] ?? "bg-[#95A5A6] text-white"
-			}`}
-		>
-			{label}
-		</span>
+		<Badge variant={variantes[type] ?? "neutral"}>
+			{libelles[type] ?? type}
+		</Badge>
 	);
 }
 

@@ -1,8 +1,8 @@
 import { Plus } from "lucide-react";
 import { useState } from "react";
 
-import { Breadcrumb } from "#/components/ui/breadcrumb";
 import { Button } from "#/components/ui/button";
+import { PageHeader } from "#/components/ui/page-header";
 import { useCan } from "#/core/auth";
 
 import { useMoyensPaiement } from "../hooks/use-moyens-paiement";
@@ -114,27 +114,22 @@ export function SejoursPage({
 
 	return (
 		<div className="w-full space-y-6 p-6">
-			<Breadcrumb
-				items={[{ label: "Accueil", to: "/" }, { label: "Séjours courts" }]}
+			<PageHeader
+				breadcrumb={[
+					{ label: "Accueil", to: "/" },
+					{ label: "Séjours courts" },
+				]}
+				title="Séjours courts"
+				description="Liste des nuitées et siestes en cours ou passées."
+				actions={
+					canCreer ? (
+						<Button onClick={() => setFormOuvert(true)}>
+							<Plus className="size-4" aria-hidden />
+							Nouveau séjour
+						</Button>
+					) : null
+				}
 			/>
-
-			<div className="flex flex-wrap items-end justify-between gap-4">
-				<section className="space-y-1">
-					<h1 className="text-2xl font-semibold text-foreground">
-						Séjours courts
-					</h1>
-					<p className="text-muted-foreground">
-						Liste des nuitées et siestes en cours ou passées.
-					</p>
-				</section>
-
-				{canCreer ? (
-					<Button onClick={() => setFormOuvert(true)}>
-						<Plus className="size-4" aria-hidden />
-						Nouveau séjour
-					</Button>
-				) : null}
-			</div>
 
 			<SejourFilters
 				type={type}

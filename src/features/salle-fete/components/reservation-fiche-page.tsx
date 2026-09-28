@@ -2,8 +2,12 @@ import { Link } from "@tanstack/react-router";
 import { BadgeCheck, CheckCheck, Pencil, X } from "lucide-react";
 import { useState } from "react";
 
-import { Breadcrumb } from "#/components/ui/breadcrumb";
+import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
+import { Dialog, DialogContent, DialogTitle } from "#/components/ui/dialog";
+import { EmptyState } from "#/components/ui/empty-state";
+import { PageHeader } from "#/components/ui/page-header";
+import { DataTable, DataTableHead, Td, Th, Tr } from "#/components/ui/table";
 import { useCan } from "#/core/auth";
 import { useClientsDetails } from "#/features/residence/hooks/use-clients";
 import { useMoyensPaiement } from "#/features/residence/hooks/use-moyens-paiement";
@@ -12,7 +16,6 @@ import {
 	formatDateHeureISO,
 	formatMontantFCFA,
 } from "#/features/residence/models/format";
-import { cn } from "#/lib/utils";
 
 import {
 	useAnnulerReservation,
@@ -22,8 +25,8 @@ import {
 	useReservationPaiements,
 } from "../hooks/use-reservations";
 import {
-	RESERVATION_STATUT_BADGE,
 	RESERVATION_STATUT_LABELS,
+	RESERVATION_STATUT_VARIANT,
 } from "../models/reservations";
 import { AnnulerReservationDialog } from "./annuler-reservation-dialog";
 import { PaiementDialog } from "./paiement-dialog";
@@ -120,8 +123,8 @@ export function ReservationFichePage({ id }: ReservationFichePageProps) {
 
 	return (
 		<div className="w-full space-y-6 p-6">
-			<Breadcrumb
-				items={[
+			<PageHeader
+				breadcrumb={[
 					{ label: "Accueil", to: "/" },
 					{
 						label: "Réservations — Salle de fête",
@@ -129,39 +132,30 @@ export function ReservationFichePage({ id }: ReservationFichePageProps) {
 					},
 					{ label: `Réservation du ${reservation.date_evenement}` },
 				]}
+				title="Fiche réservation"
+				description={`${reservation.type_manifestation} — ${RESERVATION_STATUT_LABELS[reservation.statut].toLowerCase()}.`}
+				actions={
+					<div className="flex items-center gap-2">
+						{canValider && reservation.statut === "EN_ATTENTE" ? (
+							<Button onClick={() => setValiderOuvert(true)}>
+								<BadgeCheck className="size-4" aria-hidden />
+								Valider et tarifer
+							</Button>
+						) : null}
+						{canModifier &&
+						reservation.statut !== "REALISEE" &&
+						reservation.statut !== "EN_ATTENTE" ? (
+							<Button variant="outline" onClick={() => setFormOuvert(true)}>
+								<Pencil className="size-4" aria-hidden />
+								Modifier
+							</Button>
+						) : null}
+						<Button variant="outline" asChild>
+							<Link to="/salle-fete/reservations">Retour aux réservations</Link>
+						</Button>
+					</div>
+				}
 			/>
-
-			<div className="flex flex-wrap items-end justify-between gap-4">
-				<section className="space-y-1">
-					<h1 className="text-2xl font-semibold text-foreground">
-						Fiche réservation
-					</h1>
-					<p className="text-muted-foreground">
-						{reservation.type_manifestation} —{" "}
-						{RESERVATION_STATUT_LABELS[reservation.statut].toLowerCase()}.
-					</p>
-				</section>
-
-				<div className="flex items-center gap-2">
-					{canValider && reservation.statut === "EN_ATTENTE" ? (
-						<Button onClick={() => setValiderOuvert(true)}>
-							<BadgeCheck className="size-4" aria-hidden />
-							Valider et tarifer
-						</Button>
-					) : null}
-					{canModifier &&
-					reservation.statut !== "REALISEE" &&
-					reservation.statut !== "EN_ATTENTE" ? (
-						<Button variant="outline" onClick={() => setFormOuvert(true)}>
-							<Pencil className="size-4" aria-hidden />
-							Modifier
-						</Button>
-					) : null}
-					<Button variant="outline" asChild>
-						<Link to="/salle-fete/reservations">Retour aux réservations</Link>
-					</Button>
-				</div>
-			</div>
 
 			<section className="rounded-lg border border-border bg-card p-5 shadow-sm">
 				<dl className="grid gap-4 sm:grid-cols-2">
@@ -183,14 +177,9 @@ export function ReservationFichePage({ id }: ReservationFichePageProps) {
 					<Ligne label="Solde" valeur={formatMontantFCFA(reservation.solde)} />
 				</dl>
 				<div className="mt-4 flex flex-wrap items-center gap-3">
-					<span
-						className={cn(
-							"inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium",
-							RESERVATION_STATUT_BADGE[reservation.statut],
-						)}
-					>
+					<Badge variant={RESERVATION_STATUT_VARIANT[reservation.statut]}>
 						{RESERVATION_STATUT_LABELS[reservation.statut]}
-					</span>
+					</Badge>
 					{reservation.statut === "EN_ATTENTE" && canValider ? (
 						<Button
 							variant="outline"
@@ -275,7 +264,7 @@ export function ReservationFichePage({ id }: ReservationFichePageProps) {
 						<h2 className="text-lg font-semibold text-foreground">Paiements</h2>
 						<p className="text-sm text-muted-foreground">
 							Total encaissé :{" "}
-							<span className="font-semibold text-[#27AE60]">
+							<span className="font-semibold text-success">
 								{formatMontantFCFA(String(totalEncaissement))}
 							</span>
 						</p>
@@ -284,66 +273,49 @@ export function ReservationFichePage({ id }: ReservationFichePageProps) {
 					{paiementsQuery.isLoading ? (
 						<p className="text-sm text-muted-foreground">Chargement…</p>
 					) : paiements.length === 0 ? (
-						<p className="rounded-lg border border-border bg-sea-ink/5 p-4 text-center text-sm text-muted-foreground">
-							Aucun paiement enregistré pour cette réservation.
-						</p>
+						<EmptyState title="Aucun paiement enregistré pour cette réservation." />
 					) : (
 						<div className="overflow-x-auto">
-							<table className="w-full border-collapse text-sm">
-								<thead className="bg-sea-ink text-left text-white">
+							<DataTable>
+								<DataTableHead>
 									<tr>
-										<th scope="col" className="px-4 py-3 font-medium">
-											DATE
-										</th>
-										<th scope="col" className="px-4 py-3 font-medium">
-											MOYEN
-										</th>
-										<th scope="col" className="px-4 py-3 font-medium">
-											TYPE
-										</th>
-										<th
-											scope="col"
-											className="px-4 py-3 text-right font-medium"
-										>
-											MONTANT
-										</th>
+										<Th>DATE</Th>
+										<Th>MOYEN</Th>
+										<Th>TYPE</Th>
+										<Th className="text-right">MONTANT</Th>
 									</tr>
-								</thead>
+								</DataTableHead>
 								<tbody>
 									{paiements.map((paiement) => (
-										<tr
-											key={paiement.id}
-											className="border-t border-border transition-colors hover:bg-accent/40"
-										>
-											<td className="px-4 py-3 text-muted-foreground">
+										<Tr key={paiement.id}>
+											<Td className="text-muted-foreground">
 												{formatDateHeureISO(paiement.date)}
-											</td>
-											<td className="px-4 py-3 text-foreground">
+											</Td>
+											<Td className="text-foreground">
 												{paiement.id_moyen
 													? (moyens.get(paiement.id_moyen) ?? "—")
 													: "—"}
-											</td>
-											<td className="px-4 py-3">
-												<span
-													className={cn(
-														"inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium",
+											</Td>
+											<Td>
+												<Badge
+													variant={
 														paiement.type === "ENCAISSEMENT"
-															? "bg-[#27AE60] text-white"
-															: "bg-[#E74C3C] text-white",
-													)}
+															? "success"
+															: "danger"
+													}
 												>
 													{paiement.type === "ENCAISSEMENT"
 														? "Encaissement"
 														: "Décaissement"}
-												</span>
-											</td>
-											<td className="px-4 py-3 text-right font-semibold text-foreground">
+												</Badge>
+											</Td>
+											<Td className="text-right font-semibold text-foreground">
 												{formatMontantFCFA(paiement.montant)}
-											</td>
-										</tr>
+											</Td>
+										</Tr>
 									))}
 								</tbody>
-							</table>
+							</DataTable>
 						</div>
 					)}
 				</section>
@@ -367,14 +339,19 @@ export function ReservationFichePage({ id }: ReservationFichePageProps) {
 				onSaved={() => setFormOuvert(false)}
 			/>
 
-			{aPayer ? (
-				<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-6">
-					<div className="w-full max-w-md rounded-lg border border-border bg-card p-6 shadow-lg">
-						<h3 className="text-base font-semibold text-foreground">
-							{aPayer.mode === "confirmer"
-								? "Confirmer la réservation"
-								: "Réaliser la réservation"}
-						</h3>
+			<Dialog
+				open={aPayer !== null}
+				onOpenChange={(ouvert) => {
+					if (!ouvert) setAPayer(null);
+				}}
+			>
+				<DialogContent className="max-w-md">
+					<DialogTitle>
+						{aPayer?.mode === "confirmer"
+							? "Confirmer la réservation"
+							: "Réaliser la réservation"}
+					</DialogTitle>
+					{aPayer ? (
 						<div className="mt-4">
 							<PaiementDialog
 								titre={aPayer.mode === "confirmer" ? "Confirmer" : "Réaliser"}
@@ -390,9 +367,9 @@ export function ReservationFichePage({ id }: ReservationFichePageProps) {
 								}}
 							/>
 						</div>
-					</div>
-				</div>
-			) : null}
+					) : null}
+				</DialogContent>
+			</Dialog>
 
 			<ValiderReservationDialog
 				open={validerOuvert}

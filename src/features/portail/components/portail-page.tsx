@@ -6,6 +6,7 @@ import {
 	Camera,
 	ChevronRight,
 	CreditCard,
+	Flag,
 	PartyPopper,
 	ShieldCheck,
 	Shirt,
@@ -14,19 +15,19 @@ import {
 	UtensilsCrossed,
 } from "lucide-react";
 
-import { Breadcrumb } from "#/components/ui/breadcrumb";
+import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
+import { PageHeader } from "#/components/ui/page-header";
 import { useCan } from "#/core/auth";
 import {
 	formatDateISO,
 	formatMontantFCFA,
 } from "#/features/residence/models/format";
-import { cn } from "#/lib/utils";
 
 import { usePortailResume } from "../hooks/use-portail";
 import {
-	ECHEANCE_STATUT_BADGE,
 	ECHEANCE_STATUT_LABELS,
+	echeancePortailStatutVariant,
 	libelleMoisAnnee,
 } from "../models/portail";
 
@@ -45,7 +46,7 @@ function ModuleCard({
 	return (
 		<Link
 			to={to}
-			className="group flex items-center gap-3 rounded-lg border border-border bg-card p-4 shadow-sm transition-colors hover:border-lagoon/50 hover:bg-accent/40"
+			className="group flex items-center gap-3 rounded-xl border border-border bg-card p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-lagoon/50 hover:bg-accent/40 hover:shadow-md"
 		>
 			<span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-sea-ink/10 text-sea-ink">
 				<Icon className="size-5" aria-hidden />
@@ -83,6 +84,7 @@ function Ligne({ label, valeur }: { label: string; valeur: string }) {
 export function PortailPage() {
 	const resumeQuery = usePortailResume();
 	const canVoirSignalements = useCan("SIGNALEMENT.VOIR");
+	const canPortail = useCan("PORTAIL.VOIR");
 
 	if (resumeQuery.isLoading) {
 		return (
@@ -106,6 +108,7 @@ export function PortailPage() {
 					<Button
 						variant="outline"
 						size="sm"
+						className="rounded-full"
 						onClick={() => void resumeQuery.refetch()}
 					>
 						Réessayer
@@ -119,21 +122,14 @@ export function PortailPage() {
 
 	return (
 		<div className="w-full space-y-6 p-6">
-			<Breadcrumb
-				items={[
+			<PageHeader
+				breadcrumb={[
 					{ label: "Accueil", to: "/" },
 					{ label: "Mon espace résident" },
 				]}
+				title="Mon espace résident"
+				description={`${client.prenoms} ${client.nom} — récapitulatif de votre situation.`}
 			/>
-
-			<section className="space-y-1">
-				<h1 className="text-2xl font-semibold text-foreground">
-					Mon espace résident
-				</h1>
-				<p className="text-muted-foreground">
-					{client.prenoms} {client.nom} — récapitulatif de votre situation.
-				</p>
-			</section>
 
 			<section className="space-y-3">
 				<h2 className="text-lg font-semibold text-foreground">Mes services</h2>
@@ -198,6 +194,14 @@ export function PortailPage() {
 						titre="Mes états des lieux"
 						description="Photos d'entrée et de sortie de vos logements."
 					/>
+					{canPortail ? (
+						<ModuleCard
+							to="/residence/portail/signalements"
+							icon={Flag}
+							titre="Mes signalements"
+							description="Signalez un problème et suivez son traitement."
+						/>
+					) : null}
 					{canVoirSignalements ? (
 						<ModuleCard
 							to="/signalements"
@@ -210,7 +214,7 @@ export function PortailPage() {
 			</section>
 
 			{contrat_en_cours ? (
-				<section className="rounded-lg border border-border bg-card p-5 shadow-sm">
+				<section className="rounded-xl border border-border bg-card p-5 shadow-sm">
 					<h2 className="text-lg font-semibold text-foreground">
 						Contrat en cours
 					</h2>
@@ -241,7 +245,7 @@ export function PortailPage() {
 			) : null}
 
 			{prochaine_echeance ? (
-				<section className="rounded-lg border border-border bg-card p-5 shadow-sm">
+				<section className="rounded-xl border border-border bg-card p-5 shadow-sm">
 					<h2 className="text-lg font-semibold text-foreground">
 						Prochaine échéance
 					</h2>
@@ -256,16 +260,12 @@ export function PortailPage() {
 								{formatMontantFCFA(prochaine_echeance.montant)}
 							</span>
 						</p>
-						<span
-							className={cn(
-								"inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium",
-								ECHEANCE_STATUT_BADGE[prochaine_echeance.statut] ??
-									"bg-[#95A5A6] text-white",
-							)}
+						<Badge
+							variant={echeancePortailStatutVariant(prochaine_echeance.statut)}
 						>
 							{ECHEANCE_STATUT_LABELS[prochaine_echeance.statut] ??
 								prochaine_echeance.statut}
-						</span>
+						</Badge>
 					</div>
 				</section>
 			) : null}

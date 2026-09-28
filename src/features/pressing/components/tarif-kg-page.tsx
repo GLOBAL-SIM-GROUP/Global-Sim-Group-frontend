@@ -1,9 +1,9 @@
 import { CheckCircle2, Loader2 } from "lucide-react";
 import { useState } from "react";
 
-import { Breadcrumb } from "#/components/ui/breadcrumb";
 import { Button } from "#/components/ui/button";
 import { InputField } from "#/components/ui/input-field";
+import { PageHeader } from "#/components/ui/page-header";
 import { getErrorMessageForCode, toApiError } from "#/core/api";
 import {
 	normaliserMontantPourBackend,
@@ -64,24 +64,15 @@ export function TarifKgPage() {
 
 	return (
 		<div className="w-full space-y-6 p-6">
-			<Breadcrumb
-				items={[
+			<PageHeader
+				breadcrumb={[
 					{ label: "Accueil", to: "/" },
 					{ label: "Commandes — Pressing", to: "/pressing/commandes" },
 					{ label: "Tarif au kilo" },
 				]}
+				title="Tarif au kilo — Pressing"
+				description="Tarif appliqué aux commandes en tarification au kilo. Historique append-only : définir un nouveau tarif ne change jamais le total des commandes déjà créées."
 			/>
-
-			<section className="space-y-1">
-				<h1 className="text-2xl font-semibold text-foreground">
-					Tarif au kilo — Pressing
-				</h1>
-				<p className="text-muted-foreground">
-					Tarif appliqué aux commandes en tarification au kilo. Historique
-					append-only : définir un nouveau tarif ne change jamais le total des
-					commandes déjà créées.
-				</p>
-			</section>
 
 			<section className="rounded-lg border border-border bg-card p-5 shadow-sm">
 				<h2 className="text-base font-semibold text-foreground">

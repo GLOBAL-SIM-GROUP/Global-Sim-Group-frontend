@@ -1,8 +1,9 @@
 import { Link } from "@tanstack/react-router";
 import { useState } from "react";
 
-import { Breadcrumb } from "#/components/ui/breadcrumb";
+import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
+import { PageHeader } from "#/components/ui/page-header";
 import { useCan } from "#/core/auth";
 import {
 	formatDateInstantUTC,
@@ -21,8 +22,8 @@ import {
 	getEtapeActuelle,
 	libelleDateDepot,
 	libelleMontantPressing,
-	PRESSING_STATUT_BADGE,
 	PRESSING_STATUT_LABELS,
+	PRESSING_STATUT_VARIANT,
 	PROGRESSION_ETAPES,
 } from "../models/pressing";
 import { AnnulerDemandeDialog } from "./annuler-demande-dialog";
@@ -66,6 +67,7 @@ export function PressingCommandeDetailPage({
 					<Button
 						variant="outline"
 						size="sm"
+						className="rounded-full"
 						onClick={() => void commandeQuery.refetch()}
 					>
 						Réessayer
@@ -81,60 +83,55 @@ export function PressingCommandeDetailPage({
 
 	return (
 		<div className="w-full space-y-6 p-6">
-			<Breadcrumb
-				items={[
+			<PageHeader
+				breadcrumb={[
 					{ label: "Accueil", to: "/" },
 					{ label: "Mon espace résident", to: "/residence/portail" },
 					{ label: "Suivi Pressing", to: "/residence/portail/pressing" },
 					{ label: commande.numero_commande },
 				]}
-			/>
-
-			<div className="flex flex-wrap items-end justify-between gap-4">
-				<section className="space-y-1">
-					<div className="flex flex-wrap items-center gap-2">
-						<h1 className="text-2xl font-semibold text-foreground">
-							{commande.numero_commande}
-						</h1>
-						<span
-							className={cn(
-								"inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium",
-								PRESSING_STATUT_BADGE[commande.statut] ??
-									"bg-[#95A5A6] text-white",
-							)}
-						>
+				title={
+					<span className="inline-flex flex-wrap items-center gap-2">
+						{commande.numero_commande}
+						<Badge variant={PRESSING_STATUT_VARIANT[commande.statut]}>
 							{PRESSING_STATUT_LABELS[commande.statut] ?? commande.statut}
-						</span>
-					</div>
-					<p className="text-muted-foreground">
-						{libelleDateDepot(commande)}
-						{commande.date_retrait_reelle
-							? ` — retiré le ${formatDateInstantUTC(commande.date_retrait_reelle)}`
-							: commande.date_retrait_prevue
-								? ` — retrait prévu le ${formatDateISO(commande.date_retrait_prevue)}`
-								: ""}
-					</p>
-				</section>
-				<div className="flex flex-wrap items-center gap-2">
-					<PressingRecuButton
-						idCommande={commande.id}
-						numeroCommande={commande.numero_commande}
-					/>
-					{canDeclarer && estAnnulable(commande) ? (
+						</Badge>
+					</span>
+				}
+				description={`${libelleDateDepot(commande)}${
+					commande.date_retrait_reelle
+						? ` — retiré le ${formatDateInstantUTC(commande.date_retrait_reelle)}`
+						: commande.date_retrait_prevue
+							? ` — retrait prévu le ${formatDateISO(commande.date_retrait_prevue)}`
+							: ""
+				}`}
+				actions={
+					<div className="flex flex-wrap items-center gap-2">
+						<PressingRecuButton
+							idCommande={commande.id}
+							numeroCommande={commande.numero_commande}
+						/>
+						{canDeclarer && estAnnulable(commande) ? (
+							<Button
+								variant="outline"
+								size="sm"
+								className="rounded-full text-destructive hover:bg-destructive/10"
+								onClick={() => setConfirmOuvert(true)}
+							>
+								Annuler la demande
+							</Button>
+						) : null}
 						<Button
 							variant="outline"
 							size="sm"
-							className="text-destructive hover:bg-destructive/10"
-							onClick={() => setConfirmOuvert(true)}
+							className="rounded-full"
+							asChild
 						>
-							Annuler la demande
+							<Link to="/residence/portail/pressing">Retour à la liste</Link>
 						</Button>
-					) : null}
-					<Button variant="outline" size="sm" asChild>
-						<Link to="/residence/portail/pressing">Retour à la liste</Link>
-					</Button>
-				</div>
-			</div>
+					</div>
+				}
+			/>
 
 			{commande.motif_annulation ? (
 				<div className="rounded-lg border border-destructive/40 bg-destructive/10 p-4 text-sm">
@@ -144,7 +141,7 @@ export function PressingCommandeDetailPage({
 			) : null}
 
 			<div className="grid gap-4 sm:grid-cols-3">
-				<div className="rounded-lg border border-border bg-card p-4 shadow-sm">
+				<div className="rounded-xl border border-border bg-card p-4 shadow-sm">
 					<p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
 						Montant total
 					</p>
@@ -152,7 +149,7 @@ export function PressingCommandeDetailPage({
 						{libelleMontantPressing(commande.montant_total)}
 					</p>
 				</div>
-				<div className="rounded-lg border border-border bg-card p-4 shadow-sm">
+				<div className="rounded-xl border border-border bg-card p-4 shadow-sm">
 					<p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
 						Acompte versé
 					</p>
@@ -160,7 +157,7 @@ export function PressingCommandeDetailPage({
 						{formatMontantFCFA(commande.acompte)}
 					</p>
 				</div>
-				<div className="rounded-lg border border-border bg-card p-4 shadow-sm">
+				<div className="rounded-xl border border-border bg-card p-4 shadow-sm">
 					<p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
 						Reste à payer
 					</p>
@@ -177,7 +174,7 @@ export function PressingCommandeDetailPage({
 				</div>
 			</div>
 
-			<section className="space-y-4 rounded-lg border border-border bg-card p-5 shadow-sm">
+			<section className="space-y-4 rounded-xl border border-border bg-card p-5 shadow-sm">
 				<h2 className="text-lg font-semibold text-foreground">
 					Progression du traitement
 				</h2>
@@ -205,23 +202,28 @@ export function PressingCommandeDetailPage({
 						return (
 							<li key={statut} className="flex gap-3">
 								<div className="flex flex-col items-center">
-									<span
-										className={cn(
-											"flex size-6 shrink-0 items-center justify-center rounded-full border-2 text-xs font-semibold",
-											isCompleted
-												? "border-[#27AE60] bg-[#27AE60] text-white"
-												: isCurrent
-													? "border-lagoon text-lagoon"
-													: "border-border text-muted-foreground",
-										)}
-									>
-										{isCompleted ? "✓" : index + 1}
+									<span className="relative flex size-6 shrink-0">
+										{isCurrent ? (
+											<span className="absolute inline-flex h-full w-full motion-safe:animate-ping rounded-full bg-lagoon/50" />
+										) : null}
+										<span
+											className={cn(
+												"relative flex size-6 shrink-0 items-center justify-center rounded-full border-2 text-xs font-semibold",
+												isCompleted
+													? "border-success bg-success-bg text-success"
+													: isCurrent
+														? "border-lagoon bg-lagoon text-white"
+														: "border-border text-muted-foreground",
+											)}
+										>
+											{isCompleted ? "✓" : index + 1}
+										</span>
 									</span>
 									{index < PROGRESSION_ETAPES.length - 1 ? (
 										<div
 											className={cn(
 												"mt-1 w-px flex-1",
-												isCompleted ? "bg-[#27AE60]" : "bg-border",
+												isCompleted ? "bg-success" : "bg-border",
 											)}
 											style={{ minHeight: "2rem" }}
 										/>

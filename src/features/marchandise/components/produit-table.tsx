@@ -1,5 +1,14 @@
+import { Badge } from "#/components/ui/badge";
+import { EmptyState } from "#/components/ui/empty-state";
+import {
+	DataTable,
+	DataTableHead,
+	TableShell,
+	Td,
+	Th,
+	Tr,
+} from "#/components/ui/table";
 import { formatMontantFCFA } from "#/features/residence/models/format";
-import { cn } from "#/lib/utils";
 import type {
 	CategorieProduit,
 	Fournisseur,
@@ -15,6 +24,15 @@ interface ProduitTableProps {
 	onCodeBarre: (produit: Produit) => void;
 }
 
+/** Variante `<Badge>` du stock : rupture, sous le seuil, ou normal. */
+function stockVariant(produit: Produit): "danger" | "warning" | "success" {
+	if (Number(produit.quantite_stock) <= 0) return "danger";
+	if (Number(produit.quantite_stock) < Number(produit.seuil_alerte)) {
+		return "warning";
+	}
+	return "success";
+}
+
 /**
  * Tableau du catalogue produits (M3). Les catégories et fournisseurs sont
  * résolus depuis les listers (le catalogue ne porte que leurs ids).
@@ -27,101 +45,64 @@ export function ProduitTable({
 	onCodeBarre,
 }: ProduitTableProps) {
 	if (produits.length === 0) {
-		return (
-			<div className="rounded-lg border border-border bg-card p-8 text-center text-sm text-muted-foreground">
-				Aucun produit trouvé.
-			</div>
-		);
+		return <EmptyState title="Aucun produit trouvé." />;
 	}
 
 	const categorieParId = new Map(categories.map((c) => [c.id, c.libelle]));
 	const fournisseurParId = new Map(fournisseurs.map((f) => [f.id, f.nom]));
 
 	return (
-		<div className="overflow-x-auto rounded-lg border border-border bg-card shadow-sm">
-			<table className="w-full border-collapse text-sm">
-				<thead className="bg-sea-ink text-left text-white">
+		<TableShell>
+			<DataTable>
+				<DataTableHead>
 					<tr>
-						<th scope="col" className="px-4 py-3 font-medium">
-							RÉFÉRENCE
-						</th>
-						<th scope="col" className="px-4 py-3 font-medium">
-							NOM
-						</th>
-						<th scope="col" className="px-4 py-3 font-medium">
-							CATÉGORIE
-						</th>
-						<th scope="col" className="px-4 py-3 font-medium">
-							PRIX ACHAT
-						</th>
-						<th scope="col" className="px-4 py-3 font-medium">
-							PRIX VENTE
-						</th>
-						<th scope="col" className="px-4 py-3 font-medium">
-							STOCK
-						</th>
-						<th scope="col" className="px-4 py-3 font-medium">
-							SEUIL
-						</th>
-						<th scope="col" className="px-4 py-3 font-medium">
-							FOURNISSEUR
-						</th>
-						<th scope="col" className="px-4 py-3 text-right font-medium">
-							ACTIONS
-						</th>
+						<Th>RÉFÉRENCE</Th>
+						<Th>NOM</Th>
+						<Th>CATÉGORIE</Th>
+						<Th>PRIX ACHAT</Th>
+						<Th>PRIX VENTE</Th>
+						<Th>STOCK</Th>
+						<Th>SEUIL</Th>
+						<Th>FOURNISSEUR</Th>
+						<Th className="text-right">ACTIONS</Th>
 					</tr>
-				</thead>
+				</DataTableHead>
 				<tbody>
 					{produits.map((produit) => (
-						<tr
-							key={produit.id}
-							className="border-t border-border transition-colors hover:bg-accent/40"
-						>
-							<td className="px-4 py-3 font-semibold text-foreground">
+						<Tr key={produit.id}>
+							<Td className="font-semibold text-foreground">
 								{produit.reference}
-							</td>
-							<td className="px-4 py-3 text-foreground">{produit.nom}</td>
-							<td className="px-4 py-3 text-muted-foreground">
+							</Td>
+							<Td className="text-foreground">{produit.nom}</Td>
+							<Td className="text-muted-foreground">
 								{categorieParId.get(produit.id_categorie_produit ?? "") ?? "—"}
-							</td>
-							<td className="px-4 py-3 text-foreground">
+							</Td>
+							<Td className="text-foreground">
 								{formatMontantFCFA(produit.prix_achat)}
-							</td>
-							<td className="px-4 py-3 text-foreground">
+							</Td>
+							<Td className="text-foreground">
 								{formatMontantFCFA(produit.prix_vente)}
-							</td>
-							<td className="px-4 py-3">
-								<span
-									className={cn(
-										"inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium",
-										Number(produit.quantite_stock) <= 0
-											? "bg-[#E74C3C] text-white"
-											: Number(produit.quantite_stock) <
-													Number(produit.seuil_alerte)
-												? "bg-[#E67E22] text-white"
-												: "bg-[#27AE60] text-white",
-									)}
-								>
+							</Td>
+							<Td>
+								<Badge variant={stockVariant(produit)}>
 									{produit.quantite_stock}
-								</span>
-							</td>
-							<td className="px-4 py-3 text-muted-foreground">
-								{produit.seuil_alerte}
-							</td>
-							<td className="px-4 py-3 text-muted-foreground">
+								</Badge>
+							</Td>
+							<Td className="text-muted-foreground">{produit.seuil_alerte}</Td>
+							<Td className="text-muted-foreground">
 								{fournisseurParId.get(produit.id_fournisseur ?? "") ?? "—"}
-							</td>
-							<td className="px-4 py-3">
+							</Td>
+							<Td>
 								<ProduitActions
 									produit={produit}
 									onEdit={onEdit}
 									onCodeBarre={onCodeBarre}
 								/>
-							</td>
-						</tr>
+							</Td>
+						</Tr>
 					))}
 				</tbody>
-			</table>
-		</div>
+			</DataTable>
+		</TableShell>
 	);
 }

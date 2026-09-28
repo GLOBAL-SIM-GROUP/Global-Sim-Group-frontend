@@ -13,13 +13,20 @@ export const FACTURE_STATUT_LABELS: Record<FactureStatut, string> = {
 	ANNULEE: "Annulée",
 };
 
-/** Classes de badge (fond/texte) par statut de facture. */
-export const FACTURE_STATUT_BADGE: Record<FactureStatut, string> = {
-	PAYEE: "bg-[#27AE60] text-white",
-	PARTIELLE: "bg-[#E67E22] text-white",
-	IMPAYEE: "bg-[#E74C3C] text-white",
-	ANNULEE: "bg-[#95A5A6] text-white",
-};
+/**
+ * Variante `<Badge>` par statut de facture — design system « Concierge »,
+ * voir `docs/design-system.md`. Remplace l'ancienne map `FACTURE_STATUT_BADGE`
+ * à hex flat-ui en dur.
+ */
+export const FACTURE_STATUT_VARIANT = {
+	PAYEE: "success",
+	PARTIELLE: "warning",
+	IMPAYEE: "danger",
+	ANNULEE: "neutral",
+} as const satisfies Record<
+	FactureStatut,
+	"success" | "warning" | "info" | "danger" | "neutral"
+>;
 
 /** Libellés français des sources de facture (libre : nouveau type = valeur brute). */
 export const FACTURE_SOURCE_LABELS: Record<string, string> = {

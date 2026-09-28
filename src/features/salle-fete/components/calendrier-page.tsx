@@ -2,8 +2,8 @@ import { Link } from "@tanstack/react-router";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useState } from "react";
 
-import { Breadcrumb } from "#/components/ui/breadcrumb";
 import { Button } from "#/components/ui/button";
+import { PageHeader } from "#/components/ui/page-header";
 import { useCan } from "#/core/auth";
 import { cn } from "#/lib/utils";
 
@@ -11,12 +11,26 @@ import { useReservations } from "../hooks/use-reservations";
 import {
 	construireGrilleMois,
 	dernierJourMois,
-	RESERVATION_STATUT_BADGE,
 	RESERVATION_STATUT_LABELS,
+	type ReservationStatut,
 	reservationsPourJour,
 } from "../models/reservations";
 
 const JOURS_SEMAINE = ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"];
+
+/**
+ * Couleur pleine (fond de puce calendrier, texte blanc) par statut — distincte
+ * des variantes `<Badge>` (fond doux) : mappée sur les mêmes tokens `--status-*`
+ * via les classes solides `bg-success`/`bg-warning`/`bg-info`/`bg-danger`/`bg-neutral`.
+ */
+const RESERVATION_STATUT_COULEUR_PLEINE: Record<ReservationStatut, string> = {
+	EN_ATTENTE: "bg-warning",
+	DISPONIBLE: "bg-success",
+	RESERVEE: "bg-warning",
+	CONFIRMEE: "bg-info",
+	REALISEE: "bg-neutral",
+	ANNULEE: "bg-danger",
+};
 
 /** Mois affiché dans l'URL (`mois` au format `YYYY-MM`). */
 export interface CalendrierSearch {
@@ -81,42 +95,33 @@ export function CalendrierPage({
 
 	return (
 		<div className="w-full space-y-6 p-6">
-			<Breadcrumb
-				items={[
+			<PageHeader
+				breadcrumb={[
 					{ label: "Accueil", to: "/" },
 					{ label: "Calendrier — Salle de fête" },
 				]}
+				title="Calendrier — Salle de fête"
+				description="Occupations de la salle par mois. Cliquez sur une réservation pour ouvrir sa fiche."
+				actions={
+					<div className="flex items-center gap-2">
+						<Button variant="outline" size="sm" onClick={() => naviguer(-1)}>
+							<ChevronLeft className="size-4" aria-hidden />
+							Mois précédent
+						</Button>
+						<Button variant="outline" size="sm" onClick={() => naviguer(1)}>
+							Mois suivant
+							<ChevronRight className="size-4" aria-hidden />
+						</Button>
+						<Button
+							variant="outline"
+							size="sm"
+							onClick={() => onSearchChange(() => ({ mois: moisCourant() }))}
+						>
+							Aujourd'hui
+						</Button>
+					</div>
+				}
 			/>
-
-			<div className="flex flex-wrap items-end justify-between gap-4">
-				<section className="space-y-1">
-					<h1 className="text-2xl font-semibold text-foreground">
-						Calendrier — Salle de fête
-					</h1>
-					<p className="text-muted-foreground">
-						Occupations de la salle par mois. Cliquez sur une réservation pour
-						ouvrir sa fiche.
-					</p>
-				</section>
-
-				<div className="flex items-center gap-2">
-					<Button variant="outline" size="sm" onClick={() => naviguer(-1)}>
-						<ChevronLeft className="size-4" aria-hidden />
-						Mois précédent
-					</Button>
-					<Button variant="outline" size="sm" onClick={() => naviguer(1)}>
-						Mois suivant
-						<ChevronRight className="size-4" aria-hidden />
-					</Button>
-					<Button
-						variant="outline"
-						size="sm"
-						onClick={() => onSearchChange(() => ({ mois: moisCourant() }))}
-					>
-						Aujourd'hui
-					</Button>
-				</div>
-			</div>
 
 			{reservationsQuery.isLoading ? (
 				<p className="text-sm text-muted-foreground">Chargement…</p>
@@ -184,7 +189,7 @@ export function CalendrierPage({
 												title={`${reservation.type_manifestation} — ${reservation.heure_debut?.slice(0, 5) ?? ""}`}
 												className={cn(
 													"block truncate rounded px-1.5 py-0.5 text-[11px] font-medium text-white transition-opacity hover:opacity-80",
-													RESERVATION_STATUT_BADGE[reservation.statut],
+													RESERVATION_STATUT_COULEUR_PLEINE[reservation.statut],
 													(reservation.statut === "ANNULEE" ||
 														reservation.statut === "EN_ATTENTE") &&
 														"opacity-50",
@@ -202,15 +207,15 @@ export function CalendrierPage({
 					<div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
 						<span>Légende :</span>
 						{(
-							Object.keys(RESERVATION_STATUT_BADGE) as Array<
-								keyof typeof RESERVATION_STATUT_BADGE
+							Object.keys(RESERVATION_STATUT_COULEUR_PLEINE) as Array<
+								keyof typeof RESERVATION_STATUT_COULEUR_PLEINE
 							>
 						).map((statut) => (
 							<span key={statut} className="inline-flex items-center gap-1.5">
 								<span
 									className={cn(
 										"size-2.5 rounded-full",
-										RESERVATION_STATUT_BADGE[statut].split(" ")[0],
+										RESERVATION_STATUT_COULEUR_PLEINE[statut],
 									)}
 									aria-hidden
 								/>

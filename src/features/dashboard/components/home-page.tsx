@@ -75,10 +75,11 @@ export function HomePage() {
 	const user = useCurrentUser();
 	const estResident = useCan("RESIDENT.VOIR");
 	const canVoirSignalements = useCan("SIGNALEMENT.VOIR");
-	// M10 (Rapports) et le tableau de bord global n'ont pas de permission
-	// dédiée côté backend — même convention que la sidebar (`sidebar.tsx`,
-	// `canVoirRapports`) : suivent `ADMIN.VOIR` (administrateurs, dirigeants).
-	const canVoirRapports = useCan("ADMIN.VOIR");
+	// M10 (Rapports) et le tableau de bord global suivent `RAPPORTS.VOIR` —
+	// module réel et distinct d'`ADMIN` (vérifié en direct 2026-09-27, même
+	// convention que la sidebar, `sidebar.tsx`/`canVoirRapports`) : les 5
+	// rôles Responsable ont `RAPPORTS.VOIR` sans `ADMIN.VOIR`.
+	const canVoirRapports = useCan("RAPPORTS.VOIR");
 	const permissions = usePermissions();
 	const accessibleModules = getAccessibleModules(permissions);
 

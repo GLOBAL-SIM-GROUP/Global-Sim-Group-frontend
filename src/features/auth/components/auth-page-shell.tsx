@@ -150,8 +150,8 @@ export function AuthPageShell({
 				className="flex min-h-dvh items-center justify-center bg-gradient-to-br from-background via-lagoon/5 to-sea-ink/10 p-4 sm:p-6 relative overflow-hidden auth-shell-animated-bg"
 				style={{
 					backgroundImage: `
-					linear-gradient(45deg, transparent 48%, rgba(88, 192, 180, 0.03) 49%, rgba(88, 192, 180, 0.03) 51%, transparent 52%),
-					linear-gradient(-45deg, transparent 48%, rgba(88, 192, 180, 0.03) 49%, rgba(88, 192, 180, 0.03) 51%, transparent 52%)
+					linear-gradient(45deg, transparent 48%, rgba(26, 43, 76, 0.04) 49%, rgba(26, 43, 76, 0.04) 51%, transparent 52%),
+					linear-gradient(-45deg, transparent 48%, rgba(26, 43, 76, 0.04) 49%, rgba(26, 43, 76, 0.04) 51%, transparent 52%)
 				`,
 					backgroundSize: "60px 60px",
 					backgroundPosition: "0 0, 30px 30px",
@@ -195,8 +195,8 @@ export function AuthPageShell({
 					className="absolute inset-0 opacity-40 pointer-events-none"
 					style={{
 						backgroundImage: `
-						linear-gradient(0deg, transparent 24%, rgba(32, 119, 110, 0.05) 25%, rgba(32, 119, 110, 0.05) 26%, transparent 27%, transparent 74%, rgba(32, 119, 110, 0.05) 75%, rgba(32, 119, 110, 0.05) 76%, transparent 77%, transparent),
-						linear-gradient(90deg, transparent 24%, rgba(32, 119, 110, 0.05) 25%, rgba(32, 119, 110, 0.05) 26%, transparent 27%, transparent 74%, rgba(32, 119, 110, 0.05) 75%, rgba(32, 119, 110, 0.05) 76%, transparent 77%, transparent)
+						linear-gradient(0deg, transparent 24%, rgba(26, 43, 76, 0.05) 25%, rgba(26, 43, 76, 0.05) 26%, transparent 27%, transparent 74%, rgba(26, 43, 76, 0.05) 75%, rgba(26, 43, 76, 0.05) 76%, transparent 77%, transparent),
+						linear-gradient(90deg, transparent 24%, rgba(26, 43, 76, 0.05) 25%, rgba(26, 43, 76, 0.05) 26%, transparent 27%, transparent 74%, rgba(26, 43, 76, 0.05) 75%, rgba(26, 43, 76, 0.05) 76%, transparent 77%, transparent)
 					`,
 						backgroundSize: "50px 50px",
 					}}

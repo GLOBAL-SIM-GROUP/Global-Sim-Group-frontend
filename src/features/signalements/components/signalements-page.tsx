@@ -2,9 +2,11 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { AlertCircle, Plus } from "lucide-react";
 import { useState } from "react";
 
-import { Breadcrumb } from "#/components/ui/breadcrumb";
+import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
+import { EmptyState } from "#/components/ui/empty-state";
 import { Input } from "#/components/ui/input";
+import { PageHeader } from "#/components/ui/page-header";
 import {
 	Select,
 	SelectContent,
@@ -12,10 +14,17 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "#/components/ui/select";
+import {
+	DataTable,
+	DataTableHead,
+	TableShell,
+	Td,
+	Th,
+	Tr,
+} from "#/components/ui/table";
 import type { ModuleCible } from "#/core/api/signalements";
 import { useCan } from "#/core/auth";
 import { formatDateHeureUTC } from "#/features/residence/models/format";
-import { cn } from "#/lib/utils";
 
 import { useSignalements } from "../hooks/use-signalements";
 import {
@@ -26,8 +35,8 @@ import {
 	nomDeclarant,
 	paginerSignalements,
 	rechercherSignalements,
-	SIGNALEMENT_STATUT_BADGE,
 	SIGNALEMENT_STATUT_LABELS,
+	SIGNALEMENT_STATUT_VARIANT,
 	type SignalementStatut,
 } from "../models/signalements";
 import { SIGNALEMENTS_PAGE_SIZE } from "../permissions";
@@ -106,26 +115,19 @@ export function SignalementsPage({
 
 	return (
 		<div className="w-full space-y-6 p-6">
-			<Breadcrumb
-				items={[{ label: "Accueil", to: "/" }, { label: "Signalements" }]}
+			<PageHeader
+				breadcrumb={[{ label: "Accueil", to: "/" }, { label: "Signalements" }]}
+				title="Signalements"
+				description="Problèmes et signalements remontés par les utilisateurs."
+				actions={
+					canCreer ? (
+						<Button onClick={() => setFormOuvert(true)}>
+							<Plus className="size-4" aria-hidden />
+							Nouveau signalement
+						</Button>
+					) : undefined
+				}
 			/>
-
-			<div className="flex flex-wrap items-end justify-between gap-4">
-				<section className="space-y-1">
-					<h1 className="text-2xl font-semibold text-foreground">
-						Signalements
-					</h1>
-					<p className="text-muted-foreground">
-						Problèmes et signalements remontés par les utilisateurs.
-					</p>
-				</section>
-				{canCreer ? (
-					<Button onClick={() => setFormOuvert(true)}>
-						<Plus className="size-4" aria-hidden />
-						Nouveau signalement
-					</Button>
-				) : null}
-			</div>
 
 			<div className="flex flex-wrap items-center gap-3 rounded-lg border border-border bg-card p-4 shadow-sm">
 				<Input
@@ -189,38 +191,23 @@ export function SignalementsPage({
 					</Button>
 				</div>
 			) : pagination.total === 0 ? (
-				<div className="rounded-lg border border-border bg-card p-8 text-center text-sm text-muted-foreground">
-					Aucun signalement trouvé.
-				</div>
+				<EmptyState title="Aucun signalement trouvé." />
 			) : (
-				<div className="overflow-x-auto rounded-lg border border-border bg-card shadow-sm">
-					<table className="w-full border-collapse text-sm">
-						<thead className="bg-sea-ink text-left text-white">
+				<TableShell>
+					<DataTable>
+						<DataTableHead>
 							<tr>
-								<th scope="col" className="px-4 py-3 font-medium">
-									TITRE
-								</th>
-								<th scope="col" className="px-4 py-3 font-medium">
-									CIBLE
-								</th>
-								<th scope="col" className="px-4 py-3 font-medium">
-									DÉCLARANT
-								</th>
-								<th scope="col" className="px-4 py-3 font-medium">
-									DATE
-								</th>
-								<th scope="col" className="px-4 py-3 font-medium">
-									STATUT
-								</th>
+								<Th>TITRE</Th>
+								<Th>CIBLE</Th>
+								<Th>DÉCLARANT</Th>
+								<Th>DATE</Th>
+								<Th>STATUT</Th>
 							</tr>
-						</thead>
+						</DataTableHead>
 						<tbody>
 							{pagination.items.map((signalement) => (
-								<tr
-									key={signalement.id}
-									className="relative border-t border-border transition-colors hover:bg-accent/40"
-								>
-									<td className="px-4 py-3">
+								<Tr key={signalement.id} className="relative">
+									<Td>
 										{/* Toute la ligne ouvre la fiche (stretched link). */}
 										<Link
 											to="/signalements/$id"
@@ -233,33 +220,28 @@ export function SignalementsPage({
 										<p className="mt-0.5 line-clamp-1 text-xs text-muted-foreground">
 											{signalement.description}
 										</p>
-									</td>
-									<td className="px-4 py-3">
-										<span className="inline-flex rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground">
-											{libelleCible(signalement)}
-										</span>
-									</td>
-									<td className="px-4 py-3 text-muted-foreground">
+									</Td>
+									<Td>
+										<Badge variant="neutral">{libelleCible(signalement)}</Badge>
+									</Td>
+									<Td className="text-muted-foreground">
 										{nomDeclarant(signalement)}
-									</td>
-									<td className="px-4 py-3 text-muted-foreground">
+									</Td>
+									<Td className="text-muted-foreground">
 										{formatDateHeureUTC(signalement.date_signalement)}
-									</td>
-									<td className="px-4 py-3">
-										<span
-											className={cn(
-												"inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium",
-												SIGNALEMENT_STATUT_BADGE[signalement.statut],
-											)}
+									</Td>
+									<Td>
+										<Badge
+											variant={SIGNALEMENT_STATUT_VARIANT[signalement.statut]}
 										>
 											{SIGNALEMENT_STATUT_LABELS[signalement.statut]}
-										</span>
-									</td>
-								</tr>
+										</Badge>
+									</Td>
+								</Tr>
 							))}
 						</tbody>
-					</table>
-				</div>
+					</DataTable>
+				</TableShell>
 			)}
 
 			{pagination.total > 0 ? (

@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 
+import { Badge } from "#/components/ui/badge";
 import { formatDateISO } from "#/features/residence/models/format";
 
 import {
@@ -53,15 +54,12 @@ export function MouvementsTimeline({
 						key={mouvement.id_mouvement}
 						className="flex items-start gap-3 rounded-lg border border-border bg-card p-3"
 					>
-						<span
-							className={`mt-0.5 inline-flex min-w-20 justify-center rounded-full border px-2 py-0.5 text-xs font-semibold ${
-								negatif
-									? "border-destructive/30 bg-destructive/10 text-destructive"
-									: "border-[#27AE60]/30 bg-[#27AE60]/10 text-[#27AE60]"
-							}`}
+						<Badge
+							variant={negatif ? "danger" : "success"}
+							className="mt-0.5 min-w-20 justify-center"
 						>
 							{mouvement.quantite} {UNITE_LABELS[unite] ?? unite}
-						</span>
+						</Badge>
 						<div className="min-w-0 flex-1 space-y-0.5">
 							<p className="text-sm font-medium text-foreground">
 								{MOUVEMENT_TYPE_LABELS[mouvement.type] ?? mouvement.type}

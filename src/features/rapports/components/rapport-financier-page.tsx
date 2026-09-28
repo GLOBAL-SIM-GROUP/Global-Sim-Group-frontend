@@ -2,8 +2,16 @@ import { Link } from "@tanstack/react-router";
 import { FileDown, FileSpreadsheet, Printer } from "lucide-react";
 import { type ReactNode, useState } from "react";
 
-import { Breadcrumb } from "#/components/ui/breadcrumb";
 import { Button } from "#/components/ui/button";
+import { PageHeader } from "#/components/ui/page-header";
+import {
+	DataTable,
+	DataTableHead,
+	TableShell,
+	Td,
+	Th,
+	Tr,
+} from "#/components/ui/table";
 import {
 	formatDateHeureISO,
 	formatMontantFCFA,
@@ -105,64 +113,57 @@ export function RapportFinancierPage({
 
 	return (
 		<div className="w-full space-y-4 p-3 sm:space-y-6 sm:p-6">
-			<Breadcrumb
-				items={[
+			<PageHeader
+				breadcrumb={[
 					{ label: "Accueil", to: "/" },
 					{ label: "Rapports", to: "/rapports" },
 					{ label: "Rapport financier" },
 				]}
+				title="Rapport financier"
+				description={`Période du ${periode.du} au ${periode.au}.`}
+				actions={
+					<div className="flex flex-col gap-2 w-full sm:w-auto sm:flex-row sm:items-center sm:gap-2">
+						<Button
+							variant="outline"
+							size="sm"
+							asChild
+							className="w-full sm:w-auto justify-center"
+						>
+							<Link to="/rapports">Nouveau rapport</Link>
+						</Button>
+						<Button
+							size="sm"
+							variant="outline"
+							onClick={() => void imprimerRapportPdf()}
+							disabled={!rapportQuery.data}
+							className="w-full sm:w-auto justify-center"
+						>
+							<Printer className="size-4" aria-hidden />
+							PDF
+						</Button>
+						<Button
+							size="sm"
+							variant="outline"
+							onClick={exporterExcel}
+							disabled={!rapportQuery.data}
+							className="w-full sm:w-auto justify-center"
+						>
+							<FileDown className="size-4" aria-hidden />
+							Excel
+						</Button>
+						<Button
+							size="sm"
+							variant="outline"
+							onClick={exporter}
+							disabled={!rapportQuery.data}
+							className="w-full sm:w-auto justify-center"
+						>
+							<FileSpreadsheet className="size-4" aria-hidden />
+							CSV
+						</Button>
+					</div>
+				}
 			/>
-
-			<div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
-				<section className="space-y-1">
-					<h1 className="text-lg font-semibold text-foreground sm:text-2xl">
-						Rapport financier
-					</h1>
-					<p className="text-xs text-muted-foreground sm:text-sm">
-						Période du {periode.du} au {periode.au}.
-					</p>
-				</section>
-				<div className="flex flex-col gap-2 w-full sm:w-auto sm:flex-row sm:items-center sm:gap-2">
-					<Button
-						variant="outline"
-						size="sm"
-						asChild
-						className="w-full sm:w-auto justify-center"
-					>
-						<Link to="/rapports">Nouveau rapport</Link>
-					</Button>
-					<Button
-						size="sm"
-						variant="outline"
-						onClick={() => void imprimerRapportPdf()}
-						disabled={!rapportQuery.data}
-						className="w-full sm:w-auto justify-center"
-					>
-						<Printer className="size-4" aria-hidden />
-						PDF
-					</Button>
-					<Button
-						size="sm"
-						variant="outline"
-						onClick={exporterExcel}
-						disabled={!rapportQuery.data}
-						className="w-full sm:w-auto justify-center"
-					>
-						<FileDown className="size-4" aria-hidden />
-						Excel
-					</Button>
-					<Button
-						size="sm"
-						variant="outline"
-						onClick={exporter}
-						disabled={!rapportQuery.data}
-						className="w-full sm:w-auto justify-center"
-					>
-						<FileSpreadsheet className="size-4" aria-hidden />
-						CSV
-					</Button>
-				</div>
-			</div>
 
 			{pdfError ? (
 				<p
@@ -198,23 +199,16 @@ export function RapportFinancierPage({
 						colAlignes={["", "", "", "text-right"]}
 					>
 						{rapportQuery.data.encaissements.map((e) => (
-							<tr
-								key={e.id}
-								className="border-t border-border transition-colors hover:bg-accent/40"
-							>
-								<td className="px-4 py-3 text-muted-foreground">
+							<Tr key={e.id_paiement}>
+								<Td className="text-muted-foreground">
 									{formatDateHeureISO(e.date)}
-								</td>
-								<td className="px-4 py-3 text-foreground">
-									{e.activite_libelle}
-								</td>
-								<td className="px-4 py-3 text-muted-foreground">
-									{e.moyen_libelle}
-								</td>
-								<td className="px-4 py-3 text-right font-medium text-foreground">
+								</Td>
+								<Td className="text-foreground">{e.activite_libelle}</Td>
+								<Td className="text-muted-foreground">{e.moyen_libelle}</Td>
+								<Td className="text-right font-medium text-foreground">
 									{formatMontantFCFA(e.montant)}
-								</td>
-							</tr>
+								</Td>
+							</Tr>
 						))}
 					</SectionTableau>
 
@@ -224,21 +218,16 @@ export function RapportFinancierPage({
 						colAlignes={["", "", "", "text-right"]}
 					>
 						{rapportQuery.data.depenses.map((d) => (
-							<tr
-								key={d.id}
-								className="border-t border-border transition-colors hover:bg-accent/40"
-							>
-								<td className="px-4 py-3 text-muted-foreground">
+							<Tr key={d.id_depense}>
+								<Td className="text-muted-foreground">
 									{formatDateHeureISO(d.date)}
-								</td>
-								<td className="px-4 py-3 text-foreground">
-									{d.categorie_libelle}
-								</td>
-								<td className="px-4 py-3 text-muted-foreground">{d.libelle}</td>
-								<td className="px-4 py-3 text-right font-medium text-destructive">
+								</Td>
+								<Td className="text-foreground">{d.categorie_libelle}</Td>
+								<Td className="text-muted-foreground">{d.libelle}</Td>
+								<Td className="text-right font-medium text-destructive">
 									- {formatMontantFCFA(d.montant)}
-								</td>
-							</tr>
+								</Td>
+							</Tr>
 						))}
 					</SectionTableau>
 
@@ -248,19 +237,14 @@ export function RapportFinancierPage({
 						colAlignes={["", "", "", "text-right"]}
 					>
 						{rapportQuery.data.impayes.map((i) => (
-							<tr
-								key={`${i.type}-${i.reference}-${i.client}-${i.montant_du}`}
-								className="border-t border-border transition-colors hover:bg-accent/40"
-							>
-								<td className="px-4 py-3 text-foreground">{i.type}</td>
-								<td className="px-4 py-3 text-foreground">{i.client}</td>
-								<td className="px-4 py-3 text-muted-foreground">
-									{i.reference}
-								</td>
-								<td className="px-4 py-3 text-right font-semibold text-destructive">
+							<Tr key={`${i.type}-${i.reference}-${i.client}-${i.montant_du}`}>
+								<Td className="text-foreground">{i.type}</Td>
+								<Td className="text-foreground">{i.client}</Td>
+								<Td className="text-muted-foreground">{i.reference}</Td>
+								<Td className="text-right font-semibold text-destructive">
 									{formatMontantFCFA(i.reste)}
-								</td>
-							</tr>
+								</Td>
+							</Tr>
 						))}
 					</SectionTableau>
 				</>
@@ -283,24 +267,20 @@ function SectionTableau({
 	return (
 		<section className="space-y-3 rounded-lg border border-border bg-card p-5 shadow-sm">
 			<h2 className="text-lg font-semibold text-foreground">{titre}</h2>
-			<div className="overflow-x-auto">
-				<table className="w-full border-collapse text-sm">
-					<thead className="bg-sea-ink text-left text-white">
+			<TableShell>
+				<DataTable>
+					<DataTableHead>
 						<tr>
 							{entetes.map((entete, index) => (
-								<th
-									key={entete}
-									scope="col"
-									className={`px-4 py-3 font-medium ${colAlignes[index] ?? ""}`}
-								>
+								<Th key={entete} className={colAlignes[index] ?? ""}>
 									{entete}
-								</th>
+								</Th>
 							))}
 						</tr>
-					</thead>
+					</DataTableHead>
 					<tbody>{children}</tbody>
-				</table>
-			</div>
+				</DataTable>
+			</TableShell>
 		</section>
 	);
 }

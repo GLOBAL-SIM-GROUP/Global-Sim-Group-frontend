@@ -34,11 +34,12 @@ export const SAUVEGARDE_STATUT_LABELS: Record<SauvegardeStatut, string> = {
 	en_cours: "En cours",
 };
 
-export const SAUVEGARDE_STATUT_COULEURS: Record<SauvegardeStatut, string> = {
-	succes: "bg-[#27AE60] text-white",
-	echec: "bg-[#E74C3C] text-white",
-	en_cours: "bg-[#F39C12] text-white",
-};
+/** Variante `<Badge>` par statut de sauvegarde. */
+export const SAUVEGARDE_STATUT_VARIANT = {
+	succes: "success",
+	echec: "danger",
+	en_cours: "warning",
+} as const satisfies Record<SauvegardeStatut, "success" | "danger" | "warning">;
 
 /** Formate une taille en octets en format lisible. */
 export function formatTailleSauvegarde(octets: number): string {

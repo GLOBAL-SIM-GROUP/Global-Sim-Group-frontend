@@ -158,7 +158,7 @@ export function EntreeStockScanForm({
 							<span
 								className={cn(
 									"flex size-6 items-center justify-center",
-									ligne.statut === "ok" && "text-[#27AE60]",
+									ligne.statut === "ok" && "text-success",
 									ligne.statut === "erreur" && "text-destructive",
 								)}
 								title={ligne.erreur}

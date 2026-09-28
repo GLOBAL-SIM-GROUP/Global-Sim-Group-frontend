@@ -1,7 +1,17 @@
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 
-import { Breadcrumb } from "#/components/ui/breadcrumb";
+import { Badge } from "#/components/ui/badge";
+import { EmptyState } from "#/components/ui/empty-state";
+import { PageHeader } from "#/components/ui/page-header";
+import {
+	DataTable,
+	DataTableHead,
+	TableShell,
+	Td,
+	Th,
+	Tr,
+} from "#/components/ui/table";
 import { useCan } from "#/core/auth";
 import { formatMontantFCFA } from "#/features/residence/models/format";
 import { cn } from "#/lib/utils";
@@ -51,23 +61,15 @@ export function RevenusUtilisateurPage() {
 
 	return (
 		<div className="w-full space-y-6 p-6">
-			<Breadcrumb
-				items={[
+			<PageHeader
+				breadcrumb={[
 					{ label: "Accueil", to: "/" },
 					{ label: "Finances", to: "/finances/tableau-de-bord" },
 					{ label: "Revenus par employé" },
 				]}
+				title="Revenus par employé"
+				description="Montants encaissés/décaissés par chaque utilisateur — suivi détaillé des contributions par période et caisse"
 			/>
-
-			<section className="space-y-1">
-				<h1 className="text-2xl font-semibold text-foreground">
-					Revenus par employé
-				</h1>
-				<p className="text-muted-foreground">
-					Montants encaissés/décaissés par chaque utilisateur — suivi détaillé
-					des contributions par période et caisse
-				</p>
-			</section>
 
 			{caisseScopee && (
 				<div className="rounded-lg bg-blue-50 border border-blue-200 p-3 text-sm text-blue-900 dark:bg-blue-950 dark:border-blue-800 dark:text-blue-100">
@@ -186,33 +188,16 @@ export function RevenusUtilisateurPage() {
 						Chargement des données…
 					</div>
 				) : revenus.length > 0 ? (
-					<div className="overflow-x-auto">
-						<table className="w-full border-collapse text-sm">
-							<thead className="bg-sea-ink text-left text-white">
+					<TableShell>
+						<DataTable>
+							<DataTableHead>
 								<tr>
-									<th scope="col" className="px-6 py-3 font-semibold">
-										EMPLOYÉ
-									</th>
-									<th
-										scope="col"
-										className="px-6 py-3 text-right font-semibold"
-									>
-										TOTAL
-									</th>
-									<th
-										scope="col"
-										className="px-6 py-3 text-right font-semibold"
-									>
-										NB PAIEMENTS
-									</th>
-									<th
-										scope="col"
-										className="px-6 py-3 text-right font-semibold"
-									>
-										MONTANT MOYEN
-									</th>
+									<Th>EMPLOYÉ</Th>
+									<Th className="text-right">TOTAL</Th>
+									<Th className="text-right">NB PAIEMENTS</Th>
+									<Th className="text-right">MONTANT MOYEN</Th>
 								</tr>
-							</thead>
+							</DataTableHead>
 							<tbody>
 								{revenus
 									.sort(
@@ -222,39 +207,38 @@ export function RevenusUtilisateurPage() {
 										const montantMoyen =
 											Number(rev.montant_total) / rev.nombre_paiements;
 										return (
-											<tr
+											<Tr
 												key={rev.id_utilisateur}
 												className={cn(
-													"border-t border-border transition-colors hover:bg-accent/40",
 													idx === 0 && "bg-green-50/30 dark:bg-green-950/20",
 												)}
 											>
-												<td className="px-6 py-3 font-medium text-foreground">
+												<Td className="font-medium text-foreground">
 													{rev.login}
 													{idx === 0 && (
-														<span className="ml-2 inline-block text-xs font-semibold px-2 py-1 rounded-full bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-100">
+														<Badge variant="success" className="ml-2">
 															Top
-														</span>
+														</Badge>
 													)}
-												</td>
-												<td className="px-6 py-3 text-right font-semibold text-foreground">
+												</Td>
+												<Td className="text-right font-semibold text-foreground">
 													{formatMontantFCFA(String(rev.montant_total))}
-												</td>
-												<td className="px-6 py-3 text-right text-muted-foreground">
+												</Td>
+												<Td className="text-right text-muted-foreground">
 													{rev.nombre_paiements}
-												</td>
-												<td className="px-6 py-3 text-right text-muted-foreground">
+												</Td>
+												<Td className="text-right text-muted-foreground">
 													{formatMontantFCFA(montantMoyen.toString())}
-												</td>
-											</tr>
+												</Td>
+											</Tr>
 										);
 									})}
 							</tbody>
-						</table>
-					</div>
+						</DataTable>
+					</TableShell>
 				) : (
-					<div className="text-center py-12 text-muted-foreground">
-						Aucun paiement trouvé pour ces critères.
+					<div className="py-12">
+						<EmptyState title="Aucun paiement trouvé pour ces critères." />
 					</div>
 				)}
 			</div>

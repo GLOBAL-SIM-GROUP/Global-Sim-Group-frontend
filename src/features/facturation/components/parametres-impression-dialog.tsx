@@ -1,8 +1,13 @@
 import { Loader2, Printer, RefreshCw } from "lucide-react";
-import { Dialog } from "radix-ui";
 import { useEffect, useState } from "react";
 
 import { Button } from "#/components/ui/button";
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogTitle,
+} from "#/components/ui/dialog";
 import { Label } from "#/components/ui/label";
 import {
 	Select,
@@ -98,123 +103,118 @@ export function ParametresImpressionDialog({
 	};
 
 	return (
-		<Dialog.Root open={open} onOpenChange={onOpenChange}>
-			<Dialog.Portal>
-				<Dialog.Overlay className="fixed inset-0 z-50 bg-black/50" />
-				<Dialog.Content className="fixed top-1/2 left-1/2 z-50 w-[calc(100vw-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-lg border border-border bg-card p-6 shadow-lg">
-					<Dialog.Title className="text-base font-semibold text-foreground">
-						Paramètres d'impression
-					</Dialog.Title>
-					<Dialog.Description className="mt-1 text-sm text-muted-foreground">
-						Imprime directement sur une imprimante thermique via QZ Tray, sans
-						passer par la boîte d'impression du navigateur.
-					</Dialog.Description>
+		<Dialog open={open} onOpenChange={onOpenChange}>
+			<DialogContent className="max-w-md">
+				<DialogTitle>Paramètres d'impression</DialogTitle>
+				<DialogDescription>
+					Imprime directement sur une imprimante thermique via QZ Tray, sans
+					passer par la boîte d'impression du navigateur.
+				</DialogDescription>
 
-					<div className="mt-4 space-y-4">
-						{statut === "verification" ? (
-							<p className="flex items-center gap-2 text-sm text-muted-foreground">
-								<Loader2 className="size-4 animate-spin" aria-hidden />
-								Vérification de QZ Tray…
+				<div className="mt-4 space-y-4">
+					{statut === "verification" ? (
+						<p className="flex items-center gap-2 text-sm text-muted-foreground">
+							<Loader2 className="size-4 animate-spin" aria-hidden />
+							Vérification de QZ Tray…
+						</p>
+					) : statut === "indisponible" ? (
+						<div className="space-y-2 rounded-lg border border-border bg-muted/40 p-3 text-sm text-muted-foreground">
+							<p>
+								QZ Tray n'est pas détecté sur ce poste. Les tickets s'impriment
+								via la boîte d'impression du navigateur.
 							</p>
-						) : statut === "indisponible" ? (
-							<div className="space-y-2 rounded-lg border border-border bg-muted/40 p-3 text-sm text-muted-foreground">
-								<p>
-									QZ Tray n'est pas détecté sur ce poste. Les tickets
-									s'impriment via la boîte d'impression du navigateur.
-								</p>
-								<p>
-									Pour une impression directe, installez l'agent{" "}
-									<a
-										href="https://qz.io"
-										target="_blank"
-										rel="noreferrer"
-										className="underline"
-									>
-										QZ Tray
-									</a>{" "}
-									sur ce poste puis rafraîchissez.
-								</p>
-								<Button variant="outline" size="sm" onClick={rafraichir}>
-									<RefreshCw className="size-4" aria-hidden />
-									Rafraîchir
-								</Button>
-							</div>
-						) : (
-							<div className="space-y-2">
-								<div className="flex items-center justify-between">
-									<Label htmlFor="imprimante-qz">Imprimante thermique</Label>
-									<Button
-										type="button"
-										variant="ghost"
-										size="icon-sm"
-										title="Rafraîchir la liste"
-										onClick={rafraichir}
-									>
-										<RefreshCw className="size-4" aria-hidden />
-									</Button>
-								</div>
-								<Select value={choix} onValueChange={setChoix}>
-									<SelectTrigger
-										id="imprimante-qz"
-										aria-label="Imprimante thermique"
-										className="w-full"
-									>
-										<SelectValue placeholder="Aucune (boîte d'impression navigateur)" />
-									</SelectTrigger>
-									<SelectContent>
-										{imprimantes.map((nom) => (
-											<SelectItem key={nom} value={nom}>
-												{nom}
-											</SelectItem>
-										))}
-									</SelectContent>
-								</Select>
-								{imprimantes.length === 0 ? (
-									<p className="text-xs text-muted-foreground">
-										QZ Tray est connecté mais ne voit aucune imprimante système
-										sur ce poste.
-									</p>
-								) : null}
-							</div>
-						)}
-
-						{statut === "disponible" && choix ? (
-							<div className="flex items-center gap-2">
+							<p>
+								Pour une impression directe, installez l'agent{" "}
+								<a
+									href="https://qz.io"
+									target="_blank"
+									rel="noreferrer"
+									className="underline"
+								>
+									QZ Tray
+								</a>{" "}
+								sur ce poste puis rafraîchissez.
+							</p>
+							<Button variant="outline" size="sm" onClick={rafraichir}>
+								<RefreshCw className="size-4" aria-hidden />
+								Rafraîchir
+							</Button>
+						</div>
+					) : (
+						<div className="space-y-2">
+							<div className="flex items-center justify-between">
+								<Label htmlFor="imprimante-qz">Imprimante thermique</Label>
 								<Button
 									type="button"
-									variant="outline"
-									size="sm"
-									disabled={testEnCours}
-									onClick={() => void handleTest()}
+									variant="ghost"
+									size="icon-sm"
+									title="Rafraîchir la liste"
+									onClick={rafraichir}
 								>
-									{testEnCours ? (
-										<Loader2 className="size-4 animate-spin" aria-hidden />
-									) : (
-										<Printer className="size-4" aria-hidden />
-									)}
-									Imprimer un ticket de test
+									<RefreshCw className="size-4" aria-hidden />
 								</Button>
-								{messageTest ? (
-									<p className="text-xs text-muted-foreground">{messageTest}</p>
-								) : null}
 							</div>
-						) : null}
-					</div>
+							<Select value={choix} onValueChange={setChoix}>
+								<SelectTrigger
+									id="imprimante-qz"
+									aria-label="Imprimante thermique"
+									className="w-full"
+								>
+									<SelectValue placeholder="Aucune (boîte d'impression navigateur)" />
+								</SelectTrigger>
+								<SelectContent>
+									{imprimantes.map((nom) => (
+										<SelectItem key={nom} value={nom}>
+											{nom}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
+							{imprimantes.length === 0 ? (
+								<p className="text-xs text-muted-foreground">
+									QZ Tray est connecté mais ne voit aucune imprimante système
+									sur ce poste.
+								</p>
+							) : null}
+						</div>
+					)}
 
-					<div className="mt-6 flex items-center justify-end gap-2">
-						<Button
-							type="button"
-							variant="ghost"
-							onClick={() => onOpenChange(false)}
-						>
-							Annuler
-						</Button>
-						<Button type="button" onClick={handleEnregistrer}>
-							Enregistrer
-						</Button>
-					</div>
-				</Dialog.Content>
-			</Dialog.Portal>
-		</Dialog.Root>
+					{statut === "disponible" && choix ? (
+						<div className="flex items-center gap-2">
+							<Button
+								type="button"
+								variant="outline"
+								size="sm"
+								disabled={testEnCours}
+								onClick={() => void handleTest()}
+							>
+								{testEnCours ? (
+									<Loader2 className="size-4 animate-spin" aria-hidden />
+								) : (
+									<Printer className="size-4" aria-hidden />
+								)}
+								Imprimer un ticket de test
+							</Button>
+							{messageTest ? (
+								<p className="text-xs text-muted-foreground">{messageTest}</p>
+							) : null}
+						</div>
+					) : null}
+				</div>
+
+				<div className="mt-6 flex items-center justify-end gap-2">
+					<Button
+						type="button"
+						variant="ghost"
+						onClick={() => onOpenChange(false)}
+					>
+						Annuler
+					</Button>
+					<Button type="button" onClick={handleEnregistrer}>
+						Enregistrer
+					</Button>
+				</div>
+			</DialogContent>
+		</Dialog>
 	);
 }

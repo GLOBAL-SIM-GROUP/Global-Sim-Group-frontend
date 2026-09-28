@@ -57,17 +57,17 @@ export const RESERVATION_PORTAIL_STATUT_LABELS: Record<
 	ANNULEE: "Annulée",
 };
 
-/** Classes de badge (fond/texte) par statut — palette portail. */
-export const RESERVATION_PORTAIL_STATUT_BADGE: Record<
+/** Variante `<Badge>` par statut de réservation portail. */
+export const RESERVATION_PORTAIL_STATUT_VARIANT = {
+	EN_ATTENTE: "warning",
+	RESERVEE: "warning",
+	CONFIRMEE: "info",
+	REALISEE: "success",
+	ANNULEE: "danger",
+} as const satisfies Record<
 	ReservationPortailStatut,
-	string
-> = {
-	EN_ATTENTE: "bg-[#E67E22] text-white",
-	RESERVEE: "bg-[#E67E22] text-white",
-	CONFIRMEE: "bg-[#2980B9] text-white",
-	REALISEE: "bg-[#27AE60] text-white",
-	ANNULEE: "bg-[#E74C3C] text-white",
-};
+	"warning" | "info" | "success" | "danger"
+>;
 
 /** Étapes visibles côté résident. */
 export const RESERVATION_PORTAIL_ETAPES: ReservationPortailStatut[] = [

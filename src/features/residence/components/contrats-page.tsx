@@ -1,8 +1,8 @@
 import { Plus, X } from "lucide-react";
 import { useMemo, useState } from "react";
 
-import { Breadcrumb } from "#/components/ui/breadcrumb";
 import { Button } from "#/components/ui/button";
+import { PageHeader } from "#/components/ui/page-header";
 import { useCan } from "#/core/auth";
 import { cn } from "#/lib/utils";
 
@@ -154,31 +154,22 @@ export function ContratsPage({
 
 	return (
 		<div className="w-full space-y-6 p-6">
-			<Breadcrumb
-				items={[
+			<PageHeader
+				breadcrumb={[
 					{ label: "Accueil", to: "/" },
 					{ label: "Contrats de location" },
 				]}
+				title="Contrats de location"
+				description="Liste de tous les contrats de location longue durée (mensuels ou annuels)."
+				actions={
+					canCreer ? (
+						<Button onClick={() => setFormOuvert(true)}>
+							<Plus className="size-4" aria-hidden />
+							Nouveau contrat
+						</Button>
+					) : null
+				}
 			/>
-
-			<div className="flex flex-wrap items-end justify-between gap-4">
-				<section className="space-y-1">
-					<h1 className="text-2xl font-semibold text-foreground">
-						Contrats de location
-					</h1>
-					<p className="text-muted-foreground">
-						Liste de tous les contrats de location longue durée (mensuels ou
-						annuels).
-					</p>
-				</section>
-
-				{canCreer ? (
-					<Button onClick={() => setFormOuvert(true)}>
-						<Plus className="size-4" aria-hidden />
-						Nouveau contrat
-					</Button>
-				) : null}
-			</div>
 
 			{feedback ? (
 				<div
@@ -187,7 +178,7 @@ export function ContratsPage({
 						"flex items-center justify-between gap-3 rounded-md border px-4 py-2 text-sm",
 						feedback.type === "error"
 							? "border-destructive/40 bg-destructive/10 text-destructive"
-							: "border-[#27AE60]/40 bg-[#27AE60]/10 text-[#27AE60]",
+							: "border-success/30 bg-success-bg text-success",
 					)}
 				>
 					<span>{feedback.texte}</span>

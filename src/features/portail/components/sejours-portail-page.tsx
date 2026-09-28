@@ -2,10 +2,11 @@ import { useNavigate } from "@tanstack/react-router";
 import { BedDouble, ChevronRight } from "lucide-react";
 import { useMemo, useState } from "react";
 
-import { Breadcrumb } from "#/components/ui/breadcrumb";
+import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
 import { Input } from "#/components/ui/input";
 import { Label } from "#/components/ui/label";
+import { PageHeader } from "#/components/ui/page-header";
 import {
 	Select,
 	SelectContent,
@@ -33,8 +34,8 @@ import {
 } from "../hooks/use-sejours";
 import type { LogementPortail } from "../models/sejours";
 import {
-	SEJOUR_PORTAIL_STATUT_BADGE,
 	SEJOUR_PORTAIL_STATUT_LABELS,
+	SEJOUR_PORTAIL_STATUT_VARIANT,
 } from "../models/sejours";
 
 function dateAujourdhui(): string {
@@ -192,8 +193,8 @@ export function SejoursPortailPage({ variant }: SejoursPortailPageProps) {
 
 	return (
 		<div className={conteneur}>
-			<Breadcrumb
-				items={
+			<PageHeader
+				breadcrumb={
 					estClient
 						? [
 								{ label: "Espace client", to: "/espace-client" },
@@ -205,18 +206,9 @@ export function SejoursPortailPage({ variant }: SejoursPortailPageProps) {
 								{ label: "Séjours courts" },
 							]
 				}
+				title="Résidence — séjours courts"
+				description="Choisissez vos dates pour voir les logements disponibles, puis envoyez votre demande. Le personnel confirme la disponibilité et le tarif — le règlement se fait sur place."
 			/>
-
-			<div className="space-y-1">
-				<h1 className="text-2xl font-semibold text-foreground">
-					Résidence — séjours courts
-				</h1>
-				<p className="text-sm text-muted-foreground">
-					Choisissez vos dates pour voir les logements disponibles, puis envoyez
-					votre demande. Le personnel confirme la disponibilité et le tarif — le
-					règlement se fait sur place.
-				</p>
-			</div>
 
 			{sejours.length > 0 ? (
 				<section className="space-y-3">
@@ -227,7 +219,7 @@ export function SejoursPortailPage({ variant }: SejoursPortailPageProps) {
 						{sejours.map((sejour) => (
 							<div
 								key={sejour.id}
-								className="flex items-center justify-between gap-4 rounded-lg border border-border bg-card p-4 shadow-sm"
+								className="flex items-center justify-between gap-4 rounded-xl border border-border bg-card p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
 							>
 								<div className="min-w-0 space-y-1">
 									<div className="flex flex-wrap items-center gap-2">
@@ -237,16 +229,12 @@ export function SejoursPortailPage({ variant }: SejoursPortailPageProps) {
 												sejour.numero_logement ??
 												"Logement"}
 										</p>
-										<span
-											className={cn(
-												"inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium",
-												SEJOUR_PORTAIL_STATUT_BADGE[sejour.statut] ??
-													"bg-[#95A5A6] text-white",
-											)}
+										<Badge
+											variant={SEJOUR_PORTAIL_STATUT_VARIANT[sejour.statut]}
 										>
 											{SEJOUR_PORTAIL_STATUT_LABELS[sejour.statut] ??
 												sejour.statut}
-										</span>
+										</Badge>
 									</div>
 									<p className="text-sm text-muted-foreground">
 										Arrivée le {formatDateHeureISO(sejour.date_heure_arrivee)}
@@ -258,6 +246,7 @@ export function SejoursPortailPage({ variant }: SejoursPortailPageProps) {
 								<Button
 									variant="outline"
 									size="sm"
+									className="rounded-full"
 									onClick={() => void navigate({ to: lienDetail(sejour.id) })}
 								>
 									Détails
@@ -271,7 +260,7 @@ export function SejoursPortailPage({ variant }: SejoursPortailPageProps) {
 
 			<form
 				onSubmit={soumettre}
-				className="space-y-5 rounded-lg border border-border bg-card p-5 shadow-sm"
+				className="space-y-5 rounded-xl border border-border bg-card p-5 shadow-sm"
 			>
 				<h2 className="flex items-center gap-2 text-lg font-semibold text-foreground">
 					<BedDouble className="size-5" aria-hidden />
@@ -368,6 +357,7 @@ export function SejoursPortailPage({ variant }: SejoursPortailPageProps) {
 									type="button"
 									variant="outline"
 									size="sm"
+									className="rounded-full"
 									onClick={() => void logementsQuery.refetch()}
 								>
 									Réessayer
@@ -391,10 +381,10 @@ export function SejoursPortailPage({ variant }: SejoursPortailPageProps) {
 												onClick={() => setLogementChoisi(logement)}
 												aria-pressed={choisi}
 												className={cn(
-													"w-full rounded-lg border p-4 text-left transition-colors",
+													"w-full rounded-xl border p-4 text-left transition-all duration-200",
 													choisi
 														? "border-lagoon bg-lagoon/10 ring-1 ring-lagoon"
-														: "border-border bg-card hover:border-lagoon/50 hover:bg-accent/40",
+														: "border-border bg-card hover:-translate-y-0.5 hover:border-lagoon/50 hover:bg-accent/40 hover:shadow-md",
 												)}
 											>
 												<p className="font-semibold text-foreground">
@@ -479,7 +469,7 @@ export function SejoursPortailPage({ variant }: SejoursPortailPageProps) {
 				{canDemander ? (
 					<Button
 						type="submit"
-						className="bg-lagoon text-white hover:bg-lagoon/90"
+						className="rounded-full bg-lagoon text-white hover:bg-lagoon/90"
 						disabled={creer.isPending || !periodeValide || !selectionValide}
 					>
 						{creer.isPending ? "Envoi en cours…" : "Envoyer ma demande"}

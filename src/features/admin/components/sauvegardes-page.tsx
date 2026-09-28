@@ -1,10 +1,19 @@
 import { Save } from "lucide-react";
 
-import { Breadcrumb } from "#/components/ui/breadcrumb";
+import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
+import { EmptyState } from "#/components/ui/empty-state";
+import { PageHeader } from "#/components/ui/page-header";
+import {
+	DataTable,
+	DataTableHead,
+	TableShell,
+	Td,
+	Th,
+	Tr,
+} from "#/components/ui/table";
 import { getErrorMessageForCode, toApiError } from "#/core/api";
 import { useCan } from "#/core/auth";
-import { cn } from "#/lib/utils";
 
 import {
 	useConfigurationSauvegardes,
@@ -15,8 +24,8 @@ import {
 import {
 	formatDateSauvegarde,
 	formatTailleSauvegarde,
-	SAUVEGARDE_STATUT_COULEURS,
 	SAUVEGARDE_STATUT_LABELS,
+	SAUVEGARDE_STATUT_VARIANT,
 	SAUVEGARDE_TYPE_LABELS,
 } from "../models/sauvegardes";
 
@@ -38,21 +47,15 @@ export function SauvegardesPage() {
 
 	return (
 		<div className="w-full space-y-6 p-6">
-			<Breadcrumb
-				items={[
+			<PageHeader
+				breadcrumb={[
 					{ label: "Accueil", to: "/" },
 					{ label: "Administration", to: "/admin/utilisateurs" },
 					{ label: "Sauvegardes" },
 				]}
+				title="Sauvegardes"
+				description="Gestion des sauvegardes de la base de données : consultation de l'historique, déclenchement manuel et planification."
 			/>
-
-			<section className="space-y-2">
-				<h1 className="text-2xl font-semibold text-foreground">Sauvegardes</h1>
-				<p className="text-muted-foreground">
-					Gestion des sauvegardes de la base de données : consultation de
-					l'historique, déclenchement manuel et planification.
-				</p>
-			</section>
 
 			<div className="grid gap-6">
 				{/* Configuration automatique */}
@@ -63,16 +66,9 @@ export function SauvegardesPage() {
 						<div className="space-y-3">
 							<div className="flex items-center justify-between">
 								<span className="text-sm text-muted-foreground">État :</span>
-								<span
-									className={cn(
-										"inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium",
-										config.activee
-											? "bg-[#27AE60]/20 text-[#27AE60]"
-											: "bg-gray-500/20 text-gray-500",
-									)}
-								>
+								<Badge variant={config.activee ? "success" : "neutral"}>
 									{config.activee ? "Activée" : "Désactivée"}
-								</span>
+								</Badge>
 							</div>
 
 							<div className="flex items-center justify-between">
@@ -195,54 +191,36 @@ export function SauvegardesPage() {
 							</Button>
 						</div>
 					) : sauvegardes.length === 0 ? (
-						<p className="text-sm text-muted-foreground">
-							Aucune sauvegarde enregistrée.
-						</p>
+						<EmptyState title="Aucune sauvegarde enregistrée." />
 					) : (
-						<div className="overflow-x-auto rounded-lg border border-border">
-							<table className="w-full text-sm">
-								<thead className="bg-muted">
+						<TableShell>
+							<DataTable>
+								<DataTableHead>
 									<tr>
-										<th className="px-4 py-3 text-left font-semibold">Date</th>
-										<th className="px-4 py-3 text-left font-semibold">Type</th>
-										<th className="px-4 py-3 text-left font-semibold">
-											Taille
-										</th>
-										<th className="px-4 py-3 text-left font-semibold">
-											Statut
-										</th>
+										<Th>Date</Th>
+										<Th>Type</Th>
+										<Th>Taille</Th>
+										<Th>Statut</Th>
 									</tr>
-								</thead>
+								</DataTableHead>
 								<tbody>
 									{sauvegardes.map((sauvegarde) => (
-										<tr
-											key={sauvegarde.id}
-											className="border-t border-border hover:bg-muted/50"
-										>
-											<td className="px-4 py-3">
-												{formatDateSauvegarde(sauvegarde.date)}
-											</td>
-											<td className="px-4 py-3">
-												{SAUVEGARDE_TYPE_LABELS[sauvegarde.type]}
-											</td>
-											<td className="px-4 py-3">
-												{formatTailleSauvegarde(sauvegarde.taille)}
-											</td>
-											<td className="px-4 py-3">
-												<span
-													className={cn(
-														"inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium",
-														SAUVEGARDE_STATUT_COULEURS[sauvegarde.statut],
-													)}
+										<Tr key={sauvegarde.id}>
+											<Td>{formatDateSauvegarde(sauvegarde.date)}</Td>
+											<Td>{SAUVEGARDE_TYPE_LABELS[sauvegarde.type]}</Td>
+											<Td>{formatTailleSauvegarde(sauvegarde.taille)}</Td>
+											<Td>
+												<Badge
+													variant={SAUVEGARDE_STATUT_VARIANT[sauvegarde.statut]}
 												>
 													{SAUVEGARDE_STATUT_LABELS[sauvegarde.statut]}
-												</span>
-											</td>
-										</tr>
+												</Badge>
+											</Td>
+										</Tr>
 									))}
 								</tbody>
-							</table>
-						</div>
+							</DataTable>
+						</TableShell>
 					)}
 				</div>
 			</div>

@@ -59,7 +59,7 @@ export function MotDePasseOubliePage() {
 		>
 			{envoye ? (
 				<div className="space-y-5">
-					<output className="block rounded-lg bg-[#27AE60]/10 border border-[#27AE60]/30 px-4 py-3 text-sm text-[#27AE60]">
+					<output className="block rounded-lg bg-success-bg border border-success/30 px-4 py-3 text-sm text-success">
 						Un email a été envoyé, vérifiez votre boîte de réception.
 					</output>
 					<Link

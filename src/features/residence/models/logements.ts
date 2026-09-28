@@ -45,6 +45,19 @@ export const LOGEMENT_STATUT_LABELS: Record<LogementStatut, string> = {
 	INDISPONIBLE: "Indisponible",
 };
 
+/** Variante `<Badge>` par statut de logement. */
+export const LOGEMENT_STATUT_VARIANT = {
+	DISPONIBLE: "success",
+	RESERVE: "warning",
+	OCCUPE: "info",
+	EN_NETTOYAGE: "info",
+	EN_MAINTENANCE: "danger",
+	INDISPONIBLE: "neutral",
+} as const satisfies Record<
+	LogementStatut,
+	"success" | "warning" | "info" | "danger" | "neutral"
+>;
+
 export const EQUIPEMENTS_PREDEFINIS = [
 	"Lit",
 	"Placard",

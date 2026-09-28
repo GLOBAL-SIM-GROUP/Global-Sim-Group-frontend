@@ -56,13 +56,16 @@ export const VENTE_PORTAIL_STATUT_LABELS: Record<VentePortailStatut, string> = {
 	ANNULEE: "Annulée",
 };
 
-/** Classes de badge (fond/texte) par statut — palette portail. */
-export const VENTE_PORTAIL_STATUT_BADGE: Record<VentePortailStatut, string> = {
-	EN_ATTENTE: "bg-[#E67E22] text-white",
-	EN_COURS: "bg-[#2980B9] text-white",
-	PAYEE: "bg-[#27AE60] text-white",
-	ANNULEE: "bg-[#E74C3C] text-white",
-};
+/** Variante `<Badge>` par statut de demande boutique. */
+export const VENTE_PORTAIL_STATUT_VARIANT = {
+	EN_ATTENTE: "warning",
+	EN_COURS: "info",
+	PAYEE: "success",
+	ANNULEE: "danger",
+} as const satisfies Record<
+	VentePortailStatut,
+	"warning" | "info" | "success" | "danger"
+>;
 
 /** Étapes visibles côté résident (PAYEE est la fin du cycle). */
 export const VENTE_PORTAIL_ETAPES: VentePortailStatut[] = [

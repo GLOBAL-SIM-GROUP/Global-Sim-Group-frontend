@@ -2,9 +2,11 @@ import { Link } from "@tanstack/react-router";
 import { Home, UserPlus } from "lucide-react";
 import { useState } from "react";
 
-import { Breadcrumb } from "#/components/ui/breadcrumb";
+import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
+import { EmptyState } from "#/components/ui/empty-state";
 import { InputField } from "#/components/ui/input-field";
+import { PageHeader } from "#/components/ui/page-header";
 import {
 	Select,
 	SelectContent,
@@ -12,9 +14,16 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "#/components/ui/select";
+import {
+	DataTable,
+	DataTableHead,
+	TableShell,
+	Td,
+	Th,
+	Tr,
+} from "#/components/ui/table";
 import { useCan } from "#/core/auth";
 import { formatDateHeureUTC } from "#/features/residence/models/format";
-import { cn } from "#/lib/utils";
 
 import { useClients } from "../hooks/use-clients";
 import {
@@ -42,22 +51,9 @@ interface ClientsPageProps {
 
 function BadgeType({ type }: { type: string }) {
 	const libelle = TYPE_CLIENT_LABELS[type as TypeClient] ?? type;
-	const couleur =
-		type === "LOCATAIRE"
-			? "bg-[#2E86C1] text-white"
-			: type === "PASSAGE"
-				? "bg-[#E67E22] text-white"
-				: "bg-[#95A5A6] text-white";
-	return (
-		<span
-			className={cn(
-				"inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium",
-				couleur,
-			)}
-		>
-			{libelle}
-		</span>
-	);
+	const variant =
+		type === "LOCATAIRE" ? "info" : type === "PASSAGE" ? "warning" : "neutral";
+	return <Badge variant={variant}>{libelle}</Badge>;
 }
 
 /**
@@ -98,42 +94,35 @@ export function ClientsPage({
 
 	return (
 		<div className="w-full space-y-6 p-6">
-			<Breadcrumb
-				items={[
+			<PageHeader
+				breadcrumb={[
 					{ label: "Accueil", to: "/" },
 					{ label: "Locataires et clients" },
 				]}
+				title="Locataires et clients"
+				description="Fiches des locataires et clients de passage."
+				actions={
+					canCreer ? (
+						<div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
+							<Button
+								variant="outline"
+								onClick={() => setFormulaireOuvert("locataire")}
+								className="w-full sm:w-auto"
+							>
+								<Home className="size-4" aria-hidden />
+								Ajouter un locataire
+							</Button>
+							<Button
+								onClick={() => setFormulaireOuvert("client")}
+								className="w-full sm:w-auto"
+							>
+								<UserPlus className="size-4" aria-hidden />
+								Ajouter un client
+							</Button>
+						</div>
+					) : undefined
+				}
 			/>
-
-			<div className="flex flex-wrap items-end justify-between gap-4">
-				<section className="space-y-1">
-					<h1 className="text-2xl font-semibold text-foreground">
-						Locataires et clients
-					</h1>
-					<p className="text-muted-foreground">
-						Fiches des locataires et clients de passage.
-					</p>
-				</section>
-				{canCreer ? (
-					<div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
-						<Button
-							variant="outline"
-							onClick={() => setFormulaireOuvert("locataire")}
-							className="w-full sm:w-auto"
-						>
-							<Home className="size-4" aria-hidden />
-							Ajouter un locataire
-						</Button>
-						<Button
-							onClick={() => setFormulaireOuvert("client")}
-							className="w-full sm:w-auto"
-						>
-							<UserPlus className="size-4" aria-hidden />
-							Ajouter un client
-						</Button>
-					</div>
-				) : null}
-			</div>
 
 			<div className="flex gap-2">
 				<div className="flex-1">
@@ -178,44 +167,27 @@ export function ClientsPage({
 					</Button>
 				</div>
 			) : pagination.total === 0 ? (
-				<div className="rounded-lg border border-border bg-card p-8 text-center text-sm text-muted-foreground">
-					Aucun client trouvé.
-				</div>
+				<EmptyState title="Aucun client trouvé." />
 			) : (
-				<div className="overflow-x-auto rounded-lg border border-border bg-card shadow-sm">
-					<table className="w-full border-collapse text-sm">
-						<thead className="bg-sea-ink text-left text-white">
+				<TableShell>
+					<DataTable>
+						<DataTableHead>
 							<tr>
-								<th scope="col" className="px-4 py-3 font-medium">
-									CODE
-								</th>
-								<th scope="col" className="px-4 py-3 font-medium">
-									CLIENT
-								</th>
-								<th scope="col" className="px-4 py-3 font-medium">
-									TÉLÉPHONE
-								</th>
-								<th scope="col" className="px-4 py-3 font-medium">
-									TYPE
-								</th>
-								<th scope="col" className="px-4 py-3 font-medium">
-									VILLE
-								</th>
-								<th scope="col" className="px-4 py-3 font-medium">
-									ENREGISTRÉ
-								</th>
+								<Th>CODE</Th>
+								<Th>CLIENT</Th>
+								<Th>TÉLÉPHONE</Th>
+								<Th>TYPE</Th>
+								<Th>VILLE</Th>
+								<Th>ENREGISTRÉ</Th>
 							</tr>
-						</thead>
+						</DataTableHead>
 						<tbody>
 							{pagination.items.map((client) => (
-								<tr
-									key={client.id}
-									className="relative border-t border-border transition-colors hover:bg-accent/40"
-								>
-									<td className="px-4 py-3 font-mono text-xs text-muted-foreground">
+								<Tr key={client.id}>
+									<Td className="font-mono text-xs text-muted-foreground">
 										{client.code}
-									</td>
-									<td className="px-4 py-3">
+									</Td>
+									<Td>
 										{/* Toute la ligne ouvre la fiche (stretched link). */}
 										<Link
 											to="/client/clients/$id"
@@ -225,24 +197,22 @@ export function ClientsPage({
 										>
 											{nomComplet(client)}
 										</Link>
-									</td>
-									<td className="px-4 py-3 text-foreground">
-										{client.tel_principal}
-									</td>
-									<td className="px-4 py-3">
+									</Td>
+									<Td className="text-foreground">{client.tel_principal}</Td>
+									<Td>
 										<BadgeType type={client.type_client} />
-									</td>
-									<td className="px-4 py-3 text-muted-foreground">
+									</Td>
+									<Td className="text-muted-foreground">
 										{client.ville ?? "—"}
-									</td>
-									<td className="px-4 py-3 text-muted-foreground">
+									</Td>
+									<Td className="text-muted-foreground">
 										{formatDateHeureUTC(client.date_enregistrement)}
-									</td>
-								</tr>
+									</Td>
+								</Tr>
 							))}
 						</tbody>
-					</table>
-				</div>
+					</DataTable>
+				</TableShell>
 			)}
 
 			{pagination.total > 0 ? (

@@ -3,15 +3,24 @@ import { Link } from "@tanstack/react-router";
 import { CalendarClock, Lock, Receipt, Unlock } from "lucide-react";
 import { useState } from "react";
 
-import { Breadcrumb } from "#/components/ui/breadcrumb";
+import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
+import { EmptyState } from "#/components/ui/empty-state";
+import { PageHeader } from "#/components/ui/page-header";
+import {
+	DataTable,
+	DataTableHead,
+	TableShell,
+	Td,
+	Th,
+	Tr,
+} from "#/components/ui/table";
 import { toApiError } from "#/core/api";
 import { useCan } from "#/core/auth";
 import {
 	formatDateInstantUTC,
 	formatMontantFCFA,
 } from "#/features/residence/models/format";
-import { cn } from "#/lib/utils";
 
 import {
 	fermerCaisse,
@@ -129,12 +138,11 @@ export function CaissierDashboardPage() {
 	if (!caisses || caisses.length === 0) {
 		return (
 			<div className="w-full space-y-6 p-6">
-				<Breadcrumb
-					items={[{ label: "Accueil", to: "/" }, { label: "Ma caisse" }]}
+				<PageHeader
+					breadcrumb={[{ label: "Accueil", to: "/" }, { label: "Ma caisse" }]}
+					title="Ma caisse"
 				/>
-				<div className="rounded-lg border border-border bg-card p-8 text-center text-sm text-muted-foreground">
-					Aucune caisse ne vous est assignée.
-				</div>
+				<EmptyState title="Aucune caisse ne vous est assignée." />
 			</div>
 		);
 	}
@@ -143,15 +151,11 @@ export function CaissierDashboardPage() {
 	if (caisses.length > 1 && !idCaisse) {
 		return (
 			<div className="w-full space-y-6 p-6">
-				<Breadcrumb
-					items={[{ label: "Accueil", to: "/" }, { label: "Ma caisse" }]}
+				<PageHeader
+					breadcrumb={[{ label: "Accueil", to: "/" }, { label: "Ma caisse" }]}
+					title="Ma caisse"
+					description="Plusieurs caisses accessibles — choisissez-en une."
 				/>
-				<section className="space-y-1">
-					<h1 className="text-2xl font-semibold text-foreground">Ma caisse</h1>
-					<p className="text-muted-foreground">
-						Plusieurs caisses accessibles — choisissez-en une.
-					</p>
-				</section>
 				<div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
 					{caisses.map((c) => (
 						<button
@@ -181,70 +185,55 @@ export function CaissierDashboardPage() {
 
 	return (
 		<div className="w-full space-y-6 p-6">
-			<Breadcrumb
-				items={[{ label: "Accueil", to: "/" }, { label: "Ma caisse" }]}
-			/>
-
-			<div className="flex flex-wrap items-center justify-between gap-4">
-				<section className="space-y-1">
-					<h1 className="text-2xl font-semibold text-foreground">
-						{dashboard.libelle}
-					</h1>
-					<p className="text-muted-foreground">
-						{dashboard.activite_libelle || `Activité ${dashboard.id_activite}`}
-					</p>
-				</section>
-
-				<div className="flex items-center gap-2">
-					<span
-						className={cn(
-							"inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium",
-							etatCaisse === "ouverte"
-								? "bg-[#27AE60]/20 text-[#27AE60]"
+			<PageHeader
+				breadcrumb={[{ label: "Accueil", to: "/" }, { label: "Ma caisse" }]}
+				title={dashboard.libelle}
+				description={
+					dashboard.activite_libelle || `Activité ${dashboard.id_activite}`
+				}
+				actions={
+					<div className="flex items-center gap-2">
+						<Badge variant={etatCaisse === "ouverte" ? "success" : "neutral"}>
+							{etatCaisse === "ouverte" ? (
+								<Unlock className="size-3.5" aria-hidden />
+							) : (
+								<Lock className="size-3.5" aria-hidden />
+							)}
+							{etatCaisse === "ouverte"
+								? "Caisse ouverte"
 								: etatCaisse === "fermee"
-									? "bg-[#95A5A6]/20 text-[#95A5A6]"
-									: "bg-muted text-muted-foreground",
-						)}
-					>
-						{etatCaisse === "ouverte" ? (
-							<Unlock className="size-3.5" aria-hidden />
-						) : (
-							<Lock className="size-3.5" aria-hidden />
-						)}
-						{etatCaisse === "ouverte"
-							? "Caisse ouverte"
-							: etatCaisse === "fermee"
-								? "Caisse fermée"
-								: "État inconnu"}
-					</span>
-					{canCreer ? (
-						<>
-							{etatCaisse !== "ouverte" ? (
-								<Button
-									size="sm"
-									variant="outline"
-									disabled={caisseActionPending}
-									onClick={() => void handleOuvrir()}
-								>
-									<Unlock className="size-4" aria-hidden />
-									Ouvrir la caisse
-								</Button>
-							) : null}
-							{etatCaisse !== "fermee" ? (
-								<Button
-									size="sm"
-									variant="outline"
-									disabled={caisseActionPending}
-									onClick={() => void handleFermer()}
-								>
-									<Lock className="size-4" aria-hidden />
-									Fermer la caisse
-								</Button>
-							) : null}
-						</>
-					) : null}
-				</div>
-			</div>
+									? "Caisse fermée"
+									: "État inconnu"}
+						</Badge>
+						{canCreer ? (
+							<>
+								{etatCaisse !== "ouverte" ? (
+									<Button
+										size="sm"
+										variant="outline"
+										disabled={caisseActionPending}
+										onClick={() => void handleOuvrir()}
+									>
+										<Unlock className="size-4" aria-hidden />
+										Ouvrir la caisse
+									</Button>
+								) : null}
+								{etatCaisse !== "fermee" ? (
+									<Button
+										size="sm"
+										variant="outline"
+										disabled={caisseActionPending}
+										onClick={() => void handleFermer()}
+									>
+										<Lock className="size-4" aria-hidden />
+										Fermer la caisse
+									</Button>
+								) : null}
+							</>
+						) : null}
+					</div>
+				}
+			/>
 
 			{caisseActionError ? (
 				<p role="alert" className="text-sm font-medium text-destructive">
@@ -309,61 +298,43 @@ export function CaissierDashboardPage() {
 							Paiements du jour
 						</h2>
 					</div>
-					<div className="overflow-x-auto">
-						<table className="w-full border-collapse text-sm">
-							<thead className="bg-sea-ink text-left text-white">
+					<TableShell>
+						<DataTable>
+							<DataTableHead>
 								<tr>
-									<th scope="col" className="px-6 py-3 font-medium">
-										DATE
-									</th>
-									<th scope="col" className="px-6 py-3 font-medium">
-										TYPE
-									</th>
-									<th scope="col" className="px-6 py-3 font-medium">
-										MOTIF
-									</th>
-									<th scope="col" className="px-6 py-3 text-right font-medium">
-										MONTANT
-									</th>
+									<Th>DATE</Th>
+									<Th>TYPE</Th>
+									<Th>MOTIF</Th>
+									<Th className="text-right">MONTANT</Th>
 								</tr>
-							</thead>
+							</DataTableHead>
 							<tbody>
 								{dashboard.paiements_details.map((p) => (
-									<tr
-										key={p.id}
-										className="border-t border-border transition-colors hover:bg-accent/40"
-									>
-										<td className="px-6 py-3 text-muted-foreground">
+									<Tr key={p.id}>
+										<Td className="text-muted-foreground">
 											{formatDateInstantUTC(p.date)}
-										</td>
-										<td className="px-6 py-3">
-											<span
-												className={cn(
-													"inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium",
-													p.type === "ENCAISSEMENT"
-														? "bg-green-100/50 text-green-700 dark:bg-green-900/30 dark:text-green-400"
-														: "bg-red-100/50 text-red-700 dark:bg-red-900/30 dark:text-red-400",
-												)}
+										</Td>
+										<Td>
+											<Badge
+												variant={
+													p.type === "ENCAISSEMENT" ? "success" : "danger"
+												}
 											>
 												{p.type}
-											</span>
-										</td>
-										<td className="px-6 py-3 text-muted-foreground">
-											{p.motif || "—"}
-										</td>
-										<td className="px-6 py-3 text-right font-semibold">
+											</Badge>
+										</Td>
+										<Td className="text-muted-foreground">{p.motif || "—"}</Td>
+										<Td className="text-right font-semibold">
 											{formatMontantFCFA(p.montant.toString())}
-										</td>
-									</tr>
+										</Td>
+									</Tr>
 								))}
 							</tbody>
-						</table>
-					</div>
+						</DataTable>
+					</TableShell>
 				</div>
 			) : (
-				<div className="rounded-lg border border-border bg-card p-8 text-center text-sm text-muted-foreground">
-					Aucun paiement enregistré aujourd'hui
-				</div>
+				<EmptyState title="Aucun paiement enregistré aujourd'hui." />
 			)}
 		</div>
 	);

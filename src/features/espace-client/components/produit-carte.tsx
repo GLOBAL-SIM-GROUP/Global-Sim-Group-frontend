@@ -38,7 +38,7 @@ export function ProduitCarte({
 							type="button"
 							size="icon"
 							aria-label={`Ajouter ${produit.nom} au panier`}
-							className="size-10 rounded-full bg-lagoon text-white shadow-lg hover:bg-lagoon/90"
+							className="size-10 rounded-full shadow-lg"
 							onClick={onAjouter}
 						>
 							<ShoppingCart className="size-5" aria-hidden />
@@ -60,7 +60,7 @@ export function ProduitCarte({
 							<Button
 								type="button"
 								size="icon-xs"
-								className="rounded-full bg-lagoon text-white hover:bg-lagoon/90"
+								className="rounded-full"
 								aria-label={`Ajouter un ${produit.nom} de plus au panier`}
 								onClick={onAjouter}
 							>

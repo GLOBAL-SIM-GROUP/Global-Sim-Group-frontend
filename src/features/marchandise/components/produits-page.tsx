@@ -2,9 +2,9 @@ import { Link } from "@tanstack/react-router";
 import { Plus } from "lucide-react";
 import { useState } from "react";
 
-import { Breadcrumb } from "#/components/ui/breadcrumb";
 import { Button } from "#/components/ui/button";
 import { InputField } from "#/components/ui/input-field";
+import { PageHeader } from "#/components/ui/page-header";
 import { useCan } from "#/core/auth";
 
 import {
@@ -116,64 +116,59 @@ export function ProduitsPage({
 
 	return (
 		<div className="w-full space-y-4 p-3 sm:space-y-6 sm:p-6">
-			<Breadcrumb
-				items={[{ label: "Accueil", to: "/" }, { label: "Produits — Market" }]}
-			/>
-
-			<div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
-				<section className="space-y-1">
-					<h1 className="text-lg font-semibold text-foreground sm:text-2xl">
-						Produits — Market
-					</h1>
-					<p className="text-xs text-muted-foreground sm:text-sm">
-						Catalogue des produits du supermarché/boutique.
-					</p>
-				</section>
-
-				<div className="flex flex-col gap-2 w-full sm:w-auto sm:flex-row sm:items-center sm:gap-2">
-					<Button
-						variant="outline"
-						size="sm"
-						asChild
-						className="w-full sm:w-auto justify-center"
-					>
-						<Link to="/marchandise/mouvements">Mouvements</Link>
-					</Button>
-					<Button
-						variant="outline"
-						size="sm"
-						asChild
-						className="w-full sm:w-auto justify-center"
-					>
-						<Link to="/marchandise/ventes">Ventes</Link>
-					</Button>
-					<Button
-						variant="outline"
-						size="sm"
-						asChild
-						className="w-full sm:w-auto justify-center"
-					>
-						<Link to="/marchandise/statistiques">Statistiques</Link>
-					</Button>
-					<Button
-						variant="outline"
-						size="sm"
-						asChild
-						className="w-full sm:w-auto justify-center"
-					>
-						<Link to="/marchandise/categories-produits">Catégories</Link>
-					</Button>
-					{canCreer ? (
+			<PageHeader
+				breadcrumb={[
+					{ label: "Accueil", to: "/" },
+					{ label: "Produits — Market" },
+				]}
+				title="Produits — Market"
+				description="Catalogue des produits du supermarché/boutique."
+				actions={
+					<div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
 						<Button
-							onClick={() => setFormOuvert(true)}
-							className="w-full sm:w-auto justify-center"
+							variant="outline"
+							size="sm"
+							asChild
+							className="w-full justify-center sm:w-auto"
 						>
-							<Plus className="size-4" aria-hidden />
-							Ajouter un produit
+							<Link to="/marchandise/mouvements">Mouvements</Link>
 						</Button>
-					) : null}
-				</div>
-			</div>
+						<Button
+							variant="outline"
+							size="sm"
+							asChild
+							className="w-full justify-center sm:w-auto"
+						>
+							<Link to="/marchandise/ventes">Ventes</Link>
+						</Button>
+						<Button
+							variant="outline"
+							size="sm"
+							asChild
+							className="w-full justify-center sm:w-auto"
+						>
+							<Link to="/marchandise/statistiques">Statistiques</Link>
+						</Button>
+						<Button
+							variant="outline"
+							size="sm"
+							asChild
+							className="w-full justify-center sm:w-auto"
+						>
+							<Link to="/marchandise/categories-produits">Catégories</Link>
+						</Button>
+						{canCreer ? (
+							<Button
+								onClick={() => setFormOuvert(true)}
+								className="w-full justify-center sm:w-auto"
+							>
+								<Plus className="size-4" aria-hidden />
+								Ajouter un produit
+							</Button>
+						) : null}
+					</div>
+				}
+			/>
 
 			<div className="flex gap-2">
 				<div className="flex-1">

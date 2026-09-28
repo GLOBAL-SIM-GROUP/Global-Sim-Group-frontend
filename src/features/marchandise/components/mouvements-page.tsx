@@ -2,8 +2,8 @@ import { Link } from "@tanstack/react-router";
 import { AlertTriangle, Plus, ScanLine } from "lucide-react";
 import { useState } from "react";
 
-import { Breadcrumb } from "#/components/ui/breadcrumb";
 import { Button } from "#/components/ui/button";
+import { PageHeader } from "#/components/ui/page-header";
 import { useCan } from "#/core/auth";
 
 import { useMouvements } from "../hooks/use-mouvements";
@@ -88,56 +88,48 @@ export function MouvementsPage({
 
 	return (
 		<div className="w-full space-y-4 p-3 sm:space-y-6 sm:p-6">
-			<Breadcrumb
-				items={[
+			<PageHeader
+				breadcrumb={[
 					{ label: "Accueil", to: "/" },
 					{ label: "Produits — Market", to: "/marchandise/produits" },
 					{ label: "Mouvements de stock" },
 				]}
-			/>
-
-			<div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
-				<section className="space-y-1">
-					<h1 className="text-lg font-semibold text-foreground sm:text-2xl">
-						Mouvements de stock
-					</h1>
-					<p className="text-xs text-muted-foreground sm:text-sm">
-						Historique des entrées, sorties et ajustements de stock.
-					</p>
-				</section>
-
-				<div className="flex flex-col gap-2 w-full sm:w-auto sm:flex-row sm:items-center sm:gap-2">
-					<Button
-						variant="outline"
-						size="sm"
-						onClick={() => setAlerteOuverte(true)}
-						className="w-full sm:w-auto justify-center"
-					>
-						<AlertTriangle className="size-4 text-lagoon" aria-hidden />
-						Alerte stock
-					</Button>
-					{canCreer ? (
+				title="Mouvements de stock"
+				description="Historique des entrées, sorties et ajustements de stock."
+				actions={
+					<div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
 						<Button
 							variant="outline"
 							size="sm"
-							onClick={() => setScanOuvert(true)}
-							className="w-full sm:w-auto justify-center"
+							onClick={() => setAlerteOuverte(true)}
+							className="w-full justify-center sm:w-auto"
 						>
-							<ScanLine className="size-4" aria-hidden />
-							Réception par scan
+							<AlertTriangle className="size-4 text-lagoon" aria-hidden />
+							Alerte stock
 						</Button>
-					) : null}
-					{canCreer ? (
-						<Button
-							onClick={() => setFormOuvert(true)}
-							className="w-full sm:w-auto justify-center"
-						>
-							<Plus className="size-4" aria-hidden />
-							Ajouter un mouvement
-						</Button>
-					) : null}
-				</div>
-			</div>
+						{canCreer ? (
+							<Button
+								variant="outline"
+								size="sm"
+								onClick={() => setScanOuvert(true)}
+								className="w-full justify-center sm:w-auto"
+							>
+								<ScanLine className="size-4" aria-hidden />
+								Réception par scan
+							</Button>
+						) : null}
+						{canCreer ? (
+							<Button
+								onClick={() => setFormOuvert(true)}
+								className="w-full justify-center sm:w-auto"
+							>
+								<Plus className="size-4" aria-hidden />
+								Ajouter un mouvement
+							</Button>
+						) : null}
+					</div>
+				}
+			/>
 
 			<MouvementFilters
 				type={type}

@@ -1,23 +1,27 @@
 import { Plus } from "lucide-react";
 import { useState } from "react";
 
+import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
+import { EmptyState } from "#/components/ui/empty-state";
+import {
+	DataTable,
+	DataTableHead,
+	TableShell,
+	Td,
+	Th,
+	Tr,
+} from "#/components/ui/table";
 import { useCan } from "#/core/auth";
-import { cn } from "#/lib/utils";
 
 import {
 	type CategorieCharge,
 	type Charge,
 	chargeStatutLabel,
+	chargeStatutVariant,
 } from "../models/charges";
 import { formatMontantFCFA } from "../models/format";
 import { ChargeFormDialog } from "./charge-form-dialog";
-
-const CHARGE_STATUT_BADGE: Record<string, string> = {
-	PAYEE: "bg-[#27AE60] text-white",
-	IMPAYEE: "bg-[#E74C3C] text-white",
-	PARTIELLE: "bg-[#E67E22] text-white",
-};
 
 interface LogementChargesTabProps {
 	logementId: string;
@@ -52,71 +56,48 @@ export function LogementChargesTab({
 			</div>
 
 			{charges.length === 0 ? (
-				<p className="rounded-lg border border-border bg-card p-6 text-center text-sm text-muted-foreground">
-					Aucune charge pour ce logement.
-				</p>
+				<EmptyState title="Aucune charge pour ce logement." />
 			) : (
-				<div className="overflow-x-auto rounded-lg border border-border bg-card shadow-sm">
-					<table className="w-full border-collapse text-sm">
-						<thead className="bg-sea-ink text-left text-white">
+				<TableShell>
+					<DataTable>
+						<DataTableHead>
 							<tr>
-								<th scope="col" className="px-4 py-3 font-medium">
-									PÉRIODE
-								</th>
-								<th scope="col" className="px-4 py-3 font-medium">
-									CATÉGORIE
-								</th>
-								<th scope="col" className="px-4 py-3 font-medium">
-									MONTANT
-								</th>
-								<th scope="col" className="px-4 py-3 font-medium">
-									PAYÉ
-								</th>
-								<th scope="col" className="px-4 py-3 font-medium">
-									RESTE
-								</th>
-								<th scope="col" className="px-4 py-3 font-medium">
-									STATUT
-								</th>
+								<Th>PÉRIODE</Th>
+								<Th>CATÉGORIE</Th>
+								<Th>MONTANT</Th>
+								<Th>PAYÉ</Th>
+								<Th>RESTE</Th>
+								<Th>STATUT</Th>
 							</tr>
-						</thead>
+						</DataTableHead>
 						<tbody>
 							{charges.map((charge) => (
-								<tr
-									key={charge.id}
-									className="border-t border-border transition-colors hover:bg-accent/40"
-								>
-									<td className="px-4 py-3 font-semibold text-foreground">
+								<Tr key={charge.id}>
+									<Td className="font-semibold text-foreground">
 										{charge.periode}
-									</td>
-									<td className="px-4 py-3 text-foreground">
+									</Td>
+									<Td className="text-foreground">
 										{charge.categorie_libelle}
-									</td>
-									<td className="px-4 py-3 text-foreground">
+									</Td>
+									<Td className="text-foreground">
 										{formatMontantFCFA(charge.montant)}
-									</td>
-									<td className="px-4 py-3 text-foreground">
+									</Td>
+									<Td className="text-foreground">
 										{formatMontantFCFA(charge.montant_paye)}
-									</td>
-									<td className="px-4 py-3 text-muted-foreground">
+									</Td>
+									<Td className="text-muted-foreground">
 										{formatMontantFCFA(charge.reste_a_payer)}
-									</td>
-									<td className="px-4 py-3">
-										<span
-											className={cn(
-												"inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium",
-												CHARGE_STATUT_BADGE[charge.statut] ??
-													"bg-[#95A5A6] text-white",
-											)}
-										>
+									</Td>
+									<Td>
+										<Badge variant={chargeStatutVariant(charge.statut)}>
 											{chargeStatutLabel(charge.statut)}
-										</span>
-									</td>
-								</tr>
+										</Badge>
+									</Td>
+								</Tr>
 							))}
 						</tbody>
-					</table>
-				</div>
+					</DataTable>
+				</TableShell>
 			)}
 
 			<ChargeFormDialog

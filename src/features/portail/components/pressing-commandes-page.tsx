@@ -1,8 +1,10 @@
 import { Link } from "@tanstack/react-router";
 import { ChevronRight } from "lucide-react";
 
-import { Breadcrumb } from "#/components/ui/breadcrumb";
+import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
+import { EmptyState } from "#/components/ui/empty-state";
+import { PageHeader } from "#/components/ui/page-header";
 import { formatMontantFCFA } from "#/features/residence/models/format";
 import { cn } from "#/lib/utils";
 
@@ -11,8 +13,8 @@ import {
 	calculerProgression,
 	libelleDateDepot,
 	libelleMontantPressing,
-	PRESSING_STATUT_BADGE,
 	PRESSING_STATUT_LABELS,
+	PRESSING_STATUT_VARIANT,
 } from "../models/pressing";
 
 /**
@@ -45,6 +47,7 @@ export function PressingCommandesPage() {
 					<Button
 						variant="outline"
 						size="sm"
+						className="rounded-full"
 						onClick={() => void commandesQuery.refetch()}
 					>
 						Réessayer
@@ -58,32 +61,23 @@ export function PressingCommandesPage() {
 
 	return (
 		<div className="w-full space-y-6 p-6">
-			<Breadcrumb
-				items={[
+			<PageHeader
+				breadcrumb={[
 					{ label: "Accueil", to: "/" },
 					{ label: "Mon espace résident", to: "/residence/portail" },
 					{ label: "Suivi Pressing" },
 				]}
+				title="Suivi Pressing"
+				description="Avancement de vos commandes de pressing."
+				actions={
+					<Button variant="outline" size="sm" className="rounded-full" asChild>
+						<Link to="/residence/portail">Retour à mon espace</Link>
+					</Button>
+				}
 			/>
 
-			<div className="flex flex-wrap items-end justify-between gap-4">
-				<section className="space-y-1">
-					<h1 className="text-2xl font-semibold text-foreground">
-						Suivi Pressing
-					</h1>
-					<p className="text-muted-foreground">
-						Avancement de vos commandes de pressing.
-					</p>
-				</section>
-				<Button variant="outline" size="sm" asChild>
-					<Link to="/residence/portail">Retour à mon espace</Link>
-				</Button>
-			</div>
-
 			{commandes.length === 0 ? (
-				<div className="rounded-lg border border-border bg-card p-8 text-center text-sm text-muted-foreground">
-					Aucune commande de pressing pour le moment.
-				</div>
+				<EmptyState title="Aucune commande de pressing pour le moment." />
 			) : (
 				<div className="space-y-3">
 					{commandes.map((commande) => {
@@ -93,7 +87,7 @@ export function PressingCommandesPage() {
 								key={commande.id}
 								to="/residence/portail/pressing/$id"
 								params={{ id: commande.id }}
-								className="group block space-y-3 rounded-lg border border-border bg-card p-4 shadow-sm transition-colors hover:border-lagoon/50 hover:bg-accent/40"
+								className="group block space-y-3 rounded-xl border border-border bg-card p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-lagoon/50 hover:bg-accent/40 hover:shadow-md"
 							>
 								<div className="flex items-start justify-between gap-3">
 									<div className="min-w-0 flex-1 space-y-1">
@@ -101,16 +95,10 @@ export function PressingCommandesPage() {
 											<span className="truncate font-semibold text-foreground">
 												{commande.numero_commande}
 											</span>
-											<span
-												className={cn(
-													"inline-flex shrink-0 items-center rounded-full px-2.5 py-1 text-xs font-medium",
-													PRESSING_STATUT_BADGE[commande.statut] ??
-														"bg-[#95A5A6] text-white",
-												)}
-											>
+											<Badge variant={PRESSING_STATUT_VARIANT[commande.statut]}>
 												{PRESSING_STATUT_LABELS[commande.statut] ??
 													commande.statut}
-											</span>
+											</Badge>
 										</div>
 										<p className="text-sm text-muted-foreground">
 											{libelleDateDepot(commande)}

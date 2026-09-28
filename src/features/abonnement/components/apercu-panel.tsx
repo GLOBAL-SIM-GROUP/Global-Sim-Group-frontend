@@ -1,5 +1,6 @@
 import { AlertTriangle, Loader2, Tickets } from "lucide-react";
 
+import { DataTable, DataTableHead, Td, Th, Tr } from "#/components/ui/table";
 import { formatMontantFCFA } from "#/features/residence/models/format";
 import { cn } from "#/lib/utils";
 
@@ -93,40 +94,30 @@ export function ApercuAbonnementPanel({
 					</ul>
 
 					<div className="overflow-x-auto rounded-md border border-border bg-card">
-						<table className="w-full border-collapse text-xs">
-							<thead className="bg-muted/60 text-left text-muted-foreground">
+						<DataTable className="text-xs">
+							<DataTableHead>
 								<tr>
-									<th scope="col" className="px-3 py-2 font-medium">
-										Ligne
-									</th>
-									<th scope="col" className="px-3 py-2 font-medium">
-										Couvert
-									</th>
-									<th scope="col" className="px-3 py-2 font-medium">
-										Excédent
-									</th>
-									<th scope="col" className="px-3 py-2 text-right font-medium">
-										Dû
-									</th>
+									<Th>Ligne</Th>
+									<Th>Couvert</Th>
+									<Th>Excédent</Th>
+									<Th className="text-right">Dû</Th>
 								</tr>
-							</thead>
+							</DataTableHead>
 							<tbody>
 								{apercu.lignes.map((ligne, index) => (
-									<tr
+									<Tr
 										// biome-ignore lint/suspicious/noArrayIndexKey: lignes d'aperçu sans identifiant — tableau en lecture seule, ordre stable
 										key={`${libelleLigne(ligne)}-${index}`}
-										className="border-t border-border"
 									>
-										<td className="px-3 py-2 text-foreground">
+										<Td className="text-foreground">
 											{libelleLigne(ligne)} × {ligne.quantite}
-										</td>
-										<td className="px-3 py-2 text-foreground">
+										</Td>
+										<Td className="text-foreground">
 											{ligne.couvert}{" "}
 											{UNITE_LABELS[apercu.unite] ?? apercu.unite}
-										</td>
-										<td
+										</Td>
+										<Td
 											className={cn(
-												"px-3 py-2",
 												ligne.excedent > 0
 													? "font-semibold text-amber-600"
 													: "text-muted-foreground",
@@ -135,14 +126,14 @@ export function ApercuAbonnementPanel({
 											{ligne.excedent > 0
 												? `${ligne.excedent} ${UNITE_LABELS[apercu.unite] ?? apercu.unite} facturé(s)`
 												: "—"}
-										</td>
-										<td className="px-3 py-2 text-right text-foreground">
+										</Td>
+										<Td className="text-right text-foreground">
 											{formatMontantFCFA(ligne.montant_du)}
-										</td>
-									</tr>
+										</Td>
+									</Tr>
 								))}
 							</tbody>
-						</table>
+						</DataTable>
 					</div>
 
 					<div className="flex flex-wrap items-center justify-between gap-2 text-sm">

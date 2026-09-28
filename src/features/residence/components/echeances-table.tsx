@@ -1,16 +1,22 @@
 import { Link } from "@tanstack/react-router";
-import { cn } from "#/lib/utils";
 
-import { type EcheanceSuivi, echanceStatutLabel } from "../models/echeances";
+import { Badge } from "#/components/ui/badge";
+import { EmptyState } from "#/components/ui/empty-state";
+import {
+	DataTable,
+	DataTableHead,
+	TableShell,
+	Td,
+	Th,
+	Tr,
+} from "#/components/ui/table";
+
+import {
+	type EcheanceSuivi,
+	echanceStatutLabel,
+	echanceStatutVariant,
+} from "../models/echeances";
 import { formatDateISO, formatMontantFCFA } from "../models/format";
-
-const ECHANCE_STATUT_BADGE: Record<string, string> = {
-	PAYE: "bg-[#27AE60] text-white",
-	IMPAYE: "bg-[#E74C3C] text-white",
-	PARTIEL: "bg-[#E67E22] text-white",
-	A_VENIR: "bg-[#95A5A6] text-white",
-	EN_ATTENTE: "bg-[#95A5A6] text-white",
-};
 
 interface EcheancesTableProps {
 	echeances: EcheanceSuivi[];
@@ -24,78 +30,49 @@ interface EcheancesTableProps {
  */
 export function EcheancesTable({ echeances, contratIds }: EcheancesTableProps) {
 	if (echeances.length === 0) {
-		return (
-			<div className="rounded-lg border border-border bg-card p-8 text-center text-sm text-muted-foreground">
-				Aucune échéance trouvée.
-			</div>
-		);
+		return <EmptyState title="Aucune échéance trouvée." />;
 	}
 
 	return (
-		<div className="overflow-x-auto rounded-lg border border-border bg-card shadow-sm">
-			<table className="w-full border-collapse text-sm">
-				<thead className="bg-sea-ink text-left text-white">
+		<TableShell>
+			<DataTable>
+				<DataTableHead>
 					<tr>
-						<th scope="col" className="px-4 py-3 font-medium">
-							LOCATAIRE
-						</th>
-						<th scope="col" className="px-4 py-3 font-medium">
-							LOGEMENT
-						</th>
-						<th scope="col" className="px-4 py-3 font-medium">
-							MOIS
-						</th>
-						<th scope="col" className="px-4 py-3 font-medium">
-							ANNÉE
-						</th>
-						<th scope="col" className="px-4 py-3 font-medium">
-							MONTANT
-						</th>
-						<th scope="col" className="px-4 py-3 font-medium">
-							STATUT
-						</th>
-						<th scope="col" className="px-4 py-3 font-medium">
-							DATE D'ÉCHÉANCE
-						</th>
-						<th scope="col" className="px-4 py-3 text-right font-medium">
-							ACTION
-						</th>
+						<Th>LOCATAIRE</Th>
+						<Th>LOGEMENT</Th>
+						<Th>MOIS</Th>
+						<Th>ANNÉE</Th>
+						<Th>MONTANT</Th>
+						<Th>STATUT</Th>
+						<Th>DATE D'ÉCHÉANCE</Th>
+						<Th className="text-right">ACTION</Th>
 					</tr>
-				</thead>
+				</DataTableHead>
 				<tbody>
 					{echeances.map((echeance) => {
 						const contratId = contratIds.get(echeance.numero_contrat);
 						return (
-							<tr
+							<Tr
 								key={`${echeance.numero_contrat}-${echeance.mois}-${echeance.annee}`}
-								className="border-t border-border transition-colors hover:bg-accent/40"
 							>
-								<td className="px-4 py-3 text-foreground">{echeance.client}</td>
-								<td className="px-4 py-3 text-foreground">
-									{echeance.logement}
-								</td>
-								<td className="px-4 py-3 font-semibold text-foreground">
+								<Td className="text-foreground">{echeance.client}</Td>
+								<Td className="text-foreground">{echeance.logement}</Td>
+								<Td className="font-semibold text-foreground">
 									{echeance.mois}
-								</td>
-								<td className="px-4 py-3 text-foreground">{echeance.annee}</td>
-								<td className="px-4 py-3 text-foreground">
+								</Td>
+								<Td className="text-foreground">{echeance.annee}</Td>
+								<Td className="text-foreground">
 									{formatMontantFCFA(echeance.loyer_applique)}
-								</td>
-								<td className="px-4 py-3">
-									<span
-										className={cn(
-											"inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium",
-											ECHANCE_STATUT_BADGE[echeance.statut] ??
-												"bg-[#95A5A6] text-white",
-										)}
-									>
+								</Td>
+								<Td>
+									<Badge variant={echanceStatutVariant(echeance.statut)}>
 										{echanceStatutLabel(echeance.statut)}
-									</span>
-								</td>
-								<td className="px-4 py-3 text-muted-foreground">
+									</Badge>
+								</Td>
+								<Td className="text-muted-foreground">
 									{formatDateISO(echeance.date_echeance)}
-								</td>
-								<td className="px-4 py-3">
+								</Td>
+								<Td>
 									<div className="flex items-center justify-end">
 										{contratId ? (
 											<Link
@@ -109,12 +86,12 @@ export function EcheancesTable({ echeances, contratIds }: EcheancesTableProps) {
 											<span className="text-sm text-muted-foreground">—</span>
 										)}
 									</div>
-								</td>
-							</tr>
+								</Td>
+							</Tr>
 						);
 					})}
 				</tbody>
-			</table>
-		</div>
+			</DataTable>
+		</TableShell>
 	);
 }

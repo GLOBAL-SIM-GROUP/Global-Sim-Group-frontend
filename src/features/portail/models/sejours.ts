@@ -84,13 +84,16 @@ export const SEJOUR_PORTAIL_STATUT_LABELS: Record<SejourStatut, string> = {
 	ANNULE: "Annulé",
 };
 
-/** Classes de badge (fond/texte) par statut — palette portail. */
-export const SEJOUR_PORTAIL_STATUT_BADGE: Record<SejourStatut, string> = {
-	EN_ATTENTE: "bg-[#E67E22] text-white",
-	EN_COURS: "bg-[#2980B9] text-white",
-	TERMINE: "bg-[#27AE60] text-white",
-	ANNULE: "bg-[#95A5A6] text-white",
-};
+/** Variante `<Badge>` par statut de demande de séjour portail. */
+export const SEJOUR_PORTAIL_STATUT_VARIANT = {
+	EN_ATTENTE: "warning",
+	EN_COURS: "info",
+	TERMINE: "success",
+	ANNULE: "neutral",
+} as const satisfies Record<
+	SejourStatut,
+	"warning" | "info" | "success" | "neutral"
+>;
 
 /** Étapes visibles côté client/résident. */
 export const SEJOUR_PORTAIL_ETAPES: SejourStatut[] = [

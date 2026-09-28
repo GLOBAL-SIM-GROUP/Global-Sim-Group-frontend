@@ -1,13 +1,20 @@
 import { useForm } from "@tanstack/react-form";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { Check, Loader2, Plus, Printer, X } from "lucide-react";
-import { Dialog } from "radix-ui";
 import { useState } from "react";
 
-import { Breadcrumb } from "#/components/ui/breadcrumb";
+import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogTitle,
+} from "#/components/ui/dialog";
+import { EmptyState } from "#/components/ui/empty-state";
 import { InputField } from "#/components/ui/input-field";
 import { Label } from "#/components/ui/label";
+import { PageHeader } from "#/components/ui/page-header";
 import {
 	Select,
 	SelectContent,
@@ -15,6 +22,14 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "#/components/ui/select";
+import {
+	DataTable,
+	DataTableHead,
+	TableShell,
+	Td,
+	Th,
+	Tr,
+} from "#/components/ui/table";
 import { getErrorMessageForCode, toApiError } from "#/core/api";
 import { useCan } from "#/core/auth";
 import { ConfirmDialog } from "#/features/residence/components/confirm-dialog";
@@ -22,7 +37,6 @@ import { useMoyensPaiement } from "#/features/residence/hooks/use-moyens-paiemen
 import { formatMontantFCFA } from "#/features/residence/models/format";
 import { PaiementDialog } from "#/features/salle-fete/components/paiement-dialog";
 import { imprimerPdfBlob } from "#/lib/print-pdf";
-import { cn } from "#/lib/utils";
 
 import { telechargerPaiePdf } from "../api/paies";
 import { useEmployes } from "../hooks/use-employes";
@@ -36,8 +50,8 @@ import {
 import {
 	filtrerPaies,
 	nomCompletPaie,
-	PAIE_STATUT_BADGE,
 	PAIE_STATUT_LABELS,
+	PAIE_STATUT_VARIANT,
 	type Paie,
 	type PaieStatut,
 	paginerPaies,
@@ -99,54 +113,72 @@ function NouveauBulletinDialog({
 	});
 
 	return (
-		<Dialog.Root open={open} onOpenChange={onOpenChange}>
-			<Dialog.Portal>
-				<Dialog.Overlay className="fixed inset-0 z-50 bg-black/50" />
-				<Dialog.Content className="fixed top-1/2 left-1/2 z-50 w-[calc(100vw-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-lg border border-border bg-card p-6 shadow-lg">
-					<Dialog.Title className="text-base font-semibold text-foreground">
-						Nouveau bulletin de salaire
-					</Dialog.Title>
-					<Dialog.Description className="mt-1 text-sm text-muted-foreground">
-						Salaire de base prérempli d'après l'employé ; les éléments sont
-						ajoutés sur la fiche.
-					</Dialog.Description>
-					<form
-						className="mt-4 space-y-4"
-						onSubmit={(event) => {
-							event.preventDefault();
-							event.stopPropagation();
-							void form.handleSubmit();
-						}}
-					>
-						<form.Field name="idEmploye">
+		<Dialog open={open} onOpenChange={onOpenChange}>
+			<DialogContent className="max-w-md">
+				<DialogTitle>Nouveau bulletin de salaire</DialogTitle>
+				<DialogDescription>
+					Salaire de base prérempli d'après l'employé ; les éléments sont
+					ajoutés sur la fiche.
+				</DialogDescription>
+				<form
+					className="mt-4 space-y-4"
+					onSubmit={(event) => {
+						event.preventDefault();
+						event.stopPropagation();
+						void form.handleSubmit();
+					}}
+				>
+					<form.Field name="idEmploye">
+						{(field) => (
+							<div className="space-y-1.5">
+								<Label htmlFor={field.name}>Employé</Label>
+								<Select
+									value={field.state.value}
+									onValueChange={(valeur) => {
+										field.handleChange(valeur);
+										const employe = employes.find((e) => e.id === valeur);
+										if (employe) {
+											form.setFieldValue("salaireBase", employe.salaire_base);
+										}
+									}}
+								>
+									<SelectTrigger
+										id={field.name}
+										aria-label="Employé"
+										className="w-full"
+									>
+										<SelectValue placeholder="Sélectionner un employé" />
+									</SelectTrigger>
+									<SelectContent>
+										{employes.map((employe) => (
+											<SelectItem key={employe.id} value={employe.id}>
+												{employe.prenom} {employe.nom} — {employe.fonction}
+											</SelectItem>
+										))}
+									</SelectContent>
+								</Select>
+								{field.state.meta.errors[0] ? (
+									<p className="text-xs text-destructive">
+										{field.state.meta.errors[0]}
+									</p>
+								) : null}
+							</div>
+						)}
+					</form.Field>
+					<div className="grid grid-cols-2 gap-4">
+						<form.Field name="periode">
 							{(field) => (
 								<div className="space-y-1.5">
-									<Label htmlFor={field.name}>Employé</Label>
-									<Select
+									<Label htmlFor={field.name}>Période</Label>
+									<input
+										id={field.name}
+										name={field.name}
+										type="month"
 										value={field.state.value}
-										onValueChange={(valeur) => {
-											field.handleChange(valeur);
-											const employe = employes.find((e) => e.id === valeur);
-											if (employe) {
-												form.setFieldValue("salaireBase", employe.salaire_base);
-											}
-										}}
-									>
-										<SelectTrigger
-											id={field.name}
-											aria-label="Employé"
-											className="w-full"
-										>
-											<SelectValue placeholder="Sélectionner un employé" />
-										</SelectTrigger>
-										<SelectContent>
-											{employes.map((employe) => (
-												<SelectItem key={employe.id} value={employe.id}>
-													{employe.prenom} {employe.nom} — {employe.fonction}
-												</SelectItem>
-											))}
-										</SelectContent>
-									</Select>
+										onBlur={field.handleBlur}
+										onChange={(event) => field.handleChange(event.target.value)}
+										className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
+									/>
 									{field.state.meta.errors[0] ? (
 										<p className="text-xs text-destructive">
 											{field.state.meta.errors[0]}
@@ -155,69 +187,44 @@ function NouveauBulletinDialog({
 								</div>
 							)}
 						</form.Field>
-						<div className="grid grid-cols-2 gap-4">
-							<form.Field name="periode">
-								{(field) => (
-									<div className="space-y-1.5">
-										<Label htmlFor={field.name}>Période</Label>
-										<input
-											id={field.name}
-											name={field.name}
-											type="month"
-											value={field.state.value}
-											onBlur={field.handleBlur}
-											onChange={(event) =>
-												field.handleChange(event.target.value)
-											}
-											className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
-										/>
-										{field.state.meta.errors[0] ? (
-											<p className="text-xs text-destructive">
-												{field.state.meta.errors[0]}
-											</p>
-										) : null}
-									</div>
-								)}
-							</form.Field>
-							<form.Field name="salaireBase">
-								{(field) => (
-									<InputField
-										id={field.name}
-										name={field.name}
-										label="Salaire de base (FCFA)"
-										inputMode="numeric"
-										value={field.state.value}
-										onBlur={field.handleBlur}
-										onChange={(event) => field.handleChange(event.target.value)}
-										error={field.state.meta.errors[0]}
-									/>
-								)}
-							</form.Field>
-						</div>
-						{globalError ? (
-							<p role="alert" className="text-sm font-medium text-destructive">
-								{globalError}
-							</p>
-						) : null}
-						<div className="flex items-center justify-end gap-2 pt-2">
-							<Button
-								type="button"
-								variant="ghost"
-								onClick={() => onOpenChange(false)}
-							>
-								Annuler
-							</Button>
-							<Button type="submit" disabled={createMutation.isPending}>
-								{createMutation.isPending ? (
-									<Loader2 className="size-4 animate-spin" aria-hidden />
-								) : null}
-								Créer le bulletin
-							</Button>
-						</div>
-					</form>
-				</Dialog.Content>
-			</Dialog.Portal>
-		</Dialog.Root>
+						<form.Field name="salaireBase">
+							{(field) => (
+								<InputField
+									id={field.name}
+									name={field.name}
+									label="Salaire de base (FCFA)"
+									inputMode="numeric"
+									value={field.state.value}
+									onBlur={field.handleBlur}
+									onChange={(event) => field.handleChange(event.target.value)}
+									error={field.state.meta.errors[0]}
+								/>
+							)}
+						</form.Field>
+					</div>
+					{globalError ? (
+						<p role="alert" className="text-sm font-medium text-destructive">
+							{globalError}
+						</p>
+					) : null}
+					<div className="flex items-center justify-end gap-2 pt-2">
+						<Button
+							type="button"
+							variant="ghost"
+							onClick={() => onOpenChange(false)}
+						>
+							Annuler
+						</Button>
+						<Button type="submit" disabled={createMutation.isPending}>
+							{createMutation.isPending ? (
+								<Loader2 className="size-4 animate-spin" aria-hidden />
+							) : null}
+							Créer le bulletin
+						</Button>
+					</div>
+				</form>
+			</DialogContent>
+		</Dialog>
 	);
 }
 
@@ -304,29 +311,22 @@ export function BulletinsPage({
 
 	return (
 		<div className="w-full space-y-6 p-6">
-			<Breadcrumb
-				items={[
+			<PageHeader
+				breadcrumb={[
 					{ label: "Accueil", to: "/" },
 					{ label: "Bulletins de salaire" },
 				]}
+				title="Bulletins de salaire"
+				description="Bulletins par employé et par période."
+				actions={
+					canCreer ? (
+						<Button onClick={() => setFormOuvert(true)}>
+							<Plus className="size-4" aria-hidden />
+							Nouveau bulletin
+						</Button>
+					) : undefined
+				}
 			/>
-
-			<div className="flex flex-wrap items-end justify-between gap-4">
-				<section className="space-y-1">
-					<h1 className="text-2xl font-semibold text-foreground">
-						Bulletins de salaire
-					</h1>
-					<p className="text-muted-foreground">
-						Bulletins par employé et par période.
-					</p>
-				</section>
-				{canCreer ? (
-					<Button onClick={() => setFormOuvert(true)}>
-						<Plus className="size-4" aria-hidden />
-						Nouveau bulletin
-					</Button>
-				) : null}
-			</div>
 
 			<div className="flex flex-wrap items-center gap-3 rounded-lg border border-border bg-card p-4 shadow-sm">
 				<Select
@@ -396,47 +396,26 @@ export function BulletinsPage({
 					</Button>
 				</div>
 			) : pagination.total === 0 ? (
-				<div className="rounded-lg border border-border bg-card p-8 text-center text-sm text-muted-foreground">
-					Aucun bulletin trouvé.
-				</div>
+				<EmptyState title="Aucun bulletin trouvé." />
 			) : (
-				<div className="overflow-x-auto rounded-lg border border-border bg-card shadow-sm">
-					<table className="w-full border-collapse text-sm">
-						<thead className="bg-sea-ink text-left text-white">
+				<TableShell>
+					<DataTable>
+						<DataTableHead>
 							<tr>
-								<th scope="col" className="px-4 py-3 font-medium">
-									EMPLOYÉ
-								</th>
-								<th scope="col" className="px-4 py-3 font-medium">
-									PÉRIODE
-								</th>
-								<th scope="col" className="px-4 py-3 text-right font-medium">
-									BASE
-								</th>
-								<th scope="col" className="px-4 py-3 text-right font-medium">
-									ÉLÉMENTS
-								</th>
-								<th scope="col" className="px-4 py-3 text-right font-medium">
-									RETENUES
-								</th>
-								<th scope="col" className="px-4 py-3 text-right font-medium">
-									À PAYER
-								</th>
-								<th scope="col" className="px-4 py-3 font-medium">
-									STATUT
-								</th>
-								<th scope="col" className="px-4 py-3 text-right font-medium">
-									ACTIONS
-								</th>
+								<Th>EMPLOYÉ</Th>
+								<Th>PÉRIODE</Th>
+								<Th className="text-right">BASE</Th>
+								<Th className="text-right">ÉLÉMENTS</Th>
+								<Th className="text-right">RETENUES</Th>
+								<Th className="text-right">À PAYER</Th>
+								<Th>STATUT</Th>
+								<Th className="text-right">ACTIONS</Th>
 							</tr>
-						</thead>
+						</DataTableHead>
 						<tbody>
 							{pagination.items.map((paie) => (
-								<tr
-									key={paie.id}
-									className="relative border-t border-border transition-colors hover:bg-accent/40"
-								>
-									<td className="px-4 py-3">
+								<Tr key={paie.id} className="relative">
+									<Td>
 										{/* Toute la ligne ouvre la fiche (stretched link). */}
 										<Link
 											to="/rh/bulletins/$id"
@@ -446,33 +425,26 @@ export function BulletinsPage({
 										>
 											{nomCompletPaie(paie)}
 										</Link>
-									</td>
-									<td className="px-4 py-3 text-muted-foreground">
-										{paie.periode}
-									</td>
-									<td className="px-4 py-3 text-right text-foreground">
+									</Td>
+									<Td className="text-muted-foreground">{paie.periode}</Td>
+									<Td className="text-right text-foreground">
 										{formatMontantFCFA(paie.salaire_base)}
-									</td>
-									<td className="px-4 py-3 text-right text-[#27AE60]">
+									</Td>
+									<Td className="text-right text-success">
 										+ {formatMontantFCFA(paie.total_elements)}
-									</td>
-									<td className="px-4 py-3 text-right text-destructive">
+									</Td>
+									<Td className="text-right text-destructive">
 										- {formatMontantFCFA(paie.total_retenues)}
-									</td>
-									<td className="px-4 py-3 text-right font-semibold text-foreground">
+									</Td>
+									<Td className="text-right font-semibold text-foreground">
 										{formatMontantFCFA(paie.montant_a_payer)}
-									</td>
-									<td className="px-4 py-3">
-										<span
-											className={cn(
-												"inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium",
-												PAIE_STATUT_BADGE[paie.statut],
-											)}
-										>
+									</Td>
+									<Td>
+										<Badge variant={PAIE_STATUT_VARIANT[paie.statut]}>
 											{PAIE_STATUT_LABELS[paie.statut]}
-										</span>
-									</td>
-									<td className="relative z-10 px-4 py-3">
+										</Badge>
+									</Td>
+									<Td className="relative z-10">
 										<div className="flex items-center justify-end gap-1">
 											<Button
 												variant="ghost"
@@ -529,12 +501,12 @@ export function BulletinsPage({
 												</Button>
 											) : null}
 										</div>
-									</td>
-								</tr>
+									</Td>
+								</Tr>
 							))}
 						</tbody>
-					</table>
-				</div>
+					</DataTable>
+				</TableShell>
 			)}
 
 			{pagination.total > 0 ? (
@@ -578,33 +550,40 @@ export function BulletinsPage({
 				}}
 			/>
 
-			{aPayer ? (
-				<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-6">
-					<div className="w-full max-w-md rounded-lg border border-border bg-card p-6 shadow-lg">
-						<h3 className="text-base font-semibold text-foreground">
-							Payer le bulletin
-						</h3>
-						<p className="mt-1 text-sm text-muted-foreground">
-							{nomCompletPaie(aPayer)} — {aPayer.periode} ·{" "}
-							{formatMontantFCFA(aPayer.montant_a_payer)}.
-						</p>
-						<div className="mt-4">
-							<PaiementDialog
-								titre="Encaisser"
-								montantDefaut={aPayer.montant_a_payer}
-								moyens={(moyensQuery.data ?? []).filter((moyen) => moyen.actif)}
-								onOpenChange={() => setAPayer(null)}
-								onValider={(_montant, idMoyen) => {
-									payerMutation.mutate(
-										{ id: aPayer.id, idMoyen },
-										{ onSettled: () => setAPayer(null) },
-									);
-								}}
-							/>
-						</div>
-					</div>
-				</div>
-			) : null}
+			<Dialog
+				open={aPayer !== null}
+				onOpenChange={(ouvert) => {
+					if (!ouvert) setAPayer(null);
+				}}
+			>
+				<DialogContent className="max-w-md">
+					<DialogTitle>Payer le bulletin</DialogTitle>
+					{aPayer ? (
+						<>
+							<DialogDescription>
+								{nomCompletPaie(aPayer)} — {aPayer.periode} ·{" "}
+								{formatMontantFCFA(aPayer.montant_a_payer)}.
+							</DialogDescription>
+							<div className="mt-4">
+								<PaiementDialog
+									titre="Encaisser"
+									montantDefaut={aPayer.montant_a_payer}
+									moyens={(moyensQuery.data ?? []).filter(
+										(moyen) => moyen.actif,
+									)}
+									onOpenChange={() => setAPayer(null)}
+									onValider={(_montant, idMoyen) => {
+										payerMutation.mutate(
+											{ id: aPayer.id, idMoyen },
+											{ onSettled: () => setAPayer(null) },
+										);
+									}}
+								/>
+							</div>
+						</>
+					) : null}
+				</DialogContent>
+			</Dialog>
 
 			<ConfirmDialog
 				open={aAnnuler !== null}

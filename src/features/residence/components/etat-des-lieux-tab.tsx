@@ -1,8 +1,16 @@
 import { Camera, Plus, Trash2, X } from "lucide-react";
-import { Dialog } from "radix-ui";
 import { useState } from "react";
 
+import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
+import {
+	Dialog,
+	DialogClose,
+	DialogContent,
+	DialogDescription,
+	DialogTitle,
+} from "#/components/ui/dialog";
+import { EmptyState } from "#/components/ui/empty-state";
 import { useUploadBlobUrl } from "#/core/api/use-upload-blob";
 import { useCan } from "#/core/auth";
 import { cn } from "#/lib/utils";
@@ -12,8 +20,8 @@ import {
 	useSupprimerEtatDesLieux,
 } from "../hooks/use-etat-des-lieux";
 import {
-	ETAT_DES_LIEUX_TYPE_BADGE,
 	ETAT_DES_LIEUX_TYPE_LABELS,
+	ETAT_DES_LIEUX_TYPE_VARIANT,
 	type EtatDesLieuxPhoto,
 	type EtatDesLieuxType,
 } from "../models/etat-des-lieux";
@@ -102,9 +110,7 @@ export function EtatDesLieuxTab({ idContrat }: EtatDesLieuxTabProps) {
 					Impossible de charger les photos d'état des lieux.
 				</p>
 			) : photos.length === 0 ? (
-				<p className="rounded-lg border border-border bg-card p-6 text-center text-sm text-muted-foreground">
-					Aucune photo d'état des lieux pour ce filtre.
-				</p>
+				<EmptyState title="Aucune photo d'état des lieux pour ce filtre." />
 			) : (
 				<div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
 					{photos.map((photo) => (
@@ -195,14 +201,9 @@ function PhotoCard({
 			</button>
 			<div className="space-y-2 p-3">
 				<div className="flex items-center justify-between gap-2">
-					<span
-						className={cn(
-							"inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium",
-							ETAT_DES_LIEUX_TYPE_BADGE[photo.type],
-						)}
-					>
+					<Badge variant={ETAT_DES_LIEUX_TYPE_VARIANT[photo.type]}>
 						{ETAT_DES_LIEUX_TYPE_LABELS[photo.type]}
-					</span>
+					</Badge>
 					{canModifier ? (
 						<Button
 							variant="ghost"
@@ -242,42 +243,37 @@ function PhotoViewerDialog({
 	const { blobUrl, isLoading } = useUploadBlobUrl(photo?.cle_objet);
 
 	return (
-		<Dialog.Root open={photo !== null} onOpenChange={onOpenChange}>
-			<Dialog.Portal>
-				<Dialog.Overlay className="fixed inset-0 z-50 bg-black/70" />
-				<Dialog.Content className="fixed top-1/2 left-1/2 z-50 w-[calc(100vw-2rem)] max-w-2xl -translate-x-1/2 -translate-y-1/2 rounded-lg border border-border bg-card p-4 shadow-lg">
-					<div className="flex items-start justify-between gap-3">
-						<Dialog.Title className="text-base font-semibold text-foreground">
-							{photo?.piece ?? "Photo d'état des lieux"}
-						</Dialog.Title>
-						<Dialog.Close asChild>
-							<Button variant="ghost" size="icon-sm">
-								<X className="size-4" aria-hidden />
-								<span className="sr-only">Fermer</span>
-							</Button>
-						</Dialog.Close>
-					</div>
-					<Dialog.Description className="mt-1 text-sm text-muted-foreground">
-						{photo ? formatDateHeureUTC(photo.date_ajout) : ""}
-						{photo?.commentaire ? ` — ${photo.commentaire}` : ""}
-					</Dialog.Description>
-					<div className="mt-3 flex max-h-[70vh] items-center justify-center overflow-hidden rounded-md bg-muted">
-						{isLoading ? (
-							<p className="p-8 text-sm text-muted-foreground">Chargement…</p>
-						) : blobUrl ? (
-							<img
-								src={blobUrl}
-								alt={photo?.piece ?? "Photo d'état des lieux"}
-								className="max-h-[70vh] w-full object-contain"
-							/>
-						) : (
-							<p className="p-8 text-sm text-muted-foreground">
-								Image indisponible.
-							</p>
-						)}
-					</div>
-				</Dialog.Content>
-			</Dialog.Portal>
-		</Dialog.Root>
+		<Dialog open={photo !== null} onOpenChange={onOpenChange}>
+			<DialogContent className="max-w-2xl">
+				<div className="flex items-start justify-between gap-3">
+					<DialogTitle>{photo?.piece ?? "Photo d'état des lieux"}</DialogTitle>
+					<DialogClose asChild>
+						<Button variant="ghost" size="icon-sm">
+							<X className="size-4" aria-hidden />
+							<span className="sr-only">Fermer</span>
+						</Button>
+					</DialogClose>
+				</div>
+				<DialogDescription>
+					{photo ? formatDateHeureUTC(photo.date_ajout) : ""}
+					{photo?.commentaire ? ` — ${photo.commentaire}` : ""}
+				</DialogDescription>
+				<div className="mt-3 flex max-h-[70vh] items-center justify-center overflow-hidden rounded-md bg-muted">
+					{isLoading ? (
+						<p className="p-8 text-sm text-muted-foreground">Chargement…</p>
+					) : blobUrl ? (
+						<img
+							src={blobUrl}
+							alt={photo?.piece ?? "Photo d'état des lieux"}
+							className="max-h-[70vh] w-full object-contain"
+						/>
+					) : (
+						<p className="p-8 text-sm text-muted-foreground">
+							Image indisponible.
+						</p>
+					)}
+				</div>
+			</DialogContent>
+		</Dialog>
 	);
 }

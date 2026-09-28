@@ -347,14 +347,14 @@ export function LoginPage() {
 							{search.expired === "1" ? (
 								<div
 									role="alert"
-									className="rounded-lg bg-[#E67E22]/10 border border-[#E67E22]/30 px-4 py-3 text-sm text-[#E67E22]"
+									className="rounded-lg bg-warning-bg border border-warning/30 px-4 py-3 text-sm text-warning"
 								>
 									Votre session a expiré. Veuillez vous reconnecter.
 								</div>
 							) : null}
 
 							{search.reinitialise === "1" ? (
-								<output className="block rounded-lg bg-[#27AE60]/10 border border-[#27AE60]/30 px-4 py-3 text-sm text-[#27AE60]">
+								<output className="block rounded-lg bg-success-bg border border-success/30 px-4 py-3 text-sm text-success">
 									Mot de passe modifié, reconnectez-vous.
 								</output>
 							) : null}

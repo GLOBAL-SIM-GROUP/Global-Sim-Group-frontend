@@ -7,9 +7,10 @@ import {
 	XCircle,
 } from "lucide-react";
 import { useState } from "react";
-import { Breadcrumb } from "#/components/ui/breadcrumb";
+import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "#/components/ui/card";
+import { PageHeader } from "#/components/ui/page-header";
 import { toApiError } from "#/core/api";
 import { requirePermissions, useCan } from "#/core/auth";
 import { formatDateHeureUTC } from "#/features/residence/models/format";
@@ -25,10 +26,9 @@ import {
 	completerSignalementDepuisListe,
 	libelleCible,
 	nomDeclarant,
-	SIGNALEMENT_STATUT_BADGE,
 	SIGNALEMENT_STATUT_LABELS,
+	SIGNALEMENT_STATUT_VARIANT,
 } from "#/features/signalements/models/signalements";
-import { cn } from "#/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/signalements/$id")({
 	beforeLoad: ({ context, params, navigate }) => {
@@ -122,41 +122,33 @@ function DetailSignalementPage() {
 
 	return (
 		<div className="w-full space-y-6 p-6">
-			<Breadcrumb
-				items={[
+			<PageHeader
+				breadcrumb={[
 					{ label: "Accueil", to: "/" },
 					{ label: "Signalements", to: "/signalements" },
 					{ label: signalement.titre },
 				]}
-			/>
-
-			<div className="flex flex-wrap items-end justify-between gap-4">
-				<section className="space-y-1">
-					<div className="flex items-center gap-3">
-						<h1 className="text-2xl font-semibold text-foreground">
-							{signalement.titre}
-						</h1>
-						<span
-							className={cn(
-								"inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium",
-								SIGNALEMENT_STATUT_BADGE[signalement.statut],
-							)}
-						>
+				title={
+					<span className="inline-flex flex-wrap items-center gap-2">
+						{signalement.titre}
+						<Badge variant={SIGNALEMENT_STATUT_VARIANT[signalement.statut]}>
 							{SIGNALEMENT_STATUT_LABELS[signalement.statut]}
-						</span>
-						<span className="inline-flex rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground">
-							{libelleCible(signalement)}
-						</span>
-					</div>
-					<p className="text-muted-foreground">
+						</Badge>
+						<Badge variant="neutral">{libelleCible(signalement)}</Badge>
+					</span>
+				}
+				description={
+					<>
 						Signalé par {nomDeclarant(signalement)} le{" "}
 						{formatDateHeureUTC(signalement.date_signalement)}
-					</p>
-				</section>
-				<Button variant="outline" asChild>
-					<Link to="/signalements">Retour aux signalements</Link>
-				</Button>
-			</div>
+					</>
+				}
+				actions={
+					<Button variant="outline" asChild>
+						<Link to="/signalements">Retour aux signalements</Link>
+					</Button>
+				}
+			/>
 
 			<Card>
 				<CardHeader>

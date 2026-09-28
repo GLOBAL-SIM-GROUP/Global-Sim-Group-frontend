@@ -5,7 +5,8 @@ import { SalleFeteReservationDetailPage } from "#/features/espace-client/compone
 /**
  * Détail d'une demande de réservation de salle de fête
  * (`/espace-client/salle-fete/$id`) —
- * `GET /salle-fete/portail/reservations/:id` (`RESIDENT.VOIR`). Annulation
+ * `GET /salle-fete/portail/reservations/:id`, gardé par `PORTAIL.VOIR`
+ * (accessible à un compte CLIENT, vérifié en direct 2026-09-27). Annulation
  * possible tant que `EN_ATTENTE`.
  */
 export const Route = createFileRoute(

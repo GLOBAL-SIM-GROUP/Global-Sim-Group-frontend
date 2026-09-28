@@ -1,4 +1,9 @@
-import { Dialog } from "radix-ui";
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogTitle,
+} from "#/components/ui/dialog";
 
 import type {
 	CommandePressing,
@@ -34,33 +39,30 @@ export function CommandeFormDialog({
 	onSaved,
 }: CommandeFormDialogProps) {
 	return (
-		<Dialog.Root open={open} onOpenChange={onOpenChange}>
-			<Dialog.Portal>
-				<Dialog.Overlay className="fixed inset-0 z-50 bg-black/50" />
-				<Dialog.Content className="fixed top-1/2 left-1/2 z-50 max-h-[85dvh] w-[calc(100vw-2rem)] max-w-2xl -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-lg border border-border bg-card p-6 shadow-lg">
-					<Dialog.Title className="text-base font-semibold text-foreground">
-						{commande ? "Modifier la commande" : "Dépôt — Pressing"}
-					</Dialog.Title>
-					<Dialog.Description className="mt-1 text-sm text-muted-foreground">
-						{commande
-							? "Mettre à jour les articles et la date de retrait."
-							: "Enregistrer un dépôt de vêtements (articles, prestations)."}
-					</Dialog.Description>
-					<div className="mt-4">
-						{commande && chargementLignes ? (
-							<p className="text-sm text-muted-foreground">Chargement…</p>
-						) : (
-							<CommandeForm
-								key={commande?.id ?? "create"}
-								commande={commande}
-								lignesInitiales={lignesInitiales}
-								onCancel={() => onOpenChange(false)}
-								onSaved={onSaved}
-							/>
-						)}
-					</div>
-				</Dialog.Content>
-			</Dialog.Portal>
-		</Dialog.Root>
+		<Dialog open={open} onOpenChange={onOpenChange}>
+			<DialogContent className="max-h-[85dvh] max-w-2xl overflow-y-auto">
+				<DialogTitle>
+					{commande ? "Modifier la commande" : "Dépôt — Pressing"}
+				</DialogTitle>
+				<DialogDescription>
+					{commande
+						? "Mettre à jour les articles et la date de retrait."
+						: "Enregistrer un dépôt de vêtements (articles, prestations)."}
+				</DialogDescription>
+				<div className="mt-4">
+					{commande && chargementLignes ? (
+						<p className="text-sm text-muted-foreground">Chargement…</p>
+					) : (
+						<CommandeForm
+							key={commande?.id ?? "create"}
+							commande={commande}
+							lignesInitiales={lignesInitiales}
+							onCancel={() => onOpenChange(false)}
+							onSaved={onSaved}
+						/>
+					)}
+				</div>
+			</DialogContent>
+		</Dialog>
 	);
 }

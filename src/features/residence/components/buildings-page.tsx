@@ -1,8 +1,8 @@
 import { Plus, X } from "lucide-react";
 import { useMemo, useState } from "react";
 
-import { Breadcrumb } from "#/components/ui/breadcrumb";
 import { Button } from "#/components/ui/button";
+import { PageHeader } from "#/components/ui/page-header";
 import { useCan } from "#/core/auth";
 import { cn } from "#/lib/utils";
 
@@ -114,26 +114,19 @@ export function BuildingsPage({
 
 	return (
 		<div className="w-full space-y-6 p-6">
-			<Breadcrumb
-				items={[{ label: "Accueil", to: "/" }, { label: "Bâtiments" }]}
+			<PageHeader
+				breadcrumb={[{ label: "Accueil", to: "/" }, { label: "Bâtiments" }]}
+				title="Liste des bâtiments"
+				description="Gérez l'ensemble des bâtiments de vos résidences."
+				actions={
+					canCreer ? (
+						<Button onClick={() => setFormOuvert(true)}>
+							<Plus className="size-4" aria-hidden />
+							Ajouter un bâtiment
+						</Button>
+					) : null
+				}
 			/>
-			<div className="flex flex-wrap items-end justify-between gap-4">
-				<section className="space-y-1">
-					<h1 className="text-2xl font-semibold text-foreground">
-						Liste des bâtiments
-					</h1>
-					<p className="text-muted-foreground">
-						Gérez l'ensemble des bâtiments de vos résidences.
-					</p>
-				</section>
-
-				{canCreer ? (
-					<Button onClick={() => setFormOuvert(true)}>
-						<Plus className="size-4" aria-hidden />
-						Ajouter un bâtiment
-					</Button>
-				) : null}
-			</div>
 
 			{feedback ? (
 				<div
@@ -142,7 +135,7 @@ export function BuildingsPage({
 						"flex items-center justify-between gap-3 rounded-md border px-4 py-2 text-sm",
 						feedback.type === "error"
 							? "border-destructive/40 bg-destructive/10 text-destructive"
-							: "border-[#27AE60]/40 bg-[#27AE60]/10 text-[#27AE60]",
+							: "border-success/30 bg-success-bg text-success",
 					)}
 				>
 					<span>{feedback.texte}</span>

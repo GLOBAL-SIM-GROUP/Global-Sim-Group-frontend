@@ -2,8 +2,17 @@ import { Link } from "@tanstack/react-router";
 import { AlertTriangle, HandCoins } from "lucide-react";
 import { useState } from "react";
 
-import { Breadcrumb } from "#/components/ui/breadcrumb";
+import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogTitle,
+} from "#/components/ui/dialog";
+import { EmptyState } from "#/components/ui/empty-state";
+import { PageHeader } from "#/components/ui/page-header";
+import { DataTable, DataTableHead, Td, Th, Tr } from "#/components/ui/table";
 import { isCaisseFermeeError, toApiError } from "#/core/api";
 import { useCan } from "#/core/auth";
 import { useClientsDetails } from "#/features/residence/hooks/use-clients";
@@ -14,13 +23,12 @@ import {
 	formatMontantFCFA,
 } from "#/features/residence/models/format";
 import { PaiementDialog } from "#/features/salle-fete/components/paiement-dialog";
-import { cn } from "#/lib/utils";
 
 import { useCreerPaiementFacture, useFacture } from "../hooks/use-factures";
 import {
 	FACTURE_SOURCE_LABELS,
-	FACTURE_STATUT_BADGE,
 	FACTURE_STATUT_LABELS,
+	FACTURE_STATUT_VARIANT,
 } from "../models/factures";
 import { FactureDownloadButtons } from "./facture-download-buttons";
 
@@ -93,35 +101,31 @@ export function FactureFichePage({ id }: FactureFichePageProps) {
 
 	return (
 		<div className="w-full space-y-6 p-6">
-			<Breadcrumb
-				items={[
+			<PageHeader
+				breadcrumb={[
 					{ label: "Accueil", to: "/" },
 					{ label: "Facturation ponctuelle", to: "/facturation/factures" },
 					{ label: facture.numero },
 				]}
-			/>
-
-			<div className="flex flex-wrap items-end justify-between gap-4">
-				<section className="space-y-1">
-					<h1 className="text-2xl font-semibold text-foreground">
-						Fiche facture — {facture.numero}
-					</h1>
-					<p className="text-muted-foreground">
+				title={`Fiche facture — ${facture.numero}`}
+				description={
+					<>
 						{facture.source_type
 							? (FACTURE_SOURCE_LABELS[facture.source_type] ??
 								facture.source_type)
 							: "Facture ponctuelle"}{" "}
 						· {FACTURE_STATUT_LABELS[facture.statut].toLowerCase()}.
-					</p>
-				</section>
-
-				<div className="flex flex-wrap items-center gap-2">
-					<FactureDownloadButtons idFacture={id} />
-					<Button variant="outline" asChild>
-						<Link to="/facturation/factures">Retour à la facturation</Link>
-					</Button>
-				</div>
-			</div>
+					</>
+				}
+				actions={
+					<>
+						<FactureDownloadButtons idFacture={id} />
+						<Button variant="outline" asChild>
+							<Link to="/facturation/factures">Retour à la facturation</Link>
+						</Button>
+					</>
+				}
+			/>
 
 			<section className="rounded-lg border border-border bg-card p-5 shadow-sm">
 				<div className="flex flex-wrap items-start justify-between gap-4">
@@ -144,14 +148,9 @@ export function FactureFichePage({ id }: FactureFichePageProps) {
 						<Ligne label="Reste dû" valeur={formatMontantFCFA(facture.reste)} />
 					</dl>
 					<div className="flex flex-col items-end gap-3">
-						<span
-							className={cn(
-								"inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium",
-								FACTURE_STATUT_BADGE[facture.statut],
-							)}
-						>
+						<Badge variant={FACTURE_STATUT_VARIANT[facture.statut]}>
 							{FACTURE_STATUT_LABELS[facture.statut]}
-						</span>
+						</Badge>
 						{peutEncaisser ? (
 							<Button onClick={() => setPaiementOuvert(true)}>
 								<HandCoins className="size-4" aria-hidden />
@@ -165,50 +164,40 @@ export function FactureFichePage({ id }: FactureFichePageProps) {
 			<section className="space-y-3 rounded-lg border border-border bg-card p-5 shadow-sm">
 				<h2 className="text-lg font-semibold text-foreground">Lignes</h2>
 				{facture.lignes.length === 0 ? (
-					<p className="rounded-lg border border-border bg-sea-ink/5 p-4 text-center text-sm text-muted-foreground">
-						Aucune ligne sur cette facture.
-					</p>
+					<EmptyState title="Aucune ligne sur cette facture." />
 				) : (
+					// Pas de `TableShell` ici : la table est déjà nichée dans la
+					// `<section>` bordée/ombrée ci-dessus — un second cadre ferait
+					// une bordure dans la bordure.
 					<div className="overflow-x-auto">
-						<table className="w-full border-collapse text-sm">
-							<thead className="bg-sea-ink text-left text-white">
+						<DataTable>
+							<DataTableHead>
 								<tr>
-									<th scope="col" className="px-4 py-3 font-medium">
-										LIBELLÉ
-									</th>
-									<th scope="col" className="px-4 py-3 text-right font-medium">
-										QTÉ
-									</th>
-									<th scope="col" className="px-4 py-3 text-right font-medium">
-										PRIX UNITAIRE
-									</th>
-									<th scope="col" className="px-4 py-3 text-right font-medium">
-										TOTAL
-									</th>
+									<Th>LIBELLÉ</Th>
+									<Th className="text-right">QTÉ</Th>
+									<Th className="text-right">PRIX UNITAIRE</Th>
+									<Th className="text-right">TOTAL</Th>
 								</tr>
-							</thead>
+							</DataTableHead>
 							<tbody>
 								{facture.lignes.map((ligne) => (
-									<tr
-										key={ligne.id}
-										className="border-t border-border transition-colors hover:bg-accent/40"
-									>
-										<td className="px-4 py-3 font-medium text-foreground">
+									<Tr key={ligne.id}>
+										<Td className="font-medium text-foreground">
 											{ligne.libelle}
-										</td>
-										<td className="px-4 py-3 text-right text-muted-foreground">
+										</Td>
+										<Td className="text-right text-muted-foreground">
 											{ligne.quantite}
-										</td>
-										<td className="px-4 py-3 text-right text-foreground">
+										</Td>
+										<Td className="text-right text-foreground">
 											{formatMontantFCFA(ligne.prix_unitaire)}
-										</td>
-										<td className="px-4 py-3 text-right font-semibold text-foreground">
+										</Td>
+										<Td className="text-right font-semibold text-foreground">
 											{formatMontantFCFA(ligne.total)}
-										</td>
-									</tr>
+										</Td>
+									</Tr>
 								))}
 							</tbody>
-						</table>
+						</DataTable>
 					</div>
 				)}
 			</section>
@@ -232,33 +221,28 @@ export function FactureFichePage({ id }: FactureFichePageProps) {
 				)
 			) : null}
 
-			{paiementOuvert ? (
-				<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-6">
-					<div className="w-full max-w-md rounded-lg border border-border bg-card p-6 shadow-lg">
-						<h3 className="text-base font-semibold text-foreground">
-							Enregistrer un paiement
-						</h3>
-						<p className="mt-1 text-sm text-muted-foreground">
-							Facture {facture.numero} — reste{" "}
-							{formatMontantFCFA(facture.reste)}.
-						</p>
-						<div className="mt-4">
-							<PaiementDialog
-								titre="Encaisser"
-								montantDefaut={facture.reste}
-								moyens={(moyensQuery.data ?? []).filter((moyen) => moyen.actif)}
-								onOpenChange={() => setPaiementOuvert(false)}
-								onValider={(montant, idMoyen) => {
-									payerMutation.mutate(
-										{ id, montant, idMoyen },
-										{ onSettled: () => setPaiementOuvert(false) },
-									);
-								}}
-							/>
-						</div>
+			<Dialog open={paiementOuvert} onOpenChange={setPaiementOuvert}>
+				<DialogContent>
+					<DialogTitle>Enregistrer un paiement</DialogTitle>
+					<DialogDescription>
+						Facture {facture.numero} — reste {formatMontantFCFA(facture.reste)}.
+					</DialogDescription>
+					<div className="mt-4">
+						<PaiementDialog
+							titre="Encaisser"
+							montantDefaut={facture.reste}
+							moyens={(moyensQuery.data ?? []).filter((moyen) => moyen.actif)}
+							onOpenChange={setPaiementOuvert}
+							onValider={(montant, idMoyen) => {
+								payerMutation.mutate(
+									{ id, montant, idMoyen },
+									{ onSettled: () => setPaiementOuvert(false) },
+								);
+							}}
+						/>
 					</div>
-				</div>
-			) : null}
+				</DialogContent>
+			</Dialog>
 		</div>
 	);
 }

@@ -42,6 +42,23 @@ export function chargeStatutLabel(statut: string): string {
 	return CHARGE_STATUT_LABELS[statut] ?? statut;
 }
 
+/** Variante de badge par statut de charge (enum ouvert → repli neutre). */
+const CHARGE_STATUT_VARIANT: Record<
+	string,
+	"success" | "warning" | "info" | "danger" | "neutral"
+> = {
+	PAYEE: "success",
+	IMPAYEE: "danger",
+	PARTIELLE: "warning",
+};
+
+/** Variante de badge d'un statut de charge, avec repli neutre. */
+export function chargeStatutVariant(
+	statut: string,
+): "success" | "warning" | "info" | "danger" | "neutral" {
+	return CHARGE_STATUT_VARIANT[statut] ?? "neutral";
+}
+
 /** Valeurs connues du statut de charge pour le filtre (enum ouvert). */
 export const CHARGE_STATUT_FILTRES = ["tous", "IMPAYEE", "PARTIELLE", "PAYEE"];
 

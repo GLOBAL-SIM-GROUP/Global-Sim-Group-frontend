@@ -2,8 +2,10 @@ import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { type ReactNode, useMemo, useState } from "react";
 
-import { Breadcrumb } from "#/components/ui/breadcrumb";
+import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
+import { EmptyState } from "#/components/ui/empty-state";
+import { PageHeader } from "#/components/ui/page-header";
 import {
 	Select,
 	SelectContent,
@@ -11,6 +13,14 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "#/components/ui/select";
+import {
+	DataTable,
+	DataTableHead,
+	TableShell,
+	Td,
+	Th,
+	Tr,
+} from "#/components/ui/table";
 import { useCan } from "#/core/auth";
 import { listFactures } from "#/features/facturation/api/factures";
 import { facturesKeys } from "#/features/facturation/permissions";
@@ -195,16 +205,11 @@ export function ImpayesPage({
 
 	return (
 		<div className="w-full space-y-6 p-6">
-			<Breadcrumb
-				items={[{ label: "Accueil", to: "/" }, { label: "Impayés" }]}
+			<PageHeader
+				breadcrumb={[{ label: "Accueil", to: "/" }, { label: "Impayés" }]}
+				title="Impayés"
+				description="Créances en souffrance et restes dus."
 			/>
-
-			<section className="space-y-1">
-				<h1 className="text-2xl font-semibold text-foreground">Impayés</h1>
-				<p className="text-muted-foreground">
-					Créances en souffrance et restes dus.
-				</p>
-			</section>
 
 			<div className="flex flex-wrap items-center gap-3 rounded-lg border border-border bg-card p-4 shadow-sm">
 				<Select value={type} onValueChange={changerType}>
@@ -238,37 +243,21 @@ export function ImpayesPage({
 					</Button>
 				</div>
 			) : pagination.total === 0 ? (
-				<div className="rounded-lg border border-border bg-card p-8 text-center text-sm text-muted-foreground">
-					Aucun impayé trouvé.
-				</div>
+				<EmptyState title="Aucun impayé trouvé." />
 			) : (
-				<div className="overflow-x-auto rounded-lg border border-border bg-card shadow-sm">
-					<table className="w-full border-collapse text-sm">
-						<thead className="bg-sea-ink text-left text-white">
+				<TableShell>
+					<DataTable>
+						<DataTableHead>
 							<tr>
-								<th scope="col" className="px-4 py-3 font-medium">
-									TYPE
-								</th>
-								<th scope="col" className="px-4 py-3 font-medium">
-									CLIENT
-								</th>
-								<th scope="col" className="px-4 py-3 font-medium">
-									RÉFÉRENCE
-								</th>
-								<th scope="col" className="px-4 py-3 text-right font-medium">
-									MONTANT DÛ
-								</th>
-								<th scope="col" className="px-4 py-3 text-right font-medium">
-									PAYÉ
-								</th>
-								<th scope="col" className="px-4 py-3 text-right font-medium">
-									RESTE
-								</th>
-								<th scope="col" className="px-4 py-3 font-medium">
-									ÉCHÉANCE
-								</th>
+								<Th>TYPE</Th>
+								<Th>CLIENT</Th>
+								<Th>RÉFÉRENCE</Th>
+								<Th className="text-right">MONTANT DÛ</Th>
+								<Th className="text-right">PAYÉ</Th>
+								<Th className="text-right">RESTE</Th>
+								<Th>ÉCHÉANCE</Th>
 							</tr>
-						</thead>
+						</DataTableHead>
 						<tbody>
 							{pagination.items.map((impaye) => {
 								const cible = cibleImpaye(
@@ -278,14 +267,13 @@ export function ImpayesPage({
 									{ residence: canResidence, facturation: canFacturation },
 								);
 								return (
-									<tr
+									<Tr
 										key={`${impaye.type}-${impaye.reference}-${impaye.client}-${impaye.montant_du}`}
-										className="relative border-t border-border transition-colors hover:bg-accent/40"
 									>
-										<td className="px-4 py-3">
+										<Td>
 											<BadgeImpayeType type={impaye.type} />
-										</td>
-										<td className="px-4 py-3">
+										</Td>
+										<Td>
 											{/* Toute la ligne ouvre la page correspondante (stretched
 											    link) quand une cible existe. */}
 											<LienCibleImpaye
@@ -299,28 +287,28 @@ export function ImpayesPage({
 											>
 												{impaye.client}
 											</LienCibleImpaye>
-										</td>
-										<td className="px-4 py-3 text-muted-foreground">
+										</Td>
+										<Td className="text-muted-foreground">
 											{impaye.reference}
-										</td>
-										<td className="px-4 py-3 text-right text-foreground">
+										</Td>
+										<Td className="text-right text-foreground">
 											{formatMontantFCFA(impaye.montant_du)}
-										</td>
-										<td className="px-4 py-3 text-right text-[#27AE60]">
+										</Td>
+										<Td className="text-right text-success">
 											{formatMontantFCFA(impaye.montant_paye)}
-										</td>
-										<td className="px-4 py-3 text-right font-semibold text-destructive">
+										</Td>
+										<Td className="text-right font-semibold text-destructive">
 											{formatMontantFCFA(impaye.reste)}
-										</td>
-										<td className="px-4 py-3 text-muted-foreground">
+										</Td>
+										<Td className="text-muted-foreground">
 											{formatDateISO(impaye.date_echeance)}
-										</td>
-									</tr>
+										</Td>
+									</Tr>
 								);
 							})}
 						</tbody>
-					</table>
-				</div>
+					</DataTable>
+				</TableShell>
 			)}
 
 			{pagination.total > 0 ? (
@@ -363,20 +351,15 @@ function BadgeImpayeType({ type }: { type: string }) {
 		SEJOUR: "Séjour",
 		FACTURE: "Facture",
 	};
-	const couleurs: Record<string, string> = {
-		LOYER: "bg-[#2E86C1] text-white",
-		CHARGE: "bg-[#D35400] text-white",
-		SEJOUR: "bg-[#8E44AD] text-white",
-		FACTURE: "bg-[#C0392B] text-white",
+	const variantes: Record<string, "info" | "warning" | "danger"> = {
+		LOYER: "info",
+		CHARGE: "warning",
+		SEJOUR: "warning",
+		FACTURE: "danger",
 	};
 	return (
-		<span
-			className={cn(
-				"inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium",
-				couleurs[type] ?? "bg-[#95A5A6] text-white",
-			)}
-		>
+		<Badge variant={variantes[type] ?? "neutral"}>
 			{libelles[type] ?? type}
-		</span>
+		</Badge>
 	);
 }

@@ -2,12 +2,13 @@ import { Link } from "@tanstack/react-router";
 import { Receipt } from "lucide-react";
 import { useState } from "react";
 
-import { Breadcrumb } from "#/components/ui/breadcrumb";
+import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
+import { PageHeader } from "#/components/ui/page-header";
 import { useCan } from "#/core/auth";
 import {
-	FACTURE_STATUT_BADGE,
 	FACTURE_STATUT_LABELS,
+	FACTURE_STATUT_VARIANT,
 } from "#/features/facturation/models/factures";
 import {
 	formatDateHeureISO,
@@ -24,8 +25,8 @@ import {
 import {
 	estSejourAnnulable,
 	SEJOUR_PORTAIL_ETAPES,
-	SEJOUR_PORTAIL_STATUT_BADGE,
 	SEJOUR_PORTAIL_STATUT_LABELS,
+	SEJOUR_PORTAIL_STATUT_VARIANT,
 } from "../models/sejours";
 import { AnnulerDemandeDialog } from "./annuler-demande-dialog";
 import { StatutTimeline } from "./statut-timeline";
@@ -97,6 +98,7 @@ export function SejourPortailDetailPage({
 					<Button
 						variant="outline"
 						size="sm"
+						className="rounded-full"
 						onClick={() => void sejourQuery.refetch()}
 					>
 						Réessayer
@@ -113,8 +115,8 @@ export function SejourPortailDetailPage({
 
 	return (
 		<div className={conteneur}>
-			<Breadcrumb
-				items={
+			<PageHeader
+				breadcrumb={
 					estClient
 						? [
 								{ label: "Espace client", to: "/espace-client" },
@@ -128,44 +130,38 @@ export function SejourPortailDetailPage({
 								{ label: `Séjour ${sejour.id}` },
 							]
 				}
-			/>
-
-			<div className="flex flex-wrap items-end justify-between gap-4">
-				<section className="space-y-1">
-					<div className="flex flex-wrap items-center gap-2">
-						<h1 className="text-2xl font-semibold text-foreground">
-							{SEJOUR_TYPE_LABELS[sejour.type_prestation]} — {libelleLogement}
-						</h1>
-						<span
-							className={cn(
-								"inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium",
-								SEJOUR_PORTAIL_STATUT_BADGE[sejour.statut] ??
-									"bg-[#95A5A6] text-white",
-							)}
-						>
+				title={
+					<span className="inline-flex flex-wrap items-center gap-2">
+						{`${SEJOUR_TYPE_LABELS[sejour.type_prestation]} — ${libelleLogement}`}
+						<Badge variant={SEJOUR_PORTAIL_STATUT_VARIANT[sejour.statut]}>
 							{SEJOUR_PORTAIL_STATUT_LABELS[sejour.statut] ?? sejour.statut}
-						</span>
-					</div>
-					<p className="text-muted-foreground">
-						Arrivée le {formatDateHeureISO(sejour.date_heure_arrivee)}
-					</p>
-				</section>
-				<div className="flex flex-wrap items-center gap-2">
-					{canDemander && estSejourAnnulable(sejour) ? (
+						</Badge>
+					</span>
+				}
+				description={`Arrivée le ${formatDateHeureISO(sejour.date_heure_arrivee)}`}
+				actions={
+					<div className="flex flex-wrap items-center gap-2">
+						{canDemander && estSejourAnnulable(sejour) ? (
+							<Button
+								variant="outline"
+								size="sm"
+								className="rounded-full text-destructive hover:bg-destructive/10"
+								onClick={() => setConfirmOuvert(true)}
+							>
+								Annuler la demande
+							</Button>
+						) : null}
 						<Button
 							variant="outline"
 							size="sm"
-							className="text-destructive hover:bg-destructive/10"
-							onClick={() => setConfirmOuvert(true)}
+							className="rounded-full"
+							asChild
 						>
-							Annuler la demande
+							<Link to={lienListe}>Retour à mes séjours</Link>
 						</Button>
-					) : null}
-					<Button variant="outline" size="sm" asChild>
-						<Link to={lienListe}>Retour à mes séjours</Link>
-					</Button>
-				</div>
-			</div>
+					</div>
+				}
+			/>
 
 			{sejour.motif_annulation ? (
 				<div className="rounded-lg border border-destructive/40 bg-destructive/10 p-4 text-sm">
@@ -174,7 +170,7 @@ export function SejourPortailDetailPage({
 				</div>
 			) : null}
 
-			<section className="rounded-lg border border-border bg-card p-5 shadow-sm">
+			<section className="rounded-xl border border-border bg-card p-5 shadow-sm">
 				<dl className="grid gap-4 sm:grid-cols-2">
 					<Ligne label="Logement" valeur={libelleLogement} />
 					<Ligne
@@ -216,14 +212,14 @@ export function SejourPortailDetailPage({
 			</section>
 
 			{sejour.observations ? (
-				<section className="rounded-lg border border-border bg-card p-5 text-sm shadow-sm">
+				<section className="rounded-xl border border-border bg-card p-5 text-sm shadow-sm">
 					<p className="font-medium text-foreground">Votre message</p>
 					<p className="mt-1 text-muted-foreground">{sejour.observations}</p>
 				</section>
 			) : null}
 
 			{facture ? (
-				<section className="space-y-3 rounded-lg border border-border bg-card p-5 shadow-sm">
+				<section className="space-y-3 rounded-xl border border-border bg-card p-5 shadow-sm">
 					<h2 className="flex items-center gap-2 text-lg font-semibold text-foreground">
 						<Receipt className="size-5" aria-hidden />
 						Facture
@@ -233,14 +229,9 @@ export function SejourPortailDetailPage({
 						<div className="grid grid-cols-[10rem_1fr] gap-3 text-sm">
 							<dt className="text-muted-foreground">Statut</dt>
 							<dd>
-								<span
-									className={cn(
-										"inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium",
-										FACTURE_STATUT_BADGE[facture.statut],
-									)}
-								>
+								<Badge variant={FACTURE_STATUT_VARIANT[facture.statut]}>
 									{FACTURE_STATUT_LABELS[facture.statut]}
-								</span>
+								</Badge>
 							</dd>
 						</div>
 						<Ligne

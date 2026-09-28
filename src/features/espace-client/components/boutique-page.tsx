@@ -1,9 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
-import { AlertCircle, Loader2 } from "lucide-react";
+import { AlertCircle, Loader2, ShoppingBag } from "lucide-react";
 import { Tabs, Toast } from "radix-ui";
 import { useMemo, useState } from "react";
 
-import { Breadcrumb } from "#/components/ui/breadcrumb";
+import { EmptyState } from "#/components/ui/empty-state";
+import { PageHeader } from "#/components/ui/page-header";
 import { produitImagePublicUrl } from "#/core/api/uploads";
 import {
 	listCategoriesProduits,
@@ -91,20 +92,15 @@ export function BoutiquePage() {
 
 	return (
 		<Toast.Provider swipeDirection="right" duration={2500}>
-			<div className="w-full space-y-6 pt-6 pb-28">
-				<Breadcrumb
-					items={[
+			<div className="w-full space-y-6 pt-6 pb-40 sm:pb-16">
+				<PageHeader
+					breadcrumb={[
 						{ label: "Espace client", to: "/espace-client" },
 						{ label: "Boutique" },
 					]}
+					title="Boutique"
+					description="Parcourez le catalogue et composez votre commande."
 				/>
-
-				<div className="space-y-1">
-					<h1 className="text-2xl font-semibold text-foreground">Boutique</h1>
-					<p className="text-sm text-muted-foreground">
-						Parcourez le catalogue et composez votre commande.
-					</p>
-				</div>
 
 				<Tabs.Root value={categorieActive} onValueChange={setCategorieActive}>
 					<Tabs.List
@@ -130,9 +126,10 @@ export function BoutiquePage() {
 				</Tabs.Root>
 
 				{produitsAffiches.length === 0 ? (
-					<p className="py-12 text-center text-muted-foreground">
-						Aucun produit disponible dans cette catégorie.
-					</p>
+					<EmptyState
+						icon={ShoppingBag}
+						title="Aucun produit disponible dans cette catégorie"
+					/>
 				) : (
 					<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
 						{produitsAffiches.map((produit) => (

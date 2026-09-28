@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo } from "react";
 
 import { listClients } from "#/features/clients/api/clients";
+import { listFactures } from "#/features/facturation/api/factures";
 import { listPaiements } from "#/features/finances/api/finances";
 
 import {
@@ -80,15 +81,31 @@ export function useReservation(id: string) {
 }
 
 /**
- * Paiements d'une réservation : liste complète des paiements filtrée côté
- * client par `id_activite` (le param serveur est peu fiable). `enabled` gated
- * par `FINANCES.VOIR`.
+ * Paiements d'une réservation : `id_activite` d'un paiement désigne le module
+ * (SALLE_FETE), pas la réservation. On résout donc via les factures
+ * `source_type = RESERVATION_FETE` / `source_id = id`, dont le `numero` est
+ * repris en `reference` par chaque paiement. `enabled` gated par
+ * `FINANCES.VOIR`.
  */
 export function useReservationPaiements(id: string, enabled: boolean) {
 	return useQuery({
 		queryKey: reservationPaiementsKeys.detail(id),
-		queryFn: async () =>
-			(await listPaiements()).filter((paiement) => paiement.id_activite === id),
+		queryFn: async () => {
+			const numeros = new Set(
+				(await listFactures())
+					.filter(
+						(facture) =>
+							facture.source_type === "RESERVATION_FETE" &&
+							facture.source_id === id,
+					)
+					.map((facture) => facture.numero),
+			);
+			if (numeros.size === 0) return [];
+			return (await listPaiements({ limit: 200 })).filter(
+				(paiement) =>
+					paiement.reference !== null && numeros.has(paiement.reference),
+			);
+		},
 		enabled,
 	});
 }

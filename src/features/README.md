@@ -1,36 +1,48 @@
 # `src/features/` — Conventions des fonctionnalités métier
 
-Ce dossier est **volontairement vide** : la fondation (auth, permissions,
-API, query, routing, layout) ne doit contenir **aucune fonctionnalité
-métier** (spec `prompt-adapted.md` §« IMPORTANT »). Il documente ici la
-convention à suivre dès qu'un module métier sera développé.
+> Mis à jour 2026-09-27. Ce dossier a longtemps été documenté comme
+> « volontairement vide » (état jour 1 de la fondation) — ce n'est plus le
+> cas depuis longtemps : il contient aujourd'hui 19 modules, plusieurs
+> centaines de fichiers. La convention ci-dessous reste la même, elle
+> documente maintenant une pratique établie, pas une intention future.
 
-## Modules réels (M0–M11)
+## Modules réels
 
-Chaque module métier du backend aura, le moment venu, son dossier feature.
-Note : le module **Market (M1) n'a aucun préfixe de permission** dans le
-backend déployé (vérifié sur `GET /auth/me`) — un préfixe de permission n'est
-pas synonyme de module métier.
+Chaque dossier correspond à un module métier (ou à une surface transverse) du
+backend réel. Le préfixe de permission n'est pas toujours le même que le nom
+du dossier (`portail`/`espace-client` partagent par exemple `PORTAIL.VOIR` et
+des verbes propres au compte CLIENT ; `landing`, `auth`, `admin` n'ont pas de
+préfixe métier dédié).
 
-| Module | Préfixe de permission |
+| Dossier | Préfixe(s) de permission principaux |
 | --- | --- |
-| Résidence (M0) | `RESIDENCE` |
-| Market (M1) | — *(aucun)* |
-| Pressing (M2) | `PRESSING` |
-| Restaurant (M3) | `RESTAURANT` |
-| Salle de fête (M4) | `SALLE_FETE` |
-| Facturation (M5) | `FACTURATION` |
-| Finances (M6) | `FINANCES` |
-| RH (M7) | `RH` |
-| Clients (M8) | `CLIENT` |
-| Marchandises (M9) | `MARCHANDISE` |
-| Administration (M10) | `ADMIN` |
-| Rapports (M11) | `AUDIT` |
+| `residence` | `RESIDENCE` (+ `RESIDENT.VOIR` pour le portail résident) |
+| `pressing` | `PRESSING` |
+| `restaurant` | `RESTAURANT` |
+| `salle-fete` | `SALLE_FETE` |
+| `facturation` | `FACTURATION` |
+| `finances` | `FINANCES`, `DEPENSE` |
+| `rh` | `RH` |
+| `clients` | `CLIENT` |
+| `marchandise` | `MARCHANDISE` |
+| `abonnement` | `ABONNEMENT` |
+| `admin` | `ADMIN`, `AUDIT` |
+| `rapports` | `RAPPORTS` (module réel, distinct d'`ADMIN` — voir `core/permissions/types.ts`) |
+| `signalements` | `SIGNALEMENT` |
+| `portail` | `PORTAIL.VOIR` + `RESIDENT.VOIR` (portail résidence) |
+| `espace-client` | `PORTAIL.VOIR` + verbes CLIENT (`COMMANDER`/`DECLARER`/`DEMANDER`) |
+| `dashboard` | `RAPPORTS.VOIR` (tableau de bord global) |
+| `landing`, `auth` | public, pas de permission |
 
-Les codes de permission réels sont définis dans `src/core/permissions`
-(`RESIDENCE.VOIR`, `CLIENT.SUPPRIMER`, …). **On n'invente jamais** de préfixe
-ou de verbe : seuls `VOIR` / `CREER` / `MODIFIER` / `SUPPRIMER` existent
-(union revalidée au smoke test — le spec §9 décrit un modèle plus ancien).
+Les codes de permission réels sont définis dans `src/core/permissions/types.ts`
+— **union écrite à la main, revalidée en direct contre le backend** (le plus
+sûr : `GET /admin/permissions`, catalogue complet ; `GET /auth/me`, permissions
+du compte connecté). **On n'invente jamais** un préfixe ou un verbe : le
+catalogue backend a crû plusieurs fois sans que ce dépôt le remarque tout de
+suite (ex. le module `RAPPORTS`, resté modélisé comme « suit `ADMIN.VOIR` »
+pendant des semaines après son introduction côté backend — corrigé le
+2026-09-27) — vérifier en direct avant de supposer qu'un module/verbe
+n'existe pas.
 
 ## Structure d'un dossier feature
 
@@ -51,8 +63,12 @@ src/features/<module>/        ex. src/features/residence/
 2. **Pas de logique métier dans `src/core/`.** `core/` est la fondation
    technique (auth, api, permissions, query, config) : générique,
    indépendante des modules.
-3. **Les types de requête viennent du client généré** (`core/api/generated`).
-   Les types métier supplémentaires se dérivent, on ne duplique pas les DTO.
+3. **Les types de requête viennent du client généré** (`core/api/generated`)
+   **quand ils y sont** — beaucoup de réponses (permissions, plusieurs modules
+   récents comme `abonnement`, `signalements`, le mode kilo de `pressing`)
+   n'ont pas de schéma OpenAPI documenté côté backend et restent typées à la
+   main, avec la source (endpoint testé en direct) citée en commentaire. Ne
+   jamais dupliquer un DTO qui, lui, existe déjà dans le schéma généré.
 4. **Les clés de requêtes** se déclarent avec `createQueryKeys(scope)` de
    `core/query` (ex. `createQueryKeys('residence.contrats')`).
 5. **L'UI ne lit jamais `useAuth()` directement** dans un composant métier :

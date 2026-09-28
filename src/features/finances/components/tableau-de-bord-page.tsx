@@ -2,9 +2,12 @@ import type { UseQueryResult } from "@tanstack/react-query";
 import { FileDown, FileText, Loader2, Printer, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
-import { Breadcrumb } from "#/components/ui/breadcrumb";
+import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
+import { Dialog, DialogContent, DialogTitle } from "#/components/ui/dialog";
+import { EmptyState } from "#/components/ui/empty-state";
 import { Input } from "#/components/ui/input";
+import { PageHeader } from "#/components/ui/page-header";
 import {
 	Select,
 	SelectContent,
@@ -12,6 +15,14 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "#/components/ui/select";
+import {
+	DataTable,
+	DataTableHead,
+	TableShell,
+	Td,
+	Th,
+	Tr,
+} from "#/components/ui/table";
 import { useCan } from "#/core/auth";
 import {
 	type DashboardActivite,
@@ -256,22 +267,15 @@ export function TableauDeBordPage() {
 
 	return (
 		<div className="w-full space-y-6 p-6">
-			<Breadcrumb
-				items={[
+			<PageHeader
+				breadcrumb={[
 					{ label: "Accueil", to: "/" },
 					{ label: "Finances", to: "/finances/tableau-de-bord" },
 					{ label: "Tableau de bord" },
 				]}
+				title="Tableau de bord financier"
+				description="Vue consolidée de la situation financière de GLOBAL SIM GROUP."
 			/>
-
-			<section className="space-y-2">
-				<h1 className="text-2xl font-semibold text-foreground">
-					Tableau de bord financier
-				</h1>
-				<p className="text-muted-foreground">
-					Vue consolidée de la situation financière de GLOBAL SIM GROUP.
-				</p>
-			</section>
 
 			{userCaisse && (
 				<div className="rounded-lg bg-blue-50 border border-blue-200 p-3 text-sm text-blue-900 dark:bg-blue-950 dark:border-blue-800 dark:text-blue-100">
@@ -437,7 +441,7 @@ export function TableauDeBordPage() {
 						<Indicateur
 							label="Recettes totales"
 							valeur={formatMontantFCFA(totalRecettes.toString())}
-							couleur="text-[#27AE60]"
+							couleur="text-success"
 						/>
 						<Indicateur
 							label="Dépenses totales"
@@ -447,44 +451,32 @@ export function TableauDeBordPage() {
 						<Indicateur
 							label="Solde"
 							valeur={formatMontantFCFA(solde.toString())}
-							couleur={solde >= 0 ? "text-[#27AE60]" : "text-destructive"}
+							couleur={solde >= 0 ? "text-success" : "text-destructive"}
 						/>
 						<Indicateur
 							label="Bénéfice estimatif"
 							valeur={formatMontantFCFA(beneficeEstimatif.toString())}
 							couleur={
-								beneficeEstimatif >= 0 ? "text-[#27AE60]" : "text-destructive"
+								beneficeEstimatif >= 0 ? "text-success" : "text-destructive"
 							}
 						/>
 					</div>
 
 					{/* Tableau par activité */}
 					{lignes.length === 0 ? (
-						<div className="rounded-lg border border-border bg-card p-8 text-center text-sm text-muted-foreground">
-							Aucune donnée financière disponible.
-						</div>
+						<EmptyState title="Aucune donnée financière disponible." />
 					) : (
-						<div className="overflow-x-auto rounded-lg border border-border">
-							<table className="w-full text-xs sm:text-sm">
-								<thead className="bg-muted">
+						<TableShell>
+							<DataTable>
+								<DataTableHead>
 									<tr>
-										<th className="px-4 py-3 text-left font-semibold">
-											Période
-										</th>
-										<th className="px-4 py-3 text-right font-semibold">
-											Recettes
-										</th>
-										<th className="px-4 py-3 text-right font-semibold">
-											Dépenses
-										</th>
-										<th className="px-4 py-3 text-right font-semibold">
-											Solde
-										</th>
-										<th className="px-4 py-3 text-right font-semibold">
-											% Marge
-										</th>
+										<Th>Période</Th>
+										<Th className="text-right">Recettes</Th>
+										<Th className="text-right">Dépenses</Th>
+										<Th className="text-right">Solde</Th>
+										<Th className="text-right">% Marge</Th>
 									</tr>
-								</thead>
+								</DataTableHead>
 								<tbody>
 									{lignes.map((ligne) => {
 										const encaissementsNum = Number(ligne.encaissements);
@@ -495,36 +487,29 @@ export function TableauDeBordPage() {
 												: "0";
 
 										return (
-											<tr
-												key={ligne.periode}
-												className="border-t border-border hover:bg-muted/50"
-											>
-												<td className="px-4 py-3 font-medium">
-													Période {ligne.periode}
-												</td>
-												<td className="px-4 py-3 text-right text-[#27AE60]">
+											<Tr key={ligne.periode}>
+												<Td className="font-medium">Période {ligne.periode}</Td>
+												<Td className="text-right text-success">
 													{formatMontantFCFA(ligne.encaissements)}
-												</td>
-												<td className="px-4 py-3 text-right text-destructive">
+												</Td>
+												<Td className="text-right text-destructive">
 													{formatMontantFCFA(ligne.decaissements)}
-												</td>
-												<td
+												</Td>
+												<Td
 													className={cn(
-														"px-4 py-3 text-right font-medium",
-														margeNum >= 0
-															? "text-[#27AE60]"
-															: "text-destructive",
+														"text-right font-medium",
+														margeNum >= 0 ? "text-success" : "text-destructive",
 													)}
 												>
 													{formatMontantFCFA(ligne.marge_nette)}
-												</td>
-												<td className="px-4 py-3 text-right">{marge}%</td>
-											</tr>
+												</Td>
+												<Td className="text-right">{marge}%</Td>
+											</Tr>
 										);
 									})}
 								</tbody>
-							</table>
-						</div>
+							</DataTable>
+						</TableShell>
 					)}
 
 					{/* Pagination */}
@@ -613,10 +598,15 @@ function DetailsParActiviteModal({
 	const totalMarge = lignes.reduce((sum, l) => sum + Number(l.marge_nette), 0);
 
 	return (
-		<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-			<div className="rounded-lg border border-border bg-card p-6 shadow-lg max-w-2xl max-h-[90vh] overflow-y-auto w-full mx-4">
-				<div className="flex items-center justify-between mb-4">
-					<h2 className="text-xl font-semibold">Détails par activité</h2>
+		<Dialog
+			open
+			onOpenChange={(ouvert) => {
+				if (!ouvert) fermer();
+			}}
+		>
+			<DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+				<div className="flex items-center justify-between">
+					<DialogTitle className="text-xl">Détails par activité</DialogTitle>
 					<Button variant="ghost" size="sm" onClick={fermer}>
 						<X className="size-4" aria-hidden />
 						<span className="sr-only">Fermer</span>
@@ -654,7 +644,7 @@ function DetailsParActiviteModal({
 										<span
 											className={cn(
 												"font-medium",
-												totalMarge >= 0 ? "text-[#27AE60]" : "text-destructive",
+												totalMarge >= 0 ? "text-success" : "text-destructive",
 											)}
 										>
 											{formatMontantFCFA(String(totalMarge))}
@@ -665,8 +655,8 @@ function DetailsParActiviteModal({
 						</div>
 					)}
 				</div>
-			</div>
-		</div>
+			</DialogContent>
+		</Dialog>
 	);
 }
 
@@ -709,9 +699,9 @@ function libelleCle(cle: string): string {
  * part).
  */
 const COULEUR_INDICATEURS: Record<string, string> = {
-	ca: "text-[#27AE60]",
-	loyers_percus: "text-[#27AE60]",
-	realisees: "text-[#27AE60]",
+	ca: "text-success",
+	loyers_percus: "text-success",
+	realisees: "text-success",
 	annulees: "text-destructive",
 	impayes: "text-destructive",
 };
@@ -721,25 +711,27 @@ function couleurValeur(cle: string): string {
 }
 
 /**
- * Couleur de badge pour un code de statut générique — mêmes teintes que les
+ * Variante de badge pour un code de statut générique — mêmes teintes que les
  * badges de statut utilisés ailleurs dans l'app (contrats, commandes
  * pressing…), pas une palette inventée pour l'occasion.
  */
-function couleurStatutBadge(code: string): string {
+function varianteStatutBadge(
+	code: string,
+): "success" | "danger" | "warning" | "info" | "neutral" {
 	const c = code.toUpperCase();
 	if (["RETIRE", "REALISEE", "REALISEES", "PAYEE", "ACTIF"].includes(c)) {
-		return "bg-[#27AE60] text-white";
+		return "success";
 	}
 	if (["ANNULEE", "ANNULEES", "ANNULE", "IMPAYE", "RESILIE"].includes(c)) {
-		return "bg-[#E74C3C] text-white";
+		return "danger";
 	}
 	if (
 		["EN_TRAITEMENT", "EN_ATTENTE", "PRET", "PARTIEL", "A_VENIR"].includes(c)
 	) {
-		return "bg-[#E67E22] text-white";
+		return "warning";
 	}
-	if (c === "TERMINE") return "bg-[#2980B9] text-white";
-	return "bg-[#95A5A6] text-white";
+	if (c === "TERMINE") return "info";
+	return "neutral";
 }
 
 /** Formate une valeur d'indicateur générique (nombre, montant, texte). */
@@ -778,16 +770,13 @@ function IndicateursGeneriques({
 								<div className="flex flex-wrap gap-2 pl-3">
 									{Object.entries(valeur as Record<string, unknown>).map(
 										([sousCle, sousValeur]) => (
-											<span
+											<Badge
 												key={sousCle}
-												className={cn(
-													"inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium",
-													couleurStatutBadge(sousCle),
-												)}
+												variant={varianteStatutBadge(sousCle)}
 											>
 												{libelleCle(sousCle)} ·{" "}
 												{formatValeurIndicateur(sousValeur)}
-											</span>
+											</Badge>
 										),
 									)}
 								</div>
@@ -856,7 +845,7 @@ function ActiviteResume({
 				<Indicateur
 					label={`Recettes — ${libelle}`}
 					valeur={formatMontantFCFA(data.recettes_mois)}
-					couleur="text-[#27AE60]"
+					couleur="text-success"
 				/>
 				<Indicateur
 					label="Opérations sur la période"

@@ -32,23 +32,28 @@ export function StatutTimeline<Statut extends string>({
 					return (
 						<li key={etape} className="flex gap-3">
 							<div className="flex flex-col items-center">
-								<span
-									className={cn(
-										"flex size-6 shrink-0 items-center justify-center rounded-full border-2 text-xs font-semibold",
-										isCompleted
-											? "border-[#27AE60] bg-[#27AE60] text-white"
-											: isCurrent
-												? "border-lagoon text-lagoon"
-												: "border-border text-muted-foreground",
-									)}
-								>
-									{isCompleted ? "✓" : index + 1}
+								<span className="relative flex size-6 shrink-0">
+									{isCurrent ? (
+										<span className="absolute inline-flex h-full w-full motion-safe:animate-ping rounded-full bg-lagoon/50" />
+									) : null}
+									<span
+										className={cn(
+											"relative flex size-6 shrink-0 items-center justify-center rounded-full border-2 text-xs font-semibold",
+											isCompleted
+												? "border-success bg-success-bg text-success"
+												: isCurrent
+													? "border-lagoon bg-lagoon text-white"
+													: "border-border text-muted-foreground",
+										)}
+									>
+										{isCompleted ? "✓" : index + 1}
+									</span>
 								</span>
 								{index < etapes.length - 1 ? (
 									<div
 										className={cn(
 											"mt-1 w-px flex-1",
-											isCompleted ? "bg-[#27AE60]" : "bg-border",
+											isCompleted ? "bg-success" : "bg-border",
 										)}
 										style={{ minHeight: "2rem" }}
 									/>

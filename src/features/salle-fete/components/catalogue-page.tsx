@@ -1,13 +1,13 @@
 import { Check, Loader2, Pencil, X } from "lucide-react";
 import { useState } from "react";
 
-import { Breadcrumb } from "#/components/ui/breadcrumb";
+import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
 import { InputField } from "#/components/ui/input-field";
+import { PageHeader } from "#/components/ui/page-header";
 import { Switch } from "#/components/ui/switch";
 import { getErrorMessageForCode, toApiError } from "#/core/api";
 import { useCan } from "#/core/auth";
-import { cn } from "#/lib/utils";
 
 import type { TypeManifestation } from "../api/catalogue";
 import {
@@ -105,8 +105,8 @@ export function CataloguePage() {
 
 	return (
 		<div className="w-full space-y-6 p-6">
-			<Breadcrumb
-				items={[
+			<PageHeader
+				breadcrumb={[
 					{ label: "Accueil", to: "/" },
 					{
 						label: "Réservations — Salle de fête",
@@ -114,17 +114,9 @@ export function CataloguePage() {
 					},
 					{ label: "Catalogue" },
 				]}
+				title="Catalogue — Types de manifestation"
+				description="Libellés proposés lors des saisies de réservation. Désactiver un type le retire des saisies futures sans modifier les réservations passées."
 			/>
-
-			<section className="space-y-1">
-				<h1 className="text-2xl font-semibold text-foreground">
-					Catalogue — Types de manifestation
-				</h1>
-				<p className="text-muted-foreground">
-					Libellés proposés lors des saisies de réservation. Désactiver un type
-					le retire des saisies futures sans modifier les réservations passées.
-				</p>
-			</section>
 
 			{erreur ? (
 				<p className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
@@ -236,16 +228,9 @@ export function CataloguePage() {
 										<span className="flex-1 text-sm font-medium text-foreground">
 											{type.libelle}
 										</span>
-										<span
-											className={cn(
-												"rounded-full px-2.5 py-0.5 text-xs font-medium",
-												type.actif
-													? "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300"
-													: "bg-muted text-muted-foreground",
-											)}
-										>
+										<Badge variant={type.actif ? "success" : "neutral"}>
 											{type.actif ? "Actif" : "Inactif"}
-										</span>
+										</Badge>
 										{canGerer ? (
 											<div className="flex items-center gap-2">
 												<Button

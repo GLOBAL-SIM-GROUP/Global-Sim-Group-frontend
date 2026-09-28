@@ -24,6 +24,13 @@ export const MOUVEMENT_TYPE_LABELS: Record<MouvementType, string> = {
 	AJUSTEMENT: "Ajustement",
 };
 
+/** Variante `<Badge>` par type de mouvement. */
+export const MOUVEMENT_TYPE_VARIANT = {
+	ENTREE: "success",
+	SORTIE: "danger",
+	AJUSTEMENT: "warning",
+} as const satisfies Record<MouvementType, "success" | "danger" | "warning">;
+
 /** Valeurs du filtre « Type » (URL : `?type=`). */
 export type MouvementTypeFiltre = "tous" | MouvementType;
 

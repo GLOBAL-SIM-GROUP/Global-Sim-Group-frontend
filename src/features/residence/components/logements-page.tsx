@@ -2,9 +2,10 @@ import { Link } from "@tanstack/react-router";
 import { Layers, Plus } from "lucide-react";
 import { useMemo, useState } from "react";
 
-import { Breadcrumb } from "#/components/ui/breadcrumb";
 import { Button } from "#/components/ui/button";
+import { EmptyState } from "#/components/ui/empty-state";
 import { InputField } from "#/components/ui/input-field";
+import { PageHeader } from "#/components/ui/page-header";
 import { useCan } from "#/core/auth";
 
 import { useBatiments } from "../hooks/use-batiments";
@@ -115,38 +116,29 @@ export function LogementsPage({
 
 	return (
 		<div className="w-full space-y-6 p-6">
-			<Breadcrumb
-				items={[
+			<PageHeader
+				breadcrumb={[
 					{ label: "Accueil", to: "/" },
 					{ label: "Bâtiments", to: "/residence/batiments" },
 					{ label: batiment ? `Logements — ${batiment.nom}` : "Logements" },
 				]}
+				title={batiment ? `Logements — ${batiment.nom}` : "Logements"}
+				description="Liste des logements (chambres et studios) rattachés à un bâtiment donné."
+				actions={
+					canCreer && batiment ? (
+						<>
+							<Button variant="outline" onClick={() => setLotOuvert(true)}>
+								<Layers className="size-4" aria-hidden />
+								Créer un lot
+							</Button>
+							<Button onClick={() => setFormOuvert(true)}>
+								<Plus className="size-4" aria-hidden />
+								Ajouter un logement
+							</Button>
+						</>
+					) : null
+				}
 			/>
-
-			<div className="flex flex-wrap items-end justify-between gap-4">
-				<section className="space-y-1">
-					<h1 className="text-2xl font-semibold text-foreground">
-						{batiment ? `Logements — ${batiment.nom}` : "Logements"}
-					</h1>
-					<p className="text-muted-foreground">
-						Liste des logements (chambres et studios) rattachés à un bâtiment
-						donné.
-					</p>
-				</section>
-
-				{canCreer && batiment ? (
-					<div className="flex flex-wrap gap-2">
-						<Button variant="outline" onClick={() => setLotOuvert(true)}>
-							<Layers className="size-4" aria-hidden />
-							Créer un lot
-						</Button>
-						<Button onClick={() => setFormOuvert(true)}>
-							<Plus className="size-4" aria-hidden />
-							Ajouter un logement
-						</Button>
-					</div>
-				) : null}
-			</div>
 
 			{batiment ? (
 				<>
@@ -221,14 +213,16 @@ export function LogementsPage({
 					) : null}
 				</>
 			) : (
-				<div className="space-y-3 rounded-lg border border-dashed border-border bg-card p-8 text-center text-sm text-muted-foreground">
-					<p>Sélectionnez un bâtiment pour voir ses logements.</p>
-					<Button variant="outline" size="sm" asChild>
-						<Link to="/residence/batiments">
-							Aller à la liste des bâtiments
-						</Link>
-					</Button>
-				</div>
+				<EmptyState
+					title="Sélectionnez un bâtiment pour voir ses logements."
+					action={
+						<Button variant="outline" size="sm" asChild>
+							<Link to="/residence/batiments">
+								Aller à la liste des bâtiments
+							</Link>
+						</Button>
+					}
+				/>
 			)}
 
 			<LogementFormDialog

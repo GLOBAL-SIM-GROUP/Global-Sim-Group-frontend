@@ -1,21 +1,23 @@
 import { Link } from "@tanstack/react-router";
 
-import { cn } from "#/lib/utils";
+import { Badge } from "#/components/ui/badge";
+import { EmptyState } from "#/components/ui/empty-state";
+import {
+	DataTable,
+	DataTableHead,
+	TableShell,
+	Td,
+	Th,
+	Tr,
+} from "#/components/ui/table";
 
 import {
 	CONTRAT_STATUT_LABELS,
+	CONTRAT_STATUT_VARIANT,
 	type ContratJoin,
-	type ContratStatut,
 } from "../models/contrats";
 import { formatDateISO, formatMontantFCFA } from "../models/format";
 import { ContratActions } from "./contrat-actions";
-
-const CONTRAT_STATUT_BADGE: Record<ContratStatut, string> = {
-	EN_ATTENTE: "bg-[#E67E22] text-white",
-	ACTIF: "bg-[#27AE60] text-white",
-	RESILIE: "bg-[#E74C3C] text-white",
-	TERMINE: "bg-[#2980B9] text-white",
-};
 
 interface ContratTableProps {
 	contrats: ContratJoin[];
@@ -23,61 +25,35 @@ interface ContratTableProps {
 	onModifier?: (contrat: ContratJoin) => void;
 }
 
-/**
- * Tableau des contrats de location (même gabarit que les autres tableaux
- * Résidence : en-têtes navy `bg-sea-ink`).
- */
+/** Tableau des contrats de location. */
 export function ContratTable({
 	contrats,
 	onActiver,
 	onModifier,
 }: ContratTableProps) {
 	if (contrats.length === 0) {
-		return (
-			<div className="rounded-lg border border-border bg-card p-8 text-center text-sm text-muted-foreground">
-				Aucun contrat trouvé.
-			</div>
-		);
+		return <EmptyState title="Aucun contrat trouvé." />;
 	}
 
 	return (
-		<div className="overflow-x-auto rounded-lg border border-border bg-card shadow-sm">
-			<table className="w-full border-collapse text-sm">
-				<thead className="bg-sea-ink text-left text-white">
+		<TableShell>
+			<DataTable>
+				<DataTableHead>
 					<tr>
-						<th scope="col" className="px-4 py-3 font-medium">
-							NUMÉRO CONTRAT
-						</th>
-						<th scope="col" className="px-4 py-3 font-medium">
-							LOCATAIRE
-						</th>
-						<th scope="col" className="px-4 py-3 font-medium">
-							LOGEMENT
-						</th>
-						<th scope="col" className="px-4 py-3 font-medium">
-							DATE DÉBUT
-						</th>
-						<th scope="col" className="px-4 py-3 font-medium">
-							DATE FIN
-						</th>
-						<th scope="col" className="px-4 py-3 font-medium">
-							LOYER
-						</th>
-						<th scope="col" className="px-4 py-3 font-medium">
-							STATUT
-						</th>
-						<th scope="col" className="px-4 py-3 text-right font-medium">
-							ACTIONS
-						</th>
+						<Th>NUMÉRO CONTRAT</Th>
+						<Th>LOCATAIRE</Th>
+						<Th>LOGEMENT</Th>
+						<Th>DATE DÉBUT</Th>
+						<Th>DATE FIN</Th>
+						<Th>LOYER</Th>
+						<Th>STATUT</Th>
+						<Th className="text-right">ACTIONS</Th>
 					</tr>
-				</thead>
+				</DataTableHead>
 				<tbody>
 					{contrats.map((contrat) => (
-						<tr
-							key={contrat.id}
-							className="relative border-t border-border transition-colors hover:bg-accent/40"
-						>
-							<td className="px-4 py-3">
+						<Tr key={contrat.id}>
+							<Td>
 								{/* Toute la ligne est cliquable (stretched link) vers la fiche
 								    contrat ; la cellule ACTIONS repasse au-dessus (z-10). */}
 								<Link
@@ -88,41 +64,34 @@ export function ContratTable({
 								>
 									{contrat.numero_contrat}
 								</Link>
-							</td>
-							<td className="px-4 py-3 text-foreground">{contrat.clientNom}</td>
-							<td className="px-4 py-3 text-foreground">
-								{contrat.logementNumero}
-							</td>
-							<td className="px-4 py-3 text-muted-foreground">
+							</Td>
+							<Td className="text-foreground">{contrat.clientNom}</Td>
+							<Td className="text-foreground">{contrat.logementNumero}</Td>
+							<Td className="text-muted-foreground">
 								{formatDateISO(contrat.date_debut)}
-							</td>
-							<td className="px-4 py-3 text-muted-foreground">
+							</Td>
+							<Td className="text-muted-foreground">
 								{formatDateISO(contrat.date_fin_prevue)}
-							</td>
-							<td className="px-4 py-3 text-foreground">
+							</Td>
+							<Td className="text-foreground">
 								{formatMontantFCFA(contrat.montant_loyer)}
-							</td>
-							<td className="px-4 py-3">
-								<span
-									className={cn(
-										"inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium",
-										CONTRAT_STATUT_BADGE[contrat.statut],
-									)}
-								>
+							</Td>
+							<Td>
+								<Badge variant={CONTRAT_STATUT_VARIANT[contrat.statut]}>
 									{CONTRAT_STATUT_LABELS[contrat.statut]}
-								</span>
-							</td>
-							<td className="relative z-10 px-4 py-3">
+								</Badge>
+							</Td>
+							<Td className="relative z-10 text-right">
 								<ContratActions
 									contrat={contrat}
 									onActiver={onActiver}
 									onModifier={onModifier}
 								/>
-							</td>
-						</tr>
+							</Td>
+						</Tr>
 					))}
 				</tbody>
-			</table>
-		</div>
+			</DataTable>
+		</TableShell>
 	);
 }

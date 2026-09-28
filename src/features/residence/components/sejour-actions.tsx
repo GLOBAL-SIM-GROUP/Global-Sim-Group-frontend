@@ -63,7 +63,7 @@ export function SejourActions({
 					title="Valider la demande"
 					onClick={() => onValider(sejour)}
 				>
-					<CheckCircle2 className="size-4 text-[#27AE60]" aria-hidden />
+					<CheckCircle2 className="size-4 text-success" aria-hidden />
 					<span className="sr-only">Valider la demande</span>
 				</Button>
 			) : null}

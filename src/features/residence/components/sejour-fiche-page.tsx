@@ -9,15 +9,17 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 
-import { Breadcrumb } from "#/components/ui/breadcrumb";
+import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
+import { EmptyState } from "#/components/ui/empty-state";
+import { PageHeader } from "#/components/ui/page-header";
+import { DataTable, DataTableHead, Td, Th, Tr } from "#/components/ui/table";
 import { useCan } from "#/core/auth";
 import { FactureDownloadButtons } from "#/features/facturation/components/facture-download-buttons";
 import {
-	FACTURE_STATUT_BADGE,
 	FACTURE_STATUT_LABELS,
+	FACTURE_STATUT_VARIANT,
 } from "#/features/facturation/models/factures";
-import { cn } from "#/lib/utils";
 
 import { useMoyensPaiement } from "../hooks/use-moyens-paiement";
 import { useSejour, useSejourFacture } from "../hooks/use-sejours";
@@ -25,21 +27,14 @@ import { formatDateHeureISO, formatMontantFCFA } from "../models/format";
 import {
 	SEJOUR_ORIGINE_LABELS,
 	SEJOUR_STATUT_LABELS,
+	SEJOUR_STATUT_VARIANT,
 	SEJOUR_TYPE_LABELS,
 	type Sejour,
-	type SejourStatut,
 } from "../models/sejours";
 import { PayerSejourFormDialog } from "./payer-sejour-form-dialog";
 import { SejourFormDialog } from "./sejour-form-dialog";
 import { RefuserSejourDialog } from "./sejour-refuser-dialog";
 import { ValiderSejourDialog } from "./sejour-valider-dialog";
-
-const SEJOUR_STATUT_BADGE: Record<SejourStatut, string> = {
-	EN_ATTENTE: "bg-[#E67E22] text-white",
-	EN_COURS: "bg-[#2980B9] text-white",
-	TERMINE: "bg-[#27AE60] text-white",
-	ANNULE: "bg-[#95A5A6] text-white",
-};
 
 /** Ligne lecture seule. */
 function Ligne({ label, valeur }: { label: string; valeur: string }) {
@@ -116,59 +111,50 @@ export function SejourFichePage({ id }: SejourFichePageProps) {
 
 	return (
 		<div className="w-full space-y-6 p-6">
-			<Breadcrumb
-				items={[
+			<PageHeader
+				breadcrumb={[
 					{ label: "Accueil", to: "/" },
 					{ label: "Séjours courts", to: "/residence/sejours-courts" },
 					{ label: `Séjour ${sejour.id}` },
 				]}
+				title={`Fiche séjour — ${sejour.id}`}
+				description={`${SEJOUR_TYPE_LABELS[sejour.type_prestation]} · ${sejour.numero_logement}`}
+				actions={
+					<>
+						<Button variant="outline" asChild>
+							<Link to="/residence/sejours-courts">Retour aux séjours</Link>
+						</Button>
+						{canValider && enAttente ? (
+							<Button onClick={() => setAValider(sejour)}>
+								<CheckCircle2 className="size-4" aria-hidden />
+								Valider la demande
+							</Button>
+						) : null}
+						{canAnnuler && enAttente ? (
+							<Button
+								variant="outline"
+								className="text-destructive hover:bg-destructive/10"
+								onClick={() => setARefuser(sejour)}
+							>
+								<XCircle className="size-4" aria-hidden />
+								Refuser
+							</Button>
+						) : null}
+						{canModifier && sejour.statut !== "TERMINE" ? (
+							<Button onClick={() => setAModifier(sejour)}>
+								<Pencil className="size-4" aria-hidden />
+								Modifier
+							</Button>
+						) : null}
+						{canEncaisser && canFinancesVoir && aUnReste ? (
+							<Button onClick={() => setAPayer(sejour)}>
+								<HandCoins className="size-4" aria-hidden />
+								Enregistrer un paiement
+							</Button>
+						) : null}
+					</>
+				}
 			/>
-
-			<div className="flex flex-wrap items-end justify-between gap-4">
-				<section className="space-y-1">
-					<h1 className="text-2xl font-semibold text-foreground">
-						Fiche séjour — {sejour.id}
-					</h1>
-					<p className="text-muted-foreground">
-						{SEJOUR_TYPE_LABELS[sejour.type_prestation]} ·{" "}
-						{sejour.numero_logement}
-					</p>
-				</section>
-
-				<div className="flex items-center gap-2">
-					<Button variant="outline" asChild>
-						<Link to="/residence/sejours-courts">Retour aux séjours</Link>
-					</Button>
-					{canValider && enAttente ? (
-						<Button onClick={() => setAValider(sejour)}>
-							<CheckCircle2 className="size-4" aria-hidden />
-							Valider la demande
-						</Button>
-					) : null}
-					{canAnnuler && enAttente ? (
-						<Button
-							variant="outline"
-							className="text-destructive hover:bg-destructive/10"
-							onClick={() => setARefuser(sejour)}
-						>
-							<XCircle className="size-4" aria-hidden />
-							Refuser
-						</Button>
-					) : null}
-					{canModifier && sejour.statut !== "TERMINE" ? (
-						<Button onClick={() => setAModifier(sejour)}>
-							<Pencil className="size-4" aria-hidden />
-							Modifier
-						</Button>
-					) : null}
-					{canEncaisser && canFinancesVoir && aUnReste ? (
-						<Button onClick={() => setAPayer(sejour)}>
-							<HandCoins className="size-4" aria-hidden />
-							Enregistrer un paiement
-						</Button>
-					) : null}
-				</div>
-			</div>
 
 			<section className="rounded-lg border border-border bg-card p-5 shadow-sm">
 				<dl className="grid gap-4 sm:grid-cols-2">
@@ -224,14 +210,9 @@ export function SejourFichePage({ id }: SejourFichePageProps) {
 					<div className="grid grid-cols-[10rem_1fr] gap-3 text-sm">
 						<dt className="text-muted-foreground">Statut</dt>
 						<dd>
-							<span
-								className={cn(
-									"inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium",
-									SEJOUR_STATUT_BADGE[sejour.statut],
-								)}
-							>
+							<Badge variant={SEJOUR_STATUT_VARIANT[sejour.statut]}>
 								{SEJOUR_STATUT_LABELS[sejour.statut]}
-							</span>
+							</Badge>
 						</dd>
 					</div>
 				</dl>
@@ -272,19 +253,19 @@ export function SejourFichePage({ id }: SejourFichePageProps) {
 				) : !facture ? (
 					// Pas d'erreur : un séjour sans encaissement n'a simplement pas
 					// encore de facture (règle du module — voir `getSejourFacture`).
-					<div className="flex flex-col items-center gap-3 rounded-lg border border-dashed border-border p-6 text-center">
-						<Receipt className="size-6 text-muted-foreground" aria-hidden />
-						<p className="text-sm text-muted-foreground">
-							Aucune facture — ce séjour n'a encore fait l'objet d'aucun
-							encaissement.
-						</p>
-						{canEncaisser ? (
-							<Button size="sm" onClick={() => setAPayer(sejour)}>
-								<HandCoins className="size-4" aria-hidden />
-								Encaisser un acompte
-							</Button>
-						) : null}
-					</div>
+					<EmptyState
+						icon={Receipt}
+						title="Aucune facture"
+						description="Ce séjour n'a encore fait l'objet d'aucun encaissement."
+						action={
+							canEncaisser ? (
+								<Button size="sm" onClick={() => setAPayer(sejour)}>
+									<HandCoins className="size-4" aria-hidden />
+									Encaisser un acompte
+								</Button>
+							) : undefined
+						}
+					/>
 				) : (
 					<>
 						<dl className="grid gap-3 sm:grid-cols-2">
@@ -292,14 +273,9 @@ export function SejourFichePage({ id }: SejourFichePageProps) {
 							<div className="grid grid-cols-[10rem_1fr] gap-3 text-sm">
 								<dt className="text-muted-foreground">Statut</dt>
 								<dd>
-									<span
-										className={cn(
-											"inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium",
-											FACTURE_STATUT_BADGE[facture.statut],
-										)}
-									>
+									<Badge variant={FACTURE_STATUT_VARIANT[facture.statut]}>
 										{FACTURE_STATUT_LABELS[facture.statut]}
-									</span>
+									</Badge>
 								</dd>
 							</div>
 							<Ligne
@@ -312,55 +288,37 @@ export function SejourFichePage({ id }: SejourFichePageProps) {
 							/>
 						</dl>
 
+						{/* Pas de `TableShell` : déjà nichée dans la `<section>`
+						    bordée/ombrée ci-dessus. */}
 						<div className="overflow-x-auto">
-							<table className="w-full border-collapse text-sm">
-								<thead className="bg-sea-ink text-left text-white">
+							<DataTable>
+								<DataTableHead>
 									<tr>
-										<th scope="col" className="px-4 py-3 font-medium">
-											LIBELLÉ
-										</th>
-										<th
-											scope="col"
-											className="px-4 py-3 text-right font-medium"
-										>
-											QTÉ
-										</th>
-										<th
-											scope="col"
-											className="px-4 py-3 text-right font-medium"
-										>
-											PRIX UNITAIRE
-										</th>
-										<th
-											scope="col"
-											className="px-4 py-3 text-right font-medium"
-										>
-											TOTAL
-										</th>
+										<Th>LIBELLÉ</Th>
+										<Th className="text-right">QTÉ</Th>
+										<Th className="text-right">PRIX UNITAIRE</Th>
+										<Th className="text-right">TOTAL</Th>
 									</tr>
-								</thead>
+								</DataTableHead>
 								<tbody>
 									{facture.lignes.map((ligne) => (
-										<tr
-											key={ligne.id}
-											className="border-t border-border transition-colors hover:bg-accent/40"
-										>
-											<td className="px-4 py-3 font-medium text-foreground">
+										<Tr key={ligne.id}>
+											<Td className="font-medium text-foreground">
 												{ligne.libelle}
-											</td>
-											<td className="px-4 py-3 text-right text-muted-foreground">
+											</Td>
+											<Td className="text-right text-muted-foreground">
 												{ligne.quantite}
-											</td>
-											<td className="px-4 py-3 text-right text-foreground">
+											</Td>
+											<Td className="text-right text-foreground">
 												{formatMontantFCFA(ligne.prix_unitaire)}
-											</td>
-											<td className="px-4 py-3 text-right font-semibold text-foreground">
+											</Td>
+											<Td className="text-right font-semibold text-foreground">
 												{formatMontantFCFA(ligne.total)}
-											</td>
-										</tr>
+											</Td>
+										</Tr>
 									))}
 								</tbody>
-							</table>
+							</DataTable>
 						</div>
 					</>
 				)}

@@ -35,12 +35,12 @@ export const EMPLOYE_STATUT_LABELS: Record<EmployeStatut, string> = {
 	SUSPENDU: "Suspendu",
 };
 
-/** Classes de badge (fond/texte) par statut d'employé. */
-export const EMPLOYE_STATUT_BADGE: Record<EmployeStatut, string> = {
-	ACTIF: "bg-[#27AE60] text-white",
-	INACTIF: "bg-[#95A5A6] text-white",
-	SUSPENDU: "bg-[#E74C3C] text-white",
-};
+/** Variante `<Badge>` par statut d'employé. */
+export const EMPLOYE_STATUT_VARIANT = {
+	ACTIF: "success",
+	INACTIF: "neutral",
+	SUSPENDU: "danger",
+} as const satisfies Record<EmployeStatut, "success" | "neutral" | "danger">;
 
 /** Nom complet « PRENOM Nom » d'un employé. */
 export function nomCompletEmploye(employe: Employe): string {

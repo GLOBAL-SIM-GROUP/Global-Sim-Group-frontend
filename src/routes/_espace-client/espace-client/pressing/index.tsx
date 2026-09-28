@@ -4,11 +4,10 @@ import { PressingPage } from "#/features/espace-client/components/pressing-page"
 
 /**
  * Suivi Pressing de l'espace client (`/espace-client/pressing`) : mêmes
- * données/API que le portail résident (`GET /pressing/portail/commandes`) —
- * cet endpoint est documenté comme gardé par `RESIDENT.VOIR` côté backend,
- * pas encore ouvert à un compte CLIENT. La page fonctionnera dès que le
- * backend accordera cet accès ; en attendant elle peut renvoyer une erreur
- * 403 (gérée par l'état d'erreur de `PressingPage`).
+ * données/API que le portail résident (`GET /pressing/portail/commandes`).
+ * Vérifié en direct 2026-09-27 (compte CLIENT fraîchement inscrit) :
+ * l'endpoint répond 200, gardé par `PORTAIL.VOIR` (accordé au rôle CLIENT),
+ * pas par `RESIDENT.VOIR` comme le supposait un commentaire précédent ici.
  */
 export const Route = createFileRoute("/_espace-client/espace-client/pressing/")(
 	{

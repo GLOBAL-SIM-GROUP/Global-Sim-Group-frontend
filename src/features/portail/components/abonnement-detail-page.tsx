@@ -1,7 +1,8 @@
 import { Link } from "@tanstack/react-router";
 
-import { Breadcrumb } from "#/components/ui/breadcrumb";
+import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
+import { PageHeader } from "#/components/ui/page-header";
 import { EtatBadge } from "#/features/abonnement/components/etat-badge";
 import { MouvementsTimeline } from "#/features/abonnement/components/mouvements-timeline";
 import { SoldeProgress } from "#/features/abonnement/components/solde-progress";
@@ -66,6 +67,7 @@ export function AbonnementDetailPage({
 					<Button
 						variant="outline"
 						size="sm"
+						className="rounded-full"
 						onClick={() => void souscriptionQuery.refetch()}
 					>
 						Réessayer
@@ -96,36 +98,31 @@ export function AbonnementDetailPage({
 
 	return (
 		<div className={className}>
-			<Breadcrumb
-				items={[
+			<PageHeader
+				breadcrumb={[
 					breadcrumbAccueil,
 					{ label: "Mes abonnements", to: lienListe },
 					{ label: souscription.offre_libelle },
 				]}
+				title={
+					<span className="inline-flex flex-wrap items-center gap-2">
+						{souscription.offre_libelle}
+						<EtatBadge etat={souscription.etat} />
+						<Badge variant="neutral">
+							{ACTIVITE_LABELS[souscription.activite] ?? souscription.activite}
+						</Badge>
+					</span>
+				}
+				description={souscription.prestation_libelle ?? souscription.offre_code}
+				actions={
+					<Button variant="outline" size="sm" className="rounded-full" asChild>
+						<Link to={lienListe as never}>Retour à mes abonnements</Link>
+					</Button>
+				}
 			/>
 
-			<div className="flex flex-wrap items-start justify-between gap-4">
-				<section className="space-y-1">
-					<div className="flex flex-wrap items-center gap-2">
-						<h1 className="text-2xl font-semibold text-foreground">
-							{souscription.offre_libelle}
-						</h1>
-						<EtatBadge etat={souscription.etat} />
-						<span className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
-							{ACTIVITE_LABELS[souscription.activite] ?? souscription.activite}
-						</span>
-					</div>
-					<p className="text-sm text-muted-foreground">
-						{souscription.prestation_libelle ?? souscription.offre_code}
-					</p>
-				</section>
-				<Button variant="outline" size="sm" asChild>
-					<Link to={lienListe as never}>Retour à mes abonnements</Link>
-				</Button>
-			</div>
-
 			<div className="grid gap-4 sm:grid-cols-3">
-				<div className="rounded-lg border border-border bg-card p-4 shadow-sm">
+				<div className="rounded-xl border border-border bg-card p-4 shadow-sm">
 					<p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
 						Solde restant
 					</p>
@@ -136,7 +133,7 @@ export function AbonnementDetailPage({
 						sur {souscription.quota} {uniteLabel}
 					</p>
 				</div>
-				<div className="rounded-lg border border-border bg-card p-4 shadow-sm">
+				<div className="rounded-xl border border-border bg-card p-4 shadow-sm">
 					<p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
 						Validité
 					</p>
@@ -149,7 +146,7 @@ export function AbonnementDetailPage({
 						{souscription.motif_statut ? ` — ${souscription.motif_statut}` : ""}
 					</p>
 				</div>
-				<div className="rounded-lg border border-border bg-card p-4 shadow-sm">
+				<div className="rounded-xl border border-border bg-card p-4 shadow-sm">
 					<p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
 						Reste à payer
 					</p>
@@ -168,7 +165,7 @@ export function AbonnementDetailPage({
 				</div>
 			</div>
 
-			<section className="rounded-lg border border-border bg-card p-5 shadow-sm">
+			<section className="rounded-xl border border-border bg-card p-5 shadow-sm">
 				<SoldeProgress
 					solde={souscription.solde}
 					quota={souscription.quota}

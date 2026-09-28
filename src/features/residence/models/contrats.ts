@@ -86,6 +86,17 @@ export const CONTRAT_STATUT_LABELS: Record<ContratStatut, string> = {
 	TERMINE: "Terminé",
 };
 
+/** Variante `<Badge>` par statut de contrat — design system « Concierge ». */
+export const CONTRAT_STATUT_VARIANT = {
+	EN_ATTENTE: "warning",
+	ACTIF: "success",
+	RESILIE: "danger",
+	TERMINE: "info",
+} as const satisfies Record<
+	ContratStatut,
+	"success" | "warning" | "info" | "danger"
+>;
+
 /** Libellés français du type de location (select du formulaire). */
 export const TYPE_LOCATION_LABELS: Record<TypeLocation, string> = {
 	MENSUEL: "Mensuel",

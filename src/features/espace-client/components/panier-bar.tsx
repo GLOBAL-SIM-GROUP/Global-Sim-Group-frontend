@@ -15,6 +15,9 @@ import { formatMontantFCFA } from "#/features/residence/models/format";
  * encore côté backend pour un compte CLIENT (cf. mémoire
  * `extension-clients-externes`) — la page envoie une demande, pas une
  * commande réseau.
+ *
+ * `bottom-16` sur mobile : se pose au-dessus de `MobileTabBar` (barre
+ * d'onglets fixe, `h-16`) au lieu de la recouvrir ; desktop inchangé (`sm:`).
  */
 export function PanierBar({
 	nombreArticles,
@@ -26,7 +29,7 @@ export function PanierBar({
 	if (nombreArticles === 0) return null;
 
 	return (
-		<div className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-card/95 backdrop-blur sm:inset-x-auto sm:right-6 sm:bottom-6 sm:max-w-sm sm:rounded-xl sm:border sm:shadow-lg">
+		<div className="fixed inset-x-0 bottom-16 z-40 border-t border-border bg-card/95 backdrop-blur sm:inset-x-auto sm:right-6 sm:bottom-6 sm:max-w-sm sm:rounded-xl sm:border sm:shadow-lg">
 			<div className="flex items-center justify-between gap-4 px-4 py-3 sm:px-5">
 				<div className="flex items-center gap-2 text-sm font-medium text-foreground">
 					<ShoppingCart className="size-5 shrink-0 text-lagoon" aria-hidden />
@@ -35,11 +38,7 @@ export function PanierBar({
 						{formatMontantFCFA(String(total))}
 					</span>
 				</div>
-				<Button
-					asChild
-					size="sm"
-					className="shrink-0 bg-lagoon text-white hover:bg-lagoon/90"
-				>
+				<Button asChild size="sm" className="shrink-0 rounded-full">
 					<Link to="/espace-client/panier">Voir le panier</Link>
 				</Button>
 			</div>

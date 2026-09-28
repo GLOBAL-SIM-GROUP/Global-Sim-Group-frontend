@@ -2,13 +2,13 @@ import type { UseMutationResult } from "@tanstack/react-query";
 import { Check, Loader2, Pencil, X } from "lucide-react";
 import { useState } from "react";
 
-import { Breadcrumb } from "#/components/ui/breadcrumb";
+import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
 import { InputField } from "#/components/ui/input-field";
+import { PageHeader } from "#/components/ui/page-header";
 import { Switch } from "#/components/ui/switch";
 import { getErrorMessageForCode, toApiError } from "#/core/api";
 import { useCan } from "#/core/auth";
-import { cn } from "#/lib/utils";
 
 import {
 	useCataloguePressing,
@@ -228,16 +228,9 @@ function SectionLibelles({
 									<span className="flex-1 text-sm font-medium text-foreground">
 										{item.libelle}
 									</span>
-									<span
-										className={cn(
-											"rounded-full px-2.5 py-0.5 text-xs font-medium",
-											item.actif
-												? "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300"
-												: "bg-muted text-muted-foreground",
-										)}
-									>
+									<Badge variant={item.actif ? "success" : "neutral"}>
 										{item.actif ? "Actif" : "Inactif"}
-									</span>
+									</Badge>
 									{canGerer ? (
 										<div className="flex items-center gap-2">
 											<Button
@@ -302,23 +295,15 @@ export function CataloguePage() {
 
 	return (
 		<div className="w-full space-y-6 p-6">
-			<Breadcrumb
-				items={[
+			<PageHeader
+				breadcrumb={[
 					{ label: "Accueil", to: "/" },
 					{ label: "Commandes — Pressing", to: "/pressing/commandes" },
 					{ label: "Catalogue" },
 				]}
+				title="Catalogue — Pressing"
+				description="Libellés proposés lors des saisies de dépôt. Désactiver une entrée la retire des saisies futures sans modifier les commandes passées."
 			/>
-
-			<section className="space-y-1">
-				<h1 className="text-2xl font-semibold text-foreground">
-					Catalogue — Pressing
-				</h1>
-				<p className="text-muted-foreground">
-					Libellés proposés lors des saisies de dépôt. Désactiver une entrée la
-					retire des saisies futures sans modifier les commandes passées.
-				</p>
-			</section>
 
 			<SectionLibelles
 				titre="Types de vêtement"

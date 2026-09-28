@@ -1,9 +1,10 @@
 import { Banknote, HandCoins, Wallet } from "lucide-react";
 import { useState } from "react";
 
+import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
+import { DataTable, DataTableHead, Td, Th, Tr } from "#/components/ui/table";
 import { useCan } from "#/core/auth";
-import { cn } from "#/lib/utils";
 
 import { useCaution } from "../hooks/use-contrats";
 import { useMoyensPaiement } from "../hooks/use-moyens-paiement";
@@ -81,16 +82,9 @@ export function CautionTab({ idContrat }: CautionTabProps) {
 				<div className="grid grid-cols-1 gap-1 text-sm sm:grid-cols-[10rem_1fr] sm:items-baseline sm:gap-3">
 					<dt className="text-muted-foreground">Statut</dt>
 					<dd>
-						<span
-							className={cn(
-								"inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium",
-								caution.payee
-									? "bg-[#27AE60] text-white"
-									: "bg-[#95A5A6] text-white",
-							)}
-						>
+						<Badge variant={caution.payee ? "success" : "neutral"}>
 							{caution.payee ? "Payée" : "Non payée"}
-						</span>
+						</Badge>
 					</dd>
 				</div>
 				<Ligne
@@ -150,47 +144,38 @@ export function CautionTab({ idContrat }: CautionTabProps) {
 				<div className="space-y-2 border-t border-border pt-4">
 					<h3 className="text-sm font-semibold text-foreground">Historique</h3>
 					<div className="overflow-x-auto rounded-lg border border-border">
-						<table className="w-full border-collapse text-sm">
-							<thead className="bg-sea-ink text-left text-white">
+						<DataTable>
+							<DataTableHead>
 								<tr>
-									<th scope="col" className="px-4 py-2 font-medium">
-										ÉVÉNEMENT
-									</th>
-									<th scope="col" className="px-4 py-2 font-medium">
-										DATE
-									</th>
-									<th scope="col" className="px-4 py-2 text-right font-medium">
-										MONTANT
-									</th>
-									<th scope="col" className="px-4 py-2 font-medium">
-										MOTIF
-									</th>
+									<Th>ÉVÉNEMENT</Th>
+									<Th>DATE</Th>
+									<Th className="text-right">MONTANT</Th>
+									<Th>MOTIF</Th>
 								</tr>
-							</thead>
+							</DataTableHead>
 							<tbody>
 								{caution.historique.map((evenement) => (
-									<tr
+									<Tr
 										key={`${evenement.evenement}-${evenement.date}-${evenement.montant ?? ""}`}
-										className="border-t border-border"
 									>
-										<td className="px-4 py-2 font-medium text-foreground">
+										<Td className="font-medium text-foreground">
 											{evenement.evenement}
-										</td>
-										<td className="px-4 py-2 text-muted-foreground">
+										</Td>
+										<Td className="text-muted-foreground">
 											{formatDateInstantUTC(evenement.date)}
-										</td>
-										<td className="px-4 py-2 text-right text-foreground">
+										</Td>
+										<Td className="text-right text-foreground">
 											{evenement.montant
 												? formatMontantFCFA(evenement.montant)
 												: "—"}
-										</td>
-										<td className="px-4 py-2 text-muted-foreground">
+										</Td>
+										<Td className="text-muted-foreground">
 											{evenement.motif ?? "—"}
-										</td>
-									</tr>
+										</Td>
+									</Tr>
 								))}
 							</tbody>
-						</table>
+						</DataTable>
 					</div>
 				</div>
 			) : null}

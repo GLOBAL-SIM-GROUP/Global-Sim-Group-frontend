@@ -24,37 +24,10 @@ export function AppBackground() {
 				}}
 			/>
 
-			{/* Halo décoratif — haut droite, teinte or de la marque */}
-			<div className="app-bg-halo-1 absolute -top-32 -right-24 h-96 w-96 rounded-full bg-gradient-to-br from-lagoon/14 to-transparent blur-3xl opacity-70 pointer-events-none" />
-
-			{/* Halo décoratif — bas droite, teinte navy de la marque */}
-			<div className="app-bg-halo-2 absolute -bottom-40 -right-40 h-[26rem] w-[26rem] rounded-full bg-gradient-to-tl from-sea-ink/10 to-transparent blur-3xl opacity-70 pointer-events-none" />
-
-			{/* Filigrane du logo — bas droite, très discret */}
-			<div
-				className="absolute bottom-0 right-0 h-96 w-96 pointer-events-none"
-				style={{
-					backgroundImage: "url(/logo.png)",
-					backgroundSize: "contain",
-					backgroundRepeat: "no-repeat",
-					backgroundPosition: "bottom right",
-					opacity: 0.05,
-					filter: "brightness(0.6) saturate(0.25)",
-				}}
-			/>
-
-			{/* Filigrane du logo — haut droite, encore plus discret */}
-			<div
-				className="absolute top-0 right-0 h-72 w-72 pointer-events-none"
-				style={{
-					backgroundImage: "url(/logo.png)",
-					backgroundSize: "contain",
-					backgroundRepeat: "no-repeat",
-					backgroundPosition: "top right",
-					opacity: 0.03,
-					filter: "brightness(0.5) saturate(0.2)",
-				}}
-			/>
+			{/* Halo décoratif — haut droite, teinte or de la marque, statique
+			    (DS « Concierge » : le back-office reste silencieux, pas de
+			    dérive permanente sous les données). */}
+			<div className="absolute -top-32 -right-24 h-96 w-96 rounded-full bg-gradient-to-br from-lagoon/10 to-transparent blur-3xl pointer-events-none" />
 		</div>
 	);
 }

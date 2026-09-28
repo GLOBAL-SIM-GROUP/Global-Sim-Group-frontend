@@ -1,8 +1,10 @@
 import { Link } from "@tanstack/react-router";
 import { ChevronRight } from "lucide-react";
 
-import { Breadcrumb } from "#/components/ui/breadcrumb";
+import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
+import { EmptyState } from "#/components/ui/empty-state";
+import { PageHeader } from "#/components/ui/page-header";
 import { EtatBadge } from "#/features/abonnement/components/etat-badge";
 import { SoldeProgress } from "#/features/abonnement/components/solde-progress";
 import {
@@ -63,6 +65,7 @@ export function AbonnementsPage({
 					<Button
 						variant="outline"
 						size="sm"
+						className="rounded-full"
 						onClick={() => void souscriptionsQuery.refetch()}
 					>
 						Réessayer
@@ -76,23 +79,17 @@ export function AbonnementsPage({
 
 	return (
 		<div className={className}>
-			<Breadcrumb items={[breadcrumbAccueil, { label: "Mes abonnements" }]} />
-
-			<section className="space-y-1">
-				<h1 className="text-2xl font-semibold text-foreground">
-					Mes abonnements
-				</h1>
-				<p className="text-sm text-muted-foreground">
-					Vos quotas prépayés pressing et restaurant — solde, validité et
-					utilisation.
-				</p>
-			</section>
+			<PageHeader
+				breadcrumb={[breadcrumbAccueil, { label: "Mes abonnements" }]}
+				title="Mes abonnements"
+				description="Vos quotas prépayés pressing et restaurant — solde, validité et utilisation."
+			/>
 
 			{souscriptions.length === 0 ? (
-				<div className="rounded-lg border border-border bg-card p-8 text-center text-sm text-muted-foreground">
-					Aucun abonnement pour le moment. Les abonnements sont vendus par le
-					personnel — renseignez-vous à la réception.
-				</div>
+				<EmptyState
+					title="Aucun abonnement pour le moment."
+					description="Les abonnements sont vendus par le personnel — renseignez-vous à la réception."
+				/>
 			) : (
 				<div className="space-y-3">
 					{souscriptions.map((souscription) => (
@@ -100,7 +97,7 @@ export function AbonnementsPage({
 							key={souscription.id_souscription}
 							to={lienDetail as never}
 							params={{ id: souscription.id_souscription } as never}
-							className="group block space-y-3 rounded-lg border border-border bg-card p-4 shadow-sm transition-colors hover:border-lagoon/50 hover:bg-accent/40"
+							className="group block space-y-3 rounded-xl border border-border bg-card p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-lagoon/50 hover:bg-accent/40 hover:shadow-md"
 						>
 							<div className="flex items-start justify-between gap-3">
 								<div className="min-w-0 flex-1 space-y-1">
@@ -109,10 +106,10 @@ export function AbonnementsPage({
 											{souscription.offre_libelle}
 										</span>
 										<EtatBadge etat={souscription.etat} />
-										<span className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
+										<Badge variant="neutral">
 											{ACTIVITE_LABELS[souscription.activite] ??
 												souscription.activite}
-										</span>
+										</Badge>
 									</div>
 									<p className="text-sm text-muted-foreground">
 										{souscription.prestation_libelle ?? souscription.offre_code}

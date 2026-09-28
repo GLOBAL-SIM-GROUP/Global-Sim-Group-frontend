@@ -2,8 +2,9 @@ import { Link } from "@tanstack/react-router";
 import { FileX, Loader2, Mail, Pencil, Printer } from "lucide-react";
 import { useState } from "react";
 
-import { Breadcrumb } from "#/components/ui/breadcrumb";
+import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
+import { PageHeader } from "#/components/ui/page-header";
 import { getErrorMessageForCode, toApiError } from "#/core/api";
 import { getApiClient } from "#/core/api/client";
 import { useCan } from "#/core/auth";
@@ -20,7 +21,7 @@ import { useLogementsParId } from "../hooks/use-logements";
 import { nomComplet } from "../models/clients";
 import {
 	CONTRAT_STATUT_LABELS,
-	type ContratStatut,
+	CONTRAT_STATUT_VARIANT,
 	TYPE_LOCATION_LABELS,
 } from "../models/contrats";
 import { formatDateISO, formatMontantFCFA } from "../models/format";
@@ -29,13 +30,6 @@ import { ContratEcheancesTab } from "./contrat-echeances-tab";
 import { EtatDesLieuxTab } from "./etat-des-lieux-tab";
 import { ModifierContratFormDialog } from "./modifier-contrat-form-dialog";
 import { ResilierContratFormDialog } from "./resilier-contrat-form-dialog";
-
-const CONTRAT_STATUT_BADGE: Record<ContratStatut, string> = {
-	EN_ATTENTE: "bg-[#E67E22] text-white",
-	ACTIF: "bg-[#27AE60] text-white",
-	RESILIE: "bg-[#E74C3C] text-white",
-	TERMINE: "bg-[#2980B9] text-white",
-};
 
 /**
  * Ligne lecture seule. Empilée (label au-dessus de la valeur) sous `sm` —
@@ -159,86 +153,77 @@ export function ContratFichePage({ id }: ContratFichePageProps) {
 
 	return (
 		<div className="w-full space-y-6 p-4 sm:p-6">
-			<Breadcrumb
-				items={[
+			<PageHeader
+				breadcrumb={[
 					{ label: "Accueil", to: "/" },
 					{ label: "Contrats de location", to: "/residence/contrats" },
 					{ label: contrat.numero_contrat },
 				]}
-			/>
-
-			<div className="flex flex-wrap items-end justify-between gap-4">
-				<section className="space-y-1">
-					<h1 className="text-2xl font-semibold text-foreground">
-						Fiche contrat — {contrat.numero_contrat}
-					</h1>
-					<p className="text-muted-foreground">
-						Contrat de location{" "}
-						{TYPE_LOCATION_LABELS[contrat.type_location].toLowerCase()}.
-					</p>
-				</section>
-
-				<div className="flex flex-col gap-3 sm:flex-row">
-					<Button
-						onClick={() => void handlePrintPDF()}
-						disabled={isPrintingPDF}
-						className="w-full bg-lagoon hover:bg-lagoon/90 sm:w-auto"
-					>
-						{isPrintingPDF ? (
-							<>
-								<Loader2 className="size-4 mr-2 animate-spin" />
-								Préparation…
-							</>
-						) : (
-							<>
-								<Printer className="size-4 mr-2" />
-								Imprimer le contrat
-							</>
-						)}
-					</Button>
-					<Button
-						variant="outline"
-						onClick={() => void handleEnvoyerEmail()}
-						disabled={envoyerEmailMutation.isPending}
-						className="w-full sm:w-auto"
-					>
-						{envoyerEmailMutation.isPending ? (
-							<>
-								<Loader2 className="size-4 mr-2 animate-spin" />
-								Envoi…
-							</>
-						) : (
-							<>
-								<Mail className="size-4 mr-2" />
-								Envoyer par email
-							</>
-						)}
-					</Button>
-					{contrat.statut === "EN_ATTENTE" && canModifier ? (
+				title={`Fiche contrat — ${contrat.numero_contrat}`}
+				description={`Contrat de location ${TYPE_LOCATION_LABELS[contrat.type_location].toLowerCase()}.`}
+				actions={
+					<div className="flex flex-col gap-3 sm:flex-row">
+						<Button
+							onClick={() => void handlePrintPDF()}
+							disabled={isPrintingPDF}
+							className="w-full bg-lagoon hover:bg-lagoon/90 sm:w-auto"
+						>
+							{isPrintingPDF ? (
+								<>
+									<Loader2 className="size-4 mr-2 animate-spin" />
+									Préparation…
+								</>
+							) : (
+								<>
+									<Printer className="size-4 mr-2" />
+									Imprimer le contrat
+								</>
+							)}
+						</Button>
 						<Button
 							variant="outline"
-							onClick={() => setModificationOuverte(true)}
+							onClick={() => void handleEnvoyerEmail()}
+							disabled={envoyerEmailMutation.isPending}
 							className="w-full sm:w-auto"
 						>
-							<Pencil className="size-4 mr-2" />
-							Modifier
+							{envoyerEmailMutation.isPending ? (
+								<>
+									<Loader2 className="size-4 mr-2 animate-spin" />
+									Envoi…
+								</>
+							) : (
+								<>
+									<Mail className="size-4 mr-2" />
+									Envoyer par email
+								</>
+							)}
 						</Button>
-					) : null}
-					{contrat.statut === "ACTIF" ? (
-						<Button
-							variant="destructive"
-							onClick={() => setResiliationOuverte(true)}
-							className="w-full sm:w-auto"
-						>
-							<FileX className="size-4 mr-2" />
-							Résilier le contrat
+						{contrat.statut === "EN_ATTENTE" && canModifier ? (
+							<Button
+								variant="outline"
+								onClick={() => setModificationOuverte(true)}
+								className="w-full sm:w-auto"
+							>
+								<Pencil className="size-4 mr-2" />
+								Modifier
+							</Button>
+						) : null}
+						{contrat.statut === "ACTIF" ? (
+							<Button
+								variant="destructive"
+								onClick={() => setResiliationOuverte(true)}
+								className="w-full sm:w-auto"
+							>
+								<FileX className="size-4 mr-2" />
+								Résilier le contrat
+							</Button>
+						) : null}
+						<Button variant="outline" asChild className="w-full sm:w-auto">
+							<Link to="/residence/contrats">Retour aux contrats</Link>
 						</Button>
-					) : null}
-					<Button variant="outline" asChild className="w-full sm:w-auto">
-						<Link to="/residence/contrats">Retour aux contrats</Link>
-					</Button>
-				</div>
-			</div>
+					</div>
+				}
+			/>
 
 			{emailFeedback ? (
 				<div
@@ -246,7 +231,7 @@ export function ContratFichePage({ id }: ContratFichePageProps) {
 					className={cn(
 						"rounded-lg border px-4 py-3 text-sm",
 						emailFeedback.type === "success"
-							? "border-[#27AE60]/30 bg-[#27AE60]/10 text-[#27AE60]"
+							? "border-success/30 bg-success-bg text-success"
 							: "border-destructive/30 bg-destructive/10 text-destructive",
 					)}
 				>
@@ -259,7 +244,7 @@ export function ContratFichePage({ id }: ContratFichePageProps) {
 				Number(resiliationResultat.montantARembourser) > 0 ? (
 					<div
 						role="alert"
-						className="space-y-2 rounded-lg border border-[#E67E22]/30 bg-[#E67E22]/10 p-4 text-sm text-[#E67E22]"
+						className="space-y-2 rounded-lg border border-warning/30 bg-warning-bg p-4 text-sm text-warning"
 					>
 						<p>
 							Contrat résilié au{" "}
@@ -273,7 +258,7 @@ export function ContratFichePage({ id }: ContratFichePageProps) {
 						</Button>
 					</div>
 				) : (
-					<output className="block rounded-lg border border-[#27AE60]/30 bg-[#27AE60]/10 px-4 py-3 text-sm text-[#27AE60]">
+					<output className="block rounded-lg border border-success/30 bg-success-bg px-4 py-3 text-sm text-success">
 						Contrat résilié au{" "}
 						{formatDateISO(resiliationResultat.dateResiliation)}.
 					</output>
@@ -317,14 +302,9 @@ export function ContratFichePage({ id }: ContratFichePageProps) {
 					<div className="grid grid-cols-1 gap-1 text-sm sm:grid-cols-[10rem_1fr] sm:items-baseline sm:gap-3">
 						<dt className="text-muted-foreground">Statut</dt>
 						<dd>
-							<span
-								className={cn(
-									"inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium",
-									CONTRAT_STATUT_BADGE[contrat.statut],
-								)}
-							>
+							<Badge variant={CONTRAT_STATUT_VARIANT[contrat.statut]}>
 								{CONTRAT_STATUT_LABELS[contrat.statut]}
-							</span>
+							</Badge>
 						</dd>
 					</div>
 				</dl>

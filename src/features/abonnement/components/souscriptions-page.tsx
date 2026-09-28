@@ -2,9 +2,10 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { Plus, Wallet } from "lucide-react";
 import { useState } from "react";
 
-import { Breadcrumb } from "#/components/ui/breadcrumb";
 import { Button } from "#/components/ui/button";
+import { EmptyState } from "#/components/ui/empty-state";
 import { InputField } from "#/components/ui/input-field";
+import { PageHeader } from "#/components/ui/page-header";
 import {
 	Select,
 	SelectContent,
@@ -12,6 +13,14 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "#/components/ui/select";
+import {
+	DataTable,
+	DataTableHead,
+	TableShell,
+	Td,
+	Th,
+	Tr,
+} from "#/components/ui/table";
 import { useCan } from "#/core/auth";
 import {
 	formatDateISO,
@@ -83,32 +92,25 @@ export function SouscriptionsPage({
 
 	return (
 		<div className="w-full space-y-4 p-3 sm:space-y-6 sm:p-6">
-			<Breadcrumb
-				items={[
+			<PageHeader
+				breadcrumb={[
 					{ label: "Accueil", to: "/" },
 					{ label: "Souscriptions — Abonnements" },
 				]}
+				title="Souscriptions"
+				description="Quotas prépayés vendus — soldes, validité et restes à payer."
+				actions={
+					canVendre ? (
+						<Button
+							onClick={() => setVenteOuverte(true)}
+							className="w-full sm:w-auto justify-center"
+						>
+							<Plus className="size-4" aria-hidden />
+							Vendre une souscription
+						</Button>
+					) : undefined
+				}
 			/>
-
-			<div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
-				<section className="space-y-1">
-					<h1 className="text-lg font-semibold text-foreground sm:text-2xl">
-						Souscriptions
-					</h1>
-					<p className="text-xs text-muted-foreground sm:text-sm">
-						Quotas prépayés vendus — soldes, validité et restes à payer.
-					</p>
-				</section>
-				{canVendre ? (
-					<Button
-						onClick={() => setVenteOuverte(true)}
-						className="w-full sm:w-auto justify-center"
-					>
-						<Plus className="size-4" aria-hidden />
-						Vendre une souscription
-					</Button>
-				) : null}
-			</div>
 
 			<div className="flex flex-col gap-3 rounded-lg border border-border bg-card p-3 shadow-sm sm:flex-row sm:items-center sm:flex-wrap sm:p-4">
 				<div className="flex-1">
@@ -205,56 +207,41 @@ export function SouscriptionsPage({
 					</Button>
 				</div>
 			) : souscriptions.length === 0 ? (
-				<p className="rounded-lg border border-border bg-card p-6 text-center text-sm text-muted-foreground">
-					{reliquatsSeuls
-						? "Aucun reliquat en attente de décision."
-						: "Aucune souscription trouvée."}
-				</p>
+				<EmptyState
+					title={
+						reliquatsSeuls
+							? "Aucun reliquat en attente de décision."
+							: "Aucune souscription trouvée."
+					}
+				/>
 			) : (
-				<div className="overflow-x-auto rounded-lg border border-border bg-card shadow-sm">
-					<table className="w-full border-collapse text-sm">
-						<thead className="bg-sea-ink text-left text-white">
+				<TableShell>
+					<DataTable>
+						<DataTableHead>
 							<tr>
-								<th scope="col" className="px-4 py-3 font-medium">
-									CLIENT
-								</th>
-								<th scope="col" className="px-4 py-3 font-medium">
-									OFFRE
-								</th>
-								<th scope="col" className="px-4 py-3 font-medium">
-									SOLDE
-								</th>
-								<th scope="col" className="px-4 py-3 font-medium">
-									VALIDITÉ
-								</th>
-								<th scope="col" className="px-4 py-3 font-medium">
-									ÉTAT
-								</th>
-								<th scope="col" className="px-4 py-3 font-medium">
-									RESTE À PAYER
-								</th>
-								<th scope="col" className="px-4 py-3 text-right font-medium">
-									ACTIONS
-								</th>
+								<Th>CLIENT</Th>
+								<Th>OFFRE</Th>
+								<Th>SOLDE</Th>
+								<Th>VALIDITÉ</Th>
+								<Th>ÉTAT</Th>
+								<Th>RESTE À PAYER</Th>
+								<Th className="text-right">ACTIONS</Th>
 							</tr>
-						</thead>
+						</DataTableHead>
 						<tbody>
 							{souscriptions.map((souscription: Souscription) => (
-								<tr
-									key={souscription.id_souscription}
-									className="border-t border-border"
-								>
-									<td className="px-4 py-3 text-foreground">
+								<Tr key={souscription.id_souscription}>
+									<Td className="text-foreground">
 										{souscription.client_nom} {souscription.client_prenoms}
-									</td>
-									<td className="px-4 py-3 text-foreground">
+									</Td>
+									<Td className="text-foreground">
 										{souscription.offre_libelle}
 										<span className="block text-xs text-muted-foreground">
 											{ACTIVITE_LABELS[souscription.activite] ??
 												souscription.activite}
 										</span>
-									</td>
-									<td className="px-4 py-3">
+									</Td>
+									<Td>
 										<SoldeProgress
 											solde={souscription.solde}
 											quota={souscription.quota}
@@ -262,12 +249,12 @@ export function SouscriptionsPage({
 												UNITE_LABELS[souscription.unite] ?? souscription.unite
 											}
 										/>
-									</td>
-									<td className="px-4 py-3 text-foreground">
+									</Td>
+									<Td className="text-foreground">
 										{formatDateISO(souscription.date_debut)} →{" "}
 										{formatDateISO(souscription.date_fin)}
-									</td>
-									<td className="px-4 py-3">
+									</Td>
+									<Td>
 										<div className="flex flex-col gap-1">
 											<EtatBadge etat={souscription.etat} />
 											{souscription.reliquat_a_decider ? (
@@ -276,15 +263,15 @@ export function SouscriptionsPage({
 												</span>
 											) : null}
 										</div>
-									</td>
-									<td className="px-4 py-3 text-foreground">
+									</Td>
+									<Td className="text-foreground">
 										{Number(souscription.reste_a_payer) > 0 ? (
 											formatMontantFCFA(souscription.reste_a_payer)
 										) : (
 											<span className="text-muted-foreground">—</span>
 										)}
-									</td>
-									<td className="px-4 py-3 text-right">
+									</Td>
+									<Td className="text-right">
 										<Button variant="ghost" size="icon-sm" asChild>
 											<Link
 												to="/abonnements/souscriptions/$id"
@@ -295,12 +282,12 @@ export function SouscriptionsPage({
 												<span className="sr-only">Voir</span>
 											</Link>
 										</Button>
-									</td>
-								</tr>
+									</Td>
+								</Tr>
 							))}
 						</tbody>
-					</table>
-				</div>
+					</DataTable>
+				</TableShell>
 			)}
 
 			<VendreSouscriptionDialog

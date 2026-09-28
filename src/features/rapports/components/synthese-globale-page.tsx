@@ -2,8 +2,16 @@ import { Link } from "@tanstack/react-router";
 import { FileDown, FileSpreadsheet, Printer } from "lucide-react";
 import { useState } from "react";
 
-import { Breadcrumb } from "#/components/ui/breadcrumb";
 import { Button } from "#/components/ui/button";
+import { PageHeader } from "#/components/ui/page-header";
+import {
+	DataTable,
+	DataTableHead,
+	TableShell,
+	Td,
+	Th,
+	Tr,
+} from "#/components/ui/table";
 import { formatMontantFCFA } from "#/features/residence/models/format";
 
 import { rapportExcelPath, rapportPdfPath } from "../api/rapports";
@@ -101,64 +109,57 @@ export function SyntheseGlobalePage({
 
 	return (
 		<div className="w-full space-y-6 p-6">
-			<Breadcrumb
-				items={[
+			<PageHeader
+				breadcrumb={[
 					{ label: "Accueil", to: "/" },
 					{ label: "Rapports", to: "/rapports" },
 					{ label: "Synthèse globale" },
 				]}
+				title="Rapport de synthèse globale"
+				description={`Période du ${periode.du} au ${periode.au}.`}
+				actions={
+					<div className="flex flex-col gap-2 w-full sm:w-auto sm:flex-row sm:items-center sm:gap-2">
+						<Button
+							variant="outline"
+							size="sm"
+							asChild
+							className="w-full sm:w-auto justify-center"
+						>
+							<Link to="/rapports">Nouveau rapport</Link>
+						</Button>
+						<Button
+							size="sm"
+							variant="outline"
+							onClick={() => void imprimerRapportPdf()}
+							disabled={!rapportQuery.data}
+							className="w-full sm:w-auto justify-center"
+						>
+							<Printer className="size-4" aria-hidden />
+							PDF
+						</Button>
+						<Button
+							size="sm"
+							variant="outline"
+							onClick={exporterExcel}
+							disabled={!rapportQuery.data}
+							className="w-full sm:w-auto justify-center"
+						>
+							<FileDown className="size-4" aria-hidden />
+							Excel
+						</Button>
+						<Button
+							size="sm"
+							variant="outline"
+							onClick={exporter}
+							disabled={!rapportQuery.data}
+							className="w-full sm:w-auto justify-center"
+						>
+							<FileSpreadsheet className="size-4" aria-hidden />
+							CSV
+						</Button>
+					</div>
+				}
 			/>
-
-			<div className="flex flex-wrap items-end justify-between gap-4">
-				<section className="space-y-1">
-					<h1 className="text-2xl font-semibold text-foreground">
-						Rapport de synthèse globale
-					</h1>
-					<p className="text-muted-foreground">
-						Période du {periode.du} au {periode.au}.
-					</p>
-				</section>
-				<div className="flex flex-col gap-2 w-full sm:w-auto sm:flex-row sm:items-center sm:gap-2">
-					<Button
-						variant="outline"
-						size="sm"
-						asChild
-						className="w-full sm:w-auto justify-center"
-					>
-						<Link to="/rapports">Nouveau rapport</Link>
-					</Button>
-					<Button
-						size="sm"
-						variant="outline"
-						onClick={() => void imprimerRapportPdf()}
-						disabled={!rapportQuery.data}
-						className="w-full sm:w-auto justify-center"
-					>
-						<Printer className="size-4" aria-hidden />
-						PDF
-					</Button>
-					<Button
-						size="sm"
-						variant="outline"
-						onClick={exporterExcel}
-						disabled={!rapportQuery.data}
-						className="w-full sm:w-auto justify-center"
-					>
-						<FileDown className="size-4" aria-hidden />
-						Excel
-					</Button>
-					<Button
-						size="sm"
-						variant="outline"
-						onClick={exporter}
-						disabled={!rapportQuery.data}
-						className="w-full sm:w-auto justify-center"
-					>
-						<FileSpreadsheet className="size-4" aria-hidden />
-						CSV
-					</Button>
-				</div>
-			</div>
 
 			{pdfError ? (
 				<p
@@ -192,7 +193,7 @@ export function SyntheseGlobalePage({
 						<Indicateur
 							label="Recettes"
 							valeur={formatMontantFCFA(rapportQuery.data.total_recettes)}
-							couleur="text-[#27AE60]"
+							couleur="text-success"
 						/>
 						<Indicateur
 							label="Dépenses"
@@ -207,7 +208,7 @@ export function SyntheseGlobalePage({
 						<Indicateur
 							label="Impayés"
 							valeur={`${rapportQuery.data.impayes.nombre} · ${formatMontantFCFA(rapportQuery.data.impayes.montant)}`}
-							couleur="text-[#E67E22]"
+							couleur="text-warning"
 						/>
 						<Indicateur
 							label="Masse salariale"
@@ -220,38 +221,26 @@ export function SyntheseGlobalePage({
 						<h2 className="text-lg font-semibold text-foreground">
 							Recettes par activité
 						</h2>
-						<div className="overflow-x-auto">
-							<table className="w-full border-collapse text-sm">
-								<thead className="bg-sea-ink text-left text-white">
+						<TableShell>
+							<DataTable>
+								<DataTableHead>
 									<tr>
-										<th scope="col" className="px-4 py-3 font-medium">
-											ACTIVITÉ
-										</th>
-										<th
-											scope="col"
-											className="px-4 py-3 text-right font-medium"
-										>
-											TOTAL ENCAISSÉ
-										</th>
+										<Th>ACTIVITÉ</Th>
+										<Th className="text-right">TOTAL ENCAISSÉ</Th>
 									</tr>
-								</thead>
+								</DataTableHead>
 								<tbody>
 									{rapportQuery.data.recettes_par_activite.map((ligne) => (
-										<tr
-											key={ligne.code}
-											className="border-t border-border transition-colors hover:bg-accent/40"
-										>
-											<td className="px-4 py-3 text-foreground">
-												{ligne.libelle}
-											</td>
-											<td className="px-4 py-3 text-right font-medium text-foreground">
+										<Tr key={ligne.code}>
+											<Td className="text-foreground">{ligne.libelle}</Td>
+											<Td className="text-right font-medium text-foreground">
 												{formatMontantFCFA(ligne.total_encaisse)}
-											</td>
-										</tr>
+											</Td>
+										</Tr>
 									))}
 								</tbody>
-							</table>
-						</div>
+							</DataTable>
+						</TableShell>
 					</section>
 				</>
 			) : null}

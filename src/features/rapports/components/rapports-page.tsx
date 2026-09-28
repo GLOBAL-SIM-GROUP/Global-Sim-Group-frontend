@@ -2,9 +2,9 @@ import { useNavigate } from "@tanstack/react-router";
 import { FileDown } from "lucide-react";
 import { useState } from "react";
 
-import { Breadcrumb } from "#/components/ui/breadcrumb";
 import { Button } from "#/components/ui/button";
 import { Input } from "#/components/ui/input";
+import { PageHeader } from "#/components/ui/page-header";
 import {
 	Select,
 	SelectContent,
@@ -48,7 +48,7 @@ const ACTIVITE_PAR_TYPE: Record<string, string> = {
  * ouverte avec la période dans l'URL (export CSV disponible sur chaque page).
  */
 export function RapportsPage() {
-	const canVoir = useCan("ADMIN.VOIR");
+	const canVoir = useCan("RAPPORTS.VOIR");
 	const navigate = useNavigate();
 
 	const [type, setType] = useState("synthese");
@@ -86,18 +86,11 @@ export function RapportsPage() {
 
 	return (
 		<div className="w-full space-y-4 p-3 sm:space-y-6 sm:p-6">
-			<Breadcrumb
-				items={[{ label: "Accueil", to: "/" }, { label: "Rapports" }]}
+			<PageHeader
+				breadcrumb={[{ label: "Accueil", to: "/" }, { label: "Rapports" }]}
+				title="Rapports"
+				description="Génération des rapports de synthèse, financiers, par activité et RH."
 			/>
-
-			<section className="space-y-1">
-				<h1 className="text-xl font-semibold text-foreground sm:text-2xl">
-					Rapports
-				</h1>
-				<p className="text-xs text-muted-foreground sm:text-sm">
-					Génération des rapports de synthèse, financiers, par activité et RH.
-				</p>
-			</section>
 
 			<section className="space-y-3 rounded-lg border border-border bg-card p-3 shadow-sm sm:space-y-4 sm:p-5">
 				<div className="space-y-1.5">

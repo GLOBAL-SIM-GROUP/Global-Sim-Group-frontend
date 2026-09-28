@@ -1,8 +1,8 @@
 import { Ban, Scale, SlidersHorizontal, Wallet } from "lucide-react";
 import { useState } from "react";
 
-import { Breadcrumb } from "#/components/ui/breadcrumb";
 import { Button } from "#/components/ui/button";
+import { PageHeader } from "#/components/ui/page-header";
 import { useCan } from "#/core/auth";
 import {
 	formatDateISO,
@@ -81,8 +81,8 @@ export function SouscriptionDetailPage({ id }: { id: string }) {
 
 	return (
 		<div className="w-full space-y-4 p-3 sm:space-y-6 sm:p-6">
-			<Breadcrumb
-				items={[
+			<PageHeader
+				breadcrumb={[
 					{ label: "Accueil", to: "/" },
 					{
 						label: "Souscriptions",
@@ -90,52 +90,50 @@ export function SouscriptionDetailPage({ id }: { id: string }) {
 					},
 					{ label: souscription.offre_libelle },
 				]}
-			/>
-
-			<div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
-				<section className="space-y-1">
-					<h1 className="flex items-center gap-3 text-lg font-semibold text-foreground sm:text-2xl">
+				title={
+					<span className="inline-flex items-center gap-3">
 						{souscription.offre_libelle}
 						<EtatBadge etat={souscription.etat} />
-					</h1>
-					<p className="text-xs text-muted-foreground sm:text-sm">
-						{souscription.client_nom} {souscription.client_prenoms} ·{" "}
-						{ACTIVITE_LABELS[souscription.activite]} ·{" "}
-						{couverture(souscription)}
-					</p>
-				</section>
-				<div className="flex flex-wrap gap-2">
-					{souscription.reliquat_a_decider && canReliquat ? (
-						<Button onClick={() => setDialogue("reliquat")}>
-							<Scale className="size-4" aria-hidden />
-							Décider le reliquat
-						</Button>
-					) : null}
-					{montantPositif(souscription.reste_a_payer) && canVendre ? (
-						<Button variant="outline" onClick={() => setDialogue("paiement")}>
-							<Wallet className="size-4" aria-hidden />
-							Encaisser {formatMontantFCFA(souscription.reste_a_payer)}
-						</Button>
-					) : null}
-					{canAjuster &&
-					souscription.etat !== "RESILIEE" &&
-					souscription.etat !== "ANNULEE" ? (
-						<Button variant="outline" onClick={() => setDialogue("ajustement")}>
-							<SlidersHorizontal className="size-4" aria-hidden />
-							Ajuster le quota
-						</Button>
-					) : null}
-					{canAjuster && souscription.statut === "ACTIVE" ? (
-						<Button
-							variant="destructive"
-							onClick={() => setDialogue("resiliation")}
-						>
-							<Ban className="size-4" aria-hidden />
-							Résilier
-						</Button>
-					) : null}
-				</div>
-			</div>
+					</span>
+				}
+				description={`${souscription.client_nom} ${souscription.client_prenoms} · ${ACTIVITE_LABELS[souscription.activite]} · ${couverture(souscription)}`}
+				actions={
+					<div className="flex flex-wrap gap-2">
+						{souscription.reliquat_a_decider && canReliquat ? (
+							<Button onClick={() => setDialogue("reliquat")}>
+								<Scale className="size-4" aria-hidden />
+								Décider le reliquat
+							</Button>
+						) : null}
+						{montantPositif(souscription.reste_a_payer) && canVendre ? (
+							<Button variant="outline" onClick={() => setDialogue("paiement")}>
+								<Wallet className="size-4" aria-hidden />
+								Encaisser {formatMontantFCFA(souscription.reste_a_payer)}
+							</Button>
+						) : null}
+						{canAjuster &&
+						souscription.etat !== "RESILIEE" &&
+						souscription.etat !== "ANNULEE" ? (
+							<Button
+								variant="outline"
+								onClick={() => setDialogue("ajustement")}
+							>
+								<SlidersHorizontal className="size-4" aria-hidden />
+								Ajuster le quota
+							</Button>
+						) : null}
+						{canAjuster && souscription.statut === "ACTIVE" ? (
+							<Button
+								variant="destructive"
+								onClick={() => setDialogue("resiliation")}
+							>
+								<Ban className="size-4" aria-hidden />
+								Résilier
+							</Button>
+						) : null}
+					</div>
+				}
+			/>
 
 			{souscription.reliquat_a_decider ? (
 				<p

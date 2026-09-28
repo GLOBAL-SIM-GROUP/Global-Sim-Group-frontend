@@ -1,9 +1,14 @@
 import { useForm } from "@tanstack/react-form";
 import { Loader2 } from "lucide-react";
-import { Dialog } from "radix-ui";
 import { useState } from "react";
 
 import { Button } from "#/components/ui/button";
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogTitle,
+} from "#/components/ui/dialog";
 import { InputField } from "#/components/ui/input-field";
 import { Label } from "#/components/ui/label";
 import {
@@ -187,156 +192,151 @@ export function ModifierContratFormDialog({
 	});
 
 	return (
-		<Dialog.Root open onOpenChange={onOpenChange}>
-			<Dialog.Portal>
-				<Dialog.Overlay className="fixed inset-0 z-50 bg-black/50" />
-				<Dialog.Content className="fixed top-1/2 left-1/2 z-50 max-h-[85dvh] w-[calc(100vw-2rem)] max-w-lg -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-lg border border-border bg-card p-6 shadow-lg">
-					<Dialog.Title className="text-base font-semibold text-foreground">
-						Modifier le contrat
-					</Dialog.Title>
-					<Dialog.Description className="mt-1 text-sm text-muted-foreground">
-						Contrat {contrat.numero_contrat} — modifiable tant qu'il est en
-						attente.
-					</Dialog.Description>
+		<Dialog open onOpenChange={onOpenChange}>
+			<DialogContent className="max-h-[85dvh] max-w-lg overflow-y-auto">
+				<DialogTitle>Modifier le contrat</DialogTitle>
+				<DialogDescription>
+					Contrat {contrat.numero_contrat} — modifiable tant qu'il est en
+					attente.
+				</DialogDescription>
 
-					<form
-						className="mt-4 space-y-4"
-						onSubmit={(event) => {
-							event.preventDefault();
-							event.stopPropagation();
-							void form.handleSubmit();
-						}}
-					>
-						<form.Field name="idLogement">
+				<form
+					className="mt-4 space-y-4"
+					onSubmit={(event) => {
+						event.preventDefault();
+						event.stopPropagation();
+						void form.handleSubmit();
+					}}
+				>
+					<form.Field name="idLogement">
+						{(field) => (
+							<LogementCascadeField
+								value={field.state.value}
+								onChange={field.handleChange}
+								disponibleUniquement
+								batimentInitial={logement?.id_batiment}
+								logementActuel={logement}
+							/>
+						)}
+					</form.Field>
+
+					<div className="grid gap-4 sm:grid-cols-2">
+						<form.Field name="dateDebut">
 							{(field) => (
-								<LogementCascadeField
+								<InputField
+									id={field.name}
+									name={field.name}
+									label="Date de début"
+									type="date"
+									autoComplete="off"
 									value={field.state.value}
-									onChange={field.handleChange}
-									disponibleUniquement
-									batimentInitial={logement?.id_batiment}
-									logementActuel={logement}
+									onBlur={field.handleBlur}
+									onChange={(event) => field.handleChange(event.target.value)}
+									error={field.state.meta.errors[0]}
 								/>
 							)}
 						</form.Field>
 
-						<div className="grid gap-4 sm:grid-cols-2">
-							<form.Field name="dateDebut">
-								{(field) => (
-									<InputField
-										id={field.name}
-										name={field.name}
-										label="Date de début"
-										type="date"
-										autoComplete="off"
-										value={field.state.value}
-										onBlur={field.handleBlur}
-										onChange={(event) => field.handleChange(event.target.value)}
-										error={field.state.meta.errors[0]}
-									/>
-								)}
-							</form.Field>
-
-							<form.Field name="dateSignature">
-								{(field) => (
-									<InputField
-										id={field.name}
-										name={field.name}
-										label="Date de signature"
-										type="date"
-										autoComplete="off"
-										value={field.state.value}
-										onBlur={field.handleBlur}
-										onChange={(event) => field.handleChange(event.target.value)}
-										error={field.state.meta.errors[0]}
-									/>
-								)}
-							</form.Field>
-
-							<form.Field name="dureeMois">
-								{(field) => (
-									<InputField
-										id={field.name}
-										name={field.name}
-										label="Durée (en mois)"
-										placeholder="ex : 12"
-										inputMode="numeric"
-										autoComplete="off"
-										value={field.state.value}
-										onBlur={field.handleBlur}
-										onChange={(event) => field.handleChange(event.target.value)}
-										error={field.state.meta.errors[0]}
-									/>
-								)}
-							</form.Field>
-
-							<form.Field name="typeLocation">
-								{(field) => (
-									<SelectField
-										id={field.name}
-										label="Type de location"
-										value={field.state.value}
-										onValueChange={(valeur) =>
-											field.handleChange(valeur as TypeLocation)
-										}
-									>
-										{(Object.keys(TYPE_LOCATION_LABELS) as TypeLocation[]).map(
-											(type) => (
-												<SelectItem key={type} value={type}>
-													{TYPE_LOCATION_LABELS[type]}
-												</SelectItem>
-											),
-										)}
-									</SelectField>
-								)}
-							</form.Field>
-
-							<form.Field name="montantLoyer">
-								{(field) => (
-									<InputField
-										id={field.name}
-										name={field.name}
-										label="Montant du loyer (FCFA)"
-										placeholder="ex : 95000"
-										inputMode="numeric"
-										autoComplete="off"
-										value={field.state.value}
-										onBlur={field.handleBlur}
-										onChange={(event) => field.handleChange(event.target.value)}
-										error={field.state.meta.errors[0]}
-									/>
-								)}
-							</form.Field>
-						</div>
-
-						{globalError ? (
-							<p role="alert" className="text-sm font-medium text-destructive">
-								{globalError}
-							</p>
-						) : null}
-
-						<form.Subscribe selector={(state) => state.isSubmitting}>
-							{(isSubmitting) => (
-								<div className="flex items-center justify-end gap-2 pt-2">
-									<Button
-										type="button"
-										variant="ghost"
-										disabled={isSubmitting}
-										onClick={() => onOpenChange(false)}
-									>
-										Annuler
-									</Button>
-									<Button type="submit" disabled={isSubmitting}>
-										{isSubmitting ? (
-											<Loader2 className="size-4 animate-spin" aria-hidden />
-										) : null}
-										{isSubmitting ? "Enregistrement…" : "Enregistrer"}
-									</Button>
-								</div>
+						<form.Field name="dateSignature">
+							{(field) => (
+								<InputField
+									id={field.name}
+									name={field.name}
+									label="Date de signature"
+									type="date"
+									autoComplete="off"
+									value={field.state.value}
+									onBlur={field.handleBlur}
+									onChange={(event) => field.handleChange(event.target.value)}
+									error={field.state.meta.errors[0]}
+								/>
 							)}
-						</form.Subscribe>
-					</form>
-				</Dialog.Content>
-			</Dialog.Portal>
-		</Dialog.Root>
+						</form.Field>
+
+						<form.Field name="dureeMois">
+							{(field) => (
+								<InputField
+									id={field.name}
+									name={field.name}
+									label="Durée (en mois)"
+									placeholder="ex : 12"
+									inputMode="numeric"
+									autoComplete="off"
+									value={field.state.value}
+									onBlur={field.handleBlur}
+									onChange={(event) => field.handleChange(event.target.value)}
+									error={field.state.meta.errors[0]}
+								/>
+							)}
+						</form.Field>
+
+						<form.Field name="typeLocation">
+							{(field) => (
+								<SelectField
+									id={field.name}
+									label="Type de location"
+									value={field.state.value}
+									onValueChange={(valeur) =>
+										field.handleChange(valeur as TypeLocation)
+									}
+								>
+									{(Object.keys(TYPE_LOCATION_LABELS) as TypeLocation[]).map(
+										(type) => (
+											<SelectItem key={type} value={type}>
+												{TYPE_LOCATION_LABELS[type]}
+											</SelectItem>
+										),
+									)}
+								</SelectField>
+							)}
+						</form.Field>
+
+						<form.Field name="montantLoyer">
+							{(field) => (
+								<InputField
+									id={field.name}
+									name={field.name}
+									label="Montant du loyer (FCFA)"
+									placeholder="ex : 95000"
+									inputMode="numeric"
+									autoComplete="off"
+									value={field.state.value}
+									onBlur={field.handleBlur}
+									onChange={(event) => field.handleChange(event.target.value)}
+									error={field.state.meta.errors[0]}
+								/>
+							)}
+						</form.Field>
+					</div>
+
+					{globalError ? (
+						<p role="alert" className="text-sm font-medium text-destructive">
+							{globalError}
+						</p>
+					) : null}
+
+					<form.Subscribe selector={(state) => state.isSubmitting}>
+						{(isSubmitting) => (
+							<div className="flex items-center justify-end gap-2 pt-2">
+								<Button
+									type="button"
+									variant="ghost"
+									disabled={isSubmitting}
+									onClick={() => onOpenChange(false)}
+								>
+									Annuler
+								</Button>
+								<Button type="submit" disabled={isSubmitting}>
+									{isSubmitting ? (
+										<Loader2 className="size-4 animate-spin" aria-hidden />
+									) : null}
+									{isSubmitting ? "Enregistrement…" : "Enregistrer"}
+								</Button>
+							</div>
+						)}
+					</form.Subscribe>
+				</form>
+			</DialogContent>
+		</Dialog>
 	);
 }

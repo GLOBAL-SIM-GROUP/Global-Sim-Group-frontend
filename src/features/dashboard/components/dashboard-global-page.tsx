@@ -9,7 +9,8 @@ import {
 } from "lucide-react";
 import { type ComponentProps, useState } from "react";
 
-import { Breadcrumb } from "#/components/ui/breadcrumb";
+import { Badge } from "#/components/ui/badge";
+import { PageHeader } from "#/components/ui/page-header";
 import {
 	Select,
 	SelectContent,
@@ -17,6 +18,14 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "#/components/ui/select";
+import {
+	DataTable,
+	DataTableHead,
+	TableShell,
+	Td,
+	Th,
+	Tr,
+} from "#/components/ui/table";
 import { useCan } from "#/core/auth";
 import { useClientsDetails } from "#/features/residence/hooks/use-clients";
 import type { Client } from "#/features/residence/models/clients";
@@ -64,10 +73,13 @@ const PERIODES: Record<PeriodeFiltre, string> = {
 
 /**
  * Page « Tableau de bord global » : vue consolidée de l'ensemble des activités
- * de GLOBAL SIM GROUP. Accessible aux Administrateurs et Dirigeants.
+ * de GLOBAL SIM GROUP. Gated par `RAPPORTS.VOIR` (module réel, distinct
+ * d'`ADMIN` — vérifié en direct 2026-09-27) : accessible aux Administrateurs,
+ * Dirigeants, et aux 5 rôles Responsable (résidence/magasin/pressing/
+ * restaurant/salle de fête), qui n'ont pas `ADMIN.VOIR`.
  */
 export function DashboardGlobalPage() {
-	const canVoir = useCan("ADMIN.VOIR");
+	const canVoir = useCan("RAPPORTS.VOIR");
 	const canVoirResidence = useCan("RESIDENCE.VOIR");
 	const canVoirFinances = useCan("FINANCES.VOIR");
 	const canVoirSalleFete = useCan("SALLE_FETE.VOIR");
@@ -129,21 +141,14 @@ export function DashboardGlobalPage() {
 
 	return (
 		<div className="w-full space-y-6 p-6">
-			<Breadcrumb
-				items={[
+			<PageHeader
+				breadcrumb={[
 					{ label: "Accueil", to: "/" },
 					{ label: "Tableau de bord global" },
 				]}
+				title="Tableau de bord global"
+				description="Vue consolidée de l'ensemble des activités de GLOBAL SIM GROUP."
 			/>
-
-			<section className="space-y-2">
-				<h1 className="text-3xl font-bold text-foreground">
-					Tableau de bord global
-				</h1>
-				<p className="text-muted-foreground">
-					Vue consolidée de l'ensemble des activités de GLOBAL SIM GROUP.
-				</p>
-			</section>
 
 			{/* Filtres */}
 			<div className="rounded-lg border border-border bg-card p-4">
@@ -262,133 +267,111 @@ export function DashboardGlobalPage() {
 
 						{/* Liste des impayés */}
 						{impayes.length > 0 && (
-							<div className="rounded-lg border border-border overflow-hidden">
-								<div className="overflow-x-auto">
-									<table className="w-full border-collapse text-sm">
-										<thead className="bg-sea-ink text-left text-white">
-											<tr>
-												<th scope="col" className="px-4 py-3 font-medium">
-													CLIENT
-												</th>
-												<th scope="col" className="px-4 py-3 font-medium">
-													RÉFÉRENCE
-												</th>
-												<th
-													scope="col"
-													className="px-4 py-3 text-right font-medium"
-												>
-													PAYÉ
-												</th>
-												<th
-													scope="col"
-													className="px-4 py-3 text-right font-medium"
-												>
-													RESTE
-												</th>
-												<th scope="col" className="px-4 py-3 font-medium">
-													ÉCHÉANCE
-												</th>
-											</tr>
-										</thead>
-										<tbody>
-											{impayes
-												.sort((a, b) => {
-													const dateA = new Date(
-														a.date_echeance || 0,
-													).getTime();
-													const dateB = new Date(
-														b.date_echeance || 0,
-													).getTime();
-													return dateA - dateB;
-												})
-												.slice(0, 10)
-												.map((i) => {
-													const montantPaye = Number(i.montant_paye ?? 0);
-													const montantReste = Number(
-														i.montant_impaye ?? i.reste ?? 0,
-													);
-													const locataire =
-														i.locataire ?? i.nom_locataire ?? i.client ?? "—";
-													const reference = i.reference ?? i.id ?? "—";
-													return (
-														<tr
-															key={reference}
-															className="relative border-t border-border transition-colors hover:bg-accent/40"
-														>
-															<td className="px-4 py-3 font-medium text-foreground">
-																{canVoirFinances ? (
-																	<Link
-																		to="/finances/impayes"
-																		title={`Voir les impayés de ${locataire}`}
-																		className="text-lagoon after:absolute after:inset-0 transition-colors hover:underline"
-																	>
-																		{locataire}
-																	</Link>
-																) : (
-																	locataire
-																)}
-															</td>
-															<td className="px-4 py-3 text-muted-foreground">
-																{reference}
-															</td>
-															<td className="px-4 py-3 text-right text-emerald-600 font-medium">
-																{montantPaye > 0
-																	? formatMontantFCFA(String(montantPaye))
-																	: "0 FCFA"}
-															</td>
-															<td className="px-4 py-3 text-right font-semibold text-destructive">
-																{montantReste > 0
-																	? formatMontantFCFA(String(montantReste))
-																	: "0 FCFA"}
-															</td>
-															<td className="px-4 py-3 text-muted-foreground">
-																{i.date_echeance
-																	? new Date(
-																			i.date_echeance,
-																		).toLocaleDateString("fr-FR")
-																	: "—"}
-															</td>
-														</tr>
-													);
-												})}
-											<tr className="border-t border-border bg-sea-ink/5">
-												<td
-													colSpan={2}
-													className="px-4 py-3 font-semibold text-foreground"
-												>
-													TOTAL ({impayes.length})
-												</td>
-												<td className="px-4 py-3 text-right font-semibold text-emerald-600">
-													{formatMontantFCFA(
-														String(
-															impayes.reduce((sum, i) => {
-																const montant = Number(i.montant_paye ?? 0);
-																return (
-																	sum + (Number.isNaN(montant) ? 0 : montant)
-																);
-															}, 0),
-														),
-													)}
-												</td>
-												<td className="px-4 py-3 text-right font-semibold text-destructive">
-													{formatMontantFCFA(
-														String(
-															impayes.reduce((sum, i) => {
-																const montant = Number(
-																	i.montant_impaye ?? i.reste ?? 0,
-																);
-																return (
-																	sum + (Number.isNaN(montant) ? 0 : montant)
-																);
-															}, 0),
-														),
-													)}
-												</td>
-												<td className="px-4 py-3"></td>
-											</tr>
-										</tbody>
-									</table>
-								</div>
+							<TableShell>
+								<DataTable>
+									<DataTableHead>
+										<tr>
+											<Th>CLIENT</Th>
+											<Th>RÉFÉRENCE</Th>
+											<Th className="text-right">PAYÉ</Th>
+											<Th className="text-right">RESTE</Th>
+											<Th>ÉCHÉANCE</Th>
+										</tr>
+									</DataTableHead>
+									<tbody>
+										{impayes
+											.sort((a, b) => {
+												const dateA = new Date(a.date_echeance || 0).getTime();
+												const dateB = new Date(b.date_echeance || 0).getTime();
+												return dateA - dateB;
+											})
+											.slice(0, 10)
+											.map((i) => {
+												const montantPaye = Number(i.montant_paye ?? 0);
+												const montantReste = Number(
+													i.montant_impaye ?? i.reste ?? 0,
+												);
+												const locataire =
+													i.locataire ?? i.nom_locataire ?? i.client ?? "—";
+												const reference = i.reference ?? i.id ?? "—";
+												return (
+													<Tr
+														key={`${reference}-${locataire}-${i.date_echeance ?? ""}`}
+														className="relative"
+													>
+														<Td className="font-medium text-foreground">
+															{canVoirFinances ? (
+																<Link
+																	to="/finances/impayes"
+																	title={`Voir les impayés de ${locataire}`}
+																	className="text-lagoon after:absolute after:inset-0 transition-colors hover:underline"
+																>
+																	{locataire}
+																</Link>
+															) : (
+																locataire
+															)}
+														</Td>
+														<Td className="text-muted-foreground">
+															{reference}
+														</Td>
+														<Td className="text-right font-medium text-emerald-600">
+															{montantPaye > 0
+																? formatMontantFCFA(String(montantPaye))
+																: "0 FCFA"}
+														</Td>
+														<Td className="text-right font-semibold text-destructive">
+															{montantReste > 0
+																? formatMontantFCFA(String(montantReste))
+																: "0 FCFA"}
+														</Td>
+														<Td className="text-muted-foreground">
+															{i.date_echeance
+																? new Date(i.date_echeance).toLocaleDateString(
+																		"fr-FR",
+																	)
+																: "—"}
+														</Td>
+													</Tr>
+												);
+											})}
+										<tr className="border-t border-border bg-sea-ink/5">
+											<td
+												colSpan={2}
+												className="px-4 py-3 font-semibold text-foreground"
+											>
+												TOTAL ({impayes.length})
+											</td>
+											<td className="px-4 py-3 text-right font-semibold text-emerald-600">
+												{formatMontantFCFA(
+													String(
+														impayes.reduce((sum, i) => {
+															const montant = Number(i.montant_paye ?? 0);
+															return (
+																sum + (Number.isNaN(montant) ? 0 : montant)
+															);
+														}, 0),
+													),
+												)}
+											</td>
+											<td className="px-4 py-3 text-right font-semibold text-destructive">
+												{formatMontantFCFA(
+													String(
+														impayes.reduce((sum, i) => {
+															const montant = Number(
+																i.montant_impaye ?? i.reste ?? 0,
+															);
+															return (
+																sum + (Number.isNaN(montant) ? 0 : montant)
+															);
+														}, 0),
+													),
+												)}
+											</td>
+											<td className="px-4 py-3"></td>
+										</tr>
+									</tbody>
+								</DataTable>
 								{impayes.length > 10 && canVoirFinances && (
 									<Link
 										to="/finances/impayes"
@@ -402,7 +385,7 @@ export function DashboardGlobalPage() {
 										+{impayes.length - 10} autres impayés…
 									</div>
 								)}
-							</div>
+							</TableShell>
 						)}
 					</div>
 
@@ -523,88 +506,72 @@ export function DashboardGlobalPage() {
 								</p>
 							</div>
 						) : (
-							<div className="rounded-lg border border-border overflow-hidden">
-								<div className="overflow-x-auto">
-									<table className="w-full border-collapse text-sm">
-										<thead className="bg-sea-ink text-left text-white">
-											<tr>
-												<th scope="col" className="px-4 py-3 font-medium">
-													CLIENT
-												</th>
-												<th scope="col" className="px-4 py-3 font-medium">
-													DATE
-												</th>
-												<th scope="col" className="px-4 py-3 font-medium">
-													TYPE
-												</th>
-												<th scope="col" className="px-4 py-3 font-medium">
-													STATUT
-												</th>
-											</tr>
-										</thead>
-										<tbody>
-											{reservations
-												.sort(
-													(a, b) =>
-														new Date(
-															a.date_evenement || a.date || 0,
-														).getTime() -
-														new Date(b.date_evenement || b.date || 0).getTime(),
-												)
-												.slice(0, 5)
-												.map((r, idx) => {
-													const idReservation = r.id ?? r.id_reservation;
-													const nom = nomClientReservation(
-														r,
-														reservationsClientsQuery.data,
-													);
-													return (
-														<tr
-															key={idReservation ?? idx}
-															className="relative border-t border-border transition-colors hover:bg-accent/40"
-														>
-															<td className="px-4 py-3 font-medium text-foreground">
-																{canVoirSalleFete && idReservation ? (
-																	<Link
-																		to="/salle-fete/reservations/$id"
-																		params={{ id: idReservation }}
-																		title={`Voir la fiche de la réservation de ${nom}`}
-																		className="text-lagoon after:absolute after:inset-0 transition-colors hover:underline"
-																	>
-																		{nom}
-																	</Link>
-																) : (
-																	nom
-																)}
-															</td>
-															<td className="px-4 py-3 text-muted-foreground">
-																{new Date(
-																	r.date_evenement || r.date || 0,
-																).toLocaleDateString("fr-FR")}
-															</td>
-															<td className="px-4 py-3 text-muted-foreground">
-																{r.type_manifestation}
-															</td>
-															<td className="px-4 py-3">
-																<span
-																	className={cn(
-																		"inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium",
-																		r.statut === "CONFIRMEE"
-																			? "bg-emerald-600/20 text-emerald-600"
-																			: r.statut === "RESERVEE"
-																				? "bg-amber-600/20 text-amber-600"
-																				: "bg-gray-600/20 text-gray-600",
-																	)}
+							<TableShell>
+								<DataTable>
+									<DataTableHead>
+										<tr>
+											<Th>CLIENT</Th>
+											<Th>DATE</Th>
+											<Th>TYPE</Th>
+											<Th>STATUT</Th>
+										</tr>
+									</DataTableHead>
+									<tbody>
+										{reservations
+											.sort(
+												(a, b) =>
+													new Date(a.date_evenement || a.date || 0).getTime() -
+													new Date(b.date_evenement || b.date || 0).getTime(),
+											)
+											.slice(0, 5)
+											.map((r, idx) => {
+												const idReservation = r.id ?? r.id_reservation;
+												const nom = nomClientReservation(
+													r,
+													reservationsClientsQuery.data,
+												);
+												return (
+													<Tr key={idReservation ?? idx}>
+														<Td className="font-medium text-foreground">
+															{canVoirSalleFete && idReservation ? (
+																<Link
+																	to="/salle-fete/reservations/$id"
+																	params={{ id: idReservation }}
+																	title={`Voir la fiche de la réservation de ${nom}`}
+																	className="text-lagoon after:absolute after:inset-0 transition-colors hover:underline"
 																>
-																	{r.statut}
-																</span>
-															</td>
-														</tr>
-													);
-												})}
-										</tbody>
-									</table>
-								</div>
+																	{nom}
+																</Link>
+															) : (
+																nom
+															)}
+														</Td>
+														<Td className="text-muted-foreground">
+															{new Date(
+																r.date_evenement || r.date || 0,
+															).toLocaleDateString("fr-FR")}
+														</Td>
+														<Td className="text-muted-foreground">
+															{r.type_manifestation}
+														</Td>
+														<Td>
+															<Badge
+																variant={
+																	r.statut === "CONFIRMEE"
+																		? "success"
+																		: r.statut === "RESERVEE"
+																			? "warning"
+																			: "neutral"
+																}
+															>
+																{r.statut}
+															</Badge>
+														</Td>
+													</Tr>
+												);
+											})}
+									</tbody>
+								</DataTable>
 								{reservations.length > 5 && canVoirSalleFete && (
 									<Link
 										to="/salle-fete/reservations"
@@ -618,7 +585,7 @@ export function DashboardGlobalPage() {
 										+{reservations.length - 5} autres réservations…
 									</div>
 								)}
-							</div>
+							</TableShell>
 						)}
 					</div>
 

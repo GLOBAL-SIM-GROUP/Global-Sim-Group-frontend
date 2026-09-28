@@ -2,9 +2,11 @@ import { Link } from "@tanstack/react-router";
 import { Pencil, Plus, Power, PowerOff } from "lucide-react";
 import { useState } from "react";
 
-import { Breadcrumb } from "#/components/ui/breadcrumb";
+import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
+import { EmptyState } from "#/components/ui/empty-state";
 import { InputField } from "#/components/ui/input-field";
+import { PageHeader } from "#/components/ui/page-header";
 import {
 	Select,
 	SelectContent,
@@ -12,18 +14,25 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "#/components/ui/select";
+import {
+	DataTable,
+	DataTableHead,
+	TableShell,
+	Td,
+	Th,
+	Tr,
+} from "#/components/ui/table";
 import { useCan } from "#/core/auth";
 import {
 	formatDateISO,
 	formatMontantFCFA,
 } from "#/features/residence/models/format";
-import { cn } from "#/lib/utils";
 
 import { useEmployes, useModifierEmploye } from "../hooks/use-employes";
 import { useServices } from "../hooks/use-services";
 import {
-	EMPLOYE_STATUT_BADGE,
 	EMPLOYE_STATUT_LABELS,
+	EMPLOYE_STATUT_VARIANT,
 	type Employe,
 	type EmployeStatut,
 	filtrerEmployes,
@@ -98,26 +107,19 @@ export function EmployesPage({
 
 	return (
 		<div className="w-full space-y-6 p-6">
-			<Breadcrumb
-				items={[{ label: "Accueil", to: "/" }, { label: "Employés — RH" }]}
+			<PageHeader
+				breadcrumb={[{ label: "Accueil", to: "/" }, { label: "Employés — RH" }]}
+				title="Employés — RH"
+				description="Liste des employés et leur statut."
+				actions={
+					canCreer ? (
+						<Button onClick={() => setFormOuvert(true)}>
+							<Plus className="size-4" aria-hidden />
+							Ajouter un employé
+						</Button>
+					) : undefined
+				}
 			/>
-
-			<div className="flex flex-wrap items-end justify-between gap-4">
-				<section className="space-y-1">
-					<h1 className="text-2xl font-semibold text-foreground">
-						Employés — RH
-					</h1>
-					<p className="text-muted-foreground">
-						Liste des employés et leur statut.
-					</p>
-				</section>
-				{canCreer ? (
-					<Button onClick={() => setFormOuvert(true)}>
-						<Plus className="size-4" aria-hidden />
-						Ajouter un employé
-					</Button>
-				) : null}
-			</div>
 
 			<div className="flex gap-2">
 				<div className="flex-1">
@@ -183,44 +185,25 @@ export function EmployesPage({
 					</Button>
 				</div>
 			) : pagination.total === 0 ? (
-				<div className="rounded-lg border border-border bg-card p-8 text-center text-sm text-muted-foreground">
-					Aucun employé trouvé.
-				</div>
+				<EmptyState title="Aucun employé trouvé." />
 			) : (
-				<div className="overflow-x-auto rounded-lg border border-border bg-card shadow-sm">
-					<table className="w-full border-collapse text-sm">
-						<thead className="bg-sea-ink text-left text-white">
+				<TableShell>
+					<DataTable>
+						<DataTableHead>
 							<tr>
-								<th scope="col" className="px-4 py-3 font-medium">
-									EMPLOYÉ
-								</th>
-								<th scope="col" className="px-4 py-3 font-medium">
-									FONCTION
-								</th>
-								<th scope="col" className="px-4 py-3 font-medium">
-									SERVICE
-								</th>
-								<th scope="col" className="px-4 py-3 font-medium">
-									EMBAUCHE
-								</th>
-								<th scope="col" className="px-4 py-3 text-right font-medium">
-									SALAIRE
-								</th>
-								<th scope="col" className="px-4 py-3 font-medium">
-									STATUT
-								</th>
-								<th scope="col" className="px-4 py-3 text-right font-medium">
-									ACTIONS
-								</th>
+								<Th>EMPLOYÉ</Th>
+								<Th>FONCTION</Th>
+								<Th>SERVICE</Th>
+								<Th>EMBAUCHE</Th>
+								<Th className="text-right">SALAIRE</Th>
+								<Th>STATUT</Th>
+								<Th className="text-right">ACTIONS</Th>
 							</tr>
-						</thead>
+						</DataTableHead>
 						<tbody>
 							{pagination.items.map((employe) => (
-								<tr
-									key={employe.id}
-									className="relative border-t border-border transition-colors hover:bg-accent/40"
-								>
-									<td className="px-4 py-3">
+								<Tr key={employe.id} className="relative">
+									<Td>
 										{/* Toute la ligne ouvre la fiche (stretched link). */}
 										<Link
 											to="/rh/employes/$id"
@@ -230,30 +213,23 @@ export function EmployesPage({
 										>
 											{nomCompletEmploye(employe)}
 										</Link>
-									</td>
-									<td className="px-4 py-3 text-foreground">
-										{employe.fonction}
-									</td>
-									<td className="px-4 py-3 text-muted-foreground">
+									</Td>
+									<Td className="text-foreground">{employe.fonction}</Td>
+									<Td className="text-muted-foreground">
 										{employe.service_libelle ?? "—"}
-									</td>
-									<td className="px-4 py-3 text-muted-foreground">
+									</Td>
+									<Td className="text-muted-foreground">
 										{formatDateISO(employe.date_embauche)}
-									</td>
-									<td className="px-4 py-3 text-right text-foreground">
+									</Td>
+									<Td className="text-right text-foreground">
 										{formatMontantFCFA(employe.salaire_base)}
-									</td>
-									<td className="px-4 py-3">
-										<span
-											className={cn(
-												"inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium",
-												EMPLOYE_STATUT_BADGE[employe.statut],
-											)}
-										>
+									</Td>
+									<Td>
+										<Badge variant={EMPLOYE_STATUT_VARIANT[employe.statut]}>
 											{EMPLOYE_STATUT_LABELS[employe.statut]}
-										</span>
-									</td>
-									<td className="relative z-10 px-4 py-3">
+										</Badge>
+									</Td>
+									<Td className="relative z-10">
 										<div className="flex items-center justify-end gap-1">
 											{canModifier ? (
 												<>
@@ -304,12 +280,12 @@ export function EmployesPage({
 												</>
 											) : null}
 										</div>
-									</td>
-								</tr>
+									</Td>
+								</Tr>
 							))}
 						</tbody>
-					</table>
-				</div>
+					</DataTable>
+				</TableShell>
 			)}
 
 			{pagination.total > 0 ? (

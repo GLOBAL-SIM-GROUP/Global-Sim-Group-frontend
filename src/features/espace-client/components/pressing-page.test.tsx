@@ -73,7 +73,7 @@ describe("PressingPage", () => {
 		render(<PressingPage />);
 
 		expect(
-			screen.getByText("Aucune commande de pressing pour le moment."),
+			screen.getByText("Aucune commande de pressing pour le moment"),
 		).toBeInTheDocument();
 	});
 

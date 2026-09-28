@@ -2,8 +2,8 @@ import { Link } from "@tanstack/react-router";
 import { Plus } from "lucide-react";
 import { useState } from "react";
 
-import { Breadcrumb } from "#/components/ui/breadcrumb";
 import { Button } from "#/components/ui/button";
+import { PageHeader } from "#/components/ui/page-header";
 import { useCan } from "#/core/auth";
 
 import { useCategoriesCharges, useCharges } from "../hooks/use-charges";
@@ -83,42 +83,37 @@ export function ChargesPage({
 
 	return (
 		<div className="w-full space-y-6 p-4 sm:p-6">
-			<Breadcrumb
-				items={[{ label: "Accueil", to: "/" }, { label: "Charges facturées" }]}
-			/>
-
-			<div className="flex flex-wrap items-end justify-between gap-4">
-				<section className="space-y-1">
-					<h1 className="text-2xl font-semibold text-foreground">
-						Charges facturées
-					</h1>
-					<p className="text-muted-foreground">
-						Factures de charges (électricité, eau, autres…) par logement.
-					</p>
-				</section>
-
-				<div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
-					<Button
-						variant="outline"
-						size="sm"
-						asChild
-						className="w-full sm:w-auto"
-					>
-						<Link to="/residence/categories-charges">
-							Catégories de charges
-						</Link>
-					</Button>
-					{canCreer ? (
+			<PageHeader
+				breadcrumb={[
+					{ label: "Accueil", to: "/" },
+					{ label: "Charges facturées" },
+				]}
+				title="Charges facturées"
+				description="Factures de charges (électricité, eau, autres…) par logement."
+				actions={
+					<div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
 						<Button
-							onClick={() => setFormOuvert(true)}
+							variant="outline"
+							size="sm"
+							asChild
 							className="w-full sm:w-auto"
 						>
-							<Plus className="size-4" aria-hidden />
-							Nouvelle charge
+							<Link to="/residence/categories-charges">
+								Catégories de charges
+							</Link>
 						</Button>
-					) : null}
-				</div>
-			</div>
+						{canCreer ? (
+							<Button
+								onClick={() => setFormOuvert(true)}
+								className="w-full sm:w-auto"
+							>
+								<Plus className="size-4" aria-hidden />
+								Nouvelle charge
+							</Button>
+						) : null}
+					</div>
+				}
+			/>
 
 			<ChargeFilters
 				statut={statut}

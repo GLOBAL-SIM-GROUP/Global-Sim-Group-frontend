@@ -2,10 +2,10 @@ import { useForm } from "@tanstack/react-form";
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
 
-import { Breadcrumb } from "#/components/ui/breadcrumb";
 import { Button } from "#/components/ui/button";
 import { InputField } from "#/components/ui/input-field";
 import { Label } from "#/components/ui/label";
+import { PageHeader } from "#/components/ui/page-header";
 import {
 	Select,
 	SelectContent,
@@ -96,22 +96,14 @@ export function ComptesPage() {
 
 	return (
 		<div className="w-full space-y-6 p-6">
-			<Breadcrumb
-				items={[
+			<PageHeader
+				breadcrumb={[
 					{ label: "Accueil", to: "/" },
 					{ label: "Comptes utilisateurs" },
 				]}
+				title="Créer un compte utilisateur"
+				description="Permet à un employé d'accéder à l'application (pointage, consultation, etc.)."
 			/>
-
-			<section className="space-y-1">
-				<h1 className="text-2xl font-semibold text-foreground">
-					Créer un compte utilisateur
-				</h1>
-				<p className="text-muted-foreground">
-					Permet à un employé d'accéder à l'application (pointage, consultation,
-					etc.).
-				</p>
-			</section>
 
 			{!canAdminCreer ? (
 				<div
@@ -273,7 +265,7 @@ export function ComptesPage() {
 						<output
 							className={cn(
 								"block rounded-md border px-4 py-2 text-sm",
-								"border-[#27AE60]/40 bg-[#27AE60]/10 text-[#27AE60]",
+								"border-success/30 bg-success-bg text-success",
 							)}
 						>
 							Compte utilisateur créé avec succès.

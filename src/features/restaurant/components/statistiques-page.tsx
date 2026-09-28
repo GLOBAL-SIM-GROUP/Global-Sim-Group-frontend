@@ -1,9 +1,18 @@
 import { Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 
-import { Breadcrumb } from "#/components/ui/breadcrumb";
 import { Button } from "#/components/ui/button";
+import { EmptyState } from "#/components/ui/empty-state";
 import { Input } from "#/components/ui/input";
+import { PageHeader } from "#/components/ui/page-header";
+import {
+	DataTable,
+	DataTableHead,
+	TableShell,
+	Td,
+	Th,
+	Tr,
+} from "#/components/ui/table";
 import { formatMontantFCFA } from "#/features/residence/models/format";
 
 import { useRapportVentes } from "../hooks/use-commandes";
@@ -53,49 +62,41 @@ export function StatistiquesPage({
 
 	return (
 		<div className="w-full space-y-4 p-3 sm:space-y-6 sm:p-6">
-			<Breadcrumb
-				items={[
+			<PageHeader
+				breadcrumb={[
 					{ label: "Accueil", to: "/" },
 					{ label: "Commandes — Restaurant", to: "/restaurant/commandes" },
 					{ label: "Statistiques — Restaurant" },
 				]}
+				title="Statistiques — Restaurant"
+				description="Chiffre d'affaires et plats les plus vendus."
+				actions={
+					<div className="flex flex-col gap-2 w-full sm:w-auto sm:flex-row sm:items-center sm:gap-2">
+						<Input
+							type="date"
+							value={du}
+							onChange={(event) => changerPeriode({ du: event.target.value })}
+							aria-label="Début de période"
+							className="w-full sm:w-40"
+						/>
+						<Input
+							type="date"
+							value={au}
+							onChange={(event) => changerPeriode({ au: event.target.value })}
+							aria-label="Fin de période"
+							className="w-full sm:w-40"
+						/>
+						<Button
+							variant="outline"
+							size="sm"
+							asChild
+							className="w-full sm:w-auto justify-center"
+						>
+							<Link to="/restaurant/commandes">Commandes</Link>
+						</Button>
+					</div>
+				}
 			/>
-
-			<div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
-				<section className="space-y-1">
-					<h1 className="text-lg font-semibold text-foreground sm:text-2xl">
-						Statistiques — Restaurant
-					</h1>
-					<p className="text-xs text-muted-foreground sm:text-sm">
-						Chiffre d'affaires et plats les plus vendus.
-					</p>
-				</section>
-
-				<div className="flex flex-col gap-2 w-full sm:w-auto sm:flex-row sm:items-center sm:gap-2">
-					<Input
-						type="date"
-						value={du}
-						onChange={(event) => changerPeriode({ du: event.target.value })}
-						aria-label="Début de période"
-						className="w-full sm:w-40"
-					/>
-					<Input
-						type="date"
-						value={au}
-						onChange={(event) => changerPeriode({ au: event.target.value })}
-						aria-label="Fin de période"
-						className="w-full sm:w-40"
-					/>
-					<Button
-						variant="outline"
-						size="sm"
-						asChild
-						className="w-full sm:w-auto justify-center"
-					>
-						<Link to="/restaurant/commandes">Commandes</Link>
-					</Button>
-				</div>
-			</div>
 
 			{rapportQuery.isLoading ? (
 				<p className="text-sm text-muted-foreground">Chargement…</p>
@@ -122,42 +123,32 @@ export function StatistiquesPage({
 							Top des plats les plus vendus
 						</h2>
 						{rapport.length === 0 ? (
-							<p className="rounded-lg border border-border bg-card p-6 text-center text-sm text-muted-foreground">
-								Aucune vente sur la période.
-							</p>
+							<EmptyState title="Aucune vente sur la période." />
 						) : (
-							<div className="overflow-x-auto rounded-lg border border-border bg-card shadow-sm">
-								<table className="w-full border-collapse text-sm">
-									<thead className="bg-sea-ink text-left text-white">
+							<TableShell>
+								<DataTable>
+									<DataTableHead>
 										<tr>
-											<th scope="col" className="px-4 py-3 font-medium">
-												PLAT
-											</th>
-											<th scope="col" className="px-4 py-3 font-medium">
-												QUANTITÉ VENDUE
-											</th>
-											<th scope="col" className="px-4 py-3 font-medium">
-												CHIFFRE D'AFFAIRES
-											</th>
+											<Th>PLAT</Th>
+											<Th>QUANTITÉ VENDUE</Th>
+											<Th>CHIFFRE D'AFFAIRES</Th>
 										</tr>
-									</thead>
+									</DataTableHead>
 									<tbody>
 										{rapport.map((ligne) => (
-											<tr key={ligne.plat} className="border-t border-border">
-												<td className="px-4 py-3 text-foreground">
-													{ligne.plat}
-												</td>
-												<td className="px-4 py-3 text-foreground">
+											<Tr key={ligne.plat}>
+												<Td className="text-foreground">{ligne.plat}</Td>
+												<Td className="text-foreground">
 													{ligne.quantite_vendue}
-												</td>
-												<td className="px-4 py-3 text-foreground">
+												</Td>
+												<Td className="text-foreground">
 													{formatMontantFCFA(ligne.chiffre_affaire)}
-												</td>
-											</tr>
+												</Td>
+											</Tr>
 										))}
 									</tbody>
-								</table>
-							</div>
+								</DataTable>
+							</TableShell>
 						)}
 					</section>
 				</>

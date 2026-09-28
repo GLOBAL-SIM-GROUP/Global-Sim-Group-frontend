@@ -1,8 +1,13 @@
 import { useForm } from "@tanstack/react-form";
 import { Loader2 } from "lucide-react";
-import { Dialog } from "radix-ui";
 
 import { Button } from "#/components/ui/button";
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogTitle,
+} from "#/components/ui/dialog";
 import { InputField } from "#/components/ui/input-field";
 import { Label } from "#/components/ui/label";
 import {
@@ -63,29 +68,26 @@ export function OffreFormDialog({
 	onSaved,
 }: OffreFormDialogProps) {
 	return (
-		<Dialog.Root open={open} onOpenChange={onOpenChange}>
-			<Dialog.Portal>
-				<Dialog.Overlay className="fixed inset-0 z-50 bg-black/50" />
-				<Dialog.Content className="fixed top-1/2 left-1/2 z-50 max-h-[90vh] w-[calc(100vw-2rem)] max-w-lg -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-lg border border-border bg-card p-6 shadow-lg">
-					<Dialog.Title className="text-base font-semibold text-foreground">
-						{offre ? "Modifier l'offre" : "Nouvelle offre"}
-					</Dialog.Title>
-					<Dialog.Description className="mt-1 text-sm text-muted-foreground">
-						{offre
-							? `${offre.code} — seuls les champs commerciaux sont modifiables (la couverture est figée).`
-							: "Quota prépayé vendu en une fois — pressing (prestation exacte) ou restauration (catégorie/plafond optionnels)."}
-					</Dialog.Description>
-					{open ? (
-						<OffreForm
-							key={offre?.id_offre ?? "nouvelle"}
-							offre={offre}
-							onOpenChange={onOpenChange}
-							onSaved={onSaved}
-						/>
-					) : null}
-				</Dialog.Content>
-			</Dialog.Portal>
-		</Dialog.Root>
+		<Dialog open={open} onOpenChange={onOpenChange}>
+			<DialogContent className="max-h-[90vh] max-w-lg overflow-y-auto">
+				<DialogTitle>
+					{offre ? "Modifier l'offre" : "Nouvelle offre"}
+				</DialogTitle>
+				<DialogDescription>
+					{offre
+						? `${offre.code} — seuls les champs commerciaux sont modifiables (la couverture est figée).`
+						: "Quota prépayé vendu en une fois — pressing (prestation exacte) ou restauration (catégorie/plafond optionnels)."}
+				</DialogDescription>
+				{open ? (
+					<OffreForm
+						key={offre?.id_offre ?? "nouvelle"}
+						offre={offre}
+						onOpenChange={onOpenChange}
+						onSaved={onSaved}
+					/>
+				) : null}
+			</DialogContent>
+		</Dialog>
 	);
 }
 

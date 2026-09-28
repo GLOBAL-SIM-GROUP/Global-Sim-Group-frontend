@@ -50,8 +50,15 @@ export function UserMenu({
 					aria-label="Menu utilisateur"
 				>
 					{avatar}
+					{/* Variante navbar : texte masqué à partir de `xl` — la rangée de
+					    liens de la navbar client occupe toute la largeur ; l'avatar
+					    seul suffit (login/rôle restent visibles dans le menu
+					    déroulant et dans le panneau mobile <xl). */}
 					<div
-						className={cn("min-w-0", variant === "navbar" && "hidden sm:block")}
+						className={cn(
+							"min-w-0",
+							variant === "navbar" && "hidden sm:block xl:hidden",
+						)}
 					>
 						<p
 							className={cn(

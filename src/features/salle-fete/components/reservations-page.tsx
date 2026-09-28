@@ -2,9 +2,12 @@ import { Link } from "@tanstack/react-router";
 import { BadgeCheck, CheckCheck, Pencil, Plus, X } from "lucide-react";
 import { useState } from "react";
 
-import { Breadcrumb } from "#/components/ui/breadcrumb";
+import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
+import { Dialog, DialogContent, DialogTitle } from "#/components/ui/dialog";
+import { EmptyState } from "#/components/ui/empty-state";
 import { Input } from "#/components/ui/input";
+import { PageHeader } from "#/components/ui/page-header";
 import {
 	Select,
 	SelectContent,
@@ -12,10 +15,17 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "#/components/ui/select";
+import {
+	DataTable,
+	DataTableHead,
+	TableShell,
+	Td,
+	Th,
+	Tr,
+} from "#/components/ui/table";
 import { useCan } from "#/core/auth";
 import { useMoyensPaiement } from "#/features/residence/hooks/use-moyens-paiement";
 import { formatMontantFCFA } from "#/features/residence/models/format";
-import { cn } from "#/lib/utils";
 
 import {
 	useAnnulerReservation,
@@ -26,8 +36,8 @@ import {
 import {
 	filtrerReservations,
 	paginerReservations,
-	RESERVATION_STATUT_BADGE,
 	RESERVATION_STATUT_LABELS,
+	RESERVATION_STATUT_VARIANT,
 	type ReservationFete,
 	type ReservationStatut,
 	type ReservationStatutFiltre,
@@ -126,30 +136,22 @@ export function ReservationsPage({
 
 	return (
 		<div className="w-full space-y-6 p-6">
-			<Breadcrumb
-				items={[
+			<PageHeader
+				breadcrumb={[
 					{ label: "Accueil", to: "/" },
 					{ label: "Réservations — Salle de fête" },
 				]}
+				title="Réservations — Salle de fête"
+				description="Liste des réservations de la salle et leur statut."
+				actions={
+					canCreer ? (
+						<Button onClick={() => setFormOuvert(true)}>
+							<Plus className="size-4" aria-hidden />
+							Nouvelle réservation
+						</Button>
+					) : undefined
+				}
 			/>
-
-			<div className="flex flex-wrap items-end justify-between gap-4">
-				<section className="space-y-1">
-					<h1 className="text-2xl font-semibold text-foreground">
-						Réservations — Salle de fête
-					</h1>
-					<p className="text-muted-foreground">
-						Liste des réservations de la salle et leur statut.
-					</p>
-				</section>
-
-				{canCreer ? (
-					<Button onClick={() => setFormOuvert(true)}>
-						<Plus className="size-4" aria-hidden />
-						Nouvelle réservation
-					</Button>
-				) : null}
-			</div>
 
 			<div className="flex flex-wrap items-center gap-3 rounded-lg border border-border bg-card p-4 shadow-sm">
 				<Select
@@ -212,47 +214,26 @@ export function ReservationsPage({
 					</Button>
 				</div>
 			) : pagination.items.length === 0 ? (
-				<div className="rounded-lg border border-border bg-card p-8 text-center text-sm text-muted-foreground">
-					Aucune réservation trouvée.
-				</div>
+				<EmptyState title="Aucune réservation trouvée." />
 			) : (
-				<div className="overflow-x-auto rounded-lg border border-border bg-card shadow-sm">
-					<table className="w-full border-collapse text-sm">
-						<thead className="bg-sea-ink text-left text-white">
+				<TableShell>
+					<DataTable>
+						<DataTableHead>
 							<tr>
-								<th scope="col" className="px-4 py-3 font-medium">
-									CLIENT
-								</th>
-								<th scope="col" className="px-4 py-3 font-medium">
-									DATE
-								</th>
-								<th scope="col" className="px-4 py-3 font-medium">
-									MANIFESTATION
-								</th>
-								<th scope="col" className="px-4 py-3 font-medium">
-									TARIF
-								</th>
-								<th scope="col" className="px-4 py-3 font-medium">
-									ACOMPTE
-								</th>
-								<th scope="col" className="px-4 py-3 font-medium">
-									SOLDE
-								</th>
-								<th scope="col" className="px-4 py-3 font-medium">
-									STATUT
-								</th>
-								<th scope="col" className="px-4 py-3 text-right font-medium">
-									ACTIONS
-								</th>
+								<Th>CLIENT</Th>
+								<Th>DATE</Th>
+								<Th>MANIFESTATION</Th>
+								<Th>TARIF</Th>
+								<Th>ACOMPTE</Th>
+								<Th>SOLDE</Th>
+								<Th>STATUT</Th>
+								<Th className="text-right">ACTIONS</Th>
 							</tr>
-						</thead>
+						</DataTableHead>
 						<tbody>
 							{pagination.items.map((reservation) => (
-								<tr
-									key={reservation.id}
-									className="relative border-t border-border transition-colors hover:bg-accent/40"
-								>
-									<td className="px-4 py-3">
+								<Tr key={reservation.id} className="relative">
+									<Td>
 										{/* Toute la ligne ouvre la fiche (stretched link) ; la cellule
 										    ACTIONS repasse au-dessus via `relative z-10`. */}
 										<Link
@@ -263,34 +244,31 @@ export function ReservationsPage({
 										>
 											{reservation.nom_client ?? "—"}
 										</Link>
-									</td>
-									<td className="px-4 py-3 text-muted-foreground">
+									</Td>
+									<Td className="text-muted-foreground">
 										{reservation.date_evenement}{" "}
 										{reservation.heure_debut?.slice(0, 5)}
-									</td>
-									<td className="px-4 py-3 text-foreground">
+									</Td>
+									<Td className="text-foreground">
 										{reservation.type_manifestation}
-									</td>
-									<td className="px-4 py-3 text-foreground">
+									</Td>
+									<Td className="text-foreground">
 										{formatMontantFCFA(reservation.tarif)}
-									</td>
-									<td className="px-4 py-3 text-foreground">
+									</Td>
+									<Td className="text-foreground">
 										{formatMontantFCFA(reservation.acompte)}
-									</td>
-									<td className="px-4 py-3 text-muted-foreground">
+									</Td>
+									<Td className="text-muted-foreground">
 										{formatMontantFCFA(reservation.solde)}
-									</td>
-									<td className="px-4 py-3">
-										<span
-											className={cn(
-												"inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium",
-												RESERVATION_STATUT_BADGE[reservation.statut],
-											)}
+									</Td>
+									<Td>
+										<Badge
+											variant={RESERVATION_STATUT_VARIANT[reservation.statut]}
 										>
 											{RESERVATION_STATUT_LABELS[reservation.statut]}
-										</span>
-									</td>
-									<td className="relative z-10 px-4 py-3">
+										</Badge>
+									</Td>
+									<Td className="relative z-10">
 										<div className="flex items-center justify-end gap-1">
 											{canValider && reservation.statut === "EN_ATTENTE" ? (
 												<Button
@@ -378,12 +356,12 @@ export function ReservationsPage({
 												</Button>
 											) : null}
 										</div>
-									</td>
-								</tr>
+									</Td>
+								</Tr>
 							))}
 						</tbody>
-					</table>
-				</div>
+					</DataTable>
+				</TableShell>
 			)}
 
 			{pagination.total > 0 ? (
@@ -425,14 +403,19 @@ export function ReservationsPage({
 				onSaved={fermerFormulaire}
 			/>
 
-			{aPayer ? (
-				<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-6">
-					<div className="w-full max-w-md rounded-lg border border-border bg-card p-6 shadow-lg">
-						<h3 className="text-base font-semibold text-foreground">
-							{aPayer.mode === "confirmer"
-								? "Confirmer la réservation"
-								: "Réaliser la réservation"}
-						</h3>
+			<Dialog
+				open={aPayer !== null}
+				onOpenChange={(ouvert) => {
+					if (!ouvert) setAPayer(null);
+				}}
+			>
+				<DialogContent className="max-w-md">
+					<DialogTitle>
+						{aPayer?.mode === "confirmer"
+							? "Confirmer la réservation"
+							: "Réaliser la réservation"}
+					</DialogTitle>
+					{aPayer ? (
 						<div className="mt-4">
 							<PaiementDialog
 								titre={aPayer.mode === "confirmer" ? "Confirmer" : "Réaliser"}
@@ -456,9 +439,9 @@ export function ReservationsPage({
 								}}
 							/>
 						</div>
-					</div>
-				</div>
-			) : null}
+					) : null}
+				</DialogContent>
+			</Dialog>
 
 			<ValiderReservationDialog
 				key={aValider?.id ?? "valider"}

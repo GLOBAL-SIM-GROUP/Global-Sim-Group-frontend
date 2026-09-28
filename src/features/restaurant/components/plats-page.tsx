@@ -8,8 +8,9 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 
-import { Breadcrumb } from "#/components/ui/breadcrumb";
 import { Button } from "#/components/ui/button";
+import { EmptyState } from "#/components/ui/empty-state";
+import { PageHeader } from "#/components/ui/page-header";
 import {
 	Select,
 	SelectContent,
@@ -85,52 +86,44 @@ export function PlatsPage({ initialSearch, onSearchChange }: PlatsPageProps) {
 
 	return (
 		<div className="w-full space-y-4 p-3 sm:space-y-6 sm:p-6">
-			<Breadcrumb
-				items={[
+			<PageHeader
+				breadcrumb={[
 					{ label: "Accueil", to: "/" },
 					{ label: "Commandes — Restaurant", to: "/restaurant/commandes" },
 					{ label: "Plats — Restaurant" },
 				]}
-			/>
-
-			<div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
-				<section className="space-y-1">
-					<h1 className="text-lg font-semibold text-foreground sm:text-2xl">
-						Plats — Restaurant
-					</h1>
-					<p className="text-xs text-muted-foreground sm:text-sm">
-						Carte des plats et boissons du menu.
-					</p>
-				</section>
-
-				<div className="flex flex-col gap-2 w-full sm:w-auto sm:flex-row sm:items-center sm:gap-2">
-					<Button
-						variant="outline"
-						size="sm"
-						asChild
-						className="w-full sm:w-auto justify-center"
-					>
-						<Link to="/restaurant/commandes">Commandes</Link>
-					</Button>
-					<Button
-						variant="outline"
-						size="sm"
-						asChild
-						className="w-full sm:w-auto justify-center"
-					>
-						<Link to="/restaurant/statistiques">Statistiques</Link>
-					</Button>
-					{canCreer ? (
+				title="Plats — Restaurant"
+				description="Carte des plats et boissons du menu."
+				actions={
+					<div className="flex flex-col gap-2 w-full sm:w-auto sm:flex-row sm:items-center sm:gap-2">
 						<Button
-							onClick={() => setFormOuvert(true)}
+							variant="outline"
+							size="sm"
+							asChild
 							className="w-full sm:w-auto justify-center"
 						>
-							<Plus className="size-4" aria-hidden />
-							Ajouter un plat
+							<Link to="/restaurant/commandes">Commandes</Link>
 						</Button>
-					) : null}
-				</div>
-			</div>
+						<Button
+							variant="outline"
+							size="sm"
+							asChild
+							className="w-full sm:w-auto justify-center"
+						>
+							<Link to="/restaurant/statistiques">Statistiques</Link>
+						</Button>
+						{canCreer ? (
+							<Button
+								onClick={() => setFormOuvert(true)}
+								className="w-full sm:w-auto justify-center"
+							>
+								<Plus className="size-4" aria-hidden />
+								Ajouter un plat
+							</Button>
+						) : null}
+					</div>
+				}
+			/>
 
 			<div className="flex flex-col gap-3 rounded-lg border border-border bg-card p-3 shadow-sm sm:flex-row sm:items-center sm:p-4">
 				<Select
@@ -180,9 +173,7 @@ export function PlatsPage({ initialSearch, onSearchChange }: PlatsPageProps) {
 					</Button>
 				</div>
 			) : pagination.items.length === 0 ? (
-				<div className="rounded-lg border border-border bg-card p-8 text-center text-sm text-muted-foreground">
-					Aucun plat trouvé.
-				</div>
+				<EmptyState title="Aucun plat trouvé." />
 			) : (
 				<div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
 					{pagination.items.map((plat) => (

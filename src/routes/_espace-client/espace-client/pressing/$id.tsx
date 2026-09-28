@@ -4,8 +4,8 @@ import { PressingDetailPage } from "#/features/espace-client/components/pressing
 
 /**
  * Détail d'une commande de pressing de l'espace client
- * (`/espace-client/pressing/$id`). Cf. `pressing/index.tsx` pour la réserve
- * sur l'accès backend (`RESIDENT.VOIR`).
+ * (`/espace-client/pressing/$id`). Cf. `pressing/index.tsx` — gardé par
+ * `PORTAIL.VOIR`, accessible à un compte CLIENT (vérifié en direct 2026-09-27).
  */
 export const Route = createFileRoute(
 	"/_espace-client/espace-client/pressing/$id",

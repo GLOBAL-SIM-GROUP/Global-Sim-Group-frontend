@@ -3,7 +3,7 @@ import { Outlet } from "@tanstack/react-router";
 import { SiteFooter } from "#/components/site-footer";
 
 import { AppBackground } from "./app-background";
-import { ClientNavbar } from "./client-navbar";
+import { ClientNavbar, MobileTabBar } from "./client-navbar";
 
 /**
  * Layout de l'espace client (comptes rôle CLIENT) — navbar horizontale
@@ -16,6 +16,10 @@ import { ClientNavbar } from "./client-navbar";
  * tel quel : ses halos sont excentrés à droite pour éviter la sidebar
  * staff/résident, absente ici — sans elle, le fond s'étale simplement sur
  * toute la largeur.
+ *
+ * `MobileTabBar` (barre d'onglets basse, `sm:hidden`) complète `ClientNavbar`
+ * sur téléphone — les pages gardent leur propre `pb-16`/`pb-28` pour ne pas
+ * passer sous cette barre fixe.
  */
 export function ClientShell() {
 	return (
@@ -28,6 +32,7 @@ export function ClientShell() {
 			<div className="relative z-10 mt-10">
 				<SiteFooter variant="client" />
 			</div>
+			<MobileTabBar />
 		</div>
 	);
 }

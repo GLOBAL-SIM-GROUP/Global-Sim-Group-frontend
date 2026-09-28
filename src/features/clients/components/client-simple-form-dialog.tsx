@@ -1,9 +1,14 @@
 import { useForm } from "@tanstack/react-form";
 import { Loader2 } from "lucide-react";
-import { Dialog } from "radix-ui";
 import { useState } from "react";
 
 import { Button } from "#/components/ui/button";
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogTitle,
+} from "#/components/ui/dialog";
 import { InputField } from "#/components/ui/input-field";
 import { getErrorMessageForCode, toApiError } from "#/core/api";
 
@@ -64,104 +69,99 @@ export function ClientSimpleFormDialog({
 	});
 
 	return (
-		<Dialog.Root
+		<Dialog
 			open={open}
 			onOpenChange={(next) => {
 				if (!next) form.reset();
 				onOpenChange(next);
 			}}
 		>
-			<Dialog.Portal>
-				<Dialog.Overlay className="fixed inset-0 z-50 bg-black/50" />
-				<Dialog.Content className="fixed top-1/2 left-1/2 z-50 w-[calc(100vw-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-lg border border-border bg-card p-6 shadow-lg">
-					<Dialog.Title className="text-base font-semibold text-foreground">
-						Nouveau client
-					</Dialog.Title>
-					<Dialog.Description className="mt-1 text-sm text-muted-foreground">
-						Client de passage — pour passer une commande au pressing, au
-						restaurant ou à la boutique.
-					</Dialog.Description>
+			<DialogContent className="max-w-md">
+				<DialogTitle>Nouveau client</DialogTitle>
+				<DialogDescription>
+					Client de passage — pour passer une commande au pressing, au
+					restaurant ou à la boutique.
+				</DialogDescription>
 
-					<form
-						className="mt-4 space-y-4"
-						onSubmit={(event) => {
-							event.preventDefault();
-							event.stopPropagation();
-							void form.handleSubmit();
-						}}
-					>
-						<form.Field name="nom">
-							{(field) => (
-								<InputField
-									id={field.name}
-									name={field.name}
-									label="Nom"
-									autoComplete="off"
-									value={field.state.value}
-									onBlur={field.handleBlur}
-									onChange={(event) => field.handleChange(event.target.value)}
-									error={field.state.meta.errors[0]}
-								/>
-							)}
-						</form.Field>
+				<form
+					className="mt-4 space-y-4"
+					onSubmit={(event) => {
+						event.preventDefault();
+						event.stopPropagation();
+						void form.handleSubmit();
+					}}
+				>
+					<form.Field name="nom">
+						{(field) => (
+							<InputField
+								id={field.name}
+								name={field.name}
+								label="Nom"
+								autoComplete="off"
+								value={field.state.value}
+								onBlur={field.handleBlur}
+								onChange={(event) => field.handleChange(event.target.value)}
+								error={field.state.meta.errors[0]}
+							/>
+						)}
+					</form.Field>
 
-						<form.Field name="prenoms">
-							{(field) => (
-								<InputField
-									id={field.name}
-									name={field.name}
-									label="Prénom(s) (optionnel)"
-									autoComplete="off"
-									value={field.state.value}
-									onBlur={field.handleBlur}
-									onChange={(event) => field.handleChange(event.target.value)}
-									error={field.state.meta.errors[0]}
-								/>
-							)}
-						</form.Field>
+					<form.Field name="prenoms">
+						{(field) => (
+							<InputField
+								id={field.name}
+								name={field.name}
+								label="Prénom(s) (optionnel)"
+								autoComplete="off"
+								value={field.state.value}
+								onBlur={field.handleBlur}
+								onChange={(event) => field.handleChange(event.target.value)}
+								error={field.state.meta.errors[0]}
+							/>
+						)}
+					</form.Field>
 
-						<form.Field name="telPrincipal">
-							{(field) => (
-								<InputField
-									id={field.name}
-									name={field.name}
-									label="Téléphone"
-									placeholder="ex : +2250700000000"
-									inputMode="tel"
-									autoComplete="off"
-									value={field.state.value}
-									onBlur={field.handleBlur}
-									onChange={(event) => field.handleChange(event.target.value)}
-									error={field.state.meta.errors[0]}
-								/>
-							)}
-						</form.Field>
+					<form.Field name="telPrincipal">
+						{(field) => (
+							<InputField
+								id={field.name}
+								name={field.name}
+								label="Téléphone"
+								placeholder="ex : +2250700000000"
+								inputMode="tel"
+								autoComplete="off"
+								value={field.state.value}
+								onBlur={field.handleBlur}
+								onChange={(event) => field.handleChange(event.target.value)}
+								error={field.state.meta.errors[0]}
+							/>
+						)}
+					</form.Field>
 
-						{globalError ? (
-							<p role="alert" className="text-sm font-medium text-destructive">
-								{globalError}
-							</p>
-						) : null}
+					{globalError ? (
+						<p role="alert" className="text-sm font-medium text-destructive">
+							{globalError}
+						</p>
+					) : null}
 
-						<div className="flex items-center justify-end gap-2 pt-2">
-							<Button
-								type="button"
-								variant="ghost"
-								disabled={createMutation.isPending}
-								onClick={() => onOpenChange(false)}
-							>
-								Annuler
-							</Button>
-							<Button type="submit" disabled={createMutation.isPending}>
-								{createMutation.isPending ? (
-									<Loader2 className="size-4 animate-spin" aria-hidden />
-								) : null}
-								Enregistrer
-							</Button>
-						</div>
-					</form>
-				</Dialog.Content>
-			</Dialog.Portal>
-		</Dialog.Root>
+					<div className="flex items-center justify-end gap-2 pt-2">
+						<Button
+							type="button"
+							variant="ghost"
+							disabled={createMutation.isPending}
+							onClick={() => onOpenChange(false)}
+						>
+							Annuler
+						</Button>
+						<Button type="submit" disabled={createMutation.isPending}>
+							{createMutation.isPending ? (
+								<Loader2 className="size-4 animate-spin" aria-hidden />
+							) : null}
+							Enregistrer
+						</Button>
+					</div>
+				</form>
+			</DialogContent>
+		</Dialog>
 	);
 }

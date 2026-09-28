@@ -1,14 +1,28 @@
 import { useForm } from "@tanstack/react-form";
 import { Loader2, Plus, Power, PowerOff } from "lucide-react";
-import { Dialog } from "radix-ui";
 import { useState } from "react";
 
-import { Breadcrumb } from "#/components/ui/breadcrumb";
+import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogTitle,
+} from "#/components/ui/dialog";
+import { EmptyState } from "#/components/ui/empty-state";
 import { InputField } from "#/components/ui/input-field";
+import { PageHeader } from "#/components/ui/page-header";
+import {
+	DataTable,
+	DataTableHead,
+	TableShell,
+	Td,
+	Th,
+	Tr,
+} from "#/components/ui/table";
 import { getErrorMessageForCode, toApiError } from "#/core/api";
 import { useCan } from "#/core/auth";
-import { cn } from "#/lib/utils";
 
 import {
 	useCreerMoyenPaiement,
@@ -51,62 +65,57 @@ function MoyenPaiementFormDialog({
 		},
 	});
 	return (
-		<Dialog.Root open={open} onOpenChange={onOpenChange}>
-			<Dialog.Portal>
-				<Dialog.Overlay className="fixed inset-0 z-50 bg-black/50" />
-				<Dialog.Content className="fixed top-1/2 left-1/2 z-50 w-[calc(100vw-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-lg border border-border bg-card p-6 shadow-lg">
-					<Dialog.Title className="text-base font-semibold text-foreground">
-						Ajouter un moyen de paiement
-					</Dialog.Title>
-					<Dialog.Description className="mt-1 text-sm text-muted-foreground">
-						Mode de règlement proposé lors des encaissements.
-					</Dialog.Description>
-					<form
-						className="mt-4 space-y-4"
-						onSubmit={(event) => {
-							event.preventDefault();
-							event.stopPropagation();
-							void form.handleSubmit();
-						}}
-					>
-						<form.Field name="libelle">
-							{(field) => (
-								<InputField
-									id={field.name}
-									name={field.name}
-									label="Libellé"
-									placeholder="ex : Mobile Money"
-									value={field.state.value}
-									onBlur={field.handleBlur}
-									onChange={(event) => field.handleChange(event.target.value)}
-									error={field.state.meta.errors[0]}
-								/>
-							)}
-						</form.Field>
-						{globalError ? (
-							<p role="alert" className="text-sm font-medium text-destructive">
-								{globalError}
-							</p>
-						) : null}
-						<div className="flex items-center justify-end gap-2 pt-2">
-							<Button
-								type="button"
-								variant="ghost"
-								onClick={() => onOpenChange(false)}
-							>
-								Annuler
-							</Button>
-							<Button type="submit" disabled={createMutation.isPending}>
-								{createMutation.isPending ? (
-									<Loader2 className="size-4 animate-spin" aria-hidden />
-								) : null}
-								Enregistrer
-							</Button>
-						</div>
-					</form>
-				</Dialog.Content>
-			</Dialog.Portal>
-		</Dialog.Root>
+		<Dialog open={open} onOpenChange={onOpenChange}>
+			<DialogContent className="max-w-md">
+				<DialogTitle>Ajouter un moyen de paiement</DialogTitle>
+				<DialogDescription>
+					Mode de règlement proposé lors des encaissements.
+				</DialogDescription>
+				<form
+					className="mt-4 space-y-4"
+					onSubmit={(event) => {
+						event.preventDefault();
+						event.stopPropagation();
+						void form.handleSubmit();
+					}}
+				>
+					<form.Field name="libelle">
+						{(field) => (
+							<InputField
+								id={field.name}
+								name={field.name}
+								label="Libellé"
+								placeholder="ex : Mobile Money"
+								value={field.state.value}
+								onBlur={field.handleBlur}
+								onChange={(event) => field.handleChange(event.target.value)}
+								error={field.state.meta.errors[0]}
+							/>
+						)}
+					</form.Field>
+					{globalError ? (
+						<p role="alert" className="text-sm font-medium text-destructive">
+							{globalError}
+						</p>
+					) : null}
+					<div className="flex items-center justify-end gap-2 pt-2">
+						<Button
+							type="button"
+							variant="ghost"
+							onClick={() => onOpenChange(false)}
+						>
+							Annuler
+						</Button>
+						<Button type="submit" disabled={createMutation.isPending}>
+							{createMutation.isPending ? (
+								<Loader2 className="size-4 animate-spin" aria-hidden />
+							) : null}
+							Enregistrer
+						</Button>
+					</div>
+				</form>
+			</DialogContent>
+		</Dialog>
 	);
 }
 
@@ -132,26 +141,22 @@ export function MoyensPaiementPage() {
 
 	return (
 		<div className="w-full space-y-6 p-6">
-			<Breadcrumb
-				items={[{ label: "Accueil", to: "/" }, { label: "Moyens de paiement" }]}
+			<PageHeader
+				breadcrumb={[
+					{ label: "Accueil", to: "/" },
+					{ label: "Moyens de paiement" },
+				]}
+				title="Moyens de paiement"
+				description="Modes de règlement proposés lors des encaissements."
+				actions={
+					canCreer ? (
+						<Button onClick={() => setFormOuvert(true)}>
+							<Plus className="size-4" aria-hidden />
+							Ajouter un moyen de paiement
+						</Button>
+					) : undefined
+				}
 			/>
-
-			<div className="flex flex-wrap items-end justify-between gap-4">
-				<section className="space-y-1">
-					<h1 className="text-2xl font-semibold text-foreground">
-						Moyens de paiement
-					</h1>
-					<p className="text-muted-foreground">
-						Modes de règlement proposés lors des encaissements.
-					</p>
-				</section>
-				{canCreer ? (
-					<Button onClick={() => setFormOuvert(true)}>
-						<Plus className="size-4" aria-hidden />
-						Ajouter un moyen de paiement
-					</Button>
-				) : null}
-			</div>
 
 			{moyensQuery.isLoading ? (
 				<p className="text-sm text-muted-foreground">Chargement…</p>
@@ -170,50 +175,30 @@ export function MoyensPaiementPage() {
 					</Button>
 				</div>
 			) : (moyensQuery.data ?? []).length === 0 ? (
-				<div className="rounded-lg border border-border bg-card p-8 text-center text-sm text-muted-foreground">
-					Aucun moyen de paiement trouvé.
-				</div>
+				<EmptyState title="Aucun moyen de paiement trouvé." />
 			) : (
-				<div className="overflow-x-auto rounded-lg border border-border bg-card shadow-sm">
-					<table className="w-full border-collapse text-sm">
-						<thead className="bg-sea-ink text-left text-white">
+				<TableShell>
+					<DataTable>
+						<DataTableHead>
 							<tr>
-								<th scope="col" className="px-4 py-3 font-medium">
-									LIBELLÉ
-								</th>
-								<th scope="col" className="px-4 py-3 font-medium">
-									ACTIF
-								</th>
-								{canModifier ? (
-									<th scope="col" className="px-4 py-3 text-right font-medium">
-										ACTIONS
-									</th>
-								) : null}
+								<Th>LIBELLÉ</Th>
+								<Th>ACTIF</Th>
+								{canModifier ? <Th className="text-right">ACTIONS</Th> : null}
 							</tr>
-						</thead>
+						</DataTableHead>
 						<tbody>
 							{(moyensQuery.data ?? []).map((moyen) => (
-								<tr
-									key={moyen.id}
-									className="border-t border-border transition-colors hover:bg-accent/40"
-								>
-									<td className="px-4 py-3 font-medium text-foreground">
+								<Tr key={moyen.id}>
+									<Td className="font-medium text-foreground">
 										{moyen.libelle}
-									</td>
-									<td className="px-4 py-3">
-										<span
-											className={cn(
-												"inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium",
-												moyen.actif
-													? "bg-[#27AE60] text-white"
-													: "bg-[#95A5A6] text-white",
-											)}
-										>
+									</Td>
+									<Td>
+										<Badge variant={moyen.actif ? "success" : "neutral"}>
 											{moyen.actif ? "Actif" : "Inactif"}
-										</span>
-									</td>
+										</Badge>
+									</Td>
 									{canModifier ? (
-										<td className="px-4 py-3">
+										<Td>
 											<div className="flex items-center justify-end gap-1">
 												<Button
 													variant="ghost"
@@ -237,13 +222,13 @@ export function MoyensPaiementPage() {
 													</span>
 												</Button>
 											</div>
-										</td>
+										</Td>
 									) : null}
-								</tr>
+								</Tr>
 							))}
 						</tbody>
-					</table>
-				</div>
+					</DataTable>
+				</TableShell>
 			)}
 
 			<MoyenPaiementFormDialog

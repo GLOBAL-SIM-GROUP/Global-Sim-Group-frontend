@@ -2,8 +2,9 @@ import { Link } from "@tanstack/react-router";
 import { Pencil } from "lucide-react";
 import { useMemo, useState } from "react";
 
-import { Breadcrumb } from "#/components/ui/breadcrumb";
+import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
+import { PageHeader } from "#/components/ui/page-header";
 import { useCan } from "#/core/auth";
 import { cn } from "#/lib/utils";
 
@@ -15,9 +16,9 @@ import { useSejours } from "../hooks/use-sejours";
 import { formatMontantFCFA } from "../models/format";
 import {
 	LOGEMENT_STATUT_LABELS,
+	LOGEMENT_STATUT_VARIANT,
 	LOGEMENT_TYPE_LABELS,
 	type Logement,
-	type LogementStatut,
 	OCCUPATION_LABELS,
 } from "../models/logements";
 import { LogementChargesTab } from "./logement-charges-tab";
@@ -40,16 +41,6 @@ interface LogementFichePageProps {
 		maj: (prev: LogementFicheSearch) => LogementFicheSearch,
 	) => void;
 }
-
-/** Couleurs de badge par statut (mêmes teintes que la liste des logements). */
-const STATUT_BADGE: Record<LogementStatut, string> = {
-	DISPONIBLE: "bg-[#27AE60] text-white",
-	RESERVE: "bg-[#E67E22] text-white",
-	OCCUPE: "bg-[#2980B9] text-white",
-	EN_NETTOYAGE: "bg-[#1ABC9C] text-white",
-	EN_MAINTENANCE: "bg-[#E74C3C] text-white",
-	INDISPONIBLE: "bg-[#95A5A6] text-white",
-};
 
 /** Ligne lecture seule du bandeau d'informations. */
 function Ligne({ label, valeur }: { label: string; valeur: string }) {
@@ -150,8 +141,8 @@ export function LogementFichePage({
 
 	return (
 		<div className="w-full space-y-6 p-6">
-			<Breadcrumb
-				items={[
+			<PageHeader
+				breadcrumb={[
 					{ label: "Accueil", to: "/" },
 					{ label: "Bâtiments", to: "/residence/batiments" },
 					{
@@ -161,35 +152,29 @@ export function LogementFichePage({
 					},
 					{ label: logement.numero },
 				]}
-			/>
-
-			<div className="flex flex-wrap items-end justify-between gap-4">
-				<section className="space-y-1">
-					<h1 className="text-2xl font-semibold text-foreground">
-						Fiche logement — {logement.numero}
-					</h1>
-					<p className="text-muted-foreground">
-						{batiment ? `${batiment.nom} (bâtiment ${batiment.code})` : "—"}
-					</p>
-				</section>
-
-				<div className="flex items-center gap-2">
-					<Button variant="outline" asChild>
-						<Link
-							to="/residence/logements"
-							search={{ batiment: logement.id_batiment }}
-						>
-							Retour aux logements
-						</Link>
-					</Button>
-					{canModifier ? (
-						<Button onClick={() => setAModifier(logement)}>
-							<Pencil className="size-4" aria-hidden />
-							Modifier
+				title={`Fiche logement — ${logement.numero}`}
+				description={
+					batiment ? `${batiment.nom} (bâtiment ${batiment.code})` : "—"
+				}
+				actions={
+					<div className="flex items-center gap-2">
+						<Button variant="outline" asChild>
+							<Link
+								to="/residence/logements"
+								search={{ batiment: logement.id_batiment }}
+							>
+								Retour aux logements
+							</Link>
 						</Button>
-					) : null}
-				</div>
-			</div>
+						{canModifier ? (
+							<Button onClick={() => setAModifier(logement)}>
+								<Pencil className="size-4" aria-hidden />
+								Modifier
+							</Button>
+						) : null}
+					</div>
+				}
+			/>
 
 			<section className="rounded-lg border border-border bg-card p-5 shadow-sm">
 				<dl className="grid gap-4 sm:grid-cols-2">
@@ -203,14 +188,9 @@ export function LogementFichePage({
 					<div className="grid grid-cols-[8rem_1fr] gap-3 text-sm">
 						<dt className="text-muted-foreground">Statut</dt>
 						<dd>
-							<span
-								className={cn(
-									"inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium",
-									STATUT_BADGE[logement.statut],
-								)}
-							>
+							<Badge variant={LOGEMENT_STATUT_VARIANT[logement.statut]}>
 								{LOGEMENT_STATUT_LABELS[logement.statut]}
-							</span>
+							</Badge>
 						</dd>
 					</div>
 					<Ligne

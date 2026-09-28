@@ -2,8 +2,16 @@ import { Link } from "@tanstack/react-router";
 import { FileDown, FileSpreadsheet, Printer } from "lucide-react";
 import { useState } from "react";
 
-import { Breadcrumb } from "#/components/ui/breadcrumb";
 import { Button } from "#/components/ui/button";
+import { PageHeader } from "#/components/ui/page-header";
+import {
+	DataTable,
+	DataTableHead,
+	TableShell,
+	Td,
+	Th,
+	Tr,
+} from "#/components/ui/table";
 import { usePayeursLoyer } from "#/features/finances/hooks/use-finances";
 import {
 	formatDateISO,
@@ -134,64 +142,57 @@ export function RapportActivitePage({
 
 	return (
 		<div className="w-full space-y-6 p-6">
-			<Breadcrumb
-				items={[
+			<PageHeader
+				breadcrumb={[
 					{ label: "Accueil", to: "/" },
 					{ label: "Rapports", to: "/rapports" },
 					{ label: rapportQuery.data?.libelle ?? code },
 				]}
+				title={`Rapport — ${rapportQuery.data?.libelle ?? code}`}
+				description={`Période du ${periode.du} au ${periode.au}.`}
+				actions={
+					<div className="flex flex-col gap-2 w-full sm:w-auto sm:flex-row sm:items-center sm:gap-2">
+						<Button
+							variant="outline"
+							size="sm"
+							asChild
+							className="w-full sm:w-auto justify-center"
+						>
+							<Link to="/rapports">Nouveau rapport</Link>
+						</Button>
+						<Button
+							size="sm"
+							variant="outline"
+							onClick={() => void imprimerRapportPdf()}
+							disabled={!rapportQuery.data}
+							className="w-full sm:w-auto justify-center"
+						>
+							<Printer className="size-4" aria-hidden />
+							PDF
+						</Button>
+						<Button
+							size="sm"
+							variant="outline"
+							onClick={exporterExcel}
+							disabled={!rapportQuery.data}
+							className="w-full sm:w-auto justify-center"
+						>
+							<FileDown className="size-4" aria-hidden />
+							Excel
+						</Button>
+						<Button
+							size="sm"
+							variant="outline"
+							onClick={exporter}
+							disabled={!rapportQuery.data}
+							className="w-full sm:w-auto justify-center"
+						>
+							<FileSpreadsheet className="size-4" aria-hidden />
+							CSV
+						</Button>
+					</div>
+				}
 			/>
-
-			<div className="flex flex-wrap items-end justify-between gap-4">
-				<section className="space-y-1">
-					<h1 className="text-2xl font-semibold text-foreground">
-						Rapport — {rapportQuery.data?.libelle ?? code}
-					</h1>
-					<p className="text-muted-foreground">
-						Période du {periode.du} au {periode.au}.
-					</p>
-				</section>
-				<div className="flex flex-col gap-2 w-full sm:w-auto sm:flex-row sm:items-center sm:gap-2">
-					<Button
-						variant="outline"
-						size="sm"
-						asChild
-						className="w-full sm:w-auto justify-center"
-					>
-						<Link to="/rapports">Nouveau rapport</Link>
-					</Button>
-					<Button
-						size="sm"
-						variant="outline"
-						onClick={() => void imprimerRapportPdf()}
-						disabled={!rapportQuery.data}
-						className="w-full sm:w-auto justify-center"
-					>
-						<Printer className="size-4" aria-hidden />
-						PDF
-					</Button>
-					<Button
-						size="sm"
-						variant="outline"
-						onClick={exporterExcel}
-						disabled={!rapportQuery.data}
-						className="w-full sm:w-auto justify-center"
-					>
-						<FileDown className="size-4" aria-hidden />
-						Excel
-					</Button>
-					<Button
-						size="sm"
-						variant="outline"
-						onClick={exporter}
-						disabled={!rapportQuery.data}
-						className="w-full sm:w-auto justify-center"
-					>
-						<FileSpreadsheet className="size-4" aria-hidden />
-						CSV
-					</Button>
-				</div>
-			</div>
 
 			{pdfError ? (
 				<p
@@ -226,7 +227,7 @@ export function RapportActivitePage({
 							<p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
 								Recettes
 							</p>
-							<p className="mt-1 text-lg font-semibold text-[#27AE60]">
+							<p className="mt-1 text-lg font-semibold text-success">
 								{formatMontantFCFA(rapportQuery.data.recettes)}
 							</p>
 						</div>
@@ -279,47 +280,36 @@ export function RapportActivitePage({
 									Aucun paiement de loyer enregistré sur cette période.
 								</p>
 							) : (
-								<div className="overflow-x-auto rounded-lg border border-border">
-									<table className="w-full text-sm">
-										<thead className="bg-muted">
+								<TableShell>
+									<DataTable>
+										<DataTableHead>
 											<tr>
-												<th className="px-4 py-2 text-left font-semibold">
-													Locataire
-												</th>
-												<th className="px-4 py-2 text-left font-semibold">
-													Contrat
-												</th>
-												<th className="px-4 py-2 text-left font-semibold">
-													Date
-												</th>
-												<th className="px-4 py-2 text-right font-semibold">
-													Montant
-												</th>
+												<Th>Locataire</Th>
+												<Th>Contrat</Th>
+												<Th>Date</Th>
+												<Th className="text-right">Montant</Th>
 											</tr>
-										</thead>
+										</DataTableHead>
 										<tbody>
 											{payeursQuery.data.map((payeur) => (
-												<tr
-													key={payeur.id_paiement}
-													className="border-t border-border"
-												>
-													<td className="px-4 py-2 font-medium text-foreground">
+												<Tr key={payeur.id_paiement}>
+													<Td className="font-medium text-foreground">
 														{`${payeur.nom} ${payeur.prenoms}`.trim()}
-													</td>
-													<td className="px-4 py-2 text-muted-foreground">
+													</Td>
+													<Td className="text-muted-foreground">
 														{payeur.numero_contrat}
-													</td>
-													<td className="px-4 py-2 text-muted-foreground">
+													</Td>
+													<Td className="text-muted-foreground">
 														{formatDateISO(payeur.date)}
-													</td>
-													<td className="px-4 py-2 text-right font-medium text-[#27AE60]">
+													</Td>
+													<Td className="text-right font-medium text-success">
 														{formatMontantFCFA(payeur.montant)}
-													</td>
-												</tr>
+													</Td>
+												</Tr>
 											))}
 										</tbody>
-									</table>
-								</div>
+									</DataTable>
+								</TableShell>
 							)}
 						</section>
 					) : null}

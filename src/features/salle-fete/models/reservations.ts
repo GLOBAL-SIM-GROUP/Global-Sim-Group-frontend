@@ -42,15 +42,18 @@ export const RESERVATION_STATUT_LABELS: Record<ReservationStatut, string> = {
 	ANNULEE: "Annulée",
 };
 
-/** Classes de badge (fond/texte) par statut de réservation. */
-export const RESERVATION_STATUT_BADGE: Record<ReservationStatut, string> = {
-	EN_ATTENTE: "bg-[#8E44AD] text-white",
-	DISPONIBLE: "bg-[#27AE60] text-white",
-	RESERVEE: "bg-[#E67E22] text-white",
-	CONFIRMEE: "bg-[#2980B9] text-white",
-	REALISEE: "bg-[#95A5A6] text-white",
-	ANNULEE: "bg-[#E74C3C] text-white",
-};
+/** Variante `<Badge>` par statut de réservation. */
+export const RESERVATION_STATUT_VARIANT = {
+	EN_ATTENTE: "warning",
+	DISPONIBLE: "success",
+	RESERVEE: "warning",
+	CONFIRMEE: "info",
+	REALISEE: "neutral",
+	ANNULEE: "danger",
+} as const satisfies Record<
+	ReservationStatut,
+	"warning" | "success" | "info" | "neutral" | "danger"
+>;
 
 /** Jour d'une grille calendrier mensuelle. */
 export interface JourGrille {

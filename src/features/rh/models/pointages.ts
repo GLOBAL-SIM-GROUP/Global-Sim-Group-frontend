@@ -26,13 +26,22 @@ export const POINTAGE_STATUT_LABELS: Record<string, string> = {
 	CONGE: "Congé",
 };
 
-/** Classes de badge (fond/texte) par statut de pointage. */
-export const POINTAGE_STATUT_BADGE: Record<string, string> = {
-	PRESENT: "bg-[#27AE60] text-white",
-	ABSENT: "bg-[#E74C3C] text-white",
-	RETARD: "bg-[#E67E22] text-white",
-	CONGE: "bg-[#2980B9] text-white",
+/** Variante de badge par statut de pointage (enum ouvert → repli neutre). */
+const POINTAGE_STATUT_VARIANT_MAP: Record<
+	string,
+	"success" | "danger" | "warning" | "info" | "neutral"
+> = {
+	PRESENT: "success",
+	ABSENT: "danger",
+	RETARD: "warning",
+	CONGE: "info",
 };
+
+export function pointageStatutVariant(
+	statut: string,
+): "success" | "danger" | "warning" | "info" | "neutral" {
+	return POINTAGE_STATUT_VARIANT_MAP[statut] ?? "neutral";
+}
 
 /** Nom complet « PRENOM Nom » d'un pointage (champs embarqués). */
 export function nomCompletPointage(pointage: Pointage): string {

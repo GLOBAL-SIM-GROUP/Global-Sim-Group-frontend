@@ -27,6 +27,7 @@ import {
 	salleFeteDisponibilitesKeys,
 	salleFeteReservationsKeys,
 	sejoursPortailKeys,
+	signalementsPortailKeys,
 } from "#/features/portail/permissions";
 import { commandesKeys } from "#/features/pressing/permissions";
 import {
@@ -92,9 +93,12 @@ const INVALIDATIONS_PAR_EVENT: Record<string, readonly (readonly unknown[])[]> =
 		"tirage.ecart": [["tirages"], tableauBordKeys.all],
 		"finances.tirage.ecart": [["tirages"], tableauBordKeys.all],
 		"signalement.cree": [signalementsKeys.all],
-		"signalement.pris_en_charge": [signalementsKeys.all],
-		"signalement.resolu": [signalementsKeys.all],
-		"signalement.rejete": [signalementsKeys.all],
+		"signalement.pris_en_charge": [
+			signalementsKeys.all,
+			signalementsPortailKeys.all,
+		],
+		"signalement.resolu": [signalementsKeys.all, signalementsPortailKeys.all],
+		"signalement.rejete": [signalementsKeys.all, signalementsPortailKeys.all],
 		"signalement.en_retard": [signalementsKeys.all],
 		"rh.pointage_anomalie": [pointagesKeys.all],
 		"rh.bulletins_prets": [paiesKeys.all],
