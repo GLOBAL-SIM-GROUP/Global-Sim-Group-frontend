@@ -11,11 +11,10 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "#/components/ui/select";
-import { toApiError } from "#/core/api";
 import { useCan } from "#/core/auth";
 import { ApercuAbonnementPanel } from "#/features/abonnement/components/apercu-panel";
 import { useApercuDebounced } from "#/features/abonnement/hooks/use-apercu";
-import { CODE_EXCEDENT } from "#/features/abonnement/models/abonnements";
+import { useExcedentConfirmation } from "#/features/abonnement/hooks/use-excedent-confirmation";
 import { ClientRechercheField } from "#/features/residence/components/client-recherche-field";
 import { formatMontantFCFA } from "#/features/residence/models/format";
 import {
@@ -296,11 +295,12 @@ export function CommandeForm({
 	const [dateRetrait, setDateRetrait] = useState(
 		commande?.date_retrait_prevue ?? "",
 	);
-	// Abonnements : `ignorerAbonnement` force le plein tarif ;
-	// `excedentConfirme` est armé par le 409 `ABONNEMENT_EXCEDENT` (le staff a
-	// vu le message du serveur, le resubmit part avec `accepter_excedent`).
+	// `ignorerAbonnement` force le plein tarif ; le protocole de confirmation
+	// du dépassement de quota (409 `ABONNEMENT_EXCEDENT`) est partagé avec les
+	// 3 autres formulaires pressing/restaurant concernés par la couverture
+	// abonnement, voir `useExcedentConfirmation`.
 	const [ignorerAbonnement, setIgnorerAbonnement] = useState(false);
-	const [excedentConfirme, setExcedentConfirme] = useState(false);
+	const excedent = useExcedentConfirmation();
 
 	const ajouterLigne = () => {
 		setLignes((current) => [...current, ligneVide(prochaineCle)]);
@@ -466,10 +466,7 @@ export function CommandeForm({
 		}
 		const flagsAbonnement = {
 			utiliserAbonnement: !ignorerAbonnement,
-			// L'aperçu affiché « dépassement » vaut confirmation par le staff
-			// (il a vu le panneau avant de cliquer) ; le 409 reçu à la soumission
-			// précédente arme aussi `excedentConfirme`.
-			accepterExcedent: excedentConfirme || apercu.data?.excedent === true,
+			accepterExcedent: excedent.accepterExcedent(apercu.data?.excedent),
 		};
 		try {
 			if (commande) {
@@ -491,15 +488,10 @@ export function CommandeForm({
 			}
 			onSaved();
 		} catch (error) {
-			const apiError = toApiError(error);
-			if (apiError.status === 409 && apiError.code === CODE_EXCEDENT) {
-				// « Refuser puis confirmer » : le message du serveur est affiché
-				// tel quel ; le prochain submit partira avec accepter_excedent.
-				setExcedentConfirme(true);
-				setGlobalError(apiError.message || "Dépassement de quota abonnement.");
-			} else {
-				setGlobalError("Une erreur est survenue lors de l'enregistrement.");
-			}
+			const messageExcedent = excedent.detecter(error);
+			setGlobalError(
+				messageExcedent ?? "Une erreur est survenue lors de l'enregistrement.",
+			);
 		}
 	};
 
@@ -739,7 +731,7 @@ export function CommandeForm({
 				</>
 			) : null}
 
-			{excedentConfirme ? (
+			{excedent.confirme ? (
 				<p
 					role="alert"
 					className="rounded-md border border-amber-500/40 bg-amber-500/10 p-3 text-sm text-amber-700 dark:text-amber-400"

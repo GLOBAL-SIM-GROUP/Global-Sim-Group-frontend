@@ -1,8 +1,13 @@
 import { AlertTriangle, Loader2, Plus, Trash2 } from "lucide-react";
-import { Dialog } from "radix-ui";
 import { useMemo, useState } from "react";
 
 import { Button } from "#/components/ui/button";
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogTitle,
+} from "#/components/ui/dialog";
 import { InputField } from "#/components/ui/input-field";
 import { Label } from "#/components/ui/label";
 import {
@@ -12,11 +17,10 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "#/components/ui/select";
-import { toApiError } from "#/core/api";
 import { useCan } from "#/core/auth";
 import { ApercuAbonnementPanel } from "#/features/abonnement/components/apercu-panel";
 import { useApercuDebounced } from "#/features/abonnement/hooks/use-apercu";
-import { CODE_EXCEDENT } from "#/features/abonnement/models/abonnements";
+import { useExcedentConfirmation } from "#/features/abonnement/hooks/use-excedent-confirmation";
 import { formatMontantFCFA } from "#/features/residence/models/format";
 import type { MoyenPaiement } from "#/features/residence/models/moyens-paiement";
 
@@ -98,10 +102,10 @@ export function ValiderDemandeDialog({
 	);
 	const [acompte, setAcompte] = useState("");
 	const [idMoyen, setIdMoyen] = useState(moyens[0]?.id ?? "");
-	// Abonnements : ignorer = plein tarif ; `excedentConfirme` armé par le 409
-	// `ABONNEMENT_EXCEDENT` (message serveur affiché, resubmit confirmé).
+	// Abonnements : ignorer = plein tarif ; protocole de confirmation du
+	// dépassement de quota partagé, voir `useExcedentConfirmation`.
 	const [ignorerAbonnement, setIgnorerAbonnement] = useState(false);
-	const [excedentConfirme, setExcedentConfirme] = useState(false);
+	const excedent = useExcedentConfirmation();
 
 	const ajouterLigne = () => {
 		setLignes((current) => [...current, ligneVide(prochaineCle)]);
@@ -224,301 +228,288 @@ export function ValiderDemandeDialog({
 					? { paiement: { montant: acompte.trim(), idMoyen } }
 					: {}),
 				utiliserAbonnement: !ignorerAbonnement,
-				accepterExcedent: excedentConfirme || apercu.data?.excedent === true,
+				accepterExcedent: excedent.accepterExcedent(apercu.data?.excedent),
 			});
 			onSaved();
 		} catch (error) {
-			const apiError = toApiError(error);
-			if (apiError.status === 409 && apiError.code === CODE_EXCEDENT) {
-				setExcedentConfirme(true);
-				setGlobalError(apiError.message || "Dépassement de quota abonnement.");
-			} else {
-				setGlobalError("Une erreur est survenue lors de la validation.");
-			}
+			const messageExcedent = excedent.detecter(error);
+			setGlobalError(
+				messageExcedent ?? "Une erreur est survenue lors de la validation.",
+			);
 		}
 	};
 
 	return (
-		<Dialog.Root open={open} onOpenChange={onOpenChange}>
-			<Dialog.Portal>
-				<Dialog.Overlay className="fixed inset-0 z-50 bg-black/50" />
-				<Dialog.Content className="fixed top-1/2 left-1/2 z-50 max-h-[85dvh] w-[calc(100vw-2rem)] max-w-2xl -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-lg border border-border bg-card p-6 shadow-lg">
-					<Dialog.Title className="text-base font-semibold text-foreground">
-						Valider la demande de dépôt
-					</Dialog.Title>
-					<Dialog.Description className="mt-1 text-sm text-muted-foreground">
-						{commande
-							? `Demande ${commande.numero_commande} — vérifiez les articles déclarés et chiffrez-les.`
-							: "Chiffrer la demande et la passer en « Déposé »."}
-					</Dialog.Description>
+		<Dialog open={open} onOpenChange={onOpenChange}>
+			<DialogContent className="max-h-[85dvh] max-w-2xl overflow-y-auto">
+				<DialogTitle>Valider la demande de dépôt</DialogTitle>
+				<DialogDescription>
+					{commande
+						? `Demande ${commande.numero_commande} — vérifiez les articles déclarés et chiffrez-les.`
+						: "Chiffrer la demande et la passer en « Déposé »."}
+				</DialogDescription>
 
-					<form
-						className="mt-4 space-y-4"
-						onSubmit={(event) => {
-							event.preventDefault();
-							event.stopPropagation();
-							void soumettre();
-						}}
-					>
-						<div className="space-y-2">
-							<Label>Tarification</Label>
-							<div className="flex gap-4">
-								{(
-									Object.keys(
-										MODE_TARIFICATION_LABELS,
-									) as ModeTarificationPressing[]
-								).map((valeur) => (
-									<label
-										key={valeur}
-										className="flex items-center gap-2 text-sm text-foreground"
-									>
-										<input
-											type="radio"
-											name="mode-tarification-validation"
-											checked={mode === valeur}
-											onChange={() => changerMode(valeur)}
-										/>
-										{MODE_TARIFICATION_LABELS[valeur]}
-									</label>
-								))}
-							</div>
-							{aucunTarifKgConfigure ? (
-								<div
-									role="alert"
-									className="flex items-start gap-2 rounded-md border border-amber-500/40 bg-amber-500/10 p-3 text-sm text-amber-700 dark:text-amber-400"
+				<form
+					className="mt-4 space-y-4"
+					onSubmit={(event) => {
+						event.preventDefault();
+						event.stopPropagation();
+						void soumettre();
+					}}
+				>
+					<div className="space-y-2">
+						<Label>Tarification</Label>
+						<div className="flex gap-4">
+							{(
+								Object.keys(
+									MODE_TARIFICATION_LABELS,
+								) as ModeTarificationPressing[]
+							).map((valeur) => (
+								<label
+									key={valeur}
+									className="flex items-center gap-2 text-sm text-foreground"
 								>
-									<AlertTriangle
-										className="mt-0.5 size-4 shrink-0"
-										aria-hidden
+									<input
+										type="radio"
+										name="mode-tarification-validation"
+										checked={mode === valeur}
+										onChange={() => changerMode(valeur)}
 									/>
-									<span>
-										Aucun tarif au kilo n'est encore configuré.
-										{canGererTarifs
-											? " Définissez-en un dans « Tarif au kilo » avant de continuer."
-											: " Demandez à un responsable pressing d'en définir un."}
-									</span>
-								</div>
-							) : null}
+									{MODE_TARIFICATION_LABELS[valeur]}
+								</label>
+							))}
+						</div>
+						{aucunTarifKgConfigure ? (
+							<div
+								role="alert"
+								className="flex items-start gap-2 rounded-md border border-amber-500/40 bg-amber-500/10 p-3 text-sm text-amber-700 dark:text-amber-400"
+							>
+								<AlertTriangle className="mt-0.5 size-4 shrink-0" aria-hidden />
+								<span>
+									Aucun tarif au kilo n'est encore configuré.
+									{canGererTarifs
+										? " Définissez-en un dans « Tarif au kilo » avant de continuer."
+										: " Demandez à un responsable pressing d'en définir un."}
+								</span>
+							</div>
+						) : null}
+					</div>
+
+					<div className="space-y-3">
+						<div className="flex items-center justify-between">
+							<Label>Articles déclarés</Label>
+							<Button
+								type="button"
+								variant="outline"
+								size="sm"
+								onClick={ajouterLigne}
+							>
+								<Plus className="size-4" aria-hidden />
+								Ajouter un article
+							</Button>
 						</div>
 
-						<div className="space-y-3">
-							<div className="flex items-center justify-between">
-								<Label>Articles déclarés</Label>
-								<Button
-									type="button"
-									variant="outline"
-									size="sm"
-									onClick={ajouterLigne}
-								>
-									<Plus className="size-4" aria-hidden />
-									Ajouter un article
-								</Button>
-							</div>
-
-							{lignes.map((ligne) => (
-								<div
-									key={ligne.cle}
-									className="space-y-3 rounded-md border border-border p-3"
-								>
-									<div className="grid gap-3 sm:grid-cols-2">
-										<InputField
-											aria-label="Type de vêtement"
-											placeholder="Type de vêtement (ex : Chemise)"
-											value={ligne.typeVetement}
-											onChange={(event) =>
-												majLigne(ligne.cle, {
-													typeVetement: event.target.value,
-												})
-											}
-										/>
-										<InputField
-											aria-label="Prestation"
-											placeholder="Prestation (ex : Repassage)"
-											value={ligne.prestation}
-											onChange={(event) =>
-												majLigne(ligne.cle, {
-													prestation: event.target.value,
-												})
-											}
-										/>
-										{mode === "UNITAIRE" ? (
-											<>
-												<InputField
-													aria-label="Quantité"
-													type="number"
-													min="1"
-													value={ligne.quantite}
-													onChange={(event) =>
-														majLigne(ligne.cle, {
-															quantite: event.target.value,
-														})
-													}
-												/>
-												<InputField
-													aria-label="Tarif"
-													placeholder="Tarif (FCFA)"
-													inputMode="numeric"
-													value={ligne.tarif}
-													onChange={(event) =>
-														majLigne(ligne.cle, {
-															tarif: event.target.value,
-														})
-													}
-												/>
-											</>
-										) : (
+						{lignes.map((ligne) => (
+							<div
+								key={ligne.cle}
+								className="space-y-3 rounded-md border border-border p-3"
+							>
+								<div className="grid gap-3 sm:grid-cols-2">
+									<InputField
+										aria-label="Type de vêtement"
+										placeholder="Type de vêtement (ex : Chemise)"
+										value={ligne.typeVetement}
+										onChange={(event) =>
+											majLigne(ligne.cle, {
+												typeVetement: event.target.value,
+											})
+										}
+									/>
+									<InputField
+										aria-label="Prestation"
+										placeholder="Prestation (ex : Repassage)"
+										value={ligne.prestation}
+										onChange={(event) =>
+											majLigne(ligne.cle, {
+												prestation: event.target.value,
+											})
+										}
+									/>
+									{mode === "UNITAIRE" ? (
+										<>
 											<InputField
-												aria-label="Poids (kg)"
-												placeholder="Poids (kg, ex : 4.500)"
-												inputMode="decimal"
-												value={ligne.poidsKg}
+												aria-label="Quantité"
+												type="number"
+												min="1"
+												value={ligne.quantite}
 												onChange={(event) =>
 													majLigne(ligne.cle, {
-														poidsKg: event.target.value,
+														quantite: event.target.value,
 													})
 												}
 											/>
-										)}
-									</div>
-									{mode === "POIDS" && tarifKgQuery.data ? (
-										<p className="text-xs text-muted-foreground">
-											Aperçu :{" "}
-											{formatMontantFCFA(
-												String(
-													apercuTotalLignePoids(
-														ligne.poidsKg,
-														tarifKgQuery.data.prix_kg,
-													) ?? 0,
-												),
-											)}{" "}
-											({formatMontantFCFA(tarifKgQuery.data.prix_kg)}/kg)
-										</p>
-									) : null}
-									<div className="flex justify-end">
-										<Button
-											type="button"
-											variant="ghost"
-											size="sm"
-											disabled={lignes.length === 1}
-											onClick={() => retirerLigne(ligne.cle)}
-										>
-											<Trash2 className="size-4 text-destructive" aria-hidden />
-											Retirer
-										</Button>
-									</div>
+											<InputField
+												aria-label="Tarif"
+												placeholder="Tarif (FCFA)"
+												inputMode="numeric"
+												value={ligne.tarif}
+												onChange={(event) =>
+													majLigne(ligne.cle, {
+														tarif: event.target.value,
+													})
+												}
+											/>
+										</>
+									) : (
+										<InputField
+											aria-label="Poids (kg)"
+											placeholder="Poids (kg, ex : 4.500)"
+											inputMode="decimal"
+											value={ligne.poidsKg}
+											onChange={(event) =>
+												majLigne(ligne.cle, {
+													poidsKg: event.target.value,
+												})
+											}
+										/>
+									)}
 								</div>
-							))}
-						</div>
-
-						<div>
-							<Label htmlFor="validation-retrait">Date de retrait prévue</Label>
-							<input
-								id="validation-retrait"
-								className="mt-2 w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
-								type="date"
-								value={dateRetrait}
-								onChange={(event) => setDateRetrait(event.target.value)}
-							/>
-						</div>
-
-						<div className="flex items-center justify-between rounded-md border border-border bg-accent/30 px-4 py-3 text-sm">
-							<span className="text-muted-foreground">
-								Total {mode === "POIDS" ? "(aperçu)" : ""} :{" "}
-								{formatMontantFCFA(String(total))}
-							</span>
-							{totalDu !== null ? (
-								<span className="font-semibold text-foreground">
-									À payer : {formatMontantFCFA(totalDu)}
-								</span>
-							) : null}
-						</div>
-
-						<ApercuAbonnementPanel
-							apercu={apercu.data}
-							pending={apercu.pending}
-							error={apercu.error}
-							visible={!ignorerAbonnement}
-						/>
-						{apercu.data && apercu.data.abonnements.length > 0 ? (
-							<label className="flex items-center gap-2 text-sm text-muted-foreground">
-								<input
-									type="checkbox"
-									checked={ignorerAbonnement}
-									onChange={(event) =>
-										setIgnorerAbonnement(event.target.checked)
-									}
-								/>
-								Ne pas utiliser l'abonnement — facturer plein tarif
-							</label>
-						) : null}
-						{excedentConfirme ? (
-							<p
-								role="alert"
-								className="rounded-md border border-amber-500/40 bg-amber-500/10 p-3 text-sm text-amber-700 dark:text-amber-400"
-							>
-								Excédent confirmé — cliquez à nouveau pour valider en facturant
-								le dépassement au résident.
-							</p>
-						) : null}
-
-						<div className="grid gap-3 rounded-md border border-border p-3 sm:grid-cols-2">
-							{couvertureComplete ? (
-								<p className="text-xs text-[#27AE60] sm:col-span-2">
-									Commande entièrement couverte par l'abonnement — aucun acompte
-									à encaisser.
-								</p>
-							) : null}
-							<InputField
-								id="validation-acompte"
-								label="Acompte encaissé (FCFA, optionnel)"
-								inputMode="numeric"
-								value={acompte}
-								onChange={(event) => setAcompte(event.target.value)}
-							/>
-							{acompte.trim() ? (
-								<div className="space-y-2">
-									<Label htmlFor="validation-moyen">Moyen de paiement</Label>
-									<Select value={idMoyen} onValueChange={setIdMoyen}>
-										<SelectTrigger id="validation-moyen" className="w-full">
-											<SelectValue placeholder="Sélectionner un moyen" />
-										</SelectTrigger>
-										<SelectContent>
-											{moyens.map((moyen) => (
-												<SelectItem key={moyen.id} value={moyen.id}>
-													{moyen.libelle}
-												</SelectItem>
-											))}
-										</SelectContent>
-									</Select>
-								</div>
-							) : null}
-						</div>
-
-						{globalError ? (
-							<p role="alert" className="text-sm font-medium text-destructive">
-								{globalError}
-							</p>
-						) : null}
-
-						<div className="flex items-center justify-end gap-2 pt-2">
-							<Button
-								type="button"
-								variant="ghost"
-								disabled={mutation.isPending}
-								onClick={() => onOpenChange(false)}
-							>
-								Annuler
-							</Button>
-							<Button type="submit" disabled={mutation.isPending}>
-								{mutation.isPending ? (
-									<Loader2 className="size-4 animate-spin" aria-hidden />
+								{mode === "POIDS" && tarifKgQuery.data ? (
+									<p className="text-xs text-muted-foreground">
+										Aperçu :{" "}
+										{formatMontantFCFA(
+											String(
+												apercuTotalLignePoids(
+													ligne.poidsKg,
+													tarifKgQuery.data.prix_kg,
+												) ?? 0,
+											),
+										)}{" "}
+										({formatMontantFCFA(tarifKgQuery.data.prix_kg)}/kg)
+									</p>
 								) : null}
-								{mutation.isPending ? "Validation…" : "Valider et chiffrer"}
-							</Button>
-						</div>
-					</form>
-				</Dialog.Content>
-			</Dialog.Portal>
-		</Dialog.Root>
+								<div className="flex justify-end">
+									<Button
+										type="button"
+										variant="ghost"
+										size="sm"
+										disabled={lignes.length === 1}
+										onClick={() => retirerLigne(ligne.cle)}
+									>
+										<Trash2 className="size-4 text-destructive" aria-hidden />
+										Retirer
+									</Button>
+								</div>
+							</div>
+						))}
+					</div>
+
+					<div>
+						<Label htmlFor="validation-retrait">Date de retrait prévue</Label>
+						<input
+							id="validation-retrait"
+							className="mt-2 w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
+							type="date"
+							value={dateRetrait}
+							onChange={(event) => setDateRetrait(event.target.value)}
+						/>
+					</div>
+
+					<div className="flex items-center justify-between rounded-md border border-border bg-accent/30 px-4 py-3 text-sm">
+						<span className="text-muted-foreground">
+							Total {mode === "POIDS" ? "(aperçu)" : ""} :{" "}
+							{formatMontantFCFA(String(total))}
+						</span>
+						{totalDu !== null ? (
+							<span className="font-semibold text-foreground">
+								À payer : {formatMontantFCFA(totalDu)}
+							</span>
+						) : null}
+					</div>
+
+					<ApercuAbonnementPanel
+						apercu={apercu.data}
+						pending={apercu.pending}
+						error={apercu.error}
+						visible={!ignorerAbonnement}
+					/>
+					{apercu.data && apercu.data.abonnements.length > 0 ? (
+						<label className="flex items-center gap-2 text-sm text-muted-foreground">
+							<input
+								type="checkbox"
+								checked={ignorerAbonnement}
+								onChange={(event) => setIgnorerAbonnement(event.target.checked)}
+							/>
+							Ne pas utiliser l'abonnement — facturer plein tarif
+						</label>
+					) : null}
+					{excedent.confirme ? (
+						<p
+							role="alert"
+							className="rounded-md border border-amber-500/40 bg-amber-500/10 p-3 text-sm text-amber-700 dark:text-amber-400"
+						>
+							Excédent confirmé — cliquez à nouveau pour valider en facturant le
+							dépassement au résident.
+						</p>
+					) : null}
+
+					<div className="grid gap-3 rounded-md border border-border p-3 sm:grid-cols-2">
+						{couvertureComplete ? (
+							<p className="text-xs text-success sm:col-span-2">
+								Commande entièrement couverte par l'abonnement — aucun acompte à
+								encaisser.
+							</p>
+						) : null}
+						<InputField
+							id="validation-acompte"
+							label="Acompte encaissé (FCFA, optionnel)"
+							inputMode="numeric"
+							value={acompte}
+							onChange={(event) => setAcompte(event.target.value)}
+						/>
+						{acompte.trim() ? (
+							<div className="space-y-2">
+								<Label htmlFor="validation-moyen">Moyen de paiement</Label>
+								<Select value={idMoyen} onValueChange={setIdMoyen}>
+									<SelectTrigger id="validation-moyen" className="w-full">
+										<SelectValue placeholder="Sélectionner un moyen" />
+									</SelectTrigger>
+									<SelectContent>
+										{moyens.map((moyen) => (
+											<SelectItem key={moyen.id} value={moyen.id}>
+												{moyen.libelle}
+											</SelectItem>
+										))}
+									</SelectContent>
+								</Select>
+							</div>
+						) : null}
+					</div>
+
+					{globalError ? (
+						<p role="alert" className="text-sm font-medium text-destructive">
+							{globalError}
+						</p>
+					) : null}
+
+					<div className="flex items-center justify-end gap-2 pt-2">
+						<Button
+							type="button"
+							variant="ghost"
+							disabled={mutation.isPending}
+							onClick={() => onOpenChange(false)}
+						>
+							Annuler
+						</Button>
+						<Button type="submit" disabled={mutation.isPending}>
+							{mutation.isPending ? (
+								<Loader2 className="size-4 animate-spin" aria-hidden />
+							) : null}
+							{mutation.isPending ? "Validation…" : "Valider et chiffrer"}
+						</Button>
+					</div>
+				</form>
+			</DialogContent>
+		</Dialog>
 	);
 }

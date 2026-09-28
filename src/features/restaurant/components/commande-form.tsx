@@ -11,10 +11,9 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "#/components/ui/select";
-import { toApiError } from "#/core/api";
 import { ApercuAbonnementPanel } from "#/features/abonnement/components/apercu-panel";
 import { useApercuDebounced } from "#/features/abonnement/hooks/use-apercu";
-import { CODE_EXCEDENT } from "#/features/abonnement/models/abonnements";
+import { useExcedentConfirmation } from "#/features/abonnement/hooks/use-excedent-confirmation";
 import { ClientRechercheField } from "#/features/residence/components/client-recherche-field";
 import { formatMontantFCFA } from "#/features/residence/models/format";
 import type { MoyenPaiement } from "#/features/residence/models/moyens-paiement";
@@ -57,10 +56,10 @@ export function CommandeForm({
 	]);
 	const [prochaineCle, setProchaineCle] = useState(1);
 	const [idMoyen, setIdMoyen] = useState("");
-	// Abonnements : ignorer = plein tarif ; `excedentConfirme` armé par le 409
-	// `ABONNEMENT_EXCEDENT` (message serveur affiché, resubmit confirmé).
+	// Abonnements : ignorer = plein tarif ; protocole de confirmation du
+	// dépassement de quota partagé, voir `useExcedentConfirmation`.
 	const [ignorerAbonnement, setIgnorerAbonnement] = useState(false);
-	const [excedentConfirme, setExcedentConfirme] = useState(false);
+	const excedent = useExcedentConfirmation();
 
 	const ajouterLigne = () => {
 		setLignes((current) => [
@@ -148,17 +147,14 @@ export function CommandeForm({
 					? {}
 					: { paiement: { montant: String(montantDu), idMoyen } }),
 				utiliserAbonnement: !ignorerAbonnement,
-				accepterExcedent: excedentConfirme || apercu.data?.excedent === true,
+				accepterExcedent: excedent.accepterExcedent(apercu.data?.excedent),
 			});
 			onSaved();
 		} catch (error) {
-			const apiError = toApiError(error);
-			if (apiError.status === 409 && apiError.code === CODE_EXCEDENT) {
-				setExcedentConfirme(true);
-				setGlobalError(apiError.message || "Dépassement de quota abonnement.");
-			} else {
-				setGlobalError("Une erreur est survenue lors de l'enregistrement.");
-			}
+			const messageExcedent = excedent.detecter(error);
+			setGlobalError(
+				messageExcedent ?? "Une erreur est survenue lors de l'enregistrement.",
+			);
 		}
 	};
 
@@ -284,7 +280,7 @@ export function CommandeForm({
 			) : null}
 
 			{sansPaiement ? (
-				<p className="rounded-md border border-[#27AE60]/30 bg-[#27AE60]/10 px-3 py-2 text-sm text-[#27AE60]">
+				<p className="rounded-md border border-success/30 bg-success-bg px-3 py-2 text-sm text-success">
 					Commande entièrement couverte par l'abonnement — aucun paiement à
 					encaisser.
 				</p>
@@ -317,7 +313,7 @@ export function CommandeForm({
 					: `Total : ${formatMontantFCFA(String(total))}`}
 			</p>
 
-			{excedentConfirme ? (
+			{excedent.confirme ? (
 				<p
 					role="alert"
 					className="rounded-md border border-amber-500/40 bg-amber-500/10 p-3 text-sm text-amber-700 dark:text-amber-400"
