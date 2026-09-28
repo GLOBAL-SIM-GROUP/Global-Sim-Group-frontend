@@ -1,5 +1,9 @@
 # ── Dépendances ──────────────────────────────────────────────
 node_modules
+# npm est le gestionnaire du projet (package-lock.json versionné) —
+# empêcher les commits accidentels d'un autre PM.
+yarn.lock
+pnpm-lock.yaml
 
 # ── Build / cache de dev ─────────────────────────────────────
 dist
@@ -12,11 +16,22 @@ dist-ssr
 .vinxi
 *.tsbuildinfo
 
+# ── Déploiement ──────────────────────────────────────────────
+# `vercel pull`/`vercel dev` y déposent la config projet ET les
+# variables d'environnement en clair — ne jamais committer.
+.vercel/
+
 # ── Environnement local (NON commités). `.env.example` reste versionné. ──
 .env
 .env.*
 !.env.example
 *.local
+
+# ── Certificats / clés (garde-fou — jamais de secret dans le repo) ──
+*.pem
+*.pfx
+*.p12
+id_rsa*
 
 # ── Tests ────────────────────────────────────────────────────
 coverage
@@ -52,13 +67,20 @@ Thumbs.db
 Desktop.ini
 .DS_Store
 
-# ── Éditeurs ─────────────────────────────────────────────────
+# ── Éditeurs / outils IA ─────────────────────────────────────
 .idea/
 # On versionne settings.json (formateur/coloration partagés), pas les
 # préférences personnelles (launch.json, extensions.json…).
 .vscode/*
 !.vscode/settings.json
+# Config agents/éditeurs personnels — la config partagée vit dans .devin/.
+.cursor/
+.claude/
 
 # ── Divers ───────────────────────────────────────────────────
 __unconfig*
 todos.json
+# Restes de résolution de conflits git.
+*.orig
+# `prod-server.mjs` lancé en arrière-plan avec nohup.
+nohup.out
