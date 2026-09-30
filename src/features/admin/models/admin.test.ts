@@ -18,6 +18,7 @@ function utilisateur(
 		login: `login${id}`,
 		id_role: role,
 		id_activite_scope: null,
+		id_caisse: null,
 		actif,
 		date_creation: "2026-08-17 00:00:00",
 		dernier_connexion: null,

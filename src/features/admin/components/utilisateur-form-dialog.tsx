@@ -20,6 +20,7 @@ import {
 } from "#/components/ui/select";
 import { Switch } from "#/components/ui/switch";
 import { getErrorMessageForCode, toApiError } from "#/core/api";
+import { useMesCaisses } from "#/features/finances/hooks/use-mes-caisses";
 import { ClientRechercheField } from "#/features/residence/components/client-recherche-field";
 import { useActivites } from "#/features/rh/hooks/use-comptes";
 import { useEmployes } from "#/features/rh/hooks/use-employes";
@@ -51,6 +52,7 @@ export function UtilisateurFormDialog({
 	const rolesQuery = useRoles();
 	const employesQuery = useEmployes({ sansCompte: true });
 	const activitesQuery = useActivites(true);
+	const caissesQuery = useMesCaisses();
 	const utilisateursQuery = useUtilisateurs();
 	const createMutation = useCreerUtilisateur();
 	const editMutation = useModifierUtilisateur();
@@ -63,6 +65,7 @@ export function UtilisateurFormDialog({
 	const activites = (activitesQuery.data ?? []).filter(
 		(activite) => activite.actif,
 	);
+	const caisses = (caissesQuery.data ?? []).filter((caisse) => caisse.actif);
 
 	// IDs des clients déjà associés à un compte utilisateur (pour exclure
 	// les résultats de recherche). En édition, on conserve le client
@@ -87,6 +90,7 @@ export function UtilisateurFormDialog({
 			idClient: "",
 			idRole: utilisateur?.id_role ?? "",
 			idActiviteScope: utilisateur?.id_activite_scope ?? "",
+			idCaisse: utilisateur?.id_caisse ?? "",
 			actif: utilisateur?.actif ?? true,
 		},
 		validators: {
@@ -107,6 +111,21 @@ export function UtilisateurFormDialog({
 					fields.idActiviteScope =
 						"L'activité (scope) est obligatoire pour un rôle de caisse.";
 				}
+				if (estRoleCaisse && !value.idCaisse) {
+					fields.idCaisse =
+						"La caisse rattachée est obligatoire pour un rôle de caisse.";
+				}
+				const caisseChoisie = value.idCaisse
+					? caisses.find((caisse) => caisse.id_caisse === value.idCaisse)
+					: undefined;
+				if (
+					caisseChoisie &&
+					value.idActiviteScope &&
+					caisseChoisie.id_activite !== value.idActiviteScope
+				) {
+					fields.idCaisse =
+						"La caisse choisie n'appartient pas à l'activité scopée.";
+				}
 				return { fields };
 			},
 		},
@@ -119,6 +138,7 @@ export function UtilisateurFormDialog({
 					idEmploye: value.idEmploye || null,
 					idClient: value.idClient || null,
 					idActiviteScope: value.idActiviteScope || null,
+					idCaisse: value.idCaisse || null,
 					actif: value.actif,
 				};
 				if (utilisateur) {
@@ -341,7 +361,21 @@ export function UtilisateurFormDialog({
 											</Label>
 											<Select
 												value={field.state.value}
-												onValueChange={field.handleChange}
+												onValueChange={(valeur) => {
+													field.handleChange(valeur);
+													const caisseChoisie = caisses.find(
+														(caisse) =>
+															caisse.id_caisse ===
+															form.getFieldValue("idCaisse"),
+													);
+													if (
+														caisseChoisie &&
+														valeur &&
+														caisseChoisie.id_activite !== valeur
+													) {
+														form.setFieldValue("idCaisse", "");
+													}
+												}}
 											>
 												<SelectTrigger
 													id={field.name}
@@ -359,6 +393,82 @@ export function UtilisateurFormDialog({
 													))}
 												</SelectContent>
 											</Select>
+											{field.state.meta.errors[0] ? (
+												<p className="text-xs text-destructive">
+													{field.state.meta.errors[0]}
+												</p>
+											) : null}
+										</div>
+									);
+								}}
+							</form.Subscribe>
+						)}
+					</form.Field>
+
+					<form.Field name="idCaisse">
+						{(field) => (
+							<form.Subscribe
+								selector={(state) => [
+									state.values.idRole,
+									state.values.idActiviteScope,
+								]}
+							>
+								{([idRole, scope]) => {
+									const roleSelectionne = roles.find((r) => r.id === idRole);
+									const estRoleCaisse = roleSelectionne
+										? /caiss/i.test(roleSelectionne.code) ||
+											/caiss/i.test(roleSelectionne.libelle)
+										: false;
+									return (
+										<div className="space-y-1.5">
+											<Label htmlFor={field.name}>
+												Caisse rattachée
+												{estRoleCaisse
+													? " — obligatoire pour les caissiers"
+													: " (optionnel)"}
+											</Label>
+											<Select
+												value={field.state.value}
+												onValueChange={(valeur) => {
+													field.handleChange(valeur);
+													const caisse = caisses.find(
+														(c) => c.id_caisse === valeur,
+													);
+													if (caisse && !scope) {
+														form.setFieldValue(
+															"idActiviteScope",
+															caisse.id_activite,
+														);
+													}
+												}}
+											>
+												<SelectTrigger
+													id={field.name}
+													aria-label="Caisse rattachée"
+													className="w-full"
+												>
+													<SelectValue placeholder="Aucune" />
+												</SelectTrigger>
+												<SelectContent>
+													<SelectItem value="">Aucune</SelectItem>
+													{caisses.map((caisse) => (
+														<SelectItem
+															key={caisse.id_caisse}
+															value={caisse.id_caisse}
+														>
+															{caisse.libelle}
+															{caisse.activite_libelle
+																? ` — ${caisse.activite_libelle}`
+																: ""}
+														</SelectItem>
+													))}
+												</SelectContent>
+											</Select>
+											{caisses.length === 0 ? (
+												<p className="text-xs text-muted-foreground">
+													Aucune caisse active visible (droits Finances requis).
+												</p>
+											) : null}
 											{field.state.meta.errors[0] ? (
 												<p className="text-xs text-destructive">
 													{field.state.meta.errors[0]}

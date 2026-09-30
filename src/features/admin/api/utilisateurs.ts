@@ -49,6 +49,11 @@ export interface UtilisateurBody {
 	 */
 	idClient?: string | null;
 	idActiviteScope?: string | null;
+	/**
+	 * Caisse rattachée (caissier) — le service force ses encaissements dans
+	 * cette caisse. Doit appartenir à l'activité de `idActiviteScope`.
+	 */
+	idCaisse?: string | null;
 	actif?: boolean;
 }
 
@@ -66,15 +71,22 @@ export function creerUtilisateur(body: UtilisateurBody): Promise<unknown> {
 		...(body.idActiviteScope
 			? { id_activite_scope: body.idActiviteScope }
 			: {}),
+		...(body.idCaisse ? { id_caisse: body.idCaisse } : {}),
 	} satisfies Omit<
 		CreerUtilisateurDto,
-		"nom" | "prenom" | "id_employe" | "id_client" | "id_activite_scope"
+		| "nom"
+		| "prenom"
+		| "id_employe"
+		| "id_client"
+		| "id_activite_scope"
+		| "id_caisse"
 	> & {
 		nom?: string | null;
 		prenom?: string | null;
 		id_employe?: string | null;
 		id_client?: string | null;
 		id_activite_scope?: string | null;
+		id_caisse?: string | null;
 	};
 	return getApiClient().apiFetch("/api/v1/admin/utilisateurs", {
 		method: "POST",
@@ -90,7 +102,12 @@ export function modifierUtilisateur(
 	const payload: Partial<
 		Omit<
 			MajUtilisateurDto,
-			"nom" | "prenom" | "id_employe" | "id_client" | "id_activite_scope"
+			| "nom"
+			| "prenom"
+			| "id_employe"
+			| "id_client"
+			| "id_activite_scope"
+			| "id_caisse"
 		>
 	> & {
 		nom?: string;
@@ -98,6 +115,7 @@ export function modifierUtilisateur(
 		id_employe?: string;
 		id_client?: string;
 		id_activite_scope?: string;
+		id_caisse?: string | null;
 	} = {};
 	if (body.login !== undefined) payload.login = body.login;
 	if (body.idRole !== undefined) payload.id_role = body.idRole;
@@ -111,6 +129,8 @@ export function modifierUtilisateur(
 		payload.id_client = body.idClient || undefined;
 	if (body.idActiviteScope !== undefined)
 		payload.id_activite_scope = body.idActiviteScope || undefined;
+	// `null` détache explicitement la caisse ; `undefined` ne touche pas.
+	if (body.idCaisse !== undefined) payload.id_caisse = body.idCaisse;
 	return getApiClient().apiFetch(`/api/v1/admin/utilisateurs/${id}`, {
 		method: "PATCH",
 		body: JSON.stringify(payload),

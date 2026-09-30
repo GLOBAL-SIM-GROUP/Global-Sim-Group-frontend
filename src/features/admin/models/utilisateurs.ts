@@ -9,6 +9,8 @@ export interface Utilisateur {
 	login: string;
 	id_role: string | null;
 	id_activite_scope: string | null;
+	/** Caisse physique rattachée au compte (caissier) — ses encaissements y sont forcés. */
+	id_caisse: string | null;
 	actif: boolean;
 	date_creation: string;
 	dernier_connexion: string | null;

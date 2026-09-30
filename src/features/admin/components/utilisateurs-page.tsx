@@ -28,6 +28,7 @@ import {
 	Tr,
 } from "#/components/ui/table";
 import { useCan } from "#/core/auth";
+import { useMesCaisses } from "#/features/finances/hooks/use-mes-caisses";
 import { formatDateHeureUTC } from "#/features/residence/models/format";
 import { useRoles } from "../hooks/use-roles";
 import {
@@ -165,6 +166,13 @@ export function UtilisateursPage({
 		[roles],
 	);
 
+	const caissesQuery = useMesCaisses();
+	const caisseParId = useMemo(
+		() =>
+			new Map((caissesQuery.data ?? []).map((c) => [c.id_caisse, c.libelle])),
+		[caissesQuery.data],
+	);
+
 	const changerFiltre = (patch: {
 		search?: string;
 		role?: string;
@@ -270,6 +278,7 @@ export function UtilisateursPage({
 								<Th>LOGIN</Th>
 								<Th>EMPLOYÉ</Th>
 								<Th>RÔLE</Th>
+								<Th>CAISSE</Th>
 								<Th>DERNIÈRE CONNEXION</Th>
 								<Th>STATUT</Th>
 								{canModifier ? <Th className="text-right">ACTIONS</Th> : null}
@@ -287,6 +296,12 @@ export function UtilisateursPage({
 									<Td className="text-foreground">
 										{utilisateur.id_role
 											? (roleParId.get(utilisateur.id_role) ?? "—")
+											: "—"}
+									</Td>
+									<Td className="text-muted-foreground">
+										{utilisateur.id_caisse
+											? (caisseParId.get(utilisateur.id_caisse) ??
+												utilisateur.id_caisse)
 											: "—"}
 									</Td>
 									<Td className="text-muted-foreground">
