@@ -4,7 +4,9 @@ Ce projet est le client web de la plateforme multiservice GLOBAL SIM GROUP.
 La quasi-totalité des modules métier est implémentée (résidence, restaurant,
 pressing, salle de fête, facturation, finances, RH, clients, marchandise,
 abonnements, administration, rapports, signalements, portail résident, espace
-client). Les conventions détaillées sont dans [`docs/`](docs/).
+client). Les conventions détaillées sont dans la documentation
+([dépôt `sim-docs`](https://github.com/GLOBAL-SIM-GROUP/sim-docs), site :
+https://docs.global-sim-group.com/frontend/).
 [`prompt-adapted.md`](prompt-adapted.md) décrit l'intention initiale du projet
 (jour 1) — ne plus s'y fier pour le modèle de permissions ou le périmètre
 réel : se fier au code (`src/core/permissions/`, `src/features/`). Ne pas
@@ -40,14 +42,16 @@ l'avoir vérifié (`GET /admin/permissions` liste le catalogue complet ;
    `src/core/api/generated/**` : les régénérer par les scripts
    (`generate-routes`, `api:gen`).
 10. **Ne pas inventer d'endpoints ou de permissions** — utiliser uniquement ce
-    que le backend réel expose (spec `/docs-json`, `docs/api.md`) et les
+    que le backend réel expose (spec `/docs-json`, voir la doc « Couche API »
+    sur docs.global-sim-group.com/frontend/api/) et les
     modules/verbes réels du catalogue (`GET /admin/permissions` — 18 modules,
     ~94 codes au dernier audit, voir `src/core/permissions/types.ts`).
     `SUPPRIMER` (DELETE) existe bien sur la plupart des modules.
 11. **Lancer `npm run check` et `npm test` avant de considérer le travail fini** —
     ainsi que `npm run build` pour tout changement de structure.
 
-La documentation complète est dans [`docs/`](docs/) ; la spec est
+La documentation complète est dans le dépôt `sim-docs`
+(https://docs.global-sim-group.com/frontend/) ; la spec est
 [`prompt-adapted.md`](prompt-adapted.md). Ne pas dupliquer ces documents ici.
 
 ---

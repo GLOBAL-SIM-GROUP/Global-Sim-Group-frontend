@@ -8,7 +8,7 @@
  * dans `prompt-adapted.md` (§8, §20, §22) et le seeding backend, à revalider
  * contre `/api/v1/auth/login` et `/api/v1/auth/me` réels lors du smoke test.
  *
- * Conventions backend (à conserver telles quelles, voir docs/api.md) :
+ * Conventions backend (à conserver telles quelles, voir docs.global-sim-group.com/frontend/api/) :
  * - noms de champs en snake_case (`mot_de_passe`, `id_utilisateur`) ;
  * - valeurs bigint/money/date **encodées en string** sur le réseau.
  */

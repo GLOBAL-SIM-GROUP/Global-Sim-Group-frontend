@@ -6,7 +6,7 @@ import { cn } from "#/lib/utils";
 /**
  * État vide standard — design system « Concierge ». Remplace les
  * « Aucun(e) … trouvé(e) » réécrits page par page : icône muette dans un
- * rond, titre, description, action optionnelle. Voir `docs/design-system.md`.
+ * rond, titre, description, action optionnelle. Voir `docs.global-sim-group.com/frontend/design-system/`.
  */
 export function EmptyState({
 	icon: Icon,

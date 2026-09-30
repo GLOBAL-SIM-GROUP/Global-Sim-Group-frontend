@@ -23,7 +23,7 @@ interface ConfirmDialogProps {
 
 /**
  * Dialogue de confirmation générique — rebâti sur les primitives partagées
- * `components/ui/dialog` (design system, cf. `docs/design-system.md`).
+ * `components/ui/dialog` (design system, cf. `docs.global-sim-group.com/frontend/design-system/`).
  */
 export function ConfirmDialog({
 	open,

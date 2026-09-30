@@ -74,5 +74,6 @@ src/features/<module>/        ex. src/features/residence/
 5. **L'UI ne lit jamais `useAuth()` directement** dans un composant métier :
    on passe par `useCurrentUser()` / `useCan(...)` (`core/auth`).
 
-Voir aussi : [`docs/architecture.md`](../../docs/architecture.md) et
-[`docs/conventions.md`](../../docs/conventions.md).
+Voir aussi : [Architecture](https://docs.global-sim-group.com/frontend/architecture/) et
+[Conventions](https://docs.global-sim-group.com/frontend/conventions/) dans
+la documentation (dépôt `sim-docs`).

@@ -161,7 +161,7 @@ export async function mesurerHauteurTicketMm(
  *
  * Cette technique ne corrige que l'aperçu/le PDF (« Enregistrer en PDF ») —
  * sur une imprimante thermique physique, la boîte Chrome reste soumise au
- * pilote (voir `docs/impression.md`). Pour un contournement total, voir
+ * pilote (voir `docs.global-sim-group.com/frontend/impression/`). Pour un contournement total, voir
  * `imprimerTicketQZ` (`qz-tray-client.ts`), utilisée en priorité quand une
  * imprimante QZ Tray est configurée (`printFactureTicket`).
  */

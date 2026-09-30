@@ -6,7 +6,7 @@ import { cn } from "#/lib/utils";
  * Primitives de tableau — design system « Concierge ». Uniformisent les ~66
  * tableaux du back-office : coque avec défilement horizontal, en-tête
  * `bg-muted` discret (remplace l'ancien `bg-sea-ink` plein pot), lignes
- * `border-t` avec survol `accent`. Voir `docs/design-system.md` § Tableaux.
+ * `border-t` avec survol `accent`. Voir `docs.global-sim-group.com/frontend/design-system/` § Tableaux.
  *
  *   <TableShell>
  *     <DataTable>

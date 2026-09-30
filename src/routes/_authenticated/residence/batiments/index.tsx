@@ -10,7 +10,7 @@ import {
 /**
  * Liste des bâtiments (M2.1 – Résidence). Filtres et page vivent dans l'URL
  * pour le partage de liens ; appliqués côté client (le lister ne documente
- * aucun paramètre serveur, cf. docs/api.md). Page gated par `RESIDENCE.VOIR`.
+ * aucun paramètre serveur, cf. docs.global-sim-group.com/frontend/api/). Page gated par `RESIDENCE.VOIR`.
  */
 export const Route = createFileRoute("/_authenticated/residence/batiments/")({
 	beforeLoad: ({ context }) => {

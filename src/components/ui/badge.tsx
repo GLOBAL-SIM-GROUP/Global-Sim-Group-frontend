@@ -11,7 +11,7 @@ import { cn } from "#/lib/utils";
  *
  * Convention : les maps par module deviennent `statut → variante Badge`
  * (`EN_ATTENTE → "warning"`, `PRET → "success"`, `ANNULEE → "danger"`…).
- * Voir `docs/design-system.md`.
+ * Voir `docs.global-sim-group.com/frontend/design-system/`.
  */
 const badgeVariants = cva(
 	"inline-flex shrink-0 items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium whitespace-nowrap",

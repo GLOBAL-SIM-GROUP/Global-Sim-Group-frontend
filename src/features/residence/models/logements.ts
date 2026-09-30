@@ -1,7 +1,7 @@
 /**
  * Logement de la résidence (module M2.2).
  *
- * Le spec OpenAPI ne déclare aucun schéma de réponse (cf. docs/api.md) : ce
+ * Le spec OpenAPI ne déclare aucun schéma de réponse (cf. docs.global-sim-group.com/frontend/api/) : ce
  * type a été hand-typed puis revalidé sur le backend réel (GET
  * /residence/logements). La clé primaire wire `id_logement` est remappée en
  * `id` par la couche API ; `id_batiment` (FK) est conservé tel quel. Les id

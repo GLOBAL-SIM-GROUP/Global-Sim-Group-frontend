@@ -4,7 +4,7 @@
  * Choix par défaut (validé 2026-08-18) : **persistant** (`localStorage`) — la
  * session survit au rechargement, restaurée par `auth.restore()`. Trade-off :
  * un script injecté (XSS) pourrait lire les tokens persistants (cf.
- * docs/authentication.md). `createMemoryTokenStore` reste disponible derrière
+ * docs.global-sim-group.com/frontend/authentication/). `createMemoryTokenStore` reste disponible derrière
  * la même interface `TokenStorage`.
  */
 export interface StoredTokens {

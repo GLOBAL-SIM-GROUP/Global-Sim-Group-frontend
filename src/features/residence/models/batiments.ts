@@ -1,7 +1,7 @@
 /**
  * Bâtiment de la résidence (module M2.1).
  *
- * Le spec OpenAPI ne déclare aucun schéma de réponse (cf. docs/api.md) : ce
+ * Le spec OpenAPI ne déclare aucun schéma de réponse (cf. docs.global-sim-group.com/frontend/api/) : ce
  * type est hand-typed et sera revalidé au smoke test réel. Les id bigint sont
  * transportés en string par le backend (comme `id_logement`).
  */

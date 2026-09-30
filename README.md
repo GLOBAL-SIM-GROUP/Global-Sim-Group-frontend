@@ -43,7 +43,7 @@ src/
   components/    ui/ (shadcn) + layout/ (coquille applicative)
 ```
 
-Voir [`docs/architecture.md`](docs/architecture.md).
+Voir la doc [Architecture](https://docs.global-sim-group.com/frontend/architecture/).
 
 ## Relation avec le backend
 
@@ -72,9 +72,11 @@ Instance dev déployée : `https://dev.sim.strife-cyber.org`.
   au démarrage.
 - Le modèle de permissions reflète le backend réel (`MODULE.VERBE` — 18
   modules, ~94 codes au dernier audit, `SUPPRIMER` inclus sur la plupart des
-  modules ; voir [`docs/authorization.md`](docs/authorization.md)) ; l'UI
+  modules ; voir la doc
+  [Autorisation](https://docs.global-sim-group.com/frontend/authorization/)) ; l'UI
   n'affiche que ce que `/auth/me` retourne.
-- Voir [`docs/api.md`](docs/api.md) et [`docs/authentication.md`](docs/authentication.md).
+- Voir la doc [Couche API](https://docs.global-sim-group.com/frontend/api/) et
+  [Authentification](https://docs.global-sim-group.com/frontend/authentication/).
 
 ## Langue
 
@@ -159,14 +161,19 @@ les régénérer avec les scripts ci-dessus.
 
 ## Règles d'architecture
 
-- [`docs/architecture.md`](docs/architecture.md) — couches et frontières
-- [`docs/api.md`](docs/api.md) — backend réel, wrapper, enveloppe d'erreur
-- [`docs/authentication.md`](docs/authentication.md) — JWT, rotation, stockage mémoire
-- [`docs/authorization.md`](docs/authorization.md) — permissions depuis `/me`
-- [`docs/routing.md`](docs/routing.md) — routes, guards, 404/erreurs
-- [`docs/state-management.md`](docs/state-management.md) — Query vs state vs URL vs Form
-- [`docs/testing.md`](docs/testing.md) — pyramide de tests, outils installés
-- [`docs/components.md`](docs/components.md) — composants shadcn + layout
-- [`docs/security.md`](docs/security.md) — règles de sécurité frontend
-- [`docs/conventions.md`](docs/conventions.md) — conventions de code
-- [`docs/development.md`](docs/development.md) — commandes et workflow
+La documentation complète est sur le site de documentation
+(**[docs.global-sim-group.com/frontend/](https://docs.global-sim-group.com/frontend/)**,
+dépôt `sim-docs`) :
+
+- [Architecture](https://docs.global-sim-group.com/frontend/architecture/) — couches et frontières
+- [Couche API](https://docs.global-sim-group.com/frontend/api/) — backend réel, wrapper, enveloppe d'erreur
+- [Authentification](https://docs.global-sim-group.com/frontend/authentication/) — JWT, rotation, stockage
+- [Autorisation](https://docs.global-sim-group.com/frontend/authorization/) — permissions depuis `/me`
+- [Routing](https://docs.global-sim-group.com/frontend/routing/) — routes, guards, 404/erreurs
+- [Gestion d'état](https://docs.global-sim-group.com/frontend/state-management/) — Query vs state vs URL vs Form
+- [Tests](https://docs.global-sim-group.com/frontend/testing/) — pyramide de tests, outils installés
+- [Composants](https://docs.global-sim-group.com/frontend/components/) — composants shadcn + layout
+- [Sécurité](https://docs.global-sim-group.com/frontend/security/) — règles de sécurité frontend
+- [Conventions](https://docs.global-sim-group.com/frontend/conventions/) — conventions de code
+- [Développement](https://docs.global-sim-group.com/frontend/development/) — commandes et workflow
+- [Guides d'utilisation](https://docs.global-sim-group.com/user/) — PDF par module

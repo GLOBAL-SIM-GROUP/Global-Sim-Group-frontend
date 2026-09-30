@@ -51,7 +51,7 @@ interface ParametresImpressionDialogProps {
  * Tray pour CE poste (réglage local, `localStorage` — jamais envoyé au
  * backend). Une fois configurée, `printFactureTicket` l'utilise
  * automatiquement pour tous les tickets, sans repasser par la boîte
- * d'impression du navigateur (voir `docs/impression.md`).
+ * d'impression du navigateur (voir `docs.global-sim-group.com/frontend/impression/`).
  */
 export function ParametresImpressionDialog({
 	open,

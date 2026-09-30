@@ -7,7 +7,7 @@ import { cn } from "#/lib/utils";
  * Dialogue modale partagé (wrapper Radix) — design system « Concierge ».
  * Standardise overlay, centrage, rayon `rounded-lg`, paddings et animation
  * d'entrée pour les ~85 boîtes de dialogue du projet qui reproduisaient ce
- * markup à la main (cf. `docs/design-system.md` § Modales).
+ * markup à la main (cf. `docs.global-sim-group.com/frontend/design-system/` § Modales).
  *
  * Usage :
  *   <Dialog open={…} onOpenChange={…}>

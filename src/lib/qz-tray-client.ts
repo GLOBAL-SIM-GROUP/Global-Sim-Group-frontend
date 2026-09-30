@@ -1,5 +1,5 @@
 /**
- * Pont ESC/POS via QZ Tray — voir `docs/impression.md` section 3.B.
+ * Pont ESC/POS via QZ Tray — voir `docs.global-sim-group.com/frontend/impression/` section 3.B.
  *
  * QZ Tray est un agent local (à installer une fois par poste de caisse,
  * https://qz.io) qui parle directement au service d'impression du système

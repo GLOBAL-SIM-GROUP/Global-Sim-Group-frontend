@@ -44,7 +44,7 @@ interface BuildingsPageProps {
  * Page « Liste des bâtiments » (module Résidence, M2.1). Les filtres et la
  * page sont initialisés depuis l'URL et y sont réécrits à chaque changement ;
  * le filtrage et la pagination restent côté client (le lister ne documente
- * aucun paramètre serveur, cf. docs/api.md).
+ * aucun paramètre serveur, cf. docs.global-sim-group.com/frontend/api/).
  */
 export function BuildingsPage({
 	initialSearch,

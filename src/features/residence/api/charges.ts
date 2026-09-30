@@ -24,7 +24,7 @@ const texteOuNull = (valeur: string | null | undefined): string | null =>
 /**
  * Appels API du module Résidence — charges. Réponses hand-typed revalidées sur
  * le backend réel. Le lister documente des params marqués `required` à tort
- * (cf. docs/api.md) ; de plus `?logement=` renvoie un 500 sur le backend réel
+ * (cf. docs.global-sim-group.com/frontend/api/) ; de plus `?logement=` renvoie un 500 sur le backend réel
  * (param cassé) — on charge donc TOUTES les charges et on filtre côté client
  * par `id_logement` (onglet Charges de la fiche logement).
  */

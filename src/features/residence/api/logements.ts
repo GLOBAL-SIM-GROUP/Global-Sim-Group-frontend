@@ -52,7 +52,7 @@ export interface CreerLogementsLotBody {
  *
  * Chemins relatifs à `${VITE_API_URL}` (`/api/v1/api/v1`). Le lister documente des
  * paramètres `batiment`/api/v1/`type`/api/v1/`statut` marqués `required` à tort (cf.
- * docs/api.md) : `batiment` seul suffit (vérifié sur le backend réel) —
+ * docs.global-sim-group.com/frontend/api/) : `batiment` seul suffit (vérifié sur le backend réel) —
  * `type`/api/v1/`statut` seulement quand ils sont définis. Réponse du lister
  * hand-typed et revalidée sur le backend réel (GET /residence/logements) :
  * la clé primaire est `id_logement` (remappée en `id`). Aucun endpoint

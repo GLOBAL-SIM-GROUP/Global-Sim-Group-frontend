@@ -91,7 +91,7 @@ export async function printFacturePdf(factureId: string): Promise<void> {
  * renvoie du HTML : si une imprimante QZ Tray est configurée sur ce poste
  * (`imprimante-thermique-store.ts`), on imprime directement dessus — la
  * largeur physique est alors imposée par QZ (niveau pilote), indépendamment
- * de la boîte d'impression du navigateur (voir `docs/impression.md`). Sinon,
+ * de la boîte d'impression du navigateur (voir `docs.global-sim-group.com/frontend/impression/`). Sinon,
  * ou si QZ Tray a échoué (agent fermé, imprimante débranchée…), repli
  * silencieux sur la boîte d'impression du navigateur — jamais d'échec dur
  * pour l'utilisateur.

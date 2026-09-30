@@ -15,7 +15,7 @@ export const FACTURE_STATUT_LABELS: Record<FactureStatut, string> = {
 
 /**
  * Variante `<Badge>` par statut de facture — design system « Concierge »,
- * voir `docs/design-system.md`. Remplace l'ancienne map `FACTURE_STATUT_BADGE`
+ * voir `docs.global-sim-group.com/frontend/design-system/`. Remplace l'ancienne map `FACTURE_STATUT_BADGE`
  * à hex flat-ui en dur.
  */
 export const FACTURE_STATUT_VARIANT = {

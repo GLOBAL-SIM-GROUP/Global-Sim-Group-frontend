@@ -7,7 +7,7 @@ import { cn } from "#/lib/utils";
  * En-tête de page standard — design system « Concierge ». Fige le gabarit
  * répété dans toutes les pages : fil d'Ariane (injecté dans la barre du
  * shell via portal), titre `text-2xl font-semibold`, description muette,
- * actions alignées à droite. Voir `docs/design-system.md` § Hiérarchie.
+ * actions alignées à droite. Voir `docs.global-sim-group.com/frontend/design-system/` § Hiérarchie.
  */
 export function PageHeader({
 	breadcrumb,
