@@ -17,6 +17,11 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "#/components/ui/select";
+import {
+	getErrorMessageForCode,
+	isCaisseFermeeError,
+	toApiError,
+} from "#/core/api";
 import { useCan } from "#/core/auth";
 import { ApercuAbonnementPanel } from "#/features/abonnement/components/apercu-panel";
 import { useApercuDebounced } from "#/features/abonnement/hooks/use-apercu";
@@ -81,6 +86,7 @@ export function ValiderDemandeDialog({
 	const mutation = useValiderDemande();
 	const canGererTarifs = useCan("PRESSING.GERER_TARIFS");
 	const [globalError, setGlobalError] = useState<string | null>(null);
+	const [caisseFermee, setCaisseFermee] = useState(false);
 	const [mode, setMode] = useState<ModeTarificationPressing>("UNITAIRE");
 	const tarifKgQuery = useTarifKg(mode === "POIDS" && open);
 
@@ -212,6 +218,7 @@ export function ValiderDemandeDialog({
 
 	const soumettre = async () => {
 		setGlobalError(null);
+		setCaisseFermee(false);
 		const erreur = valider();
 		if (erreur) {
 			setGlobalError(erreur);
@@ -233,9 +240,21 @@ export function ValiderDemandeDialog({
 			onSaved();
 		} catch (error) {
 			const messageExcedent = excedent.detecter(error);
-			setGlobalError(
-				messageExcedent ?? "Une erreur est survenue lors de la validation.",
-			);
+			if (messageExcedent) {
+				setGlobalError(messageExcedent);
+				return;
+			}
+			const apiError = toApiError(error);
+			if (isCaisseFermeeError(apiError)) {
+				setCaisseFermee(true);
+				setGlobalError(apiError.message);
+			} else {
+				setGlobalError(
+					getErrorMessageForCode(apiError.code) ??
+						(apiError.message ||
+							"Une erreur est survenue lors de la validation."),
+				);
+			}
 		}
 	};
 
@@ -486,7 +505,15 @@ export function ValiderDemandeDialog({
 						) : null}
 					</div>
 
-					{globalError ? (
+					{caisseFermee ? (
+						<div
+							role="alert"
+							className="flex items-start gap-2 rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 text-sm text-amber-700 dark:text-amber-400"
+						>
+							<AlertTriangle className="mt-0.5 size-4 shrink-0" aria-hidden />
+							<span>{globalError}</span>
+						</div>
+					) : globalError ? (
 						<p role="alert" className="text-sm font-medium text-destructive">
 							{globalError}
 						</p>

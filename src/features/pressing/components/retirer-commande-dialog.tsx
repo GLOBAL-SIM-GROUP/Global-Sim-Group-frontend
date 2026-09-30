@@ -1,4 +1,4 @@
-import { Loader2 } from "lucide-react";
+import { AlertTriangle, Loader2 } from "lucide-react";
 import { useState } from "react";
 
 import { Button } from "#/components/ui/button";
@@ -17,6 +17,11 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "#/components/ui/select";
+import {
+	getErrorMessageForCode,
+	isCaisseFermeeError,
+	toApiError,
+} from "#/core/api";
 import { formatMontantFCFA } from "#/features/residence/models/format";
 import type { MoyenPaiement } from "#/features/residence/models/moyens-paiement";
 
@@ -44,6 +49,7 @@ export function RetirerCommandeDialog({
 }: RetirerCommandeDialogProps) {
 	const mutation = useRetirerCommande();
 	const [globalError, setGlobalError] = useState<string | null>(null);
+	const [caisseFermee, setCaisseFermee] = useState(false);
 	const [solde, setSolde] = useState(commande?.reste_a_payer ?? "");
 	const [idMoyen, setIdMoyen] = useState(moyens[0]?.id ?? "");
 
@@ -63,6 +69,7 @@ export function RetirerCommandeDialog({
 
 	const soumettre = async () => {
 		setGlobalError(null);
+		setCaisseFermee(false);
 		const erreur = valider();
 		if (erreur) {
 			setGlobalError(erreur);
@@ -76,8 +83,17 @@ export function RetirerCommandeDialog({
 				...(resteZero ? {} : { idMoyen }),
 			});
 			onSaved();
-		} catch {
-			setGlobalError("Une erreur est survenue lors du retrait.");
+		} catch (error) {
+			const apiError = toApiError(error);
+			if (isCaisseFermeeError(apiError)) {
+				setCaisseFermee(true);
+				setGlobalError(apiError.message);
+			} else {
+				setGlobalError(
+					getErrorMessageForCode(apiError.code) ??
+						(apiError.message || "Une erreur est survenue lors du retrait."),
+				);
+			}
 		}
 	};
 
@@ -139,7 +155,15 @@ export function RetirerCommandeDialog({
 						</>
 					)}
 
-					{globalError ? (
+					{caisseFermee ? (
+						<div
+							role="alert"
+							className="flex items-start gap-2 rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 text-sm text-amber-700 dark:text-amber-400"
+						>
+							<AlertTriangle className="mt-0.5 size-4 shrink-0" aria-hidden />
+							<span>{globalError}</span>
+						</div>
+					) : globalError ? (
 						<p role="alert" className="text-sm font-medium text-destructive">
 							{globalError}
 						</p>

@@ -11,6 +11,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "#/components/ui/select";
+import { getErrorMessageForCode, toApiError } from "#/core/api";
 import { useCan } from "#/core/auth";
 import { ApercuAbonnementPanel } from "#/features/abonnement/components/apercu-panel";
 import { useApercuDebounced } from "#/features/abonnement/hooks/use-apercu";
@@ -489,8 +490,15 @@ export function CommandeForm({
 			onSaved();
 		} catch (error) {
 			const messageExcedent = excedent.detecter(error);
+			if (messageExcedent) {
+				setGlobalError(messageExcedent);
+				return;
+			}
+			const apiError = toApiError(error);
 			setGlobalError(
-				messageExcedent ?? "Une erreur est survenue lors de l'enregistrement.",
+				getErrorMessageForCode(apiError.code) ??
+					(apiError.message ||
+						"Une erreur est survenue lors de l'enregistrement."),
 			);
 		}
 	};
