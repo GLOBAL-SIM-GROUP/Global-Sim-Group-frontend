@@ -92,6 +92,11 @@ const RESIDENT_ENTRIES: NavigationEntry[] = [
 		path: "/residence/portail/etat-des-lieux",
 		group: "Résident",
 	},
+	{
+		label: "Mon compte",
+		path: "/residence/portail/compte",
+		group: "Résident",
+	},
 ];
 
 function useNavigationEntries(): NavigationEntry[] {

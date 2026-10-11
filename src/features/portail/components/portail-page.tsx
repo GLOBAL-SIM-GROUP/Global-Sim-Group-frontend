@@ -12,6 +12,7 @@ import {
 	Shirt,
 	ShoppingBag,
 	Tickets,
+	UserRound,
 	UtensilsCrossed,
 } from "lucide-react";
 
@@ -193,6 +194,12 @@ export function PortailPage() {
 						icon={Camera}
 						titre="Mes états des lieux"
 						description="Photos d'entrée et de sortie de vos logements."
+					/>
+					<ModuleCard
+						to="/residence/portail/compte"
+						icon={UserRound}
+						titre="Mon compte"
+						description="Vos informations et la gestion du mot de passe."
 					/>
 					{canPortail ? (
 						<ModuleCard

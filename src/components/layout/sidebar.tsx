@@ -14,6 +14,7 @@ import {
 	ShieldCheck,
 	Shirt,
 	ShoppingBag,
+	UserRound,
 	UtensilsCrossed,
 } from "lucide-react";
 import { useState } from "react";
@@ -390,6 +391,20 @@ export function Sidebar({ onClose }: { onClose?: () => void } = {}) {
 										<span className="inline-flex items-center gap-2">
 											<Flag className="size-3.5" aria-hidden />
 											Mes signalements
+										</span>
+									</Link>
+								</li>
+								<li>
+									<Link
+										to="/residence/portail/compte"
+										activeOptions={{ exact: true }}
+										activeProps={{ className: subActiveClassName }}
+										className={subLinkClassName}
+										onClick={() => onClose?.()}
+									>
+										<span className="inline-flex items-center gap-2">
+											<UserRound className="size-3.5" aria-hidden />
+											Mon compte
 										</span>
 									</Link>
 								</li>

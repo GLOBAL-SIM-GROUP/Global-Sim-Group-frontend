@@ -44,6 +44,11 @@ export interface AuthMeResponse {
 	id: string;
 	login: string;
 	role: string;
+	/**
+	 * Dossier client lié au compte (bigint en string) — renvoyé par le backend
+	 * réel (vérifié 2026-10-10) ; `null` pour les comptes staff non rattachés.
+	 */
+	idClient: string | null;
 	/** Permissions de l'utilisateur, triées — ex. `"RESIDENCE.VOIR"`. */
 	permissions: string[];
 }

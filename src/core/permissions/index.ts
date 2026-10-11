@@ -1,5 +1,6 @@
 import type { PermissionCode } from "./types";
 
+export { servicesDuCompte } from "./services-accessibles";
 export type { ModuleCode, PermissionCode, PermissionVerb } from "./types";
 export { MODULES, PERMISSION_VERBS } from "./types";
 
