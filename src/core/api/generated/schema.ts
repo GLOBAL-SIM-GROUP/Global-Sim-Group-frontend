@@ -471,6 +471,458 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/finances/consolidation": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Consolidation
+         * @description Récupération des données pour consolidation
+         */
+        get: operations["FinancesController_consolidation_v1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/finances/tableau-de-bord": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Tableau De Bord
+         * @description Récupération des données pour tableau-de-bord
+         */
+        get: operations["FinancesController_tableauDeBord_v1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/finances/activites": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Activites
+         * @description Récupération des données pour activites
+         */
+        get: operations["FinancesController_activites_v1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/finances/paiements": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Paiements
+         * @description Récupération des données pour paiements
+         */
+        get: operations["FinancesController_paiements_v1"];
+        put?: never;
+        /**
+         * Creer Paiement
+         * @description Exécution de paiements
+         */
+        post: operations["FinancesController_creerPaiement_v1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/finances/paiements-par-utilisateur": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Paiements Par Utilisateur
+         * @description Encaissements/décaissements agrégés par employé sur une période (ex. la journée) — combien chaque employé a rapporté, plus le total en sommant les lignes. `id_caisse` permet à un admin de filtrer sur une caisse précise.
+         */
+        get: operations["FinancesController_paiementsParUtilisateur_v1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/finances/paiements/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Maj Paiement
+         * @description Mise à jour partielle de paiements/:id
+         */
+        patch: operations["FinancesController_majPaiement_v1"];
+        trace?: never;
+    };
+    "/api/v1/finances/depenses": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Depenses
+         * @description Récupération des données pour depenses
+         */
+        get: operations["FinancesController_depenses_v1"];
+        put?: never;
+        /**
+         * Creer Depense
+         * @description Exécution de depenses
+         */
+        post: operations["FinancesController_creerDepense_v1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/finances/depenses/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Supprimer Depense
+         * @description Suppression de depenses/:id
+         */
+        delete: operations["FinancesController_supprimerDepense_v1"];
+        options?: never;
+        head?: never;
+        /**
+         * Maj Depense
+         * @description Mise à jour partielle de depenses/:id
+         */
+        patch: operations["FinancesController_majDepense_v1"];
+        trace?: never;
+    };
+    "/api/v1/finances/categories-depenses": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Categories Depenses
+         * @description Récupération des données pour categories-depenses
+         */
+        get: operations["FinancesController_categoriesDepenses_v1"];
+        put?: never;
+        /**
+         * Creer Categorie Depense
+         * @description Exécution de categories-depenses
+         */
+        post: operations["FinancesController_creerCategorieDepense_v1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/finances/categories-depenses/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Supprimer Categorie Depense
+         * @description Suppression de categories-depenses/:id
+         */
+        delete: operations["FinancesController_supprimerCategorieDepense_v1"];
+        options?: never;
+        head?: never;
+        /**
+         * Maj Categorie Depense
+         * @description Mise à jour partielle de categories-depenses/:id
+         */
+        patch: operations["FinancesController_majCategorieDepense_v1"];
+        trace?: never;
+    };
+    "/api/v1/finances/categories-depenses/{id}/hint": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Hint Categorie Depense
+         * @description Dernière dépense de categories-depenses/:id (montant/libellé)
+         */
+        get: operations["FinancesController_hintCategorieDepense_v1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/finances/impayes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Impayes
+         * @description Récupération des données pour impayes
+         */
+        get: operations["FinancesController_impayes_v1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/finances/moyens-paiement": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Moyens Paiement
+         * @description Récupération des données pour moyens-paiement
+         */
+        get: operations["FinancesController_moyensPaiement_v1"];
+        put?: never;
+        /**
+         * Creer Moyen Paiement
+         * @description Exécution de moyens-paiement
+         */
+        post: operations["FinancesController_creerMoyenPaiement_v1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/finances/moyens-paiement/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Maj Moyen Paiement
+         * @description Mise à jour partielle de moyens-paiement/:id
+         */
+        patch: operations["FinancesController_majMoyenPaiement_v1"];
+        trace?: never;
+    };
+    "/api/v1/finances/caisses": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Caisses
+         * @description Liste des caisses — un utilisateur assigné à une caisse ne voit que la sienne, un responsable scopé à une activité ne voit que les caisses de celle-ci
+         */
+        get: operations["FinancesController_caisses_v1"];
+        put?: never;
+        /**
+         * Creer Caisse
+         * @description Création d’une caisse
+         */
+        post: operations["FinancesController_creerCaisse_v1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/finances/caisses/accessibles": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Caisses Accessibles
+         * @description Caisses dans lesquelles le compte connecté peut enregistrer un encaissement ou un décaissement — sa propre caisse (rattaché), celles du scope activité (responsable) ou toutes (admin)
+         */
+        get: operations["FinancesController_caissesAccessibles_v1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/finances/caisses/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Maj Caisse
+         * @description Mise à jour partielle de caisses/:id
+         */
+        patch: operations["FinancesController_majCaisse_v1"];
+        trace?: never;
+    };
+    "/api/v1/finances/caisses/{id}/dashboard": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Dashboard Caisse
+         * @description Tableau de bord d’une caisse (revenus du jour, totaux, employés et détails des paiements)
+         */
+        get: operations["FinancesController_dashboardCaisse_v1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/finances/caisses/{id}/ouvrir": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Ouvrir Caisse
+         * @description Ouvre une caisse — autorise les écritures contre elle
+         */
+        post: operations["FinancesController_ouvrirCaisse_v1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/finances/caisses/{id}/fermer": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Fermer Caisse
+         * @description Ferme une caisse — bloque les écritures jusqu’à réouverture ; les prochaines appartiendront à la nouvelle période
+         */
+        post: operations["FinancesController_fermerCaisse_v1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/finances/tirages": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Tirages
+         * @description Historique des tirages de caisse — un utilisateur assigné à une caisse ne voit que les siens
+         */
+        get: operations["FinancesController_tirages_v1"];
+        put?: never;
+        /**
+         * Creer Tirage
+         * @description Tirage (fermeture) de caisse — montant compté vs attendu, écart calculé, un par caisse et par jour
+         */
+        post: operations["FinancesController_creerTirage_v1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/core/parametres": {
         parameters: {
             query?: never;
@@ -1759,438 +2211,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/finances/consolidation": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Consolidation
-         * @description Récupération des données pour consolidation
-         */
-        get: operations["FinancesController_consolidation_v1"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/finances/tableau-de-bord": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Tableau De Bord
-         * @description Récupération des données pour tableau-de-bord
-         */
-        get: operations["FinancesController_tableauDeBord_v1"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/finances/activites": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Activites
-         * @description Récupération des données pour activites
-         */
-        get: operations["FinancesController_activites_v1"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/finances/paiements": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Paiements
-         * @description Récupération des données pour paiements
-         */
-        get: operations["FinancesController_paiements_v1"];
-        put?: never;
-        /**
-         * Creer Paiement
-         * @description Exécution de paiements
-         */
-        post: operations["FinancesController_creerPaiement_v1"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/finances/paiements-par-utilisateur": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Paiements Par Utilisateur
-         * @description Encaissements/décaissements agrégés par employé sur une période (ex. la journée) — combien chaque employé a rapporté, plus le total en sommant les lignes. `id_caisse` permet à un admin de filtrer sur une caisse précise.
-         */
-        get: operations["FinancesController_paiementsParUtilisateur_v1"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/finances/paiements/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /**
-         * Maj Paiement
-         * @description Mise à jour partielle de paiements/:id
-         */
-        patch: operations["FinancesController_majPaiement_v1"];
-        trace?: never;
-    };
-    "/api/v1/finances/depenses": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Depenses
-         * @description Récupération des données pour depenses
-         */
-        get: operations["FinancesController_depenses_v1"];
-        put?: never;
-        /**
-         * Creer Depense
-         * @description Exécution de depenses
-         */
-        post: operations["FinancesController_creerDepense_v1"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/finances/depenses/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        /**
-         * Supprimer Depense
-         * @description Suppression de depenses/:id
-         */
-        delete: operations["FinancesController_supprimerDepense_v1"];
-        options?: never;
-        head?: never;
-        /**
-         * Maj Depense
-         * @description Mise à jour partielle de depenses/:id
-         */
-        patch: operations["FinancesController_majDepense_v1"];
-        trace?: never;
-    };
-    "/api/v1/finances/categories-depenses": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Categories Depenses
-         * @description Récupération des données pour categories-depenses
-         */
-        get: operations["FinancesController_categoriesDepenses_v1"];
-        put?: never;
-        /**
-         * Creer Categorie Depense
-         * @description Exécution de categories-depenses
-         */
-        post: operations["FinancesController_creerCategorieDepense_v1"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/finances/categories-depenses/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        /**
-         * Supprimer Categorie Depense
-         * @description Suppression de categories-depenses/:id
-         */
-        delete: operations["FinancesController_supprimerCategorieDepense_v1"];
-        options?: never;
-        head?: never;
-        /**
-         * Maj Categorie Depense
-         * @description Mise à jour partielle de categories-depenses/:id
-         */
-        patch: operations["FinancesController_majCategorieDepense_v1"];
-        trace?: never;
-    };
-    "/api/v1/finances/categories-depenses/{id}/hint": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Hint Categorie Depense
-         * @description Dernière dépense de categories-depenses/:id (montant/libellé)
-         */
-        get: operations["FinancesController_hintCategorieDepense_v1"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/finances/impayes": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Impayes
-         * @description Récupération des données pour impayes
-         */
-        get: operations["FinancesController_impayes_v1"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/finances/moyens-paiement": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Moyens Paiement
-         * @description Récupération des données pour moyens-paiement
-         */
-        get: operations["FinancesController_moyensPaiement_v1"];
-        put?: never;
-        /**
-         * Creer Moyen Paiement
-         * @description Exécution de moyens-paiement
-         */
-        post: operations["FinancesController_creerMoyenPaiement_v1"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/finances/moyens-paiement/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /**
-         * Maj Moyen Paiement
-         * @description Mise à jour partielle de moyens-paiement/:id
-         */
-        patch: operations["FinancesController_majMoyenPaiement_v1"];
-        trace?: never;
-    };
-    "/api/v1/finances/caisses": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Caisses
-         * @description Liste des caisses — un utilisateur assigné à une caisse ne voit que la sienne, un responsable scopé à une activité ne voit que les caisses de celle-ci
-         */
-        get: operations["FinancesController_caisses_v1"];
-        put?: never;
-        /**
-         * Creer Caisse
-         * @description Création d’une caisse
-         */
-        post: operations["FinancesController_creerCaisse_v1"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/finances/caisses/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /**
-         * Maj Caisse
-         * @description Mise à jour partielle de caisses/:id
-         */
-        patch: operations["FinancesController_majCaisse_v1"];
-        trace?: never;
-    };
-    "/api/v1/finances/caisses/{id}/dashboard": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Dashboard Caisse
-         * @description Tableau de bord d’une caisse (revenus du jour, totaux, employés et détails des paiements)
-         */
-        get: operations["FinancesController_dashboardCaisse_v1"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/finances/caisses/{id}/ouvrir": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Ouvrir Caisse
-         * @description Ouvre une caisse — autorise les écritures contre elle
-         */
-        post: operations["FinancesController_ouvrirCaisse_v1"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/finances/caisses/{id}/fermer": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Fermer Caisse
-         * @description Ferme une caisse — bloque les écritures jusqu’à réouverture ; les prochaines appartiendront à la nouvelle période
-         */
-        post: operations["FinancesController_fermerCaisse_v1"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/finances/tirages": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Tirages
-         * @description Historique des tirages de caisse — un utilisateur assigné à une caisse ne voit que les siens
-         */
-        get: operations["FinancesController_tirages_v1"];
-        put?: never;
-        /**
-         * Creer Tirage
-         * @description Tirage (fermeture) de caisse — montant compté vs attendu, écart calculé, un par caisse et par jour
-         */
-        post: operations["FinancesController_creerTirage_v1"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/v1/uploads": {
         parameters: {
             query?: never;
@@ -2720,7 +2740,7 @@ export interface paths {
         };
         /**
          * Categories
-         * @description Récupération des données pour categories
+         * @description Récupération des données pour categories — catalogue public, aucune authentification requise.
          */
         get: operations["RestaurantController_categories_v1"];
         put?: never;
@@ -5131,6 +5151,116 @@ export interface components {
             /** @example 42 */
             id_permission: string;
         };
+        CreerPaiementDto: {
+            /** @example 25000.00 */
+            montant: string;
+            /** @example 1 */
+            id_moyen: string;
+            /** @example 2 */
+            id_activite?: string;
+            /**
+             * @description Caisse de destination (sélection responsable). Ignoré pour un utilisateur assigné à une caisse — le service force sa propre caisse ; requis pour un non-assigné quand plusieurs caisses sont accessibles — voir GET /finances/caisses/accessibles.
+             * @example 1
+             */
+            id_caisse?: Record<string, never> | null;
+            /** @example 2026-08-15 */
+            date?: string;
+            motif?: string;
+            reference?: string;
+            /** @example 12 */
+            id_facture?: string;
+        };
+        MajPaiementDto: {
+            /** @example 2026-08-15 */
+            date?: string;
+            /** @example 1 */
+            id_moyen?: string;
+            motif?: Record<string, never> | null;
+            reference?: Record<string, never> | null;
+        };
+        CreerDepenseDto: {
+            /** @example 2026-08-15 */
+            date?: string;
+            /** @example 25000.00 */
+            montant: string;
+            /** @example 1 */
+            id_categorie_depense: string;
+            /** @example 2 */
+            id_activite?: Record<string, never> | null;
+            /**
+             * @description Caisse source de la dépense (sélection responsable). Ignoré pour un utilisateur assigné à une caisse — le service force sa propre caisse ; requis pour un non-assigné quand plusieurs caisses sont accessibles — voir GET /finances/caisses/accessibles.
+             * @example 1
+             */
+            id_caisse?: Record<string, never> | null;
+            /** @example Fournitures de bureau */
+            libelle: string;
+            justificatif?: Record<string, never> | null;
+        };
+        MajDepenseDto: {
+            /** @example 2026-08-15 */
+            date?: string;
+            /** @example 25000.00 */
+            montant?: string;
+            /** @example 1 */
+            id_categorie_depense?: string;
+            /** @example 2 */
+            id_activite?: Record<string, never> | null;
+            /** @example Fournitures de bureau */
+            libelle?: string;
+            justificatif?: Record<string, never> | null;
+        };
+        CreerCategorieDepenseDto: {
+            /** @example Fournitures de bureau */
+            libelle: string;
+        };
+        MajCategorieDepenseDto: {
+            /** @example Fournitures de bureau */
+            libelle?: string;
+        };
+        CreerMoyenPaiementDto: {
+            /** @example Mobile Money */
+            libelle: string;
+            /**
+             * @default true
+             * @enum {boolean}
+             */
+            actif: true | false;
+        };
+        MajMoyenPaiementDto: {
+            /** @example Mobile Money */
+            libelle?: string;
+            /** @enum {boolean} */
+            actif?: true | false;
+        };
+        CreerCaisseDto: {
+            /** @example Caisse 1 — Restaurant */
+            libelle: string;
+            /** @example 2 */
+            id_activite: string;
+            /**
+             * @default true
+             * @enum {boolean}
+             */
+            actif: true | false;
+        };
+        MajCaisseDto: {
+            /** @example Caisse 1 — Restaurant */
+            libelle?: string;
+            /** @enum {boolean} */
+            actif?: true | false;
+        };
+        CreerTirageDto: {
+            /** @example 125000.00 */
+            montant_compte: string;
+            /** @example 2026-08-24 */
+            date?: string;
+            /**
+             * @description Caisse à tirer. Requis pour un utilisateur non scopé ; doit correspondre à la caisse assignée sinon.
+             * @example 1
+             */
+            id_caisse?: string;
+            note?: string;
+        };
         CreerParametreDto: {
             /** @example DEVISE_DEFAUT */
             cle: string;
@@ -5251,6 +5381,8 @@ export interface components {
             date?: string;
             /** @description Référence externe du paiement (défaut : CAUTION-<id_contrat>). */
             reference?: Record<string, never> | null;
+            /** @example 1 */
+            id_caisse?: Record<string, never> | null;
         };
         RembourserCautionDto: {
             /**
@@ -5270,6 +5402,8 @@ export interface components {
              * @example 2026-09-12
              */
             date?: string;
+            /** @example 1 */
+            id_caisse?: Record<string, never> | null;
         };
         ResilierContratDto: {
             /** @example 2026-09-04 */
@@ -5289,6 +5423,8 @@ export interface components {
             /** @description Id du moyen de paiement (bigint, string). */
             id_moyen: string;
             date?: string;
+            /** @example 1 */
+            id_caisse?: Record<string, never> | null;
         };
         EncaisserLoyerLotDto: {
             /** @example 350000 */
@@ -5296,6 +5432,8 @@ export interface components {
             /** @description Id du moyen de paiement (bigint, string). */
             id_moyen: string;
             date?: string;
+            /** @example 1 */
+            id_caisse?: Record<string, never> | null;
         };
         CreerBatimentDto: {
             /** @example D */
@@ -5385,6 +5523,8 @@ export interface components {
             montant: string;
             /** @example 1 */
             id_moyen: string;
+            /** @example 1 */
+            id_caisse?: Record<string, never> | null;
         };
         CreerSejourDto: {
             /** @enum {string} */
@@ -5429,6 +5569,8 @@ export interface components {
             montant: string;
             /** @example 1 */
             id_moyen: string;
+            /** @example 1 */
+            id_caisse?: Record<string, never> | null;
         };
         ValiderSejourDto: {
             /** @example 4 */
@@ -5495,6 +5637,8 @@ export interface components {
             montant: string;
             /** @example 1 */
             id_moyen: string;
+            /** @example 1 */
+            id_caisse?: Record<string, never> | null;
         };
         PortailClientDto: {
             /** @example 12 */
@@ -5741,119 +5885,11 @@ export interface components {
             lignes?: components["schemas"]["LigneFacturationDto"][];
             /** @example 2000.00 */
             remise?: Record<string, never> | null;
+            /** @example 1 */
+            id_caisse?: Record<string, never> | null;
         };
         MajFactureDto: {
             libelle?: Record<string, never> | null;
-        };
-        CreerPaiementDto: {
-            /** @example 25000.00 */
-            montant: string;
-            /** @example 1 */
-            id_moyen: string;
-            /** @example 2 */
-            id_activite?: string;
-            /**
-             * @description Caisse ayant saisi ce paiement. Ignoré pour un utilisateur assigné à une caisse — le service force sa propre caisse.
-             * @example 1
-             */
-            id_caisse?: string;
-            /** @example 2026-08-15 */
-            date?: string;
-            motif?: string;
-            reference?: string;
-            /** @example 12 */
-            id_facture?: string;
-        };
-        MajPaiementDto: {
-            /** @example 2026-08-15 */
-            date?: string;
-            /** @example 1 */
-            id_moyen?: string;
-            motif?: Record<string, never> | null;
-            reference?: Record<string, never> | null;
-        };
-        CreerDepenseDto: {
-            /** @example 2026-08-15 */
-            date?: string;
-            /** @example 25000.00 */
-            montant: string;
-            /** @example 1 */
-            id_categorie_depense: string;
-            /** @example 2 */
-            id_activite?: Record<string, never> | null;
-            /**
-             * @description Caisse ayant saisi cette dépense. Ignoré pour un utilisateur assigné à une caisse — le service force sa propre caisse.
-             * @example 1
-             */
-            id_caisse?: Record<string, never> | null;
-            /** @example Fournitures de bureau */
-            libelle: string;
-            justificatif?: Record<string, never> | null;
-        };
-        MajDepenseDto: {
-            /** @example 2026-08-15 */
-            date?: string;
-            /** @example 25000.00 */
-            montant?: string;
-            /** @example 1 */
-            id_categorie_depense?: string;
-            /** @example 2 */
-            id_activite?: Record<string, never> | null;
-            /** @example Fournitures de bureau */
-            libelle?: string;
-            justificatif?: Record<string, never> | null;
-        };
-        CreerCategorieDepenseDto: {
-            /** @example Fournitures de bureau */
-            libelle: string;
-        };
-        MajCategorieDepenseDto: {
-            /** @example Fournitures de bureau */
-            libelle?: string;
-        };
-        CreerMoyenPaiementDto: {
-            /** @example Mobile Money */
-            libelle: string;
-            /**
-             * @default true
-             * @enum {boolean}
-             */
-            actif: true | false;
-        };
-        MajMoyenPaiementDto: {
-            /** @example Mobile Money */
-            libelle?: string;
-            /** @enum {boolean} */
-            actif?: true | false;
-        };
-        CreerCaisseDto: {
-            /** @example Caisse 1 — Restaurant */
-            libelle: string;
-            /** @example 2 */
-            id_activite: string;
-            /**
-             * @default true
-             * @enum {boolean}
-             */
-            actif: true | false;
-        };
-        MajCaisseDto: {
-            /** @example Caisse 1 — Restaurant */
-            libelle?: string;
-            /** @enum {boolean} */
-            actif?: true | false;
-        };
-        CreerTirageDto: {
-            /** @example 125000.00 */
-            montant_compte: string;
-            /** @example 2026-08-24 */
-            date?: string;
-            /**
-             * @description Caisse à tirer. Requis pour un utilisateur non scopé ; doit correspondre à la caisse assignée sinon.
-             * @example 1
-             */
-            id_caisse?: string;
-            note?: string;
         };
         CreerCategorieProduitDto: {
             /** @example Boissons */
@@ -5940,6 +5976,8 @@ export interface components {
             montant: string;
             /** @example 1 */
             id_moyen: string;
+            /** @example 1 */
+            id_caisse?: Record<string, never> | null;
         };
         CreerVenteDto: {
             lignes: components["schemas"]["LigneVenteDto"][];
@@ -6011,6 +6049,8 @@ export interface components {
             montant: string;
             /** @example 1 */
             id_moyen: string;
+            /** @example 1 */
+            id_caisse?: Record<string, never> | null;
         };
         CreerCommandeRestaurantDto: {
             /** @enum {string} */
@@ -6044,6 +6084,8 @@ export interface components {
             /** @default false */
             accepter_excedent: boolean;
             date?: string;
+            /** @example 1 */
+            id_caisse?: Record<string, never> | null;
         };
         CreerCommandePortailDto: {
             /** @enum {string} */
@@ -6111,6 +6153,8 @@ export interface components {
             montant: string;
             /** @example 1 */
             id_moyen: string;
+            /** @example 1 */
+            id_caisse?: Record<string, never> | null;
         };
         CreerSouscriptionDto: {
             /** @example 12 */
@@ -6181,6 +6225,8 @@ export interface components {
             montant: string;
             /** @example 1 */
             id_moyen: string;
+            /** @example 1 */
+            id_caisse?: Record<string, never> | null;
         };
         CreerCommandePressingDto: {
             /** @example 1 */
@@ -6236,7 +6282,9 @@ export interface components {
             /** @example 7000.00 */
             solde: string;
             /** @example 1 */
-            id_moyen: string;
+            id_moyen?: string;
+            /** @example 1 */
+            id_caisse?: Record<string, never> | null;
         };
         DefinirTarifKgDto: {
             /** @example 1500.00 */
@@ -6330,6 +6378,8 @@ export interface components {
             montant: string;
             /** @example 1 */
             id_moyen: string;
+            /** @example 1 */
+            id_caisse?: Record<string, never> | null;
         };
         ConfirmerReservationFeteDto: {
             paiement: components["schemas"]["PaiementReservationDto"];
@@ -6468,6 +6518,8 @@ export interface components {
         PayerPaieDto: {
             /** @example 1 */
             id_moyen: string;
+            /** @example 1 */
+            id_caisse?: Record<string, never> | null;
         };
         MasquerDonneesDto: {
             /**
@@ -7397,6 +7449,894 @@ export interface operations {
                 content?: never;
             };
             /** @description Permission refusée — requiert ADMIN.VOIR */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    FinancesController_consolidation_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Données renvoyées avec succès */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Permission refusée — requiert FINANCES.VOIR */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    FinancesController_tableauDeBord_v1: {
+        parameters: {
+            query?: {
+                format?: "json" | "pdf" | "xlsx";
+                /** @description Filtre par activité. Pour un utilisateur assigné à une caisse, doit correspondre à celle de sa caisse (400 sinon). */
+                id_activite?: string;
+                du?: string;
+                au?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Données renvoyées avec succès */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Permission refusée — requiert FINANCES.VOIR */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    FinancesController_activites_v1: {
+        parameters: {
+            query?: {
+                /** @description Recherche texte libre */
+                recherche?: string;
+                /** @description Colonne de tri */
+                sort?: string;
+                order?: "asc" | "desc";
+                limit?: number;
+                offset?: number;
+                actif?: true | false;
+                code?: string;
+                libelle?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Données renvoyées avec succès */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Permission refusée — requiert FINANCES.VOIR */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    FinancesController_paiements_v1: {
+        parameters: {
+            query?: {
+                /** @description Recherche texte libre */
+                recherche?: string;
+                /** @description Colonne de tri */
+                sort?: string;
+                order?: "asc" | "desc";
+                limit?: number;
+                offset?: number;
+                du?: string;
+                au?: string;
+                type?: "ENCAISSEMENT" | "DECAISSEMENT";
+                id_moyen?: string;
+                id_activite?: string;
+                id_utilisateur?: string;
+                /** @description Filtre par caisse — pour un utilisateur assigné à une caisse, doit correspondre à la sienne (400 sinon). */
+                id_caisse?: string;
+                /** @description Ne renvoie que les paiements sans caisse assignée (saisis par un admin sans id_caisse) — réservé à un utilisateur non scopé, sinon sans effet puisqu'il n'a accès qu'à sa propre caisse. */
+                sans_caisse?: boolean;
+                motif?: string;
+                reference?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Données renvoyées avec succès */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Permission refusée — requiert FINANCES.VOIR */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    FinancesController_creerPaiement_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreerPaiementDto"];
+            };
+        };
+        responses: {
+            /** @description Opération effectuée avec succès */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Permission refusée — requiert FINANCES.CREER */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    FinancesController_paiementsParUtilisateur_v1: {
+        parameters: {
+            query?: {
+                du?: string;
+                au?: string;
+                /** @description Filtre par caisse — permet à un admin de voir, pour une caisse donnée, ce que chaque employé y a rapporté. Pour un utilisateur assigné à une caisse, doit correspondre à la sienne (400 sinon). */
+                id_caisse?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Données renvoyées avec succès */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Permission refusée — requiert FINANCES.VOIR */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    FinancesController_majPaiement_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identifiant de la ressource ciblée */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MajPaiementDto"];
+            };
+        };
+        responses: {
+            /** @description Opération effectuée avec succès */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Permission refusée — requiert FINANCES.MODIFIER */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    FinancesController_depenses_v1: {
+        parameters: {
+            query?: {
+                /** @description Recherche texte libre */
+                recherche?: string;
+                /** @description Colonne de tri */
+                sort?: string;
+                order?: "asc" | "desc";
+                limit?: number;
+                offset?: number;
+                du?: string;
+                au?: string;
+                id_categorie_depense?: string;
+                id_activite?: string;
+                id_utilisateur?: string;
+                /** @description Filtre par caisse — pour un utilisateur assigné à une caisse, doit correspondre à la sienne (400 sinon). */
+                id_caisse?: string;
+                /** @description Ne renvoie que les dépenses sans caisse assignée (saisies par un admin sans id_caisse) — réservé à un utilisateur non scopé, sinon sans effet puisqu'il n'a accès qu'à sa propre caisse. */
+                sans_caisse?: boolean;
+                libelle?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Données renvoyées avec succès */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Permission refusée — requiert DEPENSE.VOIR */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    FinancesController_creerDepense_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreerDepenseDto"];
+            };
+        };
+        responses: {
+            /** @description Opération effectuée avec succès */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Permission refusée — requiert DEPENSE.CREER */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    FinancesController_supprimerDepense_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identifiant de la ressource ciblée */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Suppression effectuée avec succès */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Permission refusée — requiert DEPENSE.SUPPRIMER */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    FinancesController_majDepense_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identifiant de la ressource ciblée */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MajDepenseDto"];
+            };
+        };
+        responses: {
+            /** @description Opération effectuée avec succès */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Permission refusée — requiert DEPENSE.MODIFIER */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    FinancesController_categoriesDepenses_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Données renvoyées avec succès */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Permission refusée — requiert DEPENSE.VOIR */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    FinancesController_creerCategorieDepense_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreerCategorieDepenseDto"];
+            };
+        };
+        responses: {
+            /** @description Opération effectuée avec succès */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Permission refusée — requiert DEPENSE.CREER */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    FinancesController_supprimerCategorieDepense_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identifiant de la ressource ciblée */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Suppression effectuée avec succès */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Permission refusée — requiert DEPENSE.SUPPRIMER */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    FinancesController_majCategorieDepense_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identifiant de la ressource ciblée */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MajCategorieDepenseDto"];
+            };
+        };
+        responses: {
+            /** @description Opération effectuée avec succès */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Permission refusée — requiert DEPENSE.MODIFIER */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    FinancesController_hintCategorieDepense_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identifiant de la ressource ciblée */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Données renvoyées avec succès */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Permission refusée — requiert DEPENSE.VOIR */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    FinancesController_impayes_v1: {
+        parameters: {
+            query?: {
+                type?: "LOYER" | "CHARGE" | "FACTURE";
+                /** @description Id du client (bigint, string). */
+                client?: string;
+                periode?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Données renvoyées avec succès */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Permission refusée — requiert FINANCES.VOIR */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    FinancesController_moyensPaiement_v1: {
+        parameters: {
+            query?: {
+                /** @description Recherche texte libre */
+                recherche?: string;
+                /** @description Colonne de tri */
+                sort?: string;
+                order?: "asc" | "desc";
+                limit?: number;
+                offset?: number;
+                actif?: true | false;
+                libelle?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Données renvoyées avec succès */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Permission refusée — requiert FINANCES.VOIR */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    FinancesController_creerMoyenPaiement_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreerMoyenPaiementDto"];
+            };
+        };
+        responses: {
+            /** @description Opération effectuée avec succès */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Permission refusée — requiert FINANCES.CREER */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    FinancesController_majMoyenPaiement_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identifiant de la ressource ciblée */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MajMoyenPaiementDto"];
+            };
+        };
+        responses: {
+            /** @description Opération effectuée avec succès */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Permission refusée — requiert FINANCES.MODIFIER */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    FinancesController_caisses_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Données renvoyées avec succès */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Permission refusée — requiert FINANCES.VOIR */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    FinancesController_creerCaisse_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreerCaisseDto"];
+            };
+        };
+        responses: {
+            /** @description Opération effectuée avec succès */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Permission refusée — requiert FINANCES.CREER */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    FinancesController_caissesAccessibles_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Données renvoyées avec succès */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Permission refusée — requiert FINANCES.VOIR */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    FinancesController_majCaisse_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identifiant de la ressource ciblée */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MajCaisseDto"];
+            };
+        };
+        responses: {
+            /** @description Opération effectuée avec succès */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Permission refusée — requiert FINANCES.MODIFIER */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    FinancesController_dashboardCaisse_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identifiant de la caisse */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Données renvoyées avec succès */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Permission refusée — requiert FINANCES.VOIR */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    FinancesController_ouvrirCaisse_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identifiant de la caisse */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Opération effectuée avec succès */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Permission refusée — requiert FINANCES.CREER */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    FinancesController_fermerCaisse_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identifiant de la caisse */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Opération effectuée avec succès */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Permission refusée — requiert FINANCES.CREER */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    FinancesController_tirages_v1: {
+        parameters: {
+            query?: {
+                /** @description Recherche texte libre */
+                recherche?: string;
+                /** @description Colonne de tri */
+                sort?: string;
+                order?: "asc" | "desc";
+                limit?: number;
+                offset?: number;
+                du?: string;
+                au?: string;
+                id_caisse?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Données renvoyées avec succès */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Permission refusée — requiert FINANCES.VOIR */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    FinancesController_creerTirage_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreerTirageDto"];
+            };
+        };
+        responses: {
+            /** @description Opération effectuée avec succès */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Permission refusée — requiert FINANCES.CREER */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -10027,869 +10967,6 @@ export interface operations {
             };
         };
     };
-    FinancesController_consolidation_v1: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Données renvoyées avec succès */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Permission refusée — requiert FINANCES.VOIR */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    FinancesController_tableauDeBord_v1: {
-        parameters: {
-            query?: {
-                format?: "json" | "pdf" | "xlsx";
-                /** @description Filtre par activité. Pour un utilisateur assigné à une caisse, doit correspondre à celle de sa caisse (400 sinon). */
-                id_activite?: string;
-                du?: string;
-                au?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Données renvoyées avec succès */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Permission refusée — requiert FINANCES.VOIR */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    FinancesController_activites_v1: {
-        parameters: {
-            query?: {
-                /** @description Recherche texte libre */
-                recherche?: string;
-                /** @description Colonne de tri */
-                sort?: string;
-                order?: "asc" | "desc";
-                limit?: number;
-                offset?: number;
-                actif?: true | false;
-                code?: string;
-                libelle?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Données renvoyées avec succès */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Permission refusée — requiert FINANCES.VOIR */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    FinancesController_paiements_v1: {
-        parameters: {
-            query?: {
-                /** @description Recherche texte libre */
-                recherche?: string;
-                /** @description Colonne de tri */
-                sort?: string;
-                order?: "asc" | "desc";
-                limit?: number;
-                offset?: number;
-                du?: string;
-                au?: string;
-                type?: "ENCAISSEMENT" | "DECAISSEMENT";
-                id_moyen?: string;
-                id_activite?: string;
-                id_utilisateur?: string;
-                /** @description Filtre par caisse — pour un utilisateur assigné à une caisse, doit correspondre à la sienne (400 sinon). */
-                id_caisse?: string;
-                /** @description Ne renvoie que les paiements sans caisse assignée (saisis par un admin sans id_caisse) — réservé à un utilisateur non scopé, sinon sans effet puisqu'il n'a accès qu'à sa propre caisse. */
-                sans_caisse?: boolean;
-                motif?: string;
-                reference?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Données renvoyées avec succès */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Permission refusée — requiert FINANCES.VOIR */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    FinancesController_creerPaiement_v1: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreerPaiementDto"];
-            };
-        };
-        responses: {
-            /** @description Opération effectuée avec succès */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Permission refusée — requiert FINANCES.CREER */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    FinancesController_paiementsParUtilisateur_v1: {
-        parameters: {
-            query?: {
-                du?: string;
-                au?: string;
-                /** @description Filtre par caisse — permet à un admin de voir, pour une caisse donnée, ce que chaque employé y a rapporté. Pour un utilisateur assigné à une caisse, doit correspondre à la sienne (400 sinon). */
-                id_caisse?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Données renvoyées avec succès */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Permission refusée — requiert FINANCES.VOIR */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    FinancesController_majPaiement_v1: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Identifiant de la ressource ciblée */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["MajPaiementDto"];
-            };
-        };
-        responses: {
-            /** @description Opération effectuée avec succès */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Permission refusée — requiert FINANCES.MODIFIER */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    FinancesController_depenses_v1: {
-        parameters: {
-            query?: {
-                /** @description Recherche texte libre */
-                recherche?: string;
-                /** @description Colonne de tri */
-                sort?: string;
-                order?: "asc" | "desc";
-                limit?: number;
-                offset?: number;
-                du?: string;
-                au?: string;
-                id_categorie_depense?: string;
-                id_activite?: string;
-                id_utilisateur?: string;
-                /** @description Filtre par caisse — pour un utilisateur assigné à une caisse, doit correspondre à la sienne (400 sinon). */
-                id_caisse?: string;
-                /** @description Ne renvoie que les dépenses sans caisse assignée (saisies par un admin sans id_caisse) — réservé à un utilisateur non scopé, sinon sans effet puisqu'il n'a accès qu'à sa propre caisse. */
-                sans_caisse?: boolean;
-                libelle?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Données renvoyées avec succès */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Permission refusée — requiert DEPENSE.VOIR */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    FinancesController_creerDepense_v1: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreerDepenseDto"];
-            };
-        };
-        responses: {
-            /** @description Opération effectuée avec succès */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Permission refusée — requiert DEPENSE.CREER */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    FinancesController_supprimerDepense_v1: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Identifiant de la ressource ciblée */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Suppression effectuée avec succès */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Permission refusée — requiert DEPENSE.SUPPRIMER */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    FinancesController_majDepense_v1: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Identifiant de la ressource ciblée */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["MajDepenseDto"];
-            };
-        };
-        responses: {
-            /** @description Opération effectuée avec succès */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Permission refusée — requiert DEPENSE.MODIFIER */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    FinancesController_categoriesDepenses_v1: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Données renvoyées avec succès */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Permission refusée — requiert DEPENSE.VOIR */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    FinancesController_creerCategorieDepense_v1: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreerCategorieDepenseDto"];
-            };
-        };
-        responses: {
-            /** @description Opération effectuée avec succès */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Permission refusée — requiert DEPENSE.CREER */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    FinancesController_supprimerCategorieDepense_v1: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Identifiant de la ressource ciblée */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Suppression effectuée avec succès */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Permission refusée — requiert DEPENSE.SUPPRIMER */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    FinancesController_majCategorieDepense_v1: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Identifiant de la ressource ciblée */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["MajCategorieDepenseDto"];
-            };
-        };
-        responses: {
-            /** @description Opération effectuée avec succès */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Permission refusée — requiert DEPENSE.MODIFIER */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    FinancesController_hintCategorieDepense_v1: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Identifiant de la ressource ciblée */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Données renvoyées avec succès */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Permission refusée — requiert DEPENSE.VOIR */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    FinancesController_impayes_v1: {
-        parameters: {
-            query?: {
-                type?: "LOYER" | "CHARGE" | "FACTURE";
-                /** @description Id du client (bigint, string). */
-                client?: string;
-                periode?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Données renvoyées avec succès */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Permission refusée — requiert FINANCES.VOIR */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    FinancesController_moyensPaiement_v1: {
-        parameters: {
-            query?: {
-                /** @description Recherche texte libre */
-                recherche?: string;
-                /** @description Colonne de tri */
-                sort?: string;
-                order?: "asc" | "desc";
-                limit?: number;
-                offset?: number;
-                actif?: true | false;
-                libelle?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Données renvoyées avec succès */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Permission refusée — requiert FINANCES.VOIR */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    FinancesController_creerMoyenPaiement_v1: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreerMoyenPaiementDto"];
-            };
-        };
-        responses: {
-            /** @description Opération effectuée avec succès */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Permission refusée — requiert FINANCES.CREER */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    FinancesController_majMoyenPaiement_v1: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Identifiant de la ressource ciblée */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["MajMoyenPaiementDto"];
-            };
-        };
-        responses: {
-            /** @description Opération effectuée avec succès */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Permission refusée — requiert FINANCES.MODIFIER */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    FinancesController_caisses_v1: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Données renvoyées avec succès */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Permission refusée — requiert FINANCES.VOIR */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    FinancesController_creerCaisse_v1: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreerCaisseDto"];
-            };
-        };
-        responses: {
-            /** @description Opération effectuée avec succès */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Permission refusée — requiert FINANCES.CREER */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    FinancesController_majCaisse_v1: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Identifiant de la ressource ciblée */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["MajCaisseDto"];
-            };
-        };
-        responses: {
-            /** @description Opération effectuée avec succès */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Permission refusée — requiert FINANCES.MODIFIER */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    FinancesController_dashboardCaisse_v1: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Identifiant de la caisse */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Données renvoyées avec succès */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Permission refusée — requiert FINANCES.VOIR */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    FinancesController_ouvrirCaisse_v1: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Identifiant de la caisse */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Opération effectuée avec succès */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Permission refusée — requiert FINANCES.CREER */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    FinancesController_fermerCaisse_v1: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Identifiant de la caisse */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Opération effectuée avec succès */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Permission refusée — requiert FINANCES.CREER */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    FinancesController_tirages_v1: {
-        parameters: {
-            query?: {
-                /** @description Recherche texte libre */
-                recherche?: string;
-                /** @description Colonne de tri */
-                sort?: string;
-                order?: "asc" | "desc";
-                limit?: number;
-                offset?: number;
-                du?: string;
-                au?: string;
-                id_caisse?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Données renvoyées avec succès */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Permission refusée — requiert FINANCES.VOIR */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    FinancesController_creerTirage_v1: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreerTirageDto"];
-            };
-        };
-        responses: {
-            /** @description Opération effectuée avec succès */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Permission refusée — requiert FINANCES.CREER */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
     UploadsController_telecharger_v1: {
         parameters: {
             query: {
@@ -11992,13 +12069,6 @@ export interface operations {
         responses: {
             /** @description Données renvoyées avec succès */
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Permission refusée — requiert RESTAURANT.VOIR */
-            403: {
                 headers: {
                     [name: string]: unknown;
                 };
