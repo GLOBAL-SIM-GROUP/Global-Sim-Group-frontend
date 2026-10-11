@@ -10,14 +10,6 @@ import {
 	DialogTitle,
 } from "#/components/ui/dialog";
 import { InputField } from "#/components/ui/input-field";
-import { Label } from "#/components/ui/label";
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "#/components/ui/select";
 import { getErrorMessageForCode, getFieldErrors, toApiError } from "#/core/api";
 import {
 	normaliserMontantPourBackend,
@@ -25,11 +17,7 @@ import {
 } from "#/core/forms/montant";
 
 import { useModifierContrat } from "../hooks/use-contrats";
-import {
-	type Contrat,
-	TYPE_LOCATION_LABELS,
-	type TypeLocation,
-} from "../models/contrats";
+import type { Contrat, TypeLocation } from "../models/contrats";
 import type { Logement } from "../models/logements";
 import { LogementCascadeField } from "./logement-cascade-field";
 
@@ -39,7 +27,6 @@ type ModifierContratField =
 	| "dateDebut"
 	| "dateSignature"
 	| "dureeMois"
-	| "typeLocation"
 	| "montantLoyer";
 
 /** Propriétés backend (snake_case) → champs du formulaire. */
@@ -48,7 +35,6 @@ const FIELD_PROPERTY_TO_FORM: Record<string, ModifierContratField> = {
 	date_debut: "dateDebut",
 	date_signature: "dateSignature",
 	duree_mois: "dureeMois",
-	type_location: "typeLocation",
 	montant_loyer: "montantLoyer",
 };
 
@@ -62,40 +48,15 @@ interface ModifierContratFormDialogProps {
 	onSaved: () => void;
 }
 
-/** Champ Select avec label visible (le contenu s'ouvre en portal). */
-function SelectField({
-	id,
-	label,
-	value,
-	onValueChange,
-	children,
-}: {
-	id: string;
-	label: string;
-	value: string;
-	onValueChange: (value: string) => void;
-	children: React.ReactNode;
-}) {
-	return (
-		<div className="space-y-2">
-			<Label htmlFor={id}>{label}</Label>
-			<Select value={value} onValueChange={onValueChange}>
-				<SelectTrigger id={id} aria-label={label} className="w-full">
-					<SelectValue />
-				</SelectTrigger>
-				<SelectContent>{children}</SelectContent>
-			</Select>
-		</div>
-	);
-}
-
 /**
  * Modale « Modifier le contrat » (PATCH `/contrats/{id}`) — réservée aux
  * contrats EN_ATTENTE (le backend renvoie 400 sinon). Le locataire n'est pas
  * modifiable (`id_client` absent du DTO) ; la caution non plus (onglet
  * dédié). Tous les champs éditables du DTO sont renvoyés, `date_fin_prevue`
- * redéduite de la durée comme à la création. Montée conditionnellement
- * depuis la fiche : `useForm` se réinitialise à chaque ouverture.
+ * redéduite de la durée comme à la création ; `type_location` est renvoyé
+ * figé à `MENSUEL` (un contrat annuel existant est normalisé à la première
+ * modification). Montée conditionnellement depuis la fiche : `useForm` se
+ * réinitialise à chaque ouverture.
  */
 export function ModifierContratFormDialog({
 	contrat,
@@ -112,7 +73,9 @@ export function ModifierContratFormDialog({
 			dateDebut: contrat.date_debut.slice(0, 10),
 			dateSignature: contrat.date_signature?.slice(0, 10) ?? "",
 			dureeMois: contrat.duree_mois?.toString() ?? "",
-			typeLocation: contrat.type_location,
+			// Type de location figé : plus de choix annuel — toute modification
+			// normalise le contrat en bail mensuel.
+			typeLocation: "MENSUEL" as TypeLocation,
 			// Wire money (« 95000.00 ») → saisie (« 95000 »), sans passer par
 			// Number (perte de précision possible).
 			montantLoyer: contrat.montant_loyer.replace(/\.0+$/, ""),
@@ -267,27 +230,6 @@ export function ModifierContratFormDialog({
 									onChange={(event) => field.handleChange(event.target.value)}
 									error={field.state.meta.errors[0]}
 								/>
-							)}
-						</form.Field>
-
-						<form.Field name="typeLocation">
-							{(field) => (
-								<SelectField
-									id={field.name}
-									label="Type de location"
-									value={field.state.value}
-									onValueChange={(valeur) =>
-										field.handleChange(valeur as TypeLocation)
-									}
-								>
-									{(Object.keys(TYPE_LOCATION_LABELS) as TypeLocation[]).map(
-										(type) => (
-											<SelectItem key={type} value={type}>
-												{TYPE_LOCATION_LABELS[type]}
-											</SelectItem>
-										),
-									)}
-								</SelectField>
 							)}
 						</form.Field>
 

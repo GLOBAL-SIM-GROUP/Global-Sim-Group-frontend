@@ -4,14 +4,6 @@ import { useState } from "react";
 
 import { Button } from "#/components/ui/button";
 import { InputField } from "#/components/ui/input-field";
-import { Label } from "#/components/ui/label";
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "#/components/ui/select";
 import { getErrorMessageForCode, getFieldErrors, toApiError } from "#/core/api";
 import {
 	normaliserMontantPourBackend,
@@ -20,7 +12,7 @@ import {
 
 import type { ContratCree } from "../api/contrats";
 import { useCreerCaution, useCreerContrat } from "../hooks/use-contrats";
-import { TYPE_LOCATION_LABELS, type TypeLocation } from "../models/contrats";
+import type { TypeLocation } from "../models/contrats";
 import { ClientRechercheField } from "./client-recherche-field";
 import { LogementCascadeField } from "./logement-cascade-field";
 
@@ -31,7 +23,6 @@ type ContratField =
 	| "dateDebut"
 	| "dateSignature"
 	| "dureeMois"
-	| "typeLocation"
 	| "montantLoyer"
 	| "caution";
 
@@ -42,7 +33,6 @@ const FIELD_PROPERTY_TO_FORM: Record<string, ContratField> = {
 	date_debut: "dateDebut",
 	date_signature: "dateSignature",
 	duree_mois: "dureeMois",
-	type_location: "typeLocation",
 	montant_loyer: "montantLoyer",
 };
 
@@ -57,40 +47,14 @@ interface ContratFormProps {
 	onSaved: (contrat: ContratCree) => void;
 }
 
-/** Champ Select avec label visible (le contenu s'ouvre en portal). */
-function SelectField({
-	id,
-	label,
-	value,
-	onValueChange,
-	children,
-}: {
-	id: string;
-	label: string;
-	value: string;
-	onValueChange: (value: string) => void;
-	children: React.ReactNode;
-}) {
-	return (
-		<div className="space-y-2">
-			<Label htmlFor={id}>{label}</Label>
-			<Select value={value} onValueChange={onValueChange}>
-				<SelectTrigger id={id} aria-label={label} className="w-full">
-					<SelectValue />
-				</SelectTrigger>
-				<SelectContent>{children}</SelectContent>
-			</Select>
-		</div>
-	);
-}
-
 /**
  * Formulaire « Nouveau contrat de location » (M2.2), affiché dans une modale
  * au-dessus de la liste des contrats. Recherche de client (base unique,
  * création inline si absent), sélection du logement par cascade bâtiment →
- * logement, dates/durée/type/loyer. L'enregistrement POST `/contrats` génère
- * les échéances côté backend. Pas de champ « Périodicité » : redondant avec
- * « Type de location » (même valeur côté backend, cf. modèle).
+ * logement, dates/durée/loyer. L'enregistrement POST `/contrats` génère
+ * les échéances côté backend. `type_location` est figé à `MENSUEL` (plus de
+ * choix annuel à la création) et `periodicite` n'est jamais envoyé
+ * (redondant, même valeur côté backend, cf. modèle).
  *
  * La caution est optionnelle et créée par un second appel (POST
  * `/contrats/{id}/caution`, absent de `CreerContratDto` : le contrat doit
@@ -112,6 +76,8 @@ export function ContratForm({ onCancel, onSaved }: ContratFormProps) {
 			dateDebut: "",
 			dateSignature: "",
 			dureeMois: "",
+			// Type de location figé : plus de choix à la création (toujours un
+			// bail mensuel) — le champ n'est plus affiché mais reste envoyé.
 			typeLocation: "MENSUEL" as TypeLocation,
 			montantLoyer: "",
 			caution: "",
@@ -289,27 +255,6 @@ export function ContratForm({ onCancel, onSaved }: ContratFormProps) {
 							onChange={(event) => field.handleChange(event.target.value)}
 							error={field.state.meta.errors[0]}
 						/>
-					)}
-				</form.Field>
-
-				<form.Field name="typeLocation">
-					{(field) => (
-						<SelectField
-							id={field.name}
-							label="Type de location"
-							value={field.state.value}
-							onValueChange={(valeur) =>
-								field.handleChange(valeur as TypeLocation)
-							}
-						>
-							{(Object.keys(TYPE_LOCATION_LABELS) as TypeLocation[]).map(
-								(type) => (
-									<SelectItem key={type} value={type}>
-										{TYPE_LOCATION_LABELS[type]}
-									</SelectItem>
-								),
-							)}
-						</SelectField>
 					)}
 				</form.Field>
 
