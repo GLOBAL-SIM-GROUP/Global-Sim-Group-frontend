@@ -107,10 +107,24 @@ export function SejoursPortailPage({ variant }: SejoursPortailPageProps) {
 	const [erreur, setErreur] = useState<string | null>(null);
 	const [indisponible, setIndisponible] = useState(false);
 
+	// Période envoyée au catalogue = les mêmes date-heures que la demande —
+	// le backend compare en datetime : une date seule vaudrait minuit et
+	// masquerait un logement libéré dans la journée d'arrivée.
+	const arriveeChoisie = dateArrivee
+		? versDateHeure(dateArrivee, heureArrivee)
+		: "";
+	const departChoisi = dateDepart ? versDateHeure(dateDepart, heureDepart) : "";
+	// Le backend n'invalide pas la période (un seul paramètre = catalogue
+	// complet, `depart <= arrivee` = liste silencieuse) : on ne l'envoie que
+	// complète et strictement ordonnée.
 	const periodeValide =
-		Boolean(dateArrivee) && Boolean(dateDepart) && dateDepart >= dateArrivee;
+		Boolean(arriveeChoisie && departChoisi) && departChoisi > arriveeChoisie;
+	const periodeIncoherente =
+		Boolean(arriveeChoisie && departChoisi) && !periodeValide;
 	const logementsQuery = useLogementsPortail(
-		periodeValide ? { dateArrivee, dateDepart } : undefined,
+		periodeValide
+			? { dateHeureArrivee: arriveeChoisie, dateHeureDepart: departChoisi }
+			: undefined,
 		periodeValide,
 	);
 
@@ -135,12 +149,12 @@ export function SejoursPortailPage({ variant }: SejoursPortailPageProps) {
 		if (!logementChoisi || !selectionValide) {
 			return setErreur("Choisissez un logement disponible dans la liste.");
 		}
-		const arrivee = versDateHeure(dateArrivee, heureArrivee);
+		const arrivee = arriveeChoisie;
 		if (arrivee <= dateHeureMaintenant()) {
 			// Garde-fou UX : le backend refuse une arrivée passée (400).
 			return setErreur("La date d'arrivée doit être dans le futur.");
 		}
-		const depart = versDateHeure(dateDepart, heureDepart);
+		const depart = departChoisi;
 		if (depart <= arrivee) {
 			return setErreur(
 				"Le départ doit être postérieur à l'arrivée (jour et heure).",
@@ -338,7 +352,14 @@ export function SejoursPortailPage({ variant }: SejoursPortailPageProps) {
 					</div>
 				</div>
 
-				{periodeValide ? (
+				{periodeIncoherente ? (
+					<p
+						role="alert"
+						className="rounded-md border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-sm text-amber-700 dark:text-amber-400"
+					>
+						Le départ doit être postérieur à l'arrivée (jour et heure).
+					</p>
+				) : periodeValide ? (
 					<section className="space-y-3">
 						<h3 className="text-sm font-semibold text-foreground">
 							Logements disponibles sur cette période

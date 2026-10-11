@@ -13,17 +13,17 @@ import { logementsPortailKeys, sejoursPortailKeys } from "../permissions";
 
 /**
  * Catalogue des logements proposables (`GET .../portail/sejours/logements`).
- * `periode` (dates `YYYY-MM-DD`) restreinte aux logements libres sur la
- * période ; sans dates, tout le catalogue actif. La clé porte les dates →
- * refetch automatique au changement.
+ * `periode` (date-heures `YYYY-MM-DD HH:MM:SS` — le backend compare en
+ * datetime) restreint aux logements libres sur la période ; sans dates, les
+ * `DISPONIBLE` uniquement. La clé porte la période → refetch automatique.
  */
 export function useLogementsPortail(
-	periode?: { dateArrivee: string; dateDepart: string },
+	periode?: { dateHeureArrivee: string; dateHeureDepart: string },
 	enabled = true,
 ) {
 	const periodeCle =
-		periode?.dateArrivee && periode?.dateDepart
-			? `${periode.dateArrivee}~${periode.dateDepart}`
+		periode?.dateHeureArrivee && periode?.dateHeureDepart
+			? `${periode.dateHeureArrivee}~${periode.dateHeureDepart}`
 			: "catalogue";
 	return useQuery({
 		queryKey: logementsPortailKeys.list(periodeCle),

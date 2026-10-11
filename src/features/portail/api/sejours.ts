@@ -35,18 +35,30 @@ const toSejourPortail = ({
 
 /**
  * Catalogue des logements proposables (`GET .../logements`, PORTAIL.VOIR).
- * Sans dates : tout le catalogue actif. Avec `date_arrivee`/`date_depart`
- * (`YYYY-MM-DD`) : uniquement les logements libres sur la période — hors
- * séjours `EN_COURS` chevauchants et contrats de location `ACTIF` couvrant
- * la période.
+ * Comportement mesuré sur le backend réel (2026-10-08) :
+ * - sans dates : uniquement les logements `DISPONIBLE` ;
+ * - avec `date_arrivee`/`date_depart` : + exclusion des séjours `EN_COURS`
+ *   chevauchants et des contrats `ACTIF` couvrant la période — les demandes
+ *   `EN_ATTENTE` ne bloquent PAS (plusieurs demandes concurrentes possibles,
+ *   le staff tranche à la validation) ;
+ * - la comparaison se fait en **datetime** : envoyer `YYYY-MM-DD HH:MM:SS`
+ *   (l'heure saisie dans le formulaire), pas la date seule — `YYYY-MM-DD`
+ *   vaut minuit et bloquerait un logement libéré à midi ce jour-là ;
+ * - les deux paramètres sont indissociables : un seul est ignoré sans erreur
+ *   (catalogue complet) et `depart < arrivee` ne produit pas de 400 — la
+ *   période doit donc être validée avant l'appel, jamais envoyée à moitié.
  */
 export function listLogementsPortail(periode?: {
-	dateArrivee: string;
-	dateDepart: string;
+	/** `YYYY-MM-DD HH:MM:SS` — arrivée effective demandée. */
+	dateHeureArrivee: string;
+	/** `YYYY-MM-DD HH:MM:SS` — départ effectif demandé. */
+	dateHeureDepart: string;
 }): Promise<LogementPortail[]> {
 	const params = new URLSearchParams();
-	if (periode?.dateArrivee) params.set("date_arrivee", periode.dateArrivee);
-	if (periode?.dateDepart) params.set("date_depart", periode.dateDepart);
+	if (periode?.dateHeureArrivee && periode?.dateHeureDepart) {
+		params.set("date_arrivee", periode.dateHeureArrivee);
+		params.set("date_depart", periode.dateHeureDepart);
+	}
 	const qs = params.toString();
 	return getApiClient().apiFetch<LogementPortail[]>(
 		`/api/v1/residence/portail/sejours/logements${qs ? `?${qs}` : ""}`,

@@ -11,6 +11,7 @@ import {
 
 import { useBatiments } from "../hooks/use-batiments";
 import { useLogements } from "../hooks/use-logements";
+import { useOccupationPeriode } from "../hooks/use-occupation-periode";
 import { LOGEMENT_TYPE_LABELS, type Logement } from "../models/logements";
 
 interface LogementCascadeFieldProps {
@@ -43,6 +44,17 @@ interface LogementCascadeFieldProps {
 	 * contrat n'est pas DISPONIBLE mais doit rester sélectionnable).
 	 */
 	logementActuel?: Pick<Logement, "id" | "id_batiment" | "numero" | "type">;
+	/**
+	 * Période du séjour `[debut, fin[` (format backend `YYYY-MM-DD HH:MM:SS`
+	 * ou datetime-local). Avec `disponibleUniquement`, exclut en plus les
+	 * logements occupés sur la période — séjour `EN_COURS` chevauchant ou
+	 * contrat `ACTIF` couvrant (même règle que le catalogue portail ;
+	 * `GET /residence/logements` ne prend pas de dates, le filtrage est fait
+	 * ici). Les logements ayant une demande `EN_ATTENTE` chevauchante restent
+	 * proposables — le backend ne les bloque pas — mais sont suffixés
+	 * « demande en attente ».
+	 */
+	periode?: { debut: string; fin: string } | null;
 }
 
 /** Champ Select avec label visible (le contenu s'ouvre en portal). */
@@ -96,6 +108,7 @@ export function LogementCascadeField({
 	occupeUniquement = false,
 	batimentInitial,
 	logementActuel,
+	periode,
 }: LogementCascadeFieldProps) {
 	const [batimentId, setBatimentId] = useState(batimentInitial ?? "");
 
@@ -115,11 +128,29 @@ export function LogementCascadeField({
 	const logementsQuery = useLogements(batimentId, "tous", statutFiltre);
 	const batiment = batimentsQuery.data?.find((item) => item.id === batimentId);
 
+	// Filtre de période (création/validation de séjour) : recomposé en local
+	// depuis séjours + contrats — le lister logements ignore les dates.
+	const { occupes, enAttente } = useOccupationPeriode(
+		disponibleUniquement ? periode?.debut : null,
+		disponibleUniquement ? periode?.fin : null,
+	);
+
+	// Un logement choisi qui devient occupé sur la nouvelle période est
+	// désélectionné (le backend renverrait un 409 à l'enregistrement) ;
+	// `logementActuel` est conservé : il doit rester sélectionnable.
+	useEffect(() => {
+		if (value && occupes.has(value) && value !== logementActuel?.id) {
+			onChange("");
+		}
+	}, [value, occupes, logementActuel?.id, onChange]);
+
 	// `logementActuel` est fusionné dans la liste (dédupliqué, en tête) plutôt
 	// que rendu comme item conditionnel : tous les `SelectItem` gardent une
 	// `key` et une position stable entre les rendus.
 	const logements = useMemo(() => {
-		const liste = logementsQuery.data ?? [];
+		const liste = (logementsQuery.data ?? []).filter(
+			(logement) => !occupes.has(logement.id),
+		);
 		if (
 			!logementActuel ||
 			batimentId !== logementActuel.id_batiment ||
@@ -128,7 +159,7 @@ export function LogementCascadeField({
 			return liste;
 		}
 		return [logementActuel, ...liste];
-	}, [logementsQuery.data, logementActuel, batimentId]);
+	}, [logementsQuery.data, logementActuel, batimentId, occupes]);
 
 	return (
 		<div className="space-y-4">
@@ -164,9 +195,17 @@ export function LogementCascadeField({
 				{logements.map((logement) => (
 					<SelectItem key={logement.id} value={logement.id}>
 						{logement.numero} — {LOGEMENT_TYPE_LABELS[logement.type]}
+						{enAttente.has(logement.id) ? " · demande en attente" : ""}
 					</SelectItem>
 				))}
 			</SelectField>
+
+			{periode?.debut && periode.fin && disponibleUniquement ? (
+				<p className="text-xs text-muted-foreground">
+					Seuls les logements libres sur la période saisie sont proposés (séjour
+					en cours ou contrat actif exclus).
+				</p>
+			) : null}
 		</div>
 	);
 }

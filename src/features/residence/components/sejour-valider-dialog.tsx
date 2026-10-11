@@ -193,6 +193,12 @@ function ValiderSejourForm({
 							disponibleUniquement
 							batimentInitial={logementDemande?.id_batiment}
 							logementActuel={logementDemande}
+							periode={{
+								debut: sejour.date_heure_arrivee,
+								// Demande sans départ prévu : borne ouverte — tout logement
+								// sous contrat actif est de fait indisponible.
+								fin: sejour.date_heure_depart_prevue ?? "9999-12-31 23:59:59",
+							}}
 						/>
 						<p className="text-xs text-muted-foreground">
 							Logement demandé par le client présélectionné ; choisissez-en un

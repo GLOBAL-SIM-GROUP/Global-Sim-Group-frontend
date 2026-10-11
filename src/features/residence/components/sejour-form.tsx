@@ -300,15 +300,35 @@ export function SejourForm({ sejour, onCancel, onSaved }: SejourFormProps) {
 						)}
 					</form.Field>
 
-					<form.Field name="idLogement">
-						{(field) => (
-							<LogementCascadeField
-								value={field.state.value}
-								onChange={field.handleChange}
-								disponibleUniquement
-							/>
+					{/* La cascade ne propose que les logements libres sur la
+					    période saisie (GET /residence/logements ignore les dates —
+					    occupation recomposée en local, cf. `useOccupationPeriode`). */}
+					<form.Subscribe
+						selector={(state) => ({
+							arrivee: state.values.arrivee,
+							depart: state.values.depart,
+						})}
+					>
+						{({ arrivee, depart }) => (
+							<form.Field name="idLogement">
+								{(field) => (
+									<LogementCascadeField
+										value={field.state.value}
+										onChange={field.handleChange}
+										disponibleUniquement
+										periode={
+											arrivee && depart
+												? {
+														debut: toBackend(arrivee),
+														fin: toBackend(depart),
+													}
+												: null
+										}
+									/>
+								)}
+							</form.Field>
 						)}
-					</form.Field>
+					</form.Subscribe>
 				</>
 			) : null}
 

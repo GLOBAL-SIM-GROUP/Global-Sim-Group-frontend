@@ -52,14 +52,25 @@ describe("listLogementsPortail", () => {
 		);
 	});
 
-	it("passe les dates en query params snake_case", async () => {
+	it("passe la période en query params snake_case au format datetime", async () => {
 		apiFetch.mockResolvedValue([]);
 		await listLogementsPortail({
-			dateArrivee: "2026-10-02",
-			dateDepart: "2026-10-05",
+			dateHeureArrivee: "2026-10-02 14:00:00",
+			dateHeureDepart: "2026-10-05 11:00:00",
 		});
 		expect(apiFetch).toHaveBeenCalledWith(
-			"/api/v1/residence/portail/sejours/logements?date_arrivee=2026-10-02&date_depart=2026-10-05",
+			"/api/v1/residence/portail/sejours/logements?date_arrivee=2026-10-02+14%3A00%3A00&date_depart=2026-10-05+11%3A00%3A00",
+		);
+	});
+
+	it("ignore une période incomplète (un seul paramètre est ignoré par le backend)", async () => {
+		apiFetch.mockResolvedValue([]);
+		await listLogementsPortail({
+			dateHeureArrivee: "2026-10-02 14:00:00",
+			dateHeureDepart: "",
+		});
+		expect(apiFetch).toHaveBeenCalledWith(
+			"/api/v1/residence/portail/sejours/logements",
 		);
 	});
 });
