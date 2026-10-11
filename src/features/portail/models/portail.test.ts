@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import type { PortailPaiement } from "./portail";
-import { construireCsv, filtrerPaiements, libelleMoisAnnee } from "./portail";
+import { filtrerPaiements, libelleMoisAnnee } from "./portail";
 
 function paiement(id: string, date: string, type: string): PortailPaiement {
 	return {
@@ -42,12 +42,5 @@ describe("filtrerPaiements", () => {
 				type: "tous",
 			}),
 		).toHaveLength(1);
-	});
-});
-
-describe("construireCsv", () => {
-	it("joint les lignes au séparateur `;` et quote si besoin", () => {
-		expect(construireCsv([["a", "b"], ["c"]] as const)).toBe("a;b\nc");
-		expect(construireCsv([["x;y", "z"]] as const)).toBe('"x;y";z');
 	});
 });

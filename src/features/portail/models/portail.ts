@@ -287,24 +287,3 @@ export function filtrerPaiements(
 		return true;
 	});
 }
-
-/**
- * Construit un CSV (séparateur `;`, guillemets si besoin) à partir de lignes.
- * Fonction pure — testable.
- */
-export function construireCsv(
-	lignes: readonly (readonly (string | number)[])[],
-): string {
-	return lignes
-		.map((ligne) =>
-			ligne
-				.map((cellule) => {
-					const valeur = String(cellule ?? "");
-					return /[";\n]/.test(valeur)
-						? `"${valeur.replace(/"/g, '""')}"`
-						: valeur;
-				})
-				.join(";"),
-		)
-		.join("\n");
-}

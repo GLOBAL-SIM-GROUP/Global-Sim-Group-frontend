@@ -1,4 +1,4 @@
-import { FileDown, FileText, Loader2 } from "lucide-react";
+import { FileText, Loader2 } from "lucide-react";
 import { useState } from "react";
 
 import { Button } from "#/components/ui/button";
@@ -20,11 +20,6 @@ import {
 	telechargerRecuPaiementPdf,
 } from "../api/portail";
 import { useRecuEcheance, useRecuPaiement } from "../hooks/use-portail";
-import {
-	recuEcheanceEnCsv,
-	recuPaiementEnCsv,
-	telechargerTexte,
-} from "../lib/export";
 import {
 	libelleMoisAnnee,
 	type RecuEcheance,
@@ -49,16 +44,18 @@ function estRecuEcheance(
 /** Ligne lecture seule d'un reçu. */
 function Ligne({ label, valeur }: { label: string; valeur: string }) {
 	return (
-		<div className="grid grid-cols-[10rem_1fr] gap-3 text-sm">
+		<div className="grid grid-cols-1 gap-1 text-sm sm:grid-cols-[10rem_1fr] sm:gap-3">
 			<dt className="text-muted-foreground">{label}</dt>
-			<dd className="text-foreground">{valeur}</dd>
+			<dd className="min-w-0 break-words text-foreground">{valeur}</dd>
 		</div>
 	);
 }
 
 /**
- * Modale « Reçu » (M2.5) : affiche le reçu JSON d'une échéance ou d'un paiement
- * et permet de le télécharger en CSV.
+ * Modale « Reçu » (M2.5) : affiche le reçu JSON d'une échéance ou d'un
+ * paiement et permet de télécharger le PDF généré par le backend
+ * (`GET .../recu/pdf`). Pas d'export CSV — le reçu est un document servi
+ * par le backend, pas une sérialisation côté client.
  */
 export function RecuDialog({ open, kind, id, onOpenChange }: RecuDialogProps) {
 	const recuEcheanceQuery = useRecuEcheance(kind === "echeance" ? id : null);
@@ -79,16 +76,6 @@ export function RecuDialog({ open, kind, id, onOpenChange }: RecuDialogProps) {
 			}
 		}
 		return "Aucun reçu n'est émis tant que le paiement n'est pas encore effectué.";
-	};
-
-	const telechargerCsv = () => {
-		if (!recu) return;
-		const nom = `recu-${kind}-${id}.csv`;
-		if (estRecuEcheance(recu)) {
-			telechargerTexte(nom, recuEcheanceEnCsv(recu));
-		} else {
-			telechargerTexte(nom, recuPaiementEnCsv(recu));
-		}
 	};
 
 	const telechargerPdf = async () => {
@@ -120,7 +107,9 @@ export function RecuDialog({ open, kind, id, onOpenChange }: RecuDialogProps) {
 		<Dialog open={open} onOpenChange={onOpenChange}>
 			<DialogContent className="max-h-[85dvh] overflow-y-auto">
 				<DialogTitle>Reçu de paiement</DialogTitle>
-				<DialogDescription>{recu ? `${recu.reference}` : ""}</DialogDescription>
+				<DialogDescription className="break-words">
+					{recu ? `${recu.reference}` : ""}
+				</DialogDescription>
 
 				<div className="mt-4">
 					{query.isLoading ? (
@@ -194,36 +183,38 @@ export function RecuDialog({ open, kind, id, onOpenChange }: RecuDialogProps) {
 										label="Montant payé"
 										valeur={formatMontantFCFA(recu.facture.montant_paye)}
 									/>
-									<DataTable>
-										<DataTableHead>
-											<tr>
-												<Th>Libellé</Th>
-												<Th className="text-right">Qté</Th>
-												<Th className="text-right">P.U.</Th>
-												<Th className="text-right">Total</Th>
-											</tr>
-										</DataTableHead>
-										<tbody>
-											{recu.facture.lignes.map((ligne) => (
-												<Tr key={`${ligne.libelle}-${ligne.total}`}>
-													<Td className="text-foreground">{ligne.libelle}</Td>
-													<Td className="text-right text-foreground">
-														{ligne.quantite}
-													</Td>
-													<Td className="text-right text-foreground">
-														{formatMontantFCFA(ligne.prix_unitaire)}
-													</Td>
-													<Td className="text-right text-foreground">
-														{formatMontantFCFA(ligne.total)}
-													</Td>
-												</Tr>
-											))}
-										</tbody>
-									</DataTable>
+									<div className="overflow-x-auto">
+										<DataTable>
+											<DataTableHead>
+												<tr>
+													<Th>Libellé</Th>
+													<Th className="text-right">Qté</Th>
+													<Th className="text-right">P.U.</Th>
+													<Th className="text-right">Total</Th>
+												</tr>
+											</DataTableHead>
+											<tbody>
+												{recu.facture.lignes.map((ligne) => (
+													<Tr key={`${ligne.libelle}-${ligne.total}`}>
+														<Td className="text-foreground">{ligne.libelle}</Td>
+														<Td className="text-right text-foreground">
+															{ligne.quantite}
+														</Td>
+														<Td className="text-right text-foreground">
+															{formatMontantFCFA(ligne.prix_unitaire)}
+														</Td>
+														<Td className="text-right text-foreground">
+															{formatMontantFCFA(ligne.total)}
+														</Td>
+													</Tr>
+												))}
+											</tbody>
+										</DataTable>
+									</div>
 								</div>
 							) : null}
 
-							<div className="flex items-center justify-end gap-2">
+							<div className="flex flex-wrap items-center justify-end gap-2">
 								<Button
 									type="button"
 									variant="ghost"
@@ -231,15 +222,6 @@ export function RecuDialog({ open, kind, id, onOpenChange }: RecuDialogProps) {
 									onClick={() => onOpenChange(false)}
 								>
 									Fermer
-								</Button>
-								<Button
-									type="button"
-									variant="outline"
-									className="rounded-full"
-									onClick={telechargerCsv}
-								>
-									<FileDown className="size-4" aria-hidden />
-									Télécharger (CSV)
 								</Button>
 								<Button
 									type="button"

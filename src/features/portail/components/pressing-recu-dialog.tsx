@@ -27,9 +27,10 @@ interface PressingRecuDialogProps {
 
 /**
  * Reçu d'une commande de pressing (portail résident) : l'endpoint `recu`
- * renvoie des données JSON — rendues ici dans une modale (pas de PDF).
- * Tant que le dépôt n'est pas tarifé (`EN_ATTENTE`), les lignes sont
- * déclaratives et les montants `null` → affichés « — ».
+ * renvoie des données JSON — rendues ici dans une modale (pas de PDF
+ * dédié côté backend → consultation seule, pas d'export fabriqué côté
+ * client). Tant que le dépôt n'est pas tarifé (`EN_ATTENTE`), les lignes
+ * sont déclaratives et les montants `null` → affichés « — ».
  */
 export function PressingRecuDialog({
 	open,
