@@ -15,7 +15,7 @@ import {
 	UtensilsCrossed,
 	X,
 } from "lucide-react";
-import { type RefObject, useEffect, useRef, useState } from "react";
+import { useState } from "react";
 
 import { Button } from "#/components/ui/button";
 import { useCurrentUser } from "#/core/auth";
@@ -41,7 +41,10 @@ interface ServiceNavItem {
 	exact?: boolean;
 }
 
-const SERVICES: readonly ServiceNavItem[] = [
+/** Entrées de navigation de l'espace client — source unique partagée par
+ *  `ClientSidebar` (desktop), le menu hamburger (tablette) et
+ *  `MobileTabBar` (téléphone). */
+export const SERVICES: readonly ServiceNavItem[] = [
 	{
 		id: "accueil",
 		label: "Accueil",
@@ -196,7 +199,9 @@ function PanierButton() {
 	);
 }
 
-function AccountMenu({ variant }: { variant: "navbar" | "sidebar" }) {
+/** Menu compte partagé entre la navbar mobile (`navbar`) et la sidebar
+ *  desktop (`sidebar` — fond sombre `sea-ink`). */
+export function AccountMenu({ variant }: { variant: "navbar" | "sidebar" }) {
 	const user = useCurrentUser();
 	if (!user) return null;
 	return (
@@ -224,74 +229,6 @@ function AccountMenu({ variant }: { variant: "navbar" | "sidebar" }) {
 			}
 			login={user.login}
 			role={user.role}
-		/>
-	);
-}
-
-/**
- * Navigation horizontale de l'espace client (comptes rôle CLIENT) : navbar
- * sticky avec une entrée LIBELLÉE par service, PAS la sidebar staff/résident
- * (`Sidebar`) ni un menu « Services » regroupé. L'entrée de la page courante
- * est marquée par une barre lagoon qui GLISSE vers elle (`IndicateurGlissant`,
- * une seule instance animée en `left`/`width` au lieu d'un soulignement
- * fade sortie/entrée par lien).
- *
- * La rangée libellée ne tient qu'à partir de `xl` (~1280 px) : en dessous le
- * hamburger reprend le relais (même motif `mobileOpen` que `LandingHeader`,
- * entrées empilées ; l'actif y est souligné faute de barre glissante).
- */
-
-/**
- * Barre de soulignement UNIQUE qui glisse vers l'entrée active : position
- * `left`/`width` mesurée sur l'ancre `data-status="active"`, transitionnée —
- * la barre se déplace d'un item à l'autre au lieu de réapparaître.
- * `MutationObserver` sur `data-status` suit le changement de page ;
- * `ResizeObserver` suit les variations de largeur (polices, redimension).
- */
-function IndicateurGlissant({
-	navRef,
-}: {
-	navRef: RefObject<HTMLElement | null>;
-}) {
-	const [pos, setPos] = useState({ left: 0, width: 0, visible: false });
-
-	useEffect(() => {
-		const nav = navRef.current;
-		if (!nav) return;
-		const mesurer = () => {
-			const actif = nav.querySelector<HTMLElement>('a[data-status="active"]');
-			setPos((prev) =>
-				actif
-					? { left: actif.offsetLeft, width: actif.offsetWidth, visible: true }
-					: { ...prev, visible: false },
-			);
-		};
-		mesurer();
-		const ancres = [...nav.querySelectorAll("a")];
-		const mo = new MutationObserver(mesurer);
-		for (const a of ancres)
-			mo.observe(a, { attributes: true, attributeFilter: ["data-status"] });
-		const ro =
-			typeof ResizeObserver === "undefined"
-				? null
-				: new ResizeObserver(mesurer);
-		ro?.observe(nav);
-		for (const a of ancres) ro?.observe(a);
-		return () => {
-			mo.disconnect();
-			ro?.disconnect();
-		};
-	}, [navRef]);
-
-	return (
-		<div
-			aria-hidden
-			className={cn(
-				"pointer-events-none absolute bottom-0 left-0 h-0.5 rounded-full bg-lagoon",
-				"motion-safe:transition-all motion-safe:duration-300 motion-safe:ease-out",
-				pos.visible ? "opacity-100" : "opacity-0",
-			)}
-			style={{ left: pos.left, width: pos.width }}
 		/>
 	);
 }
@@ -380,39 +317,28 @@ export function MobileTabBar() {
 	);
 }
 
+/**
+ * Header mobile/tablette de l'espace client (`lg:hidden`) : logo + actions
+ * (cloche, panier, compte) + hamburger qui déplie les `SERVICES` en
+ * empilement vertical. Sur desktop (`lg+`), `ClientSidebar` prend le relais
+ * — ce header ne sert alors plus à la navigation, la sidebar porte tout.
+ */
 export function ClientNavbar() {
 	const [mobileOpen, setMobileOpen] = useState(false);
-	const navRef = useRef<HTMLElement>(null);
 
 	return (
-		<header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur">
-			<div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
+		<header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur lg:hidden">
+			<div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6">
 				<Link to="/" className="flex shrink-0 items-center gap-2">
 					<img
 						src="/logo.png"
 						alt="GLOBAL SIM GROUP"
 						className="h-9 w-auto object-contain"
 					/>
-					{/* Texte de marque masqué à partir de `xl` : la rangée des 8
-					    entrées libellées a besoin de toute la largeur du conteneur
-					    `max-w-7xl` ; le logo seul suffit (le nom reste visible en
-					    mobile/tablette où le menu passe par le hamburger). */}
-					<span className="hidden text-lg font-bold text-foreground sm:inline xl:hidden">
+					<span className="hidden text-lg font-bold text-foreground sm:inline">
 						GLOBAL SIM GROUP
 					</span>
 				</Link>
-
-				{/* Filet de sécurité `overflow-x-auto` (scrollbar masquée) : les 8
-				    entrées libellées (~950 px) peuvent être légèrement justes à
-				    1280 px une fois logo et actions déduits. */}
-				<nav
-					ref={navRef}
-					aria-label="Services"
-					className="relative hidden min-w-0 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden xl:block"
-				>
-					<ServiceButtons className="flex items-center gap-1" />
-					<IndicateurGlissant navRef={navRef} />
-				</nav>
 
 				<div className="flex shrink-0 items-center gap-2">
 					<NotificationBell />
@@ -423,7 +349,7 @@ export function ClientNavbar() {
 					<Button
 						variant="ghost"
 						size="icon-sm"
-						className="hover:bg-transparent xl:hidden"
+						className="hover:bg-transparent"
 						aria-label={mobileOpen ? "Fermer le menu" : "Ouvrir le menu"}
 						aria-expanded={mobileOpen}
 						onClick={() => setMobileOpen((current) => !current)}
@@ -439,7 +365,7 @@ export function ClientNavbar() {
 
 			<div
 				className={cn(
-					"border-t border-border xl:hidden",
+					"border-t border-border",
 					mobileOpen ? "block" : "hidden",
 				)}
 			>
