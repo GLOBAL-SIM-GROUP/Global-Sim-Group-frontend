@@ -107,6 +107,7 @@ import { Route as AuthenticatedResidencePortailAbonnementsIdRouteImport } from '
 import { Route as AuthenticatedResidencePortailBoutiqueIndexRouteImport } from './routes/_authenticated/residence/portail/boutique/index'
 import { Route as AuthenticatedResidencePortailBoutiqueIdRouteImport } from './routes/_authenticated/residence/portail/boutique/$id'
 import { Route as AuthenticatedResidencePortailCautionIndexRouteImport } from './routes/_authenticated/residence/portail/caution/index'
+import { Route as AuthenticatedResidencePortailCompteIndexRouteImport } from './routes/_authenticated/residence/portail/compte/index'
 import { Route as AuthenticatedResidencePortailEcheancesIndexRouteImport } from './routes/_authenticated/residence/portail/echeances/index'
 import { Route as AuthenticatedResidencePortailEtatDesLieuxIndexRouteImport } from './routes/_authenticated/residence/portail/etat-des-lieux/index'
 import { Route as AuthenticatedResidencePortailPaiementsIndexRouteImport } from './routes/_authenticated/residence/portail/paiements/index'
@@ -699,6 +700,12 @@ const AuthenticatedResidencePortailCautionIndexRoute =
     path: '/residence/portail/caution/',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedResidencePortailCompteIndexRoute =
+  AuthenticatedResidencePortailCompteIndexRouteImport.update({
+    id: '/residence/portail/compte/',
+    path: '/residence/portail/compte/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedResidencePortailEcheancesIndexRoute =
   AuthenticatedResidencePortailEcheancesIndexRouteImport.update({
     id: '/residence/portail/echeances/',
@@ -899,6 +906,7 @@ export interface FileRoutesByFullPath {
   '/residence/portail/abonnements/': typeof AuthenticatedResidencePortailAbonnementsIndexRoute
   '/residence/portail/boutique/': typeof AuthenticatedResidencePortailBoutiqueIndexRoute
   '/residence/portail/caution/': typeof AuthenticatedResidencePortailCautionIndexRoute
+  '/residence/portail/compte/': typeof AuthenticatedResidencePortailCompteIndexRoute
   '/residence/portail/echeances/': typeof AuthenticatedResidencePortailEcheancesIndexRoute
   '/residence/portail/etat-des-lieux/': typeof AuthenticatedResidencePortailEtatDesLieuxIndexRoute
   '/residence/portail/paiements/': typeof AuthenticatedResidencePortailPaiementsIndexRoute
@@ -1011,6 +1019,7 @@ export interface FileRoutesByTo {
   '/residence/portail/abonnements': typeof AuthenticatedResidencePortailAbonnementsIndexRoute
   '/residence/portail/boutique': typeof AuthenticatedResidencePortailBoutiqueIndexRoute
   '/residence/portail/caution': typeof AuthenticatedResidencePortailCautionIndexRoute
+  '/residence/portail/compte': typeof AuthenticatedResidencePortailCompteIndexRoute
   '/residence/portail/echeances': typeof AuthenticatedResidencePortailEcheancesIndexRoute
   '/residence/portail/etat-des-lieux': typeof AuthenticatedResidencePortailEtatDesLieuxIndexRoute
   '/residence/portail/paiements': typeof AuthenticatedResidencePortailPaiementsIndexRoute
@@ -1128,6 +1137,7 @@ export interface FileRoutesById {
   '/_authenticated/residence/portail/abonnements/': typeof AuthenticatedResidencePortailAbonnementsIndexRoute
   '/_authenticated/residence/portail/boutique/': typeof AuthenticatedResidencePortailBoutiqueIndexRoute
   '/_authenticated/residence/portail/caution/': typeof AuthenticatedResidencePortailCautionIndexRoute
+  '/_authenticated/residence/portail/compte/': typeof AuthenticatedResidencePortailCompteIndexRoute
   '/_authenticated/residence/portail/echeances/': typeof AuthenticatedResidencePortailEcheancesIndexRoute
   '/_authenticated/residence/portail/etat-des-lieux/': typeof AuthenticatedResidencePortailEtatDesLieuxIndexRoute
   '/_authenticated/residence/portail/paiements/': typeof AuthenticatedResidencePortailPaiementsIndexRoute
@@ -1244,6 +1254,7 @@ export interface FileRouteTypes {
     | '/residence/portail/abonnements/'
     | '/residence/portail/boutique/'
     | '/residence/portail/caution/'
+    | '/residence/portail/compte/'
     | '/residence/portail/echeances/'
     | '/residence/portail/etat-des-lieux/'
     | '/residence/portail/paiements/'
@@ -1356,6 +1367,7 @@ export interface FileRouteTypes {
     | '/residence/portail/abonnements'
     | '/residence/portail/boutique'
     | '/residence/portail/caution'
+    | '/residence/portail/compte'
     | '/residence/portail/echeances'
     | '/residence/portail/etat-des-lieux'
     | '/residence/portail/paiements'
@@ -1472,6 +1484,7 @@ export interface FileRouteTypes {
     | '/_authenticated/residence/portail/abonnements/'
     | '/_authenticated/residence/portail/boutique/'
     | '/_authenticated/residence/portail/caution/'
+    | '/_authenticated/residence/portail/compte/'
     | '/_authenticated/residence/portail/echeances/'
     | '/_authenticated/residence/portail/etat-des-lieux/'
     | '/_authenticated/residence/portail/paiements/'
@@ -2184,6 +2197,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedResidencePortailCautionIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/residence/portail/compte/': {
+      id: '/_authenticated/residence/portail/compte/'
+      path: '/residence/portail/compte'
+      fullPath: '/residence/portail/compte/'
+      preLoaderRoute: typeof AuthenticatedResidencePortailCompteIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/residence/portail/echeances/': {
       id: '/_authenticated/residence/portail/echeances/'
       path: '/residence/portail/echeances'
@@ -2377,6 +2397,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedResidencePortailAbonnementsIndexRoute: typeof AuthenticatedResidencePortailAbonnementsIndexRoute
   AuthenticatedResidencePortailBoutiqueIndexRoute: typeof AuthenticatedResidencePortailBoutiqueIndexRoute
   AuthenticatedResidencePortailCautionIndexRoute: typeof AuthenticatedResidencePortailCautionIndexRoute
+  AuthenticatedResidencePortailCompteIndexRoute: typeof AuthenticatedResidencePortailCompteIndexRoute
   AuthenticatedResidencePortailEcheancesIndexRoute: typeof AuthenticatedResidencePortailEcheancesIndexRoute
   AuthenticatedResidencePortailEtatDesLieuxIndexRoute: typeof AuthenticatedResidencePortailEtatDesLieuxIndexRoute
   AuthenticatedResidencePortailPaiementsIndexRoute: typeof AuthenticatedResidencePortailPaiementsIndexRoute
@@ -2524,6 +2545,8 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
     AuthenticatedResidencePortailBoutiqueIndexRoute,
   AuthenticatedResidencePortailCautionIndexRoute:
     AuthenticatedResidencePortailCautionIndexRoute,
+  AuthenticatedResidencePortailCompteIndexRoute:
+    AuthenticatedResidencePortailCompteIndexRoute,
   AuthenticatedResidencePortailEcheancesIndexRoute:
     AuthenticatedResidencePortailEcheancesIndexRoute,
   AuthenticatedResidencePortailEtatDesLieuxIndexRoute:
