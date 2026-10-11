@@ -14,14 +14,27 @@ export {
 	ApiError,
 	ApiErrorCode,
 	buildApiError,
+	CaisseErrorCode,
 	getFieldErrors,
+	getResteAPayerDetail,
 	isApiError,
+	isCaisseError,
 	isCaisseFermeeError,
+	isCaisseIntrouvableError,
+	isCaisseNonAutoriseeError,
+	isCaisseRequiseError,
+	isMontantError,
+	isMoyenPaiementError,
+	isStatutIncompatibleError,
+	PaiementErrorCode,
 	toApiError,
 } from "./api-error";
 export { authApi } from "./auth";
 export { getApiClient, setApiClient } from "./client";
-export { getErrorMessageForCode } from "./error-messages";
+export {
+	getErrorMessageForCode,
+	messageErreurPaiement,
+} from "./error-messages";
 export { healthApi } from "./health";
 export type { ApiClient, ApiDeps } from "./http";
 export { createApiClient } from "./http";

@@ -76,3 +76,72 @@ export interface FermetureCaisse {
 	id_periode: string;
 	fermee: true;
 }
+
+/**
+ * Caisse dans laquelle l'utilisateur connecté peut enregistrer un mouvement
+ * (`GET /finances/caisses/accessibles`) — sa propre caisse (rattaché), celles
+ * de son scope d'activité (responsable) ou toutes (admin). Triée pour
+ * l'affichage par le serveur (propre caisse d'abord) — rendre telle quelle.
+ */
+export interface CaisseAccessible {
+	id_caisse: string;
+	libelle: string;
+	id_activite: string;
+	activite_libelle: string | null;
+	/** `false` → la soumettre produit `CAISSE_FERMEE` (400). */
+	ouverte: boolean;
+	/** `true` → caisse du compte connecté : elle est forcée côté serveur. */
+	est_propre: boolean;
+	/** Premier utilisateur rattaché à la caisse (affichage seulement). */
+	utilisateur: { id: string; nom: string | null; prenom: string | null } | null;
+}
+
+/**
+ * `id_caisse` à envoyer dans un DTO d'encaissement/décaissement :
+ * - `undefined` quand le serveur résout seul (0 ou 1 caisse, ou présence
+ *   d'une caisse `est_propre` — elle est forcée, toute valeur serait ignorée) ;
+ * - le choix saisi quand plusieurs caisses subalternes sont proposées.
+ */
+export function idCaisseAEnvoyer(
+	caisses: CaisseAccessible[] | undefined,
+	choix: string,
+): string | undefined {
+	if (!caisses || caisses.length === 0) return undefined;
+	if (caisses.length === 1) return undefined;
+	if (caisses.some((caisse) => caisse.est_propre)) return undefined;
+	return choix || undefined;
+}
+
+/**
+ * Erreur de validation caisse avant envoi, ou `null` :
+ * - aucune caisse accessible → l'encaissement sera rejeté (`CAISSE_REQUISE`) ;
+ * - plusieurs caisses subalternes et pas de choix → sélection obligatoire.
+ */
+export function erreurCaisseRequise(
+	caisses: CaisseAccessible[] | undefined,
+	choix: string,
+	sens: "destination" | "source" = "destination",
+): string | null {
+	if (!caisses) return null; // chargement en cours
+	if (caisses.length === 0) {
+		return "Aucune caisse accessible — ouvrez une caisse ou demandez à un responsable de vous en rattacher une.";
+	}
+	if (caisses.length > 1 && !caisses.some((c) => c.est_propre) && !choix) {
+		return sens === "source"
+			? "Sélectionnez la caisse source."
+			: "Sélectionnez la caisse de destination.";
+	}
+	return null;
+}
+
+/**
+ * La spec backend déclare `id_caisse` en `type: object` (au lieu de `string`)
+ * sur les DTO — openapi-typescript génère `Record<string, never>`. Le serveur
+ * attend l'identifiant en chaîne (exemple `"1"` de la spec) ; ce cast lève
+ * l'erreur de typage en un seul point, à retirer quand la spec sera corrigée.
+ */
+export function idCaisseDto(
+	id: string | undefined,
+): Record<string, never> | undefined {
+	return id as unknown as Record<string, never> | undefined;
+}

@@ -30,8 +30,8 @@ import {
 	Tr,
 } from "#/components/ui/table";
 import {
-	getErrorMessageForCode,
 	isCaisseFermeeError,
+	messageErreurPaiement,
 	toApiError,
 } from "#/core/api";
 import { useCan } from "#/core/auth";
@@ -45,7 +45,8 @@ import {
 	formatDateISO,
 	formatMontantFCFA,
 } from "#/features/residence/models/format";
-import { useCurrentCaisse } from "../hooks/use-current-caisse";
+import { useCaissesAccessibles } from "../hooks/use-caisses-accessibles";
+
 import {
 	useCategoriesDepenses,
 	useCreerDepense,
@@ -53,9 +54,11 @@ import {
 	useModifierDepense,
 	useSupprimerDepense,
 } from "../hooks/use-finances";
+import { erreurCaisseRequise, idCaisseAEnvoyer } from "../models/caisses";
 import type { Depense } from "../models/finances";
 import { paginer } from "../models/finances";
 import { DEPENSES_PAGE_SIZE } from "../permissions";
+import { CaissePicker } from "./caisse-picker";
 import { CaisseSelector } from "./caisse-selector";
 
 /** Filtres/pagination reflétés dans l'URL. */
@@ -91,7 +94,7 @@ function DepenseFormDialog({
 	const editMutation = useModifierDepense();
 	const categoriesQuery = useCategoriesDepenses();
 	const categories = categoriesQuery.data ?? [];
-	const userCaisse = useCurrentCaisse();
+	const caissesQuery = useCaissesAccessibles();
 	const [globalError, setGlobalError] = useState<string | null>(null);
 	const [caisseFermee, setCaisseFermee] = useState(false);
 	const form = useForm({
@@ -101,7 +104,7 @@ function DepenseFormDialog({
 			idCategorieDepense: depense?.id_categorie_depense ?? "",
 			libelle: depense?.libelle ?? "",
 			justificatif: depense?.justificatif ?? "",
-			idCaisse: depense?.id_caisse ?? userCaisse ?? "",
+			idCaisse: depense?.id_caisse ?? "",
 		},
 		validators: {
 			onSubmit: ({ value }) => {
@@ -117,6 +120,12 @@ function DepenseFormDialog({
 					fields.idCategorieDepense = "Ce champ est requis.";
 				}
 				if (!value.libelle.trim()) fields.libelle = "Ce champ est requis.";
+				const erreurCaisse = erreurCaisseRequise(
+					caissesQuery.data,
+					value.idCaisse ?? "",
+					"source",
+				);
+				if (erreurCaisse) fields.idCaisse = erreurCaisse;
 				return { fields };
 			},
 		},
@@ -130,6 +139,7 @@ function DepenseFormDialog({
 					idCategorieDepense: value.idCategorieDepense,
 					libelle: value.libelle.trim(),
 					justificatif: value.justificatif.trim() || null,
+					idCaisse: idCaisseAEnvoyer(caissesQuery.data, value.idCaisse ?? ""),
 				};
 				if (depense) {
 					await editMutation.mutateAsync({ id: depense.id, ...corps });
@@ -143,10 +153,7 @@ function DepenseFormDialog({
 					setCaisseFermee(true);
 					setGlobalError(apiError.message);
 				} else {
-					setGlobalError(
-						getErrorMessageForCode(apiError.code) ??
-							(apiError.message || "Une erreur est survenue."),
-					);
+					setGlobalError(messageErreurPaiement(apiError));
 				}
 			}
 		},
@@ -260,12 +267,19 @@ function DepenseFormDialog({
 							/>
 						)}
 					</form.Field>
-					{!userCaisse && (
-						<CaisseSelector
-							value={form.getFieldValue("idCaisse") as string | undefined}
-							onChange={(id) => form.setFieldValue("idCaisse", id)}
-						/>
-					)}
+					<form.Field name="idCaisse">
+						{(field) => (
+							<CaissePicker
+								id={field.name}
+								sens="source"
+								caisses={caissesQuery.data}
+								chargement={caissesQuery.isLoading}
+								value={field.state.value ?? ""}
+								onChange={field.handleChange}
+								erreur={field.state.meta.errors[0]}
+							/>
+						)}
+					</form.Field>
 					{caisseFermee ? (
 						<div
 							role="alert"
@@ -320,13 +334,9 @@ export function DepensesPage({
 	const canModifier = useCan("DEPENSE.MODIFIER");
 	const canSupprimer = useCan("DEPENSE.SUPPRIMER");
 	const canVoir = useCan("FINANCES.VOIR");
-	const userCaisse = useCurrentCaisse();
-
 	const [du, setDu] = useState(initialSearch.du ?? "");
 	const [au, setAu] = useState(initialSearch.au ?? "");
-	const [idCaisse, setIdCaisse] = useState(
-		initialSearch.id_caisse ?? userCaisse ?? "",
-	);
+	const [idCaisse, setIdCaisse] = useState(initialSearch.id_caisse ?? "");
 	const [page, setPage] = useState(initialSearch.page ?? 1);
 	const [formOuvert, setFormOuvert] = useState(false);
 	const [aModifier, setAModifier] = useState<Depense | null>(null);
@@ -335,7 +345,7 @@ export function DepensesPage({
 	const depensesQuery = useDepenses(
 		initialSearch.du ?? "",
 		initialSearch.au ?? "",
-		idCaisse || userCaisse || undefined,
+		idCaisse || undefined,
 	);
 	const categoriesQuery = useCategoriesDepenses();
 	const supprimerMutation = useSupprimerDepense();
@@ -410,12 +420,10 @@ export function DepensesPage({
 						className="w-40"
 					/>
 				</div>
-				{!userCaisse && (
-					<CaisseSelector
-						value={idCaisse}
-						onChange={(id) => changerFiltre({ id_caisse: id })}
-					/>
-				)}
+				<CaisseSelector
+					value={idCaisse}
+					onChange={(id) => changerFiltre({ id_caisse: id })}
+				/>
 			</div>
 
 			{supprimerMutation.isError ? (

@@ -118,10 +118,12 @@ export function UtilisateurFormDialog({
 				const caisseChoisie = value.idCaisse
 					? caisses.find((caisse) => caisse.id_caisse === value.idCaisse)
 					: undefined;
+				const scopeAttendu =
+					roleSelectionne?.id_activite_scope ?? value.idActiviteScope;
 				if (
 					caisseChoisie &&
-					value.idActiviteScope &&
-					caisseChoisie.id_activite !== value.idActiviteScope
+					scopeAttendu &&
+					caisseChoisie.id_activite !== scopeAttendu
 				) {
 					fields.idCaisse =
 						"La caisse choisie n'appartient pas à l'activité scopée.";
@@ -308,7 +310,27 @@ export function UtilisateurFormDialog({
 								<Label htmlFor={field.name}>Rôle</Label>
 								<Select
 									value={field.state.value}
-									onValueChange={field.handleChange}
+									onValueChange={(valeur) => {
+										field.handleChange(valeur);
+										const roleChoisi = roles.find((r) => r.id === valeur);
+										if (roleChoisi?.id_activite_scope) {
+											form.setFieldValue(
+												"idActiviteScope",
+												roleChoisi.id_activite_scope,
+											);
+										}
+										const caisseChoisie = caisses.find(
+											(caisse) =>
+												caisse.id_caisse === form.getFieldValue("idCaisse"),
+										);
+										if (
+											caisseChoisie &&
+											roleChoisi?.id_activite_scope &&
+											caisseChoisie.id_activite !== roleChoisi.id_activite_scope
+										) {
+											form.setFieldValue("idCaisse", "");
+										}
+									}}
 								>
 									<SelectTrigger
 										id={field.name}
@@ -419,6 +441,13 @@ export function UtilisateurFormDialog({
 										? /caiss/i.test(roleSelectionne.code) ||
 											/caiss/i.test(roleSelectionne.libelle)
 										: false;
+									const scopeFiltre =
+										roleSelectionne?.id_activite_scope ?? (scope || null);
+									const caissesVisibles = scopeFiltre
+										? caisses.filter(
+												(caisse) => caisse.id_activite === scopeFiltre,
+											)
+										: caisses;
 									return (
 										<div className="space-y-1.5">
 											<Label htmlFor={field.name}>
@@ -451,7 +480,7 @@ export function UtilisateurFormDialog({
 												</SelectTrigger>
 												<SelectContent>
 													<SelectItem value="">Aucune</SelectItem>
-													{caisses.map((caisse) => (
+													{caissesVisibles.map((caisse) => (
 														<SelectItem
 															key={caisse.id_caisse}
 															value={caisse.id_caisse}
@@ -467,6 +496,10 @@ export function UtilisateurFormDialog({
 											{caisses.length === 0 ? (
 												<p className="text-xs text-muted-foreground">
 													Aucune caisse active visible (droits Finances requis).
+												</p>
+											) : caissesVisibles.length === 0 ? (
+												<p className="text-xs text-muted-foreground">
+													Aucune caisse active pour l'activité scopée.
 												</p>
 											) : null}
 											{field.state.meta.errors[0] ? (

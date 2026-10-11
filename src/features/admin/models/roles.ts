@@ -8,6 +8,13 @@ export interface Role {
 	code: string;
 	libelle: string;
 	description: string | null;
+	/**
+	 * Activité à laquelle le rôle est restreint (caissier/responsable
+	 * d'activité). `null` → rôle transverse (admin, dirigeant…). Déclaré
+	 * `Record<string, never> | null` dans la spec générée — la wire réelle
+	 * est une string (même défaut de contrat que `id_caisse`).
+	 */
+	id_activite_scope: string | null;
 }
 
 export interface Permission {

@@ -1,6 +1,7 @@
 import { getApiClient } from "#/core/api";
 import type {
 	Caisse,
+	CaisseAccessible,
 	CaisseDashboard,
 	CaisseFiltres,
 	CreerCaisseDto,
@@ -23,6 +24,17 @@ export async function listerCaisses(
 	return getApiClient().apiFetch(
 		`/api/v1/finances/caisses${qs ? `?${qs}` : ""}`,
 	);
+}
+
+/**
+ * Caisses dans lesquelles le compte connecté peut enregistrer un
+ * encaissement ou un décaissement (`GET /finances/caisses/accessibles`) —
+ * différent de `listerCaisses` (visibilité reporting) : c'est le périmètre
+ * *opérationnel* à proposer dans les sélecteurs de caisse des formulaires
+ * de paiement. Requiert `FINANCES.VOIR`.
+ */
+export async function listerCaissesAccessibles(): Promise<CaisseAccessible[]> {
+	return getApiClient().apiFetch("/api/v1/finances/caisses/accessibles");
 }
 
 /** Obtenir une caisse par ID. */
