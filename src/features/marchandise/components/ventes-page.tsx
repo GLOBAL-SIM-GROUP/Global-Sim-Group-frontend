@@ -6,7 +6,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "#/components/ui/button";
 import { InputField } from "#/components/ui/input-field";
 import { PageHeader } from "#/components/ui/page-header";
-import { isApiError, isCaisseFermeeError } from "#/core/api";
+import { isApiError, messageErreurPaiement } from "#/core/api";
 import { useCan } from "#/core/auth";
 import { useNotifications } from "#/core/notifications";
 import { useClientsDetails } from "#/features/residence/hooks/use-clients";
@@ -178,12 +178,7 @@ export function VentesPage({ initialSearch, onSearchChange }: VentesPageProps) {
 		) {
 			return "Stock insuffisant — des articles ont été vendus depuis la demande ; la validation est impossible.";
 		}
-		if (isCaisseFermeeError(erreurMutation)) {
-			return "La caisse est fermée — ouvrez-la (module Finances) avant d'encaisser.";
-		}
-		return erreurMutation instanceof Error
-			? erreurMutation.message
-			: "Une erreur est survenue.";
+		return messageErreurPaiement(erreurMutation);
 	})();
 
 	const feedback =
@@ -389,10 +384,15 @@ export function VentesPage({ initialSearch, onSearchChange }: VentesPageProps) {
 				vente={aEncaisser}
 				moyens={moyensQuery.data ?? []}
 				isPending={encaisserMutation.isPending}
-				onConfirm={({ idMoyen }) => {
+				onConfirm={({ idMoyen, idCaisse }) => {
 					if (aEncaisser) {
 						encaisserMutation.mutate(
-							{ id: aEncaisser.id, montant: aEncaisser.total, idMoyen },
+							{
+								id: aEncaisser.id,
+								montant: aEncaisser.total,
+								idMoyen,
+								idCaisse,
+							},
 							{ onSettled: () => setAEncaisser(null) },
 						);
 					}

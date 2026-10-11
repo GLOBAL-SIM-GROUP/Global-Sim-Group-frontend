@@ -1,6 +1,7 @@
 import { getApiClient } from "#/core/api";
 import type { components } from "#/core/api/generated/schema";
 import type { ApercuAbonnementPressing } from "#/features/abonnement/models/abonnements";
+import { idCaisseDto } from "#/features/finances/models/caisses";
 import { getImprimanteThermique } from "#/lib/imprimante-thermique-store";
 import { imprimerHtml } from "#/lib/print-pdf";
 import { imprimerTicketQZ } from "#/lib/qz-tray-client";
@@ -114,8 +115,12 @@ export interface CommandeBody {
 	modeTarification: ModeTarificationPressing;
 	dateRetraitPrevue: string;
 	lignes: LigneCommandeBody[];
-	/** Acompte éventuel — omis quand la couverture abonnement solde la commande. */
-	paiement?: { montant: string; idMoyen: string };
+	/**
+	 * Acompte éventuel — omis quand la couverture abonnement solde la
+	 * commande. `idCaisse` : caisse de destination choisie par un
+	 * responsable non rattaché (ignoré pour un caissier rattaché).
+	 */
+	paiement?: { montant: string; idMoyen: string; idCaisse?: string };
 	/**
 	 * `true` (défaut) = consommer le quota abonnement du client ; `false`
 	 * force la facturation plein tarif.
@@ -137,6 +142,9 @@ export function creerCommande(body: CommandeBody): Promise<unknown> {
 					paiement: {
 						montant: body.paiement.montant,
 						id_moyen: body.paiement.idMoyen,
+						...(body.paiement.idCaisse
+							? { id_caisse: idCaisseDto(body.paiement.idCaisse) }
+							: {}),
 					},
 				}
 			: {}),
@@ -205,13 +213,16 @@ export function pretCommande(id: string): Promise<unknown> {
  */
 export function retirerCommande(
 	id: string,
-	body: { solde: string; idMoyen?: string },
+	body: { solde: string; idMoyen?: string; idCaisse?: string },
 ): Promise<unknown> {
 	const corps = {
 		solde: body.solde,
 		...(body.idMoyen ? { id_moyen: body.idMoyen } : {}),
-	} satisfies Omit<EncaisserSoldePressingDto, "id_moyen"> & {
+		// Caisse de destination choisie par un responsable non rattaché.
+		...(body.idCaisse ? { id_caisse: idCaisseDto(body.idCaisse) } : {}),
+	} satisfies Omit<EncaisserSoldePressingDto, "id_moyen" | "id_caisse"> & {
 		id_moyen?: string;
+		id_caisse?: Record<string, never>;
 	};
 	return getApiClient().apiFetch(`/api/v1/pressing/commandes/${id}/retirer`, {
 		method: "POST",
@@ -238,8 +249,8 @@ export interface ValiderDemandeBody {
 	modeTarification: ModeTarificationPressing;
 	dateRetraitPrevue?: string;
 	lignes: LigneCommandeBody[];
-	/** Acompte éventuel encaissé à la validation. */
-	paiement?: { montant: string; idMoyen: string };
+	/** Acompte éventuel encaissé à la validation (idCaisse : choix responsable). */
+	paiement?: { montant: string; idMoyen: string; idCaisse?: string };
 	utiliserAbonnement?: boolean;
 	accepterExcedent?: boolean;
 }
@@ -260,6 +271,9 @@ export function validerDemande(
 					paiement: {
 						montant: body.paiement.montant,
 						id_moyen: body.paiement.idMoyen,
+						...(body.paiement.idCaisse
+							? { id_caisse: idCaisseDto(body.paiement.idCaisse) }
+							: {}),
 					},
 				}
 			: {}),

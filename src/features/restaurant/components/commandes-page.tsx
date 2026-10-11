@@ -13,7 +13,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "#/components/ui/select";
-import { toApiError } from "#/core/api";
+import { messageErreurPaiement } from "#/core/api";
 import { useCan } from "#/core/auth";
 import { messageSiExcedent } from "#/features/abonnement/hooks/use-excedent-confirmation";
 import { ConfirmDialog } from "#/features/residence/components/confirm-dialog";
@@ -401,6 +401,7 @@ export function CommandesPage({
 				onConfirm={({
 					montant,
 					idMoyen,
+					idCaisse,
 					date,
 					utiliserAbonnement,
 					accepterExcedent,
@@ -411,6 +412,7 @@ export function CommandesPage({
 								id: aEncaisser.id,
 								montant,
 								idMoyen,
+								idCaisse,
 								date,
 								utiliserAbonnement,
 								accepterExcedent,
@@ -424,9 +426,7 @@ export function CommandesPage({
 									// 409 « dépassement de quota » : garder le dialogue
 									// ouvert avec le message du serveur.
 									setErreurEncaisse(
-										messageSiExcedent(error) ??
-											toApiError(error).message ??
-											"Une erreur est survenue lors de l'encaissement.",
+										messageSiExcedent(error) ?? messageErreurPaiement(error),
 									);
 								},
 							},

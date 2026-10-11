@@ -1,6 +1,7 @@
 import { getApiClient } from "#/core/api";
 import type { components } from "#/core/api/generated/schema";
 
+import { idCaisseDto } from "#/features/finances/models/caisses";
 import type { CategorieCharge, Charge } from "../models/charges";
 
 type CreerChargeDto = components["schemas"]["CreerChargeDto"];
@@ -116,11 +117,13 @@ export function modifierCategorieCharge(
 /** Enregistre un paiement de charge (POST `/api/v1/charges/{id}/payer`). */
 export function payerCharge(
 	id: string,
-	body: { montant: string; idMoyen: string },
+	body: { montant: string; idMoyen: string; idCaisse?: string },
 ): Promise<unknown> {
 	const corps = {
 		montant: body.montant,
 		id_moyen: body.idMoyen,
+		// Caisse source du décaissement (sélection responsable).
+		...(body.idCaisse ? { id_caisse: idCaisseDto(body.idCaisse) } : {}),
 	} satisfies PayerChargeDto;
 	return getApiClient().apiFetch(`/api/v1/residence/charges/${id}/payer`, {
 		method: "POST",

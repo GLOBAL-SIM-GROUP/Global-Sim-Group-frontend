@@ -61,6 +61,7 @@ export function useCreerPaiementFacture() {
 			id: string;
 			montant: string;
 			idMoyen: string;
+			idCaisse?: string;
 		}) => creerPaiementFacture(id, body),
 		onSuccess: invalider,
 	});

@@ -1,5 +1,6 @@
 import { getApiClient } from "#/core/api";
 import type { components } from "#/core/api/generated/schema";
+import { idCaisseDto } from "#/features/finances/models/caisses";
 
 import type { Facture, FactureDetail, LigneFacture } from "../models/factures";
 
@@ -50,6 +51,8 @@ export interface FacturerBody {
 	idMoyen: string;
 	idClient?: string | null;
 	remise?: string | null;
+	/** Caisse de destination choisie par un responsable non rattaché. */
+	idCaisse?: string;
 }
 
 /**
@@ -65,6 +68,7 @@ export function facturerPrestation(
 		id_moyen: body.idMoyen,
 		...(body.idClient ? { id_client: body.idClient } : {}),
 		...(body.remise ? { remise: body.remise } : {}),
+		...(body.idCaisse ? { id_caisse: idCaisseDto(body.idCaisse) } : {}),
 	} satisfies Omit<FacturerPrestationDto, "id_client" | "remise"> & {
 		id_client?: string | null;
 		remise?: string | null;
@@ -81,12 +85,13 @@ export function facturerPrestation(
 /** Enregistre un paiement sur une facture (`id_facture`). */
 export function creerPaiementFacture(
 	idFacture: string,
-	body: { montant: string; idMoyen: string },
+	body: { montant: string; idMoyen: string; idCaisse?: string },
 ): Promise<unknown> {
 	const corps = {
 		montant: body.montant,
 		id_moyen: body.idMoyen,
 		id_facture: idFacture,
+		...(body.idCaisse ? { id_caisse: idCaisseDto(body.idCaisse) } : {}),
 	} satisfies CreerPaiementDto;
 	return getApiClient().apiFetch("/api/v1/finances/paiements", {
 		method: "POST",

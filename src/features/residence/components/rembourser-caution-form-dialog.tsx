@@ -19,14 +19,20 @@ import {
 	SelectValue,
 } from "#/components/ui/select";
 import {
-	getErrorMessageForCode,
 	isCaisseFermeeError,
+	messageErreurPaiement,
 	toApiError,
 } from "#/core/api";
 import {
 	normaliserMontantPourBackend,
 	validerMontant,
 } from "#/core/forms/montant";
+import { CaissePicker } from "#/features/finances/components/caisse-picker";
+import { useCaissesAccessibles } from "#/features/finances/hooks/use-caisses-accessibles";
+import {
+	erreurCaisseRequise,
+	idCaisseAEnvoyer,
+} from "#/features/finances/models/caisses";
 
 import { useRembourserCaution } from "../hooks/use-contrats";
 import type { MoyenPaiement } from "../models/moyens-paiement";
@@ -61,10 +67,12 @@ export function RembourserCautionFormDialog({
 	const [confirmation, setConfirmation] = useState<{
 		idPaiement: string | null;
 	} | null>(null);
+	const caissesQuery = useCaissesAccessibles();
 
 	const form = useForm({
 		defaultValues: {
 			idMoyen: moyens[0]?.id ?? "",
+			idCaisse: "",
 			retenue: "",
 			motifRetenue: "",
 			date: "",
@@ -79,6 +87,12 @@ export function RembourserCautionFormDialog({
 					const erreur = validerMontant(value.retenue, "La retenue");
 					if (erreur) fields.retenue = erreur;
 				}
+				const erreurCaisse = erreurCaisseRequise(
+					caissesQuery.data,
+					value.idCaisse,
+					"source",
+				);
+				if (erreurCaisse) fields.idCaisse = erreurCaisse;
 				return { fields };
 			},
 		},
@@ -89,6 +103,7 @@ export function RembourserCautionFormDialog({
 				const resultat = await mutation.mutateAsync({
 					idContrat,
 					idMoyen: value.idMoyen,
+					idCaisse: idCaisseAEnvoyer(caissesQuery.data, value.idCaisse),
 					retenue: value.retenue.trim()
 						? normaliserMontantPourBackend(value.retenue)
 						: null,
@@ -104,10 +119,7 @@ export function RembourserCautionFormDialog({
 					setCaisseFermee(true);
 					setGlobalError(apiError.message);
 				} else {
-					setGlobalError(
-						getErrorMessageForCode(apiError.code) ??
-							(apiError.message || "Une erreur est survenue."),
-					);
+					setGlobalError(messageErreurPaiement(apiError));
 				}
 			}
 		},
@@ -205,6 +217,20 @@ export function RembourserCautionFormDialog({
 											</p>
 										) : null}
 									</div>
+								)}
+							</form.Field>
+
+							<form.Field name="idCaisse">
+								{(field) => (
+									<CaissePicker
+										id={field.name}
+										sens="source"
+										caisses={caissesQuery.data}
+										chargement={caissesQuery.isLoading}
+										value={field.state.value}
+										onChange={field.handleChange}
+										erreur={field.state.meta.errors[0]}
+									/>
 								)}
 							</form.Field>
 

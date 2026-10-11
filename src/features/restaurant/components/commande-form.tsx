@@ -11,9 +11,16 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "#/components/ui/select";
+import { messageErreurPaiement } from "#/core/api";
 import { ApercuAbonnementPanel } from "#/features/abonnement/components/apercu-panel";
 import { useApercuDebounced } from "#/features/abonnement/hooks/use-apercu";
 import { useExcedentConfirmation } from "#/features/abonnement/hooks/use-excedent-confirmation";
+import { CaissePicker } from "#/features/finances/components/caisse-picker";
+import { useCaissesAccessibles } from "#/features/finances/hooks/use-caisses-accessibles";
+import {
+	erreurCaisseRequise,
+	idCaisseAEnvoyer,
+} from "#/features/finances/models/caisses";
 import { ClientRechercheField } from "#/features/residence/components/client-recherche-field";
 import { formatMontantFCFA } from "#/features/residence/models/format";
 import type { MoyenPaiement } from "#/features/residence/models/moyens-paiement";
@@ -56,6 +63,8 @@ export function CommandeForm({
 	]);
 	const [prochaineCle, setProchaineCle] = useState(1);
 	const [idMoyen, setIdMoyen] = useState("");
+	const [idCaisse, setIdCaisse] = useState("");
+	const caissesQuery = useCaissesAccessibles();
 	// Abonnements : ignorer = plein tarif ; protocole de confirmation du
 	// dépassement de quota partagé, voir `useExcedentConfirmation`.
 	const [ignorerAbonnement, setIgnorerAbonnement] = useState(false);
@@ -125,6 +134,10 @@ export function CommandeForm({
 		if (!sansPaiement && !idMoyen) {
 			return "Sélectionnez un moyen de paiement.";
 		}
+		if (!sansPaiement) {
+			const erreurCaisse = erreurCaisseRequise(caissesQuery.data, idCaisse);
+			if (erreurCaisse) return erreurCaisse;
+		}
 		return null;
 	};
 
@@ -145,16 +158,20 @@ export function CommandeForm({
 				idClient: idClient || null,
 				...(sansPaiement
 					? {}
-					: { paiement: { montant: String(montantDu), idMoyen } }),
+					: {
+							paiement: {
+								montant: String(montantDu),
+								idMoyen,
+								idCaisse: idCaisseAEnvoyer(caissesQuery.data, idCaisse),
+							},
+						}),
 				utiliserAbonnement: !ignorerAbonnement,
 				accepterExcedent: excedent.accepterExcedent(apercu.data?.excedent),
 			});
 			onSaved();
 		} catch (error) {
 			const messageExcedent = excedent.detecter(error);
-			setGlobalError(
-				messageExcedent ?? "Une erreur est survenue lors de l'enregistrement.",
-			);
+			setGlobalError(messageExcedent ?? messageErreurPaiement(error));
 		}
 	};
 
@@ -285,26 +302,35 @@ export function CommandeForm({
 					encaisser.
 				</p>
 			) : (
-				<div className="space-y-2">
-					<Label htmlFor="commande-moyen">Moyen de paiement</Label>
-					<Select value={idMoyen} onValueChange={setIdMoyen}>
-						<SelectTrigger id="commande-moyen" className="w-full">
-							<SelectValue placeholder="Sélectionner un moyen" />
-						</SelectTrigger>
-						<SelectContent>
-							{moyens.map((moyen) => (
-								<SelectItem key={moyen.id} value={moyen.id}>
-									{moyen.libelle}
-								</SelectItem>
-							))}
-						</SelectContent>
-					</Select>
-					{moyens.length === 0 ? (
-						<p className="text-xs text-muted-foreground">
-							Aucun moyen de paiement configuré (module Finances).
-						</p>
-					) : null}
-				</div>
+				<>
+					<div className="space-y-2">
+						<Label htmlFor="commande-moyen">Moyen de paiement</Label>
+						<Select value={idMoyen} onValueChange={setIdMoyen}>
+							<SelectTrigger id="commande-moyen" className="w-full">
+								<SelectValue placeholder="Sélectionner un moyen" />
+							</SelectTrigger>
+							<SelectContent>
+								{moyens.map((moyen) => (
+									<SelectItem key={moyen.id} value={moyen.id}>
+										{moyen.libelle}
+									</SelectItem>
+								))}
+							</SelectContent>
+						</Select>
+						{moyens.length === 0 ? (
+							<p className="text-xs text-muted-foreground">
+								Aucun moyen de paiement configuré (module Finances).
+							</p>
+						) : null}
+					</div>
+					<CaissePicker
+						id="commande-caisse"
+						caisses={caissesQuery.data}
+						chargement={caissesQuery.isLoading}
+						value={idCaisse}
+						onChange={setIdCaisse}
+					/>
+				</>
 			)}
 
 			<p className="text-right text-base font-semibold text-foreground">

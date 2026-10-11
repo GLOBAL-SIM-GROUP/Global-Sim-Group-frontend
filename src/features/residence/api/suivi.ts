@@ -1,5 +1,6 @@
 import { getApiClient } from "#/core/api";
 import type { components } from "#/core/api/generated/schema";
+import { idCaisseDto } from "#/features/finances/models/caisses";
 
 import type { EcheanceSuivi } from "../models/echeances";
 
@@ -33,6 +34,8 @@ export interface EncaisserBody {
 	montant: string;
 	idMoyen: string;
 	date?: string;
+	/** Caisse de destination choisie par un responsable non rattaché. */
+	idCaisse?: string;
 }
 
 /** Encaisser une échéance (POST `EncaisserLoyerDto`). */
@@ -44,6 +47,8 @@ export function encaisserEcheance(
 		montant: body.montant,
 		id_moyen: body.idMoyen,
 		...(body.date ? { date: body.date } : {}),
+		// Caisse de destination choisie par un responsable non rattaché.
+		...(body.idCaisse ? { id_caisse: idCaisseDto(body.idCaisse) } : {}),
 	} satisfies EncaisserLoyerDto;
 	return getApiClient().apiFetch(
 		`/api/v1/residence/echeances/${id}/encaisser`,

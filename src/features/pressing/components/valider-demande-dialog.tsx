@@ -18,14 +18,20 @@ import {
 	SelectValue,
 } from "#/components/ui/select";
 import {
-	getErrorMessageForCode,
 	isCaisseFermeeError,
+	messageErreurPaiement,
 	toApiError,
 } from "#/core/api";
 import { useCan } from "#/core/auth";
 import { ApercuAbonnementPanel } from "#/features/abonnement/components/apercu-panel";
 import { useApercuDebounced } from "#/features/abonnement/hooks/use-apercu";
 import { useExcedentConfirmation } from "#/features/abonnement/hooks/use-excedent-confirmation";
+import { CaissePicker } from "#/features/finances/components/caisse-picker";
+import { useCaissesAccessibles } from "#/features/finances/hooks/use-caisses-accessibles";
+import {
+	erreurCaisseRequise,
+	idCaisseAEnvoyer,
+} from "#/features/finances/models/caisses";
 import { formatMontantFCFA } from "#/features/residence/models/format";
 import type { MoyenPaiement } from "#/features/residence/models/moyens-paiement";
 
@@ -108,6 +114,8 @@ export function ValiderDemandeDialog({
 	);
 	const [acompte, setAcompte] = useState("");
 	const [idMoyen, setIdMoyen] = useState(moyens[0]?.id ?? "");
+	const caissesQuery = useCaissesAccessibles();
+	const [idCaisse, setIdCaisse] = useState("");
 	// Abonnements : ignorer = plein tarif ; protocole de confirmation du
 	// dépassement de quota partagé, voir `useExcedentConfirmation`.
 	const [ignorerAbonnement, setIgnorerAbonnement] = useState(false);
@@ -213,6 +221,9 @@ export function ValiderDemandeDialog({
 		if (acompte.trim() && !idMoyen) {
 			return "Sélectionnez le moyen de paiement de l'acompte.";
 		}
+		if (acompte.trim() && !couvertureComplete) {
+			return erreurCaisseRequise(caissesQuery.data, idCaisse);
+		}
 		return null;
 	};
 
@@ -232,7 +243,13 @@ export function ValiderDemandeDialog({
 				dateRetraitPrevue: dateRetrait.trim() || undefined,
 				lignes: lignesCorps,
 				...(acompte.trim()
-					? { paiement: { montant: acompte.trim(), idMoyen } }
+					? {
+							paiement: {
+								montant: acompte.trim(),
+								idMoyen,
+								idCaisse: idCaisseAEnvoyer(caissesQuery.data, idCaisse),
+							},
+						}
 					: {}),
 				utiliserAbonnement: !ignorerAbonnement,
 				accepterExcedent: excedent.accepterExcedent(apercu.data?.excedent),
@@ -249,11 +266,7 @@ export function ValiderDemandeDialog({
 				setCaisseFermee(true);
 				setGlobalError(apiError.message);
 			} else {
-				setGlobalError(
-					getErrorMessageForCode(apiError.code) ??
-						(apiError.message ||
-							"Une erreur est survenue lors de la validation."),
-				);
+				setGlobalError(messageErreurPaiement(apiError));
 			}
 		}
 	};
@@ -501,6 +514,17 @@ export function ValiderDemandeDialog({
 										))}
 									</SelectContent>
 								</Select>
+							</div>
+						) : null}
+						{acompte.trim() ? (
+							<div className="sm:col-span-2">
+								<CaissePicker
+									id="validation-caisse"
+									caisses={caissesQuery.data}
+									chargement={caissesQuery.isLoading}
+									value={idCaisse}
+									onChange={setIdCaisse}
+								/>
 							</div>
 						) : null}
 					</div>

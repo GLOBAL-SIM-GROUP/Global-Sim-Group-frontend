@@ -1,5 +1,6 @@
 import { getApiClient } from "#/core/api";
 import type { components } from "#/core/api/generated/schema";
+import { idCaisseDto } from "#/features/finances/models/caisses";
 
 import type { RapportVentes } from "../models/statistiques";
 import type { LigneVente, Vente, VenteDetail } from "../models/ventes";
@@ -60,7 +61,7 @@ export interface VenteBody {
 	lignes: LigneVenteBody[];
 	remise?: string;
 	idClient?: string | null;
-	paiement: { montant: string; idMoyen: string };
+	paiement: { montant: string; idMoyen: string; idCaisse?: string };
 }
 
 /** Enregistre une vente (POST `CreerVenteDto`) : décrémente le stock. */
@@ -75,6 +76,9 @@ export function creerVente(body: VenteBody): Promise<unknown> {
 		paiement: {
 			montant: body.paiement.montant,
 			id_moyen: body.paiement.idMoyen,
+			...(body.paiement.idCaisse
+				? { id_caisse: idCaisseDto(body.paiement.idCaisse) }
+				: {}),
 		},
 	} satisfies Omit<CreerVenteDto, "id_client"> & { id_client?: string | null };
 	return getApiClient().apiFetch("/api/v1/market/ventes", {
@@ -104,11 +108,12 @@ export function validerVente(id: string): Promise<unknown> {
  */
 export function encaisserVente(
 	id: string,
-	body: { montant: string; idMoyen: string },
+	body: { montant: string; idMoyen: string; idCaisse?: string },
 ): Promise<unknown> {
 	const corps: PaiementVenteDto = {
 		montant: body.montant,
 		id_moyen: body.idMoyen,
+		...(body.idCaisse ? { id_caisse: idCaisseDto(body.idCaisse) } : {}),
 	};
 	return getApiClient().apiFetch(`/api/v1/market/ventes/${id}/encaisser`, {
 		method: "POST",

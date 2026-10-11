@@ -19,7 +19,13 @@ import {
 	SelectValue,
 } from "#/components/ui/select";
 import { Textarea } from "#/components/ui/textarea";
-import { toApiError } from "#/core/api";
+import { messageErreurPaiement } from "#/core/api";
+import { CaissePicker } from "#/features/finances/components/caisse-picker";
+import { useCaissesAccessibles } from "#/features/finances/hooks/use-caisses-accessibles";
+import {
+	erreurCaisseRequise,
+	idCaisseAEnvoyer,
+} from "#/features/finances/models/caisses";
 import { ClientRechercheField } from "#/features/residence/components/client-recherche-field";
 import { useMoyensPaiement } from "#/features/residence/hooks/use-moyens-paiement";
 import {
@@ -57,6 +63,8 @@ function VendreSouscriptionForm({
 	const [prixTouche, setPrixTouche] = useState(false);
 	const [montantPaiement, setMontantPaiement] = useState("");
 	const [idMoyen, setIdMoyen] = useState("");
+	const [idCaisse, setIdCaisse] = useState("");
+	const caissesQuery = useCaissesAccessibles();
 	const [note, setNote] = useState("");
 	// Après une vente partielle/sans paiement, on affiche le reste à payer
 	// renvoyé par le backend plutôt que de fermer sec.
@@ -80,6 +88,7 @@ function VendreSouscriptionForm({
 				return "Le paiement doit être un montant positif (ou vide).";
 			}
 			if (!idMoyen) return "Sélectionnez le moyen de paiement.";
+			return erreurCaisseRequise(caissesQuery.data, idCaisse);
 		}
 		return null;
 	};
@@ -98,15 +107,19 @@ function VendreSouscriptionForm({
 				...(dateDebut ? { dateDebut } : {}),
 				...(prixTouche && prix.trim() ? { prix: prix.trim() } : {}),
 				...(montantPaiement.trim()
-					? { paiement: { montant: montantPaiement.trim(), idMoyen } }
+					? {
+							paiement: {
+								montant: montantPaiement.trim(),
+								idMoyen,
+								idCaisse: idCaisseAEnvoyer(caissesQuery.data, idCaisse),
+							},
+						}
 					: {}),
 				...(note.trim() ? { note: note.trim() } : {}),
 			});
 			setVendue(cree);
 		} catch (error) {
-			setGlobalError(
-				toApiError(error).message || "Impossible de vendre la souscription.",
-			);
+			setGlobalError(messageErreurPaiement(error));
 		}
 	};
 
@@ -237,6 +250,17 @@ function VendreSouscriptionForm({
 					Vide = vente sans paiement — le reste à payer reste encaissable plus
 					tard.
 				</p>
+				{montantPaiement.trim() ? (
+					<div className="sm:col-span-2">
+						<CaissePicker
+							id="vente-caisse"
+							caisses={caissesQuery.data}
+							chargement={caissesQuery.isLoading}
+							value={idCaisse}
+							onChange={setIdCaisse}
+						/>
+					</div>
+				) : null}
 			</div>
 
 			<div className="space-y-2">

@@ -19,14 +19,20 @@ import {
 	SelectValue,
 } from "#/components/ui/select";
 import {
-	getErrorMessageForCode,
 	isCaisseFermeeError,
+	messageErreurPaiement,
 	toApiError,
 } from "#/core/api";
 import {
 	normaliserMontantPourBackend,
 	validerMontant,
 } from "#/core/forms/montant";
+import { CaissePicker } from "#/features/finances/components/caisse-picker";
+import { useCaissesAccessibles } from "#/features/finances/hooks/use-caisses-accessibles";
+import {
+	erreurCaisseRequise,
+	idCaisseAEnvoyer,
+} from "#/features/finances/models/caisses";
 
 import { useEncaisserCaution } from "../hooks/use-contrats";
 import type { MoyenPaiement } from "../models/moyens-paiement";
@@ -64,11 +70,13 @@ export function EncaisserCautionFormDialog({
 	const [confirmation, setConfirmation] = useState<{
 		idPaiement: string | null;
 	} | null>(null);
+	const caissesQuery = useCaissesAccessibles();
 
 	const form = useForm({
 		defaultValues: {
 			montant: montantCaution,
 			idMoyen: moyens[0]?.id ?? "",
+			idCaisse: "",
 			date: "",
 			reference: "",
 		},
@@ -82,6 +90,11 @@ export function EncaisserCautionFormDialog({
 				if (!value.idMoyen) {
 					fields.idMoyen = "Sélectionnez un moyen de paiement.";
 				}
+				const erreurCaisse = erreurCaisseRequise(
+					caissesQuery.data,
+					value.idCaisse,
+				);
+				if (erreurCaisse) fields.idCaisse = erreurCaisse;
 				return { fields };
 			},
 		},
@@ -92,6 +105,7 @@ export function EncaisserCautionFormDialog({
 				const resultat = await mutation.mutateAsync({
 					idContrat,
 					idMoyen: value.idMoyen,
+					idCaisse: idCaisseAEnvoyer(caissesQuery.data, value.idCaisse),
 					montant: value.montant.trim()
 						? normaliserMontantPourBackend(value.montant)
 						: null,
@@ -105,10 +119,7 @@ export function EncaisserCautionFormDialog({
 					setCaisseFermee(true);
 					setGlobalError(apiError.message);
 				} else {
-					setGlobalError(
-						getErrorMessageForCode(apiError.code) ??
-							(apiError.message || "Une erreur est survenue."),
-					);
+					setGlobalError(messageErreurPaiement(apiError));
 				}
 			}
 		},
@@ -222,6 +233,19 @@ export function EncaisserCautionFormDialog({
 											</p>
 										) : null}
 									</div>
+								)}
+							</form.Field>
+
+							<form.Field name="idCaisse">
+								{(field) => (
+									<CaissePicker
+										id={field.name}
+										caisses={caissesQuery.data}
+										chargement={caissesQuery.isLoading}
+										value={field.state.value}
+										onChange={field.handleChange}
+										erreur={field.state.meta.errors[0]}
+									/>
 								)}
 							</form.Field>
 

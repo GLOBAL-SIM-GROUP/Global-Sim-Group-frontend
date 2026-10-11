@@ -1,5 +1,6 @@
 import { getApiClient } from "#/core/api";
 import type { components } from "#/core/api/generated/schema";
+import { idCaisseDto } from "#/features/finances/models/caisses";
 
 import type { ElementPaie, Paie, PaieDetail } from "../models/paies";
 
@@ -94,9 +95,22 @@ export function annulerPaie(id: string): Promise<unknown> {
 	});
 }
 
-/** Paye un bulletin (crée l'encaissement, statut PAYÉE). */
-export function payerPaie(id: string, idMoyen: string): Promise<unknown> {
-	const corps = { id_moyen: idMoyen } satisfies PayerPaieDto;
+/**
+ * Paye un bulletin (crée le décaissement, statut PAYÉE). `idCaisse` désigne
+ * la caisse **source** pour un responsable non rattaché. Un bulletin à
+ * `montant_a_payer: '0.00'` se paie sans mouvement : `idMoyen` vide est
+ * alors omis (`MOYEN_PAIEMENT_SUPERFLU` sinon — le schéma le déclare
+ * requis, le serveur tolère l'absence).
+ */
+export function payerPaie(
+	id: string,
+	idMoyen: string,
+	idCaisse?: string,
+): Promise<unknown> {
+	const corps = {
+		...(idMoyen ? { id_moyen: idMoyen } : {}),
+		...(idCaisse ? { id_caisse: idCaisseDto(idCaisse) } : {}),
+	} satisfies Partial<PayerPaieDto>;
 	return getApiClient().apiFetch(`/api/v1/rh/paies/${id}/payer`, {
 		method: "POST",
 		body: JSON.stringify(corps),

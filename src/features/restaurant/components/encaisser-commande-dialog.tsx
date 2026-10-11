@@ -18,6 +18,12 @@ import {
 	SelectValue,
 } from "#/components/ui/select";
 import { ApercuAbonnementPanel } from "#/features/abonnement/components/apercu-panel";
+import { CaissePicker } from "#/features/finances/components/caisse-picker";
+import { useCaissesAccessibles } from "#/features/finances/hooks/use-caisses-accessibles";
+import {
+	erreurCaisseRequise,
+	idCaisseAEnvoyer,
+} from "#/features/finances/models/caisses";
 import { formatMontantFCFA } from "#/features/residence/models/format";
 import {
 	type MoyenPaiement,
@@ -40,6 +46,7 @@ interface EncaisserCommandeDialogProps {
 	onConfirm: (body: {
 		montant: string;
 		idMoyen?: string;
+		idCaisse?: string;
 		date?: string;
 		utiliserAbonnement: boolean;
 		accepterExcedent: boolean;
@@ -64,7 +71,9 @@ export function EncaisserCommandeDialog({
 	onOpenChange,
 }: EncaisserCommandeDialogProps) {
 	const [idMoyen, setIdMoyen] = useState("");
+	const [idCaisse, setIdCaisse] = useState("");
 	const [date, setDate] = useState("");
+	const caissesQuery = useCaissesAccessibles();
 	const [ignorerAbonnement, setIgnorerAbonnement] = useState(false);
 	const open = commande !== null;
 	const moyensProposables = moyensActifs(moyens);
@@ -86,6 +95,7 @@ export function EncaisserCommandeDialog({
 			onOpenChange={(next) => {
 				if (!next) {
 					setIdMoyen("");
+					setIdCaisse("");
 					setDate("");
 					setIgnorerAbonnement(false);
 				}
@@ -134,25 +144,35 @@ export function EncaisserCommandeDialog({
 						encaisser.
 					</p>
 				) : (
-					<div className="mt-4 space-y-2">
-						<Label htmlFor="encaisser-moyen">Moyen de paiement</Label>
-						<Select value={idMoyen} onValueChange={setIdMoyen}>
-							<SelectTrigger id="encaisser-moyen" className="w-full">
-								<SelectValue placeholder="Sélectionner un moyen" />
-							</SelectTrigger>
-							<SelectContent>
-								{moyensProposables.map((moyen) => (
-									<SelectItem key={moyen.id} value={moyen.id}>
-										{moyen.libelle}
-									</SelectItem>
-								))}
-							</SelectContent>
-						</Select>
-						{moyensProposables.length === 0 ? (
-							<p className="text-xs text-muted-foreground">
-								Aucun moyen de paiement actif (module Finances).
-							</p>
-						) : null}
+					<div className="mt-4 space-y-4">
+						<div className="space-y-2">
+							<Label htmlFor="encaisser-moyen">Moyen de paiement</Label>
+							<Select value={idMoyen} onValueChange={setIdMoyen}>
+								<SelectTrigger id="encaisser-moyen" className="w-full">
+									<SelectValue placeholder="Sélectionner un moyen" />
+								</SelectTrigger>
+								<SelectContent>
+									{moyensProposables.map((moyen) => (
+										<SelectItem key={moyen.id} value={moyen.id}>
+											{moyen.libelle}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
+							{moyensProposables.length === 0 ? (
+								<p className="text-xs text-muted-foreground">
+									Aucun moyen de paiement actif (module Finances).
+								</p>
+							) : null}
+						</div>
+						<CaissePicker
+							id="encaisser-caisse"
+							caisses={caissesQuery.data}
+							chargement={caissesQuery.isLoading}
+							value={idCaisse}
+							onChange={setIdCaisse}
+							erreur={erreurCaisseRequise(caissesQuery.data, idCaisse)}
+						/>
 					</div>
 				)}
 
@@ -187,11 +207,21 @@ export function EncaisserCommandeDialog({
 					</Button>
 					<Button
 						type="button"
-						disabled={isPending || (!sansPaiement && !idMoyen)}
+						disabled={
+							isPending ||
+							(!sansPaiement &&
+								(!idMoyen ||
+									erreurCaisseRequise(caissesQuery.data, idCaisse) !== null))
+						}
 						onClick={() =>
 							onConfirm({
 								montant,
-								...(sansPaiement ? {} : { idMoyen }),
+								...(sansPaiement
+									? {}
+									: {
+											idMoyen,
+											idCaisse: idCaisseAEnvoyer(caissesQuery.data, idCaisse),
+										}),
 								date: date || undefined,
 								utiliserAbonnement: !ignorerAbonnement,
 								accepterExcedent,

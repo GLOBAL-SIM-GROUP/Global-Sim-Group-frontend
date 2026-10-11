@@ -98,8 +98,16 @@ export function useAnnulerPaie() {
 export function usePayerPaie() {
 	const invalider = useInvalidation(true);
 	return useMutation({
-		mutationFn: ({ id, idMoyen }: { id: string; idMoyen: string }) =>
-			payerPaie(id, idMoyen),
+		mutationFn: ({
+			id,
+			idMoyen,
+			idCaisse,
+		}: {
+			id: string;
+			idMoyen: string;
+			/** Caisse source (décaissement) — choix responsable non rattaché. */
+			idCaisse?: string;
+		}) => payerPaie(id, idMoyen, idCaisse),
 		onSuccess: invalider,
 	});
 }

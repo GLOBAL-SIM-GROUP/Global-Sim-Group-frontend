@@ -233,11 +233,13 @@ export function FactureFichePage({ id }: FactureFichePageProps) {
 							montantDefaut={facture.reste}
 							moyens={(moyensQuery.data ?? []).filter((moyen) => moyen.actif)}
 							onOpenChange={setPaiementOuvert}
-							onValider={(montant, idMoyen) => {
-								payerMutation.mutate(
-									{ id, montant, idMoyen },
-									{ onSettled: () => setPaiementOuvert(false) },
-								);
+							onValider={async (montant, idMoyen, idCaisse) => {
+								await payerMutation.mutateAsync({
+									id,
+									montant,
+									idMoyen,
+									idCaisse,
+								});
 							}}
 						/>
 					</div>

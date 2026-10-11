@@ -141,7 +141,8 @@ export function useConfirmerReservation() {
 		}: {
 			id: string;
 			montant: string;
-			idMoyen: string;
+			idMoyen?: string;
+			idCaisse?: string;
 		}) => confirmerReservation(id, body),
 		onSuccess: invalider,
 	});
@@ -156,7 +157,8 @@ export function useRealiserReservation() {
 		}: {
 			id: string;
 			montant: string;
-			idMoyen: string;
+			idMoyen?: string;
+			idCaisse?: string;
 		}) => realiserReservation(id, body),
 		onSuccess: invalider,
 	});

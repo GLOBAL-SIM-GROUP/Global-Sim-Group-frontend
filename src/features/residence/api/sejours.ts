@@ -6,6 +6,7 @@ import type {
 	FactureStatut,
 	LigneFacture,
 } from "#/features/facturation/models/factures";
+import { idCaisseDto } from "#/features/finances/models/caisses";
 
 import type {
 	Sejour,
@@ -137,9 +138,14 @@ export interface SejourPaiementFacture {
 
 export interface SejourCreationResultat {
 	sejour: SejourSansJointures;
-	facture?: SejourPaiementFacture;
-	numero?: string;
-	id_paiement?: string;
+	/**
+	 * Enveloppe uniforme depuis le backend `b063105` : les trois champs sont
+	 * **toujours présents**, à `null` quand aucun `paiement` n'a été joint à
+	 * la création (avant : forme `{ sejour }` nue).
+	 */
+	facture: SejourPaiementFacture | null;
+	numero: string | null;
+	id_paiement: string | null;
 }
 
 export interface SejourPaiementResultat {
@@ -227,9 +233,9 @@ export function creerSejour(
 	return getApiClient()
 		.apiFetch<{
 			sejour: SejourMutationWire;
-			facture?: SejourPaiementFacture;
-			numero?: string;
-			id_paiement?: string;
+			facture: SejourPaiementFacture | null;
+			numero: string | null;
+			id_paiement: string | null;
 		}>("/api/v1/residence/sejours", {
 			method: "POST",
 			body: JSON.stringify(corps),
@@ -278,11 +284,13 @@ export function modifierSejour(
  */
 export function payerSejour(
 	id: string,
-	body: { montant: string; idMoyen: string },
+	body: { montant: string; idMoyen: string; idCaisse?: string },
 ): Promise<SejourPaiementResultat> {
 	const corps = {
 		montant: body.montant,
 		id_moyen: body.idMoyen,
+		// Caisse de destination choisie par un responsable non rattaché.
+		...(body.idCaisse ? { id_caisse: idCaisseDto(body.idCaisse) } : {}),
 	} satisfies PayerSejourDto;
 	return getApiClient()
 		.apiFetch<{

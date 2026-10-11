@@ -22,8 +22,12 @@ import {
 import { contratsKeys, logementsKeys, suiviKeys } from "../permissions";
 
 /** Liste de tous les contrats de location. */
-export function useContrats() {
-	return useQuery({ queryKey: contratsKeys.list(), queryFn: listContrats });
+export function useContrats(enabled = true) {
+	return useQuery({
+		queryKey: contratsKeys.list(),
+		queryFn: listContrats,
+		enabled,
+	});
 }
 
 /**
@@ -186,6 +190,7 @@ export function useEncaisserCaution() {
 			montant?: string | null;
 			date?: string | null;
 			reference?: string | null;
+			idCaisse?: string;
 		}) => encaisserCaution(idContrat, body),
 		onSuccess: () => {
 			void queryClient.invalidateQueries({ queryKey: contratsKeys.all });
@@ -208,6 +213,7 @@ export function useRembourserCaution() {
 			retenue?: string | null;
 			motif_retenue?: string | null;
 			date?: string | null;
+			idCaisse?: string;
 		}) => rembourserCaution(idContrat, body),
 		onSuccess: () => {
 			void queryClient.invalidateQueries({ queryKey: contratsKeys.all });

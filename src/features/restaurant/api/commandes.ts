@@ -1,6 +1,7 @@
 import { getApiClient } from "#/core/api";
 import type { components } from "#/core/api/generated/schema";
 import type { ApercuAbonnementRestaurant } from "#/features/abonnement/models/abonnements";
+import { idCaisseDto } from "#/features/finances/models/caisses";
 
 import type {
 	CommandeRestaurant,
@@ -76,7 +77,7 @@ export interface CommandeBody {
 	lignes: { idPlat: string; quantite: string }[];
 	idClient?: string | null;
 	/** Optionnel : omis quand l'abonnement couvre la totalité (`total_du` 0). */
-	paiement?: { montant: string; idMoyen: string };
+	paiement?: { montant: string; idMoyen: string; idCaisse?: string };
 	/** `true` (défaut) = consommer le quota abonnement du client. */
 	utiliserAbonnement?: boolean;
 	/** Renvoyer `true` après un 409 `ABONNEMENT_EXCEDENT` confirmé par le staff. */
@@ -97,6 +98,9 @@ export function creerCommande(body: CommandeBody): Promise<unknown> {
 					paiement: {
 						montant: body.paiement.montant,
 						id_moyen: body.paiement.idMoyen,
+						...(body.paiement.idCaisse
+							? { id_caisse: idCaisseDto(body.paiement.idCaisse) }
+							: {}),
 					},
 				}
 			: {}),
@@ -145,6 +149,7 @@ export function encaisserCommande(
 	body: {
 		montant: string;
 		idMoyen?: string;
+		idCaisse?: string;
 		date?: string;
 		utiliserAbonnement?: boolean;
 		accepterExcedent?: boolean;
@@ -156,6 +161,7 @@ export function encaisserCommande(
 		utiliser_abonnement: body.utiliserAbonnement ?? true,
 		accepter_excedent: body.accepterExcedent ?? false,
 		...(body.date ? { date: body.date } : {}),
+		...(body.idCaisse ? { id_caisse: idCaisseDto(body.idCaisse) } : {}),
 	} satisfies EncaisserCommandeDto;
 	return getApiClient().apiFetch(
 		`/api/v1/restaurant/commandes/${id}/encaisser`,

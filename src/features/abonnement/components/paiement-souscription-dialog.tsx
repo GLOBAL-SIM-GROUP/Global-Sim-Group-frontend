@@ -17,7 +17,13 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "#/components/ui/select";
-import { toApiError } from "#/core/api";
+import { messageErreurPaiement } from "#/core/api";
+import { CaissePicker } from "#/features/finances/components/caisse-picker";
+import { useCaissesAccessibles } from "#/features/finances/hooks/use-caisses-accessibles";
+import {
+	erreurCaisseRequise,
+	idCaisseAEnvoyer,
+} from "#/features/finances/models/caisses";
 import { useMoyensPaiement } from "#/features/residence/hooks/use-moyens-paiement";
 import { formatMontantFCFA } from "#/features/residence/models/format";
 
@@ -43,6 +49,8 @@ function PaiementForm({
 	const [globalError, setGlobalError] = useState<string | null>(null);
 	const [montant, setMontant] = useState(souscription.reste_a_payer);
 	const [idMoyen, setIdMoyen] = useState("");
+	const [idCaisse, setIdCaisse] = useState("");
+	const caissesQuery = useCaissesAccessibles();
 
 	const soumettre = async () => {
 		setGlobalError(null);
@@ -61,17 +69,21 @@ function PaiementForm({
 			setGlobalError("Sélectionnez un moyen de paiement.");
 			return;
 		}
+		const erreurCaisse = erreurCaisseRequise(caissesQuery.data, idCaisse);
+		if (erreurCaisse) {
+			setGlobalError(erreurCaisse);
+			return;
+		}
 		try {
 			await mutation.mutateAsync({
 				id: souscription.id_souscription,
 				montant: montant.trim(),
 				idMoyen,
+				idCaisse: idCaisseAEnvoyer(caissesQuery.data, idCaisse),
 			});
 			onSaved();
 		} catch (error) {
-			setGlobalError(
-				toApiError(error).message || "Impossible d'encaisser le paiement.",
-			);
+			setGlobalError(messageErreurPaiement(error));
 		}
 	};
 
@@ -108,6 +120,15 @@ function PaiementForm({
 					</SelectContent>
 				</Select>
 			</div>
+
+			<CaissePicker
+				id="souscription-paiement-caisse"
+				caisses={caissesQuery.data}
+				chargement={caissesQuery.isLoading}
+				value={idCaisse}
+				onChange={setIdCaisse}
+				erreur={erreurCaisseRequise(caissesQuery.data, idCaisse)}
+			/>
 
 			{globalError ? (
 				<p role="alert" className="text-sm font-medium text-destructive">

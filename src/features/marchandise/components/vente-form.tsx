@@ -11,7 +11,13 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "#/components/ui/select";
-import { getErrorMessageForCode, toApiError } from "#/core/api";
+import { messageErreurPaiement, toApiError } from "#/core/api";
+import { CaissePicker } from "#/features/finances/components/caisse-picker";
+import { useCaissesAccessibles } from "#/features/finances/hooks/use-caisses-accessibles";
+import {
+	erreurCaisseRequise,
+	idCaisseAEnvoyer,
+} from "#/features/finances/models/caisses";
 import { ClientRechercheField } from "#/features/residence/components/client-recherche-field";
 import { formatMontantFCFA } from "#/features/residence/models/format";
 import type { MoyenPaiement } from "#/features/residence/models/moyens-paiement";
@@ -59,6 +65,8 @@ export function VenteForm({
 	const [prochaineCle, setProchaineCle] = useState(1);
 	const [remise, setRemise] = useState("");
 	const [idMoyen, setIdMoyen] = useState("");
+	const [idCaisse, setIdCaisse] = useState("");
+	const caissesQuery = useCaissesAccessibles();
 	// Code scanné sans correspondance : ouvre la création de produit à la
 	// volée (pré-remplie), sans quitter la vente en cours.
 	const [codeACreer, setCodeACreer] = useState<string | null>(null);
@@ -133,7 +141,7 @@ export function VenteForm({
 			}
 		}
 		if (!idMoyen) return "Sélectionnez un moyen de paiement.";
-		return null;
+		return erreurCaisseRequise(caissesQuery.data, idCaisse);
 	};
 
 	const soumettre = async () => {
@@ -151,16 +159,16 @@ export function VenteForm({
 				})),
 				remise: remise || undefined,
 				idClient: idClient || null,
-				paiement: { montant: String(total), idMoyen },
+				paiement: {
+					montant: String(total),
+					idMoyen,
+					idCaisse: idCaisseAEnvoyer(caissesQuery.data, idCaisse),
+				},
 			});
 			onSaved();
 		} catch (error) {
 			const apiError = toApiError(error);
-			setGlobalError(
-				getErrorMessageForCode(apiError.code) ??
-					(apiError.message ||
-						"Une erreur est survenue lors de l'enregistrement de la vente."),
-			);
+			setGlobalError(messageErreurPaiement(apiError));
 		}
 	};
 
@@ -279,6 +287,14 @@ export function VenteForm({
 					</Select>
 				</div>
 			</div>
+
+			<CaissePicker
+				id="vente-caisse"
+				caisses={caissesQuery.data}
+				chargement={caissesQuery.isLoading}
+				value={idCaisse}
+				onChange={setIdCaisse}
+			/>
 
 			<p className="text-right text-base font-semibold text-foreground">
 				Total : {formatMontantFCFA(String(total))}

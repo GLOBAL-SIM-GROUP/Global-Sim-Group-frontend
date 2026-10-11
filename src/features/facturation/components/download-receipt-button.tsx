@@ -78,16 +78,19 @@ export function DownloadReceiptButton({
 				disabled={isLoading || isDownloadingPdf || isDownloadingTicket}
 				variant={variant}
 				size={size}
+				title="Télécharger le reçu PDF"
 			>
 				{isDownloadingPdf ? (
 					<Loader2 className="size-4 animate-spin" />
 				) : (
 					<FileDown className="size-4" />
 				)}
-				{showLabel && (
+				{showLabel ? (
 					<span className="ml-2">
 						{isDownloadingPdf ? "Préparation..." : "Reçu PDF"}
 					</span>
+				) : (
+					<span className="sr-only">Télécharger le reçu PDF</span>
 				)}
 			</Button>
 
@@ -97,16 +100,19 @@ export function DownloadReceiptButton({
 					disabled={isLoading || isDownloadingPdf || isDownloadingTicket}
 					variant={variant}
 					size={size}
+					title="Imprimer le ticket de caisse"
 				>
 					{isDownloadingTicket ? (
 						<Loader2 className="size-4 animate-spin" />
 					) : (
 						<Printer className="size-4" />
 					)}
-					{showLabel && (
+					{showLabel ? (
 						<span className="ml-2">
 							{isDownloadingTicket ? "Préparation..." : "Ticket"}
 						</span>
+					) : (
+						<span className="sr-only">Imprimer le ticket de caisse</span>
 					)}
 				</Button>
 

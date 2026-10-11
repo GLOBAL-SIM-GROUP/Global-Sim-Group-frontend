@@ -11,12 +11,19 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "#/components/ui/select";
-import { getErrorMessageForCode, toApiError } from "#/core/api";
+import { messageErreurPaiement, toApiError } from "#/core/api";
 import { useCan } from "#/core/auth";
 import { ApercuAbonnementPanel } from "#/features/abonnement/components/apercu-panel";
 import { useApercuDebounced } from "#/features/abonnement/hooks/use-apercu";
 import { useExcedentConfirmation } from "#/features/abonnement/hooks/use-excedent-confirmation";
+import { CaissePicker } from "#/features/finances/components/caisse-picker";
+import { useCaissesAccessibles } from "#/features/finances/hooks/use-caisses-accessibles";
+import {
+	erreurCaisseRequise,
+	idCaisseAEnvoyer,
+} from "#/features/finances/models/caisses";
 import { ClientRechercheField } from "#/features/residence/components/client-recherche-field";
+import { useMoyensPaiement } from "#/features/residence/hooks/use-moyens-paiement";
 import { formatMontantFCFA } from "#/features/residence/models/format";
 import {
 	apercuAbonnementCommande,
@@ -238,10 +245,11 @@ function ChampLibelleCatalogue({
 /**
  * Formulaire « Dépôt — Pressing » (M4) : recherche client, mode de
  * tarification (à la pièce ou au kilo — choisi une seule fois, verrouillé en
- * édition), articles (adaptés au mode) et date de retrait prévue. Total
- * calculé automatiquement (aperçu client pour les lignes au kilo — le total
- * réel reste toujours calculé par le backend). En édition : articles + date
- * de retrait (client et mode conservés).
+ * édition), articles (adaptés au mode), date de retrait prévue et acompte
+ * éventuel encaissé au dépôt. Total calculé automatiquement (aperçu client
+ * pour les lignes au kilo — le total réel reste toujours calculé par le
+ * backend). En édition : articles + date de retrait (client, mode et
+ * acompte conservés).
  */
 export function CommandeForm({
 	commande,
@@ -302,6 +310,19 @@ export function CommandeForm({
 	// abonnement, voir `useExcedentConfirmation`.
 	const [ignorerAbonnement, setIgnorerAbonnement] = useState(false);
 	const excedent = useExcedentConfirmation();
+
+	// Acompte encaissé au dépôt (création uniquement — l'édition ne touche
+	// pas aux paiements, le solde se règle au retrait).
+	const [acompte, setAcompte] = useState("");
+	const [idMoyen, setIdMoyen] = useState("");
+	const moyensQuery = useMoyensPaiement();
+	const moyens = moyensQuery.data ?? [];
+	const idMoyenEffectif = idMoyen || (moyens[0]?.id ?? "");
+
+	// Caisse de destination de l'acompte (sélection responsable quand le
+	// backend expose plusieurs caisses accessibles ; forcée sinon).
+	const caissesQuery = useCaissesAccessibles();
+	const [idCaisse, setIdCaisse] = useState("");
 
 	const ajouterLigne = () => {
 		setLignes((current) => [...current, ligneVide(prochaineCle)]);
@@ -434,6 +455,10 @@ export function CommandeForm({
 				}
 			: null;
 	const apercu = useApercuDebounced(apercuAbonnementCommande, apercuRequest);
+	// Acompte inutile quand l'abonnement couvre la totalité.
+	const totalDu =
+		apercu.data && !ignorerAbonnement ? apercu.data.total_du : null;
+	const couvertureComplete = totalDu !== null && Number(totalDu) === 0;
 
 	const valider = (): string | null => {
 		if (!commande && !idClient) return "Sélectionnez un client.";
@@ -455,6 +480,16 @@ export function CommandeForm({
 			if (erreur) return erreur;
 		}
 		if (!dateRetrait.trim()) return "Saisissez la date de retrait prévue.";
+		if (acompte.trim() && Number(acompte) <= 0) {
+			return "L'acompte doit être un montant positif (ou vide).";
+		}
+		if (acompte.trim() && !idMoyenEffectif) {
+			return "Sélectionnez le moyen de paiement de l'acompte.";
+		}
+		if (acompte.trim() && !couvertureComplete) {
+			const erreurCaisse = erreurCaisseRequise(caissesQuery.data, idCaisse);
+			if (erreurCaisse) return erreurCaisse;
+		}
 		return null;
 	};
 
@@ -484,6 +519,15 @@ export function CommandeForm({
 					modeTarification: mode,
 					dateRetraitPrevue: dateRetrait,
 					lignes: lignesCorps,
+					...(acompte.trim() && !couvertureComplete
+						? {
+								paiement: {
+									montant: acompte.trim(),
+									idMoyen: idMoyenEffectif,
+									idCaisse: idCaisseAEnvoyer(caissesQuery.data, idCaisse),
+								},
+							}
+						: {}),
 					...flagsAbonnement,
 				});
 			}
@@ -495,11 +539,7 @@ export function CommandeForm({
 				return;
 			}
 			const apiError = toApiError(error);
-			setGlobalError(
-				getErrorMessageForCode(apiError.code) ??
-					(apiError.message ||
-						"Une erreur est survenue lors de l'enregistrement."),
-			);
+			setGlobalError(messageErreurPaiement(apiError));
 		}
 	};
 
@@ -737,6 +777,55 @@ export function CommandeForm({
 						</label>
 					) : null}
 				</>
+			) : null}
+
+			{!commande ? (
+				<div className="grid gap-3 rounded-md border border-border p-3 sm:grid-cols-2">
+					{couvertureComplete ? (
+						<p className="text-xs text-success sm:col-span-2">
+							Commande entièrement couverte par l'abonnement — aucun acompte à
+							encaisser.
+						</p>
+					) : (
+						<>
+							<InputField
+								id="commande-acompte"
+								label="Acompte encaissé (FCFA, optionnel)"
+								inputMode="numeric"
+								value={acompte}
+								onChange={(event) => setAcompte(event.target.value)}
+							/>
+							{acompte.trim() ? (
+								<>
+									<div className="space-y-2">
+										<Label htmlFor="commande-moyen">Moyen de paiement</Label>
+										<Select value={idMoyenEffectif} onValueChange={setIdMoyen}>
+											<SelectTrigger id="commande-moyen" className="w-full">
+												<SelectValue placeholder="Sélectionner un moyen" />
+											</SelectTrigger>
+											<SelectContent>
+												{moyens.map((moyen) => (
+													<SelectItem key={moyen.id} value={moyen.id}>
+														{moyen.libelle}
+													</SelectItem>
+												))}
+											</SelectContent>
+										</Select>
+									</div>
+									<div className="sm:col-span-2">
+										<CaissePicker
+											id="commande-caisse"
+											caisses={caissesQuery.data}
+											chargement={caissesQuery.isLoading}
+											value={idCaisse}
+											onChange={setIdCaisse}
+										/>
+									</div>
+								</>
+							) : null}
+						</>
+					)}
+				</div>
 			) : null}
 
 			{excedent.confirme ? (

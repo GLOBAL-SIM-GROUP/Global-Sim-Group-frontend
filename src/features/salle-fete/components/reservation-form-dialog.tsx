@@ -11,18 +11,28 @@ import {
 } from "#/components/ui/dialog";
 import { InputField } from "#/components/ui/input-field";
 import { Label } from "#/components/ui/label";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "#/components/ui/select";
 import { getErrorMessageForCode, toApiError } from "#/core/api";
 import {
 	normaliserMontantPourBackend,
 	validerMontant,
 } from "#/core/forms/montant";
 import { ClientRechercheField } from "#/features/residence/components/client-recherche-field";
-
+import { useCatalogueSalleFete } from "../hooks/use-catalogue";
 import {
 	useCreerReservation,
 	useModifierReservation,
 } from "../hooks/use-reservations";
 import type { ReservationFete } from "../models/reservations";
+
+/** Valeur sentinelle du Select pour la saisie libre hors catalogue. */
+const AUTRE_TYPE = "__autre__";
 
 interface ReservationFormDialogProps {
 	open: boolean;
@@ -43,7 +53,15 @@ export function ReservationFormDialog({
 }: ReservationFormDialogProps) {
 	const createMutation = useCreerReservation();
 	const editMutation = useModifierReservation();
+	const catalogueQuery = useCatalogueSalleFete();
 	const [globalError, setGlobalError] = useState<string | null>(null);
+	const [saisieLibre, setSaisieLibre] = useState(false);
+
+	// Le Select n'apparaît que si le catalogue répond et contient des types
+	// actifs — sinon le champ reste une saisie libre (comportement de repli,
+	// `hors_catalogue: true` sera envoyé).
+	const typesActifs = (catalogueQuery.data ?? []).filter((t) => t.actif);
+	const cataloguePret = catalogueQuery.isSuccess && typesActifs.length > 0;
 
 	const form = useForm({
 		defaultValues: {
@@ -86,6 +104,11 @@ export function ReservationFormDialog({
 					heureDebut: value.heureDebut,
 					duree: value.duree.trim(),
 					typeManifestation: value.typeManifestation.trim(),
+					// `false` seulement quand le libellé est un type actif du
+					// catalogue — le serveur le vérifie alors contre la liste.
+					horsCatalogue: !typesActifs.some(
+						(t) => t.libelle === value.typeManifestation.trim(),
+					),
 					tarif: normaliserMontantPourBackend(value.tarif),
 					acompte: value.acompte.trim() || null,
 					observations: value.observations.trim() || null,
@@ -180,18 +203,78 @@ export function ReservationFormDialog({
 							)}
 						</form.Field>
 						<form.Field name="typeManifestation">
-							{(field) => (
-								<InputField
-									id={field.name}
-									name={field.name}
-									label="Type de manifestation"
-									placeholder="ex : Mariage"
-									value={field.state.value}
-									onBlur={field.handleBlur}
-									onChange={(event) => field.handleChange(event.target.value)}
-									error={field.state.meta.errors[0]}
-								/>
-							)}
+							{(field) => {
+								const dansCatalogue = typesActifs.some(
+									(t) => t.libelle === field.state.value,
+								);
+								// Libre si l'utilisateur choisit « Autre… » ou si la valeur
+								// (ex. édition d'une réservation hors catalogue) n'est pas
+								// dans la liste.
+								const modeLibre =
+									saisieLibre || (field.state.value !== "" && !dansCatalogue);
+								return cataloguePret ? (
+									<div className="space-y-2">
+										<Label htmlFor={field.name}>Type de manifestation</Label>
+										<Select
+											value={modeLibre ? AUTRE_TYPE : field.state.value}
+											onValueChange={(valeur) => {
+												setSaisieLibre(valeur === AUTRE_TYPE);
+												if (valeur !== AUTRE_TYPE) field.handleChange(valeur);
+											}}
+										>
+											<SelectTrigger
+												id={field.name}
+												aria-invalid={
+													field.state.meta.errors.length > 0 ? true : undefined
+												}
+											>
+												<SelectValue placeholder="Choisir dans le catalogue…" />
+											</SelectTrigger>
+											<SelectContent>
+												{typesActifs.map((type) => (
+													<SelectItem
+														key={type.id_type_manifestation}
+														value={type.libelle}
+													>
+														{type.libelle}
+													</SelectItem>
+												))}
+												<SelectItem value={AUTRE_TYPE}>
+													Autre (saisie libre)…
+												</SelectItem>
+											</SelectContent>
+										</Select>
+										{modeLibre ? (
+											<InputField
+												id={`${field.name}-libre`}
+												name={`${field.name}-libre`}
+												placeholder="ex : Réunion de famille"
+												value={field.state.value}
+												onBlur={field.handleBlur}
+												onChange={(event) =>
+													field.handleChange(event.target.value)
+												}
+											/>
+										) : null}
+										{field.state.meta.errors[0] ? (
+											<p className="text-sm text-destructive">
+												{field.state.meta.errors[0]}
+											</p>
+										) : null}
+									</div>
+								) : (
+									<InputField
+										id={field.name}
+										name={field.name}
+										label="Type de manifestation"
+										placeholder="ex : Mariage"
+										value={field.state.value}
+										onBlur={field.handleBlur}
+										onChange={(event) => field.handleChange(event.target.value)}
+										error={field.state.meta.errors[0]}
+									/>
+								);
+							}}
 						</form.Field>
 						<form.Field name="tarif">
 							{(field) => (

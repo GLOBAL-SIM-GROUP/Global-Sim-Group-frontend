@@ -26,10 +26,13 @@ import { sejoursKeys } from "../permissions";
  * `EN_ATTENTE` de la file de validation) ; type/période restent filtrés
  * côté client dans la page.
  */
-export function useSejours(filtres?: {
-	statut?: SejourStatutFiltre;
-	origine?: SejourOrigineFiltre;
-}) {
+export function useSejours(
+	filtres?: {
+		statut?: SejourStatutFiltre;
+		origine?: SejourOrigineFiltre;
+	},
+	enabled = true,
+) {
 	const statut =
 		filtres?.statut && filtres.statut !== "tous" ? filtres.statut : undefined;
 	const origine =
@@ -39,6 +42,7 @@ export function useSejours(filtres?: {
 	return useQuery({
 		queryKey: sejoursKeys.list(statut ?? "tous", origine ?? "tous"),
 		queryFn: () => listSejours({ statut, origine }),
+		enabled,
 	});
 }
 
@@ -142,6 +146,7 @@ export function usePayerSejour() {
 			id: string;
 			montant: string;
 			idMoyen: string;
+			idCaisse?: string;
 		}) => payerSejour(id, body),
 		onSuccess: ({ sejour }) => {
 			fusionnerSejourEnCache(queryClient, sejour);

@@ -19,14 +19,20 @@ import {
 	SelectValue,
 } from "#/components/ui/select";
 import {
-	getErrorMessageForCode,
 	isCaisseFermeeError,
+	messageErreurPaiement,
 	toApiError,
 } from "#/core/api";
 import {
 	normaliserMontantPourBackend,
 	validerMontant,
 } from "#/core/forms/montant";
+import { CaissePicker } from "#/features/finances/components/caisse-picker";
+import { useCaissesAccessibles } from "#/features/finances/hooks/use-caisses-accessibles";
+import {
+	erreurCaisseRequise,
+	idCaisseAEnvoyer,
+} from "#/features/finances/models/caisses";
 
 import { usePayerCharge } from "../hooks/use-charges";
 import type { Charge } from "../models/charges";
@@ -54,15 +60,19 @@ export function PayerChargeFormDialog({
 	const mutation = usePayerCharge();
 	const [globalError, setGlobalError] = useState<string | null>(null);
 	const [caisseFermee, setCaisseFermee] = useState(false);
+	const caissesQuery = useCaissesAccessibles();
 
 	const form = useForm({
 		defaultValues: {
 			montant: charge?.reste_a_payer ?? "",
 			idMoyen: moyens[0]?.id ?? "",
+			idCaisse: "",
 		},
 		validators: {
 			onSubmit: ({ value }) => {
-				const fields: Partial<Record<"montant" | "idMoyen", string>> = {};
+				const fields: Partial<
+					Record<"montant" | "idMoyen" | "idCaisse", string>
+				> = {};
 				if (!value.montant.trim()) {
 					fields.montant = "Ce champ est requis.";
 				} else {
@@ -72,6 +82,11 @@ export function PayerChargeFormDialog({
 				if (!value.idMoyen) {
 					fields.idMoyen = "Sélectionnez un moyen de paiement.";
 				}
+				const erreurCaisse = erreurCaisseRequise(
+					caissesQuery.data,
+					value.idCaisse,
+				);
+				if (erreurCaisse) fields.idCaisse = erreurCaisse;
 				return { fields };
 			},
 		},
@@ -84,6 +99,7 @@ export function PayerChargeFormDialog({
 					id: charge.id,
 					montant: normaliserMontantPourBackend(value.montant),
 					idMoyen: value.idMoyen,
+					idCaisse: idCaisseAEnvoyer(caissesQuery.data, value.idCaisse),
 				});
 				onSaved();
 			} catch (error) {
@@ -92,10 +108,7 @@ export function PayerChargeFormDialog({
 					setCaisseFermee(true);
 					setGlobalError(apiError.message);
 				} else {
-					setGlobalError(
-						getErrorMessageForCode(apiError.code) ??
-							(apiError.message || "Une erreur est survenue."),
-					);
+					setGlobalError(messageErreurPaiement(apiError));
 				}
 			}
 		},
@@ -169,6 +182,19 @@ export function PayerChargeFormDialog({
 									</p>
 								) : null}
 							</div>
+						)}
+					</form.Field>
+
+					<form.Field name="idCaisse">
+						{(field) => (
+							<CaissePicker
+								id={field.name}
+								caisses={caissesQuery.data}
+								chargement={caissesQuery.isLoading}
+								value={field.state.value}
+								onChange={field.handleChange}
+								erreur={field.state.meta.errors[0]}
+							/>
 						)}
 					</form.Field>
 

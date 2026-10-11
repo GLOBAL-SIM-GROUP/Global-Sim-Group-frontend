@@ -1,5 +1,6 @@
 import { getApiClient } from "#/core/api";
 import type { components } from "#/core/api/generated/schema";
+import { idCaisseDto } from "#/features/finances/models/caisses";
 
 import type {
 	ReservationFete,
@@ -55,33 +56,61 @@ export interface ReservationBody {
 	heureDebut: string;
 	duree: string;
 	typeManifestation: string;
+	/**
+	 * `true` = libellé saisi librement (accepté tel quel) ; `false` = libellé
+	 * choisi dans le catalogue (`GET /salle-fete/catalogue`), vérifié côté
+	 * serveur. Défaut `true` (repli quand le catalogue est indisponible).
+	 */
+	horsCatalogue?: boolean;
 	tarif: string;
 	acompte?: string | null;
 	observations?: string | null;
 }
 
-/** Crée une réservation (POST `CreerReservationFeteDto`). */
-export function creerReservation(body: ReservationBody): Promise<unknown> {
+/**
+ * Crée une réservation (POST `CreerReservationFeteDto`).
+ *
+ * Le DTO de création n'expose **pas** `acompte` (champ propre à
+ * `MajReservationFeteDto`/`ValiderReservationFeteDto`) — l'acompte convenu
+ * saisi au formulaire est reporté par un PATCH `{ acompte }` juste après la
+ * création, sinon il serait silencieusement perdu. Gap de contrat à faire
+ * remonter au backend (`acompte` devrait être accepté en création).
+ */
+export async function creerReservation(
+	body: ReservationBody,
+): Promise<unknown> {
 	const corps = {
 		...(body.idClient ? { id_client: body.idClient } : {}),
 		date_evenement: body.dateEvenement,
 		heure_debut: body.heureDebut,
 		duree: body.duree,
 		type_manifestation: body.typeManifestation,
-		// Le type est saisi en texte libre dans le formulaire (pas de liste
-		// catalogue côté UI) → on déclare `hors_catalogue` pour éviter la
-		// validation catalogue du backend.
-		hors_catalogue: true,
+		// `false` seulement si le libellé vient du catalogue — sinon le
+		// backend rejette (« type de manifestation hors catalogue »).
+		hors_catalogue: body.horsCatalogue ?? true,
 		tarif: body.tarif,
 		observations: texteOuNull(body.observations),
 	} satisfies Omit<CreerReservationFeteDto, "id_client" | "observations"> & {
 		id_client?: string | null;
 		observations?: string | null;
 	};
-	return getApiClient().apiFetch("/api/v1/salle-fete/reservations", {
-		method: "POST",
-		body: JSON.stringify(corps),
-	});
+	const cree = await getApiClient().apiFetch<Record<string, unknown>>(
+		"/api/v1/salle-fete/reservations",
+		{
+			method: "POST",
+			body: JSON.stringify(corps),
+		},
+	);
+	const idCree =
+		typeof cree?.id_reservation === "string"
+			? cree.id_reservation
+			: typeof cree?.id === "string"
+				? cree.id
+				: undefined;
+	if (idCree && body.acompte?.trim()) {
+		await modifierReservation(idCree, body);
+	}
+	return cree;
 }
 
 /** Modifie une réservation (PATCH `MajReservationFeteDto`). */
@@ -94,7 +123,7 @@ export function modifierReservation(
 		heure_debut: body.heureDebut,
 		duree: body.duree,
 		type_manifestation: body.typeManifestation,
-		hors_catalogue: true,
+		hors_catalogue: body.horsCatalogue ?? true,
 		tarif: body.tarif,
 		acompte: texteOuNull(body.acompte),
 		observations: texteOuNull(body.observations),
@@ -111,30 +140,46 @@ export function modifierReservation(
 /** Confirme une réservation (POST confirmer, avec paiement de l'acompte). */
 export function confirmerReservation(
 	id: string,
-	body: { montant: string; idMoyen: string },
+	body: { montant: string; idMoyen?: string; idCaisse?: string },
 ): Promise<unknown> {
 	return getApiClient().apiFetch(
 		`/api/v1/salle-fete/reservations/${id}/confirmer`,
 		{
 			method: "POST",
 			body: JSON.stringify({
-				paiement: { montant: body.montant, id_moyen: body.idMoyen },
+				paiement: {
+					montant: body.montant,
+					// Le schéma déclare `id_moyen` requis mais le serveur tolère son
+					// absence quand rien n'est à encaisser — l'envoyer vaudrait alors
+					// MOYEN_PAIEMENT_SUPERFLU.
+					...(body.idMoyen ? { id_moyen: body.idMoyen } : {}),
+					...(body.idCaisse ? { id_caisse: idCaisseDto(body.idCaisse) } : {}),
+				},
 			}),
 		},
 	);
 }
 
-/** Marque une réservation comme réalisée (POST realiser, paiement du solde). */
+/**
+ * Marque une réservation comme réalisée (POST realiser, paiement du solde
+ * **exact** — `SOLDE_INCOMPLET` sinon). Une réservation déjà soldée se
+ * réalise avec `montant: '0.00'` et sans `idMoyen`/`idCaisse` (aucun
+ * encaissement, `id_paiement: null` en réponse).
+ */
 export function realiserReservation(
 	id: string,
-	body: { montant: string; idMoyen: string },
+	body: { montant: string; idMoyen?: string; idCaisse?: string },
 ): Promise<unknown> {
 	return getApiClient().apiFetch(
 		`/api/v1/salle-fete/reservations/${id}/realiser`,
 		{
 			method: "POST",
 			body: JSON.stringify({
-				paiement: { montant: body.montant, id_moyen: body.idMoyen },
+				paiement: {
+					montant: body.montant,
+					...(body.idMoyen ? { id_moyen: body.idMoyen } : {}),
+					...(body.idCaisse ? { id_caisse: idCaisseDto(body.idCaisse) } : {}),
+				},
 			}),
 		},
 	);

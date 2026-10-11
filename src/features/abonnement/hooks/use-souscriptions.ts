@@ -76,6 +76,7 @@ export function useEncaisserSouscription() {
 			id: string;
 			montant: string;
 			idMoyen: string;
+			idCaisse?: string;
 		}) => encaisserSouscription(id, body),
 		onSuccess: invalider,
 	});

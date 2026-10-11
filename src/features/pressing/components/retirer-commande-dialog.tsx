@@ -18,10 +18,16 @@ import {
 	SelectValue,
 } from "#/components/ui/select";
 import {
-	getErrorMessageForCode,
 	isCaisseFermeeError,
+	messageErreurPaiement,
 	toApiError,
 } from "#/core/api";
+import { CaissePicker } from "#/features/finances/components/caisse-picker";
+import { useCaissesAccessibles } from "#/features/finances/hooks/use-caisses-accessibles";
+import {
+	erreurCaisseRequise,
+	idCaisseAEnvoyer,
+} from "#/features/finances/models/caisses";
 import { formatMontantFCFA } from "#/features/residence/models/format";
 import type { MoyenPaiement } from "#/features/residence/models/moyens-paiement";
 
@@ -50,21 +56,22 @@ export function RetirerCommandeDialog({
 	const mutation = useRetirerCommande();
 	const [globalError, setGlobalError] = useState<string | null>(null);
 	const [caisseFermee, setCaisseFermee] = useState(false);
-	const [solde, setSolde] = useState(commande?.reste_a_payer ?? "");
 	const [idMoyen, setIdMoyen] = useState(moyens[0]?.id ?? "");
+	const caissesQuery = useCaissesAccessibles();
+	const [idCaisse, setIdCaisse] = useState("");
 
 	// Commande entièrement couverte par un abonnement : reste à payer 0 →
-	// retrait sans encaissement (`id_moyen` non requis côté serveur).
+	// retrait sans encaissement (`id_moyen`/`id_caisse` alors interdits —
+	// MOYEN_PAIEMENT_SUPERFLU côté serveur). Le solde est figé au reste dû
+	// exact : le serveur exige l'égalité stricte (SOLDE_INCOMPLET).
 	const resteZero =
 		commande !== null && Number(commande.reste_a_payer ?? "0") === 0;
+	const soldeExact = commande?.reste_a_payer ?? "0.00";
 
 	const valider = (): string | null => {
 		if (resteZero) return null;
-		if (!solde.trim() || Number(solde) <= 0) {
-			return "Saisissez un montant positif.";
-		}
 		if (!idMoyen) return "Sélectionnez un moyen de paiement.";
-		return null;
+		return erreurCaisseRequise(caissesQuery.data, idCaisse);
 	};
 
 	const soumettre = async () => {
@@ -79,8 +86,13 @@ export function RetirerCommandeDialog({
 		try {
 			await mutation.mutateAsync({
 				id: commande.id,
-				solde: resteZero ? "0" : solde.trim(),
-				...(resteZero ? {} : { idMoyen }),
+				solde: soldeExact,
+				...(resteZero
+					? {}
+					: {
+							idMoyen,
+							idCaisse: idCaisseAEnvoyer(caissesQuery.data, idCaisse),
+						}),
 			});
 			onSaved();
 		} catch (error) {
@@ -89,10 +101,7 @@ export function RetirerCommandeDialog({
 				setCaisseFermee(true);
 				setGlobalError(apiError.message);
 			} else {
-				setGlobalError(
-					getErrorMessageForCode(apiError.code) ??
-						(apiError.message || "Une erreur est survenue lors du retrait."),
-				);
+				setGlobalError(messageErreurPaiement(apiError));
 			}
 		}
 	};
@@ -127,9 +136,8 @@ export function RetirerCommandeDialog({
 								name="solde"
 								label="Montant du solde (FCFA)"
 								inputMode="numeric"
-								value={solde}
-								onChange={(event) => setSolde(event.target.value)}
-								error={undefined}
+								value={soldeExact}
+								readOnly
 							/>
 
 							<div className="space-y-2">
@@ -152,6 +160,14 @@ export function RetirerCommandeDialog({
 									</p>
 								) : null}
 							</div>
+
+							<CaissePicker
+								id="retrait-caisse"
+								caisses={caissesQuery.data}
+								chargement={caissesQuery.isLoading}
+								value={idCaisse}
+								onChange={setIdCaisse}
+							/>
 						</>
 					)}
 

@@ -1,6 +1,7 @@
 import { getApiClient } from "#/core/api";
 import type { components } from "#/core/api/generated/schema";
 
+import { idCaisseDto } from "#/features/finances/models/caisses";
 import {
 	type Caution,
 	type Contrat,
@@ -352,6 +353,8 @@ export function encaisserCaution(
 		montant?: string | null;
 		date?: string | null;
 		reference?: string | null;
+		/** Caisse de destination choisie par un responsable non rattaché. */
+		idCaisse?: string;
 	},
 ): Promise<Caution> {
 	const corps = {
@@ -359,6 +362,7 @@ export function encaisserCaution(
 		...(body.montant ? { montant: body.montant } : {}),
 		...(body.date ? { date: body.date } : {}),
 		...(body.reference?.trim() ? { reference: body.reference.trim() } : {}),
+		...(body.idCaisse ? { id_caisse: idCaisseDto(body.idCaisse) } : {}),
 	};
 	return getApiClient()
 		.apiFetch<CautionWire>(
@@ -386,6 +390,8 @@ export function rembourserCaution(
 		retenue?: string | null;
 		motif_retenue?: string | null;
 		date?: string | null;
+		/** Caisse source du remboursement (sélection responsable). */
+		idCaisse?: string;
 	},
 ): Promise<Caution> {
 	const corps = {
@@ -393,6 +399,7 @@ export function rembourserCaution(
 		retenue: texteOuNull(body.retenue),
 		motif_retenue: texteOuNull(body.motif_retenue),
 		...(body.date ? { date: body.date } : {}),
+		...(body.idCaisse ? { id_caisse: idCaisseDto(body.idCaisse) } : {}),
 	};
 	return getApiClient()
 		.apiFetch<CautionWire>(
@@ -436,6 +443,8 @@ export interface EncaisserLoyerLotBody {
 	montant: string;
 	idMoyen: string;
 	date?: string;
+	/** Caisse de destination choisie par un responsable non rattaché. */
+	idCaisse?: string;
 }
 
 /** Une échéance touchée par un encaissement en lot. */
@@ -488,6 +497,7 @@ export function encaisserLoyerLot(
 		montant: body.montant,
 		id_moyen: body.idMoyen,
 		...(body.date ? { date: body.date } : {}),
+		...(body.idCaisse ? { id_caisse: idCaisseDto(body.idCaisse) } : {}),
 	};
 	return getApiClient()
 		.apiFetch<EncaisserLoyerLotWire>(

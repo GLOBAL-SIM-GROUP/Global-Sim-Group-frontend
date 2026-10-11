@@ -24,6 +24,7 @@ import {
 	Tr,
 } from "#/components/ui/table";
 import { useCan } from "#/core/auth";
+import { DownloadReceiptButton } from "#/features/facturation/components/download-receipt-button";
 import { useMoyensPaiement } from "#/features/residence/hooks/use-moyens-paiement";
 import { formatMontantFCFA } from "#/features/residence/models/format";
 
@@ -308,7 +309,13 @@ export function ReservationsPage({
 														setAPayer({
 															id: reservation.id,
 															mode: "confirmer",
-															montant: reservation.solde ?? "0",
+															// Confirmer encaisse l'acompte convenu (> 0
+															// exigé) — à défaut, le solde entier.
+															montant:
+																reservation.acompte &&
+																Number(reservation.acompte) > 0
+																	? reservation.acompte
+																	: (reservation.solde ?? "0"),
 														})
 													}
 												>
@@ -340,6 +347,21 @@ export function ReservationsPage({
 													/>
 													<span className="sr-only">Réaliser</span>
 												</Button>
+											) : null}
+											{/* Reçu : uniquement sur une réservation soldée (le composant
+											    interroge `facturation/factures` — on ne le monte pas sinon). */}
+											{reservation.id_client &&
+											(reservation.statut === "REALISEE" ||
+												(reservation.solde !== null &&
+													Number(reservation.solde) === 0)) ? (
+												<DownloadReceiptButton
+													sourceType="RESERVATION_FETE"
+													idClient={reservation.id_client}
+													montantTotal={reservation.tarif ?? undefined}
+													isPaid
+													variant="ghost"
+													showLabel={false}
+												/>
 											) : null}
 											{(canModifier ||
 												(canValider && reservation.statut === "EN_ATTENTE")) &&
@@ -395,6 +417,7 @@ export function ReservationsPage({
 			) : null}
 
 			<ReservationFormDialog
+				key={aModifier?.id ?? "nouvelle"}
 				open={formOuvert || aModifier !== null}
 				reservation={aModifier}
 				onOpenChange={(ouvert) => {
@@ -421,19 +444,22 @@ export function ReservationsPage({
 								titre={aPayer.mode === "confirmer" ? "Confirmer" : "Réaliser"}
 								montantDefaut={aPayer.montant}
 								moyens={moyensQuery.data ?? []}
+								montantFige={aPayer.mode === "realiser"}
 								onOpenChange={() => setAPayer(null)}
-								onValider={(montant, idMoyen) => {
+								onValider={async (montant, idMoyen, idCaisse) => {
 									if (aPayer.mode === "confirmer") {
-										confirmerMutation.mutate({
+										await confirmerMutation.mutateAsync({
 											id: aPayer.id,
 											montant,
 											idMoyen,
+											idCaisse,
 										});
 									} else {
-										realiserMutation.mutate({
+										await realiserMutation.mutateAsync({
 											id: aPayer.id,
 											montant,
 											idMoyen,
+											idCaisse,
 										});
 									}
 								}}

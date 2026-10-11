@@ -106,7 +106,11 @@ export function SejourFichePage({ id }: SejourFichePageProps) {
 
 	const sejour = sejourQuery.data;
 	const enAttente = sejour.statut === "EN_ATTENTE";
-	const aUnReste = Number(sejour.reste_a_payer) > 0;
+	// Le serveur refuse tout paiement hors `EN_COURS` (STATUT_INCOMPATIBLE :
+	// TERMINE/ANNULE/EN_ATTENTE) et sur séjour non chiffré (reste `null` →
+	// MONTANT_TOTAL_ABSENT) — les deux cas masquent le bouton.
+	const aUnReste =
+		sejour.statut === "EN_COURS" && Number(sejour.reste_a_payer) > 0;
 	const facture = factureQuery.data ?? null;
 
 	return (

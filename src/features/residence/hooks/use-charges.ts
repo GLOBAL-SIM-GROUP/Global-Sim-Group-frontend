@@ -80,6 +80,7 @@ export function usePayerCharge() {
 			id: string;
 			montant: string;
 			idMoyen: string;
+			idCaisse?: string;
 		}) => payerCharge(id, body),
 		onSuccess: () => {
 			void queryClient.invalidateQueries({ queryKey: chargesKeys.all });

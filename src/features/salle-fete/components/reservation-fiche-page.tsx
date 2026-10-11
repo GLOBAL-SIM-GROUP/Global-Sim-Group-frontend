@@ -9,6 +9,7 @@ import { EmptyState } from "#/components/ui/empty-state";
 import { PageHeader } from "#/components/ui/page-header";
 import { DataTable, DataTableHead, Td, Th, Tr } from "#/components/ui/table";
 import { useCan } from "#/core/auth";
+import { DownloadReceiptButton } from "#/features/facturation/components/download-receipt-button";
 import { useClientsDetails } from "#/features/residence/hooks/use-clients";
 import { useMoyensPaiement } from "#/features/residence/hooks/use-moyens-paiement";
 import { nomComplet } from "#/features/residence/models/clients";
@@ -150,6 +151,18 @@ export function ReservationFichePage({ id }: ReservationFichePageProps) {
 								Modifier
 							</Button>
 						) : null}
+						{/* Facture `source_type: RESERVATION_FETE` créée à
+						    l'encaissement — le bouton ne s'affiche qu'une fois la
+						    facture PAYEE trouvée (solde soldé / réalisée). */}
+						<DownloadReceiptButton
+							sourceType="RESERVATION_FETE"
+							idClient={reservation.id_client}
+							montantTotal={reservation.tarif ?? undefined}
+							isPaid={
+								reservation.statut === "REALISEE" ||
+								(reservation.solde !== null && Number(reservation.solde) === 0)
+							}
+						/>
 						<Button variant="outline" asChild>
 							<Link to="/salle-fete/reservations">Retour aux réservations</Link>
 						</Button>
@@ -214,7 +227,12 @@ export function ReservationFichePage({ id }: ReservationFichePageProps) {
 							onClick={() =>
 								setAPayer({
 									mode: "confirmer",
-									montant: reservation.solde ?? "0",
+									// Le confirmer encaisse l'acompte convenu (montant > 0
+									// exigé) — à défaut, le solde entier est proposé.
+									montant:
+										reservation.acompte && Number(reservation.acompte) > 0
+											? reservation.acompte
+											: (reservation.solde ?? "0"),
 								})
 							}
 						>
@@ -357,12 +375,23 @@ export function ReservationFichePage({ id }: ReservationFichePageProps) {
 								titre={aPayer.mode === "confirmer" ? "Confirmer" : "Réaliser"}
 								montantDefaut={aPayer.montant}
 								moyens={moyensQuery.data ?? []}
+								montantFige={aPayer.mode === "realiser"}
 								onOpenChange={() => setAPayer(null)}
-								onValider={(montant, idMoyen) => {
+								onValider={async (montant, idMoyen, idCaisse) => {
 									if (aPayer.mode === "confirmer") {
-										confirmerMutation.mutate({ id, montant, idMoyen });
+										await confirmerMutation.mutateAsync({
+											id,
+											montant,
+											idMoyen,
+											idCaisse,
+										});
 									} else {
-										realiserMutation.mutate({ id, montant, idMoyen });
+										await realiserMutation.mutateAsync({
+											id,
+											montant,
+											idMoyen,
+											idCaisse,
+										});
 									}
 								}}
 							/>

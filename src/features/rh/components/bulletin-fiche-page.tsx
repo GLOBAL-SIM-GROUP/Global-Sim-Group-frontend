@@ -481,12 +481,15 @@ export function BulletinFichePage({ id }: BulletinFichePageProps) {
 							titre="Encaisser"
 							montantDefaut={paie.montant_a_payer}
 							moyens={(moyensQuery.data ?? []).filter((moyen) => moyen.actif)}
+							sens="source"
+							montantFige
 							onOpenChange={() => setPaiementOuvert(false)}
-							onValider={(_montant, idMoyen) => {
-								payerMutation.mutate(
-									{ id: paie.id, idMoyen },
-									{ onSettled: () => setPaiementOuvert(false) },
-								);
+							onValider={async (_montant, idMoyen, idCaisse) => {
+								await payerMutation.mutateAsync({
+									id: paie.id,
+									idMoyen,
+									idCaisse,
+								});
 							}}
 						/>
 					</div>

@@ -18,11 +18,17 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "#/components/ui/select";
-import { getErrorMessageForCode, toApiError } from "#/core/api";
+import { messageErreurPaiement } from "#/core/api";
 import {
 	normaliserMontantPourBackend,
 	validerMontant,
 } from "#/core/forms/montant";
+import { CaissePicker } from "#/features/finances/components/caisse-picker";
+import { useCaissesAccessibles } from "#/features/finances/hooks/use-caisses-accessibles";
+import {
+	erreurCaisseRequise,
+	idCaisseAEnvoyer,
+} from "#/features/finances/models/caisses";
 import { ClientRechercheField } from "#/features/residence/components/client-recherche-field";
 import { useMoyensPaiement } from "#/features/residence/hooks/use-moyens-paiement";
 import { formatMontantFCFA } from "#/features/residence/models/format";
@@ -51,6 +57,7 @@ export function FactureFormDialog({
 	const moyensQuery = useMoyensPaiement();
 	const facturerMutation = useFacturerPrestation();
 	const [globalError, setGlobalError] = useState<string | null>(null);
+	const caissesQuery = useCaissesAccessibles();
 
 	const prestations = (prestationsQuery.data ?? []).filter(
 		(prestation) => prestation.actif,
@@ -63,6 +70,7 @@ export function FactureFormDialog({
 			idClient: "",
 			montant: "",
 			idMoyen: "",
+			idCaisse: "",
 			remise: "",
 		},
 		validators: {
@@ -78,6 +86,11 @@ export function FactureFormDialog({
 				}
 				if (!value.idMoyen)
 					fields.idMoyen = "Sélectionnez un moyen de paiement.";
+				const erreurCaisse = erreurCaisseRequise(
+					caissesQuery.data,
+					value.idCaisse,
+				);
+				if (erreurCaisse) fields.idCaisse = erreurCaisse;
 				return { fields };
 			},
 		},
@@ -88,15 +101,13 @@ export function FactureFormDialog({
 					idPrestation: value.idPrestation,
 					montant: normaliserMontantPourBackend(value.montant),
 					idMoyen: value.idMoyen,
+					idCaisse: idCaisseAEnvoyer(caissesQuery.data, value.idCaisse),
 					idClient: value.idClient || null,
 					remise: value.remise.trim() || null,
 				});
 				onCreated(resultat.id_facture);
 			} catch (error) {
-				setGlobalError(
-					getErrorMessageForCode(toApiError(error).code) ??
-						(toApiError(error).message || "Une erreur est survenue."),
-				);
+				setGlobalError(messageErreurPaiement(error));
 			}
 		},
 	});
@@ -232,6 +243,19 @@ export function FactureFormDialog({
 									</p>
 								) : null}
 							</div>
+						)}
+					</form.Field>
+
+					<form.Field name="idCaisse">
+						{(field) => (
+							<CaissePicker
+								id={field.name}
+								caisses={caissesQuery.data}
+								chargement={caissesQuery.isLoading}
+								value={field.state.value}
+								onChange={field.handleChange}
+								erreur={field.state.meta.errors[0]}
+							/>
 						)}
 					</form.Field>
 

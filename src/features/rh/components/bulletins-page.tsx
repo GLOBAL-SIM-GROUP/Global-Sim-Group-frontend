@@ -571,12 +571,15 @@ export function BulletinsPage({
 									moyens={(moyensQuery.data ?? []).filter(
 										(moyen) => moyen.actif,
 									)}
+									sens="source"
+									montantFige
 									onOpenChange={() => setAPayer(null)}
-									onValider={(_montant, idMoyen) => {
-										payerMutation.mutate(
-											{ id: aPayer.id, idMoyen },
-											{ onSettled: () => setAPayer(null) },
-										);
+									onValider={async (_montant, idMoyen, idCaisse) => {
+										await payerMutation.mutateAsync({
+											id: aPayer.id,
+											idMoyen,
+											idCaisse,
+										});
 									}}
 								/>
 							</div>

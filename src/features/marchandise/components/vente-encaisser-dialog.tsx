@@ -16,6 +16,12 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "#/components/ui/select";
+import { CaissePicker } from "#/features/finances/components/caisse-picker";
+import { useCaissesAccessibles } from "#/features/finances/hooks/use-caisses-accessibles";
+import {
+	erreurCaisseRequise,
+	idCaisseAEnvoyer,
+} from "#/features/finances/models/caisses";
 import { formatMontantFCFA } from "#/features/residence/models/format";
 import {
 	type MoyenPaiement,
@@ -28,7 +34,7 @@ interface VenteEncaisserDialogProps {
 	vente: VenteJoin | null;
 	moyens: MoyenPaiement[];
 	isPending: boolean;
-	onConfirm: (body: { idMoyen: string }) => void;
+	onConfirm: (body: { idMoyen: string; idCaisse?: string }) => void;
 	onOpenChange: (open: boolean) => void;
 }
 
@@ -48,6 +54,8 @@ export function VenteEncaisserDialog({
 	onOpenChange,
 }: VenteEncaisserDialogProps) {
 	const [idMoyen, setIdMoyen] = useState("");
+	const [idCaisse, setIdCaisse] = useState("");
+	const caissesQuery = useCaissesAccessibles();
 	const open = vente !== null;
 	const moyensProposables = moyensActifs(moyens);
 
@@ -55,7 +63,10 @@ export function VenteEncaisserDialog({
 		<Dialog
 			open={open}
 			onOpenChange={(next) => {
-				if (!next) setIdMoyen("");
+				if (!next) {
+					setIdMoyen("");
+					setIdCaisse("");
+				}
 				onOpenChange(next);
 			}}
 		>
@@ -97,6 +108,17 @@ export function VenteEncaisserDialog({
 					) : null}
 				</div>
 
+				<div className="mt-4">
+					<CaissePicker
+						id="encaisser-vente-caisse"
+						caisses={caissesQuery.data}
+						chargement={caissesQuery.isLoading}
+						value={idCaisse}
+						onChange={setIdCaisse}
+						erreur={erreurCaisseRequise(caissesQuery.data, idCaisse)}
+					/>
+				</div>
+
 				<div className="mt-5 flex items-center justify-end gap-2">
 					<Button
 						type="button"
@@ -108,8 +130,17 @@ export function VenteEncaisserDialog({
 					</Button>
 					<Button
 						type="button"
-						disabled={isPending || !idMoyen}
-						onClick={() => onConfirm({ idMoyen })}
+						disabled={
+							isPending ||
+							!idMoyen ||
+							erreurCaisseRequise(caissesQuery.data, idCaisse) !== null
+						}
+						onClick={() =>
+							onConfirm({
+								idMoyen,
+								idCaisse: idCaisseAEnvoyer(caissesQuery.data, idCaisse),
+							})
+						}
 					>
 						{isPending ? (
 							<Loader2 className="size-4 animate-spin" aria-hidden />

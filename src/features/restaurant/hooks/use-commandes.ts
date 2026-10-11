@@ -106,6 +106,7 @@ export function useEncaisserCommande() {
 			id: string;
 			montant: string;
 			idMoyen?: string;
+			idCaisse?: string;
 			date?: string;
 			utiliserAbonnement?: boolean;
 			accepterExcedent?: boolean;

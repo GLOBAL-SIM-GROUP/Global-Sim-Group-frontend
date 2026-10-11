@@ -69,6 +69,7 @@ export function useEncaisserVente() {
 			id: string;
 			montant: string;
 			idMoyen: string;
+			idCaisse?: string;
 		}) => encaisserVente(id, body),
 		onSuccess: () => {
 			void queryClient.invalidateQueries({ queryKey: ventesKeys.all });

@@ -1,5 +1,6 @@
 import { getApiClient } from "#/core/api";
 import type { components } from "#/core/api/generated/schema";
+import { idCaisseDto } from "#/features/finances/models/caisses";
 
 import type {
 	ActiviteAbonnement,
@@ -98,7 +99,7 @@ export interface VendreSouscriptionBody {
 	idOffre: string;
 	dateDebut?: string;
 	prix?: string;
-	paiement?: { montant: string; idMoyen: string };
+	paiement?: { montant: string; idMoyen: string; idCaisse?: string };
 	note?: string;
 }
 
@@ -124,6 +125,9 @@ export async function vendreSouscription(
 					paiement: {
 						montant: body.paiement.montant,
 						id_moyen: body.paiement.idMoyen,
+						...(body.paiement.idCaisse
+							? { id_caisse: idCaisseDto(body.paiement.idCaisse) }
+							: {}),
 					},
 				}
 			: {}),
@@ -143,11 +147,12 @@ export async function vendreSouscription(
  */
 export function encaisserSouscription(
 	id: string,
-	body: { montant: string; idMoyen: string },
+	body: { montant: string; idMoyen: string; idCaisse?: string },
 ): Promise<unknown> {
 	const corps = {
 		montant: body.montant,
 		id_moyen: body.idMoyen,
+		...(body.idCaisse ? { id_caisse: idCaisseDto(body.idCaisse) } : {}),
 	} satisfies PaiementAbonnementDto;
 	return getApiClient().apiFetch(
 		`/api/v1/abonnement/souscriptions/${id}/paiements`,
