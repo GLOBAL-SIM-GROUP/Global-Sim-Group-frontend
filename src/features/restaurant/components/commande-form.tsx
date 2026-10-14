@@ -1,5 +1,5 @@
 import { Loader2, Plus, Trash2 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { Button } from "#/components/ui/button";
 import { InputField } from "#/components/ui/input-field";
@@ -113,6 +113,13 @@ export function CommandeForm({
 				}
 			: null;
 	const apercu = useApercuDebounced(apercuAbonnementLignes, apercuRequest);
+	// « Ne pas utiliser l'abonnement » repart à zéro quand le client change —
+	// sinon un opt-out coché pour un client s'appliquerait silencieusement au
+	// suivant.
+	// biome-ignore lint/correctness/useExhaustiveDependencies: déclencheur volontaire — reset au changement de client
+	useEffect(() => {
+		setIgnorerAbonnement(false);
+	}, [idClient]);
 
 	// Le montant dû est piloté par l'aperçu (`total_du`), pas le brut.
 	const montantDu = apercu.data ? Number(apercu.data.total_du) : total;
@@ -283,7 +290,11 @@ export function CommandeForm({
 						error={apercu.error}
 						visible={!ignorerAbonnement}
 					/>
-					{apercu.data && apercu.data.abonnements.length > 0 ? (
+					{/* `ignorerAbonnement ||` garde la case montée une fois cochée :
+					    l'aperçu passe alors à null — sinon la case se démonterait
+					    elle-même et deviendrait indécochable. */}
+					{ignorerAbonnement ||
+					(apercu.data && apercu.data.abonnements.length > 0) ? (
 						<label className="flex items-center gap-2 text-sm text-muted-foreground">
 							<input
 								type="checkbox"

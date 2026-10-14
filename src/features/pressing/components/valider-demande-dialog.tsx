@@ -1,5 +1,5 @@
 import { AlertTriangle, Loader2, Plus, Trash2 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { Button } from "#/components/ui/button";
 import {
@@ -192,6 +192,12 @@ export function ValiderDemandeDialog({
 				}
 			: null;
 	const apercu = useApercuDebounced(apercuAbonnementCommande, apercuRequest);
+	// « Ne pas utiliser l'abonnement » repart à zéro quand la demande affichée
+	// change — un opt-out coché ne doit pas fuiter sur la suivante.
+	// biome-ignore lint/correctness/useExhaustiveDependencies: déclencheur volontaire — reset au changement de demande
+	useEffect(() => {
+		setIgnorerAbonnement(false);
+	}, [commande?.id_client]);
 	// Acompte inutile quand l'abonnement couvre la totalité.
 	const totalDu =
 		apercu.data && !ignorerAbonnement ? apercu.data.total_du : null;
@@ -465,7 +471,11 @@ export function ValiderDemandeDialog({
 						error={apercu.error}
 						visible={!ignorerAbonnement}
 					/>
-					{apercu.data && apercu.data.abonnements.length > 0 ? (
+					{/* `ignorerAbonnement ||` garde la case montée une fois cochée :
+					    l'aperçu passe alors à null — sinon la case se démonterait
+					    elle-même et deviendrait indécochable. */}
+					{ignorerAbonnement ||
+					(apercu.data && apercu.data.abonnements.length > 0) ? (
 						<label className="flex items-center gap-2 text-sm text-muted-foreground">
 							<input
 								type="checkbox"

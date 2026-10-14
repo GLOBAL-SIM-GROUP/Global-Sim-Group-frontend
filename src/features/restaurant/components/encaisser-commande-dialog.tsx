@@ -126,7 +126,11 @@ export function EncaisserCommandeDialog({
 						error={apercuQuery.isError}
 						visible={!ignorerAbonnement}
 					/>
-					{apercu && apercu.abonnements.length > 0 ? (
+					{/* `ignorerAbonnement ||` garde la case montée une fois cochée :
+					    `apercu` passe alors à null — sinon la case se démonterait
+					    elle-même et deviendrait indécochable. */}
+					{ignorerAbonnement ||
+					(apercuQuery.data && apercuQuery.data.abonnements.length > 0) ? (
 						<label className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
 							<input
 								type="checkbox"
