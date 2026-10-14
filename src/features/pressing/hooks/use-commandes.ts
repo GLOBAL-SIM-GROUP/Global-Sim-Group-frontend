@@ -1,5 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
+import { souscriptionsKeys } from "#/features/abonnement/permissions";
+import { abonnementsPortailKeys } from "#/features/portail/permissions";
+
 import {
 	annulerCommande,
 	creerCommande,
@@ -55,11 +58,20 @@ export function useCommande(id: string | undefined) {
 	});
 }
 
-/** Invalide la liste des commandes après une mutation. */
+/**
+ * Invalide la liste des commandes après une mutation + les soldes
+ * d'abonnements : création/modification/validation consomment le quota,
+ * l'annulation le restitue — `solde`/`etat` sont calculés en direct par le
+ * backend et resteraient périmés dans le cache (`staleTime` 30 s).
+ */
 function useInvalidation() {
 	const queryClient = useQueryClient();
 	return () => {
 		void queryClient.invalidateQueries({ queryKey: commandesKeys.all });
+		void queryClient.invalidateQueries({ queryKey: souscriptionsKeys.all });
+		void queryClient.invalidateQueries({
+			queryKey: abonnementsPortailKeys.all,
+		});
 	};
 }
 

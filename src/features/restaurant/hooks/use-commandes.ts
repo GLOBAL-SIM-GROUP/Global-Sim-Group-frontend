@@ -1,5 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
+import { souscriptionsKeys } from "#/features/abonnement/permissions";
+import { abonnementsPortailKeys } from "#/features/portail/permissions";
+
 import {
 	annulerCommande,
 	apercuAbonnementCommande,
@@ -52,7 +55,12 @@ export function useCommande(id: string | undefined) {
 	});
 }
 
-/** Invalide commandes + plats (le statut/total peuvent changer les stocks ? non — plats inchangés). */
+/**
+ * Invalide commandes + plats (le statut/total peuvent changer les stocks ?
+ * non — plats inchangés) + les soldes d'abonnements : l'encaissement
+ * consomme le quota, l'annulation le restitue — `solde`/`etat` sont
+ * calculés en direct par le backend.
+ */
 function useInvalidation() {
 	const queryClient = useQueryClient();
 	return () => {
@@ -60,6 +68,10 @@ function useInvalidation() {
 			queryKey: commandesRestaurantKeys.all,
 		});
 		void queryClient.invalidateQueries({ queryKey: rapportRestaurantKeys.all });
+		void queryClient.invalidateQueries({ queryKey: souscriptionsKeys.all });
+		void queryClient.invalidateQueries({
+			queryKey: abonnementsPortailKeys.all,
+		});
 	};
 }
 
