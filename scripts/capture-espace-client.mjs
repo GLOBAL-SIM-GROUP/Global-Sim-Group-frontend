@@ -19,7 +19,7 @@ const LOGIN = process.env.LOGIN || "client";
 const PASSWORD = process.env.PASSWORD || "motdepasse";
 const OUT_DIR =
 	process.env.OUT_DIR ||
-	"docs/guides-utilisation/espace-client/screenshots/espace-client";
+	"../../Documentation/sim-docs/guides-utilisation/espace-client/screenshots/espace-client";
 
 const errors = [];
 

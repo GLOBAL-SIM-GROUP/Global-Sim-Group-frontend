@@ -17,7 +17,7 @@ const LOGIN = process.env.LOGIN || "resident";
 const PASSWORD = process.env.PASSWORD || "motdepasse";
 const OUT_DIR =
 	process.env.OUT_DIR ||
-	"docs/guides-utilisation/portail-resident/screenshots/portail";
+	"../../Documentation/sim-docs/guides-utilisation/portail-resident/screenshots/portail";
 
 const errors = [];
 
@@ -315,6 +315,16 @@ async function main() {
 		await waitForLoad(page);
 		await capture(page, "26-signalement-fiche");
 	}
+
+	// --- Mon compte (page ajoutée 2026-10-11 : services, dossier, réinit mdp) --
+	await gotoAuth(page, `${BASE_URL}/residence/portail/compte`);
+	await page
+		.waitForSelector("text=/Mon compte|Services accessibles|Mot de passe/", {
+			timeout: 20000,
+		})
+		.catch(() => {});
+	await page.waitForTimeout(1200);
+	await capture(page, "29-mon-compte");
 
 	// --- Mobile -------------------------------------------------------------
 	await context.close();
