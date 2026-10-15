@@ -1,7 +1,8 @@
 import { useForm } from "@tanstack/react-form";
-import { Image as ImageIcon, Loader2, Upload, X } from "lucide-react";
+import { Camera, Image as ImageIcon, Loader2, Upload, X } from "lucide-react";
 import { useRef, useState } from "react";
 
+import { CameraCaptureDialog } from "#/components/camera-capture-dialog";
 import { Button } from "#/components/ui/button";
 import { Input } from "#/components/ui/input";
 import { InputField } from "#/components/ui/input-field";
@@ -720,14 +721,10 @@ function ChampPhoto({
 }) {
 	const { blobUrl, isLoading } = useUploadBlobUrl(cle || undefined);
 	const [isUploading, setIsUploading] = useState(false);
+	const [cameraOuverte, setCameraOuverte] = useState(false);
 	const fileInputRef = useRef<HTMLInputElement>(null);
 
-	const handleFileChange = async (
-		event: React.ChangeEvent<HTMLInputElement>,
-	) => {
-		const file = event.target.files?.[0];
-		event.target.value = "";
-		if (!file) return;
+	const uploaderFichier = async (file: File) => {
 		try {
 			setIsUploading(true);
 			onUploadingChange(true);
@@ -739,6 +736,15 @@ function ChampPhoto({
 			setIsUploading(false);
 			onUploadingChange(false);
 		}
+	};
+
+	const handleFileChange = async (
+		event: React.ChangeEvent<HTMLInputElement>,
+	) => {
+		const file = event.target.files?.[0];
+		event.target.value = "";
+		if (!file) return;
+		await uploaderFichier(file);
 	};
 
 	const desactive = disabled || isUploading;
@@ -782,24 +788,48 @@ function ChampPhoto({
 						</Button>
 					</div>
 				) : (
-					<button
-						type="button"
-						onClick={() => fileInputRef.current?.click()}
-						disabled={desactive}
-						className={cn(
-							"flex h-24 w-24 flex-col items-center justify-center gap-1 rounded-full",
-							"border-2 border-dashed border-muted-foreground/30 hover:border-muted-foreground/50",
-							"transition-colors cursor-pointer",
-							desactive && "cursor-not-allowed opacity-50",
-						)}
-					>
-						<Upload className="size-5 text-muted-foreground/50" aria-hidden />
-						<span className="px-1 text-center text-[0.65rem] text-muted-foreground">
-							Ajouter
-						</span>
-					</button>
+					<div className="flex items-center gap-3">
+						<button
+							type="button"
+							onClick={() => fileInputRef.current?.click()}
+							disabled={desactive}
+							className={cn(
+								"flex h-24 w-24 flex-col items-center justify-center gap-1 rounded-full",
+								"border-2 border-dashed border-muted-foreground/30 hover:border-muted-foreground/50",
+								"transition-colors cursor-pointer",
+								desactive && "cursor-not-allowed opacity-50",
+							)}
+						>
+							<Upload className="size-5 text-muted-foreground/50" aria-hidden />
+							<span className="px-1 text-center text-[0.65rem] text-muted-foreground">
+								Fichier
+							</span>
+						</button>
+						<button
+							type="button"
+							onClick={() => setCameraOuverte(true)}
+							disabled={desactive}
+							className={cn(
+								"flex h-24 w-24 flex-col items-center justify-center gap-1 rounded-full",
+								"border-2 border-dashed border-muted-foreground/30 hover:border-muted-foreground/50",
+								"transition-colors cursor-pointer",
+								desactive && "cursor-not-allowed opacity-50",
+							)}
+						>
+							<Camera className="size-5 text-muted-foreground/50" aria-hidden />
+							<span className="px-1 text-center text-[0.65rem] text-muted-foreground">
+								Caméra
+							</span>
+						</button>
+					</div>
 				)}
 			</div>
+			<CameraCaptureDialog
+				open={cameraOuverte}
+				onOpenChange={setCameraOuverte}
+				onCapture={(file) => void uploaderFichier(file)}
+				titre="Photo du client"
+			/>
 		</div>
 	);
 }

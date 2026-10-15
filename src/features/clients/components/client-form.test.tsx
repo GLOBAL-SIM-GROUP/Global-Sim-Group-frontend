@@ -359,4 +359,45 @@ describe("ClientForm — photo du client", () => {
 			),
 		);
 	});
+
+	it("propose aussi la caméra pour la photo", () => {
+		renderCreation();
+		expect(screen.getByRole("button", { name: /Caméra/i })).toBeInTheDocument();
+	});
+
+	it("affiche une erreur explicite si la caméra est indisponible", async () => {
+		// jsdom n'expose pas navigator.mediaDevices → chemin d'erreur
+		const user = userEvent.setup();
+		renderCreation();
+
+		await user.click(screen.getByRole("button", { name: /Caméra/i }));
+
+		expect(await screen.findByText(/Caméra indisponible/i)).toBeInTheDocument();
+	});
+
+	it("ouvre le flux vidéo et propose Capturer quand la caméra répond", async () => {
+		const fakeStream = {
+			getTracks: () => [{ stop: vi.fn() }],
+		} as unknown as MediaStream;
+		const getUserMedia = vi.fn().mockResolvedValue(fakeStream);
+		Object.defineProperty(navigator, "mediaDevices", {
+			value: { getUserMedia },
+			configurable: true,
+		});
+		// jsdom : <video>.play() n'existe pas — on le stubbe
+		HTMLMediaElement.prototype.play = vi.fn().mockResolvedValue(undefined);
+
+		const user = userEvent.setup();
+		renderCreation();
+		await user.click(screen.getByRole("button", { name: /Caméra/i }));
+
+		expect(
+			await screen.findByRole("button", { name: /Capturer/i }),
+		).toBeInTheDocument();
+		expect(getUserMedia).toHaveBeenCalledWith(
+			expect.objectContaining({ video: expect.any(Object) }),
+		);
+
+		delete (navigator as { mediaDevices?: unknown }).mediaDevices;
+	});
 });
