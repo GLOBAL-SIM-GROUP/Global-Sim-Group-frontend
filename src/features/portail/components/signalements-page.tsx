@@ -94,13 +94,13 @@ export function SignalementsPage({
 					description="Signalez un problème rencontré dans nos locaux ou services depuis « Signaler un problème »."
 				/>
 			) : (
-				<div className="space-y-3">
+				<div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
 					{signalements.map((signalement) => (
 						<Link
 							key={signalement.id}
 							to={`${lienDetailBase}/$id` as never}
 							params={{ id: signalement.id } as never}
-							className="group flex items-center justify-between gap-3 rounded-xl border border-border bg-card p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-lagoon/50 hover:bg-accent/40 hover:shadow-md"
+							className="group flex items-center justify-between gap-3 rounded-lg border border-border bg-card p-3 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-lagoon/50 hover:bg-accent/40 hover:shadow-md"
 						>
 							<div className="min-w-0 flex-1 space-y-1">
 								<div className="flex flex-wrap items-center gap-2">

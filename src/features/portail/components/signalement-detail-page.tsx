@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
-import { Camera, Loader2, X } from "lucide-react";
-import { useState } from "react";
-
+import { Camera, ImagePlus, Loader2, Trash2, X } from "lucide-react";
+import { useRef, useState } from "react";
+import { BoutonCamera } from "#/components/bouton-camera";
 import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
 import {
@@ -17,11 +17,17 @@ import type { SignalementPhoto } from "#/core/api/signalements";
 import { formatDateHeureUTC } from "#/features/residence/models/format";
 import { useSignalementPhotoBlobUrl } from "#/features/signalements/hooks/use-signalements";
 import {
+	PHOTO_TYPES_MIME,
 	SIGNALEMENT_STATUT_LABELS,
 	SIGNALEMENT_STATUT_VARIANT,
+	validerPhotosSignalement,
 } from "#/features/signalements/models/signalements";
 
-import { useSignalementPortail } from "../hooks/use-signalements";
+import {
+	useSignalementPortail,
+	useSupprimerPhotoSignalementPortail,
+	useUploaderPhotoSignalementPortail,
+} from "../hooks/use-signalements";
 import { libelleCiblePortail } from "../models/signalements";
 
 interface SignalementDetailPageProps {
@@ -38,10 +44,14 @@ interface SignalementDetailPageProps {
 
 /**
  * Fiche d'un signalement du compte connecté (`GET /signalements/portail/:id`)
- * — lecture seule : titre, description, lieu, cible, statut, dates et
- * note de résolution, photos jointes en miniatures (clic = grand format via
- * `GET /signalements/photos/:id/fichier`). Tout 404 est affiché comme
- * « introuvable » — impossible de distinguer un signalement d'autrui.
+ * — titre, description, lieu, cible, statut, dates et note de résolution en
+ * lecture seule (le backend n'expose pas de mise à jour portail) ; les
+ * photos restent modifiables tant que le signalement est `OUVERT` ou
+ * `EN_COURS` (ajout via `POST /signalements/portail/:id/photos/upload`,
+ * retrait via `DELETE /signalements/photos/:id` — 409 dès `RESOLU`/`REJETE`).
+ * Miniatures cliquables = grand format via `GET /signalements/photos/:id/fichier`.
+ * Tout 404 est affiché comme « introuvable » — impossible de distinguer un
+ * signalement d'autrui.
  */
 export function SignalementDetailPage({
 	id,
@@ -51,9 +61,38 @@ export function SignalementDetailPage({
 	className = "w-full space-y-6 p-6",
 }: SignalementDetailPageProps) {
 	const signalementQuery = useSignalementPortail(id);
+	const uploaderPhotoMutation = useUploaderPhotoSignalementPortail();
+	const supprimerPhotoMutation = useSupprimerPhotoSignalementPortail(id);
 	const [photoOuverte, setPhotoOuverte] = useState<SignalementPhoto | null>(
 		null,
 	);
+	const [erreursPhotos, setErreursPhotos] = useState<string[]>([]);
+	const fileInputRef = useRef<HTMLInputElement>(null);
+	const photosBusy =
+		uploaderPhotoMutation.isPending || supprimerPhotoMutation.isPending;
+
+	async function ajouterPhotos(fichiers: readonly File[]) {
+		const { acceptes, erreurs } = validerPhotosSignalement(fichiers);
+		const resultats = await Promise.allSettled(
+			acceptes.map((file) => uploaderPhotoMutation.mutateAsync({ id, file })),
+		);
+		const echouees = resultats.filter((r) => r.status === "rejected").length;
+		setErreursPhotos(
+			echouees > 0
+				? [
+						...erreurs,
+						`${echouees} photo${echouees > 1 ? "s" : ""} n'a pas pu être envoyée${echouees > 1 ? "s" : ""}.`,
+					]
+				: erreurs,
+		);
+	}
+
+	function supprimerPhoto(photo: SignalementPhoto) {
+		supprimerPhotoMutation.mutate(photo.id, {
+			onError: () =>
+				setErreursPhotos(["La photo n'a pas pu être supprimée. Réessayez."]),
+		});
+	}
 
 	if (signalementQuery.isLoading) {
 		return (
@@ -102,6 +141,10 @@ export function SignalementDetailPage({
 	}
 
 	const signalement = signalementQuery.data;
+	// Le backend refuse (409) upload comme suppression dès `RESOLU`/`REJETE` —
+	// même fenêtre d'édition côté UI.
+	const photosModifiables =
+		signalement.statut === "OUVERT" || signalement.statut === "EN_COURS";
 
 	return (
 		<div className={className}>
@@ -205,7 +248,59 @@ export function SignalementDetailPage({
 			) : null}
 
 			<section className="space-y-3">
-				<h2 className="text-base font-semibold text-foreground">Photos</h2>
+				<div className="flex items-center justify-between gap-3">
+					<h2 className="text-base font-semibold text-foreground">Photos</h2>
+					{photosModifiables ? (
+						<div className="flex items-center gap-2">
+							<input
+								ref={fileInputRef}
+								type="file"
+								accept={PHOTO_TYPES_MIME.join(",")}
+								multiple
+								disabled={photosBusy}
+								className="sr-only"
+								onChange={(event) => {
+									void ajouterPhotos(Array.from(event.target.files ?? []));
+									// Reset : re-sélectionner le même fichier doit
+									// redéclencher onChange.
+									event.target.value = "";
+								}}
+							/>
+							<Button
+								type="button"
+								variant="outline"
+								size="sm"
+								className="rounded-full"
+								disabled={photosBusy}
+								onClick={() => fileInputRef.current?.click()}
+							>
+								{uploaderPhotoMutation.isPending ? (
+									<Loader2 className="size-4 animate-spin" aria-hidden />
+								) : (
+									<ImagePlus className="size-4" aria-hidden />
+								)}
+								Ajouter
+							</Button>
+							<BoutonCamera
+								label="Caméra"
+								titre="Photo du signalement"
+								description="Photographiez le problème dans le cadre."
+								facingMode="environment"
+								disabled={photosBusy}
+								onCapture={(file) => void ajouterPhotos([file])}
+							/>
+						</div>
+					) : null}
+				</div>
+				{erreursPhotos.length > 0 ? (
+					<div role="alert" className="space-y-0.5">
+						{erreursPhotos.map((erreur) => (
+							<p key={erreur} className="text-xs text-destructive">
+								{erreur}
+							</p>
+						))}
+					</div>
+				) : null}
 				{signalement.photos.length === 0 ? (
 					<p className="text-sm text-muted-foreground">Aucune photo jointe.</p>
 				) : (
@@ -215,6 +310,13 @@ export function SignalementDetailPage({
 								key={photo.id}
 								photo={photo}
 								onOpen={() => setPhotoOuverte(photo)}
+								onSupprimer={
+									photosModifiables ? () => supprimerPhoto(photo) : undefined
+								}
+								suppressionEnCours={
+									supprimerPhotoMutation.isPending &&
+									supprimerPhotoMutation.variables === photo.id
+								}
 							/>
 						))}
 					</div>
@@ -234,14 +336,34 @@ export function SignalementDetailPage({
 function PhotoThumbnail({
 	photo,
 	onOpen,
+	onSupprimer,
+	suppressionEnCours = false,
 }: {
 	photo: SignalementPhoto;
 	onOpen: () => void;
+	/** Présent = photo retirable (signalement encore modifiable). */
+	onSupprimer?: () => void;
+	suppressionEnCours?: boolean;
 }) {
 	const { blobUrl, isLoading } = useSignalementPhotoBlobUrl(photo.id);
 
 	return (
 		<div className="relative overflow-hidden rounded-lg border border-border bg-muted">
+			{onSupprimer ? (
+				<button
+					type="button"
+					onClick={onSupprimer}
+					disabled={suppressionEnCours}
+					aria-label="Retirer la photo"
+					className="absolute right-1 top-1 z-10 rounded-full bg-foreground/70 p-1 text-background transition-colors hover:bg-destructive disabled:opacity-50"
+				>
+					{suppressionEnCours ? (
+						<Loader2 className="size-3.5 animate-spin" aria-hidden />
+					) : (
+						<Trash2 className="size-3.5" aria-hidden />
+					)}
+				</button>
+			) : null}
 			<button
 				type="button"
 				onClick={onOpen}

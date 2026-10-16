@@ -101,3 +101,19 @@ export function uploaderPhotoSignalementPortail(
 		)
 		.then(toPhoto);
 }
+
+/**
+ * Retire une photo d'un de mes signalements (`DELETE
+ * /signalements/photos/:id` — route partagée staff/portail : le backend la
+ * réserve aux photos du périmètre de l'appelant). 404 si la photo est
+ * inconnue ou rattachée au signalement d'autrui.
+ */
+export function supprimerPhotoSignalementPortail(
+	idPhoto: string,
+): Promise<SignalementPhoto> {
+	return getApiClient()
+		.apiFetch<SignalementPhotoWire>(`/api/v1/signalements/photos/${idPhoto}`, {
+			method: "DELETE",
+		})
+		.then(toPhoto);
+}

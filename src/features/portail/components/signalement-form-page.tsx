@@ -3,6 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { Flag, Loader2, MapPin, Upload } from "lucide-react";
 import { useRef, useState } from "react";
 
+import { BoutonCamera } from "#/components/bouton-camera";
 import { Button } from "#/components/ui/button";
 import { InputField } from "#/components/ui/input-field";
 import { Label } from "#/components/ui/label";
@@ -63,7 +64,7 @@ export function SignalementFormPage({
 	lienDetailBase,
 	lienListe,
 	breadcrumbAccueil,
-	className = "w-full space-y-6 pt-6 pb-16",
+	className = "w-full space-y-6 p-6",
 }: SignalementFormPageProps) {
 	const creerMutation = useCreerSignalementPortail();
 	const uploaderPhotoMutation = useUploaderPhotoSignalementPortail();
@@ -306,6 +307,18 @@ export function SignalementFormPage({
 							setErreursSelection(erreurs);
 						}}
 						className="block w-full text-sm text-foreground file:mr-3 file:rounded-md file:border-0 file:bg-lagoon file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-white hover:file:bg-lagoon/90"
+					/>
+					<BoutonCamera
+						label="Prendre une photo"
+						titre="Photo du signalement"
+						description="Photographiez le problème dans le cadre."
+						facingMode="environment"
+						disabled={busy}
+						onCapture={(file) => {
+							const { acceptes, erreurs } = validerPhotosSignalement([file]);
+							setFichiers((courants) => [...courants, ...acceptes]);
+							setErreursSelection(erreurs);
+						}}
 					/>
 					<p className="text-xs text-muted-foreground">
 						JPG, PNG ou WebP — 5 Mo maximum par photo.

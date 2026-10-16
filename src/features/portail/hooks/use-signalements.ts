@@ -6,6 +6,7 @@ import {
 	creerSignalementPortail,
 	getSignalementPortail,
 	listMesSignalements,
+	supprimerPhotoSignalementPortail,
 	uploaderPhotoSignalementPortail,
 } from "../api/signalements";
 import { signalementsPortailKeys } from "../permissions";
@@ -61,6 +62,23 @@ export function useUploaderPhotoSignalementPortail() {
 		onSuccess: (_photo, variables) => {
 			void queryClient.invalidateQueries({
 				queryKey: signalementsPortailKeys.detail(variables.id),
+			});
+		},
+	});
+}
+
+/**
+ * Suppression d'une photo d'un de mes signalements (`DELETE
+ * /signalements/photos/:id`). Invalide le détail — les photos y sont
+ * embarquées comme pour l'upload.
+ */
+export function useSupprimerPhotoSignalementPortail(idSignalement: string) {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: (idPhoto: string) => supprimerPhotoSignalementPortail(idPhoto),
+		onSuccess: () => {
+			void queryClient.invalidateQueries({
+				queryKey: signalementsPortailKeys.detail(idSignalement),
 			});
 		},
 	});
