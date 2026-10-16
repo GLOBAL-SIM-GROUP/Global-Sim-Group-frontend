@@ -27,11 +27,12 @@ interface DemanderBoutiqueDialogProps {
 }
 
 /**
- * Finalisation d'une demande boutique depuis le panier (espace client) :
- * récapitulatif des lignes + note libre optionnelle. Le total affiché est
- * indicatif — le serveur fige les prix au `prix_vente` catalogue du moment.
- * Pas de paiement en ligne : validation par le personnel puis règlement au
- * comptoir au retrait.
+ * Finalisation d'une demande boutique depuis le panier : récapitulatif des
+ * lignes + note libre optionnelle. Le total affiché est indicatif — le
+ * serveur fige les prix au `prix_vente` catalogue du moment. Pas de
+ * paiement en ligne : validation par le personnel puis règlement au
+ * comptoir au retrait. Partagé entre l'espace client et le portail
+ * résident.
  */
 export function DemanderBoutiqueDialog({
 	open,

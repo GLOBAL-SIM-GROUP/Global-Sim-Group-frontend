@@ -26,13 +26,30 @@ function imageDuProduit(produit: Produit): string | null {
 	return produit.image_url ? produitImagePublicUrl(produit.id) : null;
 }
 
-export function BoutiquePage() {
+/**
+ * Catalogue de la boutique — produits actifs et non épuisés avec panier
+ * persisté en `localStorage` (clé dédiée, indépendant du panier
+ * restaurant). Partagée entre l'espace client (`/espace-client/boutique`)
+ * et le portail résident (`/residence/portail/boutique`) : `breadcrumb` et
+ * `panierTo` portent les liens propres à l'espace ; `variant` fixe le
+ * conteneur (`p-6` résident, `pt-6 pb-16` client) et décale la barre de
+ * panier au-dessus de la tab bar mobile de l'espace client.
+ */
+export function BoutiqueCataloguePage({
+	breadcrumb,
+	panierTo,
+	variant,
+}: {
+	breadcrumb: { label: string; to?: string }[];
+	panierTo: string;
+	variant: "client" | "resident";
+}) {
 	const produitsQuery = useQuery({
-		queryKey: ["espace-client", "boutique", "produits"],
+		queryKey: ["portail", "boutique", "produits"],
 		queryFn: () => listProduits(),
 	});
 	const categoriesQuery = useQuery({
-		queryKey: ["espace-client", "boutique", "categories"],
+		queryKey: ["portail", "boutique", "categories"],
 		queryFn: () => listCategoriesProduits(),
 	});
 	const [categorieActive, setCategorieActive] = useState(TOUTES_CATEGORIES);
@@ -50,14 +67,31 @@ export function BoutiquePage() {
 			),
 		[produitsQuery.data],
 	);
+	// Onglets dérivés des produits affichables : une catégorie sans produit
+	// actif et non épuisé ne propose qu'un état vide — on ne la montre pas.
+	const categoriesVisibles = useMemo(() => {
+		const idsAvecProduits = new Set(
+			produitsActifs.map((produit) => produit.id_categorie_produit),
+		);
+		return (categoriesQuery.data ?? []).filter((categorie) =>
+			idsAvecProduits.has(categorie.id),
+		);
+	}, [produitsActifs, categoriesQuery.data]);
+	// Onglet actif retombé sur « Tous » si sa catégorie n'a plus de produit
+	// affichable (stock tombé à zéro entre deux refetches).
+	const categorieCourante =
+		categorieActive === TOUTES_CATEGORIES ||
+		categoriesVisibles.some((categorie) => categorie.id === categorieActive)
+			? categorieActive
+			: TOUTES_CATEGORIES;
 	const produitsAffiches = useMemo(
 		() =>
-			categorieActive === TOUTES_CATEGORIES
+			categorieCourante === TOUTES_CATEGORIES
 				? produitsActifs
 				: produitsActifs.filter(
-						(produit) => produit.id_categorie_produit === categorieActive,
+						(produit) => produit.id_categorie_produit === categorieCourante,
 					),
-		[produitsActifs, categorieActive],
+		[produitsActifs, categorieCourante],
 	);
 
 	const quantiteDe = (produitId: string) =>
@@ -92,17 +126,22 @@ export function BoutiquePage() {
 
 	return (
 		<Toast.Provider swipeDirection="right" duration={2500}>
-			<div className="w-full space-y-6 pt-6 pb-40 sm:pb-16">
+			<div
+				className={
+					variant === "resident"
+						? // `pb-28` dégage la `PanierBar` flottante (pas de tab
+							// bar dans le shell résident).
+							"w-full space-y-6 p-6 pb-28"
+						: "w-full space-y-6 pt-6 pb-40 sm:pb-16"
+				}
+			>
 				<PageHeader
-					breadcrumb={[
-						{ label: "Espace client", to: "/espace-client" },
-						{ label: "Boutique" },
-					]}
+					breadcrumb={breadcrumb}
 					title="Boutique"
 					description="Parcourez le catalogue et composez votre commande."
 				/>
 
-				<Tabs.Root value={categorieActive} onValueChange={setCategorieActive}>
+				<Tabs.Root value={categorieCourante} onValueChange={setCategorieActive}>
 					<Tabs.List
 						aria-label="Catégories"
 						className="flex gap-2 overflow-x-auto pb-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
@@ -113,7 +152,7 @@ export function BoutiquePage() {
 						>
 							Tous
 						</Tabs.Trigger>
-						{(categoriesQuery.data ?? []).map((categorie) => (
+						{categoriesVisibles.map((categorie) => (
 							<Tabs.Trigger
 								key={categorie.id}
 								value={categorie.id}
@@ -150,6 +189,8 @@ export function BoutiquePage() {
 				<PanierBar
 					nombreArticles={panier.nombreArticles}
 					total={panier.total}
+					panierTo={panierTo}
+					auDessusTabBar={variant === "client"}
 				/>
 			</div>
 

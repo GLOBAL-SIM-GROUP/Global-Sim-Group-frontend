@@ -19,6 +19,7 @@ import {
 } from "#/features/residence/models/format";
 
 import { useMesSouscription } from "../hooks/use-abonnements";
+import { FactureDocumentsParSource } from "./facture-documents";
 
 interface AbonnementDetailPageProps {
 	id: string;
@@ -115,9 +116,20 @@ export function AbonnementDetailPage({
 				}
 				description={souscription.prestation_libelle ?? souscription.offre_code}
 				actions={
-					<Button variant="outline" size="sm" className="rounded-full" asChild>
-						<Link to={lienListe as never}>Retour à mes abonnements</Link>
-					</Button>
+					<div className="flex flex-wrap items-center gap-2">
+						<FactureDocumentsParSource
+							sourceType="ABONNEMENT"
+							sourceId={souscription.id_souscription}
+						/>
+						<Button
+							variant="outline"
+							size="sm"
+							className="rounded-full"
+							asChild
+						>
+							<Link to={lienListe as never}>Retour à mes abonnements</Link>
+						</Button>
+					</div>
 				}
 			/>
 

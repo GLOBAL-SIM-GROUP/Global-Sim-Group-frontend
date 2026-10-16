@@ -20,5 +20,16 @@ export const Route = createFileRoute(
 function RestaurantCommandeDetailRoutePage() {
 	const { id } = Route.useParams();
 
-	return <RestaurantCommandeDetailPage id={id} />;
+	return (
+		<RestaurantCommandeDetailPage
+			id={id}
+			breadcrumbAccueil={{
+				label: "Mon espace résident",
+				to: "/residence/portail",
+			}}
+			labelListe="Restaurant"
+			lienListe="/residence/portail/restaurant"
+			labelRetour="Retour à la liste"
+		/>
+	);
 }

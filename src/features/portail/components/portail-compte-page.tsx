@@ -3,9 +3,11 @@ import { Link } from "@tanstack/react-router";
 import {
 	BedDouble,
 	CalendarDays,
+	ClipboardList,
 	KeyRound,
 	Loader2,
 	ShieldCheck,
+	ShoppingCart,
 	UserRound,
 } from "lucide-react";
 import { useState } from "react";
@@ -26,18 +28,50 @@ import { usePortailResume } from "../hooks/use-portail";
 /** Ligne lecture seule (même gabarit que `portail-page.tsx`). */
 function Ligne({ label, valeur }: { label: string; valeur: string }) {
 	return (
-		<div className="grid grid-cols-[10rem_1fr] gap-3 text-sm">
+		<div className="grid grid-cols-1 gap-1 text-sm sm:grid-cols-[10rem_1fr] sm:items-baseline sm:gap-3">
 			<dt className="text-muted-foreground">{label}</dt>
 			<dd className="text-foreground">{valeur}</dd>
 		</div>
 	);
 }
 
+const lienRaccourciClassName =
+	"group flex items-center gap-3 rounded-lg border border-border bg-card p-3 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-lagoon/50 hover:bg-accent/40 hover:shadow-md";
+
+function Raccourci({
+	to,
+	icon: Icon,
+	titre,
+	description,
+}: {
+	to: string;
+	icon: typeof CalendarDays;
+	titre: string;
+	description: string;
+}) {
+	return (
+		<Link to={to as never} className={lienRaccourciClassName}>
+			<Icon className="size-5 shrink-0 text-lagoon" aria-hidden />
+			<div className="min-w-0">
+				<p className="text-sm font-semibold text-foreground">{titre}</p>
+				<p className="text-xs text-muted-foreground">{description}</p>
+			</div>
+		</Link>
+	);
+}
+
 /**
- * « Mon compte » du portail résident (`/residence/portail/compte`) :
- * informations réellement exposées au résident — `/auth/me` (login, dossier,
- * services accessibles) + `GET /residence/portail/resume` (nom du titulaire,
- * contrat et logement en cours) — + changement de mot de passe.
+ * « Mon compte » du portail, partagé entre l'espace résident
+ * (`/residence/portail/compte`, `variant="resident"`) et l'espace client
+ * (`/espace-client/mon-compte`, `variant="client"`) : informations
+ * réellement exposées à la personne — `/auth/me` (login, dossier, services
+ * accessibles) + changement de mot de passe.
+ *
+ * La variante résidente ajoute le bloc locatif via
+ * `GET /residence/portail/resume` (nom du titulaire, contrat et logement en
+ * cours) + les raccourcis « Mes échéances » / « Ma caution » ; la variante
+ * cliente n'appelle pas ce endpoint (403 `RESIDENT.VOIR`) et montre les
+ * raccourcis « Mes demandes » / « Mon panier ».
  *
  * Pas d'endpoint « changer mon mot de passe connecté » : le seul mécanisme
  * self-service est `POST /auth/mot-de-passe-oublie` — le bouton envoie
@@ -48,9 +82,14 @@ function Ligne({ label, valeur }: { label: string; valeur: string }) {
  * La page reste utile si le résumé portail échoue : identité et mot de passe
  * viennent de `/auth/me`, seule la carte logement disparaît.
  */
-export function PortailComptePage() {
+export function PortailComptePage({
+	variant = "resident",
+}: {
+	variant?: "resident" | "client";
+}) {
+	const estClient = variant === "client";
 	const user = useCurrentUser();
-	const resumeQuery = usePortailResume();
+	const resumeQuery = usePortailResume(!estClient);
 	const [envoye, setEnvoye] = useState(false);
 	const [erreur, setErreur] = useState<string | null>(null);
 
@@ -71,18 +110,31 @@ export function PortailComptePage() {
 	const client = resumeQuery.data?.client;
 	const contrat = resumeQuery.data?.contrat_en_cours;
 	const services = servicesDuCompte(user?.permissions ?? []);
-	const nomComplet = client
-		? `${client.prenoms} ${client.nom}`
-		: (user?.login ?? "—");
+	const nomComplet = estClient
+		? (user?.login ?? "—")
+		: client
+			? `${client.prenoms} ${client.nom}`
+			: (user?.login ?? "—");
 
 	return (
-		<div className="w-full space-y-6 p-6">
+		<div
+			className={
+				estClient ? "w-full space-y-6 pt-6 pb-16" : "w-full space-y-6 p-6"
+			}
+		>
 			<PageHeader
-				breadcrumb={[
-					{ label: "Accueil", to: "/" },
-					{ label: "Mon espace résident", to: "/residence/portail" },
-					{ label: "Mon compte" },
-				]}
+				breadcrumb={
+					estClient
+						? [
+								{ label: "Espace client", to: "/espace-client" },
+								{ label: "Mon compte" },
+							]
+						: [
+								{ label: "Accueil", to: "/" },
+								{ label: "Mon espace résident", to: "/residence/portail" },
+								{ label: "Mon compte" },
+							]
+				}
 				title="Mon compte"
 				description="Vos informations de compte GLOBAL SIM GROUP."
 			/>
@@ -96,10 +148,10 @@ export function PortailComptePage() {
 						{nomComplet}
 					</p>
 					<p className="text-sm text-muted-foreground">
-						Compte résident
+						{estClient ? "Compte client" : "Compte résident"}
 						{user?.idClient ? ` · dossier n° ${user.idClient}` : ""}
 					</p>
-					{client ? (
+					{!estClient && client ? (
 						<p className="text-xs text-muted-foreground">
 							Identifiant : {user?.login ?? "—"}
 						</p>
@@ -107,13 +159,13 @@ export function PortailComptePage() {
 				</div>
 			</div>
 
-			{contrat ? (
+			{!estClient && contrat ? (
 				<section className="space-y-3 rounded-xl border border-border bg-card p-5 shadow-sm sm:p-6">
 					<h2 className="flex items-center gap-2 text-sm font-semibold text-foreground">
 						<BedDouble className="size-4 text-lagoon" aria-hidden />
 						Votre logement
 					</h2>
-					<dl className="grid gap-3 sm:grid-cols-2">
+					<dl className="grid gap-3 lg:grid-cols-2">
 						<Ligne
 							label="Logement"
 							valeur={`${contrat.logement.numero} — ${contrat.logement.nom} (bât. ${contrat.logement.batiment})`}
@@ -187,32 +239,37 @@ export function PortailComptePage() {
 			</section>
 
 			<div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-				<Link
-					to="/residence/portail/echeances"
-					className="group flex items-center gap-3 rounded-xl border border-border bg-card p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-lagoon/50 hover:bg-accent/40 hover:shadow-md"
-				>
-					<CalendarDays className="size-5 shrink-0 text-lagoon" aria-hidden />
-					<div className="min-w-0">
-						<p className="text-sm font-semibold text-foreground">
-							Mes échéances
-						</p>
-						<p className="text-xs text-muted-foreground">
-							Suivi de vos loyers, dus et payés
-						</p>
-					</div>
-				</Link>
-				<Link
-					to="/residence/portail/caution"
-					className="group flex items-center gap-3 rounded-xl border border-border bg-card p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-lagoon/50 hover:bg-accent/40 hover:shadow-md"
-				>
-					<ShieldCheck className="size-5 shrink-0 text-lagoon" aria-hidden />
-					<div className="min-w-0">
-						<p className="text-sm font-semibold text-foreground">Ma caution</p>
-						<p className="text-xs text-muted-foreground">
-							Montant versé et statut de restitution
-						</p>
-					</div>
-				</Link>
+				{estClient ? (
+					<>
+						<Raccourci
+							to="/espace-client/mes-demandes"
+							icon={ClipboardList}
+							titre="Mes demandes"
+							description="Suivi de vos demandes et dépôts pressing"
+						/>
+						<Raccourci
+							to="/espace-client/panier"
+							icon={ShoppingCart}
+							titre="Mon panier"
+							description="Articles restaurant et boutique en attente"
+						/>
+					</>
+				) : (
+					<>
+						<Raccourci
+							to="/residence/portail/echeances"
+							icon={CalendarDays}
+							titre="Mes échéances"
+							description="Suivi de vos loyers, dus et payés"
+						/>
+						<Raccourci
+							to="/residence/portail/caution"
+							icon={ShieldCheck}
+							titre="Ma caution"
+							description="Montant versé et statut de restitution"
+						/>
+					</>
+				)}
 			</div>
 
 			<p className="text-sm text-muted-foreground">

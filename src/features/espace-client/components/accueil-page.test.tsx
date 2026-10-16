@@ -37,6 +37,8 @@ const mocks = vi.hoisted(() => ({
 	useMesReservationsSalleFete: vi.fn(),
 	useMesSejoursPortail: vi.fn(),
 	useCurrentUser: vi.fn(),
+	useCan: vi.fn(),
+	usePortailResume: vi.fn(),
 }));
 
 const AUCUNE_DONNEE = { isLoading: false, isError: false, data: [] };
@@ -63,6 +65,11 @@ vi.mock("#/features/portail/hooks/use-sejours", () => ({
 
 vi.mock("#/core/auth", () => ({
 	useCurrentUser: mocks.useCurrentUser,
+	useCan: mocks.useCan,
+}));
+
+vi.mock("#/features/portail/hooks/use-portail", () => ({
+	usePortailResume: mocks.usePortailResume,
 }));
 
 vi.mock("@tanstack/react-router", async (importOriginal) => {
@@ -96,6 +103,12 @@ describe("AccueilPage", () => {
 		mocks.useMesVentesPortail.mockReturnValue(AUCUNE_DONNEE);
 		mocks.useMesReservationsSalleFete.mockReturnValue(AUCUNE_DONNEE);
 		mocks.useMesSejoursPortail.mockReturnValue(AUCUNE_DONNEE);
+		mocks.useCan.mockReturnValue(false);
+		mocks.usePortailResume.mockReturnValue({
+			isLoading: false,
+			isError: false,
+			data: undefined,
+		});
 
 		render(<AccueilPage />);
 
@@ -140,6 +153,12 @@ describe("AccueilPage", () => {
 		mocks.useMesVentesPortail.mockReturnValue(AUCUNE_DONNEE);
 		mocks.useMesReservationsSalleFete.mockReturnValue(AUCUNE_DONNEE);
 		mocks.useMesSejoursPortail.mockReturnValue(AUCUNE_DONNEE);
+		mocks.useCan.mockReturnValue(false);
+		mocks.usePortailResume.mockReturnValue({
+			isLoading: false,
+			isError: false,
+			data: undefined,
+		});
 
 		render(<AccueilPage />);
 

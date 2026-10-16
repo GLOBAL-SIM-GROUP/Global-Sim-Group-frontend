@@ -17,7 +17,7 @@ import { CAUTION_STATUT_LABELS, cautionStatutVariant } from "../models/portail";
 /** Ligne lecture seule. */
 function Ligne({ label, valeur }: { label: string; valeur: string }) {
 	return (
-		<div className="grid grid-cols-[12rem_1fr] gap-3 text-sm">
+		<div className="grid grid-cols-1 gap-1 text-sm sm:grid-cols-[12rem_1fr] sm:items-baseline sm:gap-3">
 			<dt className="text-muted-foreground">{label}</dt>
 			<dd className="text-foreground">{valeur}</dd>
 		</div>
@@ -82,7 +82,7 @@ export function PortailCautionPage() {
 
 			{caution ? (
 				<section className="rounded-xl border border-border bg-card p-5 shadow-sm">
-					<dl className="grid gap-4 sm:grid-cols-2">
+					<dl className="grid gap-4 lg:grid-cols-2">
 						<Ligne
 							label="Montant"
 							valeur={formatMontantFCFA(caution.montant)}

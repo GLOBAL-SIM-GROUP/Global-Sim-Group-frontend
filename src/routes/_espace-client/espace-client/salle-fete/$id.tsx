@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-import { SalleFeteReservationDetailPage } from "#/features/espace-client/components/salle-fete-reservation-detail-page";
+import { SalleFeteReservationDetailEspacePage } from "#/features/espace-client/components/salle-fete-reservation-detail-page";
 
 /**
  * Détail d'une demande de réservation de salle de fête
@@ -17,5 +17,5 @@ export const Route = createFileRoute(
 
 function SalleFeteReservationRoutePage() {
 	const { id } = Route.useParams();
-	return <SalleFeteReservationDetailPage id={id} />;
+	return <SalleFeteReservationDetailEspacePage id={id} />;
 }

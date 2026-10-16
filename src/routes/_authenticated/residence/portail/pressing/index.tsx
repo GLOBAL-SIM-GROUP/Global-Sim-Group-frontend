@@ -19,5 +19,5 @@ export const Route = createFileRoute(
 });
 
 function PressingCommandesRoutePage() {
-	return <PressingCommandesPage />;
+	return <PressingCommandesPage variant="resident" />;
 }

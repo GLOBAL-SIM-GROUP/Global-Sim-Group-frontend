@@ -20,5 +20,16 @@ export const Route = createFileRoute(
 function SalleFeteReservationDetailRoutePage() {
 	const { id } = Route.useParams();
 
-	return <SalleFeteReservationDetailPage id={id} />;
+	return (
+		<SalleFeteReservationDetailPage
+			id={id}
+			breadcrumbAccueil={{
+				label: "Mon espace résident",
+				to: "/residence/portail",
+			}}
+			labelListe="Salle de fête"
+			lienListe="/residence/portail/salle-fete"
+			labelRetour="Retour à la liste"
+		/>
+	);
 }

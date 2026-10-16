@@ -6,7 +6,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import type { CategoriePlat, Plat } from "#/features/restaurant/models/plats";
 
-import { RestaurantPage } from "./restaurant-page";
+import { RestaurantCataloguePage } from "./restaurant-catalogue-page";
 
 const plats: Plat[] = [
 	{
@@ -36,11 +36,21 @@ const plats: Plat[] = [
 		description: null,
 		image_url: null,
 	},
+	{
+		id: "4",
+		nom: "Dessert épuisé",
+		id_categorie_plat: "cat-desserts",
+		prix: "1500",
+		disponible: false,
+		description: null,
+		image_url: null,
+	},
 ];
 
 const categories: CategoriePlat[] = [
 	{ id: "cat-plats", libelle: "Plats" },
 	{ id: "cat-boissons", libelle: "Boissons" },
+	{ id: "cat-desserts", libelle: "Desserts" },
 ];
 
 vi.mock("#/features/restaurant/api/plats", () => ({
@@ -68,6 +78,12 @@ vi.mock("@tanstack/react-router", async (importOriginal) => {
 	};
 });
 
+const PROPS = {
+	breadcrumb: [{ label: "Restaurant" }],
+	panierTo: "/espace-client/panier",
+	variant: "client" as const,
+};
+
 function renderAvecQueryClient(ui: ReactNode) {
 	const queryClient = new QueryClient({
 		defaultOptions: { queries: { retry: false } },
@@ -81,18 +97,30 @@ afterEach(() => {
 	window.localStorage.clear();
 });
 
-describe("RestaurantPage", () => {
+describe("RestaurantCataloguePage", () => {
 	it("affiche uniquement les plats disponibles", async () => {
-		renderAvecQueryClient(<RestaurantPage />);
+		renderAvecQueryClient(<RestaurantCataloguePage {...PROPS} />);
 
 		expect(await screen.findByText("Poulet braisé")).toBeInTheDocument();
 		expect(screen.getByText("Jus de gingembre")).toBeInTheDocument();
 		expect(screen.queryByText("Plat épuisé")).not.toBeInTheDocument();
+		expect(screen.queryByText("Dessert épuisé")).not.toBeInTheDocument();
+	});
+
+	it("masque l'onglet d'une catégorie sans plat disponible", async () => {
+		renderAvecQueryClient(<RestaurantCataloguePage {...PROPS} />);
+		await screen.findByText("Poulet braisé");
+
+		expect(screen.getByRole("tab", { name: "Plats" })).toBeInTheDocument();
+		expect(screen.getByRole("tab", { name: "Boissons" })).toBeInTheDocument();
+		expect(
+			screen.queryByRole("tab", { name: "Desserts" }),
+		).not.toBeInTheDocument();
 	});
 
 	it("filtre par catégorie via les onglets", async () => {
 		const user = userEvent.setup();
-		renderAvecQueryClient(<RestaurantPage />);
+		renderAvecQueryClient(<RestaurantCataloguePage {...PROPS} />);
 		await screen.findByText("Poulet braisé");
 
 		await user.click(screen.getByRole("tab", { name: "Boissons" }));
@@ -101,9 +129,9 @@ describe("RestaurantPage", () => {
 		expect(screen.getByText("Jus de gingembre")).toBeInTheDocument();
 	});
 
-	it("ajoute un plat au panier et met à jour la barre de panier", async () => {
+	it("ajoute un plat au panier et mène la barre vers la page panier de l'espace", async () => {
 		const user = userEvent.setup();
-		renderAvecQueryClient(<RestaurantPage />);
+		renderAvecQueryClient(<RestaurantCataloguePage {...PROPS} />);
 		const carte = (await screen.findByText("Poulet braisé")).closest(
 			"article",
 		) as HTMLElement;

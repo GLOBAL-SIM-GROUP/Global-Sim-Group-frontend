@@ -32,11 +32,14 @@ export const FACTURE_STATUT_VARIANT = {
 export const FACTURE_SOURCE_LABELS: Record<string, string> = {
 	COMMANDE_RESTAURANT: "Commande restaurant",
 	COMMANDE_PRESSING: "Commande pressing",
-	VENTE: "Vente",
+	VENTE: "Vente boutique",
 	SEJOUR: "Séjour",
 	PRESTATION: "Prestation",
 	RESERVATION_FETE: "Réservation salle",
 	CHARGE: "Charge",
+	LOCATION: "Loyer",
+	ABONNEMENT: "Abonnement",
+	AUTRE: "Autre",
 };
 
 /** Ligne d'une facture (wire `id_ligne` → `id`). */

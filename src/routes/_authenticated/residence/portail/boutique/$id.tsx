@@ -20,5 +20,16 @@ export const Route = createFileRoute(
 function BoutiqueDemandeDetailRoutePage() {
 	const { id } = Route.useParams();
 
-	return <BoutiqueDemandePortailDetailPage id={id} />;
+	return (
+		<BoutiqueDemandePortailDetailPage
+			id={id}
+			breadcrumbAccueil={{
+				label: "Mon espace résident",
+				to: "/residence/portail",
+			}}
+			labelListe="Boutique"
+			lienListe="/residence/portail/boutique"
+			labelRetour="Retour à la liste"
+		/>
+	);
 }

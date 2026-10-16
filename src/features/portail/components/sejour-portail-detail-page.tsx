@@ -29,12 +29,13 @@ import {
 	SEJOUR_PORTAIL_STATUT_VARIANT,
 } from "../models/sejours";
 import { AnnulerDemandeDialog } from "./annuler-demande-dialog";
+import { FactureDocumentsParSource } from "./facture-documents";
 import { StatutTimeline } from "./statut-timeline";
 
 /** Ligne lecture seule. */
 function Ligne({ label, valeur }: { label: string; valeur: string }) {
 	return (
-		<div className="grid grid-cols-[10rem_1fr] gap-3 text-sm">
+		<div className="grid grid-cols-1 gap-1 text-sm sm:grid-cols-[10rem_1fr] sm:items-baseline sm:gap-3">
 			<dt className="text-muted-foreground">{label}</dt>
 			<dd className="text-foreground">{valeur}</dd>
 		</div>
@@ -171,7 +172,7 @@ export function SejourPortailDetailPage({
 			) : null}
 
 			<section className="rounded-xl border border-border bg-card p-5 shadow-sm">
-				<dl className="grid gap-4 sm:grid-cols-2">
+				<dl className="grid gap-4 lg:grid-cols-2">
 					<Ligne label="Logement" valeur={libelleLogement} />
 					<Ligne
 						label="Type"
@@ -220,13 +221,19 @@ export function SejourPortailDetailPage({
 
 			{facture ? (
 				<section className="space-y-3 rounded-xl border border-border bg-card p-5 shadow-sm">
-					<h2 className="flex items-center gap-2 text-lg font-semibold text-foreground">
-						<Receipt className="size-5" aria-hidden />
-						Facture
-					</h2>
-					<dl className="grid gap-3 sm:grid-cols-2">
+					<div className="flex flex-wrap items-center justify-between gap-2">
+						<h2 className="flex items-center gap-2 text-lg font-semibold text-foreground">
+							<Receipt className="size-5" aria-hidden />
+							Facture
+						</h2>
+						<FactureDocumentsParSource
+							sourceType="SEJOUR"
+							sourceId={sejour.id}
+						/>
+					</div>
+					<dl className="grid gap-3 lg:grid-cols-2">
 						<Ligne label="Numéro" valeur={facture.numero} />
-						<div className="grid grid-cols-[10rem_1fr] gap-3 text-sm">
+						<div className="grid grid-cols-1 gap-1 text-sm sm:grid-cols-[10rem_1fr] sm:items-baseline sm:gap-3">
 							<dt className="text-muted-foreground">Statut</dt>
 							<dd>
 								<Badge variant={FACTURE_STATUT_VARIANT[facture.statut]}>

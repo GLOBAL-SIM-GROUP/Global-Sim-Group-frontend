@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-import { PressingDetailPage } from "#/features/espace-client/components/pressing-detail-page";
+import { PressingDetailEspacePage } from "#/features/espace-client/components/pressing-detail-page";
 
 /**
  * Détail d'une commande de pressing de l'espace client
@@ -15,5 +15,5 @@ export const Route = createFileRoute(
 
 function PressingDetailRoutePage() {
 	const { id } = Route.useParams();
-	return <PressingDetailPage id={id} />;
+	return <PressingDetailEspacePage id={id} />;
 }

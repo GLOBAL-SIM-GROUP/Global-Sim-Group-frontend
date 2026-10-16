@@ -19,15 +19,38 @@ import {
 	VENTE_PORTAIL_STATUT_VARIANT,
 } from "../models/market";
 import { AnnulerDemandeDialog } from "./annuler-demande-dialog";
+import { FactureDocumentsParSource } from "./facture-documents";
 import { StatutTimeline } from "./statut-timeline";
 
+interface BoutiqueDemandePortailDetailPageProps {
+	id: string;
+	/** Fil d'Ariane : entrée d'accueil de l'espace (résident ou client). */
+	breadcrumbAccueil: { label: string; to: string };
+	/** Fil d'Ariane : libellé et cible du crumb « liste » du service. */
+	labelListe: string;
+	lienListe: string;
+	/** Bouton retour — `lienRetour` vaut `lienListe` par défaut. */
+	labelRetour: string;
+	lienRetour?: string;
+	className?: string;
+}
+
 /**
- * Détail d'une demande boutique du résident (portail) : lignes, total,
- * suivi du statut et annulation tant qu'elle est `EN_ATTENTE`
- * (`MARCHANDISE.COMMANDER`). Aucun paiement en ligne — retrait et
- * règlement au comptoir.
+ * Détail d'une demande boutique : lignes, total, suivi du statut et
+ * annulation tant qu'elle est `EN_ATTENTE` (`MARCHANDISE.COMMANDER`). Aucun
+ * paiement en ligne — retrait et règlement au comptoir. Partagée entre le
+ * portail résident et l'espace client : les routes passent fil d'Ariane,
+ * liens retour et conteneur via les props.
  */
-export function BoutiqueDemandePortailDetailPage({ id }: { id: string }) {
+export function BoutiqueDemandePortailDetailPage({
+	id,
+	breadcrumbAccueil,
+	labelListe,
+	lienListe,
+	labelRetour,
+	lienRetour,
+	className = "w-full space-y-6 p-6",
+}: BoutiqueDemandePortailDetailPageProps) {
 	const venteQuery = useVentePortail(id);
 	const canCommander = useCan("MARCHANDISE.COMMANDER");
 	const annuler = useAnnulerVentePortail();
@@ -35,7 +58,7 @@ export function BoutiqueDemandePortailDetailPage({ id }: { id: string }) {
 
 	if (venteQuery.isLoading) {
 		return (
-			<div className="w-full space-y-6 p-6">
+			<div className={className}>
 				<p className="text-sm text-muted-foreground">Chargement…</p>
 			</div>
 		);
@@ -43,7 +66,7 @@ export function BoutiqueDemandePortailDetailPage({ id }: { id: string }) {
 
 	if (venteQuery.isError || !venteQuery.data) {
 		return (
-			<div className="w-full space-y-3 p-6">
+			<div className={`${className} space-y-3`}>
 				<h1 className="text-2xl font-semibold text-foreground">
 					Demande boutique
 				</h1>
@@ -68,12 +91,11 @@ export function BoutiqueDemandePortailDetailPage({ id }: { id: string }) {
 	const vente = venteQuery.data;
 
 	return (
-		<div className="w-full space-y-6 p-6">
+		<div className={className}>
 			<PageHeader
 				breadcrumb={[
-					{ label: "Accueil", to: "/" },
-					{ label: "Mon espace résident", to: "/residence/portail" },
-					{ label: "Boutique", to: "/residence/portail/boutique" },
+					breadcrumbAccueil,
+					{ label: labelListe, to: lienListe },
 					{ label: `Demande du ${formatDateHeureUTC(vente.date)}` },
 				]}
 				title={
@@ -87,6 +109,7 @@ export function BoutiqueDemandePortailDetailPage({ id }: { id: string }) {
 				description="Boutique — retrait et paiement au comptoir"
 				actions={
 					<div className="flex flex-wrap items-center gap-2">
+						<FactureDocumentsParSource sourceType="VENTE" sourceId={vente.id} />
 						{canCommander && estVentePortailAnnulable(vente) ? (
 							<Button
 								variant="outline"
@@ -103,7 +126,7 @@ export function BoutiqueDemandePortailDetailPage({ id }: { id: string }) {
 							className="rounded-full"
 							asChild
 						>
-							<Link to="/residence/portail/boutique">Retour à la liste</Link>
+							<Link to={(lienRetour ?? lienListe) as never}>{labelRetour}</Link>
 						</Button>
 					</div>
 				}

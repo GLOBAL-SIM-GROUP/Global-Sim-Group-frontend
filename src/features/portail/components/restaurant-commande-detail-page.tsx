@@ -23,20 +23,37 @@ import {
 	TYPE_COMMANDE_PORTAIL_LABELS,
 } from "../models/restaurant";
 import { AnnulerDemandeDialog } from "./annuler-demande-dialog";
+import { FactureDocumentsParSource } from "./facture-documents";
 import { StatutTimeline } from "./statut-timeline";
 
 interface RestaurantCommandeDetailPageProps {
 	id: string;
+	/** Fil d'Ariane : entrée d'accueil de l'espace (résident ou client). */
+	breadcrumbAccueil: { label: string; to: string };
+	/** Fil d'Ariane : libellé et cible du crumb « liste » du service. */
+	labelListe: string;
+	lienListe: string;
+	/** Bouton retour — `lienRetour` vaut `lienListe` par défaut. */
+	labelRetour: string;
+	lienRetour?: string;
+	className?: string;
 }
 
 /**
- * Détail d'une commande restaurant du résident (portail) : lignes, total,
- * suivi du statut et annulation tant qu'elle est `EN_ATTENTE`
- * (`RESTAURANT.COMMANDER`). Aucun paiement en ligne — le règlement se fait
- * au comptoir.
+ * Détail d'une commande restaurant : lignes, total, suivi du statut et
+ * annulation tant qu'elle est `EN_ATTENTE` (`RESTAURANT.COMMANDER`). Aucun
+ * paiement en ligne — le règlement se fait au comptoir. Partagée entre le
+ * portail résident et l'espace client : les routes passent fil d'Ariane,
+ * liens retour et conteneur via les props.
  */
 export function RestaurantCommandeDetailPage({
 	id,
+	breadcrumbAccueil,
+	labelListe,
+	lienListe,
+	labelRetour,
+	lienRetour,
+	className = "w-full space-y-6 p-6",
 }: RestaurantCommandeDetailPageProps) {
 	const commandeQuery = useCommandeRestaurantPortail(id);
 	const canCommander = useCan("RESTAURANT.COMMANDER");
@@ -45,7 +62,7 @@ export function RestaurantCommandeDetailPage({
 
 	if (commandeQuery.isLoading) {
 		return (
-			<div className="w-full space-y-6 p-6">
+			<div className={className}>
 				<p className="text-sm text-muted-foreground">Chargement…</p>
 			</div>
 		);
@@ -53,7 +70,7 @@ export function RestaurantCommandeDetailPage({
 
 	if (commandeQuery.isError || !commandeQuery.data) {
 		return (
-			<div className="w-full space-y-3 p-6">
+			<div className={`${className} space-y-3`}>
 				<h1 className="text-2xl font-semibold text-foreground">
 					Commande restaurant
 				</h1>
@@ -78,12 +95,11 @@ export function RestaurantCommandeDetailPage({
 	const commande = commandeQuery.data;
 
 	return (
-		<div className="w-full space-y-6 p-6">
+		<div className={className}>
 			<PageHeader
 				breadcrumb={[
-					{ label: "Accueil", to: "/" },
-					{ label: "Mon espace résident", to: "/residence/portail" },
-					{ label: "Restaurant", to: "/residence/portail/restaurant" },
+					breadcrumbAccueil,
+					{ label: labelListe, to: lienListe },
 					{ label: `Commande du ${formatDateHeureUTC(commande.date)}` },
 				]}
 				title={
@@ -105,6 +121,10 @@ export function RestaurantCommandeDetailPage({
 				}
 				actions={
 					<div className="flex flex-wrap items-center gap-2">
+						<FactureDocumentsParSource
+							sourceType="COMMANDE_RESTAURANT"
+							sourceId={commande.id}
+						/>
 						{canCommander && estCommandeAnnulable(commande) ? (
 							<Button
 								variant="outline"
@@ -121,7 +141,7 @@ export function RestaurantCommandeDetailPage({
 							className="rounded-full"
 							asChild
 						>
-							<Link to="/residence/portail/restaurant">Retour à la liste</Link>
+							<Link to={(lienRetour ?? lienListe) as never}>{labelRetour}</Link>
 						</Button>
 					</div>
 				}

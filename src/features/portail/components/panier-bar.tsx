@@ -11,25 +11,34 @@ import { formatMontantFCFA } from "#/features/residence/models/format";
  * largeur en bas d'écran sur mobile (pouce), carte flottante en bas à droite
  * sur desktop.
  *
- * Mène vers `/espace-client/panier` : le paiement en ligne n'existe pas
- * encore côté backend pour un compte CLIENT (cf. mémoire
- * `extension-clients-externes`) — la page envoie une demande, pas une
- * commande réseau.
+ * `panierTo` : route de la page panier de l'espace courant
+ * (`/espace-client/panier` ou `/residence/portail/panier`). Pas de paiement
+ * en ligne — la page envoie une demande, pas une commande réseau.
  *
- * `bottom-16` sur mobile : se pose au-dessus de `MobileTabBar` (barre
- * d'onglets fixe, `h-16`) au lieu de la recouvrir ; desktop inchangé (`sm:`).
+ * `auDessusTabBar` : dans l'espace client, la barre se pose au-dessus de
+ * `MobileTabBar` (barre d'onglets fixe, `h-16`) au lieu de la recouvrir —
+ * `bottom-16` sur mobile ; dans le shell résident (sans tab bar) elle colle
+ * au bord bas (`bottom-0`). Desktop inchangé (`sm:`).
  */
 export function PanierBar({
 	nombreArticles,
 	total,
+	panierTo,
+	auDessusTabBar = false,
 }: {
 	nombreArticles: number;
 	total: number;
+	panierTo: string;
+	auDessusTabBar?: boolean;
 }) {
 	if (nombreArticles === 0) return null;
 
 	return (
-		<div className="fixed inset-x-0 bottom-16 z-40 border-t border-border bg-card/95 backdrop-blur sm:inset-x-auto sm:right-6 sm:bottom-6 sm:max-w-sm sm:rounded-xl sm:border sm:shadow-lg">
+		<div
+			className={`fixed inset-x-0 z-40 border-t border-border bg-card/95 backdrop-blur sm:inset-x-auto sm:right-6 sm:bottom-6 sm:max-w-sm sm:rounded-xl sm:border sm:shadow-lg ${
+				auDessusTabBar ? "bottom-16" : "bottom-0"
+			}`}
+		>
 			<div className="flex items-center justify-between gap-4 px-4 py-3 sm:px-5">
 				<div className="flex items-center gap-2 text-sm font-medium text-foreground">
 					<ShoppingCart className="size-5 shrink-0 text-lagoon" aria-hidden />
@@ -39,7 +48,7 @@ export function PanierBar({
 					</span>
 				</div>
 				<Button asChild size="sm" className="shrink-0 rounded-full">
-					<Link to="/espace-client/panier">Voir le panier</Link>
+					<Link to={panierTo as never}>Voir le panier</Link>
 				</Button>
 			</div>
 		</div>

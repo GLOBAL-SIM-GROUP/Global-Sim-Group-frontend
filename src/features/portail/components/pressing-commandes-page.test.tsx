@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import type { PressingCommande } from "#/features/portail/models/pressing";
 
-import { PressingPage } from "./pressing-page";
+import { PressingCommandesPage } from "./pressing-commandes-page";
 
 const commandes: PressingCommande[] = [
 	{
@@ -47,7 +47,7 @@ vi.mock("@tanstack/react-router", async (importOriginal) => {
 	};
 });
 
-describe("PressingPage", () => {
+describe("PressingCommandesPage (variant client)", () => {
 	it("affiche la liste des commandes avec statut et progression", () => {
 		mocks.usePressingCommandes.mockReturnValue({
 			isLoading: false,
@@ -55,7 +55,7 @@ describe("PressingPage", () => {
 			data: commandes,
 		});
 
-		render(<PressingPage />);
+		render(<PressingCommandesPage variant="client" />);
 
 		expect(screen.getByText("PR-0001")).toBeInTheDocument();
 		expect(screen.getByText("En traitement")).toBeInTheDocument();
@@ -70,7 +70,7 @@ describe("PressingPage", () => {
 			data: [],
 		});
 
-		render(<PressingPage />);
+		render(<PressingCommandesPage variant="client" />);
 
 		expect(
 			screen.getByText("Aucune commande de pressing pour le moment"),
@@ -86,7 +86,7 @@ describe("PressingPage", () => {
 			refetch,
 		});
 
-		render(<PressingPage />);
+		render(<PressingCommandesPage variant="client" />);
 
 		expect(
 			screen.getByText("Impossible de charger vos commandes de pressing."),

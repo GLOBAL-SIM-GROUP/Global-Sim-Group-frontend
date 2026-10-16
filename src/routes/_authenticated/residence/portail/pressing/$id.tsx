@@ -21,5 +21,16 @@ export const Route = createFileRoute(
 function PressingCommandeDetailRoutePage() {
 	const { id } = Route.useParams();
 
-	return <PressingCommandeDetailPage id={id} />;
+	return (
+		<PressingCommandeDetailPage
+			id={id}
+			breadcrumbAccueil={{
+				label: "Mon espace résident",
+				to: "/residence/portail",
+			}}
+			labelListe="Suivi Pressing"
+			lienListe="/residence/portail/pressing"
+			labelRetour="Retour à la liste"
+		/>
+	);
 }

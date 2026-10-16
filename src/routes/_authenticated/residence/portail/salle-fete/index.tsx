@@ -19,5 +19,5 @@ export const Route = createFileRoute(
 });
 
 function SalleFeteReservationsRoutePage() {
-	return <SalleFeteReservationsPage />;
+	return <SalleFeteReservationsPage variant="resident" />;
 }

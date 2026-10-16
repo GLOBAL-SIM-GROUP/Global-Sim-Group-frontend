@@ -88,7 +88,7 @@ export function PortailEtatDesLieuxPage() {
 					{photos.map((photo) => (
 						<div
 							key={photo.id}
-							className="space-y-2 rounded-xl border border-border bg-card p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+							className="space-y-2 rounded-lg border border-border bg-card p-3 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
 						>
 							<div className="flex items-center justify-between gap-2">
 								<Badge variant={etatDesLieuxTypeVariant(photo.type)}>

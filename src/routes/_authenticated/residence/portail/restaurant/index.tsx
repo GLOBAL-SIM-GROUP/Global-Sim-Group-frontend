@@ -1,13 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 import { requirePermissions } from "#/core/auth";
-import { RestaurantCommandesPage } from "#/features/portail/components/restaurant-commandes-page";
+import { RestaurantCataloguePage } from "#/features/portail/components/restaurant-catalogue-page";
 
 /**
- * Commandes restaurant du portail résident : liste + composition d'une
- * commande en ligne. Page gated par `PORTAIL.VOIR` (comme les autres pages
- * du portail résident — l'endpoint `/restaurant/portail/...` requiert
- * `PORTAIL.VOIR`, pas `RESTAURANT.VOIR`).
+ * Restaurant du portail résident : carte des plats (`GET /restaurant/plats`)
+ * avec panier `localStorage` — la commande se valide dans
+ * `/residence/portail/panier` (`POST /restaurant/portail/commandes`), le
+ * suivi dans « Mes demandes ». Gated par `PORTAIL.VOIR`.
  */
 export const Route = createFileRoute(
 	"/_authenticated/residence/portail/restaurant/",
@@ -15,9 +15,19 @@ export const Route = createFileRoute(
 	beforeLoad: ({ context }) => {
 		requirePermissions(context.auth, "PORTAIL.VOIR");
 	},
-	component: RestaurantCommandesRoutePage,
+	component: RestaurantPortailRoutePage,
 });
 
-function RestaurantCommandesRoutePage() {
-	return <RestaurantCommandesPage />;
+function RestaurantPortailRoutePage() {
+	return (
+		<RestaurantCataloguePage
+			breadcrumb={[
+				{ label: "Accueil", to: "/" },
+				{ label: "Mon espace résident", to: "/residence/portail" },
+				{ label: "Restaurant" },
+			]}
+			panierTo="/residence/portail/panier"
+			variant="resident"
+		/>
+	);
 }

@@ -54,16 +54,27 @@ const SUGGESTIONS_MANIFESTATION = [
 ];
 
 /**
- * Salle de fête (portail résident) : demandes de réservation, consultation
- * des créneaux fermes du jour (`GET /salle-fete/portail/disponibilites`) et
- * demande en texte libre (`hors_catalogue`) via
- * `POST /salle-fete/portail/reservations`. Le tarif est fixé par le
- * personnel à la validation — aucun paiement en ligne. Nécessite
- * `SALLE_FETE.DEMANDER` pour créer.
+ * Salle de fête : demandes de réservation, consultation des créneaux fermes
+ * du jour (`GET /salle-fete/portail/disponibilites`) et demande en texte
+ * libre (`hors_catalogue`) via `POST /salle-fete/portail/reservations`. Le
+ * tarif est fixé par le personnel à la validation — aucun paiement en ligne.
+ * Nécessite `SALLE_FETE.DEMANDER` pour créer. Partagée entre le portail
+ * résident (`/residence/portail/salle-fete`, `variant="resident"`) et
+ * l'espace client (`/espace-client/salle-fete`, `variant="client"`) :
+ * `variant` fixe le conteneur, le fil d'Ariane et les liens de détail.
  */
-export function SalleFeteReservationsPage() {
+export function SalleFeteReservationsPage({
+	variant,
+}: {
+	variant: "client" | "resident";
+}) {
 	const navigate = useNavigate();
 	const canDemander = useCan("SALLE_FETE.DEMANDER");
+	const estClient = variant === "client";
+
+	const lienDetail = estClient
+		? "/espace-client/salle-fete/$id"
+		: "/residence/portail/salle-fete/$id";
 
 	const reservationsQuery = useMesReservationsSalleFete();
 	const demander = useCreerReservationSalleFete();
@@ -125,7 +136,7 @@ export function SalleFeteReservationsPage() {
 			{
 				onSuccess: (reservation) => {
 					void navigate({
-						to: "/residence/portail/salle-fete/$id",
+						to: lienDetail,
 						params: { id: reservation.id },
 					});
 				},
@@ -139,9 +150,13 @@ export function SalleFeteReservationsPage() {
 		);
 	}
 
+	const conteneur = estClient
+		? "w-full space-y-6 pt-6 pb-16"
+		: "w-full space-y-6 p-6";
+
 	if (reservationsQuery.isLoading) {
 		return (
-			<div className="w-full space-y-6 p-6">
+			<div className={conteneur}>
 				<p className="text-sm text-muted-foreground">Chargement…</p>
 			</div>
 		);
@@ -174,19 +189,33 @@ export function SalleFeteReservationsPage() {
 	const reservations = reservationsQuery.data ?? [];
 
 	return (
-		<div className="w-full space-y-6 p-6">
+		<div className={conteneur}>
 			<PageHeader
-				breadcrumb={[
-					{ label: "Accueil", to: "/" },
-					{ label: "Mon espace résident", to: "/residence/portail" },
-					{ label: "Salle de fête" },
-				]}
+				breadcrumb={
+					estClient
+						? [
+								{ label: "Espace client", to: "/espace-client" },
+								{ label: "Salle de fête" },
+							]
+						: [
+								{ label: "Accueil", to: "/" },
+								{ label: "Mon espace résident", to: "/residence/portail" },
+								{ label: "Salle de fête" },
+							]
+				}
 				title="Salle de fête"
 				description="Consultez les créneaux déjà réservés puis demandez une date pour votre événement. Le personnel confirme la disponibilité et le tarif — le règlement se fait sur place."
 				actions={
-					<Button variant="outline" size="sm" className="rounded-full" asChild>
-						<Link to="/residence/portail">Retour à mon espace</Link>
-					</Button>
+					estClient ? undefined : (
+						<Button
+							variant="outline"
+							size="sm"
+							className="rounded-full"
+							asChild
+						>
+							<Link to="/residence/portail">Retour à mon espace</Link>
+						</Button>
+					)
 				}
 			/>
 
@@ -195,13 +224,13 @@ export function SalleFeteReservationsPage() {
 					<h2 className="text-lg font-semibold text-foreground">
 						Mes demandes de réservation
 					</h2>
-					<div className="space-y-3">
+					<div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
 						{reservations.map((reservation) => (
 							<Link
 								key={reservation.id}
-								to="/residence/portail/salle-fete/$id"
+								to={lienDetail}
 								params={{ id: reservation.id }}
-								className="group flex items-center justify-between gap-4 rounded-xl border border-border bg-card p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-lagoon/50 hover:bg-accent/40 hover:shadow-md"
+								className="group flex items-center justify-between gap-3 rounded-lg border border-border bg-card p-3 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-lagoon/50 hover:bg-accent/40 hover:shadow-md"
 							>
 								<div className="min-w-0 space-y-1">
 									<div className="flex flex-wrap items-center gap-2">

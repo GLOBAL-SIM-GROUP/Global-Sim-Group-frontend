@@ -229,11 +229,11 @@ export function SejoursPortailPage({ variant }: SejoursPortailPageProps) {
 					<h2 className="text-lg font-semibold text-foreground">
 						Mes demandes de séjour
 					</h2>
-					<div className="space-y-3">
+					<div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
 						{sejours.map((sejour) => (
 							<div
 								key={sejour.id}
-								className="flex items-center justify-between gap-4 rounded-xl border border-border bg-card p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+								className="flex items-center justify-between gap-3 rounded-lg border border-border bg-card p-3 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
 							>
 								<div className="min-w-0 space-y-1">
 									<div className="flex flex-wrap items-center gap-2">
@@ -402,7 +402,7 @@ export function SejoursPortailPage({ variant }: SejoursPortailPageProps) {
 												onClick={() => setLogementChoisi(logement)}
 												aria-pressed={choisi}
 												className={cn(
-													"w-full rounded-xl border p-4 text-left transition-all duration-200",
+													"w-full rounded-lg border p-3 text-left transition-all duration-200",
 													choisi
 														? "border-lagoon bg-lagoon/10 ring-1 ring-lagoon"
 														: "border-border bg-card hover:-translate-y-0.5 hover:border-lagoon/50 hover:bg-accent/40 hover:shadow-md",

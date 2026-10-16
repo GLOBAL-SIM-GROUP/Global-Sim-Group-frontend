@@ -25,8 +25,10 @@ function lireStockage(cle: string): LigneArticlePanier[] {
  * Cœur générique d'un panier d'articles (plat, produit…), paramétré par sa
  * clé de stockage — un panier indépendant par service (`usePanier` pour le
  * restaurant, la boutique appelle celui-ci directement avec sa propre clé),
- * jamais un panier partagé entre services. État initialisé vide (rendu SSR
- * sûr) puis hydraté depuis `localStorage` au montage.
+ * jamais un panier partagé entre services. Partagé entre l'espace client et
+ * le portail résident : les clés de stockage sont les mêmes, donc le panier
+ * suit la personne quel que soit l'espace utilisé. État initialisé vide
+ * (rendu SSR sûr) puis hydraté depuis `localStorage` au montage.
  */
 export function usePanierArticles(cleStockage: string) {
 	const [lignes, setLignes] = useState<LigneArticlePanier[]>([]);
@@ -95,9 +97,9 @@ export function usePanierArticles(cleStockage: string) {
 
 /**
  * Nombre total d'articles dans les paniers de tous les services (restaurant +
- * boutique) — pour le badge « panier » de la navbar. Relit `localStorage` à
- * chaque `EVENEMENT_PANIER_MAJ` (écriture dans cet onglet) et `storage`
- * (autres onglets).
+ * boutique) — pour les badges « panier » des navigations. Relit
+ * `localStorage` à chaque `EVENEMENT_PANIER_MAJ` (écriture dans cet onglet)
+ * et `storage` (autres onglets).
  */
 export function useNombreArticlesPaniers(): number {
 	const [nombre, setNombre] = useState(0);

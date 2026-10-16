@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-import { BoutiquePage } from "#/features/espace-client/components/boutique-page";
+import { BoutiqueCataloguePage } from "#/features/portail/components/boutique-catalogue-page";
 
 /**
  * Boutique de l'espace client (`/espace-client/boutique`) : parcourir le
@@ -11,6 +11,19 @@ import { BoutiquePage } from "#/features/espace-client/components/boutique-page"
  */
 export const Route = createFileRoute("/_espace-client/espace-client/boutique/")(
 	{
-		component: BoutiquePage,
+		component: BoutiqueEspaceRoutePage,
 	},
 );
+
+function BoutiqueEspaceRoutePage() {
+	return (
+		<BoutiqueCataloguePage
+			breadcrumb={[
+				{ label: "Espace client", to: "/espace-client" },
+				{ label: "Boutique" },
+			]}
+			panierTo="/espace-client/panier"
+			variant="client"
+		/>
+	);
+}

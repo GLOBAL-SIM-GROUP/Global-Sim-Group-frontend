@@ -27,18 +27,36 @@ import {
 	PROGRESSION_ETAPES,
 } from "../models/pressing";
 import { AnnulerDemandeDialog } from "./annuler-demande-dialog";
+import { FactureDocumentsParSource } from "./facture-documents";
 import { PressingRecuButton } from "./pressing-recu-button";
 
 interface PressingCommandeDetailPageProps {
 	id: string;
+	/** Fil d'Ariane : entrée d'accueil de l'espace (résident ou client). */
+	breadcrumbAccueil: { label: string; to: string };
+	/** Fil d'Ariane : libellé et cible du crumb « liste » du service. */
+	labelListe: string;
+	lienListe: string;
+	/** Bouton retour — `lienRetour` vaut `lienListe` par défaut. */
+	labelRetour: string;
+	lienRetour?: string;
+	className?: string;
 }
 
 /**
- * Page de détail d'une commande de pressing (portail résident) : statut,
- * progression des étapes et suivi du paiement (acompte / reste à payer).
+ * Page de détail d'une commande de pressing : statut, progression des
+ * étapes et suivi du paiement (acompte / reste à payer). Partagée entre le
+ * portail résident et l'espace client : les routes passent fil d'Ariane,
+ * liens retour et conteneur via les props.
  */
 export function PressingCommandeDetailPage({
 	id,
+	breadcrumbAccueil,
+	labelListe,
+	lienListe,
+	labelRetour,
+	lienRetour,
+	className = "w-full space-y-6 p-6",
 }: PressingCommandeDetailPageProps) {
 	const commandeQuery = usePressingCommande(id);
 	const canDeclarer = useCan("PRESSING.DECLARER");
@@ -47,7 +65,7 @@ export function PressingCommandeDetailPage({
 
 	if (commandeQuery.isLoading) {
 		return (
-			<div className="w-full space-y-6 p-6">
+			<div className={className}>
 				<p className="text-sm text-muted-foreground">Chargement…</p>
 			</div>
 		);
@@ -55,7 +73,7 @@ export function PressingCommandeDetailPage({
 
 	if (commandeQuery.isError || !commandeQuery.data) {
 		return (
-			<div className="w-full space-y-3 p-6">
+			<div className={`${className} space-y-3`}>
 				<h1 className="text-2xl font-semibold text-foreground">
 					Commande de pressing
 				</h1>
@@ -82,12 +100,11 @@ export function PressingCommandeDetailPage({
 	const etape = getEtapeActuelle(commande.statut);
 
 	return (
-		<div className="w-full space-y-6 p-6">
+		<div className={className}>
 			<PageHeader
 				breadcrumb={[
-					{ label: "Accueil", to: "/" },
-					{ label: "Mon espace résident", to: "/residence/portail" },
-					{ label: "Suivi Pressing", to: "/residence/portail/pressing" },
+					breadcrumbAccueil,
+					{ label: labelListe, to: lienListe },
 					{ label: commande.numero_commande },
 				]}
 				title={
@@ -111,6 +128,10 @@ export function PressingCommandeDetailPage({
 							idCommande={commande.id}
 							numeroCommande={commande.numero_commande}
 						/>
+						<FactureDocumentsParSource
+							sourceType="COMMANDE_PRESSING"
+							sourceId={commande.id}
+						/>
 						{canDeclarer && estAnnulable(commande) ? (
 							<Button
 								variant="outline"
@@ -127,7 +148,7 @@ export function PressingCommandeDetailPage({
 							className="rounded-full"
 							asChild
 						>
-							<Link to="/residence/portail/pressing">Retour à la liste</Link>
+							<Link to={(lienRetour ?? lienListe) as never}>{labelRetour}</Link>
 						</Button>
 					</div>
 				}

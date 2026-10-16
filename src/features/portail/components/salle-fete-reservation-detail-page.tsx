@@ -21,20 +21,37 @@ import {
 	RESERVATION_PORTAIL_STATUT_VARIANT,
 } from "../models/salle-fete";
 import { AnnulerDemandeDialog } from "./annuler-demande-dialog";
+import { FactureDocumentsParSource } from "./facture-documents";
 import { StatutTimeline } from "./statut-timeline";
 
 interface SalleFeteReservationDetailPageProps {
 	id: string;
+	/** Fil d'Ariane : entrée d'accueil de l'espace (résident ou client). */
+	breadcrumbAccueil: { label: string; to: string };
+	/** Fil d'Ariane : libellé et cible du crumb « liste » du service. */
+	labelListe: string;
+	lienListe: string;
+	/** Bouton retour — `lienRetour` vaut `lienListe` par défaut. */
+	labelRetour: string;
+	lienRetour?: string;
+	className?: string;
 }
 
 /**
- * Détail d'une demande de réservation de salle de fête (portail résident) :
- * créneau, statut, tarif une fois validé par le personnel, motif
- * d'annulation éventuel et annulation tant qu'elle est `EN_ATTENTE`
- * (`SALLE_FETE.DEMANDER`).
+ * Détail d'une demande de réservation de salle de fête : créneau, statut,
+ * tarif une fois validé par le personnel, motif d'annulation éventuel et
+ * annulation tant qu'elle est `EN_ATTENTE` (`SALLE_FETE.DEMANDER`).
+ * Partagée entre le portail résident et l'espace client : les routes
+ * passent fil d'Ariane, liens retour et conteneur via les props.
  */
 export function SalleFeteReservationDetailPage({
 	id,
+	breadcrumbAccueil,
+	labelListe,
+	lienListe,
+	labelRetour,
+	lienRetour,
+	className = "w-full space-y-6 p-6",
 }: SalleFeteReservationDetailPageProps) {
 	const reservationQuery = useReservationSalleFete(id);
 	const canDemander = useCan("SALLE_FETE.DEMANDER");
@@ -43,7 +60,7 @@ export function SalleFeteReservationDetailPage({
 
 	if (reservationQuery.isLoading) {
 		return (
-			<div className="w-full space-y-6 p-6">
+			<div className={className}>
 				<p className="text-sm text-muted-foreground">Chargement…</p>
 			</div>
 		);
@@ -51,7 +68,7 @@ export function SalleFeteReservationDetailPage({
 
 	if (reservationQuery.isError || !reservationQuery.data) {
 		return (
-			<div className="w-full space-y-3 p-6">
+			<div className={`${className} space-y-3`}>
 				<h1 className="text-2xl font-semibold text-foreground">
 					Réservation de salle de fête
 				</h1>
@@ -76,15 +93,11 @@ export function SalleFeteReservationDetailPage({
 	const reservation = reservationQuery.data;
 
 	return (
-		<div className="w-full space-y-6 p-6">
+		<div className={className}>
 			<PageHeader
 				breadcrumb={[
-					{ label: "Accueil", to: "/" },
-					{ label: "Mon espace résident", to: "/residence/portail" },
-					{
-						label: "Salle de fête",
-						to: "/residence/portail/salle-fete",
-					},
+					breadcrumbAccueil,
+					{ label: labelListe, to: lienListe },
 					{ label: reservation.type_manifestation },
 				]}
 				title={
@@ -101,6 +114,10 @@ export function SalleFeteReservationDetailPage({
 				description={`Le ${formatDateISO(reservation.date_evenement)} à ${reservation.heure_debut} — ${reservation.duree} h`}
 				actions={
 					<div className="flex flex-wrap items-center gap-2">
+						<FactureDocumentsParSource
+							sourceType="RESERVATION_FETE"
+							sourceId={reservation.id}
+						/>
 						{canDemander && estReservationAnnulable(reservation) ? (
 							<Button
 								variant="outline"
@@ -117,7 +134,7 @@ export function SalleFeteReservationDetailPage({
 							className="rounded-full"
 							asChild
 						>
-							<Link to="/residence/portail/salle-fete">Retour à la liste</Link>
+							<Link to={(lienRetour ?? lienListe) as never}>{labelRetour}</Link>
 						</Button>
 					</div>
 				}

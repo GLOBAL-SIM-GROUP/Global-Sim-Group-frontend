@@ -5,36 +5,6 @@ import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
 import { EmptyState } from "#/components/ui/empty-state";
 import { PageHeader } from "#/components/ui/page-header";
-import { useMesVentesPortail } from "#/features/portail/hooks/use-market";
-import { usePressingCommandes } from "#/features/portail/hooks/use-pressing";
-import { useMesCommandesRestaurant } from "#/features/portail/hooks/use-restaurant";
-import { useMesReservationsSalleFete } from "#/features/portail/hooks/use-salle-fete";
-import { useMesSejoursPortail } from "#/features/portail/hooks/use-sejours";
-import { useMesSignalements } from "#/features/portail/hooks/use-signalements";
-import {
-	VENTE_PORTAIL_STATUT_LABELS,
-	VENTE_PORTAIL_STATUT_VARIANT,
-} from "#/features/portail/models/market";
-import {
-	libelleDateDepot,
-	libelleMontantPressing,
-	PRESSING_STATUT_LABELS,
-	PRESSING_STATUT_VARIANT,
-} from "#/features/portail/models/pressing";
-import {
-	COMMANDE_PORTAIL_STATUT_LABELS,
-	COMMANDE_PORTAIL_STATUT_VARIANT,
-	TYPE_COMMANDE_PORTAIL_LABELS,
-} from "#/features/portail/models/restaurant";
-import {
-	RESERVATION_PORTAIL_STATUT_LABELS,
-	RESERVATION_PORTAIL_STATUT_VARIANT,
-} from "#/features/portail/models/salle-fete";
-import {
-	SEJOUR_PORTAIL_STATUT_LABELS,
-	SEJOUR_PORTAIL_STATUT_VARIANT,
-} from "#/features/portail/models/sejours";
-import { libelleCiblePortail } from "#/features/portail/models/signalements";
 import {
 	formatDateHeureISO,
 	formatDateInstantUTC,
@@ -47,16 +17,75 @@ import {
 	SIGNALEMENT_STATUT_VARIANT,
 } from "#/features/signalements/models/signalements";
 
+import { useMesVentesPortail } from "../hooks/use-market";
+import { usePressingCommandes } from "../hooks/use-pressing";
+import { useMesCommandesRestaurant } from "../hooks/use-restaurant";
+import { useMesReservationsSalleFete } from "../hooks/use-salle-fete";
+import { useMesSejoursPortail } from "../hooks/use-sejours";
+import { useMesSignalements } from "../hooks/use-signalements";
+import {
+	VENTE_PORTAIL_STATUT_LABELS,
+	VENTE_PORTAIL_STATUT_VARIANT,
+} from "../models/market";
+import {
+	libelleDateDepot,
+	libelleMontantPressing,
+	PRESSING_STATUT_LABELS,
+	PRESSING_STATUT_VARIANT,
+} from "../models/pressing";
+import {
+	COMMANDE_PORTAIL_STATUT_LABELS,
+	COMMANDE_PORTAIL_STATUT_VARIANT,
+	TYPE_COMMANDE_PORTAIL_LABELS,
+} from "../models/restaurant";
+import {
+	RESERVATION_PORTAIL_STATUT_LABELS,
+	RESERVATION_PORTAIL_STATUT_VARIANT,
+} from "../models/salle-fete";
+import {
+	SEJOUR_PORTAIL_STATUT_LABELS,
+	SEJOUR_PORTAIL_STATUT_VARIANT,
+} from "../models/sejours";
+import { libelleCiblePortail } from "../models/signalements";
+
 /**
- * « Mes demandes » de l'espace client : commandes restaurant, dépôts
- * pressing, réservations de salle de fête, demandes boutique, demandes de
- * séjour court et signalements viennent des vrais endpoints portail
- * (`/restaurant/portail`, `/pressing/portail`, `/salle-fete/portail`,
- * `/market/portail`, `/residence/portail`, `/signalements/portail`) avec
- * statuts en direct — plus aucune donnée localStorage (backend 091 a doté
- * le signalement d'endpoints portail).
+ * Liens « liste par service » propres à l'espace courant : chaque entrée de
+ * la vue pointe vers `<lien>/<id>`. `/espace-client/…` côté client,
+ * `/residence/portail/…` côté résident.
  */
-export function MesDemandesPage() {
+export interface MesDemandesLiens {
+	restaurant: string;
+	pressing: string;
+	salleFete: string;
+	boutique: string;
+	residence: string;
+	signalement: string;
+}
+
+/**
+ * « Mes demandes » — vue agrégée des demandes portail : commandes
+ * restaurant, dépôts pressing, réservations de salle de fête, demandes
+ * boutique, demandes de séjour court et signalements, issues des vrais
+ * endpoints portail (`/restaurant/portail`, `/pressing/portail`,
+ * `/salle-fete/portail`, `/market/portail`, `/residence/portail`,
+ * `/signalements/portail`) avec statuts en direct. Partagée entre l'espace
+ * client (`/espace-client/mes-demandes`) et le portail résident
+ * (`/residence/portail/demandes`) via `breadcrumb` + `liens`.
+ */
+export function MesDemandesPage({
+	breadcrumb,
+	liens,
+	variant,
+}: {
+	breadcrumb: { label: string; to?: string }[];
+	liens: MesDemandesLiens;
+	/**
+	 * `resident` = `<main>` du shell `_authenticated` sans padding — la page
+	 * porte son `p-6` ; `client` = le shell client fournit marges et largeur
+	 * (`pb-16` dégage la tab bar mobile).
+	 */
+	variant: "client" | "resident";
+}) {
 	const commandesRestoQuery = useMesCommandesRestaurant();
 	const commandesPressingQuery = usePressingCommandes();
 	const reservationsQuery = useMesReservationsSalleFete();
@@ -72,12 +101,15 @@ export function MesDemandesPage() {
 	const signalements = signalementsQuery.data ?? [];
 
 	return (
-		<div className="w-full space-y-8 pt-6 pb-16">
+		<div
+			className={
+				variant === "resident"
+					? "w-full space-y-6 p-6"
+					: "w-full space-y-8 pt-6 pb-16"
+			}
+		>
 			<PageHeader
-				breadcrumb={[
-					{ label: "Espace client", to: "/espace-client" },
-					{ label: "Mes demandes" },
-				]}
+				breadcrumb={breadcrumb}
 				title="Mes demandes"
 				description="Commandes restaurant, dépôts pressing, réservations de salle de fête, demandes boutique, séjours courts et signalements — avec leur statut en temps réel."
 			/>
@@ -92,9 +124,9 @@ export function MesDemandesPage() {
 				{commandesResto.map((commande) => (
 					<Link
 						key={commande.id}
-						to="/espace-client/restaurant/$id"
-						params={{ id: commande.id }}
-						className="group flex items-center justify-between gap-3 rounded-xl border border-border bg-card p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-lagoon/50 hover:bg-accent/40 hover:shadow-md"
+						to={`${liens.restaurant}/$id` as never}
+						params={{ id: commande.id } as never}
+						className="group flex items-center justify-between gap-3 rounded-lg border border-border bg-card p-3 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-lagoon/50 hover:bg-accent/40 hover:shadow-md"
 					>
 						<div className="min-w-0 flex-1 space-y-1">
 							<div className="flex flex-wrap items-center gap-2">
@@ -131,9 +163,9 @@ export function MesDemandesPage() {
 				{commandesPressing.map((commande) => (
 					<Link
 						key={commande.id}
-						to="/espace-client/pressing/$id"
-						params={{ id: commande.id }}
-						className="group flex items-center justify-between gap-3 rounded-xl border border-border bg-card p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-lagoon/50 hover:bg-accent/40 hover:shadow-md"
+						to={`${liens.pressing}/$id` as never}
+						params={{ id: commande.id } as never}
+						className="group flex items-center justify-between gap-3 rounded-lg border border-border bg-card p-3 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-lagoon/50 hover:bg-accent/40 hover:shadow-md"
 					>
 						<div className="min-w-0 flex-1 space-y-1">
 							<div className="flex flex-wrap items-center gap-2">
@@ -167,9 +199,9 @@ export function MesDemandesPage() {
 				{reservations.map((reservation) => (
 					<Link
 						key={reservation.id}
-						to="/espace-client/salle-fete/$id"
-						params={{ id: reservation.id }}
-						className="group flex items-center justify-between gap-3 rounded-xl border border-border bg-card p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-lagoon/50 hover:bg-accent/40 hover:shadow-md"
+						to={`${liens.salleFete}/$id` as never}
+						params={{ id: reservation.id } as never}
+						className="group flex items-center justify-between gap-3 rounded-lg border border-border bg-card p-3 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-lagoon/50 hover:bg-accent/40 hover:shadow-md"
 					>
 						<div className="min-w-0 flex-1 space-y-1">
 							<div className="flex flex-wrap items-center gap-2">
@@ -208,9 +240,9 @@ export function MesDemandesPage() {
 				{ventes.map((vente) => (
 					<Link
 						key={vente.id}
-						to="/espace-client/boutique/$id"
-						params={{ id: vente.id }}
-						className="group flex items-center justify-between gap-3 rounded-xl border border-border bg-card p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-lagoon/50 hover:bg-accent/40 hover:shadow-md"
+						to={`${liens.boutique}/$id` as never}
+						params={{ id: vente.id } as never}
+						className="group flex items-center justify-between gap-3 rounded-lg border border-border bg-card p-3 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-lagoon/50 hover:bg-accent/40 hover:shadow-md"
 					>
 						<div className="min-w-0 flex-1 space-y-1">
 							<div className="flex flex-wrap items-center gap-2">
@@ -244,9 +276,9 @@ export function MesDemandesPage() {
 				{sejours.map((sejour) => (
 					<Link
 						key={sejour.id}
-						to="/espace-client/residence/$id"
-						params={{ id: sejour.id }}
-						className="group flex items-center justify-between gap-3 rounded-xl border border-border bg-card p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-lagoon/50 hover:bg-accent/40 hover:shadow-md"
+						to={`${liens.residence}/$id` as never}
+						params={{ id: sejour.id } as never}
+						className="group flex items-center justify-between gap-3 rounded-lg border border-border bg-card p-3 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-lagoon/50 hover:bg-accent/40 hover:shadow-md"
 					>
 						<div className="min-w-0 flex-1 space-y-1">
 							<div className="flex flex-wrap items-center gap-2">
@@ -285,9 +317,9 @@ export function MesDemandesPage() {
 				{signalements.map((signalement) => (
 					<Link
 						key={signalement.id}
-						to="/espace-client/signalement/$id"
-						params={{ id: signalement.id }}
-						className="group flex items-center justify-between gap-3 rounded-xl border border-border bg-card p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-lagoon/50 hover:bg-accent/40 hover:shadow-md"
+						to={`${liens.signalement}/$id` as never}
+						params={{ id: signalement.id } as never}
+						className="group flex items-center justify-between gap-3 rounded-lg border border-border bg-card p-3 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-lagoon/50 hover:bg-accent/40 hover:shadow-md"
 					>
 						<div className="min-w-0 flex-1 space-y-1">
 							<div className="flex flex-wrap items-center gap-2">
@@ -356,7 +388,9 @@ function SectionDemande({
 			) : estVide ? (
 				<EmptyState title={vide} />
 			) : (
-				<div className="space-y-3">{children}</div>
+				<div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+					{children}
+				</div>
 			)}
 		</section>
 	);

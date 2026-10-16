@@ -1,12 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 import { requirePermissions } from "#/core/auth";
-import { BoutiqueDemandesPage } from "#/features/portail/components/boutique-demandes-page";
+import { BoutiqueCataloguePage } from "#/features/portail/components/boutique-catalogue-page";
 
 /**
- * Demandes boutique du portail résident : liste des ventes `EN_ATTENTE`
- * envoyées depuis l'espace client, avec suivi du statut. Page gated par
- * `PORTAIL.VOIR` (comme les autres pages du portail résident).
+ * Boutique du portail résident : catalogue des produits avec panier
+ * `localStorage` — la demande se valide dans `/residence/portail/panier`
+ * (`POST /market/portail/ventes`), le suivi dans « Mes demandes ». Gated
+ * par `PORTAIL.VOIR`.
  */
 export const Route = createFileRoute(
 	"/_authenticated/residence/portail/boutique/",
@@ -14,9 +15,19 @@ export const Route = createFileRoute(
 	beforeLoad: ({ context }) => {
 		requirePermissions(context.auth, "PORTAIL.VOIR");
 	},
-	component: BoutiqueDemandesRoutePage,
+	component: BoutiquePortailRoutePage,
 });
 
-function BoutiqueDemandesRoutePage() {
-	return <BoutiqueDemandesPage />;
+function BoutiquePortailRoutePage() {
+	return (
+		<BoutiqueCataloguePage
+			breadcrumb={[
+				{ label: "Accueil", to: "/" },
+				{ label: "Mon espace résident", to: "/residence/portail" },
+				{ label: "Boutique" },
+			]}
+			panierTo="/residence/portail/panier"
+			variant="resident"
+		/>
+	);
 }

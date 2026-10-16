@@ -91,13 +91,13 @@ export function AbonnementsPage({
 					description="Les abonnements sont vendus par le personnel — renseignez-vous à la réception."
 				/>
 			) : (
-				<div className="space-y-3">
+				<div className="grid gap-3 sm:grid-cols-2">
 					{souscriptions.map((souscription) => (
 						<Link
 							key={souscription.id_souscription}
 							to={lienDetail as never}
 							params={{ id: souscription.id_souscription } as never}
-							className="group block space-y-3 rounded-xl border border-border bg-card p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-lagoon/50 hover:bg-accent/40 hover:shadow-md"
+							className="group block space-y-3 rounded-lg border border-border bg-card p-3 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-lagoon/50 hover:bg-accent/40 hover:shadow-md"
 						>
 							<div className="flex items-start justify-between gap-3">
 								<div className="min-w-0 flex-1 space-y-1">

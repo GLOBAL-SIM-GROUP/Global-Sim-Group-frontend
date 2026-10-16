@@ -21,6 +21,7 @@ export const Route = createFileRoute(
 		du: z.string().optional(),
 		au: z.string().optional(),
 		type: z.string().optional(),
+		page: z.coerce.number().int().positive().optional(),
 	}),
 	component: PortailPaiementsRoutePage,
 });

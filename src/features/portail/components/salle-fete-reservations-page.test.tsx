@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { CreneauOccupe } from "#/features/portail/models/salle-fete";
 
-import { SalleFetePage } from "./salle-fete-page";
+import { SalleFeteReservationsPage } from "./salle-fete-reservations-page";
 
 const mocks = vi.hoisted(() => ({
 	useCan: vi.fn(),
@@ -64,7 +64,7 @@ function demainISO(): string {
 	return `${d.getFullYear()}-${mois}-${jour}`;
 }
 
-describe("SalleFetePage", () => {
+describe("SalleFeteReservationsPage (variant client)", () => {
 	beforeEach(() => {
 		mocks.useCan.mockReturnValue(true);
 		mocks.navigate.mockReset();
@@ -97,20 +97,20 @@ describe("SalleFetePage", () => {
 			data: creneaux,
 		});
 
-		render(<SalleFetePage />);
+		render(<SalleFeteReservationsPage variant="client" />);
 
 		expect(screen.getByText(/14:00 → 18:00/)).toBeInTheDocument();
 		expect(screen.getByText("Occupée")).toBeInTheDocument();
 	});
 
 	it("annonce la salle libre quand aucun créneau ferme n'existe", () => {
-		render(<SalleFetePage />);
+		render(<SalleFeteReservationsPage variant="client" />);
 
 		expect(screen.getByText(/la salle est libre/i)).toBeInTheDocument();
 	});
 
 	it("bloque la soumission sans heure de début", async () => {
-		render(<SalleFetePage />);
+		render(<SalleFeteReservationsPage variant="client" />);
 
 		const formulaire = document.querySelector("form") as HTMLFormElement;
 		fireEvent.submit(formulaire);
@@ -125,7 +125,7 @@ describe("SalleFetePage", () => {
 		mocks.demander.mutate.mockImplementation((_body, options) => {
 			options?.onSuccess?.({ id: "42" });
 		});
-		render(<SalleFetePage />);
+		render(<SalleFeteReservationsPage variant="client" />);
 
 		saisir("sf-date", demainISO());
 		saisir("sf-heure", "18:00");
@@ -152,7 +152,7 @@ describe("SalleFetePage", () => {
 	it("masque le formulaire sans SALLE_FETE.DEMANDER", () => {
 		mocks.useCan.mockReturnValue(false);
 
-		render(<SalleFetePage />);
+		render(<SalleFeteReservationsPage variant="client" />);
 
 		expect(
 			screen.queryByRole("button", { name: /envoyer la demande/i }),

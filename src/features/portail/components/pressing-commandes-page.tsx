@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Shirt } from "lucide-react";
 
 import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
@@ -18,16 +18,33 @@ import {
 } from "../models/pressing";
 
 /**
- * Page « Suivi Pressing » (M5.x) : liste des commandes de pressing du
- * résident avec statut et progression visuelle — lecture seule, les dépôts
- * sont enregistrés par le personnel au comptoir.
+ * Page « Suivi Pressing » : liste des commandes de pressing du compte
+ * connecté avec statut et progression visuelle — lecture seule, les dépôts
+ * sont enregistrés par le personnel au comptoir. Partagée entre le portail
+ * résident (`/residence/portail/pressing`, `variant="resident"`) et l'espace
+ * client (`/espace-client/pressing`, `variant="client"`) : `variant` fixe le
+ * conteneur (`p-6` résident, `pt-6 pb-16` client), le fil d'Ariane, le
+ * libellé et les liens de détail.
  */
-export function PressingCommandesPage() {
+export function PressingCommandesPage({
+	variant,
+}: {
+	variant: "client" | "resident";
+}) {
 	const commandesQuery = usePressingCommandes();
+	const estClient = variant === "client";
+
+	const conteneur = estClient
+		? "w-full space-y-6 pt-6 pb-16"
+		: "w-full space-y-6 p-6";
+	const titre = estClient ? "Pressing" : "Suivi Pressing";
+	const lienDetail = estClient
+		? "/espace-client/pressing/$id"
+		: "/residence/portail/pressing/$id";
 
 	if (commandesQuery.isLoading) {
 		return (
-			<div className="w-full space-y-6 p-6">
+			<div className={conteneur}>
 				<p className="text-sm text-muted-foreground">Chargement…</p>
 			</div>
 		);
@@ -35,10 +52,8 @@ export function PressingCommandesPage() {
 
 	if (commandesQuery.isError) {
 		return (
-			<div className="w-full space-y-3 p-6">
-				<h1 className="text-2xl font-semibold text-foreground">
-					Suivi Pressing
-				</h1>
+			<div className={cn(conteneur, "space-y-3")}>
+				<h1 className="text-2xl font-semibold text-foreground">{titre}</h1>
 				<div
 					role="alert"
 					className="space-y-3 rounded-lg border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive"
@@ -60,34 +75,60 @@ export function PressingCommandesPage() {
 	const commandes = commandesQuery.data ?? [];
 
 	return (
-		<div className="w-full space-y-6 p-6">
+		<div className={conteneur}>
 			<PageHeader
-				breadcrumb={[
-					{ label: "Accueil", to: "/" },
-					{ label: "Mon espace résident", to: "/residence/portail" },
-					{ label: "Suivi Pressing" },
-				]}
-				title="Suivi Pressing"
-				description="Avancement de vos commandes de pressing."
+				breadcrumb={
+					estClient
+						? [
+								{ label: "Espace client", to: "/espace-client" },
+								{ label: "Pressing" },
+							]
+						: [
+								{ label: "Accueil", to: "/" },
+								{ label: "Mon espace résident", to: "/residence/portail" },
+								{ label: "Suivi Pressing" },
+							]
+				}
+				title={titre}
+				description={
+					estClient
+						? "Avancement de vos commandes déposées en pressing."
+						: "Avancement de vos commandes de pressing."
+				}
 				actions={
-					<Button variant="outline" size="sm" className="rounded-full" asChild>
-						<Link to="/residence/portail">Retour à mon espace</Link>
-					</Button>
+					estClient ? undefined : (
+						<Button
+							variant="outline"
+							size="sm"
+							className="rounded-full"
+							asChild
+						>
+							<Link to="/residence/portail">Retour à mon espace</Link>
+						</Button>
+					)
 				}
 			/>
 
 			{commandes.length === 0 ? (
-				<EmptyState title="Aucune commande de pressing pour le moment." />
+				estClient ? (
+					<EmptyState
+						icon={Shirt}
+						title="Aucune commande de pressing pour le moment"
+						description="Déposez votre linge au comptoir — suivez ensuite son avancement ici."
+					/>
+				) : (
+					<EmptyState title="Aucune commande de pressing pour le moment." />
+				)
 			) : (
-				<div className="space-y-3">
+				<div className="grid gap-3 sm:grid-cols-2">
 					{commandes.map((commande) => {
 						const progression = calculerProgression(commande.statut);
 						return (
 							<Link
 								key={commande.id}
-								to="/residence/portail/pressing/$id"
+								to={lienDetail}
 								params={{ id: commande.id }}
-								className="group block space-y-3 rounded-xl border border-border bg-card p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-lagoon/50 hover:bg-accent/40 hover:shadow-md"
+								className="group block space-y-3 rounded-lg border border-border bg-card p-3 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-lagoon/50 hover:bg-accent/40 hover:shadow-md"
 							>
 								<div className="flex items-start justify-between gap-3">
 									<div className="min-w-0 flex-1 space-y-1">

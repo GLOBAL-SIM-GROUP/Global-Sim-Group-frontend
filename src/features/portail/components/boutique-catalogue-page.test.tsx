@@ -9,7 +9,7 @@ import type {
 	Produit,
 } from "#/features/marchandise/models/produits";
 
-import { BoutiquePage } from "./boutique-page";
+import { BoutiqueCataloguePage } from "./boutique-catalogue-page";
 
 const produits: Produit[] = [
 	{
@@ -72,11 +72,27 @@ const produits: Produit[] = [
 		image_url: null,
 		code_barre: null,
 	},
+	{
+		id: "5",
+		reference: "REF-5",
+		nom: "Chips épuisées",
+		id_categorie_produit: "cat-snacks",
+		prix_achat: "200",
+		prix_vente: "400",
+		quantite_stock: "0",
+		seuil_alerte: "2",
+		id_fournisseur: null,
+		date_entree: null,
+		actif: true,
+		image_url: null,
+		code_barre: null,
+	},
 ];
 
 const categories: CategorieProduit[] = [
 	{ id: "cat-boissons", libelle: "Boissons" },
 	{ id: "cat-hygiene", libelle: "Hygiène" },
+	{ id: "cat-snacks", libelle: "Snacks" },
 ];
 
 vi.mock("#/features/marchandise/api/produits", () => ({
@@ -104,6 +120,12 @@ vi.mock("@tanstack/react-router", async (importOriginal) => {
 	};
 });
 
+const PROPS = {
+	breadcrumb: [{ label: "Boutique" }],
+	panierTo: "/residence/portail/panier",
+	variant: "resident" as const,
+};
+
 function renderAvecQueryClient(ui: ReactNode) {
 	const queryClient = new QueryClient({
 		defaultOptions: { queries: { retry: false } },
@@ -117,19 +139,31 @@ afterEach(() => {
 	window.localStorage.clear();
 });
 
-describe("BoutiquePage", () => {
+describe("BoutiqueCataloguePage", () => {
 	it("affiche uniquement les produits actifs et en stock", async () => {
-		renderAvecQueryClient(<BoutiquePage />);
+		renderAvecQueryClient(<BoutiqueCataloguePage {...PROPS} />);
 
 		expect(await screen.findByText("Eau minérale 1.5L")).toBeInTheDocument();
 		expect(screen.getByText("Savon artisanal")).toBeInTheDocument();
 		expect(screen.queryByText("Produit inactif")).not.toBeInTheDocument();
 		expect(screen.queryByText("Produit épuisé")).not.toBeInTheDocument();
+		expect(screen.queryByText("Chips épuisées")).not.toBeInTheDocument();
+	});
+
+	it("masque l'onglet d'une catégorie sans produit disponible", async () => {
+		renderAvecQueryClient(<BoutiqueCataloguePage {...PROPS} />);
+		await screen.findByText("Eau minérale 1.5L");
+
+		expect(screen.getByRole("tab", { name: "Boissons" })).toBeInTheDocument();
+		expect(screen.getByRole("tab", { name: "Hygiène" })).toBeInTheDocument();
+		expect(
+			screen.queryByRole("tab", { name: "Snacks" }),
+		).not.toBeInTheDocument();
 	});
 
 	it("filtre par catégorie via les onglets", async () => {
 		const user = userEvent.setup();
-		renderAvecQueryClient(<BoutiquePage />);
+		renderAvecQueryClient(<BoutiqueCataloguePage {...PROPS} />);
 		await screen.findByText("Eau minérale 1.5L");
 
 		await user.click(screen.getByRole("tab", { name: "Hygiène" }));
@@ -140,7 +174,7 @@ describe("BoutiquePage", () => {
 
 	it("ajoute un produit disponible au panier et met à jour la barre de panier", async () => {
 		const user = userEvent.setup();
-		renderAvecQueryClient(<BoutiquePage />);
+		renderAvecQueryClient(<BoutiqueCataloguePage {...PROPS} />);
 		const carte = (await screen.findByText("Eau minérale 1.5L")).closest(
 			"article",
 		) as HTMLElement;
@@ -150,5 +184,8 @@ describe("BoutiquePage", () => {
 		await waitFor(() =>
 			expect(screen.getByText(/1 article · 500 FCFA/)).toBeInTheDocument(),
 		);
+		expect(
+			screen.getByRole("link", { name: /voir le panier/i }),
+		).toHaveAttribute("href", "/residence/portail/panier");
 	});
 });

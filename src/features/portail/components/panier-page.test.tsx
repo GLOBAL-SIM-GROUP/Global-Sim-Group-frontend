@@ -1,5 +1,7 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import type { ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
@@ -19,13 +21,42 @@ vi.mock("#/core/auth", async (importOriginal) => {
 	return { ...actual, useCan: mocks.useCan };
 });
 
-vi.mock("#/features/portail/hooks/use-restaurant", () => ({
+vi.mock("../hooks/use-restaurant", () => ({
 	useCreerCommandeRestaurant: () => mocks.creerCommande,
 }));
 
-vi.mock("#/features/portail/hooks/use-market", () => ({
+vi.mock("../hooks/use-market", () => ({
 	useCreerVentePortail: () => mocks.creerVente,
 }));
+
+// Catalogues vivants consommés par la revalidation des lignes : les fixtures
+// ci-dessous (plat "12", produit "7") restent disponibles pour les tests.
+vi.mock("#/features/restaurant/api/plats", () => ({
+	listPlats: vi.fn(async () => [
+		{ id: "12", nom: "Poulet braisé", prix: "2500", disponible: true },
+	]),
+}));
+
+vi.mock("#/features/marchandise/api/produits", () => ({
+	listProduits: vi.fn(async () => [
+		{
+			id: "7",
+			nom: "Savon",
+			prix_vente: "500",
+			actif: true,
+			quantite_stock: "10",
+		},
+	]),
+}));
+
+function renderAvecQueryClient(ui: ReactNode) {
+	const queryClient = new QueryClient({
+		defaultOptions: { queries: { retry: false } },
+	});
+	return render(
+		<QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>,
+	);
+}
 
 vi.mock("@tanstack/react-router", async (importOriginal) => {
 	const actual =
@@ -46,6 +77,16 @@ vi.mock("@tanstack/react-router", async (importOriginal) => {
 		),
 	};
 });
+
+const PROPS = {
+	breadcrumb: [{ label: "Mon panier" }],
+	liens: {
+		restaurant: "/espace-client/restaurant",
+		boutique: "/espace-client/boutique",
+		mesDemandes: "/espace-client/mes-demandes",
+	},
+	variant: "client" as const,
+};
 
 const PANIER_RESTO = [
 	{
@@ -68,7 +109,7 @@ describe("PanierPage", () => {
 	});
 
 	it("affiche les deux paniers vides avec les liens catalogue", async () => {
-		render(<PanierPage />);
+		renderAvecQueryClient(<PanierPage {...PROPS} />);
 
 		expect(await screen.findAllByText(/panier vide/i)).toHaveLength(2);
 	});
@@ -76,7 +117,7 @@ describe("PanierPage", () => {
 	it("liste les lignes du panier restaurant avec le total", async () => {
 		localStorage.setItem(CLE_PANIER_RESTAURANT, JSON.stringify(PANIER_RESTO));
 
-		render(<PanierPage />);
+		renderAvecQueryClient(<PanierPage {...PROPS} />);
 
 		expect(await screen.findByText("Poulet braisé")).toBeInTheDocument();
 		expect(screen.getAllByText(/5 000 FCFA/).length).toBeGreaterThan(0);
@@ -85,7 +126,7 @@ describe("PanierPage", () => {
 	it("ouvre le dialogue de commande (type/livraison/note) avant envoi réseau", async () => {
 		localStorage.setItem(CLE_PANIER_RESTAURANT, JSON.stringify(PANIER_RESTO));
 		const user = userEvent.setup();
-		render(<PanierPage />);
+		renderAvecQueryClient(<PanierPage {...PROPS} />);
 
 		await screen.findByText("Poulet braisé");
 		await user.click(
@@ -102,7 +143,7 @@ describe("PanierPage", () => {
 		mocks.useCan.mockReturnValue(false);
 		localStorage.setItem(CLE_PANIER_RESTAURANT, JSON.stringify(PANIER_RESTO));
 
-		render(<PanierPage />);
+		renderAvecQueryClient(<PanierPage {...PROPS} />);
 
 		await screen.findByText("Poulet braisé");
 		expect(
@@ -127,7 +168,7 @@ describe("PanierPage", () => {
 			]),
 		);
 		const user = userEvent.setup();
-		render(<PanierPage />);
+		renderAvecQueryClient(<PanierPage {...PROPS} />);
 
 		await screen.findByText("Savon");
 		await user.click(
@@ -164,7 +205,7 @@ describe("PanierPage", () => {
 			]),
 		);
 
-		render(<PanierPage />);
+		renderAvecQueryClient(<PanierPage {...PROPS} />);
 
 		await screen.findByText("Savon");
 		expect(

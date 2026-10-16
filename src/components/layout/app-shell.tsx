@@ -1,11 +1,18 @@
 import { Menu, X } from "lucide-react";
 import { type ReactNode, useState } from "react";
+
+import { useCan } from "#/core/auth";
+
 import { AppBackground } from "./app-background";
 import { NotificationBell } from "./notification-bell";
+import { PanierBadgeButton } from "./panier-badge-button";
 import { Sidebar } from "./sidebar";
 
 export function AppShell({ children }: { children: ReactNode }) {
 	const [sidebarOpen, setSidebarOpen] = useState(false);
+	// Le panier portail est localStorage + endpoints `/…/portail` — n'afficher
+	// le badge que pour les comptes qui peuvent atteindre la page panier.
+	const canPortail = useCan("PORTAIL.VOIR");
 
 	return (
 		<div className="flex min-h-dvh relative">
@@ -35,7 +42,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
 			<div className="flex min-w-0 flex-1 flex-col relative z-10 overflow-x-clip">
 				<header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur">
-					<div className="flex min-h-14 w-full items-center gap-2 px-2 py-1.5 sm:gap-4 sm:px-4">
+					<div className="flex min-h-14 w-full items-center gap-1 px-6 py-1.5">
 						<button
 							type="button"
 							onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -53,6 +60,9 @@ export function AppShell({ children }: { children: ReactNode }) {
 							className="min-w-0 flex-1 overflow-hidden"
 						/>
 						<div className="ml-auto flex shrink-0 items-center">
+							{canPortail ? (
+								<PanierBadgeButton to="/residence/portail/panier" />
+							) : null}
 							<NotificationBell />
 						</div>
 					</div>

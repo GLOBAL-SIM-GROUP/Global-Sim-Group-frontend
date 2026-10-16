@@ -15,5 +15,5 @@ export const Route = createFileRoute("/_authenticated/residence/portail/")({
 });
 
 function PortailRoutePage() {
-	return <PortailPage />;
+	return <PortailPage variant="resident" />;
 }

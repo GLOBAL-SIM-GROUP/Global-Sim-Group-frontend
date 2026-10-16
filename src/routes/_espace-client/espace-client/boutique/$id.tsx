@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-import { BoutiqueDemandeDetailPage } from "#/features/espace-client/components/boutique-demande-detail-page";
+import { BoutiqueDemandeDetailEspacePage } from "#/features/espace-client/components/boutique-demande-detail-page";
 
 /**
  * Détail d'une demande boutique de l'espace client
@@ -16,5 +16,5 @@ export const Route = createFileRoute(
 
 function BoutiqueDemandeRoutePage() {
 	const { id } = Route.useParams();
-	return <BoutiqueDemandeDetailPage id={id} />;
+	return <BoutiqueDemandeDetailEspacePage id={id} />;
 }

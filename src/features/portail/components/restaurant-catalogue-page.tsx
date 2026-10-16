@@ -22,13 +22,30 @@ function imageDuPlat(plat: Plat): string | null {
 	return plat.image_url ? platImagePublicUrl(plat.id) : null;
 }
 
-export function RestaurantPage() {
+/**
+ * Carte du restaurant — catalogue des plats disponibles avec panier
+ * persisté en `localStorage`. Partagée entre l'espace client
+ * (`/espace-client/restaurant`) et le portail résident
+ * (`/residence/portail/restaurant`) : `breadcrumb` et `panierTo` portent
+ * les liens propres à l'espace ; `variant` fixe le conteneur (`p-6`
+ * résident, `pt-6 pb-16` client) et décale la barre de panier au-dessus
+ * de la tab bar mobile de l'espace client.
+ */
+export function RestaurantCataloguePage({
+	breadcrumb,
+	panierTo,
+	variant,
+}: {
+	breadcrumb: { label: string; to?: string }[];
+	panierTo: string;
+	variant: "client" | "resident";
+}) {
 	const platsQuery = useQuery({
-		queryKey: ["espace-client", "restaurant", "plats"],
+		queryKey: ["portail", "restaurant", "plats"],
 		queryFn: () => listPlats(),
 	});
 	const categoriesQuery = useQuery({
-		queryKey: ["espace-client", "restaurant", "categories"],
+		queryKey: ["portail", "restaurant", "categories"],
 		queryFn: () => listCategoriesPlats(),
 	});
 	const [categorieActive, setCategorieActive] = useState(TOUTES_CATEGORIES);
@@ -41,14 +58,31 @@ export function RestaurantPage() {
 		() => (platsQuery.data ?? []).filter((plat) => plat.disponible),
 		[platsQuery.data],
 	);
+	// Onglets dérivés des plats disponibles : une catégorie dont tous les
+	// plats sont indisponibles ne propose qu'un état vide — on ne la montre pas.
+	const categoriesVisibles = useMemo(() => {
+		const idsAvecDisponibles = new Set(
+			platsDisponibles.map((plat) => plat.id_categorie_plat),
+		);
+		return (categoriesQuery.data ?? []).filter((categorie) =>
+			idsAvecDisponibles.has(categorie.id),
+		);
+	}, [platsDisponibles, categoriesQuery.data]);
+	// Onglet actif retombé sur « Tous » si sa catégorie n'a plus de plat
+	// disponible (un plat passé indisponible entre deux refetches).
+	const categorieCourante =
+		categorieActive === TOUTES_CATEGORIES ||
+		categoriesVisibles.some((categorie) => categorie.id === categorieActive)
+			? categorieActive
+			: TOUTES_CATEGORIES;
 	const platsAffiches = useMemo(
 		() =>
-			categorieActive === TOUTES_CATEGORIES
+			categorieCourante === TOUTES_CATEGORIES
 				? platsDisponibles
 				: platsDisponibles.filter(
-						(plat) => plat.id_categorie_plat === categorieActive,
+						(plat) => plat.id_categorie_plat === categorieCourante,
 					),
-		[platsDisponibles, categorieActive],
+		[platsDisponibles, categorieCourante],
 	);
 
 	const quantiteDe = (platId: string) =>
@@ -80,17 +114,22 @@ export function RestaurantPage() {
 
 	return (
 		<Toast.Provider swipeDirection="right" duration={2500}>
-			<div className="w-full space-y-6 pt-6 pb-40 sm:pb-16">
+			<div
+				className={
+					variant === "resident"
+						? // `pb-28` dégage la `PanierBar` flottante (pas de tab
+							// bar dans le shell résident).
+							"w-full space-y-6 p-6 pb-28"
+						: "w-full space-y-6 pt-6 pb-40 sm:pb-16"
+				}
+			>
 				<PageHeader
-					breadcrumb={[
-						{ label: "Espace client", to: "/espace-client" },
-						{ label: "Restaurant" },
-					]}
+					breadcrumb={breadcrumb}
 					title="Restaurant"
 					description="Parcourez la carte et composez votre commande."
 				/>
 
-				<Tabs.Root value={categorieActive} onValueChange={setCategorieActive}>
+				<Tabs.Root value={categorieCourante} onValueChange={setCategorieActive}>
 					<Tabs.List
 						aria-label="Catégories"
 						className="flex gap-2 overflow-x-auto pb-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
@@ -101,7 +140,7 @@ export function RestaurantPage() {
 						>
 							Tous
 						</Tabs.Trigger>
-						{(categoriesQuery.data ?? []).map((categorie) => (
+						{categoriesVisibles.map((categorie) => (
 							<Tabs.Trigger
 								key={categorie.id}
 								value={categorie.id}
@@ -138,6 +177,8 @@ export function RestaurantPage() {
 				<PanierBar
 					nombreArticles={panier.nombreArticles}
 					total={panier.total}
+					panierTo={panierTo}
+					auDessusTabBar={variant === "client"}
 				/>
 			</div>
 

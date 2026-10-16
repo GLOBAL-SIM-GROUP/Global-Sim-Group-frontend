@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-import { RestaurantPage } from "#/features/espace-client/components/restaurant-page";
+import { RestaurantCataloguePage } from "#/features/portail/components/restaurant-catalogue-page";
 
 /**
  * Restaurant de l'espace client (`/espace-client/restaurant`) : parcourir le
@@ -11,5 +11,18 @@ import { RestaurantPage } from "#/features/espace-client/components/restaurant-p
 export const Route = createFileRoute(
 	"/_espace-client/espace-client/restaurant/",
 )({
-	component: RestaurantPage,
+	component: RestaurantEspaceRoutePage,
 });
+
+function RestaurantEspaceRoutePage() {
+	return (
+		<RestaurantCataloguePage
+			breadcrumb={[
+				{ label: "Espace client", to: "/espace-client" },
+				{ label: "Restaurant" },
+			]}
+			panierTo="/espace-client/panier"
+			variant="client"
+		/>
+	);
+}

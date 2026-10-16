@@ -2,12 +2,12 @@ import { render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { Signalement } from "#/core/api/signalements";
-import type { VentePortail } from "#/features/portail/models/market";
-import type { PressingCommande } from "#/features/portail/models/pressing";
-import type { CommandeRestaurantPortail } from "#/features/portail/models/restaurant";
-import type { ReservationPortail } from "#/features/portail/models/salle-fete";
-import type { SejourPortail } from "#/features/portail/models/sejours";
 
+import type { VentePortail } from "../models/market";
+import type { PressingCommande } from "../models/pressing";
+import type { CommandeRestaurantPortail } from "../models/restaurant";
+import type { ReservationPortail } from "../models/salle-fete";
+import type { SejourPortail } from "../models/sejours";
 import { MesDemandesPage } from "./mes-demandes-page";
 
 const commandesPressing: PressingCommande[] = [
@@ -131,27 +131,27 @@ const mocks = vi.hoisted(() => ({
 	useMesSignalements: vi.fn(),
 }));
 
-vi.mock("#/features/portail/hooks/use-pressing", () => ({
+vi.mock("../hooks/use-pressing", () => ({
 	usePressingCommandes: mocks.usePressingCommandes,
 }));
 
-vi.mock("#/features/portail/hooks/use-restaurant", () => ({
+vi.mock("../hooks/use-restaurant", () => ({
 	useMesCommandesRestaurant: mocks.useMesCommandesRestaurant,
 }));
 
-vi.mock("#/features/portail/hooks/use-salle-fete", () => ({
+vi.mock("../hooks/use-salle-fete", () => ({
 	useMesReservationsSalleFete: mocks.useMesReservationsSalleFete,
 }));
 
-vi.mock("#/features/portail/hooks/use-market", () => ({
+vi.mock("../hooks/use-market", () => ({
 	useMesVentesPortail: mocks.useMesVentesPortail,
 }));
 
-vi.mock("#/features/portail/hooks/use-sejours", () => ({
+vi.mock("../hooks/use-sejours", () => ({
 	useMesSejoursPortail: mocks.useMesSejoursPortail,
 }));
 
-vi.mock("#/features/portail/hooks/use-signalements", () => ({
+vi.mock("../hooks/use-signalements", () => ({
 	useMesSignalements: mocks.useMesSignalements,
 }));
 
@@ -174,6 +174,19 @@ vi.mock("@tanstack/react-router", async (importOriginal) => {
 		),
 	};
 });
+
+const PROPS = {
+	breadcrumb: [{ label: "Mes demandes" }],
+	liens: {
+		restaurant: "/espace-client/restaurant",
+		pressing: "/espace-client/pressing",
+		salleFete: "/espace-client/salle-fete",
+		boutique: "/espace-client/boutique",
+		residence: "/espace-client/residence",
+		signalement: "/espace-client/signalement",
+	},
+	variant: "client" as const,
+};
 
 function mockQueries({
 	pressing = [],
@@ -230,7 +243,7 @@ describe("MesDemandesPage", () => {
 	it("liste les signalements avec leur statut en direct", () => {
 		mockQueries({ signalements });
 
-		render(<MesDemandesPage />);
+		render(<MesDemandesPage {...PROPS} />);
 
 		expect(screen.getByText("Signalements")).toBeInTheDocument();
 		expect(screen.getByText("Fuite d'eau — couloir B")).toBeInTheDocument();
@@ -244,7 +257,7 @@ describe("MesDemandesPage", () => {
 	});
 
 	it("affiche l'état vide des signalements quand il n'y en a pas", () => {
-		render(<MesDemandesPage />);
+		render(<MesDemandesPage {...PROPS} />);
 
 		expect(
 			screen.getByText(/aucun signalement pour le moment/i),
@@ -254,7 +267,7 @@ describe("MesDemandesPage", () => {
 	it("liste les commandes restaurant avec leur statut en direct", () => {
 		mockQueries({ restaurant: commandesResto });
 
-		render(<MesDemandesPage />);
+		render(<MesDemandesPage {...PROPS} />);
 
 		expect(screen.getByText("À emporter")).toBeInTheDocument();
 		expect(screen.getByText("En attente de validation")).toBeInTheDocument();
@@ -267,7 +280,7 @@ describe("MesDemandesPage", () => {
 	it("liste les dépôts pressing", () => {
 		mockQueries({ pressing: commandesPressing });
 
-		render(<MesDemandesPage />);
+		render(<MesDemandesPage {...PROPS} />);
 
 		expect(screen.getByText("PR-0001")).toBeInTheDocument();
 		expect(screen.getByText("En traitement")).toBeInTheDocument();
@@ -276,7 +289,7 @@ describe("MesDemandesPage", () => {
 	it("liste les réservations de salle de fête", () => {
 		mockQueries({ reservations });
 
-		render(<MesDemandesPage />);
+		render(<MesDemandesPage {...PROPS} />);
 
 		expect(screen.getByText("Mariage")).toBeInTheDocument();
 		expect(screen.getByText("Confirmée")).toBeInTheDocument();
@@ -289,7 +302,7 @@ describe("MesDemandesPage", () => {
 	it("liste les demandes boutique avec leur statut en direct", () => {
 		mockQueries({ ventes });
 
-		render(<MesDemandesPage />);
+		render(<MesDemandesPage {...PROPS} />);
 
 		expect(screen.getByText("Demande n° 9")).toBeInTheDocument();
 		expect(screen.getByText("En attente de validation")).toBeInTheDocument();
@@ -302,7 +315,7 @@ describe("MesDemandesPage", () => {
 	it("liste les demandes de séjour avec leur statut en direct", () => {
 		mockQueries({ sejours });
 
-		render(<MesDemandesPage />);
+		render(<MesDemandesPage {...PROPS} />);
 
 		expect(screen.getByText(/Nuitée — CH-102/)).toBeInTheDocument();
 		expect(screen.getByText("En attente de validation")).toBeInTheDocument();

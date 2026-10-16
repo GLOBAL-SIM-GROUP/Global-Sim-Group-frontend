@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-import { RestaurantCommandeDetailPage } from "#/features/espace-client/components/restaurant-commande-detail-page";
+import { RestaurantCommandeDetailEspacePage } from "#/features/espace-client/components/restaurant-commande-detail-page";
 
 /**
  * Détail d'une commande restaurant de l'espace client
@@ -16,5 +16,5 @@ export const Route = createFileRoute(
 
 function RestaurantCommandeRoutePage() {
 	const { id } = Route.useParams();
-	return <RestaurantCommandeDetailPage id={id} />;
+	return <RestaurantCommandeDetailEspacePage id={id} />;
 }

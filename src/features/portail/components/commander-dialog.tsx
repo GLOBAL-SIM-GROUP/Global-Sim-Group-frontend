@@ -1,12 +1,13 @@
-import { useQuery } from "@tanstack/react-query";
-import { Loader2, Plus, Trash2 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useForm } from "@tanstack/react-form";
+import { Loader2, MapPin } from "lucide-react";
 
 import { Button } from "#/components/ui/button";
 import {
 	Dialog,
 	DialogContent,
 	DialogDescription,
+	DialogFooter,
+	DialogHeader,
 	DialogTitle,
 } from "#/components/ui/dialog";
 import { InputField } from "#/components/ui/input-field";
@@ -20,11 +21,8 @@ import {
 } from "#/components/ui/select";
 import { Textarea } from "#/components/ui/textarea";
 import { formatMontantFCFA } from "#/features/residence/models/format";
-import { listPlats } from "#/features/restaurant/api/plats";
-import type { Plat } from "#/features/restaurant/models/plats";
-import { platsKeys } from "#/features/restaurant/permissions";
 
-import type { CommandeRestaurantPortailBody } from "../api/restaurant";
+import type { LigneArticlePanier } from "../models/panier-articles";
 import {
 	TYPE_COMMANDE_PORTAIL_LABELS,
 	type TypeCommandePortail,
@@ -32,249 +30,199 @@ import {
 
 interface CommanderDialogProps {
 	open: boolean;
+	lignes: LigneArticlePanier[];
+	total: number;
 	isPending: boolean;
 	erreur?: string | null;
-	onSubmit: (body: CommandeRestaurantPortailBody) => void;
+	onSubmit: (valeurs: {
+		type: TypeCommandePortail;
+		adresseLivraison?: string;
+		notes?: string;
+	}) => void;
 	onOpenChange: (open: boolean) => void;
 }
 
-/** Ligne éditable : clé React stable (ajout/suppression de lignes). */
-interface LigneEditable {
-	cle: string;
-	idPlat: string;
-	quantite: string;
-}
+type CommanderField = "type" | "adresseLivraison";
 
-let compteurCle = 0;
-const nouvelleCle = () => `plat-${++compteurCle}`;
+const LABELS_CHAMPS: Record<CommanderField, string> = {
+	type: "Le type de commande",
+	adresseLivraison: "L'adresse de livraison",
+};
 
 /**
- * « Commander au restaurant » (portail résident) — compose une commande à
- * partir du menu public (`GET /restaurant/plats`, plats `disponible`
- * uniquement). Aucun montant ni `id_client` n'est envoyé : le backend déduit
- * le résident du JWT et recalcule le total. `adresse_livraison` est requise
- * uniquement pour `LIVRAISON`.
+ * Finalisation d'une commande restaurant depuis le panier : récapitulatif
+ * des lignes, type de commande, adresse si livraison, note libre. Le total
+ * affiché est indicatif — le serveur le recalcule depuis les prix des plats
+ * (aucun montant n'est envoyé). Pas de paiement en ligne : règlement au
+ * comptoir. Partagé entre l'espace client et le portail résident.
  */
 export function CommanderDialog({
 	open,
+	lignes,
+	total,
 	isPending,
 	erreur,
 	onSubmit,
 	onOpenChange,
 }: CommanderDialogProps) {
-	const platsQuery = useQuery({
-		queryKey: platsKeys.list(),
-		queryFn: listPlats,
-		enabled: open,
+	const form = useForm({
+		defaultValues: {
+			type: "" as TypeCommandePortail | "",
+			adresseLivraison: "",
+			notes: "",
+		},
+		validators: {
+			onSubmit: ({ value }) => {
+				const fields: Partial<Record<CommanderField, string>> = {};
+				if (!value.type) {
+					fields.type = `${LABELS_CHAMPS.type} est requis.`;
+				}
+				if (value.type === "LIVRAISON" && !value.adresseLivraison.trim()) {
+					fields.adresseLivraison = `${LABELS_CHAMPS.adresseLivraison} est requise pour une livraison.`;
+				}
+				return { fields };
+			},
+		},
+		onSubmit: ({ value }) => {
+			onSubmit({
+				type: value.type as TypeCommandePortail,
+				adresseLivraison:
+					value.type === "LIVRAISON"
+						? value.adresseLivraison.trim()
+						: undefined,
+				notes: value.notes.trim() || undefined,
+			});
+		},
 	});
-	const plats = useMemo(
-		() => (platsQuery.data ?? []).filter((plat) => plat.disponible),
-		[platsQuery.data],
-	);
-
-	const [lignes, setLignes] = useState<LigneEditable[]>([
-		{ cle: nouvelleCle(), idPlat: "", quantite: "1" },
-	]);
-	const [type, setType] = useState<TypeCommandePortail>("SUR_PLACE");
-	const [adresseLivraison, setAdresseLivraison] = useState("");
-	const [notes, setNotes] = useState("");
-	const [erreurLocale, setErreurLocale] = useState<string | null>(null);
-
-	const majLigne = (index: number, patch: Partial<LigneEditable>) => {
-		setLignes((precedent) =>
-			precedent.map((ligne, i) =>
-				i === index ? { ...ligne, ...patch } : ligne,
-			),
-		);
-	};
-
-	const soumettre = (event: React.FormEvent) => {
-		event.preventDefault();
-		const lignesCorps = lignes.map((ligne) => ({
-			id_plat: ligne.idPlat,
-			quantite: ligne.quantite.trim(),
-		}));
-		if (
-			lignesCorps.length === 0 ||
-			lignesCorps.some(
-				(ligne) =>
-					!ligne.id_plat ||
-					!/^\d+$/.test(ligne.quantite) ||
-					Number(ligne.quantite) < 1,
-			)
-		) {
-			setErreurLocale(
-				"Choisissez un plat et une quantité entière ≥ 1 pour chaque ligne.",
-			);
-			return;
-		}
-		const ids = lignesCorps.map((ligne) => ligne.id_plat);
-		if (new Set(ids).size !== ids.length) {
-			setErreurLocale("Un même plat ne peut figurer qu'une seule fois.");
-			return;
-		}
-		if (type === "LIVRAISON" && !adresseLivraison.trim()) {
-			setErreurLocale("Saisissez l'adresse de livraison.");
-			return;
-		}
-		setErreurLocale(null);
-		onSubmit({
-			type,
-			lignes: lignesCorps,
-			adresseLivraison:
-				type === "LIVRAISON" ? adresseLivraison.trim() : undefined,
-			notes: notes.trim() || undefined,
-		});
-	};
 
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
-			<DialogContent className="max-h-[85dvh] max-w-2xl overflow-y-auto">
-				<DialogTitle>Passer une commande au restaurant</DialogTitle>
-				<DialogDescription>
-					Votre commande est envoyée au personnel pour validation — le règlement
-					se fait au comptoir.
-				</DialogDescription>
+			<DialogContent className="max-h-[85dvh] overflow-y-auto">
+				<DialogHeader>
+					<DialogTitle>Envoyer ma commande</DialogTitle>
+					<DialogDescription>
+						Votre commande sera validée par le personnel du restaurant —
+						paiement au comptoir, pas de paiement en ligne.
+					</DialogDescription>
+				</DialogHeader>
 
-				<form className="mt-4 space-y-4" onSubmit={soumettre}>
-					<div className="space-y-3">
-						{lignes.map((ligne, index) => (
-							<div
-								key={ligne.cle}
-								className="grid grid-cols-[1fr_5rem_auto] items-end gap-2 rounded-lg border border-border p-3"
-							>
-								<div className="space-y-2">
-									{index === 0 ? <Label>Plat</Label> : null}
-									<Select
-										value={ligne.idPlat}
-										onValueChange={(valeur) =>
-											majLigne(index, { idPlat: valeur })
-										}
-										disabled={platsQuery.isLoading}
-									>
-										<SelectTrigger aria-label={`Plat ${index + 1}`}>
-											<SelectValue
-												placeholder={
-													platsQuery.isLoading
-														? "Chargement du menu…"
-														: "Choisir un plat"
-												}
-											/>
-										</SelectTrigger>
-										<SelectContent>
-											{plats.map((plat: Plat) => (
-												<SelectItem key={plat.id} value={plat.id}>
-													{plat.nom} — {formatMontantFCFA(plat.prix)}
-												</SelectItem>
-											))}
-										</SelectContent>
-									</Select>
-								</div>
-								<InputField
-									id={`quantite-plat-${index}`}
-									label={index === 0 ? "Qté" : undefined}
-									type="number"
-									min={1}
-									step={1}
-									value={ligne.quantite}
-									onChange={(event) =>
-										majLigne(index, { quantite: event.target.value })
-									}
-								/>
-								<Button
-									type="button"
-									variant="outline"
-									size="icon"
-									className="rounded-full"
-									aria-label={`Retirer la ligne ${index + 1}`}
-									disabled={lignes.length <= 1}
-									onClick={() =>
-										setLignes((precedent) =>
-											precedent.filter((_, i) => i !== index),
-										)
+				<ul className="mt-3 space-y-1 rounded-lg border border-border bg-accent/20 p-3 text-sm">
+					{lignes.map((ligne) => (
+						<li key={ligne.id} className="flex justify-between gap-3">
+							<span className="truncate text-foreground">
+								{ligne.quantite}× {ligne.nom}
+							</span>
+							<span className="shrink-0 tabular-nums text-muted-foreground">
+								{formatMontantFCFA(String(Number(ligne.prix) * ligne.quantite))}
+							</span>
+						</li>
+					))}
+					<li className="flex justify-between gap-3 border-t border-border pt-1 font-semibold text-foreground">
+						<span>Total estimé</span>
+						<span className="tabular-nums">
+							{formatMontantFCFA(String(total))}
+						</span>
+					</li>
+				</ul>
+
+				<form
+					className="mt-4 space-y-4"
+					onSubmit={(event) => {
+						event.preventDefault();
+						event.stopPropagation();
+						void form.handleSubmit();
+					}}
+				>
+					<form.Field name="type">
+						{(field) => (
+							<div className="space-y-2">
+								<Label htmlFor={field.name}>Type de commande</Label>
+								<Select
+									value={field.state.value}
+									onValueChange={(valeur) =>
+										field.handleChange(valeur as TypeCommandePortail)
 									}
 								>
-									<Trash2 className="size-4" aria-hidden />
-								</Button>
+									<SelectTrigger
+										id={field.name}
+										className="w-full"
+										aria-label="Type de commande"
+									>
+										<SelectValue placeholder="Sur place, à emporter, livraison…" />
+									</SelectTrigger>
+									<SelectContent>
+										{(
+											Object.entries(TYPE_COMMANDE_PORTAIL_LABELS) as [
+												TypeCommandePortail,
+												string,
+											][]
+										).map(([valeur, label]) => (
+											<SelectItem key={valeur} value={valeur}>
+												{label}
+											</SelectItem>
+										))}
+									</SelectContent>
+								</Select>
+								{field.state.meta.errors[0] ? (
+									<p className="text-sm text-destructive">
+										{field.state.meta.errors[0]}
+									</p>
+								) : null}
 							</div>
-						))}
-						<Button
-							type="button"
-							variant="outline"
-							size="sm"
-							className="rounded-full"
-							onClick={() =>
-								setLignes((precedent) => [
-									...precedent,
-									{ cle: nouvelleCle(), idPlat: "", quantite: "1" },
-								])
-							}
-						>
-							<Plus className="size-4" aria-hidden />
-							Ajouter un plat
-						</Button>
-						{platsQuery.isError ? (
-							<p role="alert" className="text-sm text-destructive">
-								Impossible de charger le menu — réessayez plus tard.
-							</p>
-						) : null}
-					</div>
+						)}
+					</form.Field>
 
-					<div className="space-y-2">
-						<Label>Type de commande</Label>
-						<Select
-							value={type}
-							onValueChange={(valeur) => setType(valeur as TypeCommandePortail)}
-						>
-							<SelectTrigger aria-label="Type de commande">
-								<SelectValue />
-							</SelectTrigger>
-							<SelectContent>
-								{(
-									Object.keys(
-										TYPE_COMMANDE_PORTAIL_LABELS,
-									) as TypeCommandePortail[]
-								).map((valeur) => (
-									<SelectItem key={valeur} value={valeur}>
-										{TYPE_COMMANDE_PORTAIL_LABELS[valeur]}
-									</SelectItem>
-								))}
-							</SelectContent>
-						</Select>
-					</div>
+					<form.Subscribe selector={(state) => state.values.type}>
+						{(type) =>
+							type === "LIVRAISON" ? (
+								<form.Field name="adresseLivraison">
+									{(field) => (
+										<InputField
+											id={field.name}
+											name={field.name}
+											label="Adresse de livraison"
+											placeholder="Bâtiment, logement, précisions…"
+											icon={<MapPin className="size-4" aria-hidden />}
+											value={field.state.value}
+											onBlur={field.handleBlur}
+											onChange={(event) =>
+												field.handleChange(event.target.value)
+											}
+											error={field.state.meta.errors[0]}
+										/>
+									)}
+								</form.Field>
+							) : null
+						}
+					</form.Subscribe>
 
-					{type === "LIVRAISON" ? (
-						<InputField
-							id="adresse-livraison"
-							label="Adresse de livraison"
-							placeholder="Bâtiment, appartement…"
-							maxLength={200}
-							value={adresseLivraison}
-							onChange={(event) => setAdresseLivraison(event.target.value)}
-						/>
-					) : null}
+					<form.Field name="notes">
+						{(field) => (
+							<div className="space-y-2">
+								<Label htmlFor={field.name}>Note (optionnel)</Label>
+								<Textarea
+									id={field.name}
+									name={field.name}
+									maxLength={500}
+									placeholder="Allergies, précisions de préparation…"
+									value={field.state.value}
+									onBlur={field.handleBlur}
+									onChange={(event) => field.handleChange(event.target.value)}
+								/>
+							</div>
+						)}
+					</form.Field>
 
-					<div className="space-y-2">
-						<Label htmlFor="notes-commande">Note (optionnel)</Label>
-						<Textarea
-							id="notes-commande"
-							maxLength={500}
-							placeholder="Allergies, précisions…"
-							value={notes}
-							onChange={(event) => setNotes(event.target.value)}
-						/>
-					</div>
-
-					{erreurLocale || erreur ? (
+					{erreur ? (
 						<p
 							role="alert"
 							className="rounded-md border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive"
 						>
-							{erreurLocale ?? erreur}
+							{erreur}
 						</p>
 					) : null}
 
-					<div className="flex items-center justify-end gap-2">
+					<DialogFooter>
 						<Button
 							type="button"
 							variant="ghost"
@@ -284,17 +232,13 @@ export function CommanderDialog({
 						>
 							Annuler
 						</Button>
-						<Button
-							type="submit"
-							disabled={isPending || platsQuery.isLoading}
-							className="rounded-full bg-lagoon text-white hover:bg-lagoon/90"
-						>
+						<Button type="submit" className="rounded-full" disabled={isPending}>
 							{isPending ? (
 								<Loader2 className="size-4 animate-spin" aria-hidden />
 							) : null}
 							Envoyer la commande
 						</Button>
-					</div>
+					</DialogFooter>
 				</form>
 			</DialogContent>
 		</Dialog>
