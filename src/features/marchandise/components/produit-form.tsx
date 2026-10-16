@@ -2,6 +2,7 @@ import { useForm } from "@tanstack/react-form";
 import { Loader2, Upload, X } from "lucide-react";
 import { useRef, useState } from "react";
 
+import { BoutonCamera } from "#/components/bouton-camera";
 import { Button } from "#/components/ui/button";
 import { InputField } from "#/components/ui/input-field";
 import { Label } from "#/components/ui/label";
@@ -459,16 +460,19 @@ function ImageUploadField({
 }) {
 	const { blobUrl, isLoading } = useUploadBlobUrl(imageKey || undefined);
 
-	const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-		const file = e.target.files?.[0];
-		if (!file) return;
-
+	const handleFile = async (file: File) => {
 		try {
 			const result = await uploadMutation.mutateAsync(file);
 			onImageKeyChange(result.key);
 		} catch (error) {
 			console.error("Erreur lors de l'upload :", error);
 		}
+	};
+
+	const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const file = e.target.files?.[0];
+		if (!file) return;
+		void handleFile(file);
 	};
 
 	const handleRemoveImage = () => {
@@ -543,6 +547,18 @@ function ImageUploadField({
 							</>
 						)}
 					</button>
+				)}
+				{blobUrl ? null : (
+					<div className="mt-3 flex justify-center">
+						<BoutonCamera
+							label="Prendre une photo"
+							titre={label}
+							description="Photographiez le produit dans le cadre."
+							facingMode="environment"
+							disabled={uploadMutation.isPending}
+							onCapture={(file) => void handleFile(file)}
+						/>
+					</div>
 				)}
 			</div>
 		</div>

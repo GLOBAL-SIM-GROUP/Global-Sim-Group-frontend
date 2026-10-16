@@ -2,6 +2,7 @@ import { useForm } from "@tanstack/react-form";
 import { Loader2, Upload } from "lucide-react";
 import { useRef, useState } from "react";
 
+import { BoutonCamera } from "#/components/bouton-camera";
 import { Button } from "#/components/ui/button";
 import {
 	Dialog,
@@ -149,6 +150,17 @@ export function EtatDesLieuxFormDialog({
 								setFichierErreur(null);
 							}}
 							className="block w-full text-sm text-foreground file:mr-3 file:rounded-md file:border-0 file:bg-lagoon file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-white hover:file:bg-lagoon/90"
+						/>
+						<BoutonCamera
+							label="Prendre une photo"
+							titre="Ajouter une photo"
+							description="Photographiez l'état du logement dans le cadre."
+							facingMode="environment"
+							disabled={busy}
+							onCapture={(file) => {
+								setFichier(file);
+								setFichierErreur(null);
+							}}
 						/>
 						{fichierErreur ? (
 							<p className="text-xs text-destructive">{fichierErreur}</p>

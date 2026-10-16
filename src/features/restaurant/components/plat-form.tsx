@@ -2,6 +2,7 @@ import { useForm } from "@tanstack/react-form";
 import { Loader2, Upload, X } from "lucide-react";
 import { useRef, useState } from "react";
 
+import { BoutonCamera } from "#/components/bouton-camera";
 import { Button } from "#/components/ui/button";
 import { InputField } from "#/components/ui/input-field";
 import { Label } from "#/components/ui/label";
@@ -243,6 +244,13 @@ export function PlatForm({
 							<Upload className="size-4 mr-2" aria-hidden />
 							Choisir une image
 						</Button>
+						<BoutonCamera
+							label="Caméra"
+							titre="Image du plat"
+							description="Photographiez le plat dans le cadre."
+							facingMode="environment"
+							onCapture={handleImageChange}
+						/>
 						{imagePreview && (
 							<Button
 								type="button"

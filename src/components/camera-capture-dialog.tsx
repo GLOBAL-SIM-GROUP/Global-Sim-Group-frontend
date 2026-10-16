@@ -1,5 +1,5 @@
-import { Camera, Loader2, RefreshCcw } from "lucide-react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { Camera, Loader2, RefreshCcw, SwitchCamera } from "lucide-react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { Button } from "#/components/ui/button";
 import {
@@ -14,8 +14,20 @@ import {
 type Phase = "demarrage" | "pret" | "apercu" | "erreur";
 
 /**
+ * Détecte un appareil tactile (téléphone/tablette) : pointer coarse ou UA
+ * mobile. Sur PC, la caméra « avant » est la webcam — pas de bascule.
+ */
+export function detecterAppareilTactile(): boolean {
+	if (typeof navigator === "undefined") return false;
+	if (/(android|iphone|ipad|ipod|mobile)/i.test(navigator.userAgent))
+		return true;
+	return window.matchMedia?.("(pointer: coarse)").matches ?? false;
+}
+
+/**
  * Modale de capture photo via la caméra de l'appareil (`getUserMedia`) —
- * webcam sur PC, caméra frontale (`facingMode: "user"`) sur téléphone.
+ * webcam (avant) sur PC ; sur téléphone/tablette, caméra `facingMode`
+ * initiale avec bouton « retourner » avant ↔ arrière.
  *
  * Flux : ouverture → flux vidéo en direct → « Capturer » → aperçu →
  * « Utiliser cette photo » appelle `onCapture(file)` (JPEG, 90 %).
@@ -38,13 +50,16 @@ export function CameraCaptureDialog({
 	onCapture: (file: File) => void;
 	titre?: string;
 	description?: string;
-	/** "user" = caméra frontale/portrait (défaut) ; "environment" = caméra
-	    arrière (documents, pièce d'identité…). */
+	/** Caméra initiale : "user" = frontale/portrait (défaut) ; "environment" =
+	    arrière (documents, pièce d'identité…). Sur téléphone, l'utilisateur
+	    peut ensuite basculer via le bouton « retourner ». */
 	facingMode?: "user" | "environment";
 }) {
 	const videoRef = useRef<HTMLVideoElement>(null);
 	const streamRef = useRef<MediaStream | null>(null);
 	const ouvertRef = useRef(false);
+	const tactile = useMemo(detecterAppareilTactile, []);
+	const [facing, setFacing] = useState<"user" | "environment">(facingMode);
 	const [phase, setPhase] = useState<Phase>("demarrage");
 	const [erreur, setErreur] = useState<string | null>(null);
 	const [apercuUrl, setApercuUrl] = useState<string | null>(null);
@@ -71,7 +86,7 @@ export function CameraCaptureDialog({
 		}
 		try {
 			const stream = await navigator.mediaDevices.getUserMedia({
-				video: { facingMode, width: { ideal: 1280 } },
+				video: { facingMode: facing, width: { ideal: 1280 } },
 				audio: false,
 			});
 			// La modale peut s'être fermée pendant l'attente de la permission :
@@ -97,7 +112,7 @@ export function CameraCaptureDialog({
 			);
 			setPhase("erreur");
 		}
-	}, [facingMode]);
+	}, [facing]);
 
 	useEffect(() => {
 		ouvertRef.current = open;
@@ -153,7 +168,7 @@ export function CameraCaptureDialog({
 					<DialogDescription>{description}</DialogDescription>
 				</DialogHeader>
 
-				<div className="flex min-h-48 items-center justify-center overflow-hidden rounded-md bg-muted/40">
+				<div className="relative flex min-h-48 items-center justify-center overflow-hidden rounded-md bg-muted/40">
 					{/* La vidéo reste toujours montée : `videoRef` doit exister quand
 					    `demarrer()` attache le flux, y compris via « Reprendre »
 					    depuis l'aperçu (où la vidéo est cachée). */}
@@ -165,6 +180,20 @@ export function CameraCaptureDialog({
 							phase === "pret" ? "max-h-72 w-full object-contain" : "hidden"
 						}
 					/>
+					{tactile && phase === "pret" ? (
+						<button
+							type="button"
+							onClick={() =>
+								setFacing((courante) =>
+									courante === "user" ? "environment" : "user",
+								)
+							}
+							aria-label="Retourner la caméra"
+							className="absolute right-2 top-2 rounded-full bg-foreground/70 p-2 text-background transition-colors hover:bg-foreground"
+						>
+							<SwitchCamera className="size-4" aria-hidden />
+						</button>
+					) : null}
 					{phase === "demarrage" && (
 						<div className="flex flex-col items-center gap-2 py-10 text-muted-foreground">
 							<Loader2 className="size-6 animate-spin" aria-hidden />

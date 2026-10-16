@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 
+import { BoutonCamera } from "#/components/bouton-camera";
 import { Button } from "#/components/ui/button";
 import {
 	Dialog,
@@ -607,6 +608,16 @@ function PieceDialog({
 										</div>
 									)}
 								</div>
+								<BoutonCamera
+									iconeSeule
+									label="Photographier le recto"
+									titre="Recto (photo)"
+									description="Photographiez la pièce bien à plat, dans le cadre."
+									facingMode="environment"
+									disabled={isPending}
+									className="absolute right-1.5 top-1.5 z-10 rounded-full bg-card"
+									onCapture={setFileRecto}
+								/>
 							</div>
 						</div>
 						<div className="space-y-1.5">
@@ -633,6 +644,16 @@ function PieceDialog({
 										</div>
 									)}
 								</div>
+								<BoutonCamera
+									iconeSeule
+									label="Photographier le verso"
+									titre="Verso (photo)"
+									description="Photographiez la pièce bien à plat, dans le cadre."
+									facingMode="environment"
+									disabled={isPending}
+									className="absolute right-1.5 top-1.5 z-10 rounded-full bg-card"
+									onCapture={setFileVerso}
+								/>
 							</div>
 						</div>
 					</div>

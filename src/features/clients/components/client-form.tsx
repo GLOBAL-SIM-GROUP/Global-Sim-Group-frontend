@@ -2,6 +2,7 @@ import { useForm } from "@tanstack/react-form";
 import { Camera, Image as ImageIcon, Loader2, Upload, X } from "lucide-react";
 import { useRef, useState } from "react";
 
+import { BoutonCamera } from "#/components/bouton-camera";
 import { CameraCaptureDialog } from "#/components/camera-capture-dialog";
 import { Button } from "#/components/ui/button";
 import { Input } from "#/components/ui/input";
@@ -873,6 +874,17 @@ function ChampFichier({
 						</div>
 					)}
 				</div>
+				{/* z-10 : au-dessus de l'input file invisible qui couvre la zone. */}
+				<BoutonCamera
+					iconeSeule
+					label={`Photographier — ${label}`}
+					titre={label}
+					description="Photographiez le document bien à plat, dans le cadre."
+					facingMode="environment"
+					disabled={disabled}
+					className="absolute right-1.5 top-1.5 z-10 rounded-full bg-card"
+					onCapture={(file) => onChange(file)}
+				/>
 			</div>
 		</div>
 	);
