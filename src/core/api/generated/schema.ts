@@ -2211,6 +2211,86 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/facturation/portail/factures": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Mes factures
+         * @description Factures du client connecté (hors annulées), filtrables par service (source_type), statut et période
+         */
+        get: operations["FacturationPortailController_mesFactures_v1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/facturation/portail/factures/{id}/pdf": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Ma facture (PDF)
+         * @description Télécharge la facture PDF d'un service du client connecté
+         */
+        get: operations["FacturationPortailController_pdfFacture_v1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/facturation/portail/factures/{id}/recu": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Mon reçu (PDF)
+         * @description Télécharge le reçu PDF des paiements enregistrés sur une facture du client connecté
+         */
+        get: operations["FacturationPortailController_recuFacture_v1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/facturation/portail/factures/{id}/ticket": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Mon ticket (HTML)
+         * @description Ticket 58/80mm (HTML téléchargeable/imprimable) d'une facture du client connecté
+         */
+        get: operations["FacturationPortailController_ticketFacture_v1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/uploads": {
         parameters: {
             query?: never;
@@ -10960,6 +11040,162 @@ export interface operations {
             };
             /** @description Permission refusée — requiert FACTURATION.VOIR */
             403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    FacturationPortailController_mesFactures_v1: {
+        parameters: {
+            query?: {
+                /** @description Recherche texte libre */
+                recherche?: string;
+                /** @description Colonne de tri */
+                sort?: string;
+                order?: "asc" | "desc";
+                limit?: number;
+                offset?: number;
+                statut?: "PAYEE" | "PARTIELLE" | "IMPAYEE" | "ANNULEE";
+                source_type?: "VENTE" | "COMMANDE_PRESSING" | "COMMANDE_RESTAURANT" | "SEJOUR" | "CHARGE" | "LOCATION" | "RESERVATION_FETE" | "PRESTATION" | "AUTRE" | "ABONNEMENT";
+                numero?: string;
+                libelle?: string;
+                montant_total?: string;
+                /** @description Date >= */
+                du?: string;
+                /** @description Date <= */
+                au?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Données renvoyées avec succès */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Permission refusée — requiert PORTAIL.VOIR */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    FacturationPortailController_pdfFacture_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identifiant de la facture */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Document PDF renvoyé avec succès */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Permission refusée — requiert PORTAIL.VOIR */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Facture inconnue ou n'appartenant pas au client */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    FacturationPortailController_recuFacture_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identifiant de la facture */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Document PDF renvoyé avec succès */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Permission refusée — requiert PORTAIL.VOIR */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Facture inconnue ou n'appartenant pas au client */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Aucun paiement enregistré */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    FacturationPortailController_ticketFacture_v1: {
+        parameters: {
+            query?: {
+                largeur?: 58 | 80;
+            };
+            header?: never;
+            path: {
+                /** @description Identifiant de la facture */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Document HTML renvoyé avec succès */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Permission refusée — requiert PORTAIL.VOIR */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Facture inconnue ou n'appartenant pas au client */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };
