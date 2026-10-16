@@ -26,6 +26,7 @@ import { Route as AuthenticatedRapportsIndexRouteImport } from './routes/_authen
 import { Route as AuthenticatedSignalementsIndexRouteImport } from './routes/_authenticated/signalements/index'
 import { Route as AuthenticatedSignalementsIdRouteImport } from './routes/_authenticated/signalements/$id'
 import { Route as EspaceClientEspaceClientIndexRouteImport } from './routes/_espace-client/espace-client/index'
+import { Route as EspaceClientEspaceClientFacturesRouteImport } from './routes/_espace-client/espace-client/factures'
 import { Route as EspaceClientEspaceClientMesDemandesRouteImport } from './routes/_espace-client/espace-client/mes-demandes'
 import { Route as EspaceClientEspaceClientMonCompteRouteImport } from './routes/_espace-client/espace-client/mon-compte'
 import { Route as EspaceClientEspaceClientPanierRouteImport } from './routes/_espace-client/espace-client/panier'
@@ -108,9 +109,12 @@ import { Route as AuthenticatedResidencePortailBoutiqueIndexRouteImport } from '
 import { Route as AuthenticatedResidencePortailBoutiqueIdRouteImport } from './routes/_authenticated/residence/portail/boutique/$id'
 import { Route as AuthenticatedResidencePortailCautionIndexRouteImport } from './routes/_authenticated/residence/portail/caution/index'
 import { Route as AuthenticatedResidencePortailCompteIndexRouteImport } from './routes/_authenticated/residence/portail/compte/index'
+import { Route as AuthenticatedResidencePortailDemandesIndexRouteImport } from './routes/_authenticated/residence/portail/demandes/index'
 import { Route as AuthenticatedResidencePortailEcheancesIndexRouteImport } from './routes/_authenticated/residence/portail/echeances/index'
 import { Route as AuthenticatedResidencePortailEtatDesLieuxIndexRouteImport } from './routes/_authenticated/residence/portail/etat-des-lieux/index'
+import { Route as AuthenticatedResidencePortailFacturesIndexRouteImport } from './routes/_authenticated/residence/portail/factures/index'
 import { Route as AuthenticatedResidencePortailPaiementsIndexRouteImport } from './routes/_authenticated/residence/portail/paiements/index'
+import { Route as AuthenticatedResidencePortailPanierIndexRouteImport } from './routes/_authenticated/residence/portail/panier/index'
 import { Route as AuthenticatedResidencePortailPressingIndexRouteImport } from './routes/_authenticated/residence/portail/pressing/index'
 import { Route as AuthenticatedResidencePortailPressingIdRouteImport } from './routes/_authenticated/residence/portail/pressing/$id'
 import { Route as AuthenticatedResidencePortailRestaurantIndexRouteImport } from './routes/_authenticated/residence/portail/restaurant/index'
@@ -212,6 +216,12 @@ const EspaceClientEspaceClientIndexRoute =
   EspaceClientEspaceClientIndexRouteImport.update({
     id: '/espace-client/',
     path: '/espace-client/',
+    getParentRoute: () => EspaceClientRoute,
+  } as any)
+const EspaceClientEspaceClientFacturesRoute =
+  EspaceClientEspaceClientFacturesRouteImport.update({
+    id: '/espace-client/factures',
+    path: '/espace-client/factures',
     getParentRoute: () => EspaceClientRoute,
   } as any)
 const EspaceClientEspaceClientMesDemandesRoute =
@@ -706,6 +716,12 @@ const AuthenticatedResidencePortailCompteIndexRoute =
     path: '/residence/portail/compte/',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedResidencePortailDemandesIndexRoute =
+  AuthenticatedResidencePortailDemandesIndexRouteImport.update({
+    id: '/residence/portail/demandes/',
+    path: '/residence/portail/demandes/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedResidencePortailEcheancesIndexRoute =
   AuthenticatedResidencePortailEcheancesIndexRouteImport.update({
     id: '/residence/portail/echeances/',
@@ -718,10 +734,22 @@ const AuthenticatedResidencePortailEtatDesLieuxIndexRoute =
     path: '/residence/portail/etat-des-lieux/',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedResidencePortailFacturesIndexRoute =
+  AuthenticatedResidencePortailFacturesIndexRouteImport.update({
+    id: '/residence/portail/factures/',
+    path: '/residence/portail/factures/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedResidencePortailPaiementsIndexRoute =
   AuthenticatedResidencePortailPaiementsIndexRouteImport.update({
     id: '/residence/portail/paiements/',
     path: '/residence/portail/paiements/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedResidencePortailPanierIndexRoute =
+  AuthenticatedResidencePortailPanierIndexRouteImport.update({
+    id: '/residence/portail/panier/',
+    path: '/residence/portail/panier/',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedResidencePortailPressingIndexRoute =
@@ -814,6 +842,7 @@ export interface FileRoutesByFullPath {
   '/marchandise/produits': typeof MarchandiseProduitsRoute
   '/restaurant/plats': typeof RestaurantPlatsRoute
   '/signalements/$id': typeof AuthenticatedSignalementsIdRoute
+  '/espace-client/factures': typeof EspaceClientEspaceClientFacturesRoute
   '/espace-client/mes-demandes': typeof EspaceClientEspaceClientMesDemandesRoute
   '/espace-client/mon-compte': typeof EspaceClientEspaceClientMonCompteRoute
   '/espace-client/panier': typeof EspaceClientEspaceClientPanierRoute
@@ -907,9 +936,12 @@ export interface FileRoutesByFullPath {
   '/residence/portail/boutique/': typeof AuthenticatedResidencePortailBoutiqueIndexRoute
   '/residence/portail/caution/': typeof AuthenticatedResidencePortailCautionIndexRoute
   '/residence/portail/compte/': typeof AuthenticatedResidencePortailCompteIndexRoute
+  '/residence/portail/demandes/': typeof AuthenticatedResidencePortailDemandesIndexRoute
   '/residence/portail/echeances/': typeof AuthenticatedResidencePortailEcheancesIndexRoute
   '/residence/portail/etat-des-lieux/': typeof AuthenticatedResidencePortailEtatDesLieuxIndexRoute
+  '/residence/portail/factures/': typeof AuthenticatedResidencePortailFacturesIndexRoute
   '/residence/portail/paiements/': typeof AuthenticatedResidencePortailPaiementsIndexRoute
+  '/residence/portail/panier/': typeof AuthenticatedResidencePortailPanierIndexRoute
   '/residence/portail/pressing/': typeof AuthenticatedResidencePortailPressingIndexRoute
   '/residence/portail/restaurant/': typeof AuthenticatedResidencePortailRestaurantIndexRoute
   '/residence/portail/salle-fete/': typeof AuthenticatedResidencePortailSalleFeteIndexRoute
@@ -929,6 +961,7 @@ export interface FileRoutesByTo {
   '/marchandise/produits': typeof AuthenticatedMarchandiseProduitsIndexRoute
   '/restaurant/plats': typeof AuthenticatedRestaurantPlatsIndexRoute
   '/signalements/$id': typeof AuthenticatedSignalementsIdRoute
+  '/espace-client/factures': typeof EspaceClientEspaceClientFacturesRoute
   '/espace-client/mes-demandes': typeof EspaceClientEspaceClientMesDemandesRoute
   '/espace-client/mon-compte': typeof EspaceClientEspaceClientMonCompteRoute
   '/espace-client/panier': typeof EspaceClientEspaceClientPanierRoute
@@ -1020,9 +1053,12 @@ export interface FileRoutesByTo {
   '/residence/portail/boutique': typeof AuthenticatedResidencePortailBoutiqueIndexRoute
   '/residence/portail/caution': typeof AuthenticatedResidencePortailCautionIndexRoute
   '/residence/portail/compte': typeof AuthenticatedResidencePortailCompteIndexRoute
+  '/residence/portail/demandes': typeof AuthenticatedResidencePortailDemandesIndexRoute
   '/residence/portail/echeances': typeof AuthenticatedResidencePortailEcheancesIndexRoute
   '/residence/portail/etat-des-lieux': typeof AuthenticatedResidencePortailEtatDesLieuxIndexRoute
+  '/residence/portail/factures': typeof AuthenticatedResidencePortailFacturesIndexRoute
   '/residence/portail/paiements': typeof AuthenticatedResidencePortailPaiementsIndexRoute
+  '/residence/portail/panier': typeof AuthenticatedResidencePortailPanierIndexRoute
   '/residence/portail/pressing': typeof AuthenticatedResidencePortailPressingIndexRoute
   '/residence/portail/restaurant': typeof AuthenticatedResidencePortailRestaurantIndexRoute
   '/residence/portail/salle-fete': typeof AuthenticatedResidencePortailSalleFeteIndexRoute
@@ -1045,6 +1081,7 @@ export interface FileRoutesById {
   '/marchandise/produits': typeof MarchandiseProduitsRoute
   '/restaurant/plats': typeof RestaurantPlatsRoute
   '/_authenticated/signalements/$id': typeof AuthenticatedSignalementsIdRoute
+  '/_espace-client/espace-client/factures': typeof EspaceClientEspaceClientFacturesRoute
   '/_espace-client/espace-client/mes-demandes': typeof EspaceClientEspaceClientMesDemandesRoute
   '/_espace-client/espace-client/mon-compte': typeof EspaceClientEspaceClientMonCompteRoute
   '/_espace-client/espace-client/panier': typeof EspaceClientEspaceClientPanierRoute
@@ -1138,9 +1175,12 @@ export interface FileRoutesById {
   '/_authenticated/residence/portail/boutique/': typeof AuthenticatedResidencePortailBoutiqueIndexRoute
   '/_authenticated/residence/portail/caution/': typeof AuthenticatedResidencePortailCautionIndexRoute
   '/_authenticated/residence/portail/compte/': typeof AuthenticatedResidencePortailCompteIndexRoute
+  '/_authenticated/residence/portail/demandes/': typeof AuthenticatedResidencePortailDemandesIndexRoute
   '/_authenticated/residence/portail/echeances/': typeof AuthenticatedResidencePortailEcheancesIndexRoute
   '/_authenticated/residence/portail/etat-des-lieux/': typeof AuthenticatedResidencePortailEtatDesLieuxIndexRoute
+  '/_authenticated/residence/portail/factures/': typeof AuthenticatedResidencePortailFacturesIndexRoute
   '/_authenticated/residence/portail/paiements/': typeof AuthenticatedResidencePortailPaiementsIndexRoute
+  '/_authenticated/residence/portail/panier/': typeof AuthenticatedResidencePortailPanierIndexRoute
   '/_authenticated/residence/portail/pressing/': typeof AuthenticatedResidencePortailPressingIndexRoute
   '/_authenticated/residence/portail/restaurant/': typeof AuthenticatedResidencePortailRestaurantIndexRoute
   '/_authenticated/residence/portail/salle-fete/': typeof AuthenticatedResidencePortailSalleFeteIndexRoute
@@ -1162,6 +1202,7 @@ export interface FileRouteTypes {
     | '/marchandise/produits'
     | '/restaurant/plats'
     | '/signalements/$id'
+    | '/espace-client/factures'
     | '/espace-client/mes-demandes'
     | '/espace-client/mon-compte'
     | '/espace-client/panier'
@@ -1255,9 +1296,12 @@ export interface FileRouteTypes {
     | '/residence/portail/boutique/'
     | '/residence/portail/caution/'
     | '/residence/portail/compte/'
+    | '/residence/portail/demandes/'
     | '/residence/portail/echeances/'
     | '/residence/portail/etat-des-lieux/'
+    | '/residence/portail/factures/'
     | '/residence/portail/paiements/'
+    | '/residence/portail/panier/'
     | '/residence/portail/pressing/'
     | '/residence/portail/restaurant/'
     | '/residence/portail/salle-fete/'
@@ -1277,6 +1321,7 @@ export interface FileRouteTypes {
     | '/marchandise/produits'
     | '/restaurant/plats'
     | '/signalements/$id'
+    | '/espace-client/factures'
     | '/espace-client/mes-demandes'
     | '/espace-client/mon-compte'
     | '/espace-client/panier'
@@ -1368,9 +1413,12 @@ export interface FileRouteTypes {
     | '/residence/portail/boutique'
     | '/residence/portail/caution'
     | '/residence/portail/compte'
+    | '/residence/portail/demandes'
     | '/residence/portail/echeances'
     | '/residence/portail/etat-des-lieux'
+    | '/residence/portail/factures'
     | '/residence/portail/paiements'
+    | '/residence/portail/panier'
     | '/residence/portail/pressing'
     | '/residence/portail/restaurant'
     | '/residence/portail/salle-fete'
@@ -1392,6 +1440,7 @@ export interface FileRouteTypes {
     | '/marchandise/produits'
     | '/restaurant/plats'
     | '/_authenticated/signalements/$id'
+    | '/_espace-client/espace-client/factures'
     | '/_espace-client/espace-client/mes-demandes'
     | '/_espace-client/espace-client/mon-compte'
     | '/_espace-client/espace-client/panier'
@@ -1485,9 +1534,12 @@ export interface FileRouteTypes {
     | '/_authenticated/residence/portail/boutique/'
     | '/_authenticated/residence/portail/caution/'
     | '/_authenticated/residence/portail/compte/'
+    | '/_authenticated/residence/portail/demandes/'
     | '/_authenticated/residence/portail/echeances/'
     | '/_authenticated/residence/portail/etat-des-lieux/'
+    | '/_authenticated/residence/portail/factures/'
     | '/_authenticated/residence/portail/paiements/'
+    | '/_authenticated/residence/portail/panier/'
     | '/_authenticated/residence/portail/pressing/'
     | '/_authenticated/residence/portail/restaurant/'
     | '/_authenticated/residence/portail/salle-fete/'
@@ -1628,6 +1680,13 @@ declare module '@tanstack/react-router' {
       path: '/espace-client'
       fullPath: '/espace-client/'
       preLoaderRoute: typeof EspaceClientEspaceClientIndexRouteImport
+      parentRoute: typeof EspaceClientRoute
+    }
+    '/_espace-client/espace-client/factures': {
+      id: '/_espace-client/espace-client/factures'
+      path: '/espace-client/factures'
+      fullPath: '/espace-client/factures'
+      preLoaderRoute: typeof EspaceClientEspaceClientFacturesRouteImport
       parentRoute: typeof EspaceClientRoute
     }
     '/_espace-client/espace-client/mes-demandes': {
@@ -2204,6 +2263,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedResidencePortailCompteIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/residence/portail/demandes/': {
+      id: '/_authenticated/residence/portail/demandes/'
+      path: '/residence/portail/demandes'
+      fullPath: '/residence/portail/demandes/'
+      preLoaderRoute: typeof AuthenticatedResidencePortailDemandesIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/residence/portail/echeances/': {
       id: '/_authenticated/residence/portail/echeances/'
       path: '/residence/portail/echeances'
@@ -2218,11 +2284,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedResidencePortailEtatDesLieuxIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/residence/portail/factures/': {
+      id: '/_authenticated/residence/portail/factures/'
+      path: '/residence/portail/factures'
+      fullPath: '/residence/portail/factures/'
+      preLoaderRoute: typeof AuthenticatedResidencePortailFacturesIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/residence/portail/paiements/': {
       id: '/_authenticated/residence/portail/paiements/'
       path: '/residence/portail/paiements'
       fullPath: '/residence/portail/paiements/'
       preLoaderRoute: typeof AuthenticatedResidencePortailPaiementsIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/residence/portail/panier/': {
+      id: '/_authenticated/residence/portail/panier/'
+      path: '/residence/portail/panier'
+      fullPath: '/residence/portail/panier/'
+      preLoaderRoute: typeof AuthenticatedResidencePortailPanierIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/residence/portail/pressing/': {
@@ -2398,9 +2478,12 @@ interface AuthenticatedRouteChildren {
   AuthenticatedResidencePortailBoutiqueIndexRoute: typeof AuthenticatedResidencePortailBoutiqueIndexRoute
   AuthenticatedResidencePortailCautionIndexRoute: typeof AuthenticatedResidencePortailCautionIndexRoute
   AuthenticatedResidencePortailCompteIndexRoute: typeof AuthenticatedResidencePortailCompteIndexRoute
+  AuthenticatedResidencePortailDemandesIndexRoute: typeof AuthenticatedResidencePortailDemandesIndexRoute
   AuthenticatedResidencePortailEcheancesIndexRoute: typeof AuthenticatedResidencePortailEcheancesIndexRoute
   AuthenticatedResidencePortailEtatDesLieuxIndexRoute: typeof AuthenticatedResidencePortailEtatDesLieuxIndexRoute
+  AuthenticatedResidencePortailFacturesIndexRoute: typeof AuthenticatedResidencePortailFacturesIndexRoute
   AuthenticatedResidencePortailPaiementsIndexRoute: typeof AuthenticatedResidencePortailPaiementsIndexRoute
+  AuthenticatedResidencePortailPanierIndexRoute: typeof AuthenticatedResidencePortailPanierIndexRoute
   AuthenticatedResidencePortailPressingIndexRoute: typeof AuthenticatedResidencePortailPressingIndexRoute
   AuthenticatedResidencePortailRestaurantIndexRoute: typeof AuthenticatedResidencePortailRestaurantIndexRoute
   AuthenticatedResidencePortailSalleFeteIndexRoute: typeof AuthenticatedResidencePortailSalleFeteIndexRoute
@@ -2547,12 +2630,18 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
     AuthenticatedResidencePortailCautionIndexRoute,
   AuthenticatedResidencePortailCompteIndexRoute:
     AuthenticatedResidencePortailCompteIndexRoute,
+  AuthenticatedResidencePortailDemandesIndexRoute:
+    AuthenticatedResidencePortailDemandesIndexRoute,
   AuthenticatedResidencePortailEcheancesIndexRoute:
     AuthenticatedResidencePortailEcheancesIndexRoute,
   AuthenticatedResidencePortailEtatDesLieuxIndexRoute:
     AuthenticatedResidencePortailEtatDesLieuxIndexRoute,
+  AuthenticatedResidencePortailFacturesIndexRoute:
+    AuthenticatedResidencePortailFacturesIndexRoute,
   AuthenticatedResidencePortailPaiementsIndexRoute:
     AuthenticatedResidencePortailPaiementsIndexRoute,
+  AuthenticatedResidencePortailPanierIndexRoute:
+    AuthenticatedResidencePortailPanierIndexRoute,
   AuthenticatedResidencePortailPressingIndexRoute:
     AuthenticatedResidencePortailPressingIndexRoute,
   AuthenticatedResidencePortailRestaurantIndexRoute:
@@ -2574,6 +2663,7 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
 )
 
 interface EspaceClientRouteChildren {
+  EspaceClientEspaceClientFacturesRoute: typeof EspaceClientEspaceClientFacturesRoute
   EspaceClientEspaceClientMesDemandesRoute: typeof EspaceClientEspaceClientMesDemandesRoute
   EspaceClientEspaceClientMonCompteRoute: typeof EspaceClientEspaceClientMonCompteRoute
   EspaceClientEspaceClientPanierRoute: typeof EspaceClientEspaceClientPanierRoute
@@ -2595,6 +2685,7 @@ interface EspaceClientRouteChildren {
 }
 
 const EspaceClientRouteChildren: EspaceClientRouteChildren = {
+  EspaceClientEspaceClientFacturesRoute: EspaceClientEspaceClientFacturesRoute,
   EspaceClientEspaceClientMesDemandesRoute:
     EspaceClientEspaceClientMesDemandesRoute,
   EspaceClientEspaceClientMonCompteRoute:
