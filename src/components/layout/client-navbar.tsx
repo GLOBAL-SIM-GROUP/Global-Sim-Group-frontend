@@ -2,11 +2,14 @@ import { Link } from "@tanstack/react-router";
 import {
 	BedDouble,
 	ClipboardList,
+	ConciergeBell,
 	Flag,
 	Home,
+	ListChecks,
 	type LucideIcon,
 	Menu,
 	PartyPopper,
+	ReceiptText,
 	Shirt,
 	ShoppingBag,
 	ShoppingCart,
@@ -19,10 +22,11 @@ import { useState } from "react";
 
 import { Button } from "#/components/ui/button";
 import { useCurrentUser } from "#/core/auth";
-import { useNombreArticlesPaniers } from "#/features/espace-client/hooks/use-panier-articles";
+import { useNombreArticlesPaniers } from "#/features/portail/hooks/use-panier-articles";
 import { cn } from "#/lib/utils";
 
 import { NotificationBell } from "./notification-bell";
+import { PanierBadgeButton } from "./panier-badge-button";
 import { UserMenu } from "./user-menu";
 
 /**
@@ -39,62 +43,119 @@ interface ServiceNavItem {
 	/** `true` → actif uniquement sur le chemin exact (accueil : `/espace-client`
 	 *  préfixe toutes les sous-pages et resterait actif partout sinon). */
 	exact?: boolean;
+	/** `true` → affiché uniquement dans la sidebar desktop (le mobile y accède
+	 *  via la tab bar ou la navbar — ex. le Panier). */
+	sidebarOnly?: boolean;
 }
+
+/** Navigation de l'espace client regroupée par domaine — même mécanique
+ *  d'accordéon que `RESIDENT_NAV` dans `sidebar.tsx` : « Services » réunit
+ *  les prestations réservables, « Mon suivi » les demandes, documents et
+ *  signalements. `code: null` = entrée plane hors accordéon (Accueil). */
+export const SERVICES_GROUPES: readonly {
+	code: string | null;
+	label: string;
+	icon: LucideIcon;
+	items: readonly ServiceNavItem[];
+}[] = [
+	{
+		code: null,
+		label: "",
+		icon: Home,
+		items: [
+			{
+				id: "accueil",
+				label: "Accueil",
+				icon: Home,
+				to: "/espace-client",
+				exact: true,
+			},
+		],
+	},
+	{
+		code: "SERVICES",
+		label: "Services",
+		icon: ConciergeBell,
+		items: [
+			{
+				id: "restaurant",
+				label: "Restaurant",
+				icon: UtensilsCrossed,
+				to: "/espace-client/restaurant",
+			},
+			{
+				id: "boutique",
+				label: "Boutique",
+				icon: ShoppingBag,
+				to: "/espace-client/boutique",
+			},
+			{
+				id: "pressing",
+				label: "Pressing",
+				icon: Shirt,
+				to: "/espace-client/pressing",
+			},
+			{
+				id: "salle-fete",
+				label: "Salle de fête",
+				icon: PartyPopper,
+				to: "/espace-client/salle-fete",
+			},
+			{
+				id: "residence",
+				label: "Résidence",
+				icon: BedDouble,
+				to: "/espace-client/residence",
+			},
+			{
+				id: "abonnements",
+				label: "Abonnements",
+				icon: Tickets,
+				to: "/espace-client/abonnements",
+			},
+		],
+	},
+	{
+		code: "SUIVI",
+		label: "Mon suivi",
+		icon: ListChecks,
+		items: [
+			{
+				id: "mes-demandes",
+				label: "Mes demandes",
+				icon: ClipboardList,
+				to: "/espace-client/mes-demandes",
+			},
+			{
+				id: "panier",
+				label: "Panier",
+				icon: ShoppingCart,
+				to: "/espace-client/panier",
+				sidebarOnly: true,
+			},
+			{
+				id: "factures",
+				label: "Mes factures",
+				icon: ReceiptText,
+				to: "/espace-client/factures",
+			},
+			{
+				id: "signalement",
+				label: "Signaler un problème",
+				icon: Flag,
+				to: "/espace-client/signalement",
+			},
+		],
+	},
+];
 
 /** Entrées de navigation de l'espace client — source unique partagée par
  *  `ClientSidebar` (desktop), le menu hamburger (tablette) et
- *  `MobileTabBar` (téléphone). */
-export const SERVICES: readonly ServiceNavItem[] = [
-	{
-		id: "accueil",
-		label: "Accueil",
-		icon: Home,
-		to: "/espace-client",
-		exact: true,
-	},
-	{
-		id: "restaurant",
-		label: "Restaurant",
-		icon: UtensilsCrossed,
-		to: "/espace-client/restaurant",
-	},
-	{
-		id: "boutique",
-		label: "Boutique",
-		icon: ShoppingBag,
-		to: "/espace-client/boutique",
-	},
-	{
-		id: "pressing",
-		label: "Pressing",
-		icon: Shirt,
-		to: "/espace-client/pressing",
-	},
-	{
-		id: "salle-fete",
-		label: "Salle de fête",
-		icon: PartyPopper,
-		to: "/espace-client/salle-fete",
-	},
-	{
-		id: "residence",
-		label: "Résidence",
-		icon: BedDouble,
-		to: "/espace-client/residence",
-	},
-	{
-		id: "abonnements",
-		label: "Abonnements",
-		icon: Tickets,
-		to: "/espace-client/abonnements",
-	},
-	{
-		id: "mes-demandes",
-		label: "Mes demandes",
-		icon: ClipboardList,
-		to: "/espace-client/mes-demandes",
-	},
-];
+ *  `MobileTabBar` (téléphone). Liste plane dérivée de `SERVICES_GROUPES` :
+ *  le menu hamburger reste non groupé et exclut les entrées `sidebarOnly`. */
+export const SERVICES: readonly ServiceNavItem[] = SERVICES_GROUPES.flatMap(
+	(groupe) => groupe.items,
+).filter((item) => !item.sidebarOnly);
 
 /** Initiales de l'utilisateur pour l'avatar (même logique que `sidebar.tsx`,
     dupliquée ici plutôt que partagée — trop petit pour justifier un utilitaire
@@ -165,40 +226,6 @@ function ServiceButtons({
 	);
 }
 
-/**
- * Icône panier façon `NotificationBell` : bouton-icône avec badge du nombre
- * total d'articles (restaurant + boutique), visible à toutes les tailles
- * d'écran — le libellé texte ne passe que par `aria-label`.
- */
-function PanierButton() {
-	const nombre = useNombreArticlesPaniers();
-	return (
-		<Button
-			asChild
-			variant="ghost"
-			size="icon"
-			className="relative hover:bg-transparent"
-			title="Panier"
-		>
-			<Link
-				to="/espace-client/panier"
-				aria-label={nombre > 0 ? `Panier, ${nombre} article(s)` : "Panier"}
-				activeProps={{ className: "text-lagoon" }}
-			>
-				<ShoppingCart aria-hidden />
-				{nombre > 0 ? (
-					<span
-						aria-hidden
-						className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-lagoon px-0.5 text-[0.6rem] font-semibold text-white"
-					>
-						{nombre > 99 ? "99+" : nombre}
-					</span>
-				) : null}
-			</Link>
-		</Button>
-	);
-}
-
 /** Menu compte partagé entre la navbar mobile (`navbar`) et la sidebar
  *  desktop (`sidebar` — fond sombre `sea-ink`). */
 export function AccountMenu({ variant }: { variant: "navbar" | "sidebar" }) {
@@ -212,11 +239,6 @@ export function AccountMenu({ variant }: { variant: "navbar" | "sidebar" }) {
 					label: "Mon compte",
 					to: "/espace-client/mon-compte",
 					icon: <UserRound className="size-4" aria-hidden />,
-				},
-				{
-					label: "Signaler un problème",
-					to: "/espace-client/signalement",
-					icon: <Flag className="size-4" aria-hidden />,
 				},
 			]}
 			avatar={
@@ -328,7 +350,7 @@ export function ClientNavbar() {
 
 	return (
 		<header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur lg:hidden">
-			<div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6">
+			<div className="flex h-16 w-full items-center justify-between gap-4 px-6">
 				<Link to="/" className="flex shrink-0 items-center gap-2">
 					<img
 						src="/logo.png"
@@ -342,7 +364,10 @@ export function ClientNavbar() {
 
 				<div className="flex shrink-0 items-center gap-2">
 					<NotificationBell />
-					<PanierButton />
+					<PanierBadgeButton
+						to="/espace-client/panier"
+						className="hover:bg-transparent"
+					/>
 					<div className="hidden md:flex">
 						<AccountMenu variant="navbar" />
 					</div>
@@ -369,7 +394,7 @@ export function ClientNavbar() {
 					mobileOpen ? "block" : "hidden",
 				)}
 			>
-				<div className="space-y-4 px-4 py-4">
+				<div className="space-y-4 px-6 py-4">
 					<ServiceButtons
 						className="flex flex-col items-stretch gap-1"
 						onNavigate={() => setMobileOpen(false)}

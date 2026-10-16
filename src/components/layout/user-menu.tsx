@@ -42,10 +42,10 @@ export function UserMenu({
 				<button
 					type="button"
 					className={cn(
-						"flex items-center gap-3 rounded-lg px-3 py-2 transition-colors",
+						"flex items-center gap-3 rounded-lg px-3 transition-colors",
 						variant === "sidebar"
-							? "w-full hover:bg-lagoon/20"
-							: "w-auto hover:bg-accent",
+							? "w-full min-w-0 pt-2 pb-1 hover:bg-lagoon/20"
+							: "w-auto py-2 hover:bg-accent",
 					)}
 					aria-label="Menu utilisateur"
 				>

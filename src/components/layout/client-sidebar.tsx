@@ -1,16 +1,19 @@
-import { Link } from "@tanstack/react-router";
-import { ShoppingCart } from "lucide-react";
+import { Link, useLocation } from "@tanstack/react-router";
+import { useState } from "react";
 
-import { useNombreArticlesPaniers } from "#/features/espace-client/hooks/use-panier-articles";
+import { useNombreArticlesPaniers } from "#/features/portail/hooks/use-panier-articles";
 
-import { AccountMenu, SERVICES } from "./client-navbar";
-import { NotificationBell } from "./notification-bell";
+import { AccountMenu, SERVICES_GROUPES } from "./client-navbar";
+import { groupeDeLaRoute, NavGroupes } from "./nav-groupes";
 
 /**
  * Sidebar de l'espace client (desktop `lg+`, comptes rôle CLIENT) : même
  * gabarit sombre que la sidebar staff (`bg-sea-ink` figé, actif en
- * `bg-lagoon/15` + barre gauche), entrées = les mêmes `SERVICES` que le
- * menu mobile — une seule source de vérité.
+ * `bg-lagoon/15` + barre gauche) et même mécanique d'accordéon que les
+ * modules staff / groupes résidents (header + chevron + sous-liste
+ * `border-l`, un seul groupe ouvert via `openGroupe`, celui de la route
+ * courante ouvert au montage). Entrées = `SERVICES_GROUPES`, la même source
+ * que le menu mobile — une seule source de vérité.
  *
  * En dessous de `lg`, `ClientNavbar` (header slim + hamburger) et
  * `MobileTabBar` (téléphone) prennent le relais — trois présentations de la
@@ -18,11 +21,14 @@ import { NotificationBell } from "./notification-bell";
  */
 export function ClientSidebar() {
 	const nombreArticles = useNombreArticlesPaniers();
+	const { pathname } = useLocation();
 
-	const linkClassName =
-		"flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-gray-400 transition-all duration-200 hover:bg-sea-ink/50 hover:text-white";
-	const linkActiveClassName =
-		"bg-lagoon/15 text-lagoon before:absolute before:left-0 before:top-0 before:bottom-0 before:w-1 before:bg-lagoon before:rounded-r relative";
+	// Groupe accordéon contenant la route courante (ex. `/espace-client/panier`
+	// → « Mon suivi ») — ouvert au montage, comme les modules staff.
+	const [ouverts, setOuverts] = useState<string[]>(() => {
+		const groupe = groupeDeLaRoute(SERVICES_GROUPES, pathname);
+		return groupe ? [groupe] : [];
+	});
 
 	return (
 		<aside className="sticky top-0 hidden h-dvh w-60 shrink-0 flex-col border-r border-palm bg-sea-ink px-3 py-4 lg:flex">
@@ -45,42 +51,26 @@ export function ClientSidebar() {
 				className="mt-6 min-h-0 flex-1 overflow-y-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
 			>
 				<ul className="space-y-1">
-					{SERVICES.map((service) => (
-						<li key={service.id}>
-							<Link
-								to={service.to as never}
-								activeOptions={{ exact: service.exact }}
-								activeProps={{ className: linkActiveClassName }}
-								className={linkClassName}
-							>
-								<service.icon className="size-4" aria-hidden />
-								{service.label}
-							</Link>
-						</li>
-					))}
-					<li>
-						<Link
-							to="/espace-client/panier"
-							activeProps={{ className: linkActiveClassName }}
-							className={linkClassName}
-						>
-							<ShoppingCart className="size-4" aria-hidden />
-							Panier
-							{nombreArticles > 0 ? (
-								<span
-									aria-hidden
-									className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-lagoon px-1 text-[0.65rem] font-semibold text-white"
-								>
-									{nombreArticles > 99 ? "99+" : nombreArticles}
-								</span>
-							) : null}
-						</Link>
-					</li>
+					<NavGroupes
+						groupes={SERVICES_GROUPES}
+						ouverts={ouverts}
+						onToggle={(code) =>
+							setOuverts((current) =>
+								current.includes(code)
+									? current.filter((c) => c !== code)
+									: [...current, code],
+							)
+						}
+						badgeCompteur={(item) =>
+							item.to === "/espace-client/panier" ? nombreArticles : undefined
+						}
+					/>
 				</ul>
 			</nav>
 
-			<div className="mt-4 flex shrink-0 items-center justify-between gap-2 border-t border-palm pt-3">
-				<NotificationBell className="text-gray-400 hover:bg-sea-ink/50 hover:text-white" />
+			{/* La cloche de notifications vit dans le topbar sticky desktop
+			    (même disposition que l'en-tête résident/staff d'AppShell). */}
+			<div className="mt-4 flex shrink-0 items-center justify-end gap-2 border-t border-palm pt-3">
 				<AccountMenu variant="sidebar" />
 			</div>
 		</aside>

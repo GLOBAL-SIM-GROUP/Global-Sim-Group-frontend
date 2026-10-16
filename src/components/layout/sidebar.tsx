@@ -3,17 +3,25 @@ import {
 	AlertCircle,
 	BarChart2,
 	BarChart3,
+	BedDouble,
+	Building2,
 	CalendarDays,
 	Camera,
 	ChevronDown,
+	ClipboardList,
+	ConciergeBell,
 	CreditCard,
 	Flag,
 	Home,
 	LayoutGrid,
+	ListChecks,
 	PartyPopper,
+	ReceiptText,
 	ShieldCheck,
 	Shirt,
 	ShoppingBag,
+	ShoppingCart,
+	Tickets,
 	UserRound,
 	UtensilsCrossed,
 } from "lucide-react";
@@ -25,6 +33,7 @@ import {
 	getAccessibleModules,
 } from "#/core/permissions/modules";
 import { useReliquatsADeciderCount } from "#/features/abonnement/hooks/use-souscriptions";
+import { useNombreArticlesPaniers } from "#/features/portail/hooks/use-panier-articles";
 import { usePortailResume } from "#/features/portail/hooks/use-portail";
 import { useCommandesEnAttenteCount as usePressingEnAttenteCount } from "#/features/pressing/hooks/use-commandes";
 import { useSejoursEnAttenteCount } from "#/features/residence/hooks/use-sejours";
@@ -33,6 +42,7 @@ import { useCommandesEnAttenteCount as useRestaurantEnAttenteCount } from "#/fea
 import { useReservationsEnAttenteCount } from "#/features/salle-fete/hooks/use-reservations";
 import { cn } from "#/lib/utils";
 
+import { groupeDeLaRoute, type NavGroupe, NavGroupes } from "./nav-groupes";
 import { UserMenu } from "./user-menu";
 
 /** Initiales de l'utilisateur pour l'avatar (2 premiers segments du login,
@@ -135,6 +145,131 @@ const ROUTES_REALLES: Record<
 };
 
 /**
+ * Entrées du portail résident — même mécanique d'accordéon que les modules
+ * staff (header + chevron + sous-liste `border-l`, un seul menu ouvert via
+ * `openModule`), regroupées par domaine : « Ma résidence » réunit le
+ * locatif (`RESIDENT.VOIR`) et les séjours courts — mêmes éléments que la
+ * section du même nom de `portail-page` ; « Services » les prestations
+ * réservables ; « Mon suivi » le suivi des demandes, documents et
+ * signalements. `code: null` = entrée plane hors accordéon (« Mon espace
+ * résident »). `exact: false` sur les sections qui ont des routes détail
+ * (`$id`) pour garder le lien actif sur une fiche.
+ */
+const RESIDENT_NAV: readonly NavGroupe[] = [
+	{
+		code: null,
+		label: "",
+		icon: Home,
+		items: [
+			{
+				to: "/residence/portail",
+				label: "Mon espace résident",
+				icon: Home,
+				exact: true,
+			},
+		],
+	},
+	{
+		code: "PORTAIL_RESIDENCE",
+		label: "Ma résidence",
+		icon: Building2,
+		items: [
+			{
+				to: "/residence/portail/echeances",
+				label: "Mes échéances",
+				icon: CalendarDays,
+				exact: true,
+			},
+			{
+				to: "/residence/portail/paiements",
+				label: "Mon historique",
+				icon: CreditCard,
+				exact: true,
+			},
+			{
+				to: "/residence/portail/caution",
+				label: "Ma caution",
+				icon: ShieldCheck,
+				exact: true,
+			},
+			{
+				to: "/residence/portail/etat-des-lieux",
+				label: "Mes états des lieux",
+				icon: Camera,
+				exact: true,
+			},
+			{
+				to: "/residence/portail/sejours",
+				label: "Séjours courts",
+				icon: BedDouble,
+			},
+		],
+	},
+	{
+		code: "PORTAIL_SERVICES",
+		label: "Services",
+		icon: ConciergeBell,
+		items: [
+			{
+				to: "/residence/portail/restaurant",
+				label: "Restaurant",
+				icon: UtensilsCrossed,
+			},
+			{
+				to: "/residence/portail/boutique",
+				label: "Boutique",
+				icon: ShoppingBag,
+			},
+			{
+				to: "/residence/portail/pressing",
+				label: "Suivi Pressing",
+				icon: Shirt,
+			},
+			{
+				to: "/residence/portail/salle-fete",
+				label: "Salle de fête",
+				icon: PartyPopper,
+			},
+			{
+				to: "/residence/portail/abonnements",
+				label: "Mes abonnements",
+				icon: Tickets,
+			},
+		],
+	},
+	{
+		code: "PORTAIL_SUIVI",
+		label: "Mon suivi",
+		icon: ListChecks,
+		items: [
+			{
+				to: "/residence/portail/demandes",
+				label: "Mes demandes",
+				icon: ClipboardList,
+				exact: true,
+			},
+			{
+				to: "/residence/portail/panier",
+				label: "Panier",
+				icon: ShoppingCart,
+				exact: true,
+			},
+			{
+				to: "/residence/portail/factures",
+				label: "Mes factures",
+				icon: ReceiptText,
+				exact: true,
+			},
+			{
+				to: "/residence/portail/signalements",
+				label: "Mes signalements",
+				icon: Flag,
+			},
+		],
+	},
+];
+
+/**
  * Menu latéral des écrans authentifiés (desktop) : marque + Accueil, puis un
  * accordéon par module accessible (un seul ouvert à la fois), footer
  * utilisateur + déconnexion.
@@ -168,16 +303,29 @@ export function Sidebar({ onClose }: { onClose?: () => void } = {}) {
 		useSejoursEnAttenteCount(canVoirResidence).data;
 	const portailResumeQuery = usePortailResume(estResident);
 	const totalImpayes = portailResumeQuery.data?.total_impayes;
+	// Panier localStorage — lecture locale seule, sûr pour tout compte ; la
+	// pastille n'est rendue que sur l'entrée « Panier » du bloc résident.
+	const nombreArticlesPanier = useNombreArticlesPaniers();
 	const accessibleModules = getAccessibleModules(permissions);
+	// `/home` ne présente à un résident « pur » qu'une tuile réduite de « Mon
+	// espace résident » — doublon du portail complet, qui est déjà la
+	// première entrée de `RESIDENT_NAV`. Le lien « Accueil » reste affiché
+	// pour les comptes hybrides (modules métier ou RAPPORTS.VOIR) : `/home`
+	// leur liste encore des pages hors portail.
+	const afficherAccueil =
+		!estResident || canVoirRapports || accessibleModules.length > 0;
 	const { pathname, search } = useLocation();
 	const activeModule = (search as { module?: string } | undefined)?.module;
 
-	// Un seul module ouvert à la fois ; le module actif de l'URL est ouvert par
+	// Un seul menu ouvert à la fois ; le menu actif de l'URL est ouvert par
 	// défaut (auto-ouverture du parent quand on arrive sur un sous-menu). Les
 	// routes métier construites (ex. /residence/*) ouvrent leur module.
 	const moduleDeLaRoute = (chemin: string): string | null => {
 		if (chemin.startsWith("/dashboard")) return null; // Pas de module, lien top-level
 		if (chemin.startsWith("/signalements")) return null; // Pas de module, lien top-level
+		// `/residence/portail/*` appartient aux groupes accordéon du portail
+		// résident, pas au module métier RESIDENCE (comptes hybrides).
+		if (chemin.startsWith("/residence/portail")) return null;
 		if (chemin.startsWith("/residence")) return "RESIDENCE";
 		if (chemin.startsWith("/marchandise")) return "MARCHANDISE";
 		if (chemin.startsWith("/pressing")) return "PRESSING";
@@ -190,12 +338,32 @@ export function Sidebar({ onClose }: { onClose?: () => void } = {}) {
 		if (chemin.startsWith("/abonnements")) return "ABONNEMENT";
 		return null;
 	};
+	// Groupe accordéon du portail résident contenant la route courante
+	// (ex. `/residence/portail/caution` → « Ma résidence »).
+	const groupePortailDeLaRoute = (chemin: string): string | null =>
+		groupeDeLaRoute(RESIDENT_NAV, chemin);
+
 	const [openModule, setOpenModule] = useState<string | null>(
 		activeModule ?? moduleDeLaRoute(pathname),
 	);
 
 	const toggleModule = (code: string) =>
 		setOpenModule((current) => (current === code ? null : code));
+
+	// Les groupes du portail résident (NavGroupes) peuvent être déroulés
+	// plusieurs à la fois — état séparé de `openModule` (modules staff, qui
+	// restent un seul ouvert à la fois).
+	const [ouvertsPortail, setOuvertsPortail] = useState<string[]>(() => {
+		const groupe = groupePortailDeLaRoute(pathname);
+		return groupe ? [groupe] : [];
+	});
+
+	const toggleGroupePortail = (code: string) =>
+		setOuvertsPortail((current) =>
+			current.includes(code)
+				? current.filter((c) => c !== code)
+				: [...current, code],
+		);
 
 	const linkClassName =
 		"flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-gray-400 transition-all duration-200 hover:bg-sea-ink/50 hover:text-white";
@@ -234,193 +402,51 @@ export function Sidebar({ onClose }: { onClose?: () => void } = {}) {
 				className="mt-6 min-h-0 flex-1 overflow-y-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
 			>
 				<ul className="space-y-1">
-					<li>
-						<Link
-							to="/home"
-							activeOptions={{ exact: true }}
-							activeProps={{ className: linkActiveClassName }}
-							className={linkClassName}
-							onClick={() => onClose?.()}
-						>
-							<LayoutGrid
-								className="size-4 text-gray-400 transition-colors"
-								aria-hidden
-							/>
-							Accueil
-						</Link>
-					</li>
-
-					{estResident ? (
+					{afficherAccueil ? (
 						<li>
 							<Link
-								to="/residence/portail"
+								to="/home"
 								activeOptions={{ exact: true }}
 								activeProps={{ className: linkActiveClassName }}
 								className={linkClassName}
 								onClick={() => onClose?.()}
 							>
-								<Home
+								<LayoutGrid
 									className="size-4 text-gray-400 transition-colors"
 									aria-hidden
 								/>
-								Mon espace résident
+								Accueil
 							</Link>
+						</li>
+					) : null}
 
-							<ul className="ml-5 mt-1 space-y-1 border-l border-palm pl-2">
-								<li>
-									<Link
-										to="/residence/portail/echeances"
-										activeOptions={{ exact: true }}
-										activeProps={{ className: subActiveClassName }}
-										className={subLinkClassName}
-										onClick={() => onClose?.()}
-									>
-										<span className="inline-flex items-center gap-2">
-											<CalendarDays className="size-3.5" aria-hidden />
-											Mes échéances
-										</span>
-									</Link>
-								</li>
-								<li>
-									<Link
-										to="/residence/portail/paiements"
-										activeOptions={{ exact: true }}
-										activeProps={{ className: subActiveClassName }}
-										className={subLinkClassName}
-										onClick={() => onClose?.()}
-									>
-										<span className="inline-flex items-center gap-2">
-											<CreditCard className="size-3.5" aria-hidden />
-											Mon historique
-										</span>
-									</Link>
-								</li>
-								<li>
-									<Link
-										to="/residence/portail/caution"
-										activeOptions={{ exact: true }}
-										activeProps={{ className: subActiveClassName }}
-										className={subLinkClassName}
-										onClick={() => onClose?.()}
-									>
-										<span className="inline-flex items-center gap-2">
-											<ShieldCheck className="size-3.5" aria-hidden />
-											Ma caution
-										</span>
-									</Link>
-								</li>
-								<li>
-									{/* `exact: false` garde le lien actif sur le détail d'une commande. */}
-									<Link
-										to="/residence/portail/pressing"
-										activeOptions={{ exact: false }}
-										activeProps={{ className: subActiveClassName }}
-										className={subLinkClassName}
-										onClick={() => onClose?.()}
-									>
-										<span className="inline-flex items-center gap-2">
-											<Shirt className="size-3.5" aria-hidden />
-											Suivi Pressing
-										</span>
-									</Link>
-								</li>
-								<li>
-									<Link
-										to="/residence/portail/restaurant"
-										activeOptions={{ exact: false }}
-										activeProps={{ className: subActiveClassName }}
-										className={subLinkClassName}
-										onClick={() => onClose?.()}
-									>
-										<span className="inline-flex items-center gap-2">
-											<UtensilsCrossed className="size-3.5" aria-hidden />
-											Restaurant
-										</span>
-									</Link>
-								</li>
-								<li>
-									<Link
-										to="/residence/portail/salle-fete"
-										activeOptions={{ exact: false }}
-										activeProps={{ className: subActiveClassName }}
-										className={subLinkClassName}
-										onClick={() => onClose?.()}
-									>
-										<span className="inline-flex items-center gap-2">
-											<PartyPopper className="size-3.5" aria-hidden />
-											Salle de fête
-										</span>
-									</Link>
-								</li>
-								<li>
-									<Link
-										to="/residence/portail/boutique"
-										activeOptions={{ exact: false }}
-										activeProps={{ className: subActiveClassName }}
-										className={subLinkClassName}
-										onClick={() => onClose?.()}
-									>
-										<span className="inline-flex items-center gap-2">
-											<ShoppingBag className="size-3.5" aria-hidden />
-											Boutique
-										</span>
-									</Link>
-								</li>
-								<li>
-									<Link
-										to="/residence/portail/etat-des-lieux"
-										activeOptions={{ exact: true }}
-										activeProps={{ className: subActiveClassName }}
-										className={subLinkClassName}
-										onClick={() => onClose?.()}
-									>
-										<span className="inline-flex items-center gap-2">
-											<Camera className="size-3.5" aria-hidden />
-											Mes états des lieux
-										</span>
-									</Link>
-								</li>
-								<li>
-									<Link
-										to="/residence/portail/signalements"
-										activeOptions={{ exact: false }}
-										activeProps={{ className: subActiveClassName }}
-										className={subLinkClassName}
-										onClick={() => onClose?.()}
-									>
-										<span className="inline-flex items-center gap-2">
-											<Flag className="size-3.5" aria-hidden />
-											Mes signalements
-										</span>
-									</Link>
-								</li>
-								<li>
-									<Link
-										to="/residence/portail/compte"
-										activeOptions={{ exact: true }}
-										activeProps={{ className: subActiveClassName }}
-										className={subLinkClassName}
-										onClick={() => onClose?.()}
-									>
-										<span className="inline-flex items-center gap-2">
-											<UserRound className="size-3.5" aria-hidden />
-											Mon compte
-										</span>
-									</Link>
-								</li>
-							</ul>
+					{estResident ? (
+						<>
+							<NavGroupes
+								groupes={RESIDENT_NAV}
+								ouverts={ouvertsPortail}
+								onToggle={toggleGroupePortail}
+								badgeCompteur={(item) =>
+									item.to === "/residence/portail/panier"
+										? nombreArticlesPanier
+										: undefined
+								}
+								onNavigate={onClose}
+							/>
 
 							{totalImpayes !== undefined ? (
-								<div className="mx-1 mt-2 rounded-lg bg-sea-ink/70 px-3 py-2">
-									<p className="text-[0.65rem] font-medium uppercase tracking-wide text-gray-400">
-										Total impayés
-									</p>
-									<p className="text-sm font-semibold text-destructive">
-										{formatMontantFCFA(totalImpayes)}
-									</p>
-								</div>
+								<li>
+									<div className="mx-1 mt-2 rounded-lg bg-sea-ink/70 px-3 py-2">
+										<p className="text-[0.65rem] font-medium uppercase tracking-wide text-gray-400">
+											Total impayés
+										</p>
+										<p className="text-sm font-semibold text-destructive">
+											{formatMontantFCFA(totalImpayes)}
+										</p>
+									</div>
+								</li>
 							) : null}
-						</li>
+						</>
 					) : null}
 
 					{canVoirRapports ? (
@@ -441,7 +467,12 @@ export function Sidebar({ onClose }: { onClose?: () => void } = {}) {
 						</li>
 					) : null}
 
-					{canVoirSignalements ? (
+					{/* Résidents exclus : ils ont `SIGNALEMENT.VOIR` comme
+					    déclarants, mais la page staff `/signalements` (filtres
+					    module/statut, actions de traitement réservées à
+					    `SIGNALEMENT.MODIFIER`) leur montre les mêmes éléments que
+					    « Mes signalements » du bloc portail — doublon. */}
+					{canVoirSignalements && !estResident ? (
 						<li>
 							<Link
 								to="/signalements"
@@ -588,8 +619,22 @@ export function Sidebar({ onClose }: { onClose?: () => void } = {}) {
 
 			{/* Footer utilisateur épinglé en bas — hors de la zone scrollable. */}
 			{user ? (
-				<div className="shrink-0 border-t border-palm/40 bg-sea-ink/50 -mx-3 px-3 py-4 mt-4 rounded-lg">
+				<div className="shrink-0 border-t border-palm/40 bg-sea-ink/50 -mx-3 px-3 pt-4 mt-4 rounded-lg">
 					<UserMenu
+						/* « Mon compte » rejoint « Se déconnecter » dans le menu —
+						   même emplacement que dans l'espace client ; réservé au
+						   compte résident (`RESIDENT.VOIR` gate la route). */
+						items={
+							estResident
+								? [
+										{
+											label: "Mon compte",
+											to: "/residence/portail/compte",
+											icon: <UserRound className="size-4" aria-hidden />,
+										},
+									]
+								: undefined
+						}
 						avatar={
 							<div
 								aria-hidden
