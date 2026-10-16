@@ -1,10 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import {
-	type EcheanceSuivi,
-	filtrerEcheances,
-	paginerEcheances,
-} from "./echeances";
+import { type EcheanceSuivi, filtrerEcheances, paginer } from "./echeances";
 
 /** Fabrique une ligne de suivi minimale pour les tests. */
 function echeance(overrides: Partial<EcheanceSuivi> = {}): EcheanceSuivi {
@@ -101,11 +97,11 @@ describe("filtrerEcheances", () => {
 	});
 });
 
-describe("paginerEcheances", () => {
+describe("paginer", () => {
 	const pageSize = 2;
 
 	it("pagine sur la première page", () => {
-		const result = paginerEcheances(echeances, 1, pageSize);
+		const result = paginer(echeances, 1, pageSize);
 		expect(result.items.map((item) => item.mois)).toEqual([1, 2]);
 		expect(result.total).toBe(3);
 		expect(result.totalPages).toBe(2);
@@ -114,13 +110,13 @@ describe("paginerEcheances", () => {
 	});
 
 	it("borne la page au-delà du nombre total de pages", () => {
-		const result = paginerEcheances(echeances, 99, pageSize);
+		const result = paginer(echeances, 99, pageSize);
 		expect(result.page).toBe(2);
 		expect(result.items.map((item) => item.mois)).toEqual([3]);
 	});
 
 	it("gère une liste vide (start = 0)", () => {
-		const result = paginerEcheances([], 1, pageSize);
+		const result = paginer([], 1, pageSize);
 		expect(result.items).toEqual([]);
 		expect(result.total).toBe(0);
 		expect(result.start).toBe(0);

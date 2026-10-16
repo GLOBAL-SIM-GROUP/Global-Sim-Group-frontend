@@ -13,6 +13,7 @@ import {
 	Th,
 	Tr,
 } from "#/components/ui/table";
+import { paginer } from "#/features/residence/models/echeances";
 import {
 	formatDateInstantUTC,
 	formatDateISO,
@@ -27,13 +28,18 @@ import {
 } from "../models/portail";
 import { RecuDialog } from "./recu-dialog";
 
+/** Lignes par page — identique à la vue consolidée staff. */
+const TAILLE_PAGE = 10;
+
 /**
  * Page « Mes échéances de loyer » (M2.5.2) : tableau des échéances du résident
  * (payées, impayées, partielles, à venir) avec reçu téléchargeable.
+ * Pagination côté client : l'endpoint portail renvoie l'historique complet.
  */
 export function PortailEcheancesPage() {
 	const echeancesQuery = usePortailEcheances();
 	const [recuId, setRecuId] = useState<string | null>(null);
+	const [page, setPage] = useState(1);
 
 	if (echeancesQuery.isLoading) {
 		return (
@@ -68,6 +74,7 @@ export function PortailEcheancesPage() {
 	}
 
 	const { echeances, prochaine_echeance, total_impayes } = echeancesQuery.data;
+	const pagination = paginer(echeances, page, TAILLE_PAGE);
 
 	return (
 		<div className="w-full space-y-6 p-6">
@@ -133,7 +140,7 @@ export function PortailEcheancesPage() {
 						</tr>
 					</DataTableHead>
 					<tbody>
-						{echeances.map((echeance) => (
+						{pagination.items.map((echeance) => (
 							<Tr key={echeance.id}>
 								<Td className="font-medium text-foreground">
 									{libelleMoisAnnee(echeance.mois, echeance.annee)}
@@ -183,6 +190,38 @@ export function PortailEcheancesPage() {
 					</tbody>
 				</DataTable>
 			</TableShell>
+
+			{pagination.total > 0 ? (
+				<nav
+					aria-label="Pagination des échéances"
+					className="flex flex-wrap items-center justify-between gap-4"
+				>
+					<p className="text-sm text-muted-foreground">
+						Affichage de {pagination.start} à {pagination.end} sur{" "}
+						{pagination.total} échéances
+					</p>
+					<div className="flex items-center gap-2">
+						<Button
+							variant="outline"
+							size="sm"
+							className="rounded-full"
+							disabled={pagination.page <= 1}
+							onClick={() => setPage(pagination.page - 1)}
+						>
+							Précédent
+						</Button>
+						<Button
+							variant="outline"
+							size="sm"
+							className="rounded-full"
+							disabled={pagination.page >= pagination.totalPages}
+							onClick={() => setPage(pagination.page + 1)}
+						>
+							Suivant
+						</Button>
+					</div>
+				</nav>
+			) : null}
 
 			<RecuDialog
 				open={recuId !== null}

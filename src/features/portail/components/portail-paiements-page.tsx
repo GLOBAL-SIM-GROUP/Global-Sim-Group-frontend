@@ -22,6 +22,7 @@ import {
 	Th,
 	Tr,
 } from "#/components/ui/table";
+import { paginer } from "#/features/residence/models/echeances";
 import {
 	formatDateHeureISO,
 	formatMontantFCFA,
@@ -35,11 +36,12 @@ import {
 } from "../models/portail";
 import { RecuDialog } from "./recu-dialog";
 
-/** Filtres reflétés dans l'URL. */
+/** Filtres et page reflétés dans l'URL. */
 export interface PortailPaiementsSearch {
 	du?: string;
 	au?: string;
 	type?: string;
+	page?: number;
 }
 
 interface PortailPaiementsPageProps {
@@ -48,6 +50,9 @@ interface PortailPaiementsPageProps {
 		maj: (prev: PortailPaiementsSearch) => PortailPaiementsSearch,
 	) => void;
 }
+
+/** Lignes par page — identique aux autres listes paginées. */
+const TAILLE_PAGE = 10;
 
 function BadgeType({ type }: { type: string }) {
 	const libelle = PAIEMENT_TYPE_LABELS[type] ?? type;
@@ -59,6 +64,7 @@ function BadgeType({ type }: { type: string }) {
 /**
  * Page « Mon historique de paiements » (M2.5.3) : paiements du résident
  * (loyers, charges, autres), filtrables par période et type, avec reçu.
+ * Pagination côté client : l'endpoint portail renvoie l'historique complet.
  */
 export function PortailPaiementsPage({
 	initialSearch,
@@ -68,6 +74,7 @@ export function PortailPaiementsPage({
 	const [du, setDu] = useState(initialSearch.du ?? "");
 	const [au, setAu] = useState(initialSearch.au ?? "");
 	const [type, setType] = useState(initialSearch.type ?? "tous");
+	const [page, setPage] = useState(initialSearch.page ?? 1);
 	const [recuId, setRecuId] = useState<string | null>(null);
 
 	const changerFiltre = (patch: {
@@ -78,7 +85,13 @@ export function PortailPaiementsPage({
 		setDu(patch.du ?? du);
 		setAu(patch.au ?? au);
 		setType(patch.type ?? type);
-		onSearchChange((prev) => ({ ...prev, ...patch }));
+		setPage(1);
+		onSearchChange((prev) => ({ ...prev, ...patch, page: 1 }));
+	};
+
+	const allerPage = (pageSuivante: number) => {
+		setPage(pageSuivante);
+		onSearchChange((prev) => ({ ...prev, page: pageSuivante }));
 	};
 
 	if (paiementsQuery.isLoading) {
@@ -118,6 +131,7 @@ export function PortailPaiementsPage({
 		au,
 		type,
 	});
+	const pagination = paginer(paiements, page, TAILLE_PAGE);
 
 	return (
 		<div className="w-full space-y-6 p-6">
@@ -187,7 +201,7 @@ export function PortailPaiementsPage({
 							</tr>
 						</DataTableHead>
 						<tbody>
-							{paiements.map((paiement) => (
+							{pagination.items.map((paiement) => (
 								<Tr key={paiement.id}>
 									<Td className="text-muted-foreground">
 										{formatDateHeureISO(paiement.date)}
@@ -221,6 +235,38 @@ export function PortailPaiementsPage({
 					</DataTable>
 				</TableShell>
 			)}
+
+			{pagination.total > 0 ? (
+				<nav
+					aria-label="Pagination des paiements"
+					className="flex flex-wrap items-center justify-between gap-4"
+				>
+					<p className="text-sm text-muted-foreground">
+						Affichage de {pagination.start} à {pagination.end} sur{" "}
+						{pagination.total} paiements
+					</p>
+					<div className="flex items-center gap-2">
+						<Button
+							variant="outline"
+							size="sm"
+							className="rounded-full"
+							disabled={pagination.page <= 1}
+							onClick={() => allerPage(pagination.page - 1)}
+						>
+							Précédent
+						</Button>
+						<Button
+							variant="outline"
+							size="sm"
+							className="rounded-full"
+							disabled={pagination.page >= pagination.totalPages}
+							onClick={() => allerPage(pagination.page + 1)}
+						>
+							Suivant
+						</Button>
+					</div>
+				</nav>
+			) : null}
 
 			<RecuDialog
 				open={recuId !== null}

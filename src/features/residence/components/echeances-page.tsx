@@ -5,7 +5,7 @@ import { PageHeader } from "#/components/ui/page-header";
 
 import { useContrats } from "../hooks/use-contrats";
 import { useEcheances } from "../hooks/use-echeances";
-import { filtrerEcheances, paginerEcheances } from "../models/echeances";
+import { filtrerEcheances, paginer } from "../models/echeances";
 import { ECHANCES_PAGE_SIZE } from "../permissions";
 import { EcheancesFilters } from "./echeances-filters";
 import { EcheancesTable } from "./echeances-table";
@@ -87,7 +87,7 @@ export function EcheancesPage({
 		du,
 		au,
 	});
-	const pagination = paginerEcheances(filtres, page, ECHANCES_PAGE_SIZE);
+	const pagination = paginer(filtres, page, ECHANCES_PAGE_SIZE);
 
 	return (
 		<div className="w-full space-y-6 p-6">

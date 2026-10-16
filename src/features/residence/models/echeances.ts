@@ -90,8 +90,8 @@ export function filtrerEcheances(
 }
 
 /** Résultat de la pagination client. */
-export interface PageEcheances {
-	items: EcheanceSuivi[];
+export interface Page<T> {
+	items: T[];
 	total: number;
 	page: number;
 	totalPages: number;
@@ -100,20 +100,29 @@ export interface PageEcheances {
 }
 
 /**
- * Pagination client (le lister `/api/v1/suivi` ne documente aucune pagination serveur).
- * Page bornée à [1, totalPages].
+ * Pagination client générique (les listers métier ne documentent aucune
+ * pagination serveur). Page bornée à [1, totalPages]. Utilisée par la vue
+ * consolidée staff (`EcheanceSuivi`) et les pages du portail résident
+ * (`PortailEcheance`, `PortailPaiement`).
  */
-export function paginerEcheances(
-	echeances: readonly EcheanceSuivi[],
+export function paginer<T>(
+	items: readonly T[],
 	page: number,
 	pageSize: number,
-): PageEcheances {
-	const total = echeances.length;
+): Page<T> {
+	const total = items.length;
 	const totalPages = Math.max(1, Math.ceil(total / pageSize));
 	const pageCourante = Math.min(Math.max(1, page), totalPages);
 	const debut = (pageCourante - 1) * pageSize;
-	const items = echeances.slice(debut, debut + pageSize);
+	const pageItems = items.slice(debut, debut + pageSize);
 	const start = total === 0 ? 0 : debut + 1;
 	const end = Math.min(debut + pageSize, total);
-	return { items, total, page: pageCourante, totalPages, start, end };
+	return {
+		items: pageItems,
+		total,
+		page: pageCourante,
+		totalPages,
+		start,
+		end,
+	};
 }
