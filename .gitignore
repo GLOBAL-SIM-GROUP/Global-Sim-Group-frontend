@@ -41,9 +41,10 @@ playwright-report/
 blob-report/
 playwright/.cache/
 
-# ── Artéfacts de compilation LaTeX (docs/guides-utilisation) ─
-# Les .tex, .png (captures) et .pdf finaux restent versionnés ;
-# seuls les intermédiaires de build sont ignorés.
+# ── Artéfacts de compilation LaTeX ───────────────────────────
+# Les .tex, .png (captures) et .pdf finaux restent versionnés
+# (dans le dépôt sim-docs) ; seuls les intermédiaires de build
+# sont ignorés ici — garde-fou si un guide est compilé en local.
 *.aux
 *.fdb_latexmk
 *.fls
@@ -54,6 +55,8 @@ playwright/.cache/
 
 # ── Snapshot OpenAPI local (régénéré) — ne PAS committer ─────
 scripts/openapi.latest.json
+# Dump live `/docs-json` écrit par les scripts de sonde (scripts/probe-*.mjs).
+scripts/.swagger-live.json
 
 # ── Logs ─────────────────────────────────────────────────────
 logs/
@@ -79,6 +82,9 @@ Desktop.ini
 
 # ── Divers ───────────────────────────────────────────────────
 __unconfig*
+# Sondes/captures jetables à la racine — convention `__*` :
+# `__probe-*.mjs`, `__debug-*.png`, `__capture-*.mjs`, `__devserver.log`…
+/__*
 todos.json
 # Restes de résolution de conflits git.
 *.orig
