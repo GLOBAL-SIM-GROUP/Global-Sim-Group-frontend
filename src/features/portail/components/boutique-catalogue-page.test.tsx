@@ -180,6 +180,10 @@ describe("BoutiqueCataloguePage", () => {
 		) as HTMLElement;
 
 		await user.click(within(carte).getByRole("button", { name: /ajouter/i }));
+		const modale = await screen.findByRole("dialog");
+		await user.click(
+			within(modale).getByRole("button", { name: /ajouter au panier/i }),
+		);
 
 		await waitFor(() =>
 			expect(screen.getByText(/1 article · 500 FCFA/)).toBeInTheDocument(),

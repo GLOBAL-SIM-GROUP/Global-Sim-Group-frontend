@@ -19,6 +19,7 @@ import { usePanierArticles } from "../hooks/use-panier-articles";
 import { CLE_PANIER_BOUTIQUE } from "../models/panier-articles";
 import { PanierBar } from "./panier-bar";
 import { ProduitCarte } from "./produit-carte";
+import { QuantiteDialog } from "./quantite-dialog";
 
 const TOUTES_CATEGORIES = "tous";
 
@@ -105,6 +106,33 @@ export function BoutiqueCataloguePage({
 		setToast({ id: Date.now(), message: `${produit.nom} ajouté au panier` });
 	};
 
+	// Produit dont la quantité est en cours de saisie dans la modale —
+	// ouverte par le bouton panier de la carte (ou le compteur si déjà ajouté).
+	const [produitEnEdition, setProduitEnEdition] = useState<Produit | null>(
+		null,
+	);
+
+	const confirmerQuantite = (quantite: number) => {
+		if (!produitEnEdition) return;
+		if (quantiteDe(produitEnEdition.id) > 0) {
+			panier.definirQuantite(produitEnEdition.id, quantite);
+		} else {
+			panier.ajouter(
+				{
+					id: produitEnEdition.id,
+					nom: produitEnEdition.nom,
+					prix: produitEnEdition.prix_vente,
+				},
+				imageDuProduit(produitEnEdition),
+				quantite,
+			);
+		}
+		setToast({
+			id: Date.now(),
+			message: `${produitEnEdition.nom} ajouté au panier (×${quantite})`,
+		});
+	};
+
 	if (produitsQuery.isLoading) {
 		return (
 			<div className="flex justify-center py-24">
@@ -181,6 +209,7 @@ export function BoutiqueCataloguePage({
 								onRetirer={() =>
 									panier.definirQuantite(produit.id, quantiteDe(produit.id) - 1)
 								}
+								onChoisir={() => setProduitEnEdition(produit)}
 							/>
 						))}
 					</div>
@@ -191,6 +220,19 @@ export function BoutiqueCataloguePage({
 					total={panier.total}
 					panierTo={panierTo}
 					auDessusTabBar={variant === "client"}
+				/>
+
+				<QuantiteDialog
+					open={produitEnEdition !== null}
+					onOpenChange={(ouvert) => {
+						if (!ouvert) setProduitEnEdition(null);
+					}}
+					nom={produitEnEdition?.nom ?? ""}
+					prixUnitaire={produitEnEdition?.prix_vente ?? "0"}
+					quantiteInitiale={
+						produitEnEdition ? quantiteDe(produitEnEdition.id) : 0
+					}
+					onConfirmer={confirmerQuantite}
 				/>
 			</div>
 

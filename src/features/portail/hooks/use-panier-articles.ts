@@ -57,17 +57,20 @@ export function usePanierArticles(cleStockage: string) {
 	}, [cleStockage, lignes, hydrate]);
 
 	const ajouter = useCallback(
-		(article: ArticleSelectionnable, imageUrl: string | null) => {
+		(article: ArticleSelectionnable, imageUrl: string | null, quantite = 1) => {
 			setLignes((precedent) => {
 				const existante = precedent.find((ligne) => ligne.id === article.id);
 				if (existante) {
 					return precedent.map((ligne) =>
 						ligne.id === article.id
-							? { ...ligne, quantite: ligne.quantite + 1 }
+							? { ...ligne, quantite: ligne.quantite + quantite }
 							: ligne,
 					);
 				}
-				return [...precedent, ligneDepuisArticle(article, imageUrl)];
+				return [
+					...precedent,
+					{ ...ligneDepuisArticle(article, imageUrl), quantite },
+				];
 			});
 		},
 		[],

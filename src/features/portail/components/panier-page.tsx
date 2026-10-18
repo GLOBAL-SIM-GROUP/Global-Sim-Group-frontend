@@ -52,7 +52,10 @@ function LignePanierItem({
 	return (
 		<div
 			className={cn(
-				"flex items-center gap-3 rounded-lg border border-border bg-card p-3",
+				// `flex-wrap` : sous ~360px le bloc quantité/total passe sous le
+				// nom au lieu de l'écraser ; `min-w-0` en protection si la ligne
+				// est un jour placée dans une grille (min-width:auto des items).
+				"flex min-w-0 flex-wrap items-center gap-x-3 gap-y-2 rounded-lg border border-border bg-card p-3",
 				indisponible && "border-amber-500/40 bg-amber-500/5",
 			)}
 		>
@@ -89,7 +92,7 @@ function LignePanierItem({
 					type="button"
 					variant="outline"
 					size="sm"
-					className="rounded-full"
+					className="ml-auto rounded-full"
 					disabled={disabled}
 					onClick={() => onQuantite(0)}
 				>
@@ -97,7 +100,7 @@ function LignePanierItem({
 					Retirer
 				</Button>
 			) : (
-				<>
+				<div className="ml-auto flex items-center gap-3">
 					<div className="flex items-center gap-1">
 						<Button
 							type="button"
@@ -132,7 +135,7 @@ function LignePanierItem({
 					<span className="w-24 shrink-0 text-right text-sm font-semibold tabular-nums text-foreground">
 						{formatMontantFCFA(String(Number(ligne.prix) * ligne.quantite))}
 					</span>
-				</>
+				</div>
 			)}
 		</div>
 	);
@@ -149,7 +152,10 @@ function ListePanier({
 	indisponibles: ReadonlySet<string>;
 }) {
 	return (
-		<div className="grid gap-2 lg:grid-cols-2">
+		// Une ligne par rangée : image + nom + stepper + total exige ~300px —
+		// en 2 colonnes (surtout dans les sections elles-mêmes en `xl:grid-cols-2`)
+		// il ne reste que ~¼ de page par ligne et les contrôles débordent.
+		<div className="space-y-2">
 			{panier.lignes.map((ligne) => (
 				<LignePanierItem
 					key={ligne.id}
@@ -280,8 +286,11 @@ function SectionPanierRestaurant({
 		);
 	};
 
+	// `min-w-0` : grid item de `xl:grid-cols-2` — sans lui, `min-width: auto`
+	// laisse le min-content de la section (lignes, alertes) élargir la piste
+	// au-delà du conteneur (débordement horizontal sur petits écrans).
 	return (
-		<section className="space-y-3">
+		<section className="min-w-0 space-y-3">
 			<div className="flex items-center justify-between">
 				<h2 className="text-base font-semibold text-foreground">Restaurant</h2>
 				{panier.lignes.length > 0 ? (
@@ -319,21 +328,32 @@ function SectionPanierRestaurant({
 						<p className="text-base font-semibold text-foreground">
 							Total : {formatMontantFCFA(String(panier.total))}
 						</p>
-						{canCommander ? (
+						<div className="flex flex-col gap-2 sm:flex-row sm:items-center">
 							<Button
 								type="button"
+								variant="outline"
 								className="rounded-full"
-								disabled={indisponibles.size > 0}
-								onClick={() => setDialogOuvert(true)}
+								onClick={panier.vider}
 							>
-								Envoyer ma commande
+								<Trash2 className="size-4" aria-hidden />
+								Vider le panier
 							</Button>
-						) : (
-							<p className="text-sm text-muted-foreground">
-								La commande en ligne n'est pas activée sur votre compte —
-								présentez-vous au comptoir.
-							</p>
-						)}
+							{canCommander ? (
+								<Button
+									type="button"
+									className="rounded-full"
+									disabled={indisponibles.size > 0}
+									onClick={() => setDialogOuvert(true)}
+								>
+									Envoyer ma commande
+								</Button>
+							) : (
+								<p className="text-sm text-muted-foreground">
+									La commande en ligne n'est pas activée sur votre compte —
+									présentez-vous au comptoir.
+								</p>
+							)}
+						</div>
 					</div>
 				</>
 			)}
@@ -421,8 +441,9 @@ function SectionPanierBoutique({
 		);
 	};
 
+	// Même garde `min-w-0` que la section restaurant (grid item `xl:grid-cols-2`).
 	return (
-		<section className="space-y-3">
+		<section className="min-w-0 space-y-3">
 			<div className="flex items-center justify-between">
 				<h2 className="text-base font-semibold text-foreground">Boutique</h2>
 				{panier.lignes.length > 0 ? (
@@ -460,21 +481,32 @@ function SectionPanierBoutique({
 						<p className="text-base font-semibold text-foreground">
 							Total : {formatMontantFCFA(String(panier.total))}
 						</p>
-						{canCommander ? (
+						<div className="flex flex-col gap-2 sm:flex-row sm:items-center">
 							<Button
 								type="button"
+								variant="outline"
 								className="rounded-full"
-								disabled={indisponibles.size > 0}
-								onClick={() => setDialogOuvert(true)}
+								onClick={panier.vider}
 							>
-								Envoyer ma demande
+								<Trash2 className="size-4" aria-hidden />
+								Vider le panier
 							</Button>
-						) : (
-							<p className="text-sm text-muted-foreground">
-								La commande en ligne n'est pas activée sur votre compte —
-								présentez-vous à la boutique.
-							</p>
-						)}
+							{canCommander ? (
+								<Button
+									type="button"
+									className="rounded-full"
+									disabled={indisponibles.size > 0}
+									onClick={() => setDialogOuvert(true)}
+								>
+									Envoyer ma demande
+								</Button>
+							) : (
+								<p className="text-sm text-muted-foreground">
+									La commande en ligne n'est pas activée sur votre compte —
+									présentez-vous à la boutique.
+								</p>
+							)}
+						</div>
 					</div>
 				</>
 			)}

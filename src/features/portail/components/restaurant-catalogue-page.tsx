@@ -15,6 +15,7 @@ import type { Plat } from "#/features/restaurant/models/plats";
 import { usePanier } from "../hooks/use-panier";
 import { PanierBar } from "./panier-bar";
 import { PlatCarte } from "./plat-carte";
+import { QuantiteDialog } from "./quantite-dialog";
 
 const TOUTES_CATEGORIES = "tous";
 
@@ -93,6 +94,23 @@ export function RestaurantCataloguePage({
 		setToast({ id: Date.now(), message: `${plat.nom} ajouté au panier` });
 	};
 
+	// Plat dont la quantité est en cours de saisie dans la modale — ouverte
+	// par le bouton panier de la carte (ou le compteur si déjà ajouté).
+	const [platEnEdition, setPlatEnEdition] = useState<Plat | null>(null);
+
+	const confirmerQuantite = (quantite: number) => {
+		if (!platEnEdition) return;
+		if (quantiteDe(platEnEdition.id) > 0) {
+			panier.definirQuantite(platEnEdition.id, quantite);
+		} else {
+			panier.ajouter(platEnEdition, imageDuPlat(platEnEdition), quantite);
+		}
+		setToast({
+			id: Date.now(),
+			message: `${platEnEdition.nom} ajouté au panier (×${quantite})`,
+		});
+	};
+
 	if (platsQuery.isLoading) {
 		return (
 			<div className="flex justify-center py-24">
@@ -169,6 +187,7 @@ export function RestaurantCataloguePage({
 								onRetirer={() =>
 									panier.definirQuantite(plat.id, quantiteDe(plat.id) - 1)
 								}
+								onChoisir={() => setPlatEnEdition(plat)}
 							/>
 						))}
 					</div>
@@ -179,6 +198,17 @@ export function RestaurantCataloguePage({
 					total={panier.total}
 					panierTo={panierTo}
 					auDessusTabBar={variant === "client"}
+				/>
+
+				<QuantiteDialog
+					open={platEnEdition !== null}
+					onOpenChange={(ouvert) => {
+						if (!ouvert) setPlatEnEdition(null);
+					}}
+					nom={platEnEdition?.nom ?? ""}
+					prixUnitaire={platEnEdition?.prix ?? "0"}
+					quantiteInitiale={platEnEdition ? quantiteDe(platEnEdition.id) : 0}
+					onConfirmer={confirmerQuantite}
 				/>
 			</div>
 

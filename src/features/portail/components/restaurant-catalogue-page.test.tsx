@@ -136,10 +136,23 @@ describe("RestaurantCataloguePage", () => {
 			"article",
 		) as HTMLElement;
 
+		// Le bouton panier ouvre la modale de quantité — on monte à 3 via le
+		// stepper puis on confirme, sans clics répétés sur la carte.
 		await user.click(within(carte).getByRole("button", { name: /ajouter/i }));
+		const modale = await screen.findByRole("dialog");
+		const plus = within(modale).getByRole("button", {
+			name: /augmenter la quantité/i,
+		});
+		await user.click(plus);
+		await user.click(plus);
+		await user.click(
+			within(modale).getByRole("button", { name: /ajouter au panier/i }),
+		);
 
 		await waitFor(() =>
-			expect(screen.getByText(/1 article · 3\s?500 FCFA/)).toBeInTheDocument(),
+			expect(
+				screen.getByText(/3 articles · 10\s?500 FCFA/),
+			).toBeInTheDocument(),
 		);
 		expect(
 			screen.getByRole("link", { name: /voir le panier/i }),

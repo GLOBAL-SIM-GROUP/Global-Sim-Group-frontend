@@ -10,12 +10,17 @@ export function ProduitCarte({
 	quantiteAuPanier,
 	onAjouter,
 	onRetirer,
+	onChoisir,
 }: {
 	produit: Produit;
 	imageUrl: string | null;
 	quantiteAuPanier: number;
+	/** `+` du stepper — ajout rapide d'une unité. */
 	onAjouter: () => void;
 	onRetirer: () => void;
+	/** Bouton panier (panier vide) ou compteur — ouvre la modale de
+	    quantité pour saisir directement le nombre voulu. */
+	onChoisir: () => void;
 }) {
 	return (
 		<article className="overflow-hidden rounded-xl border border-border bg-card shadow-sm transition-shadow hover:shadow-md">
@@ -39,7 +44,7 @@ export function ProduitCarte({
 							size="icon"
 							aria-label={`Ajouter ${produit.nom} au panier`}
 							className="size-10 rounded-full shadow-lg"
-							onClick={onAjouter}
+							onClick={onChoisir}
 						>
 							<ShoppingCart className="size-5" aria-hidden />
 						</Button>
@@ -54,9 +59,15 @@ export function ProduitCarte({
 							>
 								<Minus className="size-3.5" aria-hidden />
 							</Button>
-							<span className="min-w-5 text-center text-xs font-semibold text-foreground">
+							<button
+								type="button"
+								aria-label={`Modifier la quantité de ${produit.nom} dans le panier`}
+								title="Modifier la quantité"
+								onClick={onChoisir}
+								className="min-w-5 rounded text-center text-xs font-semibold text-foreground underline-offset-2 transition-colors hover:text-lagoon hover:underline focus-visible:ring-1 focus-visible:ring-lagoon"
+							>
 								{quantiteAuPanier}
-							</span>
+							</button>
 							<Button
 								type="button"
 								size="icon-xs"

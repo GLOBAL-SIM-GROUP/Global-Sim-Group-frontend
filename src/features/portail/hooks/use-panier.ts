@@ -24,8 +24,8 @@ export function usePanier() {
 
 	return {
 		lignes,
-		ajouter: (plat: Plat, imageUrl: string | null) =>
-			panier.ajouter(plat, imageUrl),
+		ajouter: (plat: Plat, imageUrl: string | null, quantite = 1) =>
+			panier.ajouter(plat, imageUrl, quantite),
 		definirQuantite: panier.definirQuantite,
 		vider: panier.vider,
 		total: panier.total,
