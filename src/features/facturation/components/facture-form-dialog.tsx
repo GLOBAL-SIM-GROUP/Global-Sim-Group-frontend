@@ -64,6 +64,21 @@ export function FactureFormDialog({
 	);
 	const moyens = (moyensQuery.data ?? []).filter((moyen) => moyen.actif);
 
+	const prestationSelectionnee = (idPrestation: string) =>
+		prestations.find((prestation) => prestation.id === idPrestation) ?? null;
+
+	// Reste dû serveur = prix de la prestation − remise : le paiement ne peut
+	// pas le dépasser (sinon 400 MONTANT_DEPASSE_RESTE).
+	const resteDu = (idPrestation: string, remise: string) => {
+		const prestation = prestationSelectionnee(idPrestation);
+		if (!prestation) return null;
+		const remiseNombre = remise.trim()
+			? Number(normaliserMontantPourBackend(remise))
+			: 0;
+		if (!Number.isFinite(remiseNombre)) return null;
+		return Number(prestation.prix) - remiseNombre;
+	};
+
 	const form = useForm({
 		defaultValues: {
 			idPrestation: "",
@@ -78,11 +93,29 @@ export function FactureFormDialog({
 				const fields: Partial<Record<string, string>> = {};
 				if (!value.idPrestation)
 					fields.idPrestation = "Sélectionnez une prestation.";
+				// Le backend exige `id_client` ou un nouveau client — une
+				// absence déclenche un 500 brut (`resoudreClient`), pas un 400.
+				if (!value.idClient) fields.idClient = "Sélectionnez un client.";
 				if (!value.montant.trim()) {
 					fields.montant = "Ce champ est requis.";
 				} else {
 					const erreur = validerMontant(value.montant, "Le montant");
 					if (erreur) fields.montant = erreur;
+				}
+				if (value.remise.trim()) {
+					const erreurRemise = validerMontant(value.remise, "La remise");
+					if (erreurRemise) {
+						fields.remise = erreurRemise;
+					} else {
+						const prestation = prestationSelectionnee(value.idPrestation);
+						if (
+							prestation &&
+							Number(normaliserMontantPourBackend(value.remise)) >
+								Number(prestation.prix)
+						)
+							fields.remise =
+								"La remise ne peut pas dépasser le prix de la prestation.";
+					}
 				}
 				if (!value.idMoyen)
 					fields.idMoyen = "Sélectionnez un moyen de paiement.";
@@ -97,9 +130,18 @@ export function FactureFormDialog({
 		onSubmit: async ({ value }) => {
 			setGlobalError(null);
 			try {
+				// La remise s'applique en arrière-plan : si le montant saisi
+				// dépasse le reste dû (prix − remise), il est ramené au reste
+				// plutôt que rejeté — le serveur exige `montant <= reste`.
+				const reste = resteDu(value.idPrestation, value.remise);
+				const montantNormalise = normaliserMontantPourBackend(value.montant);
+				const montant =
+					reste !== null && Number(montantNormalise) > reste
+						? String(Math.max(reste, 0))
+						: montantNormalise;
 				const resultat = await facturerMutation.mutateAsync({
 					idPrestation: value.idPrestation,
-					montant: normaliserMontantPourBackend(value.montant),
+					montant,
 					idMoyen: value.idMoyen,
 					idCaisse: idCaisseAEnvoyer(caissesQuery.data, value.idCaisse),
 					idClient: value.idClient || null,
@@ -111,9 +153,6 @@ export function FactureFormDialog({
 			}
 		},
 	});
-
-	const prestationSelectionnee = (idPrestation: string) =>
-		prestations.find((prestation) => prestation.id === idPrestation) ?? null;
 
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
@@ -141,9 +180,17 @@ export function FactureFormDialog({
 										field.handleChange(valeur);
 										const prestation = prestationSelectionnee(valeur);
 										if (prestation) {
-											form.setFieldValue("montant", (precedent) =>
-												precedent.trim() ? precedent : prestation.prix,
-											);
+											// Pré-remplit au reste dû (prix − remise courante),
+											// pas au prix plein — sinon une remise déjà saisie
+											// rend la valeur envoyée > reste dû.
+											form.setFieldValue("montant", (precedent) => {
+												if (precedent.trim()) return precedent;
+												const reste = resteDu(
+													valeur,
+													form.getFieldValue("remise"),
+												);
+												return String(reste ?? prestation.prix);
+											});
 										}
 									}}
 								>
@@ -174,27 +221,52 @@ export function FactureFormDialog({
 
 					<form.Field name="idClient">
 						{(field) => (
-							<ClientRechercheField
-								value={field.state.value}
-								onChange={(id) => field.handleChange(id)}
-							/>
+							<div className="space-y-1.5">
+								<ClientRechercheField
+									value={field.state.value}
+									onChange={(id) => field.handleChange(id)}
+								/>
+								{field.state.meta.errors[0] ? (
+									<p className="text-xs text-destructive">
+										{field.state.meta.errors[0]}
+									</p>
+								) : null}
+							</div>
 						)}
 					</form.Field>
 
 					<div className="grid grid-cols-2 gap-4">
 						<form.Field name="montant">
 							{(field) => (
-								<InputField
-									id={field.name}
-									name={field.name}
-									label="Montant payé (FCFA)"
-									inputMode="numeric"
-									placeholder="0"
-									value={field.state.value}
-									onBlur={field.handleBlur}
-									onChange={(event) => field.handleChange(event.target.value)}
-									error={field.state.meta.errors[0]}
-								/>
+								<div className="space-y-1">
+									<InputField
+										id={field.name}
+										name={field.name}
+										label="Montant payé (FCFA)"
+										inputMode="numeric"
+										placeholder="0"
+										value={field.state.value}
+										onBlur={field.handleBlur}
+										onChange={(event) => field.handleChange(event.target.value)}
+										error={field.state.meta.errors[0]}
+									/>
+									<form.Subscribe
+										selector={(state) =>
+											[state.values.idPrestation, state.values.remise] as const
+										}
+									>
+										{([idPrestation, remise]) => {
+											const reste = resteDu(idPrestation, remise);
+											if (reste === null || reste < 0) return null;
+											return (
+												<p className="text-xs text-muted-foreground">
+													Reste dû : {formatMontantFCFA(String(reste))}
+													{remise.trim() ? " (prix − remise)" : ""}
+												</p>
+											);
+										}}
+									</form.Subscribe>
+								</div>
 							)}
 						</form.Field>
 						<form.Field name="remise">
@@ -207,7 +279,27 @@ export function FactureFormDialog({
 									placeholder="0"
 									value={field.state.value}
 									onBlur={field.handleBlur}
-									onChange={(event) => field.handleChange(event.target.value)}
+									onChange={(event) => {
+										const saisie = event.target.value;
+										field.handleChange(saisie);
+										// La remise s'applique en arrière-plan : le
+										// « Montant payé » suit le reste dû
+										// (prix − remise) au fil de la saisie.
+										const prestation = prestationSelectionnee(
+											form.getFieldValue("idPrestation"),
+										);
+										if (!prestation) return;
+										const remiseNombre = saisie.trim()
+											? Number(normaliserMontantPourBackend(saisie))
+											: 0;
+										if (!Number.isFinite(remiseNombre)) return;
+										form.setFieldValue(
+											"montant",
+											String(
+												Math.max(0, Number(prestation.prix) - remiseNombre),
+											),
+										);
+									}}
 									error={field.state.meta.errors[0]}
 								/>
 							)}
