@@ -23,6 +23,7 @@ function utilisateur(
 		date_creation: "2026-08-17 00:00:00",
 		dernier_connexion: null,
 		id_client: null,
+		photo: null,
 	};
 }
 

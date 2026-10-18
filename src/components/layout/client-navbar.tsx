@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 
+import { AvatarProfil } from "#/components/avatar-profil";
 import { Button } from "#/components/ui/button";
 import { useCurrentUser } from "#/core/auth";
 import { useNombreArticlesPaniers } from "#/features/portail/hooks/use-panier-articles";
@@ -157,18 +158,6 @@ export const SERVICES: readonly ServiceNavItem[] = SERVICES_GROUPES.flatMap(
 	(groupe) => groupe.items,
 ).filter((item) => !item.sidebarOnly);
 
-/** Initiales de l'utilisateur pour l'avatar (même logique que `sidebar.tsx`,
-    dupliquée ici plutôt que partagée — trop petit pour justifier un utilitaire
-    commun entre les deux layouts, volontairement indépendants). */
-function initialsOf(login: string): string {
-	return login
-		.split(/[\s._-]+/)
-		.filter(Boolean)
-		.slice(0, 2)
-		.map((part) => part.charAt(0).toUpperCase())
-		.join("");
-}
-
 function ServiceButtons({
 	className,
 	onNavigate,
@@ -242,12 +231,10 @@ export function AccountMenu({ variant }: { variant: "navbar" | "sidebar" }) {
 				},
 			]}
 			avatar={
-				<div
-					aria-hidden
-					className="grid size-9 shrink-0 place-items-center rounded-full bg-lagoon/15 text-sm font-semibold text-lagoon"
-				>
-					{initialsOf(user.login)}
-				</div>
+				<AvatarProfil
+					login={user.login}
+					className="size-9 bg-lagoon/15 text-sm font-semibold"
+				/>
 			}
 			login={user.login}
 			role={user.role}

@@ -15,6 +15,8 @@ export interface Utilisateur {
 	date_creation: string;
 	dernier_connexion: string | null;
 	id_client: string | null;
+	/** Clé MinIO `profil-photo/…` du compte (auto-photo via `/auth/mon-compte`). */
+	photo: string | null;
 }
 
 /** Nom complet « PRENOM Nom » d'un compte (employé associé ou libre). */

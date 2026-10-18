@@ -4,6 +4,7 @@ import type {
 	AuthLoginResponse,
 	AuthMeResponse,
 	AuthRefreshResponse,
+	MonCompteResponse,
 } from "./types";
 
 type LoginDto = components["schemas"]["LoginDto"];
@@ -52,6 +53,42 @@ export const authApi = {
 	/** Utilisateur courant + permissions (chargées par le backend, pas le JWT). */
 	me(): Promise<AuthMeResponse> {
 		return getApiClient().apiFetch("/api/v1/auth/me");
+	},
+
+	/**
+	 * Profil du compte connecté (GET `/auth/mon-compte`) — self-service,
+	 * tout compte authentifié (staff, résident, client). Endpoint absent du
+	 * spec généré : contrat revalidé en live (multipart `file`, photo =
+	 * clé MinIO `profil-photo/…`).
+	 */
+	monCompte(): Promise<MonCompteResponse> {
+		return getApiClient().apiFetch("/api/v1/auth/mon-compte");
+	},
+
+	/**
+	 * Définit la photo de profil (PUT `/auth/mon-compte/photo`) — multipart,
+	 * champ `file` (les autres noms de champ répondent 500). Renvoie le
+	 * profil mis à jour (`photo` = nouvelle clé).
+	 */
+	definirPhotoMonCompte(file: File): Promise<MonCompteResponse> {
+		const formData = new FormData();
+		formData.append("file", file);
+		return getApiClient().uploadForm("/api/v1/auth/mon-compte/photo", {
+			method: "PUT",
+			body: formData,
+		});
+	},
+
+	/** Octets de la photo de profil courante (GET `/auth/mon-compte/photo`). */
+	photoMonCompte(): Promise<Blob> {
+		return getApiClient().download("/api/v1/auth/mon-compte/photo");
+	},
+
+	/** Supprime la photo de profil (DELETE `/auth/mon-compte/photo`). */
+	supprimerPhotoMonCompte(): Promise<unknown> {
+		return getApiClient().apiFetch("/api/v1/auth/mon-compte/photo", {
+			method: "DELETE",
+		});
 	},
 
 	/** Inscription (auto-signup, sans authentification préalable). */

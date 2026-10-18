@@ -214,7 +214,9 @@ export function CameraCaptureDialog({
 					)}
 				</div>
 
-				<DialogFooter>
+				{/* `mt-5` : espace entre la zone d'aperçu (vidéo/photo) et les
+				    boutons Capturer / Reprendre — sinon le pied colle au cadre. */}
+				<DialogFooter className="mt-5">
 					{phase === "pret" && (
 						<>
 							<Button

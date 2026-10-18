@@ -8,14 +8,15 @@ import {
 	Loader2,
 	ShieldCheck,
 	ShoppingCart,
-	UserRound,
 } from "lucide-react";
 import { useState } from "react";
 
+import { PhotoProfilEditable } from "#/components/avatar-profil";
 import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
 import { PageHeader } from "#/components/ui/page-header";
 import { authApi, toApiError } from "#/core/api";
+import { useMonCompte } from "#/core/api/hooks/use-mon-compte";
 import { useCurrentUser } from "#/core/auth";
 import { servicesDuCompte } from "#/core/permissions";
 import {
@@ -62,16 +63,19 @@ function Raccourci({
 
 /**
  * « Mon compte » du portail, partagé entre l'espace résident
- * (`/residence/portail/compte`, `variant="resident"`) et l'espace client
- * (`/espace-client/mon-compte`, `variant="client"`) : informations
- * réellement exposées à la personne — `/auth/me` (login, dossier, services
- * accessibles) + changement de mot de passe.
+ * (`/residence/portail/compte`, `variant="resident"`), l'espace client
+ * (`/espace-client/mon-compte`, `variant="client"`) et l'espace staff
+ * (`/mon-compte`, `variant="staff"`) : informations réellement exposées à la
+ * personne — `/auth/me` + `GET /auth/mon-compte` (login, nom, email, photo
+ * de profil éditable, dossier, services accessibles) + changement de mot
+ * de passe.
  *
  * La variante résidente ajoute le bloc locatif via
  * `GET /residence/portail/resume` (nom du titulaire, contrat et logement en
  * cours) + les raccourcis « Mes échéances » / « Ma caution » ; la variante
  * cliente n'appelle pas ce endpoint (403 `RESIDENT.VOIR`) et montre les
- * raccourcis « Mes demandes » / « Mon panier ».
+ * raccourcis « Mes demandes » / « Mon panier » ; la variante staff n'appelle
+ * pas non plus le résumé et ne montre pas de raccourcis.
  *
  * Pas d'endpoint « changer mon mot de passe connecté » : le seul mécanisme
  * self-service est `POST /auth/mot-de-passe-oublie` — le bouton envoie
@@ -85,11 +89,13 @@ function Raccourci({
 export function PortailComptePage({
 	variant = "resident",
 }: {
-	variant?: "resident" | "client";
+	variant?: "resident" | "client" | "staff";
 }) {
 	const estClient = variant === "client";
+	const estResident = variant === "resident";
 	const user = useCurrentUser();
-	const resumeQuery = usePortailResume(!estClient);
+	const profilQuery = useMonCompte();
+	const resumeQuery = usePortailResume(estResident);
 	const [envoye, setEnvoye] = useState(false);
 	const [erreur, setErreur] = useState<string | null>(null);
 
@@ -110,11 +116,17 @@ export function PortailComptePage({
 	const client = resumeQuery.data?.client;
 	const contrat = resumeQuery.data?.contrat_en_cours;
 	const services = servicesDuCompte(user?.permissions ?? []);
-	const nomComplet = estClient
-		? (user?.login ?? "—")
-		: client
+	const profil = profilQuery.data;
+	const nomProfil = [profil?.prenom, profil?.nom].filter(Boolean).join(" ");
+	const nomComplet =
+		estResident && client
 			? `${client.prenoms} ${client.nom}`
-			: (user?.login ?? "—");
+			: nomProfil || (user?.login ?? "—");
+	const sousTitre = estClient
+		? "Compte client"
+		: estResident
+			? "Compte résident"
+			: (profil?.role.libelle ?? "Compte utilisateur");
 
 	return (
 		<div
@@ -129,37 +141,39 @@ export function PortailComptePage({
 								{ label: "Espace client", to: "/espace-client" },
 								{ label: "Mon compte" },
 							]
-						: [
-								{ label: "Accueil", to: "/" },
-								{ label: "Mon espace résident", to: "/residence/portail" },
-								{ label: "Mon compte" },
-							]
+						: estResident
+							? [
+									{ label: "Accueil", to: "/" },
+									{
+										label: "Mon espace résident",
+										to: "/residence/portail",
+									},
+									{ label: "Mon compte" },
+								]
+							: [{ label: "Accueil", to: "/" }, { label: "Mon compte" }]
 				}
 				title="Mon compte"
 				description="Vos informations de compte GLOBAL SIM GROUP."
 			/>
 
-			<div className="flex items-center gap-4 rounded-xl border border-border bg-card p-5 shadow-sm sm:p-6">
-				<span className="grid size-14 shrink-0 place-items-center rounded-full bg-lagoon/15">
-					<UserRound className="size-7 text-lagoon" aria-hidden />
-				</span>
+			<div className="flex flex-col gap-5 rounded-xl border border-border bg-card p-5 shadow-sm sm:flex-row sm:items-center sm:gap-6 sm:p-6">
+				<PhotoProfilEditable />
 				<div className="min-w-0 space-y-0.5">
 					<p className="truncate text-lg font-semibold text-foreground">
 						{nomComplet}
 					</p>
 					<p className="text-sm text-muted-foreground">
-						{estClient ? "Compte client" : "Compte résident"}
+						{sousTitre}
 						{user?.idClient ? ` · dossier n° ${user.idClient}` : ""}
 					</p>
-					{!estClient && client ? (
-						<p className="text-xs text-muted-foreground">
-							Identifiant : {user?.login ?? "—"}
-						</p>
-					) : null}
+					<p className="text-xs text-muted-foreground">
+						Identifiant : {user?.login ?? "—"}
+						{profil?.email ? ` · ${profil.email}` : ""}
+					</p>
 				</div>
 			</div>
 
-			{!estClient && contrat ? (
+			{estResident && contrat ? (
 				<section className="space-y-3 rounded-xl border border-border bg-card p-5 shadow-sm sm:p-6">
 					<h2 className="flex items-center gap-2 text-sm font-semibold text-foreground">
 						<BedDouble className="size-4 text-lagoon" aria-hidden />
@@ -238,39 +252,41 @@ export function PortailComptePage({
 				)}
 			</section>
 
-			<div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-				{estClient ? (
-					<>
-						<Raccourci
-							to="/espace-client/mes-demandes"
-							icon={ClipboardList}
-							titre="Mes demandes"
-							description="Suivi de vos demandes et dépôts pressing"
-						/>
-						<Raccourci
-							to="/espace-client/panier"
-							icon={ShoppingCart}
-							titre="Mon panier"
-							description="Articles restaurant et boutique en attente"
-						/>
-					</>
-				) : (
-					<>
-						<Raccourci
-							to="/residence/portail/echeances"
-							icon={CalendarDays}
-							titre="Mes échéances"
-							description="Suivi de vos loyers, dus et payés"
-						/>
-						<Raccourci
-							to="/residence/portail/caution"
-							icon={ShieldCheck}
-							titre="Ma caution"
-							description="Montant versé et statut de restitution"
-						/>
-					</>
-				)}
-			</div>
+			{estResident || estClient ? (
+				<div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+					{estClient ? (
+						<>
+							<Raccourci
+								to="/espace-client/mes-demandes"
+								icon={ClipboardList}
+								titre="Mes demandes"
+								description="Suivi de vos demandes et dépôts pressing"
+							/>
+							<Raccourci
+								to="/espace-client/panier"
+								icon={ShoppingCart}
+								titre="Mon panier"
+								description="Articles restaurant et boutique en attente"
+							/>
+						</>
+					) : (
+						<>
+							<Raccourci
+								to="/residence/portail/echeances"
+								icon={CalendarDays}
+								titre="Mes échéances"
+								description="Suivi de vos loyers, dus et payés"
+							/>
+							<Raccourci
+								to="/residence/portail/caution"
+								icon={ShieldCheck}
+								titre="Ma caution"
+								description="Montant versé et statut de restitution"
+							/>
+						</>
+					)}
+				</div>
+			) : null}
 
 			<p className="text-sm text-muted-foreground">
 				Pour modifier vos coordonnées, contactez la réception :{" "}

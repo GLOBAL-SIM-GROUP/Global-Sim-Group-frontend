@@ -1,6 +1,7 @@
 import { KeyRound, Pencil, Plus, Power, PowerOff } from "lucide-react";
 import { useMemo, useState } from "react";
 
+import { AvatarUtilisateur } from "#/components/avatar-profil";
 import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
 import {
@@ -287,8 +288,17 @@ export function UtilisateursPage({
 						<tbody>
 							{pagination.items.map((utilisateur) => (
 								<Tr key={utilisateur.id}>
-									<Td className="font-medium text-foreground">
-										{utilisateur.login}
+									<Td>
+										<span className="flex items-center gap-3">
+											<AvatarUtilisateur
+												photo={utilisateur.photo}
+												login={utilisateur.login}
+												className="size-9 text-xs"
+											/>
+											<span className="font-medium text-foreground">
+												{utilisateur.login}
+											</span>
+										</span>
 									</Td>
 									<Td className="text-muted-foreground">
 										{nomComplet(utilisateur)}

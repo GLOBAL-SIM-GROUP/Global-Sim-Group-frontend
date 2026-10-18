@@ -34,6 +34,7 @@ import {
 	type TypeClient,
 } from "../models/clients";
 import { CLIENTS_PAGE_SIZE } from "../permissions";
+import { PhotoClientAvatar } from "./client-avatar";
 import { ClientFormDialog } from "./client-form-dialog";
 import { ClientSimpleFormDialog } from "./client-simple-form-dialog";
 
@@ -188,15 +189,22 @@ export function ClientsPage({
 										{client.code}
 									</Td>
 									<Td>
-										{/* Toute la ligne ouvre la fiche (stretched link). */}
-										<Link
-											to="/client/clients/$id"
-											params={{ id: client.id }}
-											title={`Voir la fiche de ${nomComplet(client)}`}
-											className="font-medium text-lagoon after:absolute after:inset-0 transition-colors hover:underline"
-										>
-											{nomComplet(client)}
-										</Link>
+										<div className="flex items-center gap-3">
+											<PhotoClientAvatar
+												cle={client.photo}
+												nom={nomComplet(client)}
+												compacte
+											/>
+											{/* Toute la ligne ouvre la fiche (stretched link). */}
+											<Link
+												to="/client/clients/$id"
+												params={{ id: client.id }}
+												title={`Voir la fiche de ${nomComplet(client)}`}
+												className="font-medium text-lagoon after:absolute after:inset-0 transition-colors hover:underline"
+											>
+												{nomComplet(client)}
+											</Link>
+										</div>
 									</Td>
 									<Td className="text-foreground">{client.tel_principal}</Td>
 									<Td>

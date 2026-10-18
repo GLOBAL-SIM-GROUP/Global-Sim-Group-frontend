@@ -53,6 +53,30 @@ export interface AuthMeResponse {
 	permissions: string[];
 }
 
+/**
+ * Réponse de `GET /auth/mon-compte` et de `PUT /auth/mon-compte/photo`
+ * (endpoints absents du spec généré — contrat revalidé en live 2026-10-17).
+ * Champs camelCase côté réseau (contrairement au reste de l'API) : vérifié.
+ */
+export interface MonCompteResponse {
+	/** bigint, transporté en string. */
+	id: string;
+	login: string;
+	nom: string | null;
+	prenom: string | null;
+	email: string | null;
+	/** Clé MinIO `profil-photo/<id>-<uuid>.<ext>` — `null` si aucune photo. */
+	photo: string | null;
+	role: { code: string; libelle: string };
+	dateCreation: string;
+	derniereConnexion: string | null;
+	permissions: string[];
+	/** Dossier employé lié (staff) — null pour un compte client/résident. */
+	employe: { id: string } | null;
+	/** Dossier client lié — null pour un compte staff pur. */
+	client: { id: string; type?: string; telephone?: string | null } | null;
+}
+
 /** Détail d'une erreur de validation champ-par-champ (formulaires). */
 export interface ValidationErrorDetail {
 	property: string;

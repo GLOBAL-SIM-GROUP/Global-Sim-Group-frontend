@@ -33,10 +33,8 @@ import {
 import { DataTable, DataTableHead, Td, Th, Tr } from "#/components/ui/table";
 import { getErrorMessageForCode, toApiError } from "#/core/api";
 import { downloadUploadedFile, uploadImage } from "#/core/api/uploads";
-import { useUploadBlobUrl } from "#/core/api/use-upload-blob";
 import { useCan } from "#/core/auth";
 import { formatDateISO } from "#/features/residence/models/format";
-
 import {
 	useClient,
 	useCreerContact,
@@ -50,6 +48,7 @@ import {
 	TYPE_CLIENT_LABELS,
 	TYPE_PIECE_LABELS,
 } from "../models/clients";
+import { PhotoClientAvatar } from "./client-avatar";
 import { ClientFormDialog } from "./client-form-dialog";
 
 /** Ligne lecture seule. */
@@ -60,26 +59,6 @@ function Ligne({ label, valeur }: { label: string; valeur: string }) {
 				{label}
 			</dt>
 			<dd className="text-sm text-foreground break-words">{valeur}</dd>
-		</div>
-	);
-}
-
-/** Avatar du client (catégorie MinIO `client-photo`) — silhouette par défaut. */
-function PhotoClientAvatar({ cle, nom }: { cle: string | null; nom: string }) {
-	const { blobUrl, isLoading } = useUploadBlobUrl(cle);
-
-	return (
-		<div className="flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-full bg-muted sm:size-20">
-			{isLoading ? (
-				<Loader2
-					className="size-5 animate-spin text-muted-foreground"
-					aria-hidden
-				/>
-			) : blobUrl ? (
-				<img src={blobUrl} alt={nom} className="size-full object-cover" />
-			) : (
-				<UserRound className="size-8 text-muted-foreground" aria-hidden />
-			)}
 		</div>
 	);
 }

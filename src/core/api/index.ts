@@ -45,6 +45,7 @@ export type {
 	AuthRefreshResponse,
 	HealthReadyStatus,
 	HealthStatus,
+	MonCompteResponse,
 	UtilisateurAuth,
 	ValidationErrorDetail,
 } from "./types";

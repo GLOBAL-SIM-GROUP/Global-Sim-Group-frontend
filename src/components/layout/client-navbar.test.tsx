@@ -9,6 +9,13 @@ vi.mock("#/core/auth", () => ({
 	useCurrentUser: () => ({ login: "aya.kouassi", role: "CLIENT" }),
 }));
 
+// L'avatar interroge `/auth/mon-compte` — le test se concentre sur la
+// navigation, pas sur le profil (compte sans photo → initiales).
+vi.mock("#/core/api/hooks/use-mon-compte", () => ({
+	useMonCompte: () => ({ data: undefined }),
+	usePhotoProfilUrl: () => null,
+}));
+
 // La cloche dépend du socket `/notifications` (provider monté dans
 // ClientLayout, pas dans ce test unitaire de la navbar).
 vi.mock("./notification-bell", () => ({
