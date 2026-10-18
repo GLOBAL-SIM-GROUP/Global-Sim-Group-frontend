@@ -1,10 +1,16 @@
 import { useForm } from "@tanstack/react-form";
 import { Link } from "@tanstack/react-router";
-import { Flag, Loader2, MapPin, Upload } from "lucide-react";
-import { useRef, useState } from "react";
+import { Flag, Loader2, MapPin, Upload, X } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 
 import { BoutonCamera } from "#/components/bouton-camera";
 import { Button } from "#/components/ui/button";
+import {
+	Dialog,
+	DialogContent,
+	DialogHeader,
+	DialogTitle,
+} from "#/components/ui/dialog";
 import { InputField } from "#/components/ui/input-field";
 import { Label } from "#/components/ui/label";
 import { PageHeader } from "#/components/ui/page-header";
@@ -40,6 +46,76 @@ const LABELS_CHAMPS: Record<SignalementField, string> = {
 	description: "La description",
 };
 
+/** Clé stable d'un `File` sélectionné (nom + taille + horodatage). */
+const cleFichier = (fichier: File) =>
+	`${fichier.name}-${fichier.size}-${fichier.lastModified}`;
+
+/**
+ * URL `blob:` d'un fichier local — créée en `useEffect` (jamais pendant le
+ * rendu : `URL.createObjectURL` n'existe pas côté serveur) et révoquée au
+ * démontage ou au changement de fichier.
+ */
+function useUrlObjet(fichier: File | null | undefined): string | null {
+	const [url, setUrl] = useState<string | null>(null);
+	useEffect(() => {
+		if (!fichier) return;
+		const objet = URL.createObjectURL(fichier);
+		setUrl(objet);
+		return () => URL.revokeObjectURL(objet);
+	}, [fichier]);
+	return url;
+}
+
+/**
+ * Vignette cliquable d'une photo sélectionnée — `onVoir` ouvre la
+ * visionneuse (agrandissement), ✕ retire la photo de la sélection.
+ */
+function ApercuPhoto({
+	fichier,
+	numero,
+	disabled,
+	onRetirer,
+	onVoir,
+}: {
+	fichier: File;
+	/** Rang d'affichage (1-based) — libellé visible en lieu et place du
+	 *  nom technique du fichier (`photo-camera-….jpg`). */
+	numero: number;
+	disabled?: boolean;
+	onRetirer: () => void;
+	onVoir: () => void;
+}) {
+	const url = useUrlObjet(fichier);
+
+	return (
+		<li className="relative">
+			<button
+				type="button"
+				disabled={disabled}
+				onClick={onVoir}
+				aria-label={`Agrandir la photo ${numero}`}
+				title="Cliquer pour agrandir"
+				className="block h-24 w-full overflow-hidden rounded-lg border border-border transition-all hover:ring-2 hover:ring-lagoon/60 focus-visible:ring-2 focus-visible:ring-lagoon disabled:opacity-50"
+			>
+				{url ? (
+					<img src={url} alt="" className="h-full w-full object-cover" />
+				) : (
+					<div className="h-full w-full animate-pulse bg-muted" />
+				)}
+			</button>
+			<button
+				type="button"
+				disabled={disabled}
+				onClick={onRetirer}
+				aria-label={`Retirer la photo ${numero}`}
+				className="absolute -right-1.5 -top-1.5 grid size-5 place-items-center rounded-full border border-border bg-background text-muted-foreground shadow-sm transition-colors hover:bg-destructive hover:text-white disabled:opacity-50"
+			>
+				<X className="size-3" aria-hidden />
+			</button>
+		</li>
+	);
+}
+
 interface SignalementFormPageProps {
 	/** Route fiche pour le lien de suivi affiché après envoi (sans `/$id`). */
 	lienDetailBase: string;
@@ -73,7 +149,11 @@ export function SignalementFormPage({
 	const [globalError, setGlobalError] = useState<string | null>(null);
 	const [fichiers, setFichiers] = useState<File[]>([]);
 	const [erreursSelection, setErreursSelection] = useState<string[]>([]);
+	const [indexAgrandi, setIndexAgrandi] = useState<number | null>(null);
 	const fileInputRef = useRef<HTMLInputElement>(null);
+	// Photo affichée en grand dans la visionneuse (sa vignette a été cliquée).
+	const fichierAgrandi = indexAgrandi !== null ? fichiers[indexAgrandi] : null;
+	const urlAgrandie = useUrlObjet(fichierAgrandi ?? null);
 
 	const form = useForm({
 		defaultValues: {
@@ -303,8 +383,12 @@ export function SignalementFormPage({
 							const { acceptes, erreurs } = validerPhotosSignalement(
 								Array.from(event.target.files ?? []),
 							);
-							setFichiers(acceptes);
+							setFichiers((courants) => [...courants, ...acceptes]);
 							setErreursSelection(erreurs);
+							// Vide l'input : re-sélectionner le même fichier doit
+							// refaire passer `onChange` (et les vignettes affichées
+							// sont la source de vérité, pas la FileList native).
+							event.target.value = "";
 						}}
 						className="block w-full text-sm text-foreground file:mr-3 file:rounded-md file:border-0 file:bg-lagoon file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-white hover:file:bg-lagoon/90"
 					/>
@@ -324,10 +408,32 @@ export function SignalementFormPage({
 						JPG, PNG ou WebP — 5 Mo maximum par photo.
 					</p>
 					{fichiers.length > 0 ? (
-						<p className="text-xs text-muted-foreground">
-							{fichiers.length} photo{fichiers.length > 1 ? "s" : ""}{" "}
-							sélectionnée{fichiers.length > 1 ? "s" : ""}.
-						</p>
+						<>
+							<p className="text-xs text-muted-foreground">
+								{fichiers.length} photo{fichiers.length > 1 ? "s" : ""}{" "}
+								sélectionnée{fichiers.length > 1 ? "s" : ""} — touchez ✕ pour
+								retirer.
+							</p>
+							<ul className="grid grid-cols-3 gap-2 pt-1 sm:grid-cols-4">
+								{fichiers.map((fichier, index) => (
+									<ApercuPhoto
+										key={cleFichier(fichier)}
+										fichier={fichier}
+										numero={index + 1}
+										disabled={busy}
+										onVoir={() => setIndexAgrandi(index)}
+										onRetirer={() => {
+											setIndexAgrandi((courant) =>
+												courant === index ? null : courant,
+											);
+											setFichiers((courants) =>
+												courants.filter((_, i) => i !== index),
+											);
+										}}
+									/>
+								))}
+							</ul>
+						</>
 					) : null}
 					{erreursSelection.length > 0 ? (
 						<div role="alert" className="space-y-0.5">
@@ -359,6 +465,30 @@ export function SignalementFormPage({
 							: "Envoyer mon signalement"}
 				</Button>
 			</form>
+
+			<Dialog
+				open={indexAgrandi !== null}
+				onOpenChange={(ouvert) => {
+					if (!ouvert) setIndexAgrandi(null);
+				}}
+			>
+				<DialogContent className="max-w-3xl p-3 sm:p-4">
+					<DialogHeader>
+						<DialogTitle>
+							Photo{indexAgrandi !== null ? ` ${indexAgrandi + 1}` : ""}
+						</DialogTitle>
+					</DialogHeader>
+					{urlAgrandie ? (
+						<img
+							src={urlAgrandie}
+							alt=""
+							className="max-h-[75vh] w-full rounded-md object-contain"
+						/>
+					) : (
+						<div className="h-64 w-full animate-pulse rounded-md bg-muted" />
+					)}
+				</DialogContent>
+			</Dialog>
 		</div>
 	);
 }
