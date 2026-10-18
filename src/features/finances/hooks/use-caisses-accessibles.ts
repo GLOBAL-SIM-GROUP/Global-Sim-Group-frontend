@@ -24,3 +24,16 @@ export function useCaissesAccessibles() {
 		refetchOnMount: "always",
 	});
 }
+
+/**
+ * État ouverte/fermée réel d'une caisse, dérivé du flag `ouverte` de
+ * `GET /finances/caisses/accessibles` — le seul endpoint qui l'expose à
+ * froid. `undefined` tant que la liste n'est pas chargée ou quand la caisse
+ * sort du périmètre accessible (ex. responsable consultant une caisse hors
+ * de son activité) — l'appelant garde alors son état de repli.
+ */
+export function useCaisseOuverte(idCaisse: string | null | undefined) {
+	const { data } = useCaissesAccessibles();
+	const caisse = data?.find((c) => c.id_caisse === idCaisse);
+	return caisse ? caisse.ouverte : undefined;
+}

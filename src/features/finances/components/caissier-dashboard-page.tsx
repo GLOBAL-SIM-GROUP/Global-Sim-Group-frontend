@@ -27,15 +27,14 @@ import {
 	obtenirDashboardCaisse,
 	ouvrirCaisse,
 } from "../api/caisses";
+import { useCaisseOuverte } from "../hooks/use-caisses-accessibles";
 import { useMesCaisses } from "../hooks/use-mes-caisses";
 
 /**
- * État d'ouverture connu de la caisse dans CETTE session : pas de GET dédié
- * côté backend pour lire l'état courant au chargement de la page — `inconnu`
- * tant qu'aucun appel `ouvrir`/`fermer` n'a été fait ici. L'état est persisté
- * dans le cache TanStack Query (clé `["caisse-etat", id]`) pour survivre aux
- * navigations entre pages — un `useState` local serait réinitialisé à chaque
- * démontage du composant.
+ * État d'ouverture de la caisse : le cache session (clé `["caisse-etat", id]`)
+ * prime — il reflète le dernier `ouvrir`/`fermer` fait ici — sinon le flag
+ * `ouverte` réel de `GET /finances/caisses/accessibles`, sinon `inconnu`.
+ * Le cache Query survit aux navigations, contrairement à un `useState`.
  */
 type EtatCaisse = "inconnu" | "ouverte" | "fermee";
 
@@ -58,14 +57,25 @@ export function CaissierDashboardPage() {
 
 	const idCaisse = caisses?.length === 1 ? caisses[0].id_caisse : idChoisi;
 
-	// État d'ouverture persisté dans le cache Query (survit aux navigations).
+	// État d'ouverture : cache session d'abord, sinon le flag serveur réel.
+	const ouverteServeur = useCaisseOuverte(idCaisse);
 	const etatCaisse: EtatCaisse =
 		(idCaisse
 			? queryClient.getQueryData<EtatCaisse>(["caisse-etat", idCaisse])
-			: null) ?? "inconnu";
+			: null) ??
+		(ouverteServeur === undefined
+			? "inconnu"
+			: ouverteServeur
+				? "ouverte"
+				: "fermee");
 
 	const setEtatCaisse = (etat: EtatCaisse) => {
-		if (idCaisse) queryClient.setQueryData(["caisse-etat", idCaisse], etat);
+		if (idCaisse) {
+			queryClient.setQueryData(["caisse-etat", idCaisse], etat);
+			void queryClient.invalidateQueries({
+				queryKey: ["finances", "caisses-accessibles"],
+			});
+		}
 	};
 
 	const { data: dashboard, isLoading: dashboardLoading } = useQuery({

@@ -28,13 +28,13 @@ import {
 	obtenirRevenusParUtilisateur,
 	ouvrirCaisse,
 } from "../api/caisses";
+import { useCaisseOuverte } from "../hooks/use-caisses-accessibles";
 
 /**
- * État d'ouverture connu de la caisse dans CETTE session : pas de GET dédié
- * côté backend pour lire l'état courant au chargement de la page — `inconnu`
- * tant qu'aucun appel `ouvrir`/`fermer` n'a été fait ici. L'état est persisté
- * dans le cache TanStack Query (clé `["caisse-etat", id]`) pour surviver aux
- * navigations entre pages.
+ * État d'ouverture de la caisse : le cache session (clé `["caisse-etat", id]`)
+ * prime — il reflète le dernier `ouvrir`/`fermer` fait ici — sinon le flag
+ * `ouverte` réel de `GET /finances/caisses/accessibles`, sinon `inconnu`
+ * (caisse hors du périmètre accessible de l'utilisateur).
  */
 type EtatCaisse = "inconnu" | "ouverte" | "fermee";
 
@@ -49,10 +49,19 @@ interface CaisseDashboardPageProps {
 export function CaisseDashboardPage({ id }: CaisseDashboardPageProps) {
 	const canCreer = useCan("FINANCES.CREER");
 	const queryClient = useQueryClient();
+	const ouverteServeur = useCaisseOuverte(id);
 	const etatCaisse: EtatCaisse =
-		queryClient.getQueryData<EtatCaisse>(["caisse-etat", id]) ?? "inconnu";
+		queryClient.getQueryData<EtatCaisse>(["caisse-etat", id]) ??
+		(ouverteServeur === undefined
+			? "inconnu"
+			: ouverteServeur
+				? "ouverte"
+				: "fermee");
 	const setEtatCaisse = (etat: EtatCaisse) => {
 		queryClient.setQueryData(["caisse-etat", id], etat);
+		void queryClient.invalidateQueries({
+			queryKey: ["finances", "caisses-accessibles"],
+		});
 	};
 	const [caisseActionPending, setCaisseActionPending] = useState(false);
 	const [caisseActionError, setCaisseActionError] = useState<string | null>(

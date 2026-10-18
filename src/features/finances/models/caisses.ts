@@ -57,9 +57,10 @@ export interface CaisseFiltres {
 
 /**
  * Période d'ouverture d'une caisse (POST `.../ouvrir`). Pas de GET dédié pour
- * lire l'état courant (ouverte/fermée) d'une caisse à froid — l'état affiché
- * côté UI n'est connu qu'après un appel `ouvrir`/`fermer` dans la session en
- * cours (voir `EtatCaisse` dans `caisse-dashboard-page.tsx`).
+ * lire la période courante — l'état ouverte/fermée affiché côté UI vient du
+ * flag `ouverte` de `GET /caisses/accessibles` (`useCaisseOuverte`), le cache
+ * `["caisse-etat", id]` ne servant qu'à refléter le dernier ouvrir/fermer
+ * fait dans la session avant le refetch (voir `caisse-dashboard-page.tsx`).
  */
 export interface PeriodeCaisse {
 	id_periode: string;
