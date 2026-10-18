@@ -35,10 +35,11 @@ export interface ListProduitsParams {
 /** Appels API du module Marchandise — produits (chemins `/api/v1/market/*`). */
 export function listProduits(params?: ListProduitsParams): Promise<Produit[]> {
 	const searchParams = new URLSearchParams();
-	if (params?.search) searchParams.append("search", params.search);
-	if (params?.categorie) searchParams.append("categorie", params.categorie);
+	if (params?.search) searchParams.append("recherche", params.search);
+	if (params?.categorie)
+		searchParams.append("id_categorie_produit", params.categorie);
 	if (params?.fournisseur)
-		searchParams.append("fournisseur", params.fournisseur);
+		searchParams.append("id_fournisseur", params.fournisseur);
 
 	const queryString = searchParams.toString();
 	const path = `/api/v1/market/produits${queryString ? `?${queryString}` : ""}`;

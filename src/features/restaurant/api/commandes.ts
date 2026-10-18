@@ -38,7 +38,7 @@ export function listCommandes(
 	params?: ListCommandesParams,
 ): Promise<CommandeRestaurant[]> {
 	const searchParams = new URLSearchParams();
-	if (params?.search) searchParams.set("search", params.search);
+	if (params?.search) searchParams.set("recherche", params.search);
 	if (params?.du) searchParams.set("du", params.du);
 	if (params?.au) searchParams.set("au", params.au);
 	if (params?.statut && params.statut !== "tous") {

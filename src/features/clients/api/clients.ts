@@ -80,7 +80,7 @@ export interface ListClientsParams {
 /** Appels API du module Clients — fiches locataires et clients. */
 export function listClients(params?: ListClientsParams): Promise<Client[]> {
 	const qs = params?.search?.trim()
-		? `?search=${encodeURIComponent(params.search.trim())}`
+		? `?recherche=${encodeURIComponent(params.search.trim())}`
 		: "";
 	return getApiClient()
 		.apiFetch<ClientWire[]>(`/api/v1/client/clients${qs}`)

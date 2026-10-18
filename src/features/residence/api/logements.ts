@@ -84,7 +84,7 @@ export async function listLogements(
 	params: ListLogementsParams,
 ): Promise<Logement[]> {
 	const searchParams = new URLSearchParams({ batiment: params.batiment });
-	if (params.search) searchParams.set("search", params.search);
+	if (params.search) searchParams.set("recherche", params.search);
 	if (params.type && params.type !== "tous")
 		searchParams.set("type", params.type);
 	if (params.statut && params.statut !== "tous") {

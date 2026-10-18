@@ -16,7 +16,7 @@ export interface ListEmployesParams {
 /** Appels API du module RH — employés. */
 export function listEmployes(params?: ListEmployesParams): Promise<Employe[]> {
 	const searchParams = new URLSearchParams();
-	if (params?.search) searchParams.append("search", params.search);
+	if (params?.search) searchParams.append("recherche", params.search);
 	if (params?.sansCompte) searchParams.append("sans_compte", "true");
 
 	const queryString = searchParams.toString();

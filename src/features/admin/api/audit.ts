@@ -24,7 +24,8 @@ export interface ListJournalParams {
 /** Appels API du module Administration — journal d'audit. */
 export function listJournal(params?: ListJournalParams): Promise<TraceAudit[]> {
 	const searchParams = new URLSearchParams();
-	if (params?.search?.trim()) searchParams.set("search", params.search.trim());
+	if (params?.search?.trim())
+		searchParams.set("recherche", params.search.trim());
 	if (params?.du) searchParams.set("du", params.du);
 	if (params?.au) searchParams.set("au", params.au);
 	if (params?.module && params.module !== "tous")
@@ -56,7 +57,8 @@ export function getJournalExportPath(
 ): string {
 	const searchParams = new URLSearchParams();
 	searchParams.set("format", format);
-	if (params?.search?.trim()) searchParams.set("search", params.search.trim());
+	if (params?.search?.trim())
+		searchParams.set("recherche", params.search.trim());
 	if (params?.du) searchParams.set("du", params.du);
 	if (params?.au) searchParams.set("au", params.au);
 	if (params?.module && params.module !== "tous")

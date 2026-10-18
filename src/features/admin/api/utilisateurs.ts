@@ -24,7 +24,7 @@ export function listUtilisateurs(
 	params?: ListUtilisateursParams,
 ): Promise<Utilisateur[]> {
 	const searchParams = new URLSearchParams();
-	if (params?.search) searchParams.append("search", params.search);
+	if (params?.search) searchParams.append("recherche", params.search);
 
 	const queryString = searchParams.toString();
 	const path = `/api/v1/admin/utilisateurs${queryString ? `?${queryString}` : ""}`;
