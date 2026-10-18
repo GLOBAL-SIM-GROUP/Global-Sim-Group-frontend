@@ -16,8 +16,26 @@ import { produitsKeys, rapportVentesKeys, ventesKeys } from "../permissions";
 /** Historique des ventes avec filtres côté backend. */
 export function useVentes(params?: ListVentesParams) {
 	return useQuery({
-		queryKey: ventesKeys.list(params?.search),
+		queryKey: ventesKeys.list(params?.search, params?.statut, params?.origine),
 		queryFn: () => listVentes(params),
+	});
+}
+
+/**
+ * Nombre de demandes boutique `EN_ATTENTE` issues du portail (badge nav —
+ * workflow `EN_ATTENTE` → `EN_COURS`/`ANNULEE` ; les ventes comptoir
+ * naissent `PAYEE` et ne comptent pas). `refetchInterval` : filet de
+ * sécurité — la demande est créée depuis le portail (autre session), pas
+ * par une mutation du back-office ; la validation/refus invalide déjà
+ * `ventesKeys.all`.
+ */
+export function useVentesEnAttenteCount(enabled: boolean) {
+	return useQuery({
+		queryKey: ventesKeys.list(undefined, "EN_ATTENTE", "PORTAIL"),
+		queryFn: () => listVentes({ statut: "EN_ATTENTE", origine: "PORTAIL" }),
+		enabled,
+		select: (data) => data.length,
+		refetchInterval: 60_000,
 	});
 }
 

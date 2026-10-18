@@ -3,7 +3,13 @@ import type { components } from "#/core/api/generated/schema";
 import { idCaisseDto } from "#/features/finances/models/caisses";
 
 import type { RapportVentes } from "../models/statistiques";
-import type { LigneVente, Vente, VenteDetail } from "../models/ventes";
+import type {
+	LigneVente,
+	Vente,
+	VenteDetail,
+	VenteOrigine,
+	VenteStatut,
+} from "../models/ventes";
 
 type CreerVenteDto = components["schemas"]["CreerVenteDto"];
 type PaiementVenteDto = components["schemas"]["PaiementVenteDto"];
@@ -17,12 +23,18 @@ type VenteDetailWire = Omit<VenteDetail, "id" | "lignes"> & {
 
 export interface ListVentesParams {
 	search?: string;
+	/** Filtre serveur `statut` (ex. `EN_ATTENTE` pour les demandes portail). */
+	statut?: VenteStatut;
+	/** Filtre serveur `origine` (`PORTAIL` = demandes boutique, `COMPTOIR` = POS). */
+	origine?: VenteOrigine;
 }
 
 /** Appels API du module Marchandise — ventes (chemins `/api/v1/market/*`). */
 export function listVentes(params?: ListVentesParams): Promise<Vente[]> {
 	const searchParams = new URLSearchParams();
-	if (params?.search) searchParams.append("search", params.search);
+	if (params?.search) searchParams.append("recherche", params.search);
+	if (params?.statut) searchParams.append("statut", params.statut);
+	if (params?.origine) searchParams.append("origine", params.origine);
 
 	const queryString = searchParams.toString();
 	const path = `/api/v1/market/ventes${queryString ? `?${queryString}` : ""}`;

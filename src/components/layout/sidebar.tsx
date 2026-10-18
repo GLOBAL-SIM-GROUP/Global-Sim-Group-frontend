@@ -27,12 +27,14 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 
+import { AvatarProfil } from "#/components/avatar-profil";
 import { useCan, useCurrentUser, usePermissions } from "#/core/auth";
 import {
 	getAccessibleModuleSubItems,
 	getAccessibleModules,
 } from "#/core/permissions/modules";
 import { useReliquatsADeciderCount } from "#/features/abonnement/hooks/use-souscriptions";
+import { useVentesEnAttenteCount } from "#/features/marchandise/hooks/use-ventes";
 import { useNombreArticlesPaniers } from "#/features/portail/hooks/use-panier-articles";
 import { usePortailResume } from "#/features/portail/hooks/use-portail";
 import { useCommandesEnAttenteCount as usePressingEnAttenteCount } from "#/features/pressing/hooks/use-commandes";
@@ -44,17 +46,6 @@ import { cn } from "#/lib/utils";
 
 import { groupeDeLaRoute, type NavGroupe, NavGroupes } from "./nav-groupes";
 import { UserMenu } from "./user-menu";
-
-/** Initiales de l'utilisateur pour l'avatar (2 premiers segments du login,
-    ex. "jean.dupont" → "JD", "admin" → "A"). */
-function initialsOf(login: string): string {
-	return login
-		.split(/[\s._-]+/)
-		.filter(Boolean)
-		.slice(0, 2)
-		.map((part) => part.charAt(0).toUpperCase())
-		.join("");
-}
 
 /**
  * Routes métier construites (liens typés de la sidebar), par module puis
@@ -291,6 +282,7 @@ export function Sidebar({ onClose }: { onClose?: () => void } = {}) {
 	const canVoirRestaurant = useCan("RESTAURANT.VOIR");
 	const canVoirPressing = useCan("PRESSING.VOIR");
 	const canVoirResidence = useCan("RESIDENCE.VOIR");
+	const canVoirMarchandise = useCan("MARCHANDISE.VOIR");
 	const canDeciderReliquat = useCan("ABONNEMENT.DECIDER_RELIQUAT");
 	const reliquatsADecider = useReliquatsADeciderCount(canDeciderReliquat).data;
 	const demandesSalleFeteEnAttente =
@@ -301,6 +293,8 @@ export function Sidebar({ onClose }: { onClose?: () => void } = {}) {
 		usePressingEnAttenteCount(canVoirPressing).data;
 	const demandesSejoursEnAttente =
 		useSejoursEnAttenteCount(canVoirResidence).data;
+	const demandesBoutiqueEnAttente =
+		useVentesEnAttenteCount(canVoirMarchandise).data;
 	const portailResumeQuery = usePortailResume(estResident);
 	const totalImpayes = portailResumeQuery.data?.total_impayes;
 	// Panier localStorage — lecture locale seule, sûr pour tout compte ; la
@@ -558,10 +552,13 @@ export function Sidebar({ onClose }: { onClose?: () => void } = {}) {
 															: module.code === "RESIDENCE" &&
 																	sub.id === "sejours_courts"
 																? demandesSejoursEnAttente
-																: module.code === "ABONNEMENT" &&
-																		sub.id === "reliquats"
-																	? reliquatsADecider
-																	: undefined;
+																: module.code === "MARCHANDISE" &&
+																		sub.id === "ventes"
+																	? demandesBoutiqueEnAttente
+																	: module.code === "ABONNEMENT" &&
+																			sub.id === "reliquats"
+																		? reliquatsADecider
+																		: undefined;
 											return (
 												<li key={sub.id}>
 													{route ? (
@@ -622,26 +619,21 @@ export function Sidebar({ onClose }: { onClose?: () => void } = {}) {
 				<div className="shrink-0 border-t border-palm/40 bg-sea-ink/50 -mx-3 px-3 pt-4 mt-4 rounded-lg">
 					<UserMenu
 						/* « Mon compte » rejoint « Se déconnecter » dans le menu —
-						   même emplacement que dans l'espace client ; réservé au
-						   compte résident (`RESIDENT.VOIR` gate la route). */
-						items={
-							estResident
-								? [
-										{
-											label: "Mon compte",
-											to: "/residence/portail/compte",
-											icon: <UserRound className="size-4" aria-hidden />,
-										},
-									]
-								: undefined
-						}
+						   même emplacement que dans l'espace client. Le résident
+						   va sur son compte portail (`RESIDENT.VOIR` gate la
+						   route), les autres comptes sur `/mon-compte`. */
+						items={[
+							{
+								label: "Mon compte",
+								to: estResident ? "/residence/portail/compte" : "/mon-compte",
+								icon: <UserRound className="size-4" aria-hidden />,
+							},
+						]}
 						avatar={
-							<div
-								aria-hidden
-								className="grid size-11 shrink-0 place-items-center rounded-full bg-gradient-to-br from-lagoon/40 to-lagoon/20 text-sm font-semibold text-lagoon ring-2 ring-lagoon/30 shadow-lg"
-							>
-								{initialsOf(user.login)}
-							</div>
+							<AvatarProfil
+								login={user.login}
+								className="size-11 bg-gradient-to-br from-lagoon/40 to-lagoon/20 text-sm font-semibold ring-2 ring-lagoon/30 shadow-lg"
+							/>
 						}
 						login={user.login}
 						role={user.role}
