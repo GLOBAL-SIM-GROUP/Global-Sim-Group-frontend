@@ -18,6 +18,7 @@ import { Route as MotDePasseOublieRouteImport } from './routes/mot-de-passe-oubl
 import { Route as ReinitialiserMotDePasseRouteImport } from './routes/reinitialiser-mot-de-passe'
 import { Route as AuthenticatedEnCoursRouteImport } from './routes/_authenticated/en-cours'
 import { Route as AuthenticatedHomeRouteImport } from './routes/_authenticated/home'
+import { Route as AuthenticatedMonCompteRouteImport } from './routes/_authenticated/mon-compte'
 import { Route as MarchandiseProduitsRouteImport } from './routes/marchandise/produits'
 import { Route as RestaurantPlatsRouteImport } from './routes/restaurant/plats'
 import { Route as AuthenticatedAbonnementsIndexRouteImport } from './routes/_authenticated/abonnements/index'
@@ -170,6 +171,11 @@ const AuthenticatedEnCoursRoute = AuthenticatedEnCoursRouteImport.update({
 const AuthenticatedHomeRoute = AuthenticatedHomeRouteImport.update({
   id: '/home',
   path: '/home',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedMonCompteRoute = AuthenticatedMonCompteRouteImport.update({
+  id: '/mon-compte',
+  path: '/mon-compte',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 const MarchandiseProduitsRoute = MarchandiseProduitsRouteImport.update({
@@ -839,6 +845,7 @@ export interface FileRoutesByFullPath {
   '/reinitialiser-mot-de-passe': typeof ReinitialiserMotDePasseRoute
   '/en-cours': typeof AuthenticatedEnCoursRoute
   '/home': typeof AuthenticatedHomeRoute
+  '/mon-compte': typeof AuthenticatedMonCompteRoute
   '/marchandise/produits': typeof MarchandiseProduitsRoute
   '/restaurant/plats': typeof RestaurantPlatsRoute
   '/signalements/$id': typeof AuthenticatedSignalementsIdRoute
@@ -958,6 +965,7 @@ export interface FileRoutesByTo {
   '/reinitialiser-mot-de-passe': typeof ReinitialiserMotDePasseRoute
   '/en-cours': typeof AuthenticatedEnCoursRoute
   '/home': typeof AuthenticatedHomeRoute
+  '/mon-compte': typeof AuthenticatedMonCompteRoute
   '/marchandise/produits': typeof AuthenticatedMarchandiseProduitsIndexRoute
   '/restaurant/plats': typeof AuthenticatedRestaurantPlatsIndexRoute
   '/signalements/$id': typeof AuthenticatedSignalementsIdRoute
@@ -1078,6 +1086,7 @@ export interface FileRoutesById {
   '/reinitialiser-mot-de-passe': typeof ReinitialiserMotDePasseRoute
   '/_authenticated/en-cours': typeof AuthenticatedEnCoursRoute
   '/_authenticated/home': typeof AuthenticatedHomeRoute
+  '/_authenticated/mon-compte': typeof AuthenticatedMonCompteRoute
   '/marchandise/produits': typeof MarchandiseProduitsRoute
   '/restaurant/plats': typeof RestaurantPlatsRoute
   '/_authenticated/signalements/$id': typeof AuthenticatedSignalementsIdRoute
@@ -1199,6 +1208,7 @@ export interface FileRouteTypes {
     | '/reinitialiser-mot-de-passe'
     | '/en-cours'
     | '/home'
+    | '/mon-compte'
     | '/marchandise/produits'
     | '/restaurant/plats'
     | '/signalements/$id'
@@ -1318,6 +1328,7 @@ export interface FileRouteTypes {
     | '/reinitialiser-mot-de-passe'
     | '/en-cours'
     | '/home'
+    | '/mon-compte'
     | '/marchandise/produits'
     | '/restaurant/plats'
     | '/signalements/$id'
@@ -1437,6 +1448,7 @@ export interface FileRouteTypes {
     | '/reinitialiser-mot-de-passe'
     | '/_authenticated/en-cours'
     | '/_authenticated/home'
+    | '/_authenticated/mon-compte'
     | '/marchandise/produits'
     | '/restaurant/plats'
     | '/_authenticated/signalements/$id'
@@ -1624,6 +1636,13 @@ declare module '@tanstack/react-router' {
       path: '/home'
       fullPath: '/home'
       preLoaderRoute: typeof AuthenticatedHomeRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/mon-compte': {
+      id: '/_authenticated/mon-compte'
+      path: '/mon-compte'
+      fullPath: '/mon-compte'
+      preLoaderRoute: typeof AuthenticatedMonCompteRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/marchandise/produits': {
@@ -2402,6 +2421,7 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedRouteChildren {
   AuthenticatedEnCoursRoute: typeof AuthenticatedEnCoursRoute
   AuthenticatedHomeRoute: typeof AuthenticatedHomeRoute
+  AuthenticatedMonCompteRoute: typeof AuthenticatedMonCompteRoute
   AuthenticatedSignalementsIdRoute: typeof AuthenticatedSignalementsIdRoute
   AuthenticatedAbonnementsIndexRoute: typeof AuthenticatedAbonnementsIndexRoute
   AuthenticatedDashboardIndexRoute: typeof AuthenticatedDashboardIndexRoute
@@ -2496,6 +2516,7 @@ interface AuthenticatedRouteChildren {
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedEnCoursRoute: AuthenticatedEnCoursRoute,
   AuthenticatedHomeRoute: AuthenticatedHomeRoute,
+  AuthenticatedMonCompteRoute: AuthenticatedMonCompteRoute,
   AuthenticatedSignalementsIdRoute: AuthenticatedSignalementsIdRoute,
   AuthenticatedAbonnementsIndexRoute: AuthenticatedAbonnementsIndexRoute,
   AuthenticatedDashboardIndexRoute: AuthenticatedDashboardIndexRoute,
