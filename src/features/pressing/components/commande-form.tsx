@@ -125,7 +125,13 @@ function ChampLibelleCatalogue({
 	const [enCours, setEnCours] = useState(false);
 	const [erreur, setErreur] = useState<string | null>(null);
 
-	const actives = entrees.filter((entree) => entree.actif);
+	// Tri alphabétique français des options du dropdown (ordre serveur
+	// arbitraire) — `filter` copie déjà, `sort` ne mute pas `entrees`.
+	const actives = entrees
+		.filter((entree) => entree.actif)
+		.sort((a, b) =>
+			a.libelle.localeCompare(b.libelle, "fr", { sensitivity: "base" }),
+		);
 	const connues = new Set(actives.map((entree) => entree.libelle));
 	const recherche = valeur.trim();
 	// Comparaison insensible à la casse pour éviter de créer un doublon
