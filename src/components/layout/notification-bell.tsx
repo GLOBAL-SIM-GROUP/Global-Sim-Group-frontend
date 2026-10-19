@@ -1,7 +1,7 @@
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { useNavigate } from "@tanstack/react-router";
 import { Bell, CheckCheck, Loader2, RefreshCw, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { Button } from "#/components/ui/button";
 import { useCurrentUser } from "#/core/auth";
@@ -13,6 +13,49 @@ import {
 } from "#/core/notifications";
 import { parseInstantUTC } from "#/features/residence/models/format";
 import { cn } from "#/lib/utils";
+
+import "./notification-bell.css";
+
+// Mécanique de balancement portée de React Bits BellToggle (WAAPI pur, pas
+// de `motion`) : la cloche oscille en anneaux décroissants, avec des vagues
+// sonores à chaque passage.
+const SEG_EASE = "cubic-bezier(0.77, 0, 0.175, 1)";
+const WARP = 0.6;
+
+const passOffset = (k: number, passes: number) =>
+	1 - (1 - (k + 2 / 3) / (passes + 1)) ** WARP;
+
+const ringKeyframes = (
+	from: number,
+	amplitude: number,
+	passes: number,
+	decay: number,
+): Keyframe[] => {
+	const frames: Keyframe[] = [
+		{ transform: `rotate(${from}deg)`, offset: 0, easing: SEG_EASE },
+	];
+	for (let k = 0; k < passes; k++) {
+		const angle = amplitude * (1 - k / passes) ** decay * (k % 2 ? 1 : -1);
+		frames.push({
+			transform: `rotate(${angle.toFixed(2)}deg)`,
+			offset: passOffset(k, passes),
+			easing: SEG_EASE,
+		});
+	}
+	frames.push({ transform: "rotate(0deg)", offset: 1 });
+	return frames;
+};
+
+const liveAngle = (el: HTMLElement) => {
+	const tf = getComputedStyle(el).transform;
+	if (!tf || tf === "none") return 0;
+	const m = new DOMMatrix(tf);
+	return (Math.atan2(m.b, m.a) * 180) / Math.PI;
+};
+
+const prefersReducedMotion = () =>
+	typeof window.matchMedia === "function" &&
+	window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 const PRIORITY_BORDER: Record<NotificationPriority, string> = {
 	CRITICAL: "border-l-danger",
@@ -136,6 +179,55 @@ export function NotificationBell({ className }: { className?: string }) {
 		refreshHistory,
 	} = useNotifications();
 
+	const glyphRef = useRef<HTMLSpanElement>(null);
+	const waveLeftRef = useRef<SVGSVGElement>(null);
+	const waveRightRef = useRef<SVGSVGElement>(null);
+	const prevUnreadRef = useRef(unreadCount);
+
+	// Balancement : `amplitude` = premier écart en degrés, `passes` =
+	// demi-oscillations avant l'arrêt, amortissement constant (decay = 1).
+	const swing = (amplitude: number, passes: number, duration: number) => {
+		const el = glyphRef.current;
+		if (!el || prefersReducedMotion()) return;
+		for (const animation of el.getAnimations()) animation.cancel();
+		el.animate(ringKeyframes(liveAngle(el), amplitude, passes, 1), {
+			duration,
+			easing: "linear",
+		});
+		for (let k = 0; k < passes; k++) {
+			const side = k % 2 ? waveRightRef.current : waveLeftRef.current;
+			if (!side) continue;
+			const strength = (1 - k / passes) ** 1;
+			side.animate(
+				[
+					{ opacity: 0, transform: "scale(0.55)" },
+					{ opacity: 0.9 * strength, offset: 0.3 },
+					{ opacity: 0, transform: "scale(1.25)" },
+				],
+				{
+					duration: 380,
+					delay: passOffset(k, passes) * duration,
+					easing: "ease-out",
+				},
+			);
+		}
+	};
+
+	// Une notification arrive en live (Socket.IO) : carillon + vagues.
+	// Pas de swing au montage — `prevUnreadRef` démarre à la valeur courante.
+	// biome-ignore lint/correctness/useExhaustiveDependencies: `swing` ne dépend que de refs
+	useEffect(() => {
+		const precedent = prevUnreadRef.current;
+		prevUnreadRef.current = unreadCount;
+		if (unreadCount > precedent) swing(17, 5, 820);
+	}, [unreadCount]);
+
+	const handleOpenChange = (next: boolean) => {
+		setOpen(next);
+		// Petit balancement à l'ouverture — retour visuel du clic.
+		if (next) swing(8, 3, 480);
+	};
+
 	const handleActivate = (item: NotificationEnvelope) => {
 		markAsRead(item.id);
 		const route = routeFor(item, role, permissions);
@@ -146,7 +238,7 @@ export function NotificationBell({ className }: { className?: string }) {
 	};
 
 	return (
-		<DropdownMenu.Root open={open} onOpenChange={setOpen}>
+		<DropdownMenu.Root open={open} onOpenChange={handleOpenChange}>
 			<DropdownMenu.Trigger asChild>
 				<Button
 					variant="ghost"
@@ -155,10 +247,34 @@ export function NotificationBell({ className }: { className?: string }) {
 					aria-label="Notifications"
 					title="Notifications"
 				>
-					<Bell />
+					<span className="notif-bell__bell" aria-hidden="true">
+						<span ref={glyphRef} className="notif-bell__glyph">
+							<Bell />
+						</span>
+						<svg
+							ref={waveLeftRef}
+							className="notif-bell__wave notif-bell__wave--left"
+							viewBox="0 0 14 14"
+							aria-hidden="true"
+						>
+							<path d="M14 8a6 6 0 0 0-6 6" />
+							<path d="M14 4A10 10 0 0 0 4 14" />
+						</svg>
+						<svg
+							ref={waveRightRef}
+							className="notif-bell__wave notif-bell__wave--right"
+							viewBox="0 0 14 14"
+							aria-hidden="true"
+						>
+							<path d="M0 8a6 6 0 0 1 6 6" />
+							<path d="M0 4a10 10 0 0 1 10 10" />
+						</svg>
+					</span>
 					{unreadCount > 0 ? (
-						<span className="absolute -right-0.5 -top-0.5 flex size-4 items-center justify-center rounded-full bg-destructive text-[0.6rem] font-semibold text-white">
-							{unreadCount > 9 ? "9+" : unreadCount}
+						<span className="notif-bell__badge absolute -right-0.5 -top-0.5 flex size-4 items-center justify-center rounded-full bg-destructive text-[0.6rem] font-semibold text-white">
+							<span key={unreadCount} className="notif-bell__digit">
+								{unreadCount > 9 ? "9+" : unreadCount}
+							</span>
 						</span>
 					) : null}
 				</Button>
