@@ -86,6 +86,8 @@ __unconfig*
 # `__probe-*.mjs`, `__debug-*.png`, `__capture-*.mjs`, `__devserver.log`…
 /__*
 todos.json
+# Fichiers temporaires/scripts jetables (`test-*.tmp.cjs`, brouillons…).
+*.tmp.*
 # Restes de résolution de conflits git.
 *.orig
 # `prod-server.mjs` lancé en arrière-plan avec nohup.
