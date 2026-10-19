@@ -345,6 +345,14 @@ export function CommandeFichePage({ id }: CommandeFichePageProps) {
 						</tbody>
 					</DataTable>
 				</TableShell>
+				{commande.description ? (
+					<p className="text-sm text-muted-foreground">
+						<span className="font-medium text-foreground">
+							Description&nbsp;:{" "}
+						</span>
+						{commande.description}
+					</p>
+				) : null}
 			</section>
 
 			<CommandeFormDialog

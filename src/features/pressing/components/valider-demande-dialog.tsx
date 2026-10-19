@@ -112,6 +112,9 @@ export function ValiderDemandeDialog({
 	const [dateRetrait, setDateRetrait] = useState(
 		commande?.date_retrait_prevue ?? "",
 	);
+	// Description du contenu — imprimée sur le reçu (champ commande réel,
+	// pré-rempli si la demande en porte déjà une).
+	const [description, setDescription] = useState(commande?.description ?? "");
 	const [acompte, setAcompte] = useState("");
 	const [idMoyen, setIdMoyen] = useState(moyens[0]?.id ?? "");
 	const caissesQuery = useCaissesAccessibles();
@@ -248,6 +251,7 @@ export function ValiderDemandeDialog({
 				modeTarification: mode,
 				dateRetraitPrevue: dateRetrait.trim() || undefined,
 				lignes: lignesCorps,
+				description,
 				...(acompte.trim()
 					? {
 							paiement: {
@@ -440,6 +444,20 @@ export function ValiderDemandeDialog({
 								</div>
 							</div>
 						))}
+					</div>
+
+					<div className="space-y-1.5">
+						<Label htmlFor="validation-description">
+							Description (imprimée sur le reçu)
+						</Label>
+						<textarea
+							id="validation-description"
+							rows={2}
+							className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
+							placeholder="ex : 3 Chemise, 2 Pantalon, 1 Robe de soirée"
+							value={description}
+							onChange={(event) => setDescription(event.target.value)}
+						/>
 					</div>
 
 					<div>

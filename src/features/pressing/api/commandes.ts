@@ -108,6 +108,14 @@ function ligneVersCorps(ligne: LigneCommandeBody) {
 	};
 }
 
+/**
+ * `description` au niveau commande : acceptée et persistée par le backend
+ * (vérifié en direct — POST, PATCH, valider) et imprimée sur le reçu de
+ * dépôt, mais absente des DTO de la spec OpenAPI → extension locale, à
+ * retirer quand `api:gen` la répercutera.
+ */
+type AvecDescription = { description?: string | null };
+
 /** Corps saisi par le formulaire de dépôt d'une commande. */
 export interface CommandeBody {
 	idClient: string;
@@ -115,6 +123,8 @@ export interface CommandeBody {
 	modeTarification: ModeTarificationPressing;
 	dateRetraitPrevue: string;
 	lignes: LigneCommandeBody[];
+	/** Contenu du dépôt (types de vêtement × quantités) — imprimé sur le reçu. */
+	description?: string;
 	/**
 	 * Acompte éventuel — omis quand la couverture abonnement solde la
 	 * commande. `idCaisse` : caisse de destination choisie par un
@@ -132,11 +142,12 @@ export interface CommandeBody {
 
 /** Enregistre un dépôt (POST `/pressing/commandes`). */
 export function creerCommande(body: CommandeBody): Promise<unknown> {
-	const corps = {
+	const corps: CreerCommandePressingDto & AvecDescription = {
 		id_client: body.idClient,
 		mode_tarification: body.modeTarification,
 		date_retrait_prevue: body.dateRetraitPrevue,
 		lignes: body.lignes.map(ligneVersCorps),
+		description: body.description?.trim() || null,
 		...(body.paiement
 			? {
 					paiement: {
@@ -150,7 +161,7 @@ export function creerCommande(body: CommandeBody): Promise<unknown> {
 			: {}),
 		utiliser_abonnement: body.utiliserAbonnement ?? true,
 		accepter_excedent: body.accepterExcedent ?? false,
-	} satisfies CreerCommandePressingDto;
+	};
 	return getApiClient().apiFetch("/api/v1/pressing/commandes", {
 		method: "POST",
 		body: JSON.stringify(corps),
@@ -166,6 +177,8 @@ export interface ModifierCommandeBody {
 	idClient: string;
 	dateRetraitPrevue: string;
 	lignes: LigneCommandeBody[];
+	/** `null`/vide → efface la description existante côté serveur. */
+	description?: string;
 	utiliserAbonnement?: boolean;
 	accepterExcedent?: boolean;
 }
@@ -175,13 +188,14 @@ export function modifierCommande(
 	id: string,
 	body: ModifierCommandeBody,
 ): Promise<unknown> {
-	const corps = {
+	const corps: MajCommandePressingDto & AvecDescription = {
 		id_client: body.idClient,
 		date_retrait_prevue: body.dateRetraitPrevue,
 		lignes: body.lignes.map(ligneVersCorps),
+		description: body.description?.trim() || null,
 		utiliser_abonnement: body.utiliserAbonnement ?? true,
 		accepter_excedent: body.accepterExcedent ?? false,
-	} satisfies MajCommandePressingDto;
+	};
 	return getApiClient().apiFetch(`/api/v1/pressing/commandes/${id}`, {
 		method: "PATCH",
 		body: JSON.stringify(corps),
@@ -249,6 +263,8 @@ export interface ValiderDemandeBody {
 	modeTarification: ModeTarificationPressing;
 	dateRetraitPrevue?: string;
 	lignes: LigneCommandeBody[];
+	/** Contenu du dépôt décrit par le staff au chiffrage — imprimé sur le reçu. */
+	description?: string;
 	/** Acompte éventuel encaissé à la validation (idCaisse : choix responsable). */
 	paiement?: { montant: string; idMoyen: string; idCaisse?: string };
 	utiliserAbonnement?: boolean;
@@ -260,9 +276,10 @@ export function validerDemande(
 	id: string,
 	body: ValiderDemandeBody,
 ): Promise<unknown> {
-	const corps = {
+	const corps: ValiderDemandePressingDto & AvecDescription = {
 		lignes: body.lignes.map(ligneVersCorps),
 		mode_tarification: body.modeTarification,
+		description: body.description?.trim() || null,
 		...(body.dateRetraitPrevue
 			? { date_retrait_prevue: body.dateRetraitPrevue }
 			: {}),
@@ -279,7 +296,7 @@ export function validerDemande(
 			: {}),
 		utiliser_abonnement: body.utiliserAbonnement ?? true,
 		accepter_excedent: body.accepterExcedent ?? false,
-	} satisfies ValiderDemandePressingDto;
+	};
 	return getApiClient().apiFetch(`/api/v1/pressing/commandes/${id}/valider`, {
 		method: "POST",
 		body: JSON.stringify(corps),

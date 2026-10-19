@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
 	apercuTotalLignePoids,
+	composerDescription,
 	type LigneSaisiePressing,
 	validerLignePressing,
 } from "./commandes";
@@ -95,5 +96,43 @@ describe("apercuTotalLignePoids", () => {
 	it("renvoie null si aucun tarif/kg n'est configuré", () => {
 		expect(apercuTotalLignePoids("4.5", null)).toBeNull();
 		expect(apercuTotalLignePoids("4.5", undefined)).toBeNull();
+	});
+});
+
+describe("composerDescription", () => {
+	it("compose « nombre Type » joint par virgules", () => {
+		expect(
+			composerDescription([
+				{ typeVetement: "Chemise", nombre: "3" },
+				{ typeVetement: "Pantalon", nombre: "2" },
+				{ typeVetement: "Robe de soirée", nombre: "1" },
+			]),
+		).toBe("3 Chemise, 2 Pantalon, 1 Robe de soirée");
+	});
+
+	it("ignore les entrées incomplètes (type vide, nombre ≤ 0)", () => {
+		expect(
+			composerDescription([
+				{ typeVetement: "  ", nombre: "3" },
+				{ typeVetement: "Chemise", nombre: "0" },
+				{ typeVetement: "Chemise", nombre: "abc" },
+				{ typeVetement: "Pantalon", nombre: "2" },
+			]),
+		).toBe("2 Pantalon");
+	});
+
+	it("joint le complément libre par « — »", () => {
+		expect(
+			composerDescription(
+				[{ typeVetement: "Chemise", nombre: "3" }],
+				"dont une tâchée",
+			),
+		).toBe("3 Chemise — dont une tâchée");
+	});
+
+	it("renvoie le complément seul ou une chaîne vide", () => {
+		expect(composerDescription([], "note")).toBe("note");
+		expect(composerDescription([])).toBe("");
+		expect(composerDescription([{ typeVetement: "", nombre: "2" }])).toBe("");
 	});
 });

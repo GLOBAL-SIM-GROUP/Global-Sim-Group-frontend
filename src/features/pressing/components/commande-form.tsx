@@ -1,4 +1,4 @@
-import { AlertTriangle, Loader2, Plus, Trash2 } from "lucide-react";
+import { AlertTriangle, Loader2, Minus, Plus, Trash2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
 import { Button } from "#/components/ui/button";
@@ -44,6 +44,8 @@ import {
 import {
 	apercuTotalLignePoids,
 	type CommandePressing,
+	type CompositionVetement,
+	composerDescription,
 	type LigneCommandePressing,
 	MODE_TARIFICATION_LABELS,
 	type ModeTarificationPressing,
@@ -83,6 +85,11 @@ const ligneVide = (cle: number): LigneSaisie => ({
 	tarif: "",
 	poidsKg: "",
 });
+
+/** Entrée « type × nombre » de la composition du dépôt (→ `description`). */
+interface CompositionSaisie extends CompositionVetement {
+	cle: number;
+}
 
 /** Entrée de catalogue normalisée pour `ChampLibelleCatalogue`. */
 interface EntreeCatalogue {
@@ -330,6 +337,21 @@ export function CommandeForm({
 	const caissesQuery = useCaissesAccessibles();
 	const [idCaisse, setIdCaisse] = useState("");
 
+	// Contenu du dépôt (types de vêtement × nombre) composant la
+	// `description` imprimée sur le reçu — tant que le texte n'est pas
+	// retouché à la main (`descriptionManuelle`), il suit les entrées ;
+	// en édition, la description existante est préservée telle quelle.
+	const [compositions, setCompositions] = useState<CompositionSaisie[]>([]);
+	const [prochaineCleCompo, setProchaineCleCompo] = useState(0);
+	const [description, setDescription] = useState(commande?.description ?? "");
+	const [descriptionManuelle, setDescriptionManuelle] = useState(
+		(commande?.description ?? "").trim() !== "",
+	);
+	const descriptionComposee = composerDescription(compositions);
+	useEffect(() => {
+		if (!descriptionManuelle) setDescription(descriptionComposee);
+	}, [descriptionComposee, descriptionManuelle]);
+
 	const ajouterLigne = () => {
 		setLignes((current) => [...current, ligneVide(prochaineCle)]);
 		setProchaineCle((valeur) => valeur + 1);
@@ -343,18 +365,60 @@ export function CommandeForm({
 	const retirerLigne = (cle: number) =>
 		setLignes((current) => current.filter((ligne) => ligne.cle !== cle));
 
+	const majComposition = (cle: number, patch: Partial<CompositionSaisie>) =>
+		setCompositions((current) =>
+			current.map((compo) =>
+				compo.cle === cle ? { ...compo, ...patch } : compo,
+			),
+		);
+	const retirerComposition = (cle: number) =>
+		setCompositions((current) => current.filter((compo) => compo.cle !== cle));
+	// Chips catalogue (pattern équipements du formulaire logement) : un clic
+	// ajoute le type à la composition, les compteurs −/+ ajustent le nombre,
+	// retomber à 0 retire l'entrée. Les types hors catalogue se saisissent
+	// directement dans la description (texte libre).
+	const nombreDeType = (libelle: string) =>
+		compositions.find((compo) => compo.typeVetement === libelle);
+	const incrementerType = (libelle: string) => {
+		const existante = nombreDeType(libelle);
+		if (existante) {
+			majComposition(existante.cle, {
+				nombre: String(Number(existante.nombre) + 1),
+			});
+		} else {
+			setCompositions((current) => [
+				...current,
+				{ cle: prochaineCleCompo, typeVetement: libelle, nombre: "1" },
+			]);
+			setProchaineCleCompo((valeur) => valeur + 1);
+		}
+	};
+	const decrementerType = (cle: number) => {
+		const compo = compositions.find((entree) => entree.cle === cle);
+		if (!compo) return;
+		const nombre = Number(compo.nombre);
+		if (nombre <= 1) {
+			retirerComposition(cle);
+		} else {
+			majComposition(cle, { nombre: String(nombre - 1) });
+		}
+	};
+
 	// Changer de mode (création seulement) réinitialise les champs propres à
 	// l'autre mode — évite d'envoyer un `tarif`/`poids_kg` résiduel de l'ancien
-	// mode, que le backend rejetterait (mutuelle exclusivité).
+	// mode, que le backend rejetterait (mutuelle exclusivité). La tarification
+	// au kilo est une rubrique unique : les lignes en trop sont retirées.
 	const changerMode = (nouveauMode: ModeTarificationPressing) => {
 		setMode(nouveauMode);
 		setLignes((current) =>
-			current.map((ligne) => ({
-				...ligne,
-				tarif: "",
-				poidsKg: "",
-				quantite: "1",
-			})),
+			current
+				.map((ligne) => ({
+					...ligne,
+					tarif: "",
+					poidsKg: "",
+					quantite: "1",
+				}))
+				.slice(0, nouveauMode === "POIDS" ? 1 : current.length),
 		);
 	};
 
@@ -417,27 +481,59 @@ export function CommandeForm({
 			),
 		[prestationsEntrees],
 	);
+	// Chips du contenu du dépôt : types actifs triés alphabétiquement.
+	const typesVetementChips = useMemo(
+		() =>
+			typesVetementEntrees
+				.filter((entree) => entree.actif)
+				.sort((a, b) =>
+					a.libelle.localeCompare(b.libelle, "fr", { sensitivity: "base" }),
+				),
+		[typesVetementEntrees],
+	);
+	// Quand le contenu du dépôt est déclaré, le type de chaque ligne est
+	// déduit : un seul type → celui-ci ; plusieurs → « MIXTE ». Le champ
+	// « Type de vêtement » des lignes devient alors inutile et n'est pas
+	// affiché. `null` = pas de contenu déclaré → saisie manuelle du type.
+	const typeVetementDerive = useMemo(() => {
+		const types = [
+			...new Set(
+				compositions
+					.map((compo) => compo.typeVetement.trim())
+					.filter((libelle) => libelle !== ""),
+			),
+		];
+		return types.length === 0 ? null : types.length === 1 ? types[0] : "MIXTE";
+	}, [compositions]);
 
 	// Corps des lignes partagé entre la prévisualisation d'abonnement et le
 	// submit — même normalisation pour que l'aperçu reflète exactement ce qui
 	// partira au backend.
 	const lignesCorps = useMemo<LigneCommandeBody[]>(
 		() =>
-			lignes.map((ligne) => ({
-				typeVetement: ligne.typeVetement.trim(),
-				quantite: ligne.quantite.trim(),
-				prestation: ligne.prestation.trim(),
-				// « Catalogue » seulement si les DEUX libellés sont dans le
-				// référentiel actif — le backend vérifie l'appartenance quand
-				// `hors_catalogue` est faux.
-				horsCatalogue:
-					!typesConnus.has(ligne.typeVetement.trim()) ||
-					!prestationsConnues.has(ligne.prestation.trim()),
-				...(mode === "UNITAIRE"
-					? { tarif: ligne.tarif.trim() }
-					: { poidsKg: ligne.poidsKg.trim() }),
-			})),
-		[lignes, mode, typesConnus, prestationsConnues],
+			lignes.map((ligne) => {
+				// Priorité : type déduit du contenu du dépôt → saisie manuelle →
+				// en tarification au kilo (rubrique unique), « MIXTE » quand
+				// rien n'est déclaré — le champ n'est jamais affiché en POIDS.
+				const typeVetement =
+					typeVetementDerive ??
+					(ligne.typeVetement.trim() || (mode === "POIDS" ? "MIXTE" : ""));
+				return {
+					typeVetement,
+					quantite: ligne.quantite.trim(),
+					prestation: ligne.prestation.trim(),
+					// « Catalogue » seulement si les DEUX libellés sont dans le
+					// référentiel actif — le backend vérifie l'appartenance quand
+					// `hors_catalogue` est faux.
+					horsCatalogue:
+						!typesConnus.has(typeVetement) ||
+						!prestationsConnues.has(ligne.prestation.trim()),
+					...(mode === "UNITAIRE"
+						? { tarif: ligne.tarif.trim() }
+						: { poidsKg: ligne.poidsKg.trim() }),
+				};
+			}),
+		[lignes, mode, typesConnus, prestationsConnues, typeVetementDerive],
 	);
 
 	// Aperçu appelé uniquement sur des lignes complètes (mêmes exigences que
@@ -482,7 +578,9 @@ export function CommandeForm({
 		for (const ligne of lignes) {
 			const erreur = validerLignePressing(
 				{
-					typeVetement: ligne.typeVetement,
+					typeVetement:
+						typeVetementDerive ??
+						(ligne.typeVetement || (mode === "POIDS" ? "MIXTE" : "")),
 					quantite: ligne.quantite,
 					prestation: ligne.prestation,
 					tarif: mode === "UNITAIRE" ? ligne.tarif : undefined,
@@ -524,6 +622,7 @@ export function CommandeForm({
 					idClient,
 					dateRetraitPrevue: dateRetrait,
 					lignes: lignesCorps,
+					description,
 					...flagsAbonnement,
 				});
 			} else {
@@ -532,6 +631,7 @@ export function CommandeForm({
 					modeTarification: mode,
 					dateRetraitPrevue: dateRetrait,
 					lignes: lignesCorps,
+					description,
 					...(acompte.trim() && !couvertureComplete
 						? {
 								paiement: {
@@ -622,15 +722,17 @@ export function CommandeForm({
 			<div className="space-y-3">
 				<div className="flex items-center justify-between">
 					<Label>Articles</Label>
-					<Button
-						type="button"
-						variant="outline"
-						size="sm"
-						onClick={ajouterLigne}
-					>
-						<Plus className="size-4" aria-hidden />
-						Ajouter un article
-					</Button>
+					{mode === "UNITAIRE" ? (
+						<Button
+							type="button"
+							variant="outline"
+							size="sm"
+							onClick={ajouterLigne}
+						>
+							<Plus className="size-4" aria-hidden />
+							Ajouter un article
+						</Button>
+					) : null}
 				</div>
 
 				{lignes.map((ligne) => (
@@ -639,28 +741,42 @@ export function CommandeForm({
 						className="space-y-3 rounded-md border border-border p-3"
 					>
 						<div className="grid gap-3 sm:grid-cols-2">
-							<ChampLibelleCatalogue
-								ariaLabel="Type de vêtement"
-								placeholder="Type de vêtement (ex : Chemise)"
-								valeur={ligne.typeVetement}
-								libre={ligne.typeLibre}
-								entrees={typesVetementEntrees}
-								peutGerer={peutGererCatalogue}
-								onPatch={(patch) =>
-									majLigne(ligne.cle, {
-										...(patch.valeur !== undefined
-											? { typeVetement: patch.valeur }
-											: {}),
-										...(patch.libre !== undefined
-											? { typeLibre: patch.libre }
-											: {}),
-									})
-								}
-								onCreer={(libelle) => creerTypeMutation.mutateAsync(libelle)}
-								onReactiver={(id) =>
-									majTypeMutation.mutateAsync({ id, actif: true })
-								}
-							/>
+							{typeVetementDerive !== null || mode === "POIDS" ? (
+								<div className="space-y-2">
+									<Label>Type de vêtement</Label>
+									<p className="rounded-md border border-input bg-muted/40 px-3 py-2 text-sm text-muted-foreground">
+										{typeVetementDerive ?? "MIXTE"}{" "}
+										<span className="text-xs">
+											{typeVetementDerive !== null
+												? "— déduit du contenu du dépôt"
+												: "— automatique (tarification au kilo)"}
+										</span>
+									</p>
+								</div>
+							) : (
+								<ChampLibelleCatalogue
+									ariaLabel="Type de vêtement"
+									placeholder="Type de vêtement (ex : Chemise)"
+									valeur={ligne.typeVetement}
+									libre={ligne.typeLibre}
+									entrees={typesVetementEntrees}
+									peutGerer={peutGererCatalogue}
+									onPatch={(patch) =>
+										majLigne(ligne.cle, {
+											...(patch.valeur !== undefined
+												? { typeVetement: patch.valeur }
+												: {}),
+											...(patch.libre !== undefined
+												? { typeLibre: patch.libre }
+												: {}),
+										})
+									}
+									onCreer={(libelle) => creerTypeMutation.mutateAsync(libelle)}
+									onReactiver={(id) =>
+										majTypeMutation.mutateAsync({ id, actif: true })
+									}
+								/>
+							)}
 							<ChampLibelleCatalogue
 								ariaLabel="Prestation"
 								placeholder="Prestation (ex : Repassage)"
@@ -732,20 +848,104 @@ export function CommandeForm({
 								({formatMontantFCFA(tarifKgQuery.data.prix_kg)}/kg)
 							</p>
 						) : null}
-						<div className="flex justify-end">
-							<Button
-								type="button"
-								variant="ghost"
-								size="sm"
-								disabled={lignes.length === 1}
-								onClick={() => retirerLigne(ligne.cle)}
-							>
-								<Trash2 className="size-4 text-destructive" aria-hidden />
-								Retirer
-							</Button>
-						</div>
+						{mode === "UNITAIRE" || lignes.length > 1 ? (
+							<div className="flex justify-end">
+								<Button
+									type="button"
+									variant="ghost"
+									size="sm"
+									disabled={lignes.length === 1}
+									onClick={() => retirerLigne(ligne.cle)}
+								>
+									<Trash2 className="size-4 text-destructive" aria-hidden />
+									Retirer
+								</Button>
+							</div>
+						) : null}
 					</div>
 				))}
+			</div>
+
+			<div className="space-y-3">
+				<div className="space-y-1">
+					<Label>Contenu du dépôt</Label>
+					<p className="text-xs text-muted-foreground">
+						Types de vêtement et quantités — imprimés sur le reçu de dépôt.
+					</p>
+				</div>
+				<div className="flex flex-wrap gap-2">
+					{typesVetementChips.map((type) => {
+						const compo = nombreDeType(type.libelle);
+						const nombre = compo ? Number(compo.nombre) : 0;
+						return nombre > 0 && compo ? (
+							<span
+								key={type.id}
+								className="inline-flex items-center gap-1 rounded-full border border-lagoon bg-lagoon/10 py-1 pl-3 pr-1 text-sm font-medium"
+							>
+								{type.libelle}
+								<button
+									type="button"
+									aria-label={`Retirer un ${type.libelle}`}
+									className="grid size-6 place-items-center rounded-full text-muted-foreground transition-colors hover:bg-lagoon/20 hover:text-foreground"
+									onClick={() => decrementerType(compo.cle)}
+								>
+									<Minus className="size-3.5" aria-hidden />
+								</button>
+								<span className="min-w-5 text-center tabular-nums">
+									{nombre}
+								</span>
+								<button
+									type="button"
+									aria-label={`Ajouter un ${type.libelle}`}
+									className="grid size-6 place-items-center rounded-full text-muted-foreground transition-colors hover:bg-lagoon/20 hover:text-foreground"
+									onClick={() => incrementerType(type.libelle)}
+								>
+									<Plus className="size-3.5" aria-hidden />
+								</button>
+							</span>
+						) : (
+							<button
+								key={type.id}
+								type="button"
+								className="rounded-full border border-border bg-card px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:border-lagoon/50 hover:text-foreground"
+								onClick={() => incrementerType(type.libelle)}
+							>
+								{type.libelle}
+							</button>
+						);
+					})}
+				</div>
+				<div className="space-y-1.5">
+					<Label htmlFor="commande-description">
+						Description (imprimée sur le reçu)
+					</Label>
+					<textarea
+						id="commande-description"
+						rows={2}
+						className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
+						placeholder="ex : 3 Chemise, 2 Pantalon, 1 Robe de soirée"
+						value={description}
+						onChange={(event) => {
+							setDescription(event.target.value);
+							// Vider le champ réactive la composition automatique.
+							setDescriptionManuelle(event.target.value.trim() !== "");
+						}}
+					/>
+					{descriptionManuelle && descriptionComposee ? (
+						<Button
+							type="button"
+							variant="link"
+							size="sm"
+							className="h-auto px-0 text-xs"
+							onClick={() => {
+								setDescriptionManuelle(false);
+								setDescription(descriptionComposee);
+							}}
+						>
+							Reprendre le contenu déclaré
+						</Button>
+					) : null}
+				</div>
 			</div>
 
 			<div>

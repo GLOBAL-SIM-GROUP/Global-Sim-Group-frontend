@@ -42,6 +42,13 @@ export interface CommandePressing {
 	mode_tarification: ModeTarificationPressing | null;
 	/** Raison du refus quand une demande a été annulée par le personnel. */
 	motif_annulation?: string | null;
+	/**
+	 * Description libre de la commande (contenu du dépôt : types de vêtement
+	 * et quantités, particularités…) — acceptée par POST/PATCH/`valider` et
+	 * imprimée sur le reçu de dépôt (« Description : … »). Non documentée
+	 * dans la spec OpenAPI mais vérifiée fonctionnelle en direct.
+	 */
+	description?: string | null;
 	client_nom: string;
 	client_prenoms: string;
 	client_tel: string | null;
@@ -93,6 +100,34 @@ export interface LigneSaisiePressing {
 	prestation: string;
 	tarif?: string;
 	poidsKg?: string;
+}
+
+/** Entrée « type de vêtement × nombre » composant la description du dépôt. */
+export interface CompositionVetement {
+	typeVetement: string;
+	nombre: string;
+}
+
+/**
+ * Compose la `description` d'une commande depuis des entrées type × nombre —
+ * « 3 Chemise, 2 Pantalon » ; `complement` (précisions libres éventuelles)
+ * est joint par « — ». Les entrées incomplètes (type vide ou nombre ≤ 0)
+ * sont ignorées. Chaîne vide si rien d'exploitable.
+ */
+export function composerDescription(
+	compositions: readonly CompositionVetement[],
+	complement?: string,
+): string {
+	const parties = compositions
+		.filter(
+			(entree) =>
+				entree.typeVetement.trim() !== "" && Number(entree.nombre) > 0,
+		)
+		.map((entree) => `${Number(entree.nombre)} ${entree.typeVetement.trim()}`)
+		.join(", ");
+	const precisions = complement?.trim() ?? "";
+	if (parties && precisions) return `${parties} — ${precisions}`;
+	return parties || precisions;
 }
 
 /**
