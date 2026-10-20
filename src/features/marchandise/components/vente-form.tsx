@@ -2,6 +2,7 @@ import { Loader2, Plus, Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { Button } from "#/components/ui/button";
+import { Combobox, type ComboboxOption } from "#/components/ui/combobox";
 import { InputField } from "#/components/ui/input-field";
 import { Label } from "#/components/ui/label";
 import {
@@ -116,6 +117,16 @@ export function VenteForm({
 		setProchaineCle((valeur) => valeur + 1);
 	};
 
+	const produitsOptions = useMemo<ComboboxOption[]>(
+		() =>
+			produits.map((produit) => ({
+				value: produit.id,
+				label: `${produit.reference} — ${produit.nom} (${formatMontantFCFA(produit.prix_vente)})`,
+				keywords: `${produit.reference} ${produit.nom}`,
+			})),
+		[produits],
+	);
+
 	const total = useMemo(() => {
 		const brut = lignes.reduce((somme, ligne) => {
 			const produit = produits.find((p) => p.id === ligne.idProduit);
@@ -216,24 +227,17 @@ export function VenteForm({
 						key={ligne.cle}
 						className="grid grid-cols-[1fr_6rem_auto] items-end gap-3"
 					>
-						<Select
+						<Combobox
+							options={produitsOptions}
 							value={ligne.idProduit}
 							onValueChange={(valeur) =>
 								majLigne(ligne.cle, { idProduit: valeur })
 							}
-						>
-							<SelectTrigger aria-label={`Produit ligne ${index + 1}`}>
-								<SelectValue placeholder="Produit…" />
-							</SelectTrigger>
-							<SelectContent>
-								{produits.map((produit) => (
-									<SelectItem key={produit.id} value={produit.id}>
-										{produit.reference} — {produit.nom} (
-										{formatMontantFCFA(produit.prix_vente)})
-									</SelectItem>
-								))}
-							</SelectContent>
-						</Select>
+							placeholder="Produit…"
+							searchPlaceholder="Rechercher par référence ou nom…"
+							emptyText="Aucun produit trouvé."
+							ariaLabel={`Produit ligne ${index + 1}`}
+						/>
 						<InputField
 							aria-label={`Quantité ligne ${index + 1}`}
 							placeholder="Qté"

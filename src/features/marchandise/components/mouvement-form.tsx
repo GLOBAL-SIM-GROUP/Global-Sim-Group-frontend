@@ -1,8 +1,9 @@
 import { useForm } from "@tanstack/react-form";
 import { Loader2 } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 import { Button } from "#/components/ui/button";
+import { Combobox, type ComboboxOption } from "#/components/ui/combobox";
 import { InputField } from "#/components/ui/input-field";
 import { Label } from "#/components/ui/label";
 import {
@@ -66,6 +67,16 @@ export function MouvementForm({
 	const mutation = useCreerMouvement();
 	const [globalError, setGlobalError] = useState<string | null>(null);
 
+	const produitsOptions = useMemo<ComboboxOption[]>(
+		() =>
+			produits.map((produit) => ({
+				value: produit.id,
+				label: `${produit.reference} — ${produit.nom}`,
+				keywords: `${produit.reference} ${produit.nom}`,
+			})),
+		[produits],
+	);
+
 	const form = useForm({
 		defaultValues: {
 			idProduit: "",
@@ -117,18 +128,25 @@ export function MouvementForm({
 		>
 			<form.Field name="idProduit">
 				{(field) => (
-					<SelectField
-						id={field.name}
-						label="Produit"
-						value={field.state.value}
-						onValueChange={field.handleChange}
-					>
-						{produits.map((produit) => (
-							<SelectItem key={produit.id} value={produit.id}>
-								{produit.reference} — {produit.nom}
-							</SelectItem>
-						))}
-					</SelectField>
+					<div className="space-y-2">
+						<Label htmlFor={field.name}>Produit</Label>
+						<Combobox
+							id={field.name}
+							options={produitsOptions}
+							value={field.state.value}
+							onValueChange={field.handleChange}
+							placeholder="Produit…"
+							searchPlaceholder="Rechercher par référence ou nom…"
+							emptyText="Aucun produit trouvé."
+							ariaLabel="Produit"
+							className="w-full"
+						/>
+						{field.state.meta.errors[0] ? (
+							<p className="text-sm text-destructive">
+								{field.state.meta.errors[0]}
+							</p>
+						) : null}
+					</div>
 				)}
 			</form.Field>
 
@@ -189,17 +207,24 @@ export function MouvementForm({
 
 				<form.Field name="documentRef">
 					{(field) => (
-						<InputField
-							id={field.name}
-							name={field.name}
-							label="Document (optionnel)"
-							placeholder="ex : BL-2026-0147"
-							autoComplete="off"
-							value={field.state.value}
-							onBlur={field.handleBlur}
-							onChange={(event) => field.handleChange(event.target.value)}
-							error={field.state.meta.errors[0]}
-						/>
+						<div>
+							<InputField
+								id={field.name}
+								name={field.name}
+								label="Référence du document (optionnel)"
+								placeholder="ex : BL-2026-0147"
+								autoComplete="off"
+								value={field.state.value}
+								onBlur={field.handleBlur}
+								onChange={(event) => field.handleChange(event.target.value)}
+								error={field.state.meta.errors[0]}
+							/>
+							<p className="mt-1 text-xs text-muted-foreground">
+								Numéro du bon de livraison, bon de commande ou facture
+								fournisseur associé — un texte libre, pas un fichier à joindre,
+								pour retrouver la pièce justificative papier.
+							</p>
+						</div>
 					)}
 				</form.Field>
 			</div>

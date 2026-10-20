@@ -11,6 +11,7 @@ type CreerProduitDto = components["schemas"]["CreerProduitDto"];
 type MajProduitDto = components["schemas"]["MajProduitDto"];
 type CreerCategorieProduitDto =
 	components["schemas"]["CreerCategorieProduitDto"];
+type CreerFournisseurDto = components["schemas"]["CreerFournisseurDto"];
 
 /**
  * Le schéma généré type `id_categorie_produit`/api/v1/`id_fournisseur` en objet libre
@@ -61,18 +62,21 @@ export function listCategoriesProduits(): Promise<CategorieProduit[]> {
 }
 
 /**
- * Crée une catégorie de produit (POST `CreerCategorieProduitDto`). Aucun
- * endpoint de suppression/modification dans le spec → la catégorie ne peut que
+ * Crée une catégorie de produit (POST `CreerCategorieProduitDto`, renvoie la
+ * catégorie créée — vérifié en direct, absent du spec généré). Aucun endpoint
+ * de suppression/modification dans le spec → la catégorie ne peut que
  * s'ajouter (suppression à prévoir côté backend).
  */
 export function creerCategorieProduit(body: {
 	libelle: string;
-}): Promise<unknown> {
+}): Promise<CategorieProduit> {
 	const corps = { libelle: body.libelle } satisfies CreerCategorieProduitDto;
-	return getApiClient().apiFetch("/api/v1/market/categories-produits", {
-		method: "POST",
-		body: JSON.stringify(corps),
-	});
+	return getApiClient()
+		.apiFetch<CategorieProduitWire>("/api/v1/market/categories-produits", {
+			method: "POST",
+			body: JSON.stringify(corps),
+		})
+		.then(({ id_categorie_produit: id, ...reste }) => ({ id, ...reste }));
 }
 
 /** Fournisseurs (GET /market/fournisseurs). */
@@ -82,6 +86,20 @@ export function listFournisseurs(): Promise<Fournisseur[]> {
 		.then((data) =>
 			data.map(({ id_fournisseur: id, ...reste }) => ({ id, ...reste })),
 		);
+}
+
+/**
+ * Crée un fournisseur (POST `CreerFournisseurDto`, seul `nom` requis, renvoie
+ * le fournisseur créé — vérifié en direct, absent du spec généré).
+ */
+export function creerFournisseur(body: { nom: string }): Promise<Fournisseur> {
+	const corps = { nom: body.nom } satisfies CreerFournisseurDto;
+	return getApiClient()
+		.apiFetch<FournisseurWire>("/api/v1/market/fournisseurs", {
+			method: "POST",
+			body: JSON.stringify(corps),
+		})
+		.then(({ id_fournisseur: id, ...reste }) => ({ id, ...reste }));
 }
 
 /** Corps saisi par le formulaire produit (create/update). */

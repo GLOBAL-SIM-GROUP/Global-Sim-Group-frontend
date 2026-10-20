@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 
 import {
 	creerCategorieProduit,
+	creerFournisseur,
 	creerProduit,
 	genererCodeBarre,
 	getEtiquetteBlobUrl,
@@ -57,6 +58,17 @@ export function useCreerCategorieProduit() {
 			void queryClient.invalidateQueries({
 				queryKey: categoriesProduitsKeys.all,
 			});
+		},
+	});
+}
+
+/** Crée un fournisseur (POST). Invalide les fournisseurs au succès. */
+export function useCreerFournisseur() {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: (body: { nom: string }) => creerFournisseur(body),
+		onSuccess: () => {
+			void queryClient.invalidateQueries({ queryKey: fournisseursKeys.all });
 		},
 	});
 }

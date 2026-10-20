@@ -193,12 +193,18 @@ export function EntreeStockScanForm({
 					value={motif}
 					onChange={(event) => setMotif(event.target.value)}
 				/>
-				<InputField
-					label="Document (optionnel)"
-					placeholder="ex : BL-2026-0147"
-					value={documentRef}
-					onChange={(event) => setDocumentRef(event.target.value)}
-				/>
+				<div>
+					<InputField
+						label="Référence du document (optionnel)"
+						placeholder="ex : BL-2026-0147"
+						value={documentRef}
+						onChange={(event) => setDocumentRef(event.target.value)}
+					/>
+					<p className="mt-1 text-xs text-muted-foreground">
+						Numéro du bon de livraison, bon de commande ou facture fournisseur
+						associé — un texte libre, pas un fichier à joindre.
+					</p>
+				</div>
 			</div>
 
 			{globalError ? (

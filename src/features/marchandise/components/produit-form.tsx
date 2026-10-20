@@ -1,5 +1,5 @@
 import { useForm } from "@tanstack/react-form";
-import { Loader2, Upload, X } from "lucide-react";
+import { Loader2, Plus, Upload, X } from "lucide-react";
 import { useRef, useState } from "react";
 
 import { BoutonCamera } from "#/components/bouton-camera";
@@ -17,13 +17,19 @@ import { Switch } from "#/components/ui/switch";
 import { getErrorMessageForCode, getFieldErrors, toApiError } from "#/core/api";
 import { useUploadBlobUrl } from "#/core/api/use-upload-blob";
 import { useUploadImage } from "#/core/api/use-upload-image";
+import { useCan } from "#/core/auth";
 import {
 	normaliserMontantPourBackend,
 	validerMontant,
 } from "#/core/forms/montant";
 import { cn } from "#/lib/utils";
 
-import { useCreerProduit, useModifierProduit } from "../hooks/use-produits";
+import {
+	useCreerCategorieProduit,
+	useCreerFournisseur,
+	useCreerProduit,
+	useModifierProduit,
+} from "../hooks/use-produits";
 import type {
 	CategorieProduit,
 	Fournisseur,
@@ -80,29 +86,142 @@ interface ProduitFormProps {
 	onSaved: (produit: Produit) => void;
 }
 
-/** Champ Select avec label visible (le contenu s'ouvre en portal). */
-function SelectField({
+/** Entrée de catalogue normalisée pour `ChampSelectOuCreer` (catégorie/fournisseur). */
+interface EntreeCatalogue {
+	id: string;
+	libelle: string;
+}
+
+/**
+ * Champ Catégorie/Fournisseur : Select des entrées existantes par défaut,
+ * bascule explicite vers une saisie libre qui crée l'entrée au catalogue
+ * (`onCreer`) puis sélectionne automatiquement celle qui vient d'être créée.
+ * Contrairement à l'équivalent du catalogue Pressing (`ChampLibelleCatalogue`
+ * dans pressing/commande-form.tsx), pas de réactivation : les catégories et
+ * fournisseurs n'ont pas d'état actif/inactif dans les modèles front.
+ */
+function ChampSelectOuCreer({
 	id,
 	label,
-	value,
-	onValueChange,
-	children,
+	placeholder,
+	valeur,
+	entrees,
+	peutCreer,
+	onChange,
+	onCreer,
 }: {
 	id: string;
 	label: string;
-	value: string;
-	onValueChange: (value: string) => void;
-	children: React.ReactNode;
+	placeholder: string;
+	valeur: string;
+	entrees: EntreeCatalogue[];
+	peutCreer: boolean;
+	onChange: (id: string) => void;
+	onCreer: (libelle: string) => Promise<{ id: string }>;
 }) {
+	const [libre, setLibre] = useState(false);
+	const [saisie, setSaisie] = useState("");
+	const [enCours, setEnCours] = useState(false);
+	const [erreur, setErreur] = useState<string | null>(null);
+
+	const recherche = saisie.trim();
+	const existeDeja = entrees.some(
+		(entree) =>
+			entree.libelle.localeCompare(recherche, "fr", { sensitivity: "base" }) ===
+			0,
+	);
+
+	const ajouter = () => {
+		if (!recherche || existeDeja) return;
+		setEnCours(true);
+		setErreur(null);
+		onCreer(recherche)
+			.then((entree) => {
+				onChange(entree.id);
+				setLibre(false);
+				setSaisie("");
+			})
+			.catch(() => setErreur("Échec de l'ajout au catalogue."))
+			.finally(() => setEnCours(false));
+	};
+
+	if (libre) {
+		return (
+			<div className="space-y-2">
+				<Label htmlFor={id}>{label}</Label>
+				<InputField
+					id={id}
+					placeholder={placeholder}
+					value={saisie}
+					onChange={(event) => setSaisie(event.target.value)}
+				/>
+				<div className="flex flex-wrap gap-x-4">
+					<Button
+						type="button"
+						variant="link"
+						size="sm"
+						className="h-auto px-0 text-xs"
+						onClick={() => {
+							setLibre(false);
+							setSaisie("");
+							setErreur(null);
+						}}
+					>
+						Choisir dans la liste
+					</Button>
+					{recherche && !existeDeja && peutCreer ? (
+						<Button
+							type="button"
+							variant="link"
+							size="sm"
+							className="h-auto px-0 text-xs"
+							disabled={enCours}
+							onClick={ajouter}
+						>
+							{enCours ? (
+								<Loader2 className="size-3 animate-spin" aria-hidden />
+							) : (
+								<Plus className="size-3" aria-hidden />
+							)}
+							Ajouter « {recherche} »
+						</Button>
+					) : null}
+				</div>
+				{erreur ? (
+					<p role="alert" className="text-xs text-destructive">
+						{erreur}
+					</p>
+				) : null}
+			</div>
+		);
+	}
+
 	return (
 		<div className="space-y-2">
 			<Label htmlFor={id}>{label}</Label>
-			<Select value={value} onValueChange={onValueChange}>
+			<Select value={valeur} onValueChange={onChange}>
 				<SelectTrigger id={id} aria-label={label} className="w-full">
-					<SelectValue />
+					<SelectValue placeholder={placeholder} />
 				</SelectTrigger>
-				<SelectContent>{children}</SelectContent>
+				<SelectContent>
+					{entrees.map((entree) => (
+						<SelectItem key={entree.id} value={entree.id}>
+							{entree.libelle}
+						</SelectItem>
+					))}
+				</SelectContent>
 			</Select>
+			{peutCreer ? (
+				<Button
+					type="button"
+					variant="link"
+					size="sm"
+					className="h-auto px-0 text-xs"
+					onClick={() => setLibre(true)}
+				>
+					Saisir manuellement
+				</Button>
+			) : null}
 		</div>
 	);
 }
@@ -123,6 +242,9 @@ export function ProduitForm({
 	const createMutation = useCreerProduit();
 	const editMutation = useModifierProduit();
 	const uploadMutation = useUploadImage();
+	const creerCategorieMutation = useCreerCategorieProduit();
+	const creerFournisseurMutation = useCreerFournisseur();
+	const peutCreerCatalogue = useCan("MARCHANDISE.CREER");
 	const [globalError, setGlobalError] = useState<string | null>(null);
 	const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -269,35 +391,36 @@ export function ProduitForm({
 
 				<form.Field name="idCategorieProduit">
 					{(field) => (
-						<SelectField
+						<ChampSelectOuCreer
 							id={field.name}
 							label="Catégorie"
-							value={field.state.value}
-							onValueChange={field.handleChange}
-						>
-							{categories.map((categorie) => (
-								<SelectItem key={categorie.id} value={categorie.id}>
-									{categorie.libelle}
-								</SelectItem>
-							))}
-						</SelectField>
+							placeholder="ex : Épicerie"
+							valeur={field.state.value}
+							entrees={categories}
+							peutCreer={peutCreerCatalogue}
+							onChange={field.handleChange}
+							onCreer={(libelle) =>
+								creerCategorieMutation.mutateAsync({ libelle })
+							}
+						/>
 					)}
 				</form.Field>
 
 				<form.Field name="idFournisseur">
 					{(field) => (
-						<SelectField
+						<ChampSelectOuCreer
 							id={field.name}
 							label="Fournisseur"
-							value={field.state.value}
-							onValueChange={field.handleChange}
-						>
-							{fournisseurs.map((fournisseur) => (
-								<SelectItem key={fournisseur.id} value={fournisseur.id}>
-									{fournisseur.nom}
-								</SelectItem>
-							))}
-						</SelectField>
+							placeholder="ex : SODEXCO"
+							valeur={field.state.value}
+							entrees={fournisseurs.map((fournisseur) => ({
+								id: fournisseur.id,
+								libelle: fournisseur.nom,
+							}))}
+							peutCreer={peutCreerCatalogue}
+							onChange={field.handleChange}
+							onCreer={(nom) => creerFournisseurMutation.mutateAsync({ nom })}
+						/>
 					)}
 				</form.Field>
 
