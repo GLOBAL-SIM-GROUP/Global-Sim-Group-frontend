@@ -176,6 +176,7 @@ export function EncaisserCommandeDialog({
 							value={idCaisse}
 							onChange={setIdCaisse}
 							erreur={erreurCaisseRequise(caissesQuery.data, idCaisse)}
+							activiteCode="RESTAURATION"
 						/>
 					</div>
 				)}

@@ -180,6 +180,7 @@ export function EncaisserForm({
 						value={field.state.value}
 						onChange={field.handleChange}
 						erreur={field.state.meta.errors[0]}
+						activiteCode="LOCATION_RESIDENTIEL"
 					/>
 				)}
 			</form.Field>

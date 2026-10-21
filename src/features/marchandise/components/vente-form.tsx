@@ -122,6 +122,7 @@ export function VenteForm({
 			produits.map((produit) => ({
 				value: produit.id,
 				label: `${produit.reference} — ${produit.nom} (${formatMontantFCFA(produit.prix_vente)})`,
+				selectedLabel: produit.nom,
 				keywords: `${produit.reference} ${produit.nom}`,
 			})),
 		[produits],
@@ -225,7 +226,7 @@ export function VenteForm({
 				{lignes.map((ligne, index) => (
 					<div
 						key={ligne.cle}
-						className="grid grid-cols-[1fr_6rem_auto] items-end gap-3"
+						className="space-y-2 sm:grid sm:grid-cols-[1fr_6rem_auto] sm:items-end sm:gap-3 sm:space-y-0"
 					>
 						<Combobox
 							options={produitsOptions}
@@ -238,25 +239,33 @@ export function VenteForm({
 							emptyText="Aucun produit trouvé."
 							ariaLabel={`Produit ligne ${index + 1}`}
 						/>
-						<InputField
-							aria-label={`Quantité ligne ${index + 1}`}
-							placeholder="Qté"
-							inputMode="decimal"
-							value={ligne.quantite}
-							onChange={(event) =>
-								majLigne(ligne.cle, { quantite: event.target.value })
-							}
-						/>
-						<Button
-							type="button"
-							variant="ghost"
-							size="icon-sm"
-							aria-label="Retirer la ligne"
-							disabled={lignes.length === 1}
-							onClick={() => retirerLigne(ligne.cle)}
-						>
-							<Trash2 className="size-4 text-destructive" aria-hidden />
-						</Button>
+						{/* Quantité + Retirer sous le produit sur mobile (pas de
+						    décalage dans une rangée trop étroite) — `sm:contents`
+						    les fait rejoindre la grille à 3 colonnes à partir de
+						    l'écran tablette. */}
+						<div className="flex items-end gap-2 sm:contents">
+							<div className="flex-1">
+								<InputField
+									aria-label={`Quantité ligne ${index + 1}`}
+									placeholder="Qté"
+									inputMode="decimal"
+									value={ligne.quantite}
+									onChange={(event) =>
+										majLigne(ligne.cle, { quantite: event.target.value })
+									}
+								/>
+							</div>
+							<Button
+								type="button"
+								variant="ghost"
+								size="icon-sm"
+								aria-label="Retirer la ligne"
+								disabled={lignes.length === 1}
+								onClick={() => retirerLigne(ligne.cle)}
+							>
+								<Trash2 className="size-4 text-destructive" aria-hidden />
+							</Button>
+						</div>
 					</div>
 				))}
 			</div>
@@ -298,6 +307,7 @@ export function VenteForm({
 				chargement={caissesQuery.isLoading}
 				value={idCaisse}
 				onChange={setIdCaisse}
+				activiteCode="VENTE_MARCHANDISES"
 			/>
 
 			<p className="text-right text-base font-semibold text-foreground">

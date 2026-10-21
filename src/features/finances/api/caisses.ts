@@ -1,5 +1,6 @@
 import { getApiClient } from "#/core/api";
 import type {
+	ActiviteCaisse,
 	Caisse,
 	CaisseAccessible,
 	CaisseDashboard,
@@ -35,6 +36,15 @@ export async function listerCaisses(
  */
 export async function listerCaissesAccessibles(): Promise<CaisseAccessible[]> {
 	return getApiClient().apiFetch("/api/v1/finances/caisses/accessibles");
+}
+
+/**
+ * Référentiel des secteurs d'activité (`GET /finances/activites`) — fournit
+ * le `code` stable derrière chaque `id_activite`, pour faire correspondre un
+ * `CaissePicker` à son module sans dépendre de l'id numérique ni du libellé.
+ */
+export async function listerActivites(): Promise<ActiviteCaisse[]> {
+	return getApiClient().apiFetch("/api/v1/finances/activites");
 }
 
 /** Obtenir une caisse par ID. */

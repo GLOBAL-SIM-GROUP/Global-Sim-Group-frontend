@@ -1,4 +1,5 @@
 import { AlertTriangle, Landmark } from "lucide-react";
+import { useEffect } from "react";
 
 import { Label } from "#/components/ui/label";
 import {
@@ -8,6 +9,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "#/components/ui/select";
+import { useActivites } from "../hooks/use-caisses-accessibles";
 import type { CaisseAccessible } from "../models/caisses";
 
 export interface CaissePickerProps {
@@ -22,6 +24,16 @@ export interface CaissePickerProps {
 	/** Message d'erreur champ (validation formulaire). */
 	erreur?: string | null;
 	id?: string;
+	/**
+	 * Code du secteur d'activité du formulaire appelant (`"PRESSING"`,
+	 * `"RESTAURATION"`, `"SALLE_FETE"`, `"VENTE_MARCHANDISES"`,
+	 * `"LOCATION_RESIDENTIEL"`, `"LOCATION_COMMERCIAL"` — voir
+	 * `GET /finances/activites`). Quand fourni et qu'aucun choix n'est
+	 * encore fait, la caisse **ouverte** de ce secteur est présélectionnée
+	 * automatiquement parmi les caisses subalternes — le `Select` reste
+	 * modifiable, rien n'est imposé.
+	 */
+	activiteCode?: string;
 }
 
 function libelleCaisse(caisse: CaisseAccessible): string {
@@ -50,8 +62,9 @@ function libelleCaisse(caisse: CaisseAccessible): string {
  * - 1 caisse ou une caisse `est_propre` → libellé en lecture seule (le
  *   serveur résout/force — ne pas envoyer `id_caisse`, cf.
  *   `idCaisseAEnvoyer`) ;
- * - ≥ 2 caisses subalternes → `Select` obligatoire, caisses fermées
- *   affichées mais désactivées avec le suffixe « (fermée) ».
+ * - ≥ 2 caisses subalternes → `Select` obligatoire (présélectionné sur la
+ *   caisse ouverte du secteur `activiteCode` si fourni — reste modifiable),
+ *   caisses fermées affichées mais désactivées avec le suffixe « (fermée) ».
  */
 export function CaissePicker({
 	caisses,
@@ -61,7 +74,28 @@ export function CaissePicker({
 	sens = "destination",
 	erreur,
 	id,
+	activiteCode,
 }: CaissePickerProps) {
+	// Hooks avant tout retour anticipé (règle des hooks) — `useActivites()`
+	// a son propre garde-fou `enabled` (permission), inoffensif si
+	// `activiteCode` n'est pas fourni par l'appelant.
+	const activitesQuery = useActivites();
+
+	// Présélection par secteur : seulement si rien n'est encore choisi, et
+	// seulement parmi les caisses subalternes **ouvertes** (une caisse
+	// fermée produirait `CAISSE_FERMEE` au submit) — le choix de
+	// l'utilisateur, une fois posé, n'est jamais écrasé par cet effet.
+	useEffect(() => {
+		if (!activiteCode || value || !caisses || caisses.length < 2) return;
+		if (caisses.some((caisse) => caisse.est_propre)) return;
+		const activite = activitesQuery.data?.find((a) => a.code === activiteCode);
+		if (!activite) return;
+		const correspondante = caisses.find(
+			(caisse) => caisse.id_activite === activite.id_activite && caisse.ouverte,
+		);
+		if (correspondante) onChange(correspondante.id_caisse);
+	}, [activiteCode, value, caisses, activitesQuery.data, onChange]);
+
 	if (chargement) {
 		return (
 			<p className="text-xs text-muted-foreground">Chargement des caisses…</p>

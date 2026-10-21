@@ -9,6 +9,12 @@ export interface ComboboxOption {
 	label: string;
 	/** Texte additionnel inclus dans la recherche (ex. référence, code), non affiché s'il diffère du label. */
 	keywords?: string;
+	/**
+	 * Libellé court affiché sur le déclencheur en mobile (< `sm`) une fois
+	 * l'option sélectionnée — le `label` complet reste utilisé dans la liste
+	 * déroulante et sur écran large.
+	 */
+	selectedLabel?: string;
 }
 
 interface ComboboxProps {
@@ -80,9 +86,20 @@ export function Combobox({
 						className,
 					)}
 				>
-					<span className="truncate">
-						{selectionne ? selectionne.label : placeholder}
-					</span>
+					{selectionne?.selectedLabel ? (
+						<>
+							<span className="truncate sm:hidden">
+								{selectionne.selectedLabel}
+							</span>
+							<span className="hidden truncate sm:inline">
+								{selectionne.label}
+							</span>
+						</>
+					) : (
+						<span className="truncate">
+							{selectionne ? selectionne.label : placeholder}
+						</span>
+					)}
 					<ChevronDownIcon className="size-4 shrink-0 opacity-50" aria-hidden />
 				</button>
 			</PopoverPrimitive.Trigger>

@@ -27,7 +27,7 @@ export function MouvementFormDialog({
 			<DialogContent>
 				<DialogTitle>Ajouter un mouvement</DialogTitle>
 				<DialogDescription>
-					Entrée, sortie ou ajustement de stock pour un produit.
+					Entrée, sortie ou ajustement de stock pour un ou plusieurs produits.
 				</DialogDescription>
 				<div className="mt-4">
 					<MouvementForm

@@ -128,6 +128,7 @@ function PaiementForm({
 				value={idCaisse}
 				onChange={setIdCaisse}
 				erreur={erreurCaisseRequise(caissesQuery.data, idCaisse)}
+				activiteCode={souscription.activite}
 			/>
 
 			{globalError ? (

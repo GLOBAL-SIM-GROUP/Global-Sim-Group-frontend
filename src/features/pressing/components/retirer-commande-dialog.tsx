@@ -167,6 +167,7 @@ export function RetirerCommandeDialog({
 								chargement={caissesQuery.isLoading}
 								value={idCaisse}
 								onChange={setIdCaisse}
+								activiteCode="PRESSING"
 							/>
 						</>
 					)}

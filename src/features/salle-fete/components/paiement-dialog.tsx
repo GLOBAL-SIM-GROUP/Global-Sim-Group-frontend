@@ -137,6 +137,7 @@ export function PaiementDialog({
 						value={idCaisse}
 						onChange={setIdCaisse}
 						erreur={erreurCaisse}
+						activiteCode="SALLE_FETE"
 					/>
 				</>
 			)}

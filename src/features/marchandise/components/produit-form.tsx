@@ -266,7 +266,13 @@ export function ProduitForm({
 			onSubmit: ({ value }) => {
 				// `{ fields }` = erreurs champ par champ (cf. login.tsx).
 				const fields: Partial<Record<ProduitField, string>> = {};
-				if (!value.reference.trim()) fields.reference = "Ce champ est requis.";
+				// Obligatoire en édition (figée à la création, jamais vide sur un
+				// produit existant) ; optionnelle en création — vide = le backend
+				// génère une référence GSG-REF-xxx automatiquement (vérifié en
+				// direct, absent du schéma généré).
+				if (produit && !value.reference.trim()) {
+					fields.reference = "Ce champ est requis.";
+				}
 				if (!value.nom.trim()) fields.nom = "Ce champ est requis.";
 				if (!value.prixAchat.trim()) {
 					fields.prixAchat = "Ce champ est requis.";
@@ -300,7 +306,7 @@ export function ProduitForm({
 			setGlobalError(null);
 			try {
 				const corps = {
-					reference: value.reference.trim(),
+					reference: value.reference.trim() || null,
 					nom: value.nom.trim(),
 					idCategorieProduit: value.idCategorieProduit || null,
 					prixAchat: normaliserMontantPourBackend(value.prixAchat),
@@ -362,8 +368,12 @@ export function ProduitForm({
 						<InputField
 							id={field.name}
 							name={field.name}
-							label="Référence"
-							placeholder="ex : SUCRE-01"
+							label={produit ? "Référence" : "Référence (optionnel)"}
+							placeholder={
+								produit
+									? "ex : SUCRE-01"
+									: "Laissez vide pour générer automatiquement (GSG-REF-xxx)"
+							}
 							autoComplete="off"
 							value={field.state.value}
 							onBlur={field.handleBlur}

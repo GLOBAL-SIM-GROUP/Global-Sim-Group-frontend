@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useCan } from "#/core/auth";
-import { listerCaissesAccessibles } from "../api/caisses";
+import { listerActivites, listerCaissesAccessibles } from "../api/caisses";
 
 /**
  * Caisses dans lesquelles l'utilisateur connecté peut enregistrer un
@@ -22,6 +22,23 @@ export function useCaissesAccessibles() {
 		enabled: canVoir || canEncaisser,
 		staleTime: 0,
 		refetchOnMount: "always",
+	});
+}
+
+/**
+ * Référentiel des secteurs d'activité (`GET /finances/activites`) — change
+ * rarement, `staleTime` long. Alimente la présélection par secteur de
+ * `CaissePicker` (résolution `code` → `id_activite`).
+ */
+export function useActivites() {
+	const canVoir = useCan("FINANCES.VOIR");
+	const canEncaisser = useCan("FINANCES.ENCAISSER");
+
+	return useQuery({
+		queryKey: ["finances", "activites"],
+		queryFn: listerActivites,
+		enabled: canVoir || canEncaisser,
+		staleTime: 5 * 60 * 1000,
 	});
 }
 

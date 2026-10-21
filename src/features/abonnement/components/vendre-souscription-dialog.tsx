@@ -258,6 +258,7 @@ function VendreSouscriptionForm({
 							chargement={caissesQuery.isLoading}
 							value={idCaisse}
 							onChange={setIdCaisse}
+							activiteCode={offreChoisie?.activite}
 						/>
 					</div>
 				) : null}

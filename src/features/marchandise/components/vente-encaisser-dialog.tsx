@@ -116,6 +116,7 @@ export function VenteEncaisserDialog({
 						value={idCaisse}
 						onChange={setIdCaisse}
 						erreur={erreurCaisseRequise(caissesQuery.data, idCaisse)}
+						activiteCode="VENTE_MARCHANDISES"
 					/>
 				</div>
 

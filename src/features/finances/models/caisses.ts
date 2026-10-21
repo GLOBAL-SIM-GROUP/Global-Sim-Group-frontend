@@ -1,3 +1,19 @@
+/**
+ * Secteur d'activité (`GET /finances/activites`) — référentiel stable
+ * derrière `Caisse.id_activite`/`CaisseAccessible.id_activite`. `code` sert
+ * à faire correspondre un `CaissePicker` à son module (`"PRESSING"`,
+ * `"RESTAURATION"`, `"SALLE_FETE"`, `"VENTE_MARCHANDISES"`,
+ * `"LOCATION_RESIDENTIEL"`, `"LOCATION_COMMERCIAL"`, `"AUTRE"` — vérifiés en
+ * direct, absents du spec généré) sans dépendre du libellé affiché ni de
+ * l'id numérique (non stable entre environnements).
+ */
+export interface ActiviteCaisse {
+	id_activite: string;
+	code: string;
+	libelle: string;
+	actif: boolean;
+}
+
 /** Caisse (point d'encaissement) — une caisse par activité, scopée à des utilisateurs. */
 export interface Caisse {
 	id_caisse: string;

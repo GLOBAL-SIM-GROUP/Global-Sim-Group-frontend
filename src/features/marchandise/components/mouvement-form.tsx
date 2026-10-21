@@ -1,5 +1,5 @@
-import { useForm } from "@tanstack/react-form";
-import { Loader2 } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
+import { Check, Loader2, Plus, Trash2, X } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { Button } from "#/components/ui/button";
@@ -14,19 +14,36 @@ import {
 	SelectValue,
 } from "#/components/ui/select";
 import { getErrorMessageForCode, toApiError } from "#/core/api";
+import { cn } from "#/lib/utils";
 
-import { useCreerMouvement } from "../hooks/use-mouvements";
+import { creerMouvement } from "../api/mouvements";
 import {
 	MOUVEMENT_TYPE_LABELS,
 	type MouvementType,
 } from "../models/mouvements";
 import type { Produit } from "../models/produits";
+import { mouvementsKeys, produitsKeys, stockKeys } from "../permissions";
 
 interface MouvementFormProps {
 	produits: Produit[];
 	onCancel: () => void;
 	onSaved: () => void;
 }
+
+interface LigneMouvement {
+	cle: number;
+	idProduit: string;
+	quantite: string;
+	statut: "idle" | "envoi" | "ok" | "erreur";
+	erreur?: string;
+}
+
+const ligneVide = (cle: number): LigneMouvement => ({
+	cle,
+	idProduit: "",
+	quantite: "",
+	statut: "idle",
+});
 
 /** Champ Select avec label visible (le contenu s'ouvre en portal). */
 function SelectField({
@@ -57,15 +74,28 @@ function SelectField({
 
 /**
  * Formulaire « Ajouter un mouvement » (M3) : entrée, sortie ou ajustement de
- * stock pour un produit. La quantité est signée pour un ajustement.
+ * stock pour **un ou plusieurs produits** (un type et un motif/document
+ * partagés pour tout le lot). `POST /market/mouvements` ne prend qu'un seul
+ * produit par appel (contrairement à `POST /market/ventes` qui accepte
+ * `lignes[]`) — chaque ligne part donc en une requête séquentielle, à
+ * l'arrêt à la première erreur pour ne pas rejouer les lignes déjà
+ * enregistrées si l'utilisateur relance. Même principe que
+ * `entree-stock-scan-form.tsx`, qui applique déjà ce contournement pour les
+ * entrées par scan.
  */
 export function MouvementForm({
 	produits,
 	onCancel,
 	onSaved,
 }: MouvementFormProps) {
-	const mutation = useCreerMouvement();
+	const queryClient = useQueryClient();
+	const [type, setType] = useState<MouvementType>("ENTREE");
+	const [lignes, setLignes] = useState<LigneMouvement[]>([ligneVide(0)]);
+	const [prochaineCle, setProchaineCle] = useState(1);
+	const [motif, setMotif] = useState("");
+	const [documentRef, setDocumentRef] = useState("");
 	const [globalError, setGlobalError] = useState<string | null>(null);
+	const [enCours, setEnCours] = useState(false);
 
 	const produitsOptions = useMemo<ComboboxOption[]>(
 		() =>
@@ -76,46 +106,81 @@ export function MouvementForm({
 			})),
 		[produits],
 	);
+	const produitParId = useMemo(
+		() => new Map(produits.map((produit) => [produit.id, produit])),
+		[produits],
+	);
 
-	const form = useForm({
-		defaultValues: {
-			idProduit: "",
-			type: "ENTREE" as MouvementType,
-			quantite: "",
-			motif: "",
-			documentRef: "",
-		},
-		validators: {
-			onSubmit: ({ value }) => {
-				const fields: Partial<Record<string, string>> = {};
-				if (!value.idProduit) fields.idProduit = "Sélectionnez un produit.";
-				if (!value.quantite.trim()) {
-					fields.quantite = "Ce champ est requis.";
-				} else if (!/^-?\d+(\.\d+)?$/.test(value.quantite.trim())) {
-					fields.quantite = "La quantité doit être un nombre.";
-				}
-				return { fields };
-			},
-		},
-		onSubmit: async ({ value }) => {
-			setGlobalError(null);
-			try {
-				await mutation.mutateAsync({
-					idProduit: value.idProduit,
-					type: value.type,
-					quantite: value.quantite.trim(),
-					motif: value.motif.trim() || null,
-					documentRef: value.documentRef.trim() || null,
-				});
-				onSaved();
-			} catch (error) {
-				setGlobalError(
-					getErrorMessageForCode(toApiError(error).code) ??
-						(toApiError(error).message || "Une erreur est survenue."),
-				);
+	const ajouterLigne = () => {
+		setLignes((current) => [...current, ligneVide(prochaineCle)]);
+		setProchaineCle((valeur) => valeur + 1);
+	};
+	const majLigne = (cle: number, patch: Partial<LigneMouvement>) =>
+		setLignes((current) =>
+			current.map((ligne) =>
+				ligne.cle === cle ? { ...ligne, ...patch } : ligne,
+			),
+		);
+	const retirerLigne = (cle: number) =>
+		setLignes((current) => current.filter((ligne) => ligne.cle !== cle));
+
+	const valider = (): string | null => {
+		if (lignes.length === 0) return "Ajoutez au moins une ligne de produit.";
+		for (const ligne of lignes) {
+			if (!ligne.idProduit) return "Chaque ligne doit avoir un produit.";
+			if (
+				!ligne.quantite.trim() ||
+				!/^-?\d+(\.\d+)?$/.test(ligne.quantite.trim())
+			) {
+				return "Chaque ligne doit avoir une quantité numérique.";
 			}
-		},
-	});
+		}
+		return null;
+	};
+
+	const soumettre = async () => {
+		setGlobalError(null);
+		const erreur = valider();
+		if (erreur) {
+			setGlobalError(erreur);
+			return;
+		}
+
+		setEnCours(true);
+		for (const ligne of lignes) {
+			// Déjà réussie lors d'une tentative précédente (relance après une
+			// erreur plus loin dans la liste) : ne pas rejouer.
+			if (ligne.statut === "ok") continue;
+			majLigne(ligne.cle, { statut: "envoi", erreur: undefined });
+			try {
+				await creerMouvement({
+					idProduit: ligne.idProduit,
+					type,
+					quantite: ligne.quantite.trim(),
+					motif: motif.trim() || null,
+					documentRef: documentRef.trim() || null,
+				});
+				majLigne(ligne.cle, { statut: "ok" });
+			} catch (error) {
+				const message =
+					getErrorMessageForCode(toApiError(error).code) ??
+					(toApiError(error).message || "Une erreur est survenue.");
+				const nomProduit =
+					produitParId.get(ligne.idProduit)?.nom ?? "ce produit";
+				majLigne(ligne.cle, { statut: "erreur", erreur: message });
+				setGlobalError(
+					`Échec sur « ${nomProduit} » : ${message} — les lignes déjà validées ci-dessus sont enregistrées, corrigez celle-ci puis relancez.`,
+				);
+				setEnCours(false);
+				return;
+			}
+		}
+		setEnCours(false);
+		void queryClient.invalidateQueries({ queryKey: mouvementsKeys.all });
+		void queryClient.invalidateQueries({ queryKey: produitsKeys.all });
+		void queryClient.invalidateQueries({ queryKey: stockKeys.all });
+		onSaved();
+	};
 
 	return (
 		<form
@@ -123,110 +188,132 @@ export function MouvementForm({
 			onSubmit={(event) => {
 				event.preventDefault();
 				event.stopPropagation();
-				void form.handleSubmit();
+				void soumettre();
 			}}
 		>
-			<form.Field name="idProduit">
-				{(field) => (
-					<div className="space-y-2">
-						<Label htmlFor={field.name}>Produit</Label>
+			<SelectField
+				id="mouvement-type"
+				label="Type"
+				value={type}
+				onValueChange={(valeur) => setType(valeur as MouvementType)}
+			>
+				{(Object.keys(MOUVEMENT_TYPE_LABELS) as MouvementType[]).map(
+					(valeurType) => (
+						<SelectItem key={valeurType} value={valeurType}>
+							{MOUVEMENT_TYPE_LABELS[valeurType]}
+						</SelectItem>
+					),
+				)}
+			</SelectField>
+
+			<div className="space-y-3">
+				<div className="flex items-center justify-between">
+					<Label>Produits</Label>
+					<Button
+						type="button"
+						variant="outline"
+						size="sm"
+						disabled={enCours}
+						onClick={ajouterLigne}
+					>
+						<Plus className="size-4" aria-hidden />
+						Ajouter une ligne
+					</Button>
+				</div>
+
+				{lignes.map((ligne, index) => (
+					<div
+						key={ligne.cle}
+						className="space-y-2 sm:grid sm:grid-cols-[1fr_6rem_auto_auto] sm:items-end sm:gap-3 sm:space-y-0"
+					>
 						<Combobox
-							id={field.name}
 							options={produitsOptions}
-							value={field.state.value}
-							onValueChange={field.handleChange}
+							value={ligne.idProduit}
+							onValueChange={(valeur) =>
+								majLigne(ligne.cle, { idProduit: valeur })
+							}
 							placeholder="Produit…"
 							searchPlaceholder="Rechercher par référence ou nom…"
 							emptyText="Aucun produit trouvé."
-							ariaLabel="Produit"
-							className="w-full"
+							ariaLabel={`Produit ligne ${index + 1}`}
+							disabled={ligne.statut === "envoi" || ligne.statut === "ok"}
 						/>
-						{field.state.meta.errors[0] ? (
-							<p className="text-sm text-destructive">
-								{field.state.meta.errors[0]}
-							</p>
-						) : null}
+						{/* Quantité + statut + Retirer sous le produit sur mobile (pas
+						    de décalage dans une rangée trop étroite) — `sm:contents`
+						    les fait rejoindre la grille à 4 colonnes à partir de
+						    l'écran tablette. */}
+						<div className="flex items-end gap-2 sm:contents">
+							<div className="flex-1">
+								<InputField
+									aria-label={`Quantité ligne ${index + 1}`}
+									placeholder="Qté"
+									inputMode="decimal"
+									value={ligne.quantite}
+									disabled={ligne.statut === "envoi" || ligne.statut === "ok"}
+									onChange={(event) =>
+										majLigne(ligne.cle, { quantite: event.target.value })
+									}
+								/>
+							</div>
+							<span
+								className={cn(
+									"flex size-9 items-center justify-center",
+									ligne.statut === "ok" && "text-success",
+									ligne.statut === "erreur" && "text-destructive",
+								)}
+								title={ligne.erreur}
+							>
+								{ligne.statut === "envoi" ? (
+									<Loader2 className="size-4 animate-spin" aria-hidden />
+								) : ligne.statut === "ok" ? (
+									<Check className="size-4" aria-hidden />
+								) : ligne.statut === "erreur" ? (
+									<X className="size-4" aria-hidden />
+								) : null}
+							</span>
+							<Button
+								type="button"
+								variant="ghost"
+								size="icon-sm"
+								aria-label="Retirer la ligne"
+								disabled={
+									lignes.length === 1 ||
+									ligne.statut === "envoi" ||
+									ligne.statut === "ok"
+								}
+								onClick={() => retirerLigne(ligne.cle)}
+							>
+								<Trash2 className="size-4 text-destructive" aria-hidden />
+							</Button>
+						</div>
 					</div>
-				)}
-			</form.Field>
+				))}
+			</div>
 
 			<div className="grid gap-4 sm:grid-cols-2">
-				<form.Field name="type">
-					{(field) => (
-						<SelectField
-							id={field.name}
-							label="Type"
-							value={field.state.value}
-							onValueChange={(valeur) =>
-								field.handleChange(valeur as MouvementType)
-							}
-						>
-							{(Object.keys(MOUVEMENT_TYPE_LABELS) as MouvementType[]).map(
-								(type) => (
-									<SelectItem key={type} value={type}>
-										{MOUVEMENT_TYPE_LABELS[type]}
-									</SelectItem>
-								),
-							)}
-						</SelectField>
-					)}
-				</form.Field>
-
-				<form.Field name="quantite">
-					{(field) => (
-						<InputField
-							id={field.name}
-							name={field.name}
-							label="Quantité"
-							placeholder="ex : 10.00 (négative pour un ajustement)"
-							inputMode="decimal"
-							autoComplete="off"
-							value={field.state.value}
-							onBlur={field.handleBlur}
-							onChange={(event) => field.handleChange(event.target.value)}
-							error={field.state.meta.errors[0]}
-						/>
-					)}
-				</form.Field>
-
-				<form.Field name="motif">
-					{(field) => (
-						<InputField
-							id={field.name}
-							name={field.name}
-							label="Motif (optionnel)"
-							placeholder="ex : Réappro fournisseur"
-							autoComplete="off"
-							value={field.state.value}
-							onBlur={field.handleBlur}
-							onChange={(event) => field.handleChange(event.target.value)}
-							error={field.state.meta.errors[0]}
-						/>
-					)}
-				</form.Field>
-
-				<form.Field name="documentRef">
-					{(field) => (
-						<div>
-							<InputField
-								id={field.name}
-								name={field.name}
-								label="Référence du document (optionnel)"
-								placeholder="ex : BL-2026-0147"
-								autoComplete="off"
-								value={field.state.value}
-								onBlur={field.handleBlur}
-								onChange={(event) => field.handleChange(event.target.value)}
-								error={field.state.meta.errors[0]}
-							/>
-							<p className="mt-1 text-xs text-muted-foreground">
-								Numéro du bon de livraison, bon de commande ou facture
-								fournisseur associé — un texte libre, pas un fichier à joindre,
-								pour retrouver la pièce justificative papier.
-							</p>
-						</div>
-					)}
-				</form.Field>
+				<InputField
+					id="mouvement-motif"
+					label="Motif (optionnel)"
+					placeholder="ex : Réappro fournisseur"
+					value={motif}
+					disabled={enCours}
+					onChange={(event) => setMotif(event.target.value)}
+				/>
+				<div>
+					<InputField
+						id="mouvement-document-ref"
+						label="Référence du document (optionnel)"
+						placeholder="ex : BL-2026-0147"
+						value={documentRef}
+						disabled={enCours}
+						onChange={(event) => setDocumentRef(event.target.value)}
+					/>
+					<p className="mt-1 text-xs text-muted-foreground">
+						Numéro du bon de livraison, bon de commande ou facture fournisseur
+						associé — un texte libre, pas un fichier à joindre, pour retrouver
+						la pièce justificative papier.
+					</p>
+				</div>
 			</div>
 
 			{globalError ? (
@@ -235,26 +322,22 @@ export function MouvementForm({
 				</p>
 			) : null}
 
-			<form.Subscribe selector={(state) => state.isSubmitting}>
-				{(isSubmitting) => (
-					<div className="flex items-center justify-end gap-2 pt-2">
-						<Button
-							type="button"
-							variant="ghost"
-							disabled={isSubmitting}
-							onClick={onCancel}
-						>
-							Annuler
-						</Button>
-						<Button type="submit" disabled={isSubmitting}>
-							{isSubmitting ? (
-								<Loader2 className="size-4 animate-spin" aria-hidden />
-							) : null}
-							{isSubmitting ? "Enregistrement…" : "Enregistrer"}
-						</Button>
-					</div>
-				)}
-			</form.Subscribe>
+			<div className="flex items-center justify-end gap-2 pt-2">
+				<Button
+					type="button"
+					variant="ghost"
+					disabled={enCours}
+					onClick={onCancel}
+				>
+					Annuler
+				</Button>
+				<Button type="submit" disabled={enCours}>
+					{enCours ? (
+						<Loader2 className="size-4 animate-spin" aria-hidden />
+					) : null}
+					{enCours ? "Enregistrement…" : "Enregistrer"}
+				</Button>
+			</div>
 		</form>
 	);
 }

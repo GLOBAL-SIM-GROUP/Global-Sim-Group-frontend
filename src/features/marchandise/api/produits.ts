@@ -104,7 +104,13 @@ export function creerFournisseur(body: { nom: string }): Promise<Fournisseur> {
 
 /** Corps saisi par le formulaire produit (create/update). */
 export interface ProduitBody {
-	reference: string;
+	/**
+	 * `null`/vide à la création = le backend génère une référence
+	 * `GSG-REF-xxx` automatiquement (vérifié en direct, absent du schéma
+	 * généré). Obligatoire en pratique à l'édition (le formulaire valide
+	 * qu'elle n'est pas vide dans ce cas).
+	 */
+	reference?: string | null;
 	nom: string;
 	idCategorieProduit?: string | null;
 	prixAchat: string;
@@ -127,7 +133,7 @@ export interface ProduitBody {
  */
 export function creerProduit(body: ProduitBody): Promise<Produit> {
 	const corps = {
-		reference: body.reference,
+		reference: texteOuNull(body.reference),
 		nom: body.nom,
 		id_categorie_produit: texteOuNull(body.idCategorieProduit),
 		prix_achat: body.prixAchat,
@@ -149,8 +155,11 @@ export function creerProduit(body: ProduitBody): Promise<Produit> {
 	> & {
 		/** Absent du schéma généré (même écart que `id_categorie_produit`
 		 *  etc. ci-dessus) mais bien accepté par le backend — voir GET
-		 *  `/market/produits` qui le renvoie systématiquement. */
-		reference: string;
+		 *  `/market/produits` qui le renvoie systématiquement. `null`/absent
+		 *  → référence `GSG-REF-xxx` générée automatiquement (vérifié en
+		 *  direct : clé absente, `null` et `""` déclenchent tous les trois
+		 *  la génération). */
+		reference?: string | null;
 		id_categorie_produit?: string | null;
 		id_fournisseur?: string | null;
 		quantite_initiale?: string | null;
@@ -172,7 +181,7 @@ export function modifierProduit(
 	body: ProduitBody,
 ): Promise<unknown> {
 	const corps = {
-		reference: body.reference,
+		reference: texteOuNull(body.reference),
 		nom: body.nom,
 		id_categorie_produit: texteOuNull(body.idCategorieProduit),
 		prix_achat: body.prixAchat,
@@ -191,8 +200,10 @@ export function modifierProduit(
 		| "code_barre"
 	> & {
 		/** Absent du schéma généré mais bien accepté par le backend — voir
-		 *  `creerProduit` ci-dessus. */
-		reference: string;
+		 *  `creerProduit` ci-dessus. Le formulaire exige une valeur non vide
+		 *  en édition ; `null` ne devrait donc jamais partir d'ici en
+		 *  pratique. */
+		reference?: string | null;
 		id_categorie_produit?: string | null;
 		id_fournisseur?: string | null;
 		seuil_alerte?: string | null;
