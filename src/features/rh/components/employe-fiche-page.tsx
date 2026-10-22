@@ -15,6 +15,7 @@ import { useEmploye, useModifierEmploye } from "../hooks/use-employes";
 import {
 	EMPLOYE_STATUT_LABELS,
 	EMPLOYE_STATUT_VARIANT,
+	libelleFonction,
 	nomCompletEmploye,
 	TYPE_CONTRAT_LABELS,
 } from "../models/employes";
@@ -83,7 +84,7 @@ export function EmployeFichePage({ id }: EmployeFichePageProps) {
 					{ label: nomCompletEmploye(employe) },
 				]}
 				title={`Fiche employé — ${nomCompletEmploye(employe)}`}
-				description={`${employe.fonction}${employe.service_libelle ? ` · ${employe.service_libelle}` : ""}.`}
+				description={`${libelleFonction(employe.fonction)}${employe.service_libelle ? ` · ${employe.service_libelle}` : ""}.`}
 				actions={
 					<div className="flex items-center gap-2">
 						{canModifier ? (
@@ -122,7 +123,7 @@ export function EmployeFichePage({ id }: EmployeFichePageProps) {
 					<Ligne label="Nom" valeur={employe.nom} />
 					<Ligne label="Prénom" valeur={employe.prenom} />
 					<Ligne label="Téléphone" valeur={employe.telephone ?? "—"} />
-					<Ligne label="Fonction" valeur={employe.fonction} />
+					<Ligne label="Fonction" valeur={libelleFonction(employe.fonction)} />
 					<Ligne label="Service" valeur={employe.service_libelle ?? "—"} />
 					<Ligne
 						label="Date d'embauche"

@@ -31,6 +31,8 @@ import {
 	EMPLOYE_STATUT_LABELS,
 	type Employe,
 	type EmployeStatut,
+	FONCTION_LABELS,
+	FONCTIONS_EMPLOYE,
 	TYPE_CONTRAT_LABELS,
 	type TypeContrat,
 } from "../models/employes";
@@ -79,7 +81,8 @@ export function EmployeFormDialog({
 			onSubmit: ({ value }) => {
 				const fields: Partial<Record<string, string>> = {};
 				if (!value.nom.trim()) fields.nom = "Ce champ est requis.";
-				if (!value.fonction.trim()) fields.fonction = "Ce champ est requis.";
+				if (!value.prenom.trim()) fields.prenom = "Ce champ est requis.";
+				if (!value.fonction) fields.fonction = "Ce champ est requis.";
 				if (!value.dateEmbauche) fields.dateEmbauche = "Ce champ est requis.";
 				if (!value.typeContrat) fields.typeContrat = "Ce champ est requis.";
 				if (!value.salaireBase.trim()) {
@@ -160,7 +163,7 @@ export function EmployeFormDialog({
 								<InputField
 									id={field.name}
 									name={field.name}
-									label="Prénom (optionnel)"
+									label="Prénom"
 									value={field.state.value}
 									onBlur={field.handleBlur}
 									onChange={(event) => field.handleChange(event.target.value)}
@@ -185,15 +188,33 @@ export function EmployeFormDialog({
 					<div className="grid grid-cols-2 gap-4">
 						<form.Field name="fonction">
 							{(field) => (
-								<InputField
-									id={field.name}
-									name={field.name}
-									label="Fonction"
-									value={field.state.value}
-									onBlur={field.handleBlur}
-									onChange={(event) => field.handleChange(event.target.value)}
-									error={field.state.meta.errors[0]}
-								/>
+								<div className="space-y-1.5">
+									<Label htmlFor={field.name}>Fonction</Label>
+									<Select
+										value={field.state.value}
+										onValueChange={field.handleChange}
+									>
+										<SelectTrigger
+											id={field.name}
+											aria-label="Fonction"
+											className="w-full"
+										>
+											<SelectValue placeholder="Sélectionner" />
+										</SelectTrigger>
+										<SelectContent>
+											{FONCTIONS_EMPLOYE.map((fonction) => (
+												<SelectItem key={fonction} value={fonction}>
+													{FONCTION_LABELS[fonction]}
+												</SelectItem>
+											))}
+										</SelectContent>
+									</Select>
+									{field.state.meta.errors[0] ? (
+										<p className="text-xs text-destructive">
+											{field.state.meta.errors[0]}
+										</p>
+									) : null}
+								</div>
 							)}
 						</form.Field>
 						<form.Field name="idService">

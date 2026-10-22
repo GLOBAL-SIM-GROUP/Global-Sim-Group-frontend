@@ -57,10 +57,8 @@ export function creerEmploye(body: EmployeBody): Promise<unknown> {
 	const corps = {
 		nom: body.nom,
 		prenom: body.prenom,
-		// `fonction` est un champ texte libre côté formulaire, mais le DTO généré
-		// le type en union stricte (ex. "CUISINIER", "SERVEUR"...). Le backend
-		// valide la valeur à la réception (erreur 400 affichée sur le champ) —
-		// voir docs.global-sim-group.com/frontend/state-management/. Pas de <select> dédié pour l'instant.
+		// `fonction` vient d'un <select> limité à l'enum `CreerEmployeDto`
+		// (FONCTIONS_EMPLOYE) — le cast reflète le contrat du formulaire.
 		fonction: body.fonction as CreerEmployeDto["fonction"],
 		date_embauche: body.dateEmbauche,
 		type_contrat: body.typeContrat,

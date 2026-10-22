@@ -5,6 +5,72 @@
 export type TypeContrat = "CDI" | "CDD" | "APPRENTI" | "AUTRE";
 export type EmployeStatut = "ACTIF" | "INACTIF" | "SUSPENDU";
 
+/** Fonctions acceptées par `CreerEmployeDto`/`MajEmployeDto` (enum backend). */
+export type FonctionEmploye =
+	| "RESPONSABLE"
+	| "SERVEUR"
+	| "CAISSIER"
+	| "CUISINIER"
+	| "RESPONSABLE_CUISINE"
+	| "RECEPTIONNISTE"
+	| "OPERATEUR_LAVAGE"
+	| "OPERATEUR_SECHAGE"
+	| "OPERATEUR_REPASSAGE"
+	| "CONTROLEUR_QUALITE"
+	| "AGENT_LIVRAISON"
+	| "AGENT_ENTRETIEN"
+	| "TECHNICIEN"
+	| "VENDEUR"
+	| "MAGASINIER"
+	| "RESPONSABLE_APPROVISIONNEMENT"
+	| "AUTRE";
+
+export const FONCTIONS_EMPLOYE: readonly FonctionEmploye[] = [
+	"RESPONSABLE",
+	"CAISSIER",
+	"RECEPTIONNISTE",
+	"VENDEUR",
+	"MAGASINIER",
+	"RESPONSABLE_APPROVISIONNEMENT",
+	"SERVEUR",
+	"CUISINIER",
+	"RESPONSABLE_CUISINE",
+	"OPERATEUR_LAVAGE",
+	"OPERATEUR_SECHAGE",
+	"OPERATEUR_REPASSAGE",
+	"CONTROLEUR_QUALITE",
+	"AGENT_LIVRAISON",
+	"AGENT_ENTRETIEN",
+	"TECHNICIEN",
+	"AUTRE",
+];
+
+/** Libellés français des fonctions (codes enum backend). */
+export const FONCTION_LABELS: Record<FonctionEmploye, string> = {
+	RESPONSABLE: "Responsable",
+	SERVEUR: "Serveur / Serveuse",
+	CAISSIER: "Caissier / Caissière",
+	CUISINIER: "Cuisinier / Cuisinière",
+	RESPONSABLE_CUISINE: "Responsable cuisine",
+	RECEPTIONNISTE: "Réceptionniste",
+	OPERATEUR_LAVAGE: "Opérateur lavage",
+	OPERATEUR_SECHAGE: "Opérateur séchage",
+	OPERATEUR_REPASSAGE: "Opérateur repassage",
+	CONTROLEUR_QUALITE: "Contrôleur qualité",
+	AGENT_LIVRAISON: "Agent livraison",
+	AGENT_ENTRETIEN: "Agent entretien",
+	TECHNICIEN: "Technicien",
+	VENDEUR: "Vendeur / Vendeuse",
+	MAGASINIER: "Magasinier",
+	RESPONSABLE_APPROVISIONNEMENT: "Responsable approvisionnement",
+	AUTRE: "Autre",
+};
+
+/** Libellé FR d'une fonction wire — valeur brute si code inconnu. */
+export function libelleFonction(fonction: string): string {
+	return FONCTION_LABELS[fonction as FonctionEmploye] ?? fonction;
+}
+
 export interface Employe {
 	id: string;
 	nom: string;

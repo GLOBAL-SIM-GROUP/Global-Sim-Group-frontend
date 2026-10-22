@@ -36,6 +36,7 @@ import {
 	type Employe,
 	type EmployeStatut,
 	filtrerEmployes,
+	libelleFonction,
 	nomCompletEmploye,
 	paginerEmployes,
 } from "../models/employes";
@@ -214,7 +215,9 @@ export function EmployesPage({
 											{nomCompletEmploye(employe)}
 										</Link>
 									</Td>
-									<Td className="text-foreground">{employe.fonction}</Td>
+									<Td className="text-foreground">
+										{libelleFonction(employe.fonction)}
+									</Td>
 									<Td className="text-muted-foreground">
 										{employe.service_libelle ?? "—"}
 									</Td>
