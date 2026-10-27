@@ -1,6 +1,7 @@
 import { getApiClient } from "#/core/api";
 import type { components } from "#/core/api/generated/schema";
 import { imprimerPdfBlob } from "#/lib/print-pdf";
+import { trierAlpha } from "#/lib/tri";
 
 import type {
 	CategorieDepense,
@@ -153,7 +154,13 @@ export function listCategoriesDepenses(): Promise<CategorieDepense[]> {
 	return getApiClient()
 		.apiFetch<CategorieDepenseWire[]>("/api/v1/finances/categories-depenses")
 		.then((data) =>
-			data.map(({ id_categorie_depense: id, ...reste }) => ({ id, ...reste })),
+			trierAlpha(
+				data.map(({ id_categorie_depense: id, ...reste }) => ({
+					id,
+					...reste,
+				})),
+				(c) => c.libelle,
+			),
 		);
 }
 
@@ -177,7 +184,10 @@ export function listMoyensPaiement(): Promise<MoyenPaiement[]> {
 	return getApiClient()
 		.apiFetch<MoyenPaiementWire[]>("/api/v1/finances/moyens-paiement")
 		.then((data) =>
-			data.map(({ id_moyen: id, ...reste }) => ({ id, ...reste })),
+			trierAlpha(
+				data.map(({ id_moyen: id, ...reste }) => ({ id, ...reste })),
+				(m) => m.libelle,
+			),
 		);
 }
 

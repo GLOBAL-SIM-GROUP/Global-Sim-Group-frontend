@@ -1,5 +1,6 @@
 import { getApiClient } from "#/core/api";
 import type { components } from "#/core/api/generated/schema";
+import { trierAlpha } from "#/lib/tri";
 
 import type { Permission, Role } from "../models/roles";
 
@@ -15,7 +16,10 @@ export function listRoles(): Promise<Role[]> {
 	return getApiClient()
 		.apiFetch<RoleWire[]>("/api/v1/admin/roles")
 		.then((data) =>
-			data.map(({ id_role: id, ...reste }) => ({ id, ...reste })),
+			trierAlpha(
+				data.map(({ id_role: id, ...reste }) => ({ id, ...reste })),
+				(r) => r.libelle,
+			),
 		);
 }
 

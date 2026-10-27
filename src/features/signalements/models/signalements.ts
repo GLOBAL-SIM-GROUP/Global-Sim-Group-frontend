@@ -1,5 +1,6 @@
 import type { ModuleCible, Signalement } from "#/core/api/signalements";
 import { hasPermission } from "#/core/permissions";
+import { trierAlpha } from "#/lib/tri";
 
 export type SignalementStatut = Signalement["statut"];
 
@@ -16,7 +17,11 @@ export const MODULE_CIBLE_LABELS: Record<ModuleCible, string> = {
 	AUDIT: "Audit",
 };
 
-export const MODULES_CIBLE = Object.keys(MODULE_CIBLE_LABELS) as ModuleCible[];
+/** Modules ciblables, triés sur leur libellé français (ordre d'affichage). */
+export const MODULES_CIBLE = trierAlpha(
+	Object.keys(MODULE_CIBLE_LABELS) as ModuleCible[],
+	(m) => MODULE_CIBLE_LABELS[m],
+);
 
 /**
  * Modules ciblables filtrés par les permissions de l'utilisateur connecté :

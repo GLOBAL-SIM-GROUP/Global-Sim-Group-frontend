@@ -1,5 +1,6 @@
 import { getApiClient } from "#/core/api";
 import type { components } from "#/core/api/generated/schema";
+import { trierAlpha } from "#/lib/tri";
 
 import type {
 	Client,
@@ -84,7 +85,9 @@ export function listClients(params?: ListClientsParams): Promise<Client[]> {
 		: "";
 	return getApiClient()
 		.apiFetch<ClientWire[]>(`/api/v1/client/clients${qs}`)
-		.then((data) => data.map(remapClient));
+		.then((data) =>
+			trierAlpha(data.map(remapClient), (c) => `${c.nom} ${c.prenoms}`),
+		);
 }
 
 /** Détail d'un client (contacts et pièces inclus). */

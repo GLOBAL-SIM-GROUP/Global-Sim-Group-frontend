@@ -1,4 +1,6 @@
 import { getApiClient } from "#/core/api";
+import { trierAlpha } from "#/lib/tri";
+
 import type {
 	ActiviteCaisse,
 	Caisse,
@@ -22,9 +24,9 @@ export async function listerCaisses(
 		query.set("actif", filtres.actif ? "true" : "false");
 
 	const qs = query.toString();
-	return getApiClient().apiFetch(
-		`/api/v1/finances/caisses${qs ? `?${qs}` : ""}`,
-	);
+	return getApiClient()
+		.apiFetch<Caisse[]>(`/api/v1/finances/caisses${qs ? `?${qs}` : ""}`)
+		.then((data) => trierAlpha(data, (c) => c.libelle));
 }
 
 /**
@@ -35,7 +37,9 @@ export async function listerCaisses(
  * de paiement. Requiert `FINANCES.VOIR`.
  */
 export async function listerCaissesAccessibles(): Promise<CaisseAccessible[]> {
-	return getApiClient().apiFetch("/api/v1/finances/caisses/accessibles");
+	return getApiClient()
+		.apiFetch<CaisseAccessible[]>("/api/v1/finances/caisses/accessibles")
+		.then((data) => trierAlpha(data, (c) => c.libelle));
 }
 
 /**
@@ -44,7 +48,9 @@ export async function listerCaissesAccessibles(): Promise<CaisseAccessible[]> {
  * `CaissePicker` à son module sans dépendre de l'id numérique ni du libellé.
  */
 export async function listerActivites(): Promise<ActiviteCaisse[]> {
-	return getApiClient().apiFetch("/api/v1/finances/activites");
+	return getApiClient()
+		.apiFetch<ActiviteCaisse[]>("/api/v1/finances/activites")
+		.then((data) => trierAlpha(data, (a) => a.libelle));
 }
 
 /** Obtenir une caisse par ID. */

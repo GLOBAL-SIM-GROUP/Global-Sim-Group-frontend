@@ -1,5 +1,6 @@
 import { getApiClient } from "#/core/api";
 import type { components } from "#/core/api/generated/schema";
+import { trierAlpha } from "#/lib/tri";
 
 import type { Prestation } from "../models/prestations";
 
@@ -20,7 +21,10 @@ export function listPrestations(): Promise<Prestation[]> {
 	return getApiClient()
 		.apiFetch<PrestationWire[]>("/api/v1/facturation/prestations")
 		.then((data) =>
-			data.map(({ id_prestation: id, ...reste }) => ({ id, ...reste })),
+			trierAlpha(
+				data.map(({ id_prestation: id, ...reste }) => ({ id, ...reste })),
+				(p) => p.libelle,
+			),
 		);
 }
 

@@ -1,5 +1,6 @@
 import { getApiClient } from "#/core/api";
 import type { components } from "#/core/api/generated/schema";
+import { trierAlpha } from "#/lib/tri";
 
 import type {
 	ActiviteAbonnement,
@@ -45,9 +46,13 @@ export function listOffres(filtres?: FiltresOffres): Promise<Offre[]> {
 		params.set("offset", String(filtres.offset));
 	}
 	const qs = params.toString();
-	return getApiClient().apiFetch<Offre[]>(
-		`/api/v1/abonnement/offres${qs ? `?${qs}` : ""}`,
-	);
+	// `sort`/`order` explicites passent au backend — sinon ordre alpha par
+	// défaut pour les selects/catalogue.
+	return getApiClient()
+		.apiFetch<Offre[]>(`/api/v1/abonnement/offres${qs ? `?${qs}` : ""}`)
+		.then((data) =>
+			filtres?.sort ? data : trierAlpha(data, (o) => o.libelle),
+		);
 }
 
 /** Détail d'une offre (GET `/abonnement/offres/{id}`). */
