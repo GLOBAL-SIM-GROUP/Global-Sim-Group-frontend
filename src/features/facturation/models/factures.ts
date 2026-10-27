@@ -32,7 +32,7 @@ export const FACTURE_STATUT_VARIANT = {
 export const FACTURE_SOURCE_LABELS: Record<string, string> = {
 	COMMANDE_RESTAURANT: "Commande restaurant",
 	COMMANDE_PRESSING: "Commande pressing",
-	VENTE: "Vente boutique",
+	VENTE: "Vente Super-Marché",
 	SEJOUR: "Séjour",
 	PRESTATION: "Prestation",
 	RESERVATION_FETE: "Réservation salle",

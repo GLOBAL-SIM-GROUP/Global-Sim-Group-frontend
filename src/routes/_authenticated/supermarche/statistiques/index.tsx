@@ -5,14 +5,14 @@ import { requirePermissions } from "#/core/auth";
 import {
 	StatistiquesPage,
 	type StatistiquesSearch,
-} from "#/features/marchandise/components/statistiques-page";
+} from "#/features/supermarche/components/statistiques-page";
 
 /**
- * Statistiques — Market (M3). Filtre de période dans l'URL. Page gated par
+ * Statistiques — Super-Marché. Filtre de période dans l'URL. Page gated par
  * `MARCHANDISE.VOIR`.
  */
 export const Route = createFileRoute(
-	"/_authenticated/marchandise/statistiques/",
+	"/_authenticated/supermarche/statistiques/",
 )({
 	beforeLoad: ({ context }) => {
 		requirePermissions(context.auth, "MARCHANDISE.VOIR");

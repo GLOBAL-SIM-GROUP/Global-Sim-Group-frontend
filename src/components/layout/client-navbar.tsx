@@ -85,10 +85,10 @@ export const SERVICES_GROUPES: readonly {
 				to: "/espace-client/restaurant",
 			},
 			{
-				id: "boutique",
-				label: "Boutique",
+				id: "supermarche",
+				label: "Super-Marché",
 				icon: ShoppingBag,
-				to: "/espace-client/boutique",
+				to: "/espace-client/supermarche",
 			},
 			{
 				id: "pressing",

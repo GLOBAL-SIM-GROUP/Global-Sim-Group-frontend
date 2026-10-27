@@ -5,13 +5,13 @@ import { requirePermissions } from "#/core/auth";
 import {
 	VentesPage,
 	type VentesSearch,
-} from "#/features/marchandise/components/ventes-page";
+} from "#/features/supermarche/components/ventes-page";
 
 /**
- * Historique des ventes — Market (M3). Filtres et page vivent dans l'URL pour
+ * Historique des ventes — Super-Marché. Filtres et page vivent dans l'URL pour
  * le partage de liens ; appliqués côté client. Page gated par `MARCHANDISE.VOIR`.
  */
-export const Route = createFileRoute("/_authenticated/marchandise/ventes/")({
+export const Route = createFileRoute("/_authenticated/supermarche/ventes/")({
 	beforeLoad: ({ context }) => {
 		requirePermissions(context.auth, "MARCHANDISE.VOIR");
 	},

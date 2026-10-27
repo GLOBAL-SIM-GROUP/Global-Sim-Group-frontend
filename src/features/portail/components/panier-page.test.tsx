@@ -5,8 +5,8 @@ import type { ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
-	CLE_PANIER_BOUTIQUE,
 	CLE_PANIER_RESTAURANT,
+	CLE_PANIER_SUPERMARCHE,
 } from "../models/panier-articles";
 import { PanierPage } from "./panier-page";
 
@@ -25,7 +25,7 @@ vi.mock("../hooks/use-restaurant", () => ({
 	useCreerCommandeRestaurant: () => mocks.creerCommande,
 }));
 
-vi.mock("../hooks/use-market", () => ({
+vi.mock("../hooks/use-supermarche", () => ({
 	useCreerVentePortail: () => mocks.creerVente,
 }));
 
@@ -37,7 +37,7 @@ vi.mock("#/features/restaurant/api/plats", () => ({
 	]),
 }));
 
-vi.mock("#/features/marchandise/api/produits", () => ({
+vi.mock("#/features/supermarche/api/produits", () => ({
 	listProduits: vi.fn(async () => [
 		{
 			id: "7",
@@ -82,7 +82,7 @@ const PROPS = {
 	breadcrumb: [{ label: "Mon panier" }],
 	liens: {
 		restaurant: "/espace-client/restaurant",
-		boutique: "/espace-client/boutique",
+		supermarche: "/espace-client/supermarche",
 		mesDemandes: "/espace-client/mes-demandes",
 	},
 	variant: "client" as const,
@@ -154,9 +154,9 @@ describe("PanierPage", () => {
 		).toBeInTheDocument();
 	});
 
-	it("le panier boutique ouvre le dialogue avant envoi via POST portail", async () => {
+	it("le panier super-marché ouvre le dialogue avant envoi via POST portail", async () => {
 		localStorage.setItem(
-			CLE_PANIER_BOUTIQUE,
+			CLE_PANIER_SUPERMARCHE,
 			JSON.stringify([
 				{
 					id: "7",
@@ -190,10 +190,10 @@ describe("PanierPage", () => {
 		);
 	});
 
-	it("masque le bouton boutique sans MARCHANDISE.COMMANDER", async () => {
+	it("masque le bouton super-marché sans MARCHANDISE.COMMANDER", async () => {
 		mocks.useCan.mockReturnValue(false);
 		localStorage.setItem(
-			CLE_PANIER_BOUTIQUE,
+			CLE_PANIER_SUPERMARCHE,
 			JSON.stringify([
 				{
 					id: "7",
@@ -212,7 +212,7 @@ describe("PanierPage", () => {
 			screen.queryByRole("button", { name: /envoyer ma demande/i }),
 		).not.toBeInTheDocument();
 		expect(
-			screen.getByText(/présentez-vous à la boutique/i),
+			screen.getByText(/présentez-vous au Super-Marché/i),
 		).toBeInTheDocument();
 	});
 });

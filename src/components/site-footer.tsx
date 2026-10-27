@@ -38,8 +38,8 @@ export function SiteFooter() {
 							<span className="font-bold">GLOBAL SIM GROUP</span>
 						</div>
 						<p className="text-sm text-white/70">
-							Résidence, restaurant, pressing, salle de fête et boutique — tous
-							nos services depuis un seul compte.
+							Résidence, restaurant, pressing, salle de fête et super-marché —
+							tous nos services depuis un seul compte.
 						</p>
 					</div>
 
@@ -73,7 +73,7 @@ export function SiteFooter() {
 							</li>
 							<li>
 								<a
-									href="#boutique"
+									href="#supermarche"
 									className="transition-colors hover:text-white"
 								>
 									Boutique

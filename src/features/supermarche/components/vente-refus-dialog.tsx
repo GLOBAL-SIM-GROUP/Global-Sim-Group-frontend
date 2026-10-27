@@ -20,7 +20,7 @@ interface VenteRefusDialogProps {
 }
 
 /**
- * Refus d'une demande boutique du portail `EN_ATTENTE` (staff) — passe la
+ * Refus d'une demande super-marché du portail `EN_ATTENTE` (staff) — passe la
  * vente en `ANNULEE` avec un motif optionnel restitué au résident
  * (`motif_annulation`). Pattern `CommandeRefusDialog` du restaurant.
  */

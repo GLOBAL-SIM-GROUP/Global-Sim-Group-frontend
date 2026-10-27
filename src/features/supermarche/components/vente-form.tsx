@@ -44,7 +44,7 @@ interface LigneSaisie {
 }
 
 /**
- * Formulaire « Nouvelle vente — Market » (M3) : client optionnel, lignes de
+ * Formulaire « Nouvelle vente — Super-Marché » (M3) : client optionnel, lignes de
  * produits (recherche par produit + quantité), remise, total calculé
  * automatiquement et moyen de paiement. Le POST décrémente le stock et génère
  * la facture côté backend.

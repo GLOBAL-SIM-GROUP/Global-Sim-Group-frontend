@@ -2,6 +2,7 @@ import { getApiClient } from "#/core/api";
 import type { components } from "#/core/api/generated/schema";
 
 import { idCaisseDto } from "#/features/finances/models/caisses";
+import { trierAlpha } from "#/lib/tri";
 import type { CategorieCharge, Charge } from "../models/charges";
 
 type CreerChargeDto = components["schemas"]["CreerChargeDto"];
@@ -42,7 +43,13 @@ export function listCategoriesCharges(): Promise<CategorieCharge[]> {
 	return getApiClient()
 		.apiFetch<CategorieChargeWire[]>("/api/v1/residence/categories-charges")
 		.then((data) =>
-			data.map(({ id_categorie_charge: id, ...reste }) => ({ id, ...reste })),
+			trierAlpha(
+				data.map(({ id_categorie_charge: id, ...reste }) => ({
+					id,
+					...reste,
+				})),
+				(c) => c.libelle,
+			),
 		);
 }
 

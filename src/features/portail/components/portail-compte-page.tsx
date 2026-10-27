@@ -266,7 +266,7 @@ export function PortailComptePage({
 								to="/espace-client/panier"
 								icon={ShoppingCart}
 								titre="Mon panier"
-								description="Articles restaurant et boutique en attente"
+								description="Articles restaurant et Super-Marché en attente"
 							/>
 						</>
 					) : (

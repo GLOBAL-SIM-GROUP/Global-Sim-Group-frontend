@@ -9,14 +9,14 @@ import { produitImagePublicUrl } from "#/core/api/uploads";
 import {
 	listCategoriesProduits,
 	listProduits,
-} from "#/features/marchandise/api/produits";
+} from "#/features/supermarche/api/produits";
 import {
 	estEpuise,
 	type Produit,
-} from "#/features/marchandise/models/produits";
+} from "#/features/supermarche/models/produits";
 
 import { usePanierArticles } from "../hooks/use-panier-articles";
-import { CLE_PANIER_BOUTIQUE } from "../models/panier-articles";
+import { CLE_PANIER_SUPERMARCHE } from "../models/panier-articles";
 import { PanierBar } from "./panier-bar";
 import { ProduitCarte } from "./produit-carte";
 import { QuantiteDialog } from "./quantite-dialog";
@@ -28,15 +28,15 @@ function imageDuProduit(produit: Produit): string | null {
 }
 
 /**
- * Catalogue de la boutique — produits actifs et non épuisés avec panier
+ * Catalogue du super-marché — produits actifs et non épuisés avec panier
  * persisté en `localStorage` (clé dédiée, indépendant du panier
- * restaurant). Partagée entre l'espace client (`/espace-client/boutique`)
- * et le portail résident (`/residence/portail/boutique`) : `breadcrumb` et
+ * restaurant). Partagée entre l'espace client (`/espace-client/supermarche`)
+ * et le portail résident (`/residence/portail/supermarche`) : `breadcrumb` et
  * `panierTo` portent les liens propres à l'espace ; `variant` fixe le
  * conteneur (`p-6` résident, `pt-6 pb-16` client) et décale la barre de
  * panier au-dessus de la tab bar mobile de l'espace client.
  */
-export function BoutiqueCataloguePage({
+export function SuperMarcheCataloguePage({
 	breadcrumb,
 	panierTo,
 	variant,
@@ -46,11 +46,11 @@ export function BoutiqueCataloguePage({
 	variant: "client" | "resident";
 }) {
 	const produitsQuery = useQuery({
-		queryKey: ["portail", "boutique", "produits"],
+		queryKey: ["portail", "super-marché", "produits"],
 		queryFn: () => listProduits(),
 	});
 	const categoriesQuery = useQuery({
-		queryKey: ["portail", "boutique", "categories"],
+		queryKey: ["portail", "super-marché", "categories"],
 		queryFn: () => listCategoriesProduits(),
 	});
 	const [categorieActive, setCategorieActive] = useState(TOUTES_CATEGORIES);
@@ -59,7 +59,7 @@ export function BoutiqueCataloguePage({
 	);
 	// Panier indépendant de celui du restaurant (clé de stockage dédiée) :
 	// pas de panier partagé entre services.
-	const panier = usePanierArticles(CLE_PANIER_BOUTIQUE);
+	const panier = usePanierArticles(CLE_PANIER_SUPERMARCHE);
 
 	const produitsActifs = useMemo(
 		() =>
@@ -146,7 +146,7 @@ export function BoutiqueCataloguePage({
 			<div className="flex flex-col items-center gap-4 py-24 text-center">
 				<AlertCircle className="size-8 text-destructive" aria-hidden />
 				<p className="text-muted-foreground">
-					Impossible de charger la boutique pour le moment.
+					Impossible de charger le super-marché pour le moment.
 				</p>
 			</div>
 		);
@@ -165,7 +165,7 @@ export function BoutiqueCataloguePage({
 			>
 				<PageHeader
 					breadcrumb={breadcrumb}
-					title="Boutique"
+					title="Super-Marché"
 					description="Parcourez le catalogue et composez votre commande."
 				/>
 

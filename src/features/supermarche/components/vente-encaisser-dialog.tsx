@@ -75,7 +75,7 @@ export function VenteEncaisserDialog({
 				<DialogDescription>
 					Règlement intégral de la vente n° {vente?.id ?? ""}
 					{vente?.origine === "PORTAIL"
-						? " — demande boutique du portail validée, à régler au retrait"
+						? " — demande Super-Marché du portail validée, à régler au retrait"
 						: ""}
 					. La vente passe à « Payée ».
 				</DialogDescription>

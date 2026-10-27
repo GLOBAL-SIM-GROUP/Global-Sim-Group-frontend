@@ -25,7 +25,7 @@ export interface ListVentesParams {
 	search?: string;
 	/** Filtre serveur `statut` (ex. `EN_ATTENTE` pour les demandes portail). */
 	statut?: VenteStatut;
-	/** Filtre serveur `origine` (`PORTAIL` = demandes boutique, `COMPTOIR` = POS). */
+	/** Filtre serveur `origine` (`PORTAIL` = demandes super-marché, `COMPTOIR` = POS). */
 	origine?: VenteOrigine;
 }
 
@@ -100,7 +100,7 @@ export function creerVente(body: VenteBody): Promise<unknown> {
 }
 
 /**
- * Valide une demande boutique du portail (POST
+ * Valide une demande super-marché du portail (POST
  * `/api/v1/market/ventes/{id}/valider`, `MARCHANDISE.VALIDER`) — transition
  * `EN_ATTENTE` → `EN_COURS` avec vérification et décrémentation atomique du
  * stock côté serveur (422 si insuffisant).

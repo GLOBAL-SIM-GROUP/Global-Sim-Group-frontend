@@ -1,10 +1,10 @@
 /**
- * Demandes boutique du portail résident (endpoints `/market/portail/ventes`).
+ * Demandes super-marché du portail résident (endpoints `/market/portail/ventes`).
  * Types hand-typés : le schéma OpenAPI généré est en retard sur le backend
  * (contrat convenu — cf. prompt backend « market 084 »), même convention que
  * `models/restaurant.ts`.
  *
- * Une demande boutique est une vente `market_ventes` née `EN_ATTENTE` avec
+ * Une demande super-marché est une vente `market_ventes` née `EN_ATTENTE` avec
  * `origine = "PORTAIL"` : le prix est connu dès la demande (`prix_unitaire`
  * figé au `prix_vente` catalogue, totaux calculés serveur — indicatifs).
  * Le personnel valide (`EN_COURS` — stock décrémenté) ou refuse (`ANNULEE` +
@@ -20,7 +20,7 @@ export type VentePortailStatut =
 
 export type VenteOrigine = "COMPTOIR" | "PORTAIL";
 
-/** Ligne d'une demande boutique (détail : `lignes[]` embarqué). */
+/** Ligne d'une demande super-marché (détail : `lignes[]` embarqué). */
 export interface LigneVentePortail {
 	id_produit: string;
 	/** Nom du produit si le serveur l'embarque (`produit?`). */
@@ -48,7 +48,7 @@ export interface VentePortail {
 	lignes?: LigneVentePortail[];
 }
 
-/** Libellés français du statut de demande boutique. */
+/** Libellés français du statut de demande super-marché. */
 export const VENTE_PORTAIL_STATUT_LABELS: Record<VentePortailStatut, string> = {
 	EN_ATTENTE: "En attente de validation",
 	EN_COURS: "Validée — à retirer",
@@ -56,7 +56,7 @@ export const VENTE_PORTAIL_STATUT_LABELS: Record<VentePortailStatut, string> = {
 	ANNULEE: "Annulée",
 };
 
-/** Variante `<Badge>` par statut de demande boutique. */
+/** Variante `<Badge>` par statut de demande super-marché. */
 export const VENTE_PORTAIL_STATUT_VARIANT = {
 	EN_ATTENTE: "warning",
 	EN_COURS: "info",

@@ -58,8 +58,8 @@ describe("ClientNavbar", () => {
 		for (const link of screen.getAllByRole("link", { name: /restaurant/i })) {
 			expect(link).toHaveAttribute("href", "/espace-client/restaurant");
 		}
-		for (const link of screen.getAllByRole("link", { name: /boutique/i })) {
-			expect(link).toHaveAttribute("href", "/espace-client/boutique");
+		for (const link of screen.getAllByRole("link", { name: /super-marché/i })) {
+			expect(link).toHaveAttribute("href", "/espace-client/supermarche");
 		}
 		for (const link of screen.getAllByRole("link", { name: /pressing/i })) {
 			expect(link).toHaveAttribute("href", "/espace-client/pressing");
@@ -88,7 +88,7 @@ describe("ClientNavbar", () => {
 			]),
 		);
 		window.localStorage.setItem(
-			"espace-client.panier.boutique",
+			"espace-client.panier.supermarche",
 			JSON.stringify([
 				{
 					id: "a1",

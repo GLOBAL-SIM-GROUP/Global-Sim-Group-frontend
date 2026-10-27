@@ -7,7 +7,7 @@ import { cn } from "#/lib/utils";
 
 /**
  * Icône panier façon `NotificationBell` : bouton-icône avec badge du nombre
- * total d'articles (restaurant + boutique), visible à toutes les tailles
+ * total d'articles (restaurant + super-marché), visible à toutes les tailles
  * d'écran — le libellé texte ne passe que par `aria-label`. Partagée entre
  * la navbar de l'espace client (`to="/espace-client/panier"`) et l'en-tête
  * du shell résident (`to="/residence/portail/panier"`) — le compteur lit le

@@ -113,7 +113,7 @@ const SERVICES = [
 	},
 	{
 		icone: ShoppingBag,
-		titre: "Boutique",
+		titre: "Super-Marché",
 		description:
 			"Parcourez le catalogue et commandez vos articles en quelques clics.",
 		points: [
@@ -121,7 +121,7 @@ const SERVICES = [
 			"Prix affichés en FCFA",
 			"Commande depuis votre espace",
 		],
-		to: "/marchandise/produits",
+		to: "/supermarche/produits",
 		action: "Voir les produits",
 	},
 	{

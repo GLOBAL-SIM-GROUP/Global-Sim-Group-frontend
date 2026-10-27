@@ -1,27 +1,27 @@
 import { createQueryKeys } from "#/core/query";
 
 /** Clés de requêtes du module Marchandise — produits. */
-export const produitsKeys = createQueryKeys("marchandise.produits");
+export const produitsKeys = createQueryKeys("supermarche.produits");
 
 /** Clés de requêtes du module Marchandise — catégories de produits. */
 export const categoriesProduitsKeys = createQueryKeys(
-	"marchandise.categories-produits",
+	"supermarche.categories-produits",
 );
 
 /** Clés de requêtes du module Marchandise — fournisseurs. */
-export const fournisseursKeys = createQueryKeys("marchandise.fournisseurs");
+export const fournisseursKeys = createQueryKeys("supermarche.fournisseurs");
 
 /** Clés de requêtes du module Marchandise — ventes. */
-export const ventesKeys = createQueryKeys("marchandise.ventes");
+export const ventesKeys = createQueryKeys("supermarche.ventes");
 
 /** Clés de requêtes du module Marchandise — mouvements de stock. */
-export const mouvementsKeys = createQueryKeys("marchandise.mouvements");
+export const mouvementsKeys = createQueryKeys("supermarche.mouvements");
 
 /** Clés de requêtes du module Marchandise — alerte stock. */
-export const stockKeys = createQueryKeys("marchandise.stock");
+export const stockKeys = createQueryKeys("supermarche.stock");
 
 /** Clés de requêtes du module Marchandise — rapports de ventes. */
-export const rapportVentesKeys = createQueryKeys("marchandise.rapports-ventes");
+export const rapportVentesKeys = createQueryKeys("supermarche.rapports-ventes");
 
 /** Taille de page de la pagination client du catalogue produits. */
 export const PRODUITS_PAGE_SIZE = 10;

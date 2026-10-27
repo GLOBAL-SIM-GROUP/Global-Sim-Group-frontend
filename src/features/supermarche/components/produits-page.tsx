@@ -41,7 +41,7 @@ interface ProduitsPageProps {
 }
 
 /**
- * Page « Produits — Market » (module Marchandise, M3) : catalogue des produits
+ * Page « Produits — Super-Marché » (module Marchandise, M3) : catalogue des produits
  * avec référence, catégorie, prix, stock, seuil et fournisseur. Filtres et
  * pagination côté client ; modale Ajouter/Modifier. Liens vers les mouvements,
  * les ventes et les statistiques.
@@ -119,10 +119,10 @@ export function ProduitsPage({
 			<PageHeader
 				breadcrumb={[
 					{ label: "Accueil", to: "/" },
-					{ label: "Produits — Market" },
+					{ label: "Produits — Super-Marché" },
 				]}
-				title="Produits — Market"
-				description="Catalogue des produits du supermarché/boutique."
+				title="Produits — Super-Marché"
+				description="Catalogue des produits du Super-Marché."
 				actions={
 					<div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
 						<Button
@@ -131,7 +131,7 @@ export function ProduitsPage({
 							asChild
 							className="w-full justify-center sm:w-auto"
 						>
-							<Link to="/marchandise/mouvements">Mouvements</Link>
+							<Link to="/supermarche/mouvements">Mouvements</Link>
 						</Button>
 						<Button
 							variant="outline"
@@ -139,7 +139,7 @@ export function ProduitsPage({
 							asChild
 							className="w-full justify-center sm:w-auto"
 						>
-							<Link to="/marchandise/ventes">Ventes</Link>
+							<Link to="/supermarche/ventes">Ventes</Link>
 						</Button>
 						<Button
 							variant="outline"
@@ -147,7 +147,7 @@ export function ProduitsPage({
 							asChild
 							className="w-full justify-center sm:w-auto"
 						>
-							<Link to="/marchandise/statistiques">Statistiques</Link>
+							<Link to="/supermarche/statistiques">Statistiques</Link>
 						</Button>
 						<Button
 							variant="outline"
@@ -155,7 +155,7 @@ export function ProduitsPage({
 							asChild
 							className="w-full justify-center sm:w-auto"
 						>
-							<Link to="/marchandise/categories-produits">Catégories</Link>
+							<Link to="/supermarche/categories-produits">Catégories</Link>
 						</Button>
 						{canCreer ? (
 							<Button

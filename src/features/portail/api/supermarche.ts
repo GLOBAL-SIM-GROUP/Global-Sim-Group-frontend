@@ -1,6 +1,6 @@
 import { getApiClient } from "#/core/api";
 
-import type { LigneVentePortail, VentePortail } from "../models/market";
+import type { LigneVentePortail, VentePortail } from "../models/supermarche";
 
 type LigneVentePortailWire = Omit<LigneVentePortail, "nom_produit"> & {
 	/** Nom du produit embarqué — string livrée (market 085), objet `{nom}` toléré. */
@@ -31,7 +31,7 @@ const toVente = ({
 });
 
 /**
- * Appels API du portail résident — demandes boutique
+ * Appels API du portail résident — demandes super-marché
  * (`/market/portail/ventes`). Le client est déduit du JWT : ne jamais
  * envoyer `id_client`, de montant ni de paiement (le serveur fige
  * `prix_unitaire` au `prix_vente` catalogue). La vente naît `EN_ATTENTE`
@@ -39,7 +39,7 @@ const toVente = ({
  * validation staff.
  */
 
-/** Liste des demandes boutique du résident connecté (PORTAIL.VOIR). */
+/** Liste des demandes super-marché du résident connecté (PORTAIL.VOIR). */
 export async function listMesVentesPortail(): Promise<VentePortail[]> {
 	const response = await getApiClient().apiFetch<VentePortailWire[]>(
 		"/api/v1/market/portail/ventes",
@@ -55,7 +55,7 @@ export async function getVentePortail(id: string): Promise<VentePortail> {
 	return toVente(response);
 }
 
-/** Corps saisi par le panier boutique de l'espace client. */
+/** Corps saisi par le panier super-marché de l'espace client. */
 export interface VentePortailBody {
 	lignes: { id_produit: string; quantite: string }[];
 	/** Consigne optionnelle (≤500). */

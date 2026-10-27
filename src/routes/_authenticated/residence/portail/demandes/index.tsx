@@ -29,7 +29,7 @@ function DemandesPortailRoutePage() {
 				restaurant: "/residence/portail/restaurant",
 				pressing: "/residence/portail/pressing",
 				salleFete: "/residence/portail/salle-fete",
-				boutique: "/residence/portail/boutique",
+				supermarche: "/residence/portail/supermarche",
 				residence: "/residence/portail/sejours",
 				signalement: "/residence/portail/signalements",
 			}}

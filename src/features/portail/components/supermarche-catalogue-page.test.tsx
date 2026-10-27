@@ -7,9 +7,9 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import type {
 	CategorieProduit,
 	Produit,
-} from "#/features/marchandise/models/produits";
+} from "#/features/supermarche/models/produits";
 
-import { BoutiqueCataloguePage } from "./boutique-catalogue-page";
+import { SuperMarcheCataloguePage } from "./supermarche-catalogue-page";
 
 const produits: Produit[] = [
 	{
@@ -95,7 +95,7 @@ const categories: CategorieProduit[] = [
 	{ id: "cat-snacks", libelle: "Snacks" },
 ];
 
-vi.mock("#/features/marchandise/api/produits", () => ({
+vi.mock("#/features/supermarche/api/produits", () => ({
 	listProduits: () => Promise.resolve(produits),
 	listCategoriesProduits: () => Promise.resolve(categories),
 }));
@@ -121,7 +121,7 @@ vi.mock("@tanstack/react-router", async (importOriginal) => {
 });
 
 const PROPS = {
-	breadcrumb: [{ label: "Boutique" }],
+	breadcrumb: [{ label: "Super-Marché" }],
 	panierTo: "/residence/portail/panier",
 	variant: "resident" as const,
 };
@@ -139,9 +139,9 @@ afterEach(() => {
 	window.localStorage.clear();
 });
 
-describe("BoutiqueCataloguePage", () => {
+describe("SuperMarcheCataloguePage", () => {
 	it("affiche uniquement les produits actifs et en stock", async () => {
-		renderAvecQueryClient(<BoutiqueCataloguePage {...PROPS} />);
+		renderAvecQueryClient(<SuperMarcheCataloguePage {...PROPS} />);
 
 		expect(await screen.findByText("Eau minérale 1.5L")).toBeInTheDocument();
 		expect(screen.getByText("Savon artisanal")).toBeInTheDocument();
@@ -151,7 +151,7 @@ describe("BoutiqueCataloguePage", () => {
 	});
 
 	it("masque l'onglet d'une catégorie sans produit disponible", async () => {
-		renderAvecQueryClient(<BoutiqueCataloguePage {...PROPS} />);
+		renderAvecQueryClient(<SuperMarcheCataloguePage {...PROPS} />);
 		await screen.findByText("Eau minérale 1.5L");
 
 		expect(screen.getByRole("tab", { name: "Boissons" })).toBeInTheDocument();
@@ -163,7 +163,7 @@ describe("BoutiqueCataloguePage", () => {
 
 	it("filtre par catégorie via les onglets", async () => {
 		const user = userEvent.setup();
-		renderAvecQueryClient(<BoutiqueCataloguePage {...PROPS} />);
+		renderAvecQueryClient(<SuperMarcheCataloguePage {...PROPS} />);
 		await screen.findByText("Eau minérale 1.5L");
 
 		await user.click(screen.getByRole("tab", { name: "Hygiène" }));
@@ -174,7 +174,7 @@ describe("BoutiqueCataloguePage", () => {
 
 	it("ajoute un produit disponible au panier et met à jour la barre de panier", async () => {
 		const user = userEvent.setup();
-		renderAvecQueryClient(<BoutiqueCataloguePage {...PROPS} />);
+		renderAvecQueryClient(<SuperMarcheCataloguePage {...PROPS} />);
 		const carte = (await screen.findByText("Eau minérale 1.5L")).closest(
 			"article",
 		) as HTMLElement;

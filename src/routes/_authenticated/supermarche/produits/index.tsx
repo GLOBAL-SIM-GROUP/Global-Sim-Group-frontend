@@ -5,13 +5,13 @@ import { requirePermissions } from "#/core/auth";
 import {
 	ProduitsPage,
 	type ProduitsSearch,
-} from "#/features/marchandise/components/produits-page";
+} from "#/features/supermarche/components/produits-page";
 
 /**
- * Catalogue des produits — Market (M3). Filtres et page vivent dans l'URL pour
+ * Catalogue des produits — Super-Marché. Filtres et page vivent dans l'URL pour
  * le partage de liens ; appliqués côté client. Page gated par `MARCHANDISE.VOIR`.
  */
-export const Route = createFileRoute("/_authenticated/marchandise/produits/")({
+export const Route = createFileRoute("/_authenticated/supermarche/produits/")({
 	beforeLoad: ({ context }) => {
 		requirePermissions(context.auth, "MARCHANDISE.VOIR");
 	},

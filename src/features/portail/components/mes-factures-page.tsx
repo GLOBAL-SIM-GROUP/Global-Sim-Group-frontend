@@ -54,7 +54,7 @@ interface MesFacturesPageProps {
 /**
  * « Mes factures » — façade GET /facturation/portail/factures, partagée
  * entre l'espace client et le portail résident : toutes les factures des
- * services (restaurant, boutique, pressing, salle de fête, abonnement,
+ * services (restaurant, super-marché, pressing, salle de fête, abonnement,
  * séjour, résidence) avec téléchargement facture/reçu PDF et ticket.
  */
 export function MesFacturesPage({

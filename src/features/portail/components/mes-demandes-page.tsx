@@ -16,17 +16,12 @@ import {
 	SIGNALEMENT_STATUT_LABELS,
 	SIGNALEMENT_STATUT_VARIANT,
 } from "#/features/signalements/models/signalements";
-
-import { useMesVentesPortail } from "../hooks/use-market";
 import { usePressingCommandes } from "../hooks/use-pressing";
 import { useMesCommandesRestaurant } from "../hooks/use-restaurant";
 import { useMesReservationsSalleFete } from "../hooks/use-salle-fete";
 import { useMesSejoursPortail } from "../hooks/use-sejours";
 import { useMesSignalements } from "../hooks/use-signalements";
-import {
-	VENTE_PORTAIL_STATUT_LABELS,
-	VENTE_PORTAIL_STATUT_VARIANT,
-} from "../models/market";
+import { useMesVentesPortail } from "../hooks/use-supermarche";
 import {
 	libelleDateDepot,
 	libelleMontantPressing,
@@ -47,6 +42,10 @@ import {
 	SEJOUR_PORTAIL_STATUT_VARIANT,
 } from "../models/sejours";
 import { libelleCiblePortail } from "../models/signalements";
+import {
+	VENTE_PORTAIL_STATUT_LABELS,
+	VENTE_PORTAIL_STATUT_VARIANT,
+} from "../models/supermarche";
 
 /**
  * Liens « liste par service » propres à l'espace courant : chaque entrée de
@@ -57,7 +56,7 @@ export interface MesDemandesLiens {
 	restaurant: string;
 	pressing: string;
 	salleFete: string;
-	boutique: string;
+	supermarche: string;
 	residence: string;
 	signalement: string;
 }
@@ -65,7 +64,7 @@ export interface MesDemandesLiens {
 /**
  * « Mes demandes » — vue agrégée des demandes portail : commandes
  * restaurant, dépôts pressing, réservations de salle de fête, demandes
- * boutique, demandes de séjour court et signalements, issues des vrais
+ * super-marché, demandes de séjour court et signalements, issues des vrais
  * endpoints portail (`/restaurant/portail`, `/pressing/portail`,
  * `/salle-fete/portail`, `/market/portail`, `/residence/portail`,
  * `/signalements/portail`) avec statuts en direct. Partagée entre l'espace
@@ -111,7 +110,7 @@ export function MesDemandesPage({
 			<PageHeader
 				breadcrumb={breadcrumb}
 				title="Mes demandes"
-				description="Commandes restaurant, dépôts pressing, réservations de salle de fête, demandes boutique, séjours courts et signalements — avec leur statut en temps réel."
+				description="Commandes restaurant, dépôts pressing, réservations de salle de fête, demandes Super-Marché, séjours courts et signalements — avec leur statut en temps réel."
 			/>
 
 			<SectionDemande
@@ -231,7 +230,7 @@ export function MesDemandesPage({
 			</SectionDemande>
 
 			<SectionDemande
-				titre="Demandes boutique"
+				titre="Demandes Super-Marché"
 				isLoading={ventesQuery.isLoading}
 				isError={ventesQuery.isError}
 				onRetry={() => void ventesQuery.refetch()}
@@ -240,7 +239,7 @@ export function MesDemandesPage({
 				{ventes.map((vente) => (
 					<Link
 						key={vente.id}
-						to={`${liens.boutique}/$id` as never}
+						to={`${liens.supermarche}/$id` as never}
 						params={{ id: vente.id } as never}
 						className="group flex items-center justify-between gap-3 rounded-lg border border-border bg-card p-3 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-lagoon/50 hover:bg-accent/40 hover:shadow-md"
 					>

@@ -8,7 +8,7 @@
  */
 const SERVICES_PAR_PERMISSION: [prefixe: string, label: string][] = [
 	["RESTAURANT.", "Restaurant"],
-	["MARCHANDISE.", "Boutique"],
+	["MARCHANDISE.", "Super-Marché"],
 	["PRESSING.", "Pressing"],
 	["SALLE_FETE.", "Salle de fête"],
 	["RESIDENCE.", "Séjours courts"],

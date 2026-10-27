@@ -34,7 +34,6 @@ import {
 	getAccessibleModules,
 } from "#/core/permissions/modules";
 import { useReliquatsADeciderCount } from "#/features/abonnement/hooks/use-souscriptions";
-import { useVentesEnAttenteCount } from "#/features/marchandise/hooks/use-ventes";
 import { useNombreArticlesPaniers } from "#/features/portail/hooks/use-panier-articles";
 import { usePortailResume } from "#/features/portail/hooks/use-portail";
 import { useCommandesEnAttenteCount as usePressingEnAttenteCount } from "#/features/pressing/hooks/use-commandes";
@@ -42,6 +41,7 @@ import { useSejoursEnAttenteCount } from "#/features/residence/hooks/use-sejours
 import { formatMontantFCFA } from "#/features/residence/models/format";
 import { useCommandesEnAttenteCount as useRestaurantEnAttenteCount } from "#/features/restaurant/hooks/use-commandes";
 import { useReservationsEnAttenteCount } from "#/features/salle-fete/hooks/use-reservations";
+import { useVentesEnAttenteCount } from "#/features/supermarche/hooks/use-ventes";
 import { cn } from "#/lib/utils";
 
 import { groupeDeLaRoute, type NavGroupe, NavGroupes } from "./nav-groupes";
@@ -69,10 +69,10 @@ const ROUTES_REALLES: Record<
 		charges: { to: "/residence/charges", exact: true },
 	},
 	MARCHANDISE: {
-		produits: { to: "/marchandise/produits", exact: true },
-		mouvements: { to: "/marchandise/mouvements", exact: true },
-		ventes: { to: "/marchandise/ventes", exact: true },
-		statistiques: { to: "/marchandise/statistiques", exact: true },
+		produits: { to: "/supermarche/produits", exact: true },
+		mouvements: { to: "/supermarche/mouvements", exact: true },
+		ventes: { to: "/supermarche/ventes", exact: true },
+		statistiques: { to: "/supermarche/statistiques", exact: true },
 	},
 	RESTAURANT: {
 		plats: { to: "/restaurant/plats", exact: true },
@@ -207,8 +207,8 @@ const RESIDENT_NAV: readonly NavGroupe[] = [
 				icon: UtensilsCrossed,
 			},
 			{
-				to: "/residence/portail/boutique",
-				label: "Boutique",
+				to: "/residence/portail/supermarche",
+				label: "Super-Marché",
 				icon: ShoppingBag,
 			},
 			{
@@ -282,7 +282,7 @@ export function Sidebar({ onClose }: { onClose?: () => void } = {}) {
 	const canVoirRestaurant = useCan("RESTAURANT.VOIR");
 	const canVoirPressing = useCan("PRESSING.VOIR");
 	const canVoirResidence = useCan("RESIDENCE.VOIR");
-	const canVoirMarchandise = useCan("MARCHANDISE.VOIR");
+	const canVoirSuperMarche = useCan("MARCHANDISE.VOIR");
 	const canDeciderReliquat = useCan("ABONNEMENT.DECIDER_RELIQUAT");
 	const reliquatsADecider = useReliquatsADeciderCount(canDeciderReliquat).data;
 	const demandesSalleFeteEnAttente =
@@ -293,8 +293,8 @@ export function Sidebar({ onClose }: { onClose?: () => void } = {}) {
 		usePressingEnAttenteCount(canVoirPressing).data;
 	const demandesSejoursEnAttente =
 		useSejoursEnAttenteCount(canVoirResidence).data;
-	const demandesBoutiqueEnAttente =
-		useVentesEnAttenteCount(canVoirMarchandise).data;
+	const demandesSuperMarcheEnAttente =
+		useVentesEnAttenteCount(canVoirSuperMarche).data;
 	const portailResumeQuery = usePortailResume(estResident);
 	const totalImpayes = portailResumeQuery.data?.total_impayes;
 	// Panier localStorage — lecture locale seule, sûr pour tout compte ; la
@@ -321,7 +321,7 @@ export function Sidebar({ onClose }: { onClose?: () => void } = {}) {
 		// résident, pas au module métier RESIDENCE (comptes hybrides).
 		if (chemin.startsWith("/residence/portail")) return null;
 		if (chemin.startsWith("/residence")) return "RESIDENCE";
-		if (chemin.startsWith("/marchandise")) return "MARCHANDISE";
+		if (chemin.startsWith("/supermarche")) return "MARCHANDISE";
 		if (chemin.startsWith("/pressing")) return "PRESSING";
 		if (chemin.startsWith("/restaurant")) return "RESTAURANT";
 		if (chemin.startsWith("/salle-fete")) return "SALLE_FETE";
@@ -554,7 +554,7 @@ export function Sidebar({ onClose }: { onClose?: () => void } = {}) {
 																? demandesSejoursEnAttente
 																: module.code === "MARCHANDISE" &&
 																		sub.id === "ventes"
-																	? demandesBoutiqueEnAttente
+																	? demandesSuperMarcheEnAttente
 																	: module.code === "ABONNEMENT" &&
 																			sub.id === "reliquats"
 																		? reliquatsADecider

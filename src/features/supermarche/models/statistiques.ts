@@ -1,5 +1,5 @@
 /**
- * Statistiques des ventes du Market (module M3). Types hand-typed revalidés
+ * Statistiques des ventes du Super-Marché (module M3). Types hand-typed revalidés
  * sur le backend réel (GET /market/rapports/ventes).
  */
 export interface RapportVentes {

@@ -26,10 +26,10 @@ export function PolitiqueConfidentialiteDialog({
 						<>
 							<p>
 								Lors de la création de votre compte et de l'utilisation de nos
-								services (restaurant, pressing, salle de fête, boutique, séjours
-								courts), nous collectons les informations nécessaires à leur
-								fonctionnement : identité, coordonnées (email, téléphone), et
-								historique de vos commandes et réservations.
+								services (restaurant, pressing, salle de fête, super-marché,
+								séjours courts), nous collectons les informations nécessaires à
+								leur fonctionnement : identité, coordonnées (email, téléphone),
+								et historique de vos commandes et réservations.
 							</p>
 							<p>
 								Des données techniques (session de connexion, signalements

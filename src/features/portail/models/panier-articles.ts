@@ -7,12 +7,12 @@
  */
 /**
  * Clés localStorage des paniers par service — centralisées pour que la page
- * Panier récapitule restaurant et boutique sans dupliquer les chaînes. Le
+ * Panier récapitule restaurant et super-marché sans dupliquer les chaînes. Le
  * préfixe historique `espace-client.` est conservé : résident et client
  * partagent le même stockage du navigateur (un seul panier par personne).
  */
 export const CLE_PANIER_RESTAURANT = "espace-client.panier.restaurant";
-export const CLE_PANIER_BOUTIQUE = "espace-client.panier.boutique";
+export const CLE_PANIER_SUPERMARCHE = "espace-client.panier.supermarche";
 
 /**
  * Événement `window` émis à chaque écriture d'un panier : l'événement

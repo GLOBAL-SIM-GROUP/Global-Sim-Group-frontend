@@ -128,10 +128,10 @@ export function PortailPage({ variant }: { variant: "client" | "resident" }) {
 			description: "Consultez la carte et composez votre commande.",
 		},
 		{
-			to: `${base}/boutique`,
+			to: `${base}/supermarche`,
 			icon: ShoppingBag,
-			label: "Boutique",
-			description: "Parcourez les articles disponibles en boutique.",
+			label: "Super-Marché",
+			description: "Parcourez les articles disponibles au Super-Marché.",
 		},
 		{
 			to: `${base}/pressing`,
@@ -317,7 +317,7 @@ export function PortailPage({ variant }: { variant: "client" | "resident" }) {
 					to={`${base}/panier`}
 					icon={ShoppingCart}
 					label="Mon panier"
-					description="Vérifiez vos articles restaurant et boutique puis envoyez votre demande."
+					description="Vérifiez vos articles restaurant et Super-Marché puis envoyez votre demande."
 					badge={
 						nombreArticlesPanier > 0
 							? { label: String(nombreArticlesPanier), variant: "neutral" }

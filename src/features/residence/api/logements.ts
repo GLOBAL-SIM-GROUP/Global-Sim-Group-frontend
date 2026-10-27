@@ -1,5 +1,6 @@
 import { getApiClient } from "#/core/api";
 import type { components } from "#/core/api/generated/schema";
+import { trierAlpha } from "#/lib/tri";
 
 import type {
 	Logement,
@@ -96,7 +97,10 @@ export async function listLogements(
 	);
 	// Remappé en `id` : key React, PATCH par `{id}` et fiche utilisent cette
 	// convention. `id_batiment` (FK) est conservé tel quel.
-	return data.map(({ id_logement: id, ...reste }) => ({ id, ...reste }));
+	return trierAlpha(
+		data.map(({ id_logement: id, ...reste }) => ({ id, ...reste })),
+		(l) => l.numero,
+	);
 }
 
 /** Détail d'un logement (GET /residence/logements/{id}) — fiche logement. */

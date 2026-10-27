@@ -11,18 +11,21 @@ import {
 	formatMontantFCFA,
 } from "#/features/residence/models/format";
 
-import { useAnnulerVentePortail, useVentePortail } from "../hooks/use-market";
+import {
+	useAnnulerVentePortail,
+	useVentePortail,
+} from "../hooks/use-supermarche";
 import {
 	estVentePortailAnnulable,
 	VENTE_PORTAIL_ETAPES,
 	VENTE_PORTAIL_STATUT_LABELS,
 	VENTE_PORTAIL_STATUT_VARIANT,
-} from "../models/market";
+} from "../models/supermarche";
 import { AnnulerDemandeDialog } from "./annuler-demande-dialog";
 import { FactureDocumentsParSource } from "./facture-documents";
 import { StatutTimeline } from "./statut-timeline";
 
-interface BoutiqueDemandePortailDetailPageProps {
+interface SuperMarcheDemandePortailDetailPageProps {
 	id: string;
 	/** Fil d'Ariane : entrée d'accueil de l'espace (résident ou client). */
 	breadcrumbAccueil: { label: string; to: string };
@@ -36,13 +39,13 @@ interface BoutiqueDemandePortailDetailPageProps {
 }
 
 /**
- * Détail d'une demande boutique : lignes, total, suivi du statut et
+ * Détail d'une demande super-marché : lignes, total, suivi du statut et
  * annulation tant qu'elle est `EN_ATTENTE` (`MARCHANDISE.COMMANDER`). Aucun
  * paiement en ligne — retrait et règlement au comptoir. Partagée entre le
  * portail résident et l'espace client : les routes passent fil d'Ariane,
  * liens retour et conteneur via les props.
  */
-export function BoutiqueDemandePortailDetailPage({
+export function SuperMarcheDemandePortailDetailPage({
 	id,
 	breadcrumbAccueil,
 	labelListe,
@@ -50,7 +53,7 @@ export function BoutiqueDemandePortailDetailPage({
 	labelRetour,
 	lienRetour,
 	className = "w-full space-y-6 p-6",
-}: BoutiqueDemandePortailDetailPageProps) {
+}: SuperMarcheDemandePortailDetailPageProps) {
 	const venteQuery = useVentePortail(id);
 	const canCommander = useCan("MARCHANDISE.COMMANDER");
 	const annuler = useAnnulerVentePortail();
@@ -68,7 +71,7 @@ export function BoutiqueDemandePortailDetailPage({
 		return (
 			<div className={`${className} space-y-3`}>
 				<h1 className="text-2xl font-semibold text-foreground">
-					Demande boutique
+					Demande super-marché
 				</h1>
 				<div
 					role="alert"
@@ -199,7 +202,7 @@ export function BoutiqueDemandePortailDetailPage({
 			<AnnulerDemandeDialog
 				open={confirmOuvert}
 				titre="Annuler la demande ?"
-				description="L'annulation est définitive — possible uniquement tant que la demande n'a pas été validée par la boutique."
+				description="L'annulation est définitive — possible uniquement tant que la demande n'a pas été validée par le super-marché."
 				isPending={annuler.isPending}
 				erreur={
 					annuler.error

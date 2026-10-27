@@ -1,17 +1,17 @@
-import { BoutiqueDemandePortailDetailPage } from "#/features/portail/components/boutique-demande-detail-page";
+import { SuperMarcheDemandePortailDetailPage } from "#/features/portail/components/supermarche-demande-detail-page";
 
 /**
- * Détail d'une demande boutique de l'espace client
- * (`/espace-client/boutique/$id`) — même page/API que le portail résident ;
+ * Détail d'une demande super-marché de l'espace client
+ * (`/espace-client/supermarche/$id`) — même page/API que le portail résident ;
  * le retour renvoie vers « Mes demandes ».
  */
-export function BoutiqueDemandeDetailEspacePage({ id }: { id: string }) {
+export function SuperMarcheDemandeDetailEspacePage({ id }: { id: string }) {
 	return (
-		<BoutiqueDemandePortailDetailPage
+		<SuperMarcheDemandePortailDetailPage
 			id={id}
 			breadcrumbAccueil={{ label: "Espace client", to: "/espace-client" }}
-			labelListe="Boutique"
-			lienListe="/espace-client/boutique"
+			labelListe="Super-Marché"
+			lienListe="/espace-client/supermarche"
 			labelRetour="Retour à mes demandes"
 			lienRetour="/espace-client/mes-demandes"
 			className="w-full space-y-6 pt-6 pb-16"

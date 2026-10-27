@@ -12,7 +12,7 @@ vi.mock("./landing-dishes", () => ({
 	LandingDishes: () => <section data-testid="section-carte" />,
 }));
 vi.mock("./landing-products", () => ({
-	LandingProducts: () => <section data-testid="section-boutique" />,
+	LandingProducts: () => <section data-testid="section-supermarche" />,
 }));
 
 vi.mock("#/core/auth", () => ({
@@ -58,13 +58,13 @@ describe("LandingPage", () => {
 			screen.getAllByRole("button", { name: /s'inscrire/i }).length,
 		).toBeGreaterThan(0);
 
-		// Sections d'ancrage : services, carte, boutique, fonctionnement.
+		// Sections d'ancrage : services, carte, super-marché, fonctionnement.
 		// (« Nos services » apparaît aussi dans le footer → getAllByRole.)
 		expect(
 			screen.getAllByRole("heading", { name: /nos services/i }).length,
 		).toBeGreaterThan(0);
 		expect(screen.getByTestId("section-carte")).toBeInTheDocument();
-		expect(screen.getByTestId("section-boutique")).toBeInTheDocument();
+		expect(screen.getByTestId("section-supermarche")).toBeInTheDocument();
 		expect(
 			screen.getByRole("heading", { name: /comment ça marche/i }),
 		).toBeInTheDocument();
@@ -75,7 +75,7 @@ describe("LandingPage", () => {
 
 		for (const titre of [
 			"Restaurant",
-			"Boutique",
+			"Super-Marché",
 			"Pressing",
 			"Salle de fête",
 			"Résidence",

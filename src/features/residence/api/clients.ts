@@ -1,5 +1,6 @@
 import { getApiClient } from "#/core/api";
 import type { components } from "#/core/api/generated/schema";
+import { trierAlpha } from "#/lib/tri";
 
 import type { Client } from "../models/clients";
 
@@ -22,7 +23,9 @@ export function rechercherClients(terme: string): Promise<Client[]> {
 		.apiFetch<ClientWire[]>(
 			`/api/v1/client/clients?recherche=${encodeURIComponent(terme)}`,
 		)
-		.then((data) => data.map(toClient));
+		.then((data) =>
+			trierAlpha(data.map(toClient), (c) => `${c.nom} ${c.prenoms}`),
+		);
 }
 
 /** Détail d'un client (GET /client/clients/{id}). */

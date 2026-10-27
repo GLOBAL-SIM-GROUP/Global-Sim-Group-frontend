@@ -4,13 +4,13 @@ import { z } from "zod";
 import {
 	ProduitsPage,
 	type ProduitsSearch,
-} from "#/features/marchandise/components/produits-page";
+} from "#/features/supermarche/components/produits-page";
 
 /**
- * Catalogue public des produits — Market (M3).
+ * Catalogue public des produits — Super-Marché.
  * Accessible sans authentification.
  */
-export const Route = createFileRoute("/marchandise/produits")({
+export const Route = createFileRoute("/supermarche/produits")({
 	validateSearch: z.object({
 		categorie: z.string().optional(),
 		fournisseur: z.string().optional(),

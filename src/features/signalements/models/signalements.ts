@@ -6,7 +6,7 @@ export type SignalementStatut = Signalement["statut"];
 
 export const MODULE_CIBLE_LABELS: Record<ModuleCible, string> = {
 	RESIDENCE: "Résidence",
-	MARCHANDISE: "Marchandise",
+	MARCHANDISE: "Super-Marché",
 	PRESSING: "Pressing",
 	RESTAURANT: "Restaurant",
 	SALLE_FETE: "Salle de fête",

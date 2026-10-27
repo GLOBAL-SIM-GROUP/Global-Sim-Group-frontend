@@ -6,13 +6,13 @@ import {
 	getVentePortail,
 	listMesVentesPortail,
 	type VentePortailBody,
-} from "../api/market";
-import { marketVentesKeys } from "../permissions";
+} from "../api/supermarche";
+import { supermarcheVentesKeys } from "../permissions";
 
-/** Liste des demandes boutique du résident connecté. */
+/** Liste des demandes super-marché du résident connecté. */
 export function useMesVentesPortail() {
 	return useQuery({
-		queryKey: marketVentesKeys.list(),
+		queryKey: supermarcheVentesKeys.list(),
 		queryFn: listMesVentesPortail,
 	});
 }
@@ -20,21 +20,21 @@ export function useMesVentesPortail() {
 /** Détail d'une demande (lignes embarquées). `retry: false` : 404 = introuvable ou pas à lui. */
 export function useVentePortail(id: string) {
 	return useQuery({
-		queryKey: marketVentesKeys.detail(id),
+		queryKey: supermarcheVentesKeys.detail(id),
 		queryFn: () => getVentePortail(id),
 		enabled: Boolean(id),
 		retry: false,
 	});
 }
 
-/** Envoie une demande d'achat boutique (POST portail → EN_ATTENTE). */
+/** Envoie une demande d'achat super-marché (POST portail → EN_ATTENTE). */
 export function useCreerVentePortail() {
 	const queryClient = useQueryClient();
 	return useMutation({
 		mutationFn: (body: VentePortailBody) => creerVentePortail(body),
 		onSuccess: () => {
 			void queryClient.invalidateQueries({
-				queryKey: marketVentesKeys.all,
+				queryKey: supermarcheVentesKeys.all,
 			});
 		},
 	});
@@ -48,7 +48,7 @@ export function useAnnulerVentePortail() {
 			annulerVentePortail(id, motif),
 		onSuccess: () => {
 			void queryClient.invalidateQueries({
-				queryKey: marketVentesKeys.all,
+				queryKey: supermarcheVentesKeys.all,
 			});
 		},
 	});

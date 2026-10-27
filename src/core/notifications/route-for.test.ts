@@ -82,44 +82,44 @@ describe("routeFor", () => {
 		expect(routeFor(envelope("salle_fete.reservation_creee", {}))).toBeNull();
 	});
 
-	it("market.vente.statut -> détail boutique pour un compte CLIENT", () => {
+	it("market.vente.statut -> détail super-marché pour un compte CLIENT", () => {
 		expect(
 			routeFor(envelope("market.vente.statut", { id_vente: "12" }), "CLIENT", [
 				"PORTAIL.VOIR",
 			]),
-		).toEqual({ to: "/espace-client/boutique/12" });
+		).toEqual({ to: "/espace-client/supermarche/12" });
 	});
 
-	it("market.vente.statut -> détail boutique portail pour un résident", () => {
+	it("market.vente.statut -> détail super-marché portail pour un résident", () => {
 		// Contrat market 085 : PORTAIL.VOIR (RESIDENT.VOIR reste toléré — les
 		// comptes résidents détiennent les deux).
 		expect(
 			routeFor(envelope("market.vente.statut", { id_vente: "12" }), undefined, [
 				"PORTAIL.VOIR",
 			]),
-		).toEqual({ to: "/residence/portail/boutique/12" });
+		).toEqual({ to: "/residence/portail/supermarche/12" });
 		expect(
 			routeFor(envelope("market.vente.statut", { id_vente: "12" }), undefined, [
 				"RESIDENT.VOIR",
 			]),
-		).toEqual({ to: "/residence/portail/boutique/12" });
+		).toEqual({ to: "/residence/portail/supermarche/12" });
 	});
 
 	it("market.vente.statut -> liste des ventes pour le staff", () => {
 		expect(
 			routeFor(envelope("market.vente.statut", { id_vente: "12" })),
-		).toEqual({ to: "/marchandise/ventes" });
+		).toEqual({ to: "/supermarche/ventes" });
 	});
 
 	it("market.demande_creee -> liste des ventes (alerte staff)", () => {
 		expect(
 			routeFor(envelope("market.demande_creee", { id_vente: "12" })),
-		).toEqual({ to: "/marchandise/ventes" });
+		).toEqual({ to: "/supermarche/ventes" });
 	});
 
 	it("market.stock_bas -> catalogue filtré sur les alertes (pas de fiche produit)", () => {
 		expect(routeFor(envelope("market.stock_bas", { id_produit: "9" }))).toEqual(
-			{ to: "/marchandise/produits", search: { alerte: "alerte" } },
+			{ to: "/supermarche/produits", search: { alerte: "alerte" } },
 		);
 	});
 
@@ -193,7 +193,7 @@ describe("routeFor", () => {
 	it("market.rupture_stock -> catalogue filtré sur les alertes", () => {
 		expect(
 			routeFor(envelope("market.rupture_stock", { id_produit: "9" })),
-		).toEqual({ to: "/marchandise/produits", search: { alerte: "alerte" } });
+		).toEqual({ to: "/supermarche/produits", search: { alerte: "alerte" } });
 	});
 
 	it("residence.echeance_en_retard -> échéances staff, portail pour un résident", () => {

@@ -1,8 +1,8 @@
 import { Minus, Plus, ShoppingCart } from "lucide-react";
 
 import { Button } from "#/components/ui/button";
-import type { Produit } from "#/features/marchandise/models/produits";
 import { formatMontantFCFA } from "#/features/residence/models/format";
+import type { Produit } from "#/features/supermarche/models/produits";
 
 export function ProduitCarte({
 	produit,

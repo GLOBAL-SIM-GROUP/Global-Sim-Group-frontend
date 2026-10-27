@@ -91,7 +91,7 @@ export function MouvementsPage({
 			<PageHeader
 				breadcrumb={[
 					{ label: "Accueil", to: "/" },
-					{ label: "Produits — Market", to: "/marchandise/produits" },
+					{ label: "Produits — Super-Marché", to: "/supermarche/produits" },
 					{ label: "Mouvements de stock" },
 				]}
 				title="Mouvements de stock"
@@ -194,7 +194,7 @@ export function MouvementsPage({
 
 			<div className="flex justify-end">
 				<Button variant="outline" size="sm" asChild>
-					<Link to="/marchandise/produits">Retour aux produits</Link>
+					<Link to="/supermarche/produits">Retour aux produits</Link>
 				</Button>
 			</div>
 

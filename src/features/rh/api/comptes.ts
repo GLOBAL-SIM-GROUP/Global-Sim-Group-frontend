@@ -1,5 +1,6 @@
 import { getApiClient } from "#/core/api";
 import type { components } from "#/core/api/generated/schema";
+import { trierAlpha } from "#/lib/tri";
 
 type CreerUtilisateurDto = components["schemas"]["CreerUtilisateurDto"];
 
@@ -24,7 +25,10 @@ export function listRoles(): Promise<Role[]> {
 	return getApiClient()
 		.apiFetch<(Omit<Role, "id"> & { id_role: string })[]>("/api/v1/admin/roles")
 		.then((data) =>
-			data.map(({ id_role: id, ...reste }) => ({ id, ...reste })),
+			trierAlpha(
+				data.map(({ id_role: id, ...reste }) => ({ id, ...reste })),
+				(r) => r.libelle,
+			),
 		);
 }
 
@@ -34,7 +38,10 @@ export function listActivites(): Promise<ActiviteScope[]> {
 			"/api/v1/finances/activites",
 		)
 		.then((data) =>
-			data.map(({ id_activite: id, ...reste }) => ({ id, ...reste })),
+			trierAlpha(
+				data.map(({ id_activite: id, ...reste }) => ({ id, ...reste })),
+				(a) => a.libelle,
+			),
 		);
 }
 

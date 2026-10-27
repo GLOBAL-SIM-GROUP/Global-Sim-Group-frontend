@@ -3,7 +3,7 @@ import type { Facture } from "#/features/facturation/models/factures";
 
 /**
  * Façade « Mes factures » du client connecté (GET /facturation/portail/*) —
- * couvre tous les services (restaurant, boutique, pressing, salle de fête,
+ * couvre tous les services (restaurant, super-marché, pressing, salle de fête,
  * abonnement, séjour, résidence) : facture PDF, reçu PDF des paiements
  * enregistrés et ticket de caisse HTML 58/80mm.
  * Clé primaire wire `id_facture` → `id`.

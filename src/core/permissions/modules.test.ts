@@ -38,7 +38,7 @@ describe("getAccessibleModules", () => {
 
 	it("expose les modules métier actuellement implémentés, chacun gâté par sa permission `<CODE>.VOIR`", () => {
 		// Les modules affichables dans le lanceur : Résidence, Restaurant, Pressing,
-		// Salle de fête, Facturation, Finances, RH, Client, Marchandise, Admin.
+		// Salle de fête, Facturation, Finances, RH, Client, Super-Marché, Admin.
 		// Les modules de support (`RESIDENT`, `CORE`, `AUDIT`, `SIGNALEMENT`, `RAPPORTS`)
 		// n'ont pas de tuile lanceur : l'accès se fait par d'autres routes ou via le portail.
 		expect(MODULE_DEFINITIONS).toHaveLength(11);

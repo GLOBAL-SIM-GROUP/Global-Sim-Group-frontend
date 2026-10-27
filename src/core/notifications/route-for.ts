@@ -41,7 +41,7 @@ export function routeFor(
 	// « portail » pointent vers la vue du compte concerné — jamais vers les
 	// pages staff, qui renverraient un 403 ou une redirection.
 	// `portailServices` (PORTAIL.VOIR — migration backend 084) couvre les
-	// pages des portails de service (restaurant/pressing/salle-fête/boutique) ;
+	// pages des portails de service (restaurant/pressing/salle-fête/super-marché) ;
 	// `portailResident` (RESIDENT.VOIR) les pages du portail résidence
 	// (échéances, caution…). Un compte RESIDENT réel détient les deux.
 	const espaceClient = role === "CLIENT";
@@ -127,25 +127,25 @@ export function routeFor(
 		}
 
 		case "market.vente.statut": {
-			// Statut d'une demande boutique portail — résident ou staff.
+			// Statut d'une demande super-marché portail — résident ou staff.
 			const id = asId(data.id_vente);
 			if (espaceClient)
-				return id ? { to: `/espace-client/boutique/${id}` } : null;
+				return id ? { to: `/espace-client/supermarche/${id}` } : null;
 			if (portailServices)
-				return id ? { to: `/residence/portail/boutique/${id}` } : null;
+				return id ? { to: `/residence/portail/supermarche/${id}` } : null;
 			// Staff : pas de fiche vente dédiée — la liste suffit.
-			return { to: "/marchandise/ventes" };
+			return { to: "/supermarche/ventes" };
 		}
 
 		case "market.demande_creee":
-			// Nouvelle demande boutique — alerte staff uniquement.
-			return { to: "/marchandise/ventes" };
+			// Nouvelle demande super-marché — alerte staff uniquement.
+			return { to: "/supermarche/ventes" };
 
 		case "market.stock_bas":
 		case "market.rupture_stock":
 			// Pas de fiche produit dédiée côté frontend (seulement le catalogue) —
 			// on renvoie vers la liste déjà filtrée sur les alertes de stock.
-			return { to: "/marchandise/produits", search: { alerte: "alerte" } };
+			return { to: "/supermarche/produits", search: { alerte: "alerte" } };
 
 		case "salle_fete.evenement_proche_solde": {
 			// Événement confirmé proche avec solde impayé — alerte staff ; `data`

@@ -1,5 +1,6 @@
 import { getApiClient } from "#/core/api";
 import type { components } from "#/core/api/generated/schema";
+import { trierAlpha } from "#/lib/tri";
 
 /**
  * Type de manifestation du catalogue salle de fête — la réponse de
@@ -20,7 +21,9 @@ type MajTypeManifestationBody =
 
 /** `GET /salle-fete/catalogue` — types actifs et inactifs (SALLE_FETE.VOIR). */
 export function listTypesManifestation(): Promise<TypeManifestation[]> {
-	return getApiClient().apiFetch("/api/v1/salle-fete/catalogue");
+	return getApiClient()
+		.apiFetch<TypeManifestation[]>("/api/v1/salle-fete/catalogue")
+		.then((data) => trierAlpha(data, (t) => t.libelle));
 }
 
 /** `POST /salle-fete/catalogue/types-manifestation` (SALLE_FETE.GERER_CATALOGUE). */

@@ -77,7 +77,7 @@ const PERIODES: Record<PeriodeFiltre, string> = {
 
 const ACTIVITES: Record<ActiviteFiltre, string> = {
 	global: "Global",
-	VENTE_MARCHANDISES: "Vente de marchandises",
+	VENTE_MARCHANDISES: "Vente Super-Marché",
 	PRESSING: "Pressing",
 	RESTAURATION: "Restauration",
 	SALLE_FETE: "Salle de fête",

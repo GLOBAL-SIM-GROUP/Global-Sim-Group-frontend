@@ -4,7 +4,7 @@ import { AccordionGallery } from "#/components/accordion-gallery";
 import { AnimatedContent } from "#/components/animated-content";
 import { SplitText } from "#/components/split-text";
 import { produitImagePublicUrl } from "#/core/api/uploads";
-import { listProduits } from "#/features/marchandise/api/produits";
+import { listProduits } from "#/features/supermarche/api/produits";
 
 export function LandingProducts() {
 	const {
@@ -21,7 +21,7 @@ export function LandingProducts() {
 	if (isLoading) {
 		return (
 			<section
-				id="boutique"
+				id="supermarche"
 				className="scroll-mt-16 bg-muted/30 px-4 py-20 sm:px-6 sm:py-28 lg:px-8"
 			>
 				<div className="max-w-7xl mx-auto">
@@ -44,7 +44,7 @@ export function LandingProducts() {
 	if (error) {
 		return (
 			<section
-				id="boutique"
+				id="supermarche"
 				className="scroll-mt-16 bg-destructive/5 px-4 py-20 sm:px-6 sm:py-28 lg:px-8"
 			>
 				<div className="max-w-7xl mx-auto">
@@ -66,14 +66,14 @@ export function LandingProducts() {
 
 	return (
 		<section
-			id="boutique"
+			id="supermarche"
 			className="scroll-mt-16 bg-muted/30 px-4 py-10 sm:px-6 sm:py-14 lg:px-8"
 		>
 			<div className="mx-auto max-w-7xl">
 				<div className="mb-14 space-y-4 text-center">
 					<SplitText
 						tag="h2"
-						text="La boutique"
+						text="Le Super-Marché"
 						className="text-3xl font-bold text-foreground sm:text-4xl lg:text-5xl"
 						splitType="words"
 						delay={60}
@@ -98,7 +98,7 @@ export function LandingProducts() {
 									? produitImagePublicUrl(produit.id)
 									: null,
 								label: produit.nom,
-								link: "/marchandise/produits",
+								link: "/supermarche/produits",
 								alt: produit.nom,
 							}))}
 							defaultIndex={0}

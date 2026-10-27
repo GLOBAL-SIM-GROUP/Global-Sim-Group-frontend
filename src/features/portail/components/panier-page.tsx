@@ -8,30 +8,29 @@ import { Button } from "#/components/ui/button";
 import { EmptyState } from "#/components/ui/empty-state";
 import { PageHeader } from "#/components/ui/page-header";
 import { useCan } from "#/core/auth";
-import { listProduits } from "#/features/marchandise/api/produits";
-import { estEpuise } from "#/features/marchandise/models/produits";
 import { formatMontantFCFA } from "#/features/residence/models/format";
 import { listPlats } from "#/features/restaurant/api/plats";
+import { listProduits } from "#/features/supermarche/api/produits";
+import { estEpuise } from "#/features/supermarche/models/produits";
 import { cn } from "#/lib/utils";
-
-import { useCreerVentePortail } from "../hooks/use-market";
 import { usePanierArticles } from "../hooks/use-panier-articles";
 import { useCreerCommandeRestaurant } from "../hooks/use-restaurant";
+import { useCreerVentePortail } from "../hooks/use-supermarche";
 import {
-	CLE_PANIER_BOUTIQUE,
 	CLE_PANIER_RESTAURANT,
+	CLE_PANIER_SUPERMARCHE,
 	type LigneArticlePanier,
 } from "../models/panier-articles";
 import type { TypeCommandePortail } from "../models/restaurant";
 import { CommanderDialog } from "./commander-dialog";
-import { DemanderBoutiqueDialog } from "./demander-boutique-dialog";
+import { DemanderSuperMarcheDialog } from "./demander-supermarche-dialog";
 
 /** Liens propres à l'espace (client ou résident) utilisant la page. */
 export interface PanierPageLiens {
 	/** Catalogue restaurant (« la carte »). */
 	restaurant: string;
-	/** Catalogue boutique. */
-	boutique: string;
+	/** Catalogue super-marché. */
+	supermarche: string;
 	/** Vue agrégée des demandes (« Mes demandes »). */
 	mesDemandes: string;
 }
@@ -375,7 +374,7 @@ function SectionPanierRestaurant({
  * Section « Boutique » du panier : envoi réel via
  * `POST /market/portail/ventes` (MARCHANDISE.COMMANDER) — la vente naît
  * `EN_ATTENTE` avec `origine = "PORTAIL"`, visible dans le back-office
- * marchandise. Le dialogue collecte une note optionnelle ; le total affiché
+ * super-marché. Le dialogue collecte une note optionnelle ; le total affiché
  * est indicatif (le serveur fige les prix au `prix_vente` catalogue).
  */
 function SectionPanierBoutique({
@@ -385,7 +384,7 @@ function SectionPanierBoutique({
 	liens: PanierPageLiens;
 	onDemandeEnvoyee: () => void;
 }) {
-	const panier = usePanierArticles(CLE_PANIER_BOUTIQUE);
+	const panier = usePanierArticles(CLE_PANIER_SUPERMARCHE);
 	const canCommander = useCan("MARCHANDISE.COMMANDER");
 	const creerVente = useCreerVentePortail();
 	const [dialogOuvert, setDialogOuvert] = useState(false);
@@ -395,7 +394,7 @@ function SectionPanierBoutique({
 	// Même revalidation que la section restaurant : produit devenu inactif
 	// ou épuisé depuis son ajout → marqué, envoi bloqué jusqu'au retrait.
 	const produitsQuery = useQuery({
-		queryKey: ["portail", "boutique", "produits"],
+		queryKey: ["portail", "supermarche", "produits"],
 		queryFn: () => listProduits(),
 	});
 	const indisponibles = useMemo(() => {
@@ -445,7 +444,9 @@ function SectionPanierBoutique({
 	return (
 		<section className="min-w-0 space-y-3">
 			<div className="flex items-center justify-between">
-				<h2 className="text-base font-semibold text-foreground">Boutique</h2>
+				<h2 className="text-base font-semibold text-foreground">
+					Super-Marché
+				</h2>
 				{panier.lignes.length > 0 ? (
 					<span className="text-sm text-muted-foreground">
 						{panier.nombreArticles} article
@@ -458,7 +459,10 @@ function SectionPanierBoutique({
 			{envoye ? (
 				<DemandeEnvoyee mesDemandesTo={liens.mesDemandes} />
 			) : panier.lignes.length === 0 ? (
-				<PanierVide catalogueTo={liens.boutique} catalogueLabel="la boutique" />
+				<PanierVide
+					catalogueTo={liens.supermarche}
+					catalogueLabel="le Super-Marché"
+				/>
 			) : (
 				<>
 					<ListePanier
@@ -503,7 +507,7 @@ function SectionPanierBoutique({
 							) : (
 								<p className="text-sm text-muted-foreground">
 									La commande en ligne n'est pas activée sur votre compte —
-									présentez-vous à la boutique.
+									présentez-vous au Super-Marché.
 								</p>
 							)}
 						</div>
@@ -511,7 +515,7 @@ function SectionPanierBoutique({
 				</>
 			)}
 
-			<DemanderBoutiqueDialog
+			<DemanderSuperMarcheDialog
 				open={dialogOuvert}
 				lignes={panier.lignes}
 				total={panier.total}
@@ -525,11 +529,11 @@ function SectionPanierBoutique({
 }
 
 /**
- * « Mon panier » — récapitulatif des articles restaurant et boutique
+ * « Mon panier » — récapitulatif des articles restaurant et super-marché
  * (paniers indépendants par clé de stockage, partagés entre l'espace client
  * et le portail résident), ajustement des quantités puis envoi. Les deux
  * sections créent de vraies demandes portail `EN_ATTENTE` (restaurant
- * `/restaurant/portail/commandes`, boutique `/market/portail/ventes`),
+ * `/restaurant/portail/commandes`, super-marché `/market/portail/ventes`),
  * suivies dans « Mes demandes ».
  *
  * `variant` : `client` = le shell espace client porte marges et largeur

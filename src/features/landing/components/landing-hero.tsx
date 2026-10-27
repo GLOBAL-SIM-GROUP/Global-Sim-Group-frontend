@@ -50,7 +50,7 @@ export function LandingHero() {
 							</h1>
 							<p className="max-w-lg text-justify text-lg text-white/80">
 								Commandez un plat, déposez votre linge au pressing, réservez la
-								salle de fête ou passez en boutique — depuis votre espace
+								salle de fête ou passez au Super-Marché — depuis votre espace
 								client, où que vous soyez.
 							</p>
 						</div>

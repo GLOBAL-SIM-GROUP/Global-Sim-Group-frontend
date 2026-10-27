@@ -22,7 +22,7 @@ export function useVentes(params?: ListVentesParams) {
 }
 
 /**
- * Nombre de demandes boutique `EN_ATTENTE` issues du portail (badge nav —
+ * Nombre de demandes super-marché `EN_ATTENTE` issues du portail (badge nav —
  * workflow `EN_ATTENTE` → `EN_COURS`/`ANNULEE` ; les ventes comptoir
  * naissent `PAYEE` et ne comptent pas). `refetchInterval` : filet de
  * sécurité — la demande est créée depuis le portail (autre session), pas

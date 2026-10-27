@@ -13,7 +13,7 @@ const ETAPES = [
 		icone: ClipboardCheck,
 		titre: "Je commande ou je réserve",
 		description:
-			"Plats du restaurant, pressing, salle de fête, articles de la boutique : tout se fait depuis votre espace.",
+			"Plats du restaurant, pressing, salle de fête, articles du Super-Marché : tout se fait depuis votre espace.",
 	},
 	{
 		icone: Rocket,

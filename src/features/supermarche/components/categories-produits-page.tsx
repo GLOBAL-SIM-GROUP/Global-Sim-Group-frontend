@@ -25,11 +25,11 @@ export function CategoriesProduitsPage() {
 			<PageHeader
 				breadcrumb={[
 					{ label: "Accueil", to: "/" },
-					{ label: "Produits — Market", to: "/marchandise/produits" },
+					{ label: "Produits — Super-Marché", to: "/supermarche/produits" },
 					{ label: "Catégories de produits" },
 				]}
 				title="Catégories de produits"
-				description="Catégories du catalogue Market (alimentation, boissons…)."
+				description="Catégories du catalogue Super-Marché (alimentation, boissons…)."
 				actions={
 					canCreer ? (
 						<Button onClick={() => setFormOuvert(true)}>
@@ -78,7 +78,7 @@ export function CategoriesProduitsPage() {
 
 			<div className="flex justify-end">
 				<Button variant="outline" size="sm" asChild>
-					<Link to="/marchandise/produits">Retour aux produits</Link>
+					<Link to="/supermarche/produits">Retour aux produits</Link>
 				</Button>
 			</div>
 

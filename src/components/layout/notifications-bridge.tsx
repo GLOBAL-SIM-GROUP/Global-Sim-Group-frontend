@@ -12,13 +12,7 @@ import {
 	tableauBordKeys,
 } from "#/features/finances/permissions";
 import {
-	produitsKeys,
-	stockKeys,
-	ventesKeys,
-} from "#/features/marchandise/permissions";
-import {
 	cautionKeys,
-	marketVentesKeys,
 	echeancesKeys as portailEcheancesKeys,
 	paiementsKeys as portailPaiementsKeys,
 	pressingCommandesKeys,
@@ -28,6 +22,7 @@ import {
 	salleFeteReservationsKeys,
 	sejoursPortailKeys,
 	signalementsPortailKeys,
+	supermarcheVentesKeys,
 } from "#/features/portail/permissions";
 import { commandesKeys } from "#/features/pressing/permissions";
 import {
@@ -41,6 +36,11 @@ import { commandesRestaurantKeys } from "#/features/restaurant/permissions";
 import { paiesKeys, pointagesKeys } from "#/features/rh/permissions";
 import { reservationsKeys } from "#/features/salle-fete/permissions";
 import { signalementsKeys } from "#/features/signalements/permissions";
+import {
+	produitsKeys,
+	stockKeys,
+	ventesKeys,
+} from "#/features/supermarche/permissions";
 
 /**
  * Événement de notification → clés TanStack Query à invalider pour un
@@ -77,7 +77,7 @@ const INVALIDATIONS_PAR_EVENT: Record<string, readonly (readonly unknown[])[]> =
 		"market.stock_bas": [produitsKeys.all, stockKeys.all],
 		"market.rupture_stock": [produitsKeys.all, stockKeys.all],
 		"market.demande_creee": [ventesKeys.all],
-		"market.vente.statut": [ventesKeys.all, marketVentesKeys.all],
+		"market.vente.statut": [ventesKeys.all, supermarcheVentesKeys.all],
 		"residence.echeance_en_retard": [suiviKeys.all, portailEcheancesKeys.all],
 		"residence.contrat_expire_bientot": [contratsKeys.all],
 		"residence.contrat_expire": [contratsKeys.all, clientsKeys.all],

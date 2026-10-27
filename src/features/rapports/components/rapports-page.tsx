@@ -20,7 +20,7 @@ const TYPES_RAPPORT: { valeur: string; libelle: string }[] = [
 	{ valeur: "synthese", libelle: "Synthèse globale" },
 	{ valeur: "financier", libelle: "Financier" },
 	{ valeur: "residence", libelle: "Résidence" },
-	{ valeur: "market", libelle: "Market" },
+	{ valeur: "market", libelle: "Super-Marché" },
 	{ valeur: "pressing", libelle: "Pressing" },
 	{ valeur: "restaurant", libelle: "Restaurant" },
 	{ valeur: "salle_fete", libelle: "Salle de fête" },

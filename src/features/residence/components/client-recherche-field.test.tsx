@@ -32,7 +32,7 @@ async function rechercherSansResultat(
 }
 
 /**
- * Par défaut (formulaires pressing/restaurant/boutique/abonnement/séjour…),
+ * Par défaut (formulaires pressing/restaurant/super-marché/abonnement/séjour…),
  * la création inline reste le formulaire rapide minimal. Le formulaire de
  * contrat de location active `creationLocataireComplete` pour afficher le
  * formulaire complet à la place — un locataire mérite un dossier complet.

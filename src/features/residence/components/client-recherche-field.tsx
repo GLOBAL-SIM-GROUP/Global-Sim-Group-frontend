@@ -33,7 +33,7 @@ interface ClientRechercheFieldProps {
 	 * imposé à LOCATAIRE) plutôt que le formulaire rapide (nom, prénoms,
 	 * téléphone, type). Utilisé par le formulaire de contrat de location : un
 	 * locataire mérite un dossier complet, pas une fiche minimale pensée pour
-	 * un client de passage au pressing/restaurant/boutique.
+	 * un client de passage au pressing/restaurant/super-marché.
 	 */
 	creationLocataireComplete?: boolean;
 	/**

@@ -1,13 +1,13 @@
-import { useMesVentesPortail } from "./use-market";
 import { usePressingCommandes } from "./use-pressing";
 import { useMesCommandesRestaurant } from "./use-restaurant";
 import { useMesReservationsSalleFete } from "./use-salle-fete";
 import { useMesSejoursPortail } from "./use-sejours";
+import { useMesVentesPortail } from "./use-supermarche";
 
 /**
  * Demandes portail encore en cours, tous services confondus (les
  * signalements sont suivis à part dans « Mes demandes ») :
- * restaurant/boutique tant que ni payée ni annulée, pressing tant que
+ * restaurant/super-marché tant que ni payée ni annulée, pressing tant que
  * ni retiré ni annulé, salle de fête tant que ni réalisée ni annulée,
  * séjour tant que ni terminé ni annulé. Partagé par l'accueil de
  * l'espace client et les cartes du portail résident — mêmes filtres

@@ -1,5 +1,6 @@
 import { getApiClient } from "#/core/api";
 import type { components } from "#/core/api/generated/schema";
+import { trierAlpha } from "#/lib/tri";
 
 import type {
 	CategorieProduit,
@@ -48,7 +49,10 @@ export function listProduits(params?: ListProduitsParams): Promise<Produit[]> {
 	return getApiClient()
 		.apiFetch<ProduitWire[]>(path)
 		.then((data) =>
-			data.map(({ id_produit: id, ...reste }) => ({ id, ...reste })),
+			trierAlpha(
+				data.map(({ id_produit: id, ...reste }) => ({ id, ...reste })),
+				(p) => p.nom,
+			),
 		);
 }
 
@@ -57,7 +61,13 @@ export function listCategoriesProduits(): Promise<CategorieProduit[]> {
 	return getApiClient()
 		.apiFetch<CategorieProduitWire[]>("/api/v1/market/categories-produits")
 		.then((data) =>
-			data.map(({ id_categorie_produit: id, ...reste }) => ({ id, ...reste })),
+			trierAlpha(
+				data.map(({ id_categorie_produit: id, ...reste }) => ({
+					id,
+					...reste,
+				})),
+				(c) => c.libelle,
+			),
 		);
 }
 
@@ -84,7 +94,10 @@ export function listFournisseurs(): Promise<Fournisseur[]> {
 	return getApiClient()
 		.apiFetch<FournisseurWire[]>("/api/v1/market/fournisseurs")
 		.then((data) =>
-			data.map(({ id_fournisseur: id, ...reste }) => ({ id, ...reste })),
+			trierAlpha(
+				data.map(({ id_fournisseur: id, ...reste }) => ({ id, ...reste })),
+				(f) => f.nom,
+			),
 		);
 }
 

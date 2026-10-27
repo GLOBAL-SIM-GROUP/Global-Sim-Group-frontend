@@ -5,13 +5,13 @@ import { requirePermissions } from "#/core/auth";
 import {
 	MouvementsPage,
 	type MouvementsSearch,
-} from "#/features/marchandise/components/mouvements-page";
+} from "#/features/supermarche/components/mouvements-page";
 
 /**
- * Mouvements de stock — Market (M3). Filtres et page vivent dans l'URL pour le
+ * Mouvements de stock — Super-Marché. Filtres et page vivent dans l'URL pour le
  * partage de liens ; appliqués côté client. Page gated par `MARCHANDISE.VOIR`.
  */
-export const Route = createFileRoute("/_authenticated/marchandise/mouvements/")(
+export const Route = createFileRoute("/_authenticated/supermarche/mouvements/")(
 	{
 		beforeLoad: ({ context }) => {
 			requirePermissions(context.auth, "MARCHANDISE.VOIR");

@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 import { requirePermissions } from "#/core/auth";
-import { BoutiqueCataloguePage } from "#/features/portail/components/boutique-catalogue-page";
+import { SuperMarcheCataloguePage } from "#/features/portail/components/supermarche-catalogue-page";
 
 /**
  * Boutique du portail résident : catalogue des produits avec panier
@@ -10,7 +10,7 @@ import { BoutiqueCataloguePage } from "#/features/portail/components/boutique-ca
  * par `PORTAIL.VOIR`.
  */
 export const Route = createFileRoute(
-	"/_authenticated/residence/portail/boutique/",
+	"/_authenticated/residence/portail/supermarche/",
 )({
 	beforeLoad: ({ context }) => {
 		requirePermissions(context.auth, "PORTAIL.VOIR");
@@ -20,11 +20,11 @@ export const Route = createFileRoute(
 
 function BoutiquePortailRoutePage() {
 	return (
-		<BoutiqueCataloguePage
+		<SuperMarcheCataloguePage
 			breadcrumb={[
 				{ label: "Accueil", to: "/" },
 				{ label: "Mon espace résident", to: "/residence/portail" },
-				{ label: "Boutique" },
+				{ label: "Super-Marché" },
 			]}
 			panierTo="/residence/portail/panier"
 			variant="resident"

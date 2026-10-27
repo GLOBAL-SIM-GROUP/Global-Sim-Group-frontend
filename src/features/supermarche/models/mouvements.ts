@@ -1,5 +1,5 @@
 /**
- * Mouvement de stock du Market (module M3). Types hand-typed revalidés sur le
+ * Mouvement de stock du Super-Marché (module M3). Types hand-typed revalidés sur le
  * backend réel (GET /market/stock/historique). Les lignes d'historique n'ont
  * PAS d'id (référence + nom du produit).
  */

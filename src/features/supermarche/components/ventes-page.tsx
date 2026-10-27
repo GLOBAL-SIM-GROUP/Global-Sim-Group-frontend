@@ -51,9 +51,9 @@ interface VentesPageProps {
 }
 
 /**
- * Page « Ventes — Market » (module Marchandise, M3) : historique des ventes
+ * Page « Ventes — Super-Marché » (module Marchandise, M3) : historique des ventes
  * avec total, client (résolu via la base unique) et statut — inclut les
- * demandes boutique du portail (`origine = "PORTAIL"`, `EN_ATTENTE`).
+ * demandes super-marché du portail (`origine = "PORTAIL"`, `EN_ATTENTE`).
  * Actions : Voir la facture, Valider/Refuser une demande `EN_ATTENTE`,
  * Encaisser une vente `EN_COURS` (`FINANCES.ENCAISSER` — transition
  * `EN_COURS → PAYEE` du workflow portail), Annuler (`MARCHANDISE.ANNULER`,
@@ -63,7 +63,7 @@ interface VentesPageProps {
 export function VentesPage({ initialSearch, onSearchChange }: VentesPageProps) {
 	const canCreer = useCan("MARCHANDISE.CREER");
 
-	// Rafraîchissement live : une demande boutique `EN_ATTENTE` ou un statut
+	// Rafraîchissement live : une demande super-marché `EN_ATTENTE` ou un statut
 	// de vente portail poussé par socket invalide la liste (même approche que
 	// `PortailNotificationsBridge` — l'historique repoussé au montage est
 	// marqué « vu » sans invalider).
@@ -202,10 +202,10 @@ export function VentesPage({ initialSearch, onSearchChange }: VentesPageProps) {
 			<PageHeader
 				breadcrumb={[
 					{ label: "Accueil", to: "/" },
-					{ label: "Produits — Market", to: "/marchandise/produits" },
-					{ label: "Ventes — Market" },
+					{ label: "Produits — Super-Marché", to: "/supermarche/produits" },
+					{ label: "Ventes — Super-Marché" },
 				]}
-				title="Ventes — Market"
+				title="Ventes — Super-Marché"
 				description="Toutes les ventes enregistrées, avec le total et le client."
 				actions={
 					canCreer ? (
@@ -323,7 +323,7 @@ export function VentesPage({ initialSearch, onSearchChange }: VentesPageProps) {
 
 			<div className="flex justify-end">
 				<Button variant="outline" size="sm" asChild>
-					<Link to="/marchandise/produits">Retour aux produits</Link>
+					<Link to="/supermarche/produits">Retour aux produits</Link>
 				</Button>
 			</div>
 

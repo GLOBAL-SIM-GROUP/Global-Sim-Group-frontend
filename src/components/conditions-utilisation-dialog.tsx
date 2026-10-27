@@ -26,8 +26,8 @@ export function ConditionsUtilisationDialog({
 						<p>
 							La plateforme GLOBAL SIM GROUP permet de commander au restaurant,
 							de déposer du linge au pressing, de réserver la salle de fête,
-							d'acheter en boutique et de gérer des séjours courts en résidence,
-							depuis un compte unique.
+							d'acheter au Super-Marché et de gérer des séjours courts en
+							résidence, depuis un compte unique.
 						</p>
 					),
 				},

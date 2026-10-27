@@ -28,7 +28,7 @@ function ouvrir() {
 /**
  * Formulaire minimal « Ajouter un client » (type PASSAGE) : nom + téléphone
  * requis, prénoms optionnel — le strict nécessaire pour attacher une
- * commande (pressing, restaurant, boutique), sans les champs du dossier
+ * commande (pressing, restaurant, super-marché), sans les champs du dossier
  * locataire complet (naissance, pièce d'identité, adresse…).
  */
 describe("ClientSimpleFormDialog", () => {

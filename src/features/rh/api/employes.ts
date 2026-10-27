@@ -1,5 +1,6 @@
 import { getApiClient } from "#/core/api";
 import type { components } from "#/core/api/generated/schema";
+import { trierAlpha } from "#/lib/tri";
 
 import type { Employe, EmployeStatut, TypeContrat } from "../models/employes";
 
@@ -25,7 +26,10 @@ export function listEmployes(params?: ListEmployesParams): Promise<Employe[]> {
 	return getApiClient()
 		.apiFetch<EmployeWire[]>(path)
 		.then((data) =>
-			data.map(({ id_employe: id, ...reste }) => ({ id, ...reste })),
+			trierAlpha(
+				data.map(({ id_employe: id, ...reste }) => ({ id, ...reste })),
+				(e) => `${e.nom} ${e.prenom}`,
+			),
 		);
 }
 

@@ -1,5 +1,6 @@
 import { getApiClient } from "#/core/api";
 import type { components } from "#/core/api/generated/schema";
+import { trierAlpha } from "#/lib/tri";
 
 import type { CategoriePlat, Plat } from "../models/plats";
 
@@ -25,7 +26,10 @@ export function listPlats(): Promise<Plat[]> {
 	return getApiClient()
 		.apiFetch<PlatWire[]>("/api/v1/restaurant/plats")
 		.then((data) =>
-			data.map(({ id_plat: id, ...reste }) => ({ id, ...reste })),
+			trierAlpha(
+				data.map(({ id_plat: id, ...reste }) => ({ id, ...reste })),
+				(p) => p.nom,
+			),
 		);
 }
 
@@ -34,7 +38,10 @@ export function listCategoriesPlats(): Promise<CategoriePlat[]> {
 	return getApiClient()
 		.apiFetch<CategoriePlatWire[]>("/api/v1/restaurant/categories")
 		.then((data) =>
-			data.map(({ id_categorie_plat: id, ...reste }) => ({ id, ...reste })),
+			trierAlpha(
+				data.map(({ id_categorie_plat: id, ...reste }) => ({ id, ...reste })),
+				(c) => c.libelle,
+			),
 		);
 }
 

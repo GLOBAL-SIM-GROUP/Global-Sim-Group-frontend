@@ -17,10 +17,10 @@ export const MODULES_CIBLE_PORTAIL = [
 
 export type ModuleCiblePortail = (typeof MODULES_CIBLE_PORTAIL)[number];
 
-/** Libellés client-facing — « Marchandise » devient « Boutique » côté client. */
+/** Libellés client-facing — le module MARCHANDISE s'affiche « Super-Marché » côté client. */
 export const MODULE_CIBLE_PORTAIL_LABELS: Record<ModuleCiblePortail, string> = {
 	RESIDENCE: "Résidence",
-	MARCHANDISE: "Boutique",
+	MARCHANDISE: "Super-Marché",
 	PRESSING: "Pressing",
 	RESTAURANT: "Restaurant",
 	SALLE_FETE: "Salle de fête",

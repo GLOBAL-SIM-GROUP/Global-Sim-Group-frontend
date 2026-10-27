@@ -24,7 +24,7 @@ function MesDemandesEspaceRoutePage() {
 				restaurant: "/espace-client/restaurant",
 				pressing: "/espace-client/pressing",
 				salleFete: "/espace-client/salle-fete",
-				boutique: "/espace-client/boutique",
+				supermarche: "/espace-client/supermarche",
 				residence: "/espace-client/residence",
 				signalement: "/espace-client/signalement",
 			}}

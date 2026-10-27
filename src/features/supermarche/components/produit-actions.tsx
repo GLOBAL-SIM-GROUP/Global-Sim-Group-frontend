@@ -30,7 +30,7 @@ export function ProduitActions({
 	return (
 		<div className="flex items-center justify-end gap-1">
 			<Button variant="ghost" size="icon-sm" asChild title="Voir le stock">
-				<Link to="/marchandise/mouvements">
+				<Link to="/supermarche/mouvements">
 					<Boxes className="size-4" aria-hidden />
 					<span className="sr-only">Voir le stock</span>
 				</Link>

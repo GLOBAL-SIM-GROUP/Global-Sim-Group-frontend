@@ -51,7 +51,7 @@ vi.mock("#/features/portail/hooks/use-restaurant", () => ({
 	useMesCommandesRestaurant: mocks.useMesCommandesRestaurant,
 }));
 
-vi.mock("#/features/portail/hooks/use-market", () => ({
+vi.mock("#/features/portail/hooks/use-supermarche", () => ({
 	useMesVentesPortail: mocks.useMesVentesPortail,
 }));
 
@@ -119,10 +119,9 @@ describe("AccueilPage", () => {
 			"href",
 			"/espace-client/restaurant",
 		);
-		expect(screen.getByRole("link", { name: /^boutique/i })).toHaveAttribute(
-			"href",
-			"/espace-client/boutique",
-		);
+		expect(
+			screen.getByRole("link", { name: /^super-marché/i }),
+		).toHaveAttribute("href", "/espace-client/supermarche");
 		expect(screen.getByRole("link", { name: /^pressing/i })).toHaveAttribute(
 			"href",
 			"/espace-client/pressing",

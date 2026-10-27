@@ -24,7 +24,7 @@ préfixe métier dédié).
 | `finances` | `FINANCES`, `DEPENSE` |
 | `rh` | `RH` |
 | `clients` | `CLIENT` |
-| `marchandise` | `MARCHANDISE` |
+| `supermarche` | `MARCHANDISE` |
 | `abonnement` | `ABONNEMENT` |
 | `admin` | `ADMIN`, `AUDIT` |
 | `rapports` | `RAPPORTS` (module réel, distinct d'`ADMIN` — voir `core/permissions/types.ts`) |

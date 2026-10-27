@@ -19,8 +19,8 @@ import { Route as ReinitialiserMotDePasseRouteImport } from './routes/reinitiali
 import { Route as AuthenticatedEnCoursRouteImport } from './routes/_authenticated/en-cours'
 import { Route as AuthenticatedHomeRouteImport } from './routes/_authenticated/home'
 import { Route as AuthenticatedMonCompteRouteImport } from './routes/_authenticated/mon-compte'
-import { Route as MarchandiseProduitsRouteImport } from './routes/marchandise/produits'
 import { Route as RestaurantPlatsRouteImport } from './routes/restaurant/plats'
+import { Route as SupermarcheProduitsRouteImport } from './routes/supermarche/produits'
 import { Route as AuthenticatedAbonnementsIndexRouteImport } from './routes/_authenticated/abonnements/index'
 import { Route as AuthenticatedDashboardIndexRouteImport } from './routes/_authenticated/dashboard/index'
 import { Route as AuthenticatedRapportsIndexRouteImport } from './routes/_authenticated/rapports/index'
@@ -52,11 +52,6 @@ import { Route as AuthenticatedFinancesImpayesIndexRouteImport } from './routes/
 import { Route as AuthenticatedFinancesMoyensPaiementIndexRouteImport } from './routes/_authenticated/finances/moyens-paiement/index'
 import { Route as AuthenticatedFinancesRevenusUtilisateurIndexRouteImport } from './routes/_authenticated/finances/revenus-utilisateur/index'
 import { Route as AuthenticatedFinancesTableauDeBordIndexRouteImport } from './routes/_authenticated/finances/tableau-de-bord/index'
-import { Route as AuthenticatedMarchandiseCategoriesProduitsIndexRouteImport } from './routes/_authenticated/marchandise/categories-produits/index'
-import { Route as AuthenticatedMarchandiseMouvementsIndexRouteImport } from './routes/_authenticated/marchandise/mouvements/index'
-import { Route as AuthenticatedMarchandiseProduitsIndexRouteImport } from './routes/_authenticated/marchandise/produits/index'
-import { Route as AuthenticatedMarchandiseStatistiquesIndexRouteImport } from './routes/_authenticated/marchandise/statistiques/index'
-import { Route as AuthenticatedMarchandiseVentesIndexRouteImport } from './routes/_authenticated/marchandise/ventes/index'
 import { Route as AuthenticatedPressingCatalogueIndexRouteImport } from './routes/_authenticated/pressing/catalogue/index'
 import { Route as AuthenticatedPressingCommandesIndexRouteImport } from './routes/_authenticated/pressing/commandes/index'
 import { Route as AuthenticatedPressingCommandesIdRouteImport } from './routes/_authenticated/pressing/commandes/$id'
@@ -89,10 +84,13 @@ import { Route as AuthenticatedSalleFeteCalendrierIndexRouteImport } from './rou
 import { Route as AuthenticatedSalleFeteCatalogueIndexRouteImport } from './routes/_authenticated/salle-fete/catalogue/index'
 import { Route as AuthenticatedSalleFeteReservationsIndexRouteImport } from './routes/_authenticated/salle-fete/reservations/index'
 import { Route as AuthenticatedSalleFeteReservationsIdRouteImport } from './routes/_authenticated/salle-fete/reservations/$id'
+import { Route as AuthenticatedSupermarcheCategoriesProduitsIndexRouteImport } from './routes/_authenticated/supermarche/categories-produits/index'
+import { Route as AuthenticatedSupermarcheMouvementsIndexRouteImport } from './routes/_authenticated/supermarche/mouvements/index'
+import { Route as AuthenticatedSupermarcheProduitsIndexRouteImport } from './routes/_authenticated/supermarche/produits/index'
+import { Route as AuthenticatedSupermarcheStatistiquesIndexRouteImport } from './routes/_authenticated/supermarche/statistiques/index'
+import { Route as AuthenticatedSupermarcheVentesIndexRouteImport } from './routes/_authenticated/supermarche/ventes/index'
 import { Route as EspaceClientEspaceClientAbonnementsIndexRouteImport } from './routes/_espace-client/espace-client/abonnements/index'
 import { Route as EspaceClientEspaceClientAbonnementsIdRouteImport } from './routes/_espace-client/espace-client/abonnements/$id'
-import { Route as EspaceClientEspaceClientBoutiqueIndexRouteImport } from './routes/_espace-client/espace-client/boutique/index'
-import { Route as EspaceClientEspaceClientBoutiqueIdRouteImport } from './routes/_espace-client/espace-client/boutique/$id'
 import { Route as EspaceClientEspaceClientPressingIndexRouteImport } from './routes/_espace-client/espace-client/pressing/index'
 import { Route as EspaceClientEspaceClientPressingIdRouteImport } from './routes/_espace-client/espace-client/pressing/$id'
 import { Route as EspaceClientEspaceClientResidenceIndexRouteImport } from './routes/_espace-client/espace-client/residence/index'
@@ -103,11 +101,11 @@ import { Route as EspaceClientEspaceClientSalleFeteIndexRouteImport } from './ro
 import { Route as EspaceClientEspaceClientSalleFeteIdRouteImport } from './routes/_espace-client/espace-client/salle-fete/$id'
 import { Route as EspaceClientEspaceClientSignalementIndexRouteImport } from './routes/_espace-client/espace-client/signalement/index'
 import { Route as EspaceClientEspaceClientSignalementIdRouteImport } from './routes/_espace-client/espace-client/signalement/$id'
+import { Route as EspaceClientEspaceClientSupermarcheIndexRouteImport } from './routes/_espace-client/espace-client/supermarche/index'
+import { Route as EspaceClientEspaceClientSupermarcheIdRouteImport } from './routes/_espace-client/espace-client/supermarche/$id'
 import { Route as AuthenticatedFinancesCaissesIdDashboardRouteImport } from './routes/_authenticated/finances/caisses/$id/dashboard'
 import { Route as AuthenticatedResidencePortailAbonnementsIndexRouteImport } from './routes/_authenticated/residence/portail/abonnements/index'
 import { Route as AuthenticatedResidencePortailAbonnementsIdRouteImport } from './routes/_authenticated/residence/portail/abonnements/$id'
-import { Route as AuthenticatedResidencePortailBoutiqueIndexRouteImport } from './routes/_authenticated/residence/portail/boutique/index'
-import { Route as AuthenticatedResidencePortailBoutiqueIdRouteImport } from './routes/_authenticated/residence/portail/boutique/$id'
 import { Route as AuthenticatedResidencePortailCautionIndexRouteImport } from './routes/_authenticated/residence/portail/caution/index'
 import { Route as AuthenticatedResidencePortailCompteIndexRouteImport } from './routes/_authenticated/residence/portail/compte/index'
 import { Route as AuthenticatedResidencePortailDemandesIndexRouteImport } from './routes/_authenticated/residence/portail/demandes/index'
@@ -127,6 +125,8 @@ import { Route as AuthenticatedResidencePortailSejoursIdRouteImport } from './ro
 import { Route as AuthenticatedResidencePortailSignalementsIndexRouteImport } from './routes/_authenticated/residence/portail/signalements/index'
 import { Route as AuthenticatedResidencePortailSignalementsIdRouteImport } from './routes/_authenticated/residence/portail/signalements/$id'
 import { Route as AuthenticatedResidencePortailSignalementsNouveauRouteImport } from './routes/_authenticated/residence/portail/signalements/nouveau'
+import { Route as AuthenticatedResidencePortailSupermarcheIndexRouteImport } from './routes/_authenticated/residence/portail/supermarche/index'
+import { Route as AuthenticatedResidencePortailSupermarcheIdRouteImport } from './routes/_authenticated/residence/portail/supermarche/$id'
 import { Route as AuthenticatedRhPointageConsultationIndexRouteImport } from './routes/_authenticated/rh/pointage/consultation/index'
 import { Route as AuthenticatedAdminRolesIdPermissionsIndexRouteImport } from './routes/_authenticated/admin/roles/$id/permissions/index'
 
@@ -178,14 +178,14 @@ const AuthenticatedMonCompteRoute = AuthenticatedMonCompteRouteImport.update({
   path: '/mon-compte',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
-const MarchandiseProduitsRoute = MarchandiseProduitsRouteImport.update({
-  id: '/marchandise/produits',
-  path: '/marchandise/produits',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const RestaurantPlatsRoute = RestaurantPlatsRouteImport.update({
   id: '/restaurant/plats',
   path: '/restaurant/plats',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SupermarcheProduitsRoute = SupermarcheProduitsRouteImport.update({
+  id: '/supermarche/produits',
+  path: '/supermarche/produits',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAbonnementsIndexRoute =
@@ -372,36 +372,6 @@ const AuthenticatedFinancesTableauDeBordIndexRoute =
   AuthenticatedFinancesTableauDeBordIndexRouteImport.update({
     id: '/finances/tableau-de-bord/',
     path: '/finances/tableau-de-bord/',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedMarchandiseCategoriesProduitsIndexRoute =
-  AuthenticatedMarchandiseCategoriesProduitsIndexRouteImport.update({
-    id: '/marchandise/categories-produits/',
-    path: '/marchandise/categories-produits/',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedMarchandiseMouvementsIndexRoute =
-  AuthenticatedMarchandiseMouvementsIndexRouteImport.update({
-    id: '/marchandise/mouvements/',
-    path: '/marchandise/mouvements/',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedMarchandiseProduitsIndexRoute =
-  AuthenticatedMarchandiseProduitsIndexRouteImport.update({
-    id: '/marchandise/produits/',
-    path: '/marchandise/produits/',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedMarchandiseStatistiquesIndexRoute =
-  AuthenticatedMarchandiseStatistiquesIndexRouteImport.update({
-    id: '/marchandise/statistiques/',
-    path: '/marchandise/statistiques/',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedMarchandiseVentesIndexRoute =
-  AuthenticatedMarchandiseVentesIndexRouteImport.update({
-    id: '/marchandise/ventes/',
-    path: '/marchandise/ventes/',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedPressingCatalogueIndexRoute =
@@ -596,6 +566,36 @@ const AuthenticatedSalleFeteReservationsIdRoute =
     path: '/salle-fete/reservations/$id',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedSupermarcheCategoriesProduitsIndexRoute =
+  AuthenticatedSupermarcheCategoriesProduitsIndexRouteImport.update({
+    id: '/supermarche/categories-produits/',
+    path: '/supermarche/categories-produits/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedSupermarcheMouvementsIndexRoute =
+  AuthenticatedSupermarcheMouvementsIndexRouteImport.update({
+    id: '/supermarche/mouvements/',
+    path: '/supermarche/mouvements/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedSupermarcheProduitsIndexRoute =
+  AuthenticatedSupermarcheProduitsIndexRouteImport.update({
+    id: '/supermarche/produits/',
+    path: '/supermarche/produits/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedSupermarcheStatistiquesIndexRoute =
+  AuthenticatedSupermarcheStatistiquesIndexRouteImport.update({
+    id: '/supermarche/statistiques/',
+    path: '/supermarche/statistiques/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedSupermarcheVentesIndexRoute =
+  AuthenticatedSupermarcheVentesIndexRouteImport.update({
+    id: '/supermarche/ventes/',
+    path: '/supermarche/ventes/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const EspaceClientEspaceClientAbonnementsIndexRoute =
   EspaceClientEspaceClientAbonnementsIndexRouteImport.update({
     id: '/espace-client/abonnements/',
@@ -606,18 +606,6 @@ const EspaceClientEspaceClientAbonnementsIdRoute =
   EspaceClientEspaceClientAbonnementsIdRouteImport.update({
     id: '/espace-client/abonnements/$id',
     path: '/espace-client/abonnements/$id',
-    getParentRoute: () => EspaceClientRoute,
-  } as any)
-const EspaceClientEspaceClientBoutiqueIndexRoute =
-  EspaceClientEspaceClientBoutiqueIndexRouteImport.update({
-    id: '/espace-client/boutique/',
-    path: '/espace-client/boutique/',
-    getParentRoute: () => EspaceClientRoute,
-  } as any)
-const EspaceClientEspaceClientBoutiqueIdRoute =
-  EspaceClientEspaceClientBoutiqueIdRouteImport.update({
-    id: '/espace-client/boutique/$id',
-    path: '/espace-client/boutique/$id',
     getParentRoute: () => EspaceClientRoute,
   } as any)
 const EspaceClientEspaceClientPressingIndexRoute =
@@ -680,6 +668,18 @@ const EspaceClientEspaceClientSignalementIdRoute =
     path: '/espace-client/signalement/$id',
     getParentRoute: () => EspaceClientRoute,
   } as any)
+const EspaceClientEspaceClientSupermarcheIndexRoute =
+  EspaceClientEspaceClientSupermarcheIndexRouteImport.update({
+    id: '/espace-client/supermarche/',
+    path: '/espace-client/supermarche/',
+    getParentRoute: () => EspaceClientRoute,
+  } as any)
+const EspaceClientEspaceClientSupermarcheIdRoute =
+  EspaceClientEspaceClientSupermarcheIdRouteImport.update({
+    id: '/espace-client/supermarche/$id',
+    path: '/espace-client/supermarche/$id',
+    getParentRoute: () => EspaceClientRoute,
+  } as any)
 const AuthenticatedFinancesCaissesIdDashboardRoute =
   AuthenticatedFinancesCaissesIdDashboardRouteImport.update({
     id: '/finances/caisses/$id/dashboard',
@@ -696,18 +696,6 @@ const AuthenticatedResidencePortailAbonnementsIdRoute =
   AuthenticatedResidencePortailAbonnementsIdRouteImport.update({
     id: '/residence/portail/abonnements/$id',
     path: '/residence/portail/abonnements/$id',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedResidencePortailBoutiqueIndexRoute =
-  AuthenticatedResidencePortailBoutiqueIndexRouteImport.update({
-    id: '/residence/portail/boutique/',
-    path: '/residence/portail/boutique/',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedResidencePortailBoutiqueIdRoute =
-  AuthenticatedResidencePortailBoutiqueIdRouteImport.update({
-    id: '/residence/portail/boutique/$id',
-    path: '/residence/portail/boutique/$id',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedResidencePortailCautionIndexRoute =
@@ -824,6 +812,18 @@ const AuthenticatedResidencePortailSignalementsNouveauRoute =
     path: '/residence/portail/signalements/nouveau',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedResidencePortailSupermarcheIndexRoute =
+  AuthenticatedResidencePortailSupermarcheIndexRouteImport.update({
+    id: '/residence/portail/supermarche/',
+    path: '/residence/portail/supermarche/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedResidencePortailSupermarcheIdRoute =
+  AuthenticatedResidencePortailSupermarcheIdRouteImport.update({
+    id: '/residence/portail/supermarche/$id',
+    path: '/residence/portail/supermarche/$id',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedRhPointageConsultationIndexRoute =
   AuthenticatedRhPointageConsultationIndexRouteImport.update({
     id: '/rh/pointage/consultation/',
@@ -846,8 +846,8 @@ export interface FileRoutesByFullPath {
   '/en-cours': typeof AuthenticatedEnCoursRoute
   '/home': typeof AuthenticatedHomeRoute
   '/mon-compte': typeof AuthenticatedMonCompteRoute
-  '/marchandise/produits': typeof MarchandiseProduitsRoute
   '/restaurant/plats': typeof RestaurantPlatsRoute
+  '/supermarche/produits': typeof SupermarcheProduitsRoute
   '/signalements/$id': typeof AuthenticatedSignalementsIdRoute
   '/espace-client/factures': typeof EspaceClientEspaceClientFacturesRoute
   '/espace-client/mes-demandes': typeof EspaceClientEspaceClientMesDemandesRoute
@@ -871,12 +871,12 @@ export interface FileRoutesByFullPath {
   '/rh/employes/$id': typeof AuthenticatedRhEmployesIdRoute
   '/salle-fete/reservations/$id': typeof AuthenticatedSalleFeteReservationsIdRoute
   '/espace-client/abonnements/$id': typeof EspaceClientEspaceClientAbonnementsIdRoute
-  '/espace-client/boutique/$id': typeof EspaceClientEspaceClientBoutiqueIdRoute
   '/espace-client/pressing/$id': typeof EspaceClientEspaceClientPressingIdRoute
   '/espace-client/residence/$id': typeof EspaceClientEspaceClientResidenceIdRoute
   '/espace-client/restaurant/$id': typeof EspaceClientEspaceClientRestaurantIdRoute
   '/espace-client/salle-fete/$id': typeof EspaceClientEspaceClientSalleFeteIdRoute
   '/espace-client/signalement/$id': typeof EspaceClientEspaceClientSignalementIdRoute
+  '/espace-client/supermarche/$id': typeof EspaceClientEspaceClientSupermarcheIdRoute
   '/abonnements/offres/': typeof AuthenticatedAbonnementsOffresIndexRoute
   '/abonnements/souscriptions/': typeof AuthenticatedAbonnementsSouscriptionsIndexRoute
   '/admin/journal/': typeof AuthenticatedAdminJournalIndexRoute
@@ -894,11 +894,6 @@ export interface FileRoutesByFullPath {
   '/finances/moyens-paiement/': typeof AuthenticatedFinancesMoyensPaiementIndexRoute
   '/finances/revenus-utilisateur/': typeof AuthenticatedFinancesRevenusUtilisateurIndexRoute
   '/finances/tableau-de-bord/': typeof AuthenticatedFinancesTableauDeBordIndexRoute
-  '/marchandise/categories-produits/': typeof AuthenticatedMarchandiseCategoriesProduitsIndexRoute
-  '/marchandise/mouvements/': typeof AuthenticatedMarchandiseMouvementsIndexRoute
-  '/marchandise/produits/': typeof AuthenticatedMarchandiseProduitsIndexRoute
-  '/marchandise/statistiques/': typeof AuthenticatedMarchandiseStatistiquesIndexRoute
-  '/marchandise/ventes/': typeof AuthenticatedMarchandiseVentesIndexRoute
   '/pressing/catalogue/': typeof AuthenticatedPressingCatalogueIndexRoute
   '/pressing/commandes/': typeof AuthenticatedPressingCommandesIndexRoute
   '/pressing/tarif-kg/': typeof AuthenticatedPressingTarifKgIndexRoute
@@ -923,24 +918,28 @@ export interface FileRoutesByFullPath {
   '/salle-fete/calendrier/': typeof AuthenticatedSalleFeteCalendrierIndexRoute
   '/salle-fete/catalogue/': typeof AuthenticatedSalleFeteCatalogueIndexRoute
   '/salle-fete/reservations/': typeof AuthenticatedSalleFeteReservationsIndexRoute
+  '/supermarche/categories-produits/': typeof AuthenticatedSupermarcheCategoriesProduitsIndexRoute
+  '/supermarche/mouvements/': typeof AuthenticatedSupermarcheMouvementsIndexRoute
+  '/supermarche/produits/': typeof AuthenticatedSupermarcheProduitsIndexRoute
+  '/supermarche/statistiques/': typeof AuthenticatedSupermarcheStatistiquesIndexRoute
+  '/supermarche/ventes/': typeof AuthenticatedSupermarcheVentesIndexRoute
   '/espace-client/abonnements/': typeof EspaceClientEspaceClientAbonnementsIndexRoute
-  '/espace-client/boutique/': typeof EspaceClientEspaceClientBoutiqueIndexRoute
   '/espace-client/pressing/': typeof EspaceClientEspaceClientPressingIndexRoute
   '/espace-client/residence/': typeof EspaceClientEspaceClientResidenceIndexRoute
   '/espace-client/restaurant/': typeof EspaceClientEspaceClientRestaurantIndexRoute
   '/espace-client/salle-fete/': typeof EspaceClientEspaceClientSalleFeteIndexRoute
   '/espace-client/signalement/': typeof EspaceClientEspaceClientSignalementIndexRoute
+  '/espace-client/supermarche/': typeof EspaceClientEspaceClientSupermarcheIndexRoute
   '/finances/caisses/$id/dashboard': typeof AuthenticatedFinancesCaissesIdDashboardRoute
   '/residence/portail/abonnements/$id': typeof AuthenticatedResidencePortailAbonnementsIdRoute
-  '/residence/portail/boutique/$id': typeof AuthenticatedResidencePortailBoutiqueIdRoute
   '/residence/portail/pressing/$id': typeof AuthenticatedResidencePortailPressingIdRoute
   '/residence/portail/restaurant/$id': typeof AuthenticatedResidencePortailRestaurantIdRoute
   '/residence/portail/salle-fete/$id': typeof AuthenticatedResidencePortailSalleFeteIdRoute
   '/residence/portail/sejours/$id': typeof AuthenticatedResidencePortailSejoursIdRoute
   '/residence/portail/signalements/$id': typeof AuthenticatedResidencePortailSignalementsIdRoute
   '/residence/portail/signalements/nouveau': typeof AuthenticatedResidencePortailSignalementsNouveauRoute
+  '/residence/portail/supermarche/$id': typeof AuthenticatedResidencePortailSupermarcheIdRoute
   '/residence/portail/abonnements/': typeof AuthenticatedResidencePortailAbonnementsIndexRoute
-  '/residence/portail/boutique/': typeof AuthenticatedResidencePortailBoutiqueIndexRoute
   '/residence/portail/caution/': typeof AuthenticatedResidencePortailCautionIndexRoute
   '/residence/portail/compte/': typeof AuthenticatedResidencePortailCompteIndexRoute
   '/residence/portail/demandes/': typeof AuthenticatedResidencePortailDemandesIndexRoute
@@ -954,6 +953,7 @@ export interface FileRoutesByFullPath {
   '/residence/portail/salle-fete/': typeof AuthenticatedResidencePortailSalleFeteIndexRoute
   '/residence/portail/sejours/': typeof AuthenticatedResidencePortailSejoursIndexRoute
   '/residence/portail/signalements/': typeof AuthenticatedResidencePortailSignalementsIndexRoute
+  '/residence/portail/supermarche/': typeof AuthenticatedResidencePortailSupermarcheIndexRoute
   '/rh/pointage/consultation/': typeof AuthenticatedRhPointageConsultationIndexRoute
   '/admin/roles/$id/permissions/': typeof AuthenticatedAdminRolesIdPermissionsIndexRoute
 }
@@ -966,8 +966,8 @@ export interface FileRoutesByTo {
   '/en-cours': typeof AuthenticatedEnCoursRoute
   '/home': typeof AuthenticatedHomeRoute
   '/mon-compte': typeof AuthenticatedMonCompteRoute
-  '/marchandise/produits': typeof AuthenticatedMarchandiseProduitsIndexRoute
   '/restaurant/plats': typeof AuthenticatedRestaurantPlatsIndexRoute
+  '/supermarche/produits': typeof AuthenticatedSupermarcheProduitsIndexRoute
   '/signalements/$id': typeof AuthenticatedSignalementsIdRoute
   '/espace-client/factures': typeof EspaceClientEspaceClientFacturesRoute
   '/espace-client/mes-demandes': typeof EspaceClientEspaceClientMesDemandesRoute
@@ -991,12 +991,12 @@ export interface FileRoutesByTo {
   '/rh/employes/$id': typeof AuthenticatedRhEmployesIdRoute
   '/salle-fete/reservations/$id': typeof AuthenticatedSalleFeteReservationsIdRoute
   '/espace-client/abonnements/$id': typeof EspaceClientEspaceClientAbonnementsIdRoute
-  '/espace-client/boutique/$id': typeof EspaceClientEspaceClientBoutiqueIdRoute
   '/espace-client/pressing/$id': typeof EspaceClientEspaceClientPressingIdRoute
   '/espace-client/residence/$id': typeof EspaceClientEspaceClientResidenceIdRoute
   '/espace-client/restaurant/$id': typeof EspaceClientEspaceClientRestaurantIdRoute
   '/espace-client/salle-fete/$id': typeof EspaceClientEspaceClientSalleFeteIdRoute
   '/espace-client/signalement/$id': typeof EspaceClientEspaceClientSignalementIdRoute
+  '/espace-client/supermarche/$id': typeof EspaceClientEspaceClientSupermarcheIdRoute
   '/abonnements/offres': typeof AuthenticatedAbonnementsOffresIndexRoute
   '/abonnements/souscriptions': typeof AuthenticatedAbonnementsSouscriptionsIndexRoute
   '/admin/journal': typeof AuthenticatedAdminJournalIndexRoute
@@ -1014,10 +1014,6 @@ export interface FileRoutesByTo {
   '/finances/moyens-paiement': typeof AuthenticatedFinancesMoyensPaiementIndexRoute
   '/finances/revenus-utilisateur': typeof AuthenticatedFinancesRevenusUtilisateurIndexRoute
   '/finances/tableau-de-bord': typeof AuthenticatedFinancesTableauDeBordIndexRoute
-  '/marchandise/categories-produits': typeof AuthenticatedMarchandiseCategoriesProduitsIndexRoute
-  '/marchandise/mouvements': typeof AuthenticatedMarchandiseMouvementsIndexRoute
-  '/marchandise/statistiques': typeof AuthenticatedMarchandiseStatistiquesIndexRoute
-  '/marchandise/ventes': typeof AuthenticatedMarchandiseVentesIndexRoute
   '/pressing/catalogue': typeof AuthenticatedPressingCatalogueIndexRoute
   '/pressing/commandes': typeof AuthenticatedPressingCommandesIndexRoute
   '/pressing/tarif-kg': typeof AuthenticatedPressingTarifKgIndexRoute
@@ -1041,24 +1037,27 @@ export interface FileRoutesByTo {
   '/salle-fete/calendrier': typeof AuthenticatedSalleFeteCalendrierIndexRoute
   '/salle-fete/catalogue': typeof AuthenticatedSalleFeteCatalogueIndexRoute
   '/salle-fete/reservations': typeof AuthenticatedSalleFeteReservationsIndexRoute
+  '/supermarche/categories-produits': typeof AuthenticatedSupermarcheCategoriesProduitsIndexRoute
+  '/supermarche/mouvements': typeof AuthenticatedSupermarcheMouvementsIndexRoute
+  '/supermarche/statistiques': typeof AuthenticatedSupermarcheStatistiquesIndexRoute
+  '/supermarche/ventes': typeof AuthenticatedSupermarcheVentesIndexRoute
   '/espace-client/abonnements': typeof EspaceClientEspaceClientAbonnementsIndexRoute
-  '/espace-client/boutique': typeof EspaceClientEspaceClientBoutiqueIndexRoute
   '/espace-client/pressing': typeof EspaceClientEspaceClientPressingIndexRoute
   '/espace-client/residence': typeof EspaceClientEspaceClientResidenceIndexRoute
   '/espace-client/restaurant': typeof EspaceClientEspaceClientRestaurantIndexRoute
   '/espace-client/salle-fete': typeof EspaceClientEspaceClientSalleFeteIndexRoute
   '/espace-client/signalement': typeof EspaceClientEspaceClientSignalementIndexRoute
+  '/espace-client/supermarche': typeof EspaceClientEspaceClientSupermarcheIndexRoute
   '/finances/caisses/$id/dashboard': typeof AuthenticatedFinancesCaissesIdDashboardRoute
   '/residence/portail/abonnements/$id': typeof AuthenticatedResidencePortailAbonnementsIdRoute
-  '/residence/portail/boutique/$id': typeof AuthenticatedResidencePortailBoutiqueIdRoute
   '/residence/portail/pressing/$id': typeof AuthenticatedResidencePortailPressingIdRoute
   '/residence/portail/restaurant/$id': typeof AuthenticatedResidencePortailRestaurantIdRoute
   '/residence/portail/salle-fete/$id': typeof AuthenticatedResidencePortailSalleFeteIdRoute
   '/residence/portail/sejours/$id': typeof AuthenticatedResidencePortailSejoursIdRoute
   '/residence/portail/signalements/$id': typeof AuthenticatedResidencePortailSignalementsIdRoute
   '/residence/portail/signalements/nouveau': typeof AuthenticatedResidencePortailSignalementsNouveauRoute
+  '/residence/portail/supermarche/$id': typeof AuthenticatedResidencePortailSupermarcheIdRoute
   '/residence/portail/abonnements': typeof AuthenticatedResidencePortailAbonnementsIndexRoute
-  '/residence/portail/boutique': typeof AuthenticatedResidencePortailBoutiqueIndexRoute
   '/residence/portail/caution': typeof AuthenticatedResidencePortailCautionIndexRoute
   '/residence/portail/compte': typeof AuthenticatedResidencePortailCompteIndexRoute
   '/residence/portail/demandes': typeof AuthenticatedResidencePortailDemandesIndexRoute
@@ -1072,6 +1071,7 @@ export interface FileRoutesByTo {
   '/residence/portail/salle-fete': typeof AuthenticatedResidencePortailSalleFeteIndexRoute
   '/residence/portail/sejours': typeof AuthenticatedResidencePortailSejoursIndexRoute
   '/residence/portail/signalements': typeof AuthenticatedResidencePortailSignalementsIndexRoute
+  '/residence/portail/supermarche': typeof AuthenticatedResidencePortailSupermarcheIndexRoute
   '/rh/pointage/consultation': typeof AuthenticatedRhPointageConsultationIndexRoute
   '/admin/roles/$id/permissions': typeof AuthenticatedAdminRolesIdPermissionsIndexRoute
 }
@@ -1087,8 +1087,8 @@ export interface FileRoutesById {
   '/_authenticated/en-cours': typeof AuthenticatedEnCoursRoute
   '/_authenticated/home': typeof AuthenticatedHomeRoute
   '/_authenticated/mon-compte': typeof AuthenticatedMonCompteRoute
-  '/marchandise/produits': typeof MarchandiseProduitsRoute
   '/restaurant/plats': typeof RestaurantPlatsRoute
+  '/supermarche/produits': typeof SupermarcheProduitsRoute
   '/_authenticated/signalements/$id': typeof AuthenticatedSignalementsIdRoute
   '/_espace-client/espace-client/factures': typeof EspaceClientEspaceClientFacturesRoute
   '/_espace-client/espace-client/mes-demandes': typeof EspaceClientEspaceClientMesDemandesRoute
@@ -1112,12 +1112,12 @@ export interface FileRoutesById {
   '/_authenticated/rh/employes/$id': typeof AuthenticatedRhEmployesIdRoute
   '/_authenticated/salle-fete/reservations/$id': typeof AuthenticatedSalleFeteReservationsIdRoute
   '/_espace-client/espace-client/abonnements/$id': typeof EspaceClientEspaceClientAbonnementsIdRoute
-  '/_espace-client/espace-client/boutique/$id': typeof EspaceClientEspaceClientBoutiqueIdRoute
   '/_espace-client/espace-client/pressing/$id': typeof EspaceClientEspaceClientPressingIdRoute
   '/_espace-client/espace-client/residence/$id': typeof EspaceClientEspaceClientResidenceIdRoute
   '/_espace-client/espace-client/restaurant/$id': typeof EspaceClientEspaceClientRestaurantIdRoute
   '/_espace-client/espace-client/salle-fete/$id': typeof EspaceClientEspaceClientSalleFeteIdRoute
   '/_espace-client/espace-client/signalement/$id': typeof EspaceClientEspaceClientSignalementIdRoute
+  '/_espace-client/espace-client/supermarche/$id': typeof EspaceClientEspaceClientSupermarcheIdRoute
   '/_authenticated/abonnements/offres/': typeof AuthenticatedAbonnementsOffresIndexRoute
   '/_authenticated/abonnements/souscriptions/': typeof AuthenticatedAbonnementsSouscriptionsIndexRoute
   '/_authenticated/admin/journal/': typeof AuthenticatedAdminJournalIndexRoute
@@ -1135,11 +1135,6 @@ export interface FileRoutesById {
   '/_authenticated/finances/moyens-paiement/': typeof AuthenticatedFinancesMoyensPaiementIndexRoute
   '/_authenticated/finances/revenus-utilisateur/': typeof AuthenticatedFinancesRevenusUtilisateurIndexRoute
   '/_authenticated/finances/tableau-de-bord/': typeof AuthenticatedFinancesTableauDeBordIndexRoute
-  '/_authenticated/marchandise/categories-produits/': typeof AuthenticatedMarchandiseCategoriesProduitsIndexRoute
-  '/_authenticated/marchandise/mouvements/': typeof AuthenticatedMarchandiseMouvementsIndexRoute
-  '/_authenticated/marchandise/produits/': typeof AuthenticatedMarchandiseProduitsIndexRoute
-  '/_authenticated/marchandise/statistiques/': typeof AuthenticatedMarchandiseStatistiquesIndexRoute
-  '/_authenticated/marchandise/ventes/': typeof AuthenticatedMarchandiseVentesIndexRoute
   '/_authenticated/pressing/catalogue/': typeof AuthenticatedPressingCatalogueIndexRoute
   '/_authenticated/pressing/commandes/': typeof AuthenticatedPressingCommandesIndexRoute
   '/_authenticated/pressing/tarif-kg/': typeof AuthenticatedPressingTarifKgIndexRoute
@@ -1164,24 +1159,28 @@ export interface FileRoutesById {
   '/_authenticated/salle-fete/calendrier/': typeof AuthenticatedSalleFeteCalendrierIndexRoute
   '/_authenticated/salle-fete/catalogue/': typeof AuthenticatedSalleFeteCatalogueIndexRoute
   '/_authenticated/salle-fete/reservations/': typeof AuthenticatedSalleFeteReservationsIndexRoute
+  '/_authenticated/supermarche/categories-produits/': typeof AuthenticatedSupermarcheCategoriesProduitsIndexRoute
+  '/_authenticated/supermarche/mouvements/': typeof AuthenticatedSupermarcheMouvementsIndexRoute
+  '/_authenticated/supermarche/produits/': typeof AuthenticatedSupermarcheProduitsIndexRoute
+  '/_authenticated/supermarche/statistiques/': typeof AuthenticatedSupermarcheStatistiquesIndexRoute
+  '/_authenticated/supermarche/ventes/': typeof AuthenticatedSupermarcheVentesIndexRoute
   '/_espace-client/espace-client/abonnements/': typeof EspaceClientEspaceClientAbonnementsIndexRoute
-  '/_espace-client/espace-client/boutique/': typeof EspaceClientEspaceClientBoutiqueIndexRoute
   '/_espace-client/espace-client/pressing/': typeof EspaceClientEspaceClientPressingIndexRoute
   '/_espace-client/espace-client/residence/': typeof EspaceClientEspaceClientResidenceIndexRoute
   '/_espace-client/espace-client/restaurant/': typeof EspaceClientEspaceClientRestaurantIndexRoute
   '/_espace-client/espace-client/salle-fete/': typeof EspaceClientEspaceClientSalleFeteIndexRoute
   '/_espace-client/espace-client/signalement/': typeof EspaceClientEspaceClientSignalementIndexRoute
+  '/_espace-client/espace-client/supermarche/': typeof EspaceClientEspaceClientSupermarcheIndexRoute
   '/_authenticated/finances/caisses/$id/dashboard': typeof AuthenticatedFinancesCaissesIdDashboardRoute
   '/_authenticated/residence/portail/abonnements/$id': typeof AuthenticatedResidencePortailAbonnementsIdRoute
-  '/_authenticated/residence/portail/boutique/$id': typeof AuthenticatedResidencePortailBoutiqueIdRoute
   '/_authenticated/residence/portail/pressing/$id': typeof AuthenticatedResidencePortailPressingIdRoute
   '/_authenticated/residence/portail/restaurant/$id': typeof AuthenticatedResidencePortailRestaurantIdRoute
   '/_authenticated/residence/portail/salle-fete/$id': typeof AuthenticatedResidencePortailSalleFeteIdRoute
   '/_authenticated/residence/portail/sejours/$id': typeof AuthenticatedResidencePortailSejoursIdRoute
   '/_authenticated/residence/portail/signalements/$id': typeof AuthenticatedResidencePortailSignalementsIdRoute
   '/_authenticated/residence/portail/signalements/nouveau': typeof AuthenticatedResidencePortailSignalementsNouveauRoute
+  '/_authenticated/residence/portail/supermarche/$id': typeof AuthenticatedResidencePortailSupermarcheIdRoute
   '/_authenticated/residence/portail/abonnements/': typeof AuthenticatedResidencePortailAbonnementsIndexRoute
-  '/_authenticated/residence/portail/boutique/': typeof AuthenticatedResidencePortailBoutiqueIndexRoute
   '/_authenticated/residence/portail/caution/': typeof AuthenticatedResidencePortailCautionIndexRoute
   '/_authenticated/residence/portail/compte/': typeof AuthenticatedResidencePortailCompteIndexRoute
   '/_authenticated/residence/portail/demandes/': typeof AuthenticatedResidencePortailDemandesIndexRoute
@@ -1195,6 +1194,7 @@ export interface FileRoutesById {
   '/_authenticated/residence/portail/salle-fete/': typeof AuthenticatedResidencePortailSalleFeteIndexRoute
   '/_authenticated/residence/portail/sejours/': typeof AuthenticatedResidencePortailSejoursIndexRoute
   '/_authenticated/residence/portail/signalements/': typeof AuthenticatedResidencePortailSignalementsIndexRoute
+  '/_authenticated/residence/portail/supermarche/': typeof AuthenticatedResidencePortailSupermarcheIndexRoute
   '/_authenticated/rh/pointage/consultation/': typeof AuthenticatedRhPointageConsultationIndexRoute
   '/_authenticated/admin/roles/$id/permissions/': typeof AuthenticatedAdminRolesIdPermissionsIndexRoute
 }
@@ -1209,8 +1209,8 @@ export interface FileRouteTypes {
     | '/en-cours'
     | '/home'
     | '/mon-compte'
-    | '/marchandise/produits'
     | '/restaurant/plats'
+    | '/supermarche/produits'
     | '/signalements/$id'
     | '/espace-client/factures'
     | '/espace-client/mes-demandes'
@@ -1234,12 +1234,12 @@ export interface FileRouteTypes {
     | '/rh/employes/$id'
     | '/salle-fete/reservations/$id'
     | '/espace-client/abonnements/$id'
-    | '/espace-client/boutique/$id'
     | '/espace-client/pressing/$id'
     | '/espace-client/residence/$id'
     | '/espace-client/restaurant/$id'
     | '/espace-client/salle-fete/$id'
     | '/espace-client/signalement/$id'
+    | '/espace-client/supermarche/$id'
     | '/abonnements/offres/'
     | '/abonnements/souscriptions/'
     | '/admin/journal/'
@@ -1257,11 +1257,6 @@ export interface FileRouteTypes {
     | '/finances/moyens-paiement/'
     | '/finances/revenus-utilisateur/'
     | '/finances/tableau-de-bord/'
-    | '/marchandise/categories-produits/'
-    | '/marchandise/mouvements/'
-    | '/marchandise/produits/'
-    | '/marchandise/statistiques/'
-    | '/marchandise/ventes/'
     | '/pressing/catalogue/'
     | '/pressing/commandes/'
     | '/pressing/tarif-kg/'
@@ -1286,24 +1281,28 @@ export interface FileRouteTypes {
     | '/salle-fete/calendrier/'
     | '/salle-fete/catalogue/'
     | '/salle-fete/reservations/'
+    | '/supermarche/categories-produits/'
+    | '/supermarche/mouvements/'
+    | '/supermarche/produits/'
+    | '/supermarche/statistiques/'
+    | '/supermarche/ventes/'
     | '/espace-client/abonnements/'
-    | '/espace-client/boutique/'
     | '/espace-client/pressing/'
     | '/espace-client/residence/'
     | '/espace-client/restaurant/'
     | '/espace-client/salle-fete/'
     | '/espace-client/signalement/'
+    | '/espace-client/supermarche/'
     | '/finances/caisses/$id/dashboard'
     | '/residence/portail/abonnements/$id'
-    | '/residence/portail/boutique/$id'
     | '/residence/portail/pressing/$id'
     | '/residence/portail/restaurant/$id'
     | '/residence/portail/salle-fete/$id'
     | '/residence/portail/sejours/$id'
     | '/residence/portail/signalements/$id'
     | '/residence/portail/signalements/nouveau'
+    | '/residence/portail/supermarche/$id'
     | '/residence/portail/abonnements/'
-    | '/residence/portail/boutique/'
     | '/residence/portail/caution/'
     | '/residence/portail/compte/'
     | '/residence/portail/demandes/'
@@ -1317,6 +1316,7 @@ export interface FileRouteTypes {
     | '/residence/portail/salle-fete/'
     | '/residence/portail/sejours/'
     | '/residence/portail/signalements/'
+    | '/residence/portail/supermarche/'
     | '/rh/pointage/consultation/'
     | '/admin/roles/$id/permissions/'
   fileRoutesByTo: FileRoutesByTo
@@ -1329,8 +1329,8 @@ export interface FileRouteTypes {
     | '/en-cours'
     | '/home'
     | '/mon-compte'
-    | '/marchandise/produits'
     | '/restaurant/plats'
+    | '/supermarche/produits'
     | '/signalements/$id'
     | '/espace-client/factures'
     | '/espace-client/mes-demandes'
@@ -1354,12 +1354,12 @@ export interface FileRouteTypes {
     | '/rh/employes/$id'
     | '/salle-fete/reservations/$id'
     | '/espace-client/abonnements/$id'
-    | '/espace-client/boutique/$id'
     | '/espace-client/pressing/$id'
     | '/espace-client/residence/$id'
     | '/espace-client/restaurant/$id'
     | '/espace-client/salle-fete/$id'
     | '/espace-client/signalement/$id'
+    | '/espace-client/supermarche/$id'
     | '/abonnements/offres'
     | '/abonnements/souscriptions'
     | '/admin/journal'
@@ -1377,10 +1377,6 @@ export interface FileRouteTypes {
     | '/finances/moyens-paiement'
     | '/finances/revenus-utilisateur'
     | '/finances/tableau-de-bord'
-    | '/marchandise/categories-produits'
-    | '/marchandise/mouvements'
-    | '/marchandise/statistiques'
-    | '/marchandise/ventes'
     | '/pressing/catalogue'
     | '/pressing/commandes'
     | '/pressing/tarif-kg'
@@ -1404,24 +1400,27 @@ export interface FileRouteTypes {
     | '/salle-fete/calendrier'
     | '/salle-fete/catalogue'
     | '/salle-fete/reservations'
+    | '/supermarche/categories-produits'
+    | '/supermarche/mouvements'
+    | '/supermarche/statistiques'
+    | '/supermarche/ventes'
     | '/espace-client/abonnements'
-    | '/espace-client/boutique'
     | '/espace-client/pressing'
     | '/espace-client/residence'
     | '/espace-client/restaurant'
     | '/espace-client/salle-fete'
     | '/espace-client/signalement'
+    | '/espace-client/supermarche'
     | '/finances/caisses/$id/dashboard'
     | '/residence/portail/abonnements/$id'
-    | '/residence/portail/boutique/$id'
     | '/residence/portail/pressing/$id'
     | '/residence/portail/restaurant/$id'
     | '/residence/portail/salle-fete/$id'
     | '/residence/portail/sejours/$id'
     | '/residence/portail/signalements/$id'
     | '/residence/portail/signalements/nouveau'
+    | '/residence/portail/supermarche/$id'
     | '/residence/portail/abonnements'
-    | '/residence/portail/boutique'
     | '/residence/portail/caution'
     | '/residence/portail/compte'
     | '/residence/portail/demandes'
@@ -1435,6 +1434,7 @@ export interface FileRouteTypes {
     | '/residence/portail/salle-fete'
     | '/residence/portail/sejours'
     | '/residence/portail/signalements'
+    | '/residence/portail/supermarche'
     | '/rh/pointage/consultation'
     | '/admin/roles/$id/permissions'
   id:
@@ -1449,8 +1449,8 @@ export interface FileRouteTypes {
     | '/_authenticated/en-cours'
     | '/_authenticated/home'
     | '/_authenticated/mon-compte'
-    | '/marchandise/produits'
     | '/restaurant/plats'
+    | '/supermarche/produits'
     | '/_authenticated/signalements/$id'
     | '/_espace-client/espace-client/factures'
     | '/_espace-client/espace-client/mes-demandes'
@@ -1474,12 +1474,12 @@ export interface FileRouteTypes {
     | '/_authenticated/rh/employes/$id'
     | '/_authenticated/salle-fete/reservations/$id'
     | '/_espace-client/espace-client/abonnements/$id'
-    | '/_espace-client/espace-client/boutique/$id'
     | '/_espace-client/espace-client/pressing/$id'
     | '/_espace-client/espace-client/residence/$id'
     | '/_espace-client/espace-client/restaurant/$id'
     | '/_espace-client/espace-client/salle-fete/$id'
     | '/_espace-client/espace-client/signalement/$id'
+    | '/_espace-client/espace-client/supermarche/$id'
     | '/_authenticated/abonnements/offres/'
     | '/_authenticated/abonnements/souscriptions/'
     | '/_authenticated/admin/journal/'
@@ -1497,11 +1497,6 @@ export interface FileRouteTypes {
     | '/_authenticated/finances/moyens-paiement/'
     | '/_authenticated/finances/revenus-utilisateur/'
     | '/_authenticated/finances/tableau-de-bord/'
-    | '/_authenticated/marchandise/categories-produits/'
-    | '/_authenticated/marchandise/mouvements/'
-    | '/_authenticated/marchandise/produits/'
-    | '/_authenticated/marchandise/statistiques/'
-    | '/_authenticated/marchandise/ventes/'
     | '/_authenticated/pressing/catalogue/'
     | '/_authenticated/pressing/commandes/'
     | '/_authenticated/pressing/tarif-kg/'
@@ -1526,24 +1521,28 @@ export interface FileRouteTypes {
     | '/_authenticated/salle-fete/calendrier/'
     | '/_authenticated/salle-fete/catalogue/'
     | '/_authenticated/salle-fete/reservations/'
+    | '/_authenticated/supermarche/categories-produits/'
+    | '/_authenticated/supermarche/mouvements/'
+    | '/_authenticated/supermarche/produits/'
+    | '/_authenticated/supermarche/statistiques/'
+    | '/_authenticated/supermarche/ventes/'
     | '/_espace-client/espace-client/abonnements/'
-    | '/_espace-client/espace-client/boutique/'
     | '/_espace-client/espace-client/pressing/'
     | '/_espace-client/espace-client/residence/'
     | '/_espace-client/espace-client/restaurant/'
     | '/_espace-client/espace-client/salle-fete/'
     | '/_espace-client/espace-client/signalement/'
+    | '/_espace-client/espace-client/supermarche/'
     | '/_authenticated/finances/caisses/$id/dashboard'
     | '/_authenticated/residence/portail/abonnements/$id'
-    | '/_authenticated/residence/portail/boutique/$id'
     | '/_authenticated/residence/portail/pressing/$id'
     | '/_authenticated/residence/portail/restaurant/$id'
     | '/_authenticated/residence/portail/salle-fete/$id'
     | '/_authenticated/residence/portail/sejours/$id'
     | '/_authenticated/residence/portail/signalements/$id'
     | '/_authenticated/residence/portail/signalements/nouveau'
+    | '/_authenticated/residence/portail/supermarche/$id'
     | '/_authenticated/residence/portail/abonnements/'
-    | '/_authenticated/residence/portail/boutique/'
     | '/_authenticated/residence/portail/caution/'
     | '/_authenticated/residence/portail/compte/'
     | '/_authenticated/residence/portail/demandes/'
@@ -1557,6 +1556,7 @@ export interface FileRouteTypes {
     | '/_authenticated/residence/portail/salle-fete/'
     | '/_authenticated/residence/portail/sejours/'
     | '/_authenticated/residence/portail/signalements/'
+    | '/_authenticated/residence/portail/supermarche/'
     | '/_authenticated/rh/pointage/consultation/'
     | '/_authenticated/admin/roles/$id/permissions/'
   fileRoutesById: FileRoutesById
@@ -1569,8 +1569,8 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   MotDePasseOublieRoute: typeof MotDePasseOublieRoute
   ReinitialiserMotDePasseRoute: typeof ReinitialiserMotDePasseRoute
-  MarchandiseProduitsRoute: typeof MarchandiseProduitsRoute
   RestaurantPlatsRoute: typeof RestaurantPlatsRoute
+  SupermarcheProduitsRoute: typeof SupermarcheProduitsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -1645,18 +1645,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedMonCompteRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/marchandise/produits': {
-      id: '/marchandise/produits'
-      path: '/marchandise/produits'
-      fullPath: '/marchandise/produits'
-      preLoaderRoute: typeof MarchandiseProduitsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/restaurant/plats': {
       id: '/restaurant/plats'
       path: '/restaurant/plats'
       fullPath: '/restaurant/plats'
       preLoaderRoute: typeof RestaurantPlatsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/supermarche/produits': {
+      id: '/supermarche/produits'
+      path: '/supermarche/produits'
+      fullPath: '/supermarche/produits'
+      preLoaderRoute: typeof SupermarcheProduitsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/abonnements/': {
@@ -1874,41 +1874,6 @@ declare module '@tanstack/react-router' {
       path: '/finances/tableau-de-bord'
       fullPath: '/finances/tableau-de-bord/'
       preLoaderRoute: typeof AuthenticatedFinancesTableauDeBordIndexRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/marchandise/categories-produits/': {
-      id: '/_authenticated/marchandise/categories-produits/'
-      path: '/marchandise/categories-produits'
-      fullPath: '/marchandise/categories-produits/'
-      preLoaderRoute: typeof AuthenticatedMarchandiseCategoriesProduitsIndexRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/marchandise/mouvements/': {
-      id: '/_authenticated/marchandise/mouvements/'
-      path: '/marchandise/mouvements'
-      fullPath: '/marchandise/mouvements/'
-      preLoaderRoute: typeof AuthenticatedMarchandiseMouvementsIndexRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/marchandise/produits/': {
-      id: '/_authenticated/marchandise/produits/'
-      path: '/marchandise/produits'
-      fullPath: '/marchandise/produits/'
-      preLoaderRoute: typeof AuthenticatedMarchandiseProduitsIndexRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/marchandise/statistiques/': {
-      id: '/_authenticated/marchandise/statistiques/'
-      path: '/marchandise/statistiques'
-      fullPath: '/marchandise/statistiques/'
-      preLoaderRoute: typeof AuthenticatedMarchandiseStatistiquesIndexRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/marchandise/ventes/': {
-      id: '/_authenticated/marchandise/ventes/'
-      path: '/marchandise/ventes'
-      fullPath: '/marchandise/ventes/'
-      preLoaderRoute: typeof AuthenticatedMarchandiseVentesIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/pressing/catalogue/': {
@@ -2135,6 +2100,41 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSalleFeteReservationsIdRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/supermarche/categories-produits/': {
+      id: '/_authenticated/supermarche/categories-produits/'
+      path: '/supermarche/categories-produits'
+      fullPath: '/supermarche/categories-produits/'
+      preLoaderRoute: typeof AuthenticatedSupermarcheCategoriesProduitsIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/supermarche/mouvements/': {
+      id: '/_authenticated/supermarche/mouvements/'
+      path: '/supermarche/mouvements'
+      fullPath: '/supermarche/mouvements/'
+      preLoaderRoute: typeof AuthenticatedSupermarcheMouvementsIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/supermarche/produits/': {
+      id: '/_authenticated/supermarche/produits/'
+      path: '/supermarche/produits'
+      fullPath: '/supermarche/produits/'
+      preLoaderRoute: typeof AuthenticatedSupermarcheProduitsIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/supermarche/statistiques/': {
+      id: '/_authenticated/supermarche/statistiques/'
+      path: '/supermarche/statistiques'
+      fullPath: '/supermarche/statistiques/'
+      preLoaderRoute: typeof AuthenticatedSupermarcheStatistiquesIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/supermarche/ventes/': {
+      id: '/_authenticated/supermarche/ventes/'
+      path: '/supermarche/ventes'
+      fullPath: '/supermarche/ventes/'
+      preLoaderRoute: typeof AuthenticatedSupermarcheVentesIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_espace-client/espace-client/abonnements/': {
       id: '/_espace-client/espace-client/abonnements/'
       path: '/espace-client/abonnements'
@@ -2147,20 +2147,6 @@ declare module '@tanstack/react-router' {
       path: '/espace-client/abonnements/$id'
       fullPath: '/espace-client/abonnements/$id'
       preLoaderRoute: typeof EspaceClientEspaceClientAbonnementsIdRouteImport
-      parentRoute: typeof EspaceClientRoute
-    }
-    '/_espace-client/espace-client/boutique/': {
-      id: '/_espace-client/espace-client/boutique/'
-      path: '/espace-client/boutique'
-      fullPath: '/espace-client/boutique/'
-      preLoaderRoute: typeof EspaceClientEspaceClientBoutiqueIndexRouteImport
-      parentRoute: typeof EspaceClientRoute
-    }
-    '/_espace-client/espace-client/boutique/$id': {
-      id: '/_espace-client/espace-client/boutique/$id'
-      path: '/espace-client/boutique/$id'
-      fullPath: '/espace-client/boutique/$id'
-      preLoaderRoute: typeof EspaceClientEspaceClientBoutiqueIdRouteImport
       parentRoute: typeof EspaceClientRoute
     }
     '/_espace-client/espace-client/pressing/': {
@@ -2233,6 +2219,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EspaceClientEspaceClientSignalementIdRouteImport
       parentRoute: typeof EspaceClientRoute
     }
+    '/_espace-client/espace-client/supermarche/': {
+      id: '/_espace-client/espace-client/supermarche/'
+      path: '/espace-client/supermarche'
+      fullPath: '/espace-client/supermarche/'
+      preLoaderRoute: typeof EspaceClientEspaceClientSupermarcheIndexRouteImport
+      parentRoute: typeof EspaceClientRoute
+    }
+    '/_espace-client/espace-client/supermarche/$id': {
+      id: '/_espace-client/espace-client/supermarche/$id'
+      path: '/espace-client/supermarche/$id'
+      fullPath: '/espace-client/supermarche/$id'
+      preLoaderRoute: typeof EspaceClientEspaceClientSupermarcheIdRouteImport
+      parentRoute: typeof EspaceClientRoute
+    }
     '/_authenticated/finances/caisses/$id/dashboard': {
       id: '/_authenticated/finances/caisses/$id/dashboard'
       path: '/finances/caisses/$id/dashboard'
@@ -2252,20 +2252,6 @@ declare module '@tanstack/react-router' {
       path: '/residence/portail/abonnements/$id'
       fullPath: '/residence/portail/abonnements/$id'
       preLoaderRoute: typeof AuthenticatedResidencePortailAbonnementsIdRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/residence/portail/boutique/': {
-      id: '/_authenticated/residence/portail/boutique/'
-      path: '/residence/portail/boutique'
-      fullPath: '/residence/portail/boutique/'
-      preLoaderRoute: typeof AuthenticatedResidencePortailBoutiqueIndexRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/residence/portail/boutique/$id': {
-      id: '/_authenticated/residence/portail/boutique/$id'
-      path: '/residence/portail/boutique/$id'
-      fullPath: '/residence/portail/boutique/$id'
-      preLoaderRoute: typeof AuthenticatedResidencePortailBoutiqueIdRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/residence/portail/caution/': {
@@ -2401,6 +2387,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedResidencePortailSignalementsNouveauRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/residence/portail/supermarche/': {
+      id: '/_authenticated/residence/portail/supermarche/'
+      path: '/residence/portail/supermarche'
+      fullPath: '/residence/portail/supermarche/'
+      preLoaderRoute: typeof AuthenticatedResidencePortailSupermarcheIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/residence/portail/supermarche/$id': {
+      id: '/_authenticated/residence/portail/supermarche/$id'
+      path: '/residence/portail/supermarche/$id'
+      fullPath: '/residence/portail/supermarche/$id'
+      preLoaderRoute: typeof AuthenticatedResidencePortailSupermarcheIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/rh/pointage/consultation/': {
       id: '/_authenticated/rh/pointage/consultation/'
       path: '/rh/pointage/consultation'
@@ -2456,11 +2456,6 @@ interface AuthenticatedRouteChildren {
   AuthenticatedFinancesMoyensPaiementIndexRoute: typeof AuthenticatedFinancesMoyensPaiementIndexRoute
   AuthenticatedFinancesRevenusUtilisateurIndexRoute: typeof AuthenticatedFinancesRevenusUtilisateurIndexRoute
   AuthenticatedFinancesTableauDeBordIndexRoute: typeof AuthenticatedFinancesTableauDeBordIndexRoute
-  AuthenticatedMarchandiseCategoriesProduitsIndexRoute: typeof AuthenticatedMarchandiseCategoriesProduitsIndexRoute
-  AuthenticatedMarchandiseMouvementsIndexRoute: typeof AuthenticatedMarchandiseMouvementsIndexRoute
-  AuthenticatedMarchandiseProduitsIndexRoute: typeof AuthenticatedMarchandiseProduitsIndexRoute
-  AuthenticatedMarchandiseStatistiquesIndexRoute: typeof AuthenticatedMarchandiseStatistiquesIndexRoute
-  AuthenticatedMarchandiseVentesIndexRoute: typeof AuthenticatedMarchandiseVentesIndexRoute
   AuthenticatedPressingCatalogueIndexRoute: typeof AuthenticatedPressingCatalogueIndexRoute
   AuthenticatedPressingCommandesIndexRoute: typeof AuthenticatedPressingCommandesIndexRoute
   AuthenticatedPressingTarifKgIndexRoute: typeof AuthenticatedPressingTarifKgIndexRoute
@@ -2485,17 +2480,21 @@ interface AuthenticatedRouteChildren {
   AuthenticatedSalleFeteCalendrierIndexRoute: typeof AuthenticatedSalleFeteCalendrierIndexRoute
   AuthenticatedSalleFeteCatalogueIndexRoute: typeof AuthenticatedSalleFeteCatalogueIndexRoute
   AuthenticatedSalleFeteReservationsIndexRoute: typeof AuthenticatedSalleFeteReservationsIndexRoute
+  AuthenticatedSupermarcheCategoriesProduitsIndexRoute: typeof AuthenticatedSupermarcheCategoriesProduitsIndexRoute
+  AuthenticatedSupermarcheMouvementsIndexRoute: typeof AuthenticatedSupermarcheMouvementsIndexRoute
+  AuthenticatedSupermarcheProduitsIndexRoute: typeof AuthenticatedSupermarcheProduitsIndexRoute
+  AuthenticatedSupermarcheStatistiquesIndexRoute: typeof AuthenticatedSupermarcheStatistiquesIndexRoute
+  AuthenticatedSupermarcheVentesIndexRoute: typeof AuthenticatedSupermarcheVentesIndexRoute
   AuthenticatedFinancesCaissesIdDashboardRoute: typeof AuthenticatedFinancesCaissesIdDashboardRoute
   AuthenticatedResidencePortailAbonnementsIdRoute: typeof AuthenticatedResidencePortailAbonnementsIdRoute
-  AuthenticatedResidencePortailBoutiqueIdRoute: typeof AuthenticatedResidencePortailBoutiqueIdRoute
   AuthenticatedResidencePortailPressingIdRoute: typeof AuthenticatedResidencePortailPressingIdRoute
   AuthenticatedResidencePortailRestaurantIdRoute: typeof AuthenticatedResidencePortailRestaurantIdRoute
   AuthenticatedResidencePortailSalleFeteIdRoute: typeof AuthenticatedResidencePortailSalleFeteIdRoute
   AuthenticatedResidencePortailSejoursIdRoute: typeof AuthenticatedResidencePortailSejoursIdRoute
   AuthenticatedResidencePortailSignalementsIdRoute: typeof AuthenticatedResidencePortailSignalementsIdRoute
   AuthenticatedResidencePortailSignalementsNouveauRoute: typeof AuthenticatedResidencePortailSignalementsNouveauRoute
+  AuthenticatedResidencePortailSupermarcheIdRoute: typeof AuthenticatedResidencePortailSupermarcheIdRoute
   AuthenticatedResidencePortailAbonnementsIndexRoute: typeof AuthenticatedResidencePortailAbonnementsIndexRoute
-  AuthenticatedResidencePortailBoutiqueIndexRoute: typeof AuthenticatedResidencePortailBoutiqueIndexRoute
   AuthenticatedResidencePortailCautionIndexRoute: typeof AuthenticatedResidencePortailCautionIndexRoute
   AuthenticatedResidencePortailCompteIndexRoute: typeof AuthenticatedResidencePortailCompteIndexRoute
   AuthenticatedResidencePortailDemandesIndexRoute: typeof AuthenticatedResidencePortailDemandesIndexRoute
@@ -2509,6 +2508,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedResidencePortailSalleFeteIndexRoute: typeof AuthenticatedResidencePortailSalleFeteIndexRoute
   AuthenticatedResidencePortailSejoursIndexRoute: typeof AuthenticatedResidencePortailSejoursIndexRoute
   AuthenticatedResidencePortailSignalementsIndexRoute: typeof AuthenticatedResidencePortailSignalementsIndexRoute
+  AuthenticatedResidencePortailSupermarcheIndexRoute: typeof AuthenticatedResidencePortailSupermarcheIndexRoute
   AuthenticatedRhPointageConsultationIndexRoute: typeof AuthenticatedRhPointageConsultationIndexRoute
   AuthenticatedAdminRolesIdPermissionsIndexRoute: typeof AuthenticatedAdminRolesIdPermissionsIndexRoute
 }
@@ -2572,16 +2572,6 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
     AuthenticatedFinancesRevenusUtilisateurIndexRoute,
   AuthenticatedFinancesTableauDeBordIndexRoute:
     AuthenticatedFinancesTableauDeBordIndexRoute,
-  AuthenticatedMarchandiseCategoriesProduitsIndexRoute:
-    AuthenticatedMarchandiseCategoriesProduitsIndexRoute,
-  AuthenticatedMarchandiseMouvementsIndexRoute:
-    AuthenticatedMarchandiseMouvementsIndexRoute,
-  AuthenticatedMarchandiseProduitsIndexRoute:
-    AuthenticatedMarchandiseProduitsIndexRoute,
-  AuthenticatedMarchandiseStatistiquesIndexRoute:
-    AuthenticatedMarchandiseStatistiquesIndexRoute,
-  AuthenticatedMarchandiseVentesIndexRoute:
-    AuthenticatedMarchandiseVentesIndexRoute,
   AuthenticatedPressingCatalogueIndexRoute:
     AuthenticatedPressingCatalogueIndexRoute,
   AuthenticatedPressingCommandesIndexRoute:
@@ -2625,12 +2615,20 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
     AuthenticatedSalleFeteCatalogueIndexRoute,
   AuthenticatedSalleFeteReservationsIndexRoute:
     AuthenticatedSalleFeteReservationsIndexRoute,
+  AuthenticatedSupermarcheCategoriesProduitsIndexRoute:
+    AuthenticatedSupermarcheCategoriesProduitsIndexRoute,
+  AuthenticatedSupermarcheMouvementsIndexRoute:
+    AuthenticatedSupermarcheMouvementsIndexRoute,
+  AuthenticatedSupermarcheProduitsIndexRoute:
+    AuthenticatedSupermarcheProduitsIndexRoute,
+  AuthenticatedSupermarcheStatistiquesIndexRoute:
+    AuthenticatedSupermarcheStatistiquesIndexRoute,
+  AuthenticatedSupermarcheVentesIndexRoute:
+    AuthenticatedSupermarcheVentesIndexRoute,
   AuthenticatedFinancesCaissesIdDashboardRoute:
     AuthenticatedFinancesCaissesIdDashboardRoute,
   AuthenticatedResidencePortailAbonnementsIdRoute:
     AuthenticatedResidencePortailAbonnementsIdRoute,
-  AuthenticatedResidencePortailBoutiqueIdRoute:
-    AuthenticatedResidencePortailBoutiqueIdRoute,
   AuthenticatedResidencePortailPressingIdRoute:
     AuthenticatedResidencePortailPressingIdRoute,
   AuthenticatedResidencePortailRestaurantIdRoute:
@@ -2643,10 +2641,10 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
     AuthenticatedResidencePortailSignalementsIdRoute,
   AuthenticatedResidencePortailSignalementsNouveauRoute:
     AuthenticatedResidencePortailSignalementsNouveauRoute,
+  AuthenticatedResidencePortailSupermarcheIdRoute:
+    AuthenticatedResidencePortailSupermarcheIdRoute,
   AuthenticatedResidencePortailAbonnementsIndexRoute:
     AuthenticatedResidencePortailAbonnementsIndexRoute,
-  AuthenticatedResidencePortailBoutiqueIndexRoute:
-    AuthenticatedResidencePortailBoutiqueIndexRoute,
   AuthenticatedResidencePortailCautionIndexRoute:
     AuthenticatedResidencePortailCautionIndexRoute,
   AuthenticatedResidencePortailCompteIndexRoute:
@@ -2673,6 +2671,8 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
     AuthenticatedResidencePortailSejoursIndexRoute,
   AuthenticatedResidencePortailSignalementsIndexRoute:
     AuthenticatedResidencePortailSignalementsIndexRoute,
+  AuthenticatedResidencePortailSupermarcheIndexRoute:
+    AuthenticatedResidencePortailSupermarcheIndexRoute,
   AuthenticatedRhPointageConsultationIndexRoute:
     AuthenticatedRhPointageConsultationIndexRoute,
   AuthenticatedAdminRolesIdPermissionsIndexRoute:
@@ -2690,19 +2690,19 @@ interface EspaceClientRouteChildren {
   EspaceClientEspaceClientPanierRoute: typeof EspaceClientEspaceClientPanierRoute
   EspaceClientEspaceClientIndexRoute: typeof EspaceClientEspaceClientIndexRoute
   EspaceClientEspaceClientAbonnementsIdRoute: typeof EspaceClientEspaceClientAbonnementsIdRoute
-  EspaceClientEspaceClientBoutiqueIdRoute: typeof EspaceClientEspaceClientBoutiqueIdRoute
   EspaceClientEspaceClientPressingIdRoute: typeof EspaceClientEspaceClientPressingIdRoute
   EspaceClientEspaceClientResidenceIdRoute: typeof EspaceClientEspaceClientResidenceIdRoute
   EspaceClientEspaceClientRestaurantIdRoute: typeof EspaceClientEspaceClientRestaurantIdRoute
   EspaceClientEspaceClientSalleFeteIdRoute: typeof EspaceClientEspaceClientSalleFeteIdRoute
   EspaceClientEspaceClientSignalementIdRoute: typeof EspaceClientEspaceClientSignalementIdRoute
+  EspaceClientEspaceClientSupermarcheIdRoute: typeof EspaceClientEspaceClientSupermarcheIdRoute
   EspaceClientEspaceClientAbonnementsIndexRoute: typeof EspaceClientEspaceClientAbonnementsIndexRoute
-  EspaceClientEspaceClientBoutiqueIndexRoute: typeof EspaceClientEspaceClientBoutiqueIndexRoute
   EspaceClientEspaceClientPressingIndexRoute: typeof EspaceClientEspaceClientPressingIndexRoute
   EspaceClientEspaceClientResidenceIndexRoute: typeof EspaceClientEspaceClientResidenceIndexRoute
   EspaceClientEspaceClientRestaurantIndexRoute: typeof EspaceClientEspaceClientRestaurantIndexRoute
   EspaceClientEspaceClientSalleFeteIndexRoute: typeof EspaceClientEspaceClientSalleFeteIndexRoute
   EspaceClientEspaceClientSignalementIndexRoute: typeof EspaceClientEspaceClientSignalementIndexRoute
+  EspaceClientEspaceClientSupermarcheIndexRoute: typeof EspaceClientEspaceClientSupermarcheIndexRoute
 }
 
 const EspaceClientRouteChildren: EspaceClientRouteChildren = {
@@ -2715,8 +2715,6 @@ const EspaceClientRouteChildren: EspaceClientRouteChildren = {
   EspaceClientEspaceClientIndexRoute: EspaceClientEspaceClientIndexRoute,
   EspaceClientEspaceClientAbonnementsIdRoute:
     EspaceClientEspaceClientAbonnementsIdRoute,
-  EspaceClientEspaceClientBoutiqueIdRoute:
-    EspaceClientEspaceClientBoutiqueIdRoute,
   EspaceClientEspaceClientPressingIdRoute:
     EspaceClientEspaceClientPressingIdRoute,
   EspaceClientEspaceClientResidenceIdRoute:
@@ -2727,10 +2725,10 @@ const EspaceClientRouteChildren: EspaceClientRouteChildren = {
     EspaceClientEspaceClientSalleFeteIdRoute,
   EspaceClientEspaceClientSignalementIdRoute:
     EspaceClientEspaceClientSignalementIdRoute,
+  EspaceClientEspaceClientSupermarcheIdRoute:
+    EspaceClientEspaceClientSupermarcheIdRoute,
   EspaceClientEspaceClientAbonnementsIndexRoute:
     EspaceClientEspaceClientAbonnementsIndexRoute,
-  EspaceClientEspaceClientBoutiqueIndexRoute:
-    EspaceClientEspaceClientBoutiqueIndexRoute,
   EspaceClientEspaceClientPressingIndexRoute:
     EspaceClientEspaceClientPressingIndexRoute,
   EspaceClientEspaceClientResidenceIndexRoute:
@@ -2741,6 +2739,8 @@ const EspaceClientRouteChildren: EspaceClientRouteChildren = {
     EspaceClientEspaceClientSalleFeteIndexRoute,
   EspaceClientEspaceClientSignalementIndexRoute:
     EspaceClientEspaceClientSignalementIndexRoute,
+  EspaceClientEspaceClientSupermarcheIndexRoute:
+    EspaceClientEspaceClientSupermarcheIndexRoute,
 }
 
 const EspaceClientRouteWithChildren = EspaceClientRoute._addFileChildren(
@@ -2755,8 +2755,8 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   MotDePasseOublieRoute: MotDePasseOublieRoute,
   ReinitialiserMotDePasseRoute: ReinitialiserMotDePasseRoute,
-  MarchandiseProduitsRoute: MarchandiseProduitsRoute,
   RestaurantPlatsRoute: RestaurantPlatsRoute,
+  SupermarcheProduitsRoute: SupermarcheProduitsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

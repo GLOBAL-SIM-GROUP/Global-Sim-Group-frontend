@@ -83,7 +83,7 @@ export function DashboardGlobalPage() {
 	const canVoirResidence = useCan("RESIDENCE.VOIR");
 	const canVoirFinances = useCan("FINANCES.VOIR");
 	const canVoirSalleFete = useCan("SALLE_FETE.VOIR");
-	const canVoirMarchandise = useCan("MARCHANDISE.VOIR");
+	const canVoirSuperMarche = useCan("MARCHANDISE.VOIR");
 	const canVoirPressing = useCan("PRESSING.VOIR");
 	const canVoirRestaurant = useCan("RESTAURANT.VOIR");
 	const canVoirRh = useCan("RH.VOIR");
@@ -440,7 +440,7 @@ export function DashboardGlobalPage() {
 							{synthese.recettes_par_activite.map((activite) => {
 								const to = destinationActivite(activite.code, {
 									residence: canVoirResidence,
-									marchandise: canVoirMarchandise,
+									supermarche: canVoirSuperMarche,
 									pressing: canVoirPressing,
 									restaurant: canVoirRestaurant,
 									salleFete: canVoirSalleFete,
@@ -589,10 +589,10 @@ export function DashboardGlobalPage() {
 						)}
 					</div>
 
-					{/* Market et Stock */}
+					{/* Super-Marché et Stock */}
 					<div className="space-y-3">
 						<h2 className="text-lg font-semibold text-foreground">
-							Market & Inventaire
+							Super-Marché & Inventaire
 						</h2>
 						<div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
 							<InfoCard
@@ -604,7 +604,7 @@ export function DashboardGlobalPage() {
 										? "text-destructive"
 										: "text-muted-foreground"
 								}
-								to={canVoirMarchandise ? "/marchandise/produits" : undefined}
+								to={canVoirSuperMarche ? "/supermarche/produits" : undefined}
 								loading={produitsCritiquesQuery.isLoading}
 							/>
 						</div>
@@ -620,9 +620,9 @@ export function DashboardGlobalPage() {
 										</li>
 									))}
 								</ul>
-								{canVoirMarchandise && (
+								{canVoirSuperMarche && (
 									<Link
-										to="/marchandise/produits"
+										to="/supermarche/produits"
 										className="mt-2 inline-block text-xs text-lagoon transition-colors hover:underline"
 									>
 										Voir les produits →
@@ -712,7 +712,7 @@ function destinationActivite(
 	code: string,
 	perms: {
 		residence: boolean;
-		marchandise: boolean;
+		supermarche: boolean;
 		pressing: boolean;
 		restaurant: boolean;
 		salleFete: boolean;
@@ -723,7 +723,7 @@ function destinationActivite(
 		case "LOCATION_COMMERCIAL":
 			return perms.residence ? "/residence/contrats" : undefined;
 		case "VENTE_MARCHANDISES":
-			return perms.marchandise ? "/marchandise/ventes" : undefined;
+			return perms.supermarche ? "/supermarche/ventes" : undefined;
 		case "PRESSING":
 			return perms.pressing ? "/pressing/commandes" : undefined;
 		case "RESTAURATION":

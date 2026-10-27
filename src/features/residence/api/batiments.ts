@@ -1,5 +1,6 @@
 import { getApiClient } from "#/core/api";
 import type { components } from "#/core/api/generated/schema";
+import { trierAlpha } from "#/lib/tri";
 
 import type { Batiment } from "../models/batiments";
 
@@ -40,7 +41,10 @@ export async function listBatiments(): Promise<Batiment[]> {
 	);
 	// Remappé en `id` : le reste du frontend (PATCH/DELETE par `{id}`, lien
 	// « Voir les logements » avec `?batiment=`) utilise cette convention.
-	return data.map(({ id_batiment: id, ...reste }) => ({ id, ...reste }));
+	return trierAlpha(
+		data.map(({ id_batiment: id, ...reste }) => ({ id, ...reste })),
+		(b) => b.nom,
+	);
 }
 
 /** Champs saisis par le formulaire bâtiment (create/update). */

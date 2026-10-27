@@ -2,12 +2,11 @@ import { render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { Signalement } from "#/core/api/signalements";
-
-import type { VentePortail } from "../models/market";
 import type { PressingCommande } from "../models/pressing";
 import type { CommandeRestaurantPortail } from "../models/restaurant";
 import type { ReservationPortail } from "../models/salle-fete";
 import type { SejourPortail } from "../models/sejours";
+import type { VentePortail } from "../models/supermarche";
 import { MesDemandesPage } from "./mes-demandes-page";
 
 const commandesPressing: PressingCommande[] = [
@@ -143,7 +142,7 @@ vi.mock("../hooks/use-salle-fete", () => ({
 	useMesReservationsSalleFete: mocks.useMesReservationsSalleFete,
 }));
 
-vi.mock("../hooks/use-market", () => ({
+vi.mock("../hooks/use-supermarche", () => ({
 	useMesVentesPortail: mocks.useMesVentesPortail,
 }));
 
@@ -181,7 +180,7 @@ const PROPS = {
 		restaurant: "/espace-client/restaurant",
 		pressing: "/espace-client/pressing",
 		salleFete: "/espace-client/salle-fete",
-		boutique: "/espace-client/boutique",
+		supermarche: "/espace-client/supermarche",
 		residence: "/espace-client/residence",
 		signalement: "/espace-client/signalement",
 	},
@@ -299,7 +298,7 @@ describe("MesDemandesPage", () => {
 		);
 	});
 
-	it("liste les demandes boutique avec leur statut en direct", () => {
+	it("liste les demandes super-marché avec leur statut en direct", () => {
 		mockQueries({ ventes });
 
 		render(<MesDemandesPage {...PROPS} />);
@@ -308,7 +307,7 @@ describe("MesDemandesPage", () => {
 		expect(screen.getByText("En attente de validation")).toBeInTheDocument();
 		expect(screen.getByRole("link", { name: /demande n° 9/i })).toHaveAttribute(
 			"href",
-			"/espace-client/boutique/$id",
+			"/espace-client/supermarche/$id",
 		);
 	});
 
