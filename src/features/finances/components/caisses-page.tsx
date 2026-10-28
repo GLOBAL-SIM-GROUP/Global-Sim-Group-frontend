@@ -23,6 +23,7 @@ import {
 import { useCan } from "#/core/auth";
 
 import { creerCaisse, listerCaisses, modifierCaisse } from "../api/caisses";
+import { useActivites } from "../hooks/use-caisses-accessibles";
 import type { Caisse, CreerCaisseDto } from "../models/caisses";
 
 /**
@@ -45,6 +46,12 @@ export function CaissesPage() {
 		queryKey: ["caisses"],
 		queryFn: () => listerCaisses(),
 	});
+
+	// Référentiel des activités (GET /finances/activites) : le backend attend
+	// l'`id_activite` numérique à la création, pas le code du secteur — un
+	// `<option value="restaurant">` en dur provoquait un 400.
+	const activitesQuery = useActivites();
+	const activites = (activitesQuery.data ?? []).filter((a) => a.actif);
 
 	const createMut = useMutation({
 		mutationFn: (dto: CreerCaisseDto) => creerCaisse(dto),
@@ -159,12 +166,19 @@ export function CaissesPage() {
 										}
 										className="w-full h-9 rounded-md border border-input bg-background px-3 text-sm"
 									>
-										<option value="">Sélectionner une activité</option>
-										<option value="restaurant">Restaurant</option>
-										<option value="pressing">Pressing</option>
-										<option value="residence">Résidence</option>
-										<option value="salle_fete">Salle de Fête</option>
-										<option value="market">Marché</option>
+										<option value="">
+											{activitesQuery.isLoading
+												? "Chargement des activités…"
+												: "Sélectionner une activité"}
+										</option>
+										{activites.map((activite) => (
+											<option
+												key={activite.id_activite}
+												value={activite.id_activite}
+											>
+												{activite.libelle}
+											</option>
+										))}
 									</select>
 								</div>
 								<div className="flex gap-2 justify-end pt-2">

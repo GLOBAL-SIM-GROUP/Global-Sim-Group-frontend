@@ -33,11 +33,12 @@ export function useCaissesAccessibles() {
 export function useActivites() {
 	const canVoir = useCan("FINANCES.VOIR");
 	const canEncaisser = useCan("FINANCES.ENCAISSER");
+	const canModifier = useCan("FINANCES.MODIFIER");
 
 	return useQuery({
 		queryKey: ["finances", "activites"],
 		queryFn: listerActivites,
-		enabled: canVoir || canEncaisser,
+		enabled: canVoir || canEncaisser || canModifier,
 		staleTime: 5 * 60 * 1000,
 	});
 }
