@@ -17,6 +17,7 @@ import { getErrorMessageForCode, toApiError } from "#/core/api";
 import { cn } from "#/lib/utils";
 
 import { creerMouvement } from "../api/mouvements";
+import { useFournisseurs } from "../hooks/use-produits";
 import {
 	MOUVEMENT_TYPE_LABELS,
 	type MouvementType,
@@ -97,14 +98,30 @@ export function MouvementForm({
 	const [globalError, setGlobalError] = useState<string | null>(null);
 	const [enCours, setEnCours] = useState(false);
 
+	const fournisseursQuery = useFournisseurs();
+	const fournisseurParId = useMemo(
+		() =>
+			new Map(
+				(fournisseursQuery.data ?? []).map((fournisseur) => [
+					fournisseur.id,
+					fournisseur.nom,
+				]),
+			),
+		[fournisseursQuery.data],
+	);
 	const produitsOptions = useMemo<ComboboxOption[]>(
 		() =>
-			produits.map((produit) => ({
-				value: produit.id,
-				label: `${produit.reference} — ${produit.nom}`,
-				keywords: `${produit.reference} ${produit.nom}`,
-			})),
-		[produits],
+			produits.map((produit) => {
+				const fournisseur = produit.id_fournisseur
+					? fournisseurParId.get(produit.id_fournisseur)
+					: undefined;
+				return {
+					value: produit.id,
+					label: `${produit.reference} — ${produit.nom}${fournisseur ? ` · ${fournisseur}` : ""}`,
+					keywords: `${produit.reference} ${produit.nom} ${fournisseur ?? ""}`,
+				};
+			}),
+		[produits, fournisseurParId],
 	);
 	const produitParId = useMemo(
 		() => new Map(produits.map((produit) => [produit.id, produit])),
@@ -222,10 +239,7 @@ export function MouvementForm({
 				</div>
 
 				{lignes.map((ligne, index) => (
-					<div
-						key={ligne.cle}
-						className="space-y-2 sm:grid sm:grid-cols-[1fr_6rem_auto_auto] sm:items-end sm:gap-3 sm:space-y-0"
-					>
+					<div key={ligne.cle} className="space-y-2">
 						<Combobox
 							options={produitsOptions}
 							value={ligne.idProduit}
@@ -238,11 +252,10 @@ export function MouvementForm({
 							ariaLabel={`Produit ligne ${index + 1}`}
 							disabled={ligne.statut === "envoi" || ligne.statut === "ok"}
 						/>
-						{/* Quantité + statut + Retirer sous le produit sur mobile (pas
-						    de décalage dans une rangée trop étroite) — `sm:contents`
-						    les fait rejoindre la grille à 4 colonnes à partir de
-						    l'écran tablette. */}
-						<div className="flex items-end gap-2 sm:contents">
+						{/* Quantité + statut + Retirer sous le produit : le sélecteur
+						    garde toute la largeur de sa ligne (nom de produit +
+						    fournisseur potentiellement longs). */}
+						<div className="flex items-end gap-2">
 							<div className="flex-1">
 								<InputField
 									aria-label={`Quantité ligne ${index + 1}`}
