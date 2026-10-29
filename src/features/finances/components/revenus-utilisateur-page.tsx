@@ -35,11 +35,14 @@ export function RevenusUtilisateurPage() {
 	const caisseScopee = caisses.length === 1 ? caisses[0].id_caisse : null;
 	const idCaisseEffectif = caisseScopee || idCaisse;
 
+	// `id_caisse` est optionnel côté API : l'absence de filtre doit renvoyer
+	// toutes les caisses accessibles, pas désactiver la requête — sinon la
+	// page reste vide tant qu'aucune caisse précise n'est choisie.
 	const { data: revenus = [], isLoading } = useQuery({
 		queryKey: ["finances", "revenus-utilisateur", idCaisseEffectif, du, au],
 		queryFn: () =>
 			obtenirRevenusParUtilisateur(idCaisseEffectif || undefined, du, au),
-		enabled: canVoir && !!idCaisseEffectif,
+		enabled: canVoir,
 	});
 
 	const totalMontant = revenus.reduce(
