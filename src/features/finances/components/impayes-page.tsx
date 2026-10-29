@@ -268,7 +268,7 @@ export function ImpayesPage({
 								);
 								return (
 									<Tr
-										key={`${impaye.type}-${impaye.reference}-${impaye.client}-${impaye.montant_du}`}
+										key={`${impaye.type}-${impaye.reference}-${impaye.client}-${impaye.montant_du}-${impaye.date_echeance}`}
 									>
 										<Td>
 											<BadgeImpayeType type={impaye.type} />
