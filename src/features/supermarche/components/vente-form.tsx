@@ -117,15 +117,30 @@ export function VenteForm({
 		setProchaineCle((valeur) => valeur + 1);
 	};
 
+	const fournisseurParId = useMemo(
+		() =>
+			new Map(
+				(fournisseursQuery.data ?? []).map((fournisseur) => [
+					fournisseur.id,
+					fournisseur.nom,
+				]),
+			),
+		[fournisseursQuery.data],
+	);
 	const produitsOptions = useMemo<ComboboxOption[]>(
 		() =>
-			produits.map((produit) => ({
-				value: produit.id,
-				label: `${produit.reference} — ${produit.nom} (${formatMontantFCFA(produit.prix_vente)})`,
-				selectedLabel: produit.nom,
-				keywords: `${produit.reference} ${produit.nom}`,
-			})),
-		[produits],
+			produits.map((produit) => {
+				const fournisseur = produit.id_fournisseur
+					? fournisseurParId.get(produit.id_fournisseur)
+					: undefined;
+				return {
+					value: produit.id,
+					label: `${produit.reference} — ${produit.nom} (${formatMontantFCFA(produit.prix_vente)})${fournisseur ? ` · ${fournisseur}` : ""}`,
+					selectedLabel: produit.nom,
+					keywords: `${produit.reference} ${produit.nom} ${fournisseur ?? ""}`,
+				};
+			}),
+		[produits, fournisseurParId],
 	);
 
 	const total = useMemo(() => {
@@ -224,10 +239,7 @@ export function VenteForm({
 				</div>
 
 				{lignes.map((ligne, index) => (
-					<div
-						key={ligne.cle}
-						className="space-y-2 sm:grid sm:grid-cols-[1fr_6rem_auto] sm:items-end sm:gap-3 sm:space-y-0"
-					>
+					<div key={ligne.cle} className="space-y-2">
 						<Combobox
 							options={produitsOptions}
 							value={ligne.idProduit}
@@ -239,11 +251,10 @@ export function VenteForm({
 							emptyText="Aucun produit trouvé."
 							ariaLabel={`Produit ligne ${index + 1}`}
 						/>
-						{/* Quantité + Retirer sous le produit sur mobile (pas de
-						    décalage dans une rangée trop étroite) — `sm:contents`
-						    les fait rejoindre la grille à 3 colonnes à partir de
-						    l'écran tablette. */}
-						<div className="flex items-end gap-2 sm:contents">
+						{/* Quantité + Retirer sous le produit : le sélecteur garde
+						    toute la largeur de sa ligne (référence + nom + prix
+						    potentiellement longs). */}
+						<div className="flex items-end gap-2">
 							<div className="flex-1">
 								<InputField
 									aria-label={`Quantité ligne ${index + 1}`}
