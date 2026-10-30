@@ -17,9 +17,10 @@ import {
 import { useDefinirTarifKg, useTarifKg } from "../hooks/use-commandes";
 
 /**
- * Page « Tarif au kilo — Pressing » (permission `PRESSING.GERER_TARIFS`,
- * accordée au Responsable pressing et à qui a `PRESSING.SUPERVISER`) :
- * affiche le tarif au kilo courant (et sa date d'entrée en vigueur) et un
+ * Page « Tarif au kilo — Pressing » (permission `PRESSING.GERER_TARIFS` —
+ * `PRESSING.SUPERVISER` existe au catalogue mais n'est vérifié par aucun
+ * endpoint pressing, voir `core/permissions/types.ts`) : affiche le tarif au
+ * kilo courant (et sa date d'entrée en vigueur) et un
  * formulaire pour en définir un nouveau. Append-only côté backend — pas de
  * modification ni de suppression, seulement « ajouter un nouveau tarif
  * courant » : les commandes déjà créées gardent leur total, calculé avec le
