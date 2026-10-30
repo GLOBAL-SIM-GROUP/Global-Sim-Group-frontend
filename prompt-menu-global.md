@@ -59,7 +59,7 @@ jointe, l'exécuteur l'ignorera : se conformer au texte.
      rapports relèveront de modules existants ou d'un futur module — hors
      scope, pas d'invention.)
    - « Blanchisserie » = `PRESSING` (étiquette libre : « Blanchisserie » ou
-     « Pressing » — la maquette dit Blanchisserie).
+     « Pressing » — le choix retenu est « Pressing »).
    - « Tableau de bord » : aucune route ni permission réelle → **pas de lien
      dashboard** (cohérent avec « ne pas créer `/dashboard` » du prompt
      d'origine). Le « Global » de la sidebar = la home `/` (`nav_home`).

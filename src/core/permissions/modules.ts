@@ -134,8 +134,8 @@ export const MODULE_DEFINITIONS: ModuleDefinition[] = [
 	},
 	{
 		code: "PRESSING",
-		title: "Blanchisserie",
-		description: "Gestion du nettoyage et de la blanchisserie.",
+		title: "Pressing",
+		description: "Gestion du nettoyage et du pressing.",
 		icon: Shirt,
 		path: "/pressing",
 		permission: "PRESSING.VOIR",

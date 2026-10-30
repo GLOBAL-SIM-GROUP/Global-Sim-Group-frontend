@@ -223,7 +223,7 @@ async function main() {
 	);
 	await captureSection(dpage, "Services", "17-dashboard-services");
 	await captureSection(dpage, "Market & Inventaire", "18-dashboard-market");
-	await captureSection(dpage, "Blanchisserie", "19-dashboard-pressing");
+	await captureSection(dpage, "Pressing", "19-dashboard-pressing");
 	await captureSection(
 		dpage,
 		"Ressources humaines",
