@@ -13,6 +13,7 @@ import { InputField } from "#/components/ui/input-field";
 import { PasswordInput } from "#/components/ui/password-input";
 import { getErrorMessageForCode, getFieldErrors, toApiError } from "#/core/api";
 import { authApi } from "#/core/api/auth";
+import { erreurMotDePasse, MOT_DE_PASSE_AIDE } from "#/core/auth";
 
 const inscriptionAnimationStyles = `
 	@keyframes gradientSlide {
@@ -202,9 +203,11 @@ export function InscriptionPage() {
 				if (!value.telPrincipal.trim())
 					fields.telPrincipal = "Ce champ est requis.";
 				if (!value.login.trim()) fields.login = "Ce champ est requis.";
-				if (!value.motDePasse) fields.motDePasse = "Ce champ est requis.";
-				if (value.motDePasse.length < 8 && value.motDePasse)
-					fields.motDePasse = "Minimum 8 caractères.";
+				if (!value.motDePasse) {
+					fields.motDePasse = "Ce champ est requis.";
+				} else {
+					fields.motDePasse = erreurMotDePasse(value.motDePasse);
+				}
 				return { fields };
 			},
 		},
@@ -451,6 +454,7 @@ export function InscriptionPage() {
 											label="Mot de passe"
 											placeholder="Minimum 8 caractères"
 											icon={<Lock className="size-4" aria-hidden />}
+											hint={MOT_DE_PASSE_AIDE}
 											value={field.state.value}
 											onBlur={field.handleBlur}
 											onChange={(event) =>

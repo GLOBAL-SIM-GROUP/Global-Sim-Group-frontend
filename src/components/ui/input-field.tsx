@@ -20,6 +20,8 @@ interface InputFieldProps extends React.ComponentProps<"input"> {
 	trailing?: React.ReactNode;
 	/** Message d'erreur : affiché sous le champ et marque le champ `aria-invalid`. */
 	error?: string;
+	/** Aide affichée sous le champ quand il n'y a pas d'erreur. */
+	hint?: string;
 }
 
 function InputField({
@@ -27,6 +29,7 @@ function InputField({
 	icon,
 	trailing,
 	error,
+	hint,
 	className,
 	...props
 }: InputFieldProps) {
@@ -50,7 +53,11 @@ function InputField({
 					</span>
 				) : null}
 			</div>
-			{error ? <p className="text-sm text-destructive">{error}</p> : null}
+			{error ? (
+				<p className="text-sm text-destructive">{error}</p>
+			) : hint ? (
+				<p className="text-xs text-muted-foreground">{hint}</p>
+			) : null}
 		</div>
 	);
 }

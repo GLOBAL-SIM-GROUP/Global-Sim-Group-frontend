@@ -28,7 +28,7 @@ import {
 	Th,
 	Tr,
 } from "#/components/ui/table";
-import { useCan } from "#/core/auth";
+import { erreurMotDePasse, MOT_DE_PASSE_AIDE, useCan } from "#/core/auth";
 import { useMesCaisses } from "#/features/finances/hooks/use-mes-caisses";
 import { formatDateHeureUTC } from "#/features/residence/models/format";
 import { useRoles } from "../hooks/use-roles";
@@ -75,7 +75,7 @@ function ReinitialiserMdpDialog({
 
 	const confirmer = () => {
 		if (!utilisateur) return;
-		if (motDePasse.trim().length < 6) {
+		if (erreurMotDePasse(motDePasse)) {
 			setErreur(true);
 			return;
 		}
@@ -99,13 +99,10 @@ function ReinitialiserMdpDialog({
 						id="nouveau-mdp"
 						label="Nouveau mot de passe"
 						type="password"
+						hint={MOT_DE_PASSE_AIDE}
 						value={motDePasse}
 						onChange={(event) => setMotDePasse(event.target.value)}
-						error={
-							erreur
-								? "Le mot de passe doit contenir au moins 6 caractères."
-								: undefined
-						}
+						error={erreur ? erreurMotDePasse(motDePasse) : undefined}
 					/>
 					{resetMutation.isError ? (
 						<p role="alert" className="text-sm font-medium text-destructive">

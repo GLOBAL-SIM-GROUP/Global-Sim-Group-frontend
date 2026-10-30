@@ -20,6 +20,7 @@ import {
 } from "#/components/ui/select";
 import { Switch } from "#/components/ui/switch";
 import { getErrorMessageForCode, toApiError } from "#/core/api";
+import { erreurMotDePasse, MOT_DE_PASSE_AIDE } from "#/core/auth";
 import { useMesCaisses } from "#/features/finances/hooks/use-mes-caisses";
 import { ClientRechercheField } from "#/features/residence/components/client-recherche-field";
 import { useActivites } from "#/features/rh/hooks/use-comptes";
@@ -97,9 +98,8 @@ export function UtilisateurFormDialog({
 			onSubmit: ({ value }) => {
 				const fields: Partial<Record<string, string>> = {};
 				if (!value.login.trim()) fields.login = "Ce champ est requis.";
-				if (!utilisateur && value.motDePasse.trim().length < 6) {
-					fields.motDePasse =
-						"Le mot de passe doit contenir au moins 6 caractères.";
+				if (!utilisateur) {
+					fields.motDePasse = erreurMotDePasse(value.motDePasse);
 				}
 				if (!value.idRole) fields.idRole = "Sélectionnez un rôle.";
 				const roleSelectionne = roles.find((r) => r.id === value.idRole);
@@ -218,6 +218,7 @@ export function UtilisateurFormDialog({
 									name={field.name}
 									label="Mot de passe"
 									type="password"
+									hint={MOT_DE_PASSE_AIDE}
 									value={field.state.value}
 									onBlur={field.handleBlur}
 									onChange={(event) => field.handleChange(event.target.value)}

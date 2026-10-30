@@ -12,6 +12,7 @@ import { Button } from "#/components/ui/button";
 import { InputField } from "#/components/ui/input-field";
 import { PasswordInput } from "#/components/ui/password-input";
 import { getErrorMessageForCode, getFieldErrors, toApiError } from "#/core/api";
+import { MOT_DE_PASSE_AIDE } from "#/core/auth";
 
 const loginAnimationStyles = `
 	@keyframes gradientSlide {
@@ -395,6 +396,7 @@ export function LoginPage() {
 											label="Mot de passe"
 											placeholder="Votre mot de passe"
 											icon={<Lock className="size-4" aria-hidden />}
+											hint={MOT_DE_PASSE_AIDE}
 											value={field.state.value}
 											onBlur={field.handleBlur}
 											onChange={(event) =>

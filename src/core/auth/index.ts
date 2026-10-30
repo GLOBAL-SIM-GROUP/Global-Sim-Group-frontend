@@ -9,6 +9,12 @@ export { AuthProvider, useAuth } from "./auth-context";
 export { requireAuth, requirePermissions } from "./guards";
 export { useCan, useCurrentUser, usePermissions } from "./hooks";
 export {
+	erreurMotDePasse,
+	MOT_DE_PASSE_AIDE,
+	MOT_DE_PASSE_MAX,
+	MOT_DE_PASSE_MIN,
+} from "./mot-de-passe";
+export {
 	type AuthSession,
 	type AuthSessionSnapshot,
 	createAuthSession,

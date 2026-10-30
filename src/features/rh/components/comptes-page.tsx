@@ -14,7 +14,7 @@ import {
 	SelectValue,
 } from "#/components/ui/select";
 import { getErrorMessageForCode, toApiError } from "#/core/api";
-import { useCan } from "#/core/auth";
+import { erreurMotDePasse, MOT_DE_PASSE_AIDE, useCan } from "#/core/auth";
 import { cn } from "#/lib/utils";
 
 import {
@@ -58,10 +58,7 @@ export function ComptesPage() {
 				const fields: Partial<Record<string, string>> = {};
 				if (!value.idEmploye) fields.idEmploye = "Sélectionnez un employé.";
 				if (!value.login.trim()) fields.login = "Ce champ est requis.";
-				if (value.motDePasse.trim().length < 6) {
-					fields.motDePasse =
-						"Le mot de passe doit contenir au moins 6 caractères.";
-				}
+				fields.motDePasse = erreurMotDePasse(value.motDePasse);
 				if (!value.idRole) fields.idRole = "Sélectionnez un rôle.";
 				return { fields };
 			},
@@ -185,6 +182,7 @@ export function ComptesPage() {
 								name={field.name}
 								label="Mot de passe"
 								type="password"
+								hint={MOT_DE_PASSE_AIDE}
 								value={field.state.value}
 								onBlur={field.handleBlur}
 								onChange={(event) => field.handleChange(event.target.value)}

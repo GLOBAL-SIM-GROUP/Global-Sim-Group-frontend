@@ -6,13 +6,11 @@ import { useState } from "react";
 import { Button } from "#/components/ui/button";
 import { PasswordInput } from "#/components/ui/password-input";
 import { authApi, toApiError } from "#/core/api";
+import { erreurMotDePasse, MOT_DE_PASSE_AIDE } from "#/core/auth";
 
 import { AuthPageShell } from "./auth-page-shell";
 
 type Champ = "nouveauMotDePasse" | "confirmation";
-
-const MOT_DE_PASSE_MIN = 8;
-const MOT_DE_PASSE_MAX = 72;
 
 /**
  * Page « Réinitialiser le mot de passe » (écran 2/2), atteinte via le lien
@@ -37,11 +35,7 @@ export function ReinitialiserMotDePassePage() {
 		validators: {
 			onSubmit: ({ value }) => {
 				const fields: Partial<Record<Champ, string>> = {};
-				if (value.nouveauMotDePasse.length < MOT_DE_PASSE_MIN) {
-					fields.nouveauMotDePasse = `Minimum ${MOT_DE_PASSE_MIN} caractères.`;
-				} else if (value.nouveauMotDePasse.length > MOT_DE_PASSE_MAX) {
-					fields.nouveauMotDePasse = `Maximum ${MOT_DE_PASSE_MAX} caractères.`;
-				}
+				fields.nouveauMotDePasse = erreurMotDePasse(value.nouveauMotDePasse);
 				if (value.confirmation !== value.nouveauMotDePasse) {
 					fields.confirmation = "Les mots de passe ne correspondent pas.";
 				}
@@ -112,6 +106,7 @@ export function ReinitialiserMotDePassePage() {
 							name={field.name}
 							label="Nouveau mot de passe"
 							placeholder="Minimum 8 caractères"
+							hint={MOT_DE_PASSE_AIDE}
 							autoComplete="new-password"
 							icon={<Lock className="size-4" aria-hidden />}
 							value={field.state.value}
