@@ -1,5 +1,5 @@
 import { useForm } from "@tanstack/react-form";
-import { Loader2, Upload, X } from "lucide-react";
+import { Loader2, Plus, Upload, X } from "lucide-react";
 import { useRef, useState } from "react";
 
 import { BoutonCamera } from "#/components/bouton-camera";
@@ -16,12 +16,17 @@ import {
 import { Switch } from "#/components/ui/switch";
 import { getErrorMessageForCode, toApiError } from "#/core/api";
 import { uploadImage } from "#/core/api/uploads";
+import { useCan } from "#/core/auth";
 import {
 	normaliserMontantPourBackend,
 	validerMontant,
 } from "#/core/forms/montant";
 
-import { useCreerPlat, useModifierPlat } from "../hooks/use-plats";
+import {
+	useCreerCategoriePlat,
+	useCreerPlat,
+	useModifierPlat,
+} from "../hooks/use-plats";
 import type { CategoriePlat, Plat } from "../models/plats";
 
 interface PlatFormProps {
@@ -31,29 +36,133 @@ interface PlatFormProps {
 	onSaved: () => void;
 }
 
-/** Champ Select avec label visible (le contenu s'ouvre en portal). */
-function SelectField({
+/**
+ * Champ Catégorie : Select des catégories existantes par défaut, bascule
+ * explicite vers une saisie libre qui crée la catégorie au catalogue
+ * (`POST /restaurant/categories`) puis sélectionne automatiquement celle qui
+ * vient d'être créée. Même pattern que `ChampSelectOuCreer` du module
+ * Supermarché (`supermarche/produit-form.tsx`) — pas de renommage/suppression
+ * possible, le backend n'expose aucun endpoint `/restaurant/categories/{id}`.
+ */
+function ChampCategorieOuCreer({
 	id,
-	label,
-	value,
-	onValueChange,
-	children,
+	valeur,
+	categories,
+	peutCreer,
+	onChange,
+	onCreer,
 }: {
 	id: string;
-	label: string;
-	value: string;
-	onValueChange: (value: string) => void;
-	children: React.ReactNode;
+	valeur: string;
+	categories: CategoriePlat[];
+	peutCreer: boolean;
+	onChange: (id: string) => void;
+	onCreer: (libelle: string) => Promise<{ id: string }>;
 }) {
+	const [libre, setLibre] = useState(false);
+	const [saisie, setSaisie] = useState("");
+	const [enCours, setEnCours] = useState(false);
+	const [erreur, setErreur] = useState<string | null>(null);
+
+	const recherche = saisie.trim();
+	const existeDeja = categories.some(
+		(categorie) =>
+			categorie.libelle.localeCompare(recherche, "fr", {
+				sensitivity: "base",
+			}) === 0,
+	);
+
+	const ajouter = () => {
+		if (!recherche || existeDeja) return;
+		setEnCours(true);
+		setErreur(null);
+		onCreer(recherche)
+			.then((categorie) => {
+				onChange(categorie.id);
+				setLibre(false);
+				setSaisie("");
+			})
+			.catch(() => setErreur("Échec de l'ajout au catalogue."))
+			.finally(() => setEnCours(false));
+	};
+
+	if (libre) {
+		return (
+			<div className="space-y-2">
+				<Label htmlFor={id}>Catégorie</Label>
+				<InputField
+					id={id}
+					placeholder="ex : Soupes"
+					value={saisie}
+					onChange={(event) => setSaisie(event.target.value)}
+				/>
+				<div className="flex flex-wrap gap-x-4">
+					<Button
+						type="button"
+						variant="link"
+						size="sm"
+						className="h-auto px-0 text-xs"
+						onClick={() => {
+							setLibre(false);
+							setSaisie("");
+							setErreur(null);
+						}}
+					>
+						Choisir dans la liste
+					</Button>
+					{recherche && !existeDeja && peutCreer ? (
+						<Button
+							type="button"
+							variant="link"
+							size="sm"
+							className="h-auto px-0 text-xs"
+							disabled={enCours}
+							onClick={ajouter}
+						>
+							{enCours ? (
+								<Loader2 className="size-3 animate-spin" aria-hidden />
+							) : (
+								<Plus className="size-3" aria-hidden />
+							)}
+							Ajouter « {recherche} »
+						</Button>
+					) : null}
+				</div>
+				{erreur ? (
+					<p role="alert" className="text-xs text-destructive">
+						{erreur}
+					</p>
+				) : null}
+			</div>
+		);
+	}
+
 	return (
 		<div className="space-y-2">
-			<Label htmlFor={id}>{label}</Label>
-			<Select value={value} onValueChange={onValueChange}>
-				<SelectTrigger id={id} aria-label={label} className="w-full">
+			<Label htmlFor={id}>Catégorie</Label>
+			<Select value={valeur} onValueChange={onChange}>
+				<SelectTrigger id={id} aria-label="Catégorie" className="w-full">
 					<SelectValue />
 				</SelectTrigger>
-				<SelectContent>{children}</SelectContent>
+				<SelectContent>
+					{categories.map((categorie) => (
+						<SelectItem key={categorie.id} value={categorie.id}>
+							{categorie.libelle}
+						</SelectItem>
+					))}
+				</SelectContent>
 			</Select>
+			{peutCreer ? (
+				<Button
+					type="button"
+					variant="link"
+					size="sm"
+					className="h-auto px-0 text-xs"
+					onClick={() => setLibre(true)}
+				>
+					Saisir manuellement
+				</Button>
+			) : null}
 		</div>
 	);
 }
@@ -67,6 +176,8 @@ export function PlatForm({
 }: PlatFormProps) {
 	const createMutation = useCreerPlat();
 	const editMutation = useModifierPlat();
+	const creerCategorieMutation = useCreerCategoriePlat();
+	const peutCreerCatalogue = useCan("RESTAURANT.CREER");
 	const [globalError, setGlobalError] = useState<string | null>(null);
 	const [imagePreview, setImagePreview] = useState<string | null>(
 		plat?.image_url ?? null,
@@ -188,18 +299,16 @@ export function PlatForm({
 			<div className="grid gap-4 sm:grid-cols-2">
 				<form.Field name="id_categorie_plat">
 					{(field) => (
-						<SelectField
+						<ChampCategorieOuCreer
 							id={field.name}
-							label="Catégorie"
-							value={field.state.value}
-							onValueChange={field.handleChange}
-						>
-							{categories.map((categorie) => (
-								<SelectItem key={categorie.id} value={categorie.id}>
-									{categorie.libelle}
-								</SelectItem>
-							))}
-						</SelectField>
+							valeur={field.state.value}
+							categories={categories}
+							peutCreer={peutCreerCatalogue}
+							onChange={field.handleChange}
+							onCreer={(libelle) =>
+								creerCategorieMutation.mutateAsync({ libelle })
+							}
+						/>
 					)}
 				</form.Field>
 

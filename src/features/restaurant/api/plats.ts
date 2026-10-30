@@ -104,10 +104,12 @@ export function modifierPlat(id: string, body: PlatBody): Promise<unknown> {
 /** Crée une catégorie de plat (POST `CreerCategoriePlatDto`). */
 export function creerCategoriePlat(body: {
 	libelle: string;
-}): Promise<unknown> {
+}): Promise<CategoriePlat> {
 	const corps = { libelle: body.libelle } satisfies CreerCategoriePlatDto;
-	return getApiClient().apiFetch("/api/v1/restaurant/categories", {
-		method: "POST",
-		body: JSON.stringify(corps),
-	});
+	return getApiClient()
+		.apiFetch<CategoriePlatWire>("/api/v1/restaurant/categories", {
+			method: "POST",
+			body: JSON.stringify(corps),
+		})
+		.then(({ id_categorie_plat: id, ...reste }) => ({ id, ...reste }));
 }
