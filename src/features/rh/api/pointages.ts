@@ -1,4 +1,4 @@
-import { getApiClient } from "#/core/api";
+import { fetchToutesPages, getApiClient } from "#/core/api";
 import type { components } from "#/core/api/generated/schema";
 
 import type { Pointage } from "../models/pointages";
@@ -21,9 +21,9 @@ export function listPointages(filtres?: {
 	if (filtres?.du) params.set("du", filtres.du);
 	if (filtres?.au) params.set("au", filtres.au);
 	const qs = params.toString();
-	return getApiClient()
-		.apiFetch<PointageWire[]>(`/api/v1/rh/pointages${qs ? `?${qs}` : ""}`)
-		.then((data) => data.map(remapper));
+	return fetchToutesPages<PointageWire>(
+		`/api/v1/rh/pointages${qs ? `?${qs}` : ""}`,
+	).then((data) => data.map(remapper));
 }
 
 /** Pointe l'arrivée d'un employé (POST `PointerArriveeDto`, heure auto). */

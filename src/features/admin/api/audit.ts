@@ -1,4 +1,4 @@
-import { getApiClient } from "#/core/api";
+import { fetchToutesPages, getApiClient } from "#/core/api";
 import { imprimerPdfBlob } from "#/lib/print-pdf";
 
 import type { TraceAudit } from "../models/audit";
@@ -33,15 +33,15 @@ export function listJournal(params?: ListJournalParams): Promise<TraceAudit[]> {
 	if (params?.utilisateur && params.utilisateur !== "tous")
 		searchParams.set("utilisateur", params.utilisateur);
 	const qs = searchParams.toString();
-	return getApiClient()
-		.apiFetch<TraceAuditWire[]>(`/api/v1/audit/journal${qs ? `?${qs}` : ""}`)
-		.then((data) =>
-			data.map(({ id_trace: id, apres, ...reste }) => ({
-				id,
-				apres: apres ?? null,
-				...reste,
-			})),
-		);
+	return fetchToutesPages<TraceAuditWire>(
+		`/api/v1/audit/journal${qs ? `?${qs}` : ""}`,
+	).then((data) =>
+		data.map(({ id_trace: id, apres, ...reste }) => ({
+			id,
+			apres: apres ?? null,
+			...reste,
+		})),
+	);
 }
 
 /**

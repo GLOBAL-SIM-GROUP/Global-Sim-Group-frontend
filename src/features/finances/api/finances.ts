@@ -1,4 +1,4 @@
-import { getApiClient } from "#/core/api";
+import { fetchToutesPages, getApiClient } from "#/core/api";
 import type { components } from "#/core/api/generated/schema";
 import { imprimerPdfBlob } from "#/lib/print-pdf";
 import { trierAlpha } from "#/lib/tri";
@@ -110,11 +110,15 @@ export function listPaiements(filtres?: {
 	if (filtres?.id_caisse) params.set("id_caisse", filtres.id_caisse);
 	if (filtres?.limit) params.set("limit", String(filtres.limit));
 	const qs = params.toString();
-	return getApiClient()
-		.apiFetch<PaiementWire[]>(`/api/v1/finances/paiements${qs ? `?${qs}` : ""}`)
-		.then((data) =>
-			data.map(({ id_paiement: id, ...reste }) => ({ id, ...reste })),
-		);
+	const path = `/api/v1/finances/paiements${qs ? `?${qs}` : ""}`;
+	// `limit` explicite de l'appelant → page unique honorée ; sinon on
+	// récupère tout (le backend plafonne à 50 par défaut).
+	const fetcher = filtres?.limit
+		? () => getApiClient().apiFetch<PaiementWire[]>(path)
+		: () => fetchToutesPages<PaiementWire>(path);
+	return fetcher().then((data) =>
+		data.map(({ id_paiement: id, ...reste }) => ({ id, ...reste })),
+	);
 }
 
 export function listDepenses(filtres?: {
@@ -127,11 +131,11 @@ export function listDepenses(filtres?: {
 	if (filtres?.au) params.set("au", filtres.au);
 	if (filtres?.id_caisse) params.set("id_caisse", filtres.id_caisse);
 	const qs = params.toString();
-	return getApiClient()
-		.apiFetch<DepenseWire[]>(`/api/v1/finances/depenses${qs ? `?${qs}` : ""}`)
-		.then((data) =>
-			data.map(({ id_depense: id, ...reste }) => ({ id, ...reste })),
-		);
+	return fetchToutesPages<DepenseWire>(
+		`/api/v1/finances/depenses${qs ? `?${qs}` : ""}`,
+	).then((data) =>
+		data.map(({ id_depense: id, ...reste }) => ({ id, ...reste })),
+	);
 }
 
 export function listImpayes(filtres?: {
@@ -145,6 +149,8 @@ export function listImpayes(filtres?: {
 	if (filtres?.client) params.set("client", filtres.client);
 	if (filtres?.periode) params.set("periode", filtres.periode);
 	const qs = params.toString();
+	// `/finances/impayes` n'a pas de `limit`/`offset` dans le spec → réponse
+	// complète en un appel (pas de boucle de pagination ici).
 	return getApiClient().apiFetch<Impaye[]>(
 		`/api/v1/finances/impayes${qs ? `?${qs}` : ""}`,
 	);
@@ -181,14 +187,14 @@ export function supprimerCategorieDepense(id: string): Promise<unknown> {
 }
 
 export function listMoyensPaiement(): Promise<MoyenPaiement[]> {
-	return getApiClient()
-		.apiFetch<MoyenPaiementWire[]>("/api/v1/finances/moyens-paiement")
-		.then((data) =>
-			trierAlpha(
-				data.map(({ id_moyen: id, ...reste }) => ({ id, ...reste })),
-				(m) => m.libelle,
-			),
-		);
+	return fetchToutesPages<MoyenPaiementWire>(
+		"/api/v1/finances/moyens-paiement",
+	).then((data) =>
+		trierAlpha(
+			data.map(({ id_moyen: id, ...reste }) => ({ id, ...reste })),
+			(m) => m.libelle,
+		),
+	);
 }
 
 export function creerMoyenPaiement(body: {

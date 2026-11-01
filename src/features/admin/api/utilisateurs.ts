@@ -1,4 +1,4 @@
-import { getApiClient } from "#/core/api";
+import { fetchToutesPages, getApiClient } from "#/core/api";
 import type { components } from "#/core/api/generated/schema";
 
 import type { Utilisateur } from "../models/utilisateurs";
@@ -29,9 +29,9 @@ export function listUtilisateurs(
 	const queryString = searchParams.toString();
 	const path = `/api/v1/admin/utilisateurs${queryString ? `?${queryString}` : ""}`;
 
-	return getApiClient()
-		.apiFetch<UtilisateurWire[]>(path)
-		.then((data) => data.map(remapper));
+	return fetchToutesPages<UtilisateurWire>(path).then((data) =>
+		data.map(remapper),
+	);
 }
 
 /** Corps saisi par le formulaire utilisateur. */

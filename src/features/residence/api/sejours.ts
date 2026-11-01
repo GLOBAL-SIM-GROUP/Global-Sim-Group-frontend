@@ -1,4 +1,4 @@
-import { getApiClient, toApiError } from "#/core/api";
+import { fetchToutesPages, getApiClient, toApiError } from "#/core/api";
 import type { components } from "#/core/api/generated/schema";
 import { getClient } from "#/features/clients/api/clients";
 import type {
@@ -69,14 +69,14 @@ export function listSejours(filtres?: {
 	statut?: SejourStatut;
 	origine?: SejourOrigine;
 }): Promise<Sejour[]> {
-	const params = new URLSearchParams({ limit: "200" });
+	const params = new URLSearchParams();
 	if (filtres?.statut) params.set("statut", filtres.statut);
 	if (filtres?.origine) params.set("origine", filtres.origine);
-	return getApiClient()
-		.apiFetch<SejourWire[]>(`/api/v1/residence/sejours?${params}`)
-		.then((data) =>
-			data.map(({ id_sejour: id, ...reste }) => ({ id, ...reste })),
-		);
+	return fetchToutesPages<SejourWire>(
+		`/api/v1/residence/sejours?${params}`,
+	).then((data) =>
+		data.map(({ id_sejour: id, ...reste }) => ({ id, ...reste })),
+	);
 }
 
 /** Détail d'un séjour (GET /residence/sejours/{id}) — fiche séjour. */

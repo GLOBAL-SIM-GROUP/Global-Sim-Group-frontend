@@ -1,4 +1,4 @@
-import { getApiClient } from "#/core/api";
+import { fetchToutesPages, getApiClient } from "#/core/api";
 import { trierAlpha } from "#/lib/tri";
 
 import type {
@@ -48,9 +48,9 @@ export async function listerCaissesAccessibles(): Promise<CaisseAccessible[]> {
  * `CaissePicker` à son module sans dépendre de l'id numérique ni du libellé.
  */
 export async function listerActivites(): Promise<ActiviteCaisse[]> {
-	return getApiClient()
-		.apiFetch<ActiviteCaisse[]>("/api/v1/finances/activites")
-		.then((data) => trierAlpha(data, (a) => a.libelle));
+	return fetchToutesPages<ActiviteCaisse>("/api/v1/finances/activites").then(
+		(data) => trierAlpha(data, (a) => a.libelle),
+	);
 }
 
 /** Obtenir une caisse par ID. */

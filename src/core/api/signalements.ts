@@ -1,4 +1,5 @@
 import { getApiClient } from "./client";
+import { fetchToutesPages } from "./pagination";
 
 /**
  * Appels API du module Signalements. Clé primaire wire `id_signalement` → `id`
@@ -118,11 +119,14 @@ export function listSignalements(
 	if (params.limit) queryParams.append("limit", params.limit.toString());
 	if (params.offset) queryParams.append("offset", params.offset.toString());
 
-	return getApiClient()
-		.apiFetch<SignalementWire[]>(
-			`/api/v1/signalements?${queryParams.toString()}`,
-		)
-		.then((data) => data.map(toSignalement));
+	const path = `/api/v1/signalements?${queryParams.toString()}`;
+	// `limit`/`offset` explicites → page unique honorée ; sinon tout récupérer
+	// (le backend plafonne à 50 par défaut).
+	return (
+		params.limit !== undefined || params.offset !== undefined
+			? getApiClient().apiFetch<SignalementWire[]>(path)
+			: fetchToutesPages<SignalementWire>(path)
+	).then((data) => data.map(toSignalement));
 }
 
 export function getSignalement(id: string): Promise<Signalement> {

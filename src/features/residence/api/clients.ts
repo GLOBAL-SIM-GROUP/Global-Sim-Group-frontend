@@ -1,4 +1,4 @@
-import { getApiClient } from "#/core/api";
+import { fetchToutesPages, getApiClient } from "#/core/api";
 import type { components } from "#/core/api/generated/schema";
 import { trierAlpha } from "#/lib/tri";
 
@@ -19,13 +19,11 @@ const toClient = ({ id_client: id, ...reste }: ClientWire): Client => ({
  * résoudre les noms des locataires (le lister contrats ne les embarque pas).
  */
 export function rechercherClients(terme: string): Promise<Client[]> {
-	return getApiClient()
-		.apiFetch<ClientWire[]>(
-			`/api/v1/client/clients?recherche=${encodeURIComponent(terme)}`,
-		)
-		.then((data) =>
-			trierAlpha(data.map(toClient), (c) => `${c.nom} ${c.prenoms}`),
-		);
+	return fetchToutesPages<ClientWire>(
+		`/api/v1/client/clients?recherche=${encodeURIComponent(terme)}`,
+	).then((data) =>
+		trierAlpha(data.map(toClient), (c) => `${c.nom} ${c.prenoms}`),
+	);
 }
 
 /** Détail d'un client (GET /client/clients/{id}). */

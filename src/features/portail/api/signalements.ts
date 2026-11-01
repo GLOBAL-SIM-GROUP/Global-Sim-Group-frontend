@@ -1,4 +1,4 @@
-import { getApiClient } from "#/core/api";
+import { fetchToutesPages, getApiClient } from "#/core/api";
 import type { components } from "#/core/api/generated/schema";
 import type { Signalement, SignalementPhoto } from "#/core/api/signalements";
 
@@ -39,13 +39,8 @@ const toPhoto = ({
 
 /** Mes signalements, du plus récent au plus ancien. */
 export async function listMesSignalements(): Promise<Signalement[]> {
-	const queryParams = new URLSearchParams({
-		sort: "date_signalement",
-		order: "desc",
-		limit: "200",
-	});
-	const response = await getApiClient().apiFetch<SignalementWire[]>(
-		`/api/v1/signalements/portail?${queryParams.toString()}`,
+	const response = await fetchToutesPages<SignalementWire>(
+		"/api/v1/signalements/portail?sort=date_signalement&order=desc",
 	);
 	return response.map(toSignalement);
 }

@@ -1,4 +1,4 @@
-import { getApiClient } from "#/core/api";
+import { fetchToutesPages, getApiClient } from "#/core/api";
 import type { components } from "#/core/api/generated/schema";
 import { idCaisseDto } from "#/features/finances/models/caisses";
 
@@ -24,7 +24,7 @@ export function listEcheances(filtres?: {
 	if (filtres?.du) params.set("du", filtres.du);
 	if (filtres?.au) params.set("au", filtres.au);
 	const qs = params.toString();
-	return getApiClient().apiFetch<EcheanceSuivi[]>(
+	return fetchToutesPages<EcheanceSuivi>(
 		`/api/v1/residence/suivi${qs ? `?${qs}` : ""}`,
 	);
 }

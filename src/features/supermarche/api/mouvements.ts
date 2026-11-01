@@ -1,4 +1,4 @@
-import { getApiClient } from "#/core/api";
+import { fetchToutesPages, getApiClient } from "#/core/api";
 import type { components } from "#/core/api/generated/schema";
 
 import type { Mouvement, MouvementType } from "../models/mouvements";
@@ -16,9 +16,7 @@ const texteOuNull = (valeur: string | null | undefined): string | null =>
 
 /** Appels API du module Marchandise — mouvements de stock (`/api/v1/market/*`). */
 export function listMouvements(): Promise<Mouvement[]> {
-	return getApiClient().apiFetch<Mouvement[]>(
-		"/api/v1/market/stock/historique",
-	);
+	return fetchToutesPages<Mouvement>("/api/v1/market/stock/historique");
 }
 
 /** Produits en alerte stock (GET /market/stock/alerte). */

@@ -1,4 +1,4 @@
-import { getApiClient } from "#/core/api";
+import { fetchToutesPages, getApiClient } from "#/core/api";
 import type { components } from "#/core/api/generated/schema";
 import type { ApercuAbonnementRestaurant } from "#/features/abonnement/models/abonnements";
 import { idCaisseDto } from "#/features/finances/models/caisses";
@@ -45,13 +45,11 @@ export function listCommandes(
 		searchParams.set("statut", params.statut);
 	}
 	const qs = searchParams.toString();
-	return getApiClient()
-		.apiFetch<CommandeWire[]>(
-			`/api/v1/restaurant/commandes${qs ? `?${qs}` : ""}`,
-		)
-		.then((data) =>
-			data.map(({ id_commande: id, ...reste }) => ({ id, ...reste })),
-		);
+	return fetchToutesPages<CommandeWire>(
+		`/api/v1/restaurant/commandes${qs ? `?${qs}` : ""}`,
+	).then((data) =>
+		data.map(({ id_commande: id, ...reste }) => ({ id, ...reste })),
+	);
 }
 
 /** Détail d'une commande : embarque les lignes (Voir la facture). */

@@ -1,4 +1,4 @@
-import { getApiClient } from "#/core/api";
+import { fetchToutesPages, getApiClient } from "#/core/api";
 
 import type {
 	EtatDesLieuxPhoto,
@@ -29,11 +29,9 @@ export function listEtatDesLieux(
 	const params = new URLSearchParams();
 	if (type) params.set("type", type);
 	const qs = params.toString();
-	return getApiClient()
-		.apiFetch<EtatDesLieuxPhotoWire[]>(
-			`/api/v1/residence/contrats/${idContrat}/etat-des-lieux${qs ? `?${qs}` : ""}`,
-		)
-		.then((data) => data.map(toPhoto));
+	return fetchToutesPages<EtatDesLieuxPhotoWire>(
+		`/api/v1/residence/contrats/${idContrat}/etat-des-lieux${qs ? `?${qs}` : ""}`,
+	).then((data) => data.map(toPhoto));
 }
 
 /** Corps saisi par le formulaire d'ajout d'une photo. */

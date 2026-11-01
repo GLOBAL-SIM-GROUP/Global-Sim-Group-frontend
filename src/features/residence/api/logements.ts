@@ -1,4 +1,4 @@
-import { getApiClient } from "#/core/api";
+import { fetchToutesPages, getApiClient } from "#/core/api";
 import type { components } from "#/core/api/generated/schema";
 import { trierAlpha } from "#/lib/tri";
 
@@ -92,7 +92,7 @@ export async function listLogements(
 		searchParams.set("statut", params.statut);
 	}
 	const qs = searchParams.toString();
-	const data = await getApiClient().apiFetch<LogementWire[]>(
+	const data = await fetchToutesPages<LogementWire>(
 		`/api/v1/residence/logements${qs ? `?${qs}` : ""}`,
 	);
 	// Remappé en `id` : key React, PATCH par `{id}` et fiche utilisent cette

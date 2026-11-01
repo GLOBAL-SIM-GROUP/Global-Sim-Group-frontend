@@ -1,4 +1,4 @@
-import { getApiClient } from "#/core/api";
+import { fetchToutesPages, getApiClient } from "#/core/api";
 import type { components } from "#/core/api/generated/schema";
 import { trierAlpha } from "#/lib/tri";
 
@@ -36,7 +36,7 @@ interface BatimentWire {
 }
 
 export async function listBatiments(): Promise<Batiment[]> {
-	const data = await getApiClient().apiFetch<BatimentWire[]>(
+	const data = await fetchToutesPages<BatimentWire>(
 		"/api/v1/residence/batiments",
 	);
 	// Remappé en `id` : le reste du frontend (PATCH/DELETE par `{id}`, lien

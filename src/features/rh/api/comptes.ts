@@ -1,4 +1,4 @@
-import { getApiClient } from "#/core/api";
+import { fetchToutesPages, getApiClient } from "#/core/api";
 import type { components } from "#/core/api/generated/schema";
 import { trierAlpha } from "#/lib/tri";
 
@@ -33,16 +33,14 @@ export function listRoles(): Promise<Role[]> {
 }
 
 export function listActivites(): Promise<ActiviteScope[]> {
-	return getApiClient()
-		.apiFetch<(Omit<ActiviteScope, "id"> & { id_activite: string })[]>(
-			"/api/v1/finances/activites",
-		)
-		.then((data) =>
-			trierAlpha(
-				data.map(({ id_activite: id, ...reste }) => ({ id, ...reste })),
-				(a) => a.libelle,
-			),
-		);
+	return fetchToutesPages<Omit<ActiviteScope, "id"> & { id_activite: string }>(
+		"/api/v1/finances/activites",
+	).then((data) =>
+		trierAlpha(
+			data.map(({ id_activite: id, ...reste }) => ({ id, ...reste })),
+			(a) => a.libelle,
+		),
+	);
 }
 
 /** Crée un compte utilisateur pour un employé (POST `CreerUtilisateurDto`). */

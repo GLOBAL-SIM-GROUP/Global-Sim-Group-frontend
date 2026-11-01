@@ -1,4 +1,4 @@
-import { getApiClient } from "#/core/api";
+import { fetchToutesPages, getApiClient } from "#/core/api";
 import type { CreerTirageDto, Tirage, TirageFiltres } from "../models/tirages";
 
 /** Lister les tirages (filtrés par caisse, période, etc.) */
@@ -16,9 +16,11 @@ export async function listerTirages(
 	if (filtres?.offset) query.set("offset", filtres.offset.toString());
 
 	const qs = query.toString();
-	return getApiClient().apiFetch(
-		`/api/v1/finances/tirages${qs ? `?${qs}` : ""}`,
-	);
+	const path = `/api/v1/finances/tirages${qs ? `?${qs}` : ""}`;
+	// `limit`/`offset` explicites → page unique honorée ; sinon tout récupérer.
+	return filtres?.limit !== undefined || filtres?.offset !== undefined
+		? getApiClient().apiFetch<Tirage[]>(path)
+		: fetchToutesPages<Tirage>(path);
 }
 
 /** Créer un tirage de caisse */

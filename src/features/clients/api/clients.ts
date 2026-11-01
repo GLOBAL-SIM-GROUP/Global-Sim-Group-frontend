@@ -1,4 +1,4 @@
-import { getApiClient } from "#/core/api";
+import { fetchToutesPages, getApiClient } from "#/core/api";
 import type { components } from "#/core/api/generated/schema";
 import { trierAlpha } from "#/lib/tri";
 
@@ -83,11 +83,9 @@ export function listClients(params?: ListClientsParams): Promise<Client[]> {
 	const qs = params?.search?.trim()
 		? `?recherche=${encodeURIComponent(params.search.trim())}`
 		: "";
-	return getApiClient()
-		.apiFetch<ClientWire[]>(`/api/v1/client/clients${qs}`)
-		.then((data) =>
-			trierAlpha(data.map(remapClient), (c) => `${c.nom} ${c.prenoms}`),
-		);
+	return fetchToutesPages<ClientWire>(`/api/v1/client/clients${qs}`).then(
+		(data) => trierAlpha(data.map(remapClient), (c) => `${c.nom} ${c.prenoms}`),
+	);
 }
 
 /** Détail d'un client (contacts et pièces inclus). */

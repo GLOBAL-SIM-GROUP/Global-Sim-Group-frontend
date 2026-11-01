@@ -1,4 +1,4 @@
-import { getApiClient } from "#/core/api";
+import { fetchToutesPages, getApiClient } from "#/core/api";
 import type { components } from "#/core/api/generated/schema";
 import { idCaisseDto } from "#/features/finances/models/caisses";
 
@@ -30,13 +30,11 @@ export function listReservations(filtres?: {
 		params.set("statut", filtres.statut);
 	}
 	const qs = params.toString();
-	return getApiClient()
-		.apiFetch<ReservationWire[]>(
-			`/api/v1/salle-fete/reservations${qs ? `?${qs}` : ""}`,
-		)
-		.then((data) =>
-			data.map(({ id_reservation: id, ...reste }) => ({ id, ...reste })),
-		);
+	return fetchToutesPages<ReservationWire>(
+		`/api/v1/salle-fete/reservations${qs ? `?${qs}` : ""}`,
+	).then((data) =>
+		data.map(({ id_reservation: id, ...reste }) => ({ id, ...reste })),
+	);
 }
 
 /** Détail d'une réservation (`GET /salle-fete/reservations/{id}`, remap). */

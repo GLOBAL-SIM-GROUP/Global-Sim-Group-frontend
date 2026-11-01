@@ -1,4 +1,4 @@
-import { getApiClient } from "#/core/api";
+import { fetchToutesPages, getApiClient } from "#/core/api";
 import type { components } from "#/core/api/generated/schema";
 
 import { idCaisseDto } from "#/features/finances/models/caisses";
@@ -31,26 +31,24 @@ const texteOuNull = (valeur: string | null | undefined): string | null =>
  * par `id_logement` (onglet Charges de la fiche logement).
  */
 export function listCharges(): Promise<Charge[]> {
-	return getApiClient()
-		.apiFetch<ChargeWire[]>("/api/v1/residence/charges")
-		.then((data) =>
-			data.map(({ id_charge: id, ...reste }) => ({ id, ...reste })),
-		);
+	return fetchToutesPages<ChargeWire>("/api/v1/residence/charges").then(
+		(data) => data.map(({ id_charge: id, ...reste }) => ({ id, ...reste })),
+	);
 }
 
 /** Catégories de charges (GET /residence/categories-charges). */
 export function listCategoriesCharges(): Promise<CategorieCharge[]> {
-	return getApiClient()
-		.apiFetch<CategorieChargeWire[]>("/api/v1/residence/categories-charges")
-		.then((data) =>
-			trierAlpha(
-				data.map(({ id_categorie_charge: id, ...reste }) => ({
-					id,
-					...reste,
-				})),
-				(c) => c.libelle,
-			),
-		);
+	return fetchToutesPages<CategorieChargeWire>(
+		"/api/v1/residence/categories-charges",
+	).then((data) =>
+		trierAlpha(
+			data.map(({ id_categorie_charge: id, ...reste }) => ({
+				id,
+				...reste,
+			})),
+			(c) => c.libelle,
+		),
+	);
 }
 
 /** Corps saisi par le formulaire « Ajouter une charge ». */

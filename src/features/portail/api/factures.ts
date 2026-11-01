@@ -1,4 +1,4 @@
-import { getApiClient } from "#/core/api";
+import { fetchToutesPages, getApiClient } from "#/core/api";
 import type { Facture } from "#/features/facturation/models/factures";
 
 /**
@@ -35,11 +35,9 @@ export function getMesFactures(
 	if (filtres?.du) params.append("du", filtres.du);
 	if (filtres?.au) params.append("au", filtres.au);
 	const query = params.toString();
-	return getApiClient()
-		.apiFetch<FactureWire[]>(
-			`/api/v1/facturation/portail/factures${query ? `?${query}` : ""}`,
-		)
-		.then((factures) => factures.map(toFacture));
+	return fetchToutesPages<FactureWire>(
+		`/api/v1/facturation/portail/factures${query ? `?${query}` : ""}`,
+	).then((factures) => factures.map(toFacture));
 }
 
 /** PDF de la facture — document généré côté backend. */

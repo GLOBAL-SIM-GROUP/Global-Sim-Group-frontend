@@ -1,4 +1,4 @@
-import { getApiClient } from "#/core/api";
+import { fetchToutesPages, getApiClient } from "#/core/api";
 import type { components } from "#/core/api/generated/schema";
 import { idCaisseDto } from "#/features/finances/models/caisses";
 
@@ -39,11 +39,9 @@ export function listVentes(params?: ListVentesParams): Promise<Vente[]> {
 	const queryString = searchParams.toString();
 	const path = `/api/v1/market/ventes${queryString ? `?${queryString}` : ""}`;
 
-	return getApiClient()
-		.apiFetch<VenteWire[]>(path)
-		.then((data) =>
-			data.map(({ id_vente: id, ...reste }) => ({ id, ...reste })),
-		);
+	return fetchToutesPages<VenteWire>(path).then((data) =>
+		data.map(({ id_vente: id, ...reste }) => ({ id, ...reste })),
+	);
 }
 
 /** Détail d'une vente : embarque les lignes (Voir la facture). */

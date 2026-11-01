@@ -22,25 +22,36 @@ type SauvegardeBackend = {
 	message_erreur: string | null;
 };
 
-/** Liste l'historique des sauvegardes (GET /admin/sauvegardes). */
-export function listSauvegardes(): Promise<Sauvegarde[]> {
-	return getApiClient()
-		.apiFetch<{ total: number; items: SauvegardeBackend[] }>(
-			"/api/v1/admin/sauvegardes",
-		)
-		.then(({ items }) =>
-			items.map((item) => ({
-				id: item.id_sauvegarde,
-				date: item.date_creation,
-				type: item.type.toLowerCase() as SauvegardeType,
-				taille: item.taille_octets ? Number(item.taille_octets) : 0,
-				statut: (item.statut === "SUCCES"
-					? "succes"
-					: item.statut === "ERREUR"
-						? "echec"
-						: "en_cours") as SauvegardeStatut,
-			})),
-		);
+/**
+ * Liste l'historique des sauvegardes (GET /admin/sauvegardes). La réponse est
+ * une enveloppe `{ total, items }` — on boucle sur `limit`/`offset` jusqu'à
+ * `total` (le backend plafonne sinon à 50 entrées par défaut).
+ */
+export async function listSauvegardes(): Promise<Sauvegarde[]> {
+	const client = getApiClient();
+	const TAILLE_PAGE = 100;
+	const items: SauvegardeBackend[] = [];
+	for (let offset = 0; ; offset += TAILLE_PAGE) {
+		const page = await client.apiFetch<{
+			total: number;
+			items: SauvegardeBackend[];
+		}>(`/api/v1/admin/sauvegardes?limit=${TAILLE_PAGE}&offset=${offset}`);
+		items.push(...page.items);
+		if (items.length >= page.total || page.items.length < TAILLE_PAGE) {
+			break;
+		}
+	}
+	return items.map((item) => ({
+		id: item.id_sauvegarde,
+		date: item.date_creation,
+		type: item.type.toLowerCase() as SauvegardeType,
+		taille: item.taille_octets ? Number(item.taille_octets) : 0,
+		statut: (item.statut === "SUCCES"
+			? "succes"
+			: item.statut === "ERREUR"
+				? "echec"
+				: "en_cours") as SauvegardeStatut,
+	}));
 }
 
 /**

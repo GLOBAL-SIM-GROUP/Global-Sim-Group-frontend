@@ -1,4 +1,4 @@
-import { getApiClient } from "#/core/api";
+import { fetchToutesPages, getApiClient } from "#/core/api";
 import type { components } from "#/core/api/generated/schema";
 import { trierAlpha } from "#/lib/tri";
 
@@ -23,14 +23,12 @@ export function listEmployes(params?: ListEmployesParams): Promise<Employe[]> {
 	const queryString = searchParams.toString();
 	const path = `/api/v1/rh/employes${queryString ? `?${queryString}` : ""}`;
 
-	return getApiClient()
-		.apiFetch<EmployeWire[]>(path)
-		.then((data) =>
-			trierAlpha(
-				data.map(({ id_employe: id, ...reste }) => ({ id, ...reste })),
-				(e) => `${e.nom} ${e.prenom}`,
-			),
-		);
+	return fetchToutesPages<EmployeWire>(path).then((data) =>
+		trierAlpha(
+			data.map(({ id_employe: id, ...reste }) => ({ id, ...reste })),
+			(e) => `${e.nom} ${e.prenom}`,
+		),
+	);
 }
 
 /** Détail d'un employé. */

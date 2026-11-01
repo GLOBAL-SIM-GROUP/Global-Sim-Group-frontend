@@ -1,4 +1,4 @@
-import { getApiClient } from "#/core/api";
+import { fetchToutesPages, getApiClient } from "#/core/api";
 import type { components } from "#/core/api/generated/schema";
 import { trierAlpha } from "#/lib/tri";
 
@@ -18,14 +18,14 @@ const texteOuNull = (valeur: string | null | undefined): string | null =>
 
 /** Appels API du module Facturation — prestations. */
 export function listPrestations(): Promise<Prestation[]> {
-	return getApiClient()
-		.apiFetch<PrestationWire[]>("/api/v1/facturation/prestations")
-		.then((data) =>
-			trierAlpha(
-				data.map(({ id_prestation: id, ...reste }) => ({ id, ...reste })),
-				(p) => p.libelle,
-			),
-		);
+	return fetchToutesPages<PrestationWire>(
+		"/api/v1/facturation/prestations",
+	).then((data) =>
+		trierAlpha(
+			data.map(({ id_prestation: id, ...reste }) => ({ id, ...reste })),
+			(p) => p.libelle,
+		),
+	);
 }
 
 /** Corps saisi par le formulaire prestation. */

@@ -1,4 +1,4 @@
-import { getApiClient } from "#/core/api";
+import { fetchToutesPages, getApiClient } from "#/core/api";
 import type { components } from "#/core/api/generated/schema";
 import { idCaisseDto } from "#/features/finances/models/caisses";
 
@@ -76,9 +76,12 @@ export function listSouscriptions(
 		params.set("offset", String(filtres.offset));
 	}
 	const qs = params.toString();
-	return getApiClient().apiFetch<Souscription[]>(
-		`/api/v1/abonnement/souscriptions${qs ? `?${qs}` : ""}`,
-	);
+	const path = `/api/v1/abonnement/souscriptions${qs ? `?${qs}` : ""}`;
+	// `limit`/`offset` explicites → page unique honorée ; sinon on récupère
+	// tout (le backend plafonne à 50 par défaut).
+	return filtres?.limit !== undefined
+		? getApiClient().apiFetch<Souscription[]>(path)
+		: fetchToutesPages<Souscription>(path);
 }
 
 /** Détail + mouvements (GET `/abonnement/souscriptions/{id}`). */

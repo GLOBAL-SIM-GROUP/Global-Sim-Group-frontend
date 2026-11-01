@@ -1,4 +1,4 @@
-import { getApiClient } from "#/core/api";
+import { fetchToutesPages, getApiClient } from "#/core/api";
 import { getImprimanteThermique } from "#/lib/imprimante-thermique-store";
 import { imprimerHtml, imprimerPdfBlob } from "#/lib/print-pdf";
 import { imprimerTicketQZ } from "#/lib/qz-tray-client";
@@ -162,9 +162,11 @@ export async function listFactures(
 		queryParams.append("offset", params.offset.toString());
 	}
 
-	return getApiClient()
-		.apiFetch<FactureWire[]>(
-			`/api/v1/facturation/factures?${queryParams.toString()}`,
-		)
-		.then((data) => data.map(toFacture));
+	const path = `/api/v1/facturation/factures?${queryParams.toString()}`;
+	// `limit`/`offset` explicites → page unique honorée ; sinon tout récupérer.
+	return (
+		params?.limit !== undefined || params?.offset !== undefined
+			? getApiClient().apiFetch<FactureWire[]>(path)
+			: fetchToutesPages<FactureWire>(path)
+	).then((data) => data.map(toFacture));
 }

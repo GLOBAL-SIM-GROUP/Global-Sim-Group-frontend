@@ -1,4 +1,4 @@
-import { getApiClient } from "#/core/api";
+import { fetchToutesPages, getApiClient } from "#/core/api";
 import type { components } from "#/core/api/generated/schema";
 import { idCaisseDto } from "#/features/finances/models/caisses";
 
@@ -24,11 +24,9 @@ export interface ResultatFacturation {
 /** Appels API du module Facturation — factures. */
 export function listFactures(): Promise<Facture[]> {
 	// Le param `recherche` est ignoré par le backend → filtrage côté client.
-	return getApiClient()
-		.apiFetch<FactureWire[]>("/api/v1/facturation/factures")
-		.then((data) =>
-			data.map(({ id_facture: id, ...reste }) => ({ id, ...reste })),
-		);
+	return fetchToutesPages<FactureWire>("/api/v1/facturation/factures").then(
+		(data) => data.map(({ id_facture: id, ...reste }) => ({ id, ...reste })),
+	);
 }
 
 /** Détail d'une facture (facture + lignes). */

@@ -1,4 +1,4 @@
-import { getApiClient } from "#/core/api";
+import { fetchToutesPages, getApiClient } from "#/core/api";
 import type { components } from "#/core/api/generated/schema";
 import { trierAlpha } from "#/lib/tri";
 
@@ -46,29 +46,27 @@ export function listProduits(params?: ListProduitsParams): Promise<Produit[]> {
 	const queryString = searchParams.toString();
 	const path = `/api/v1/market/produits${queryString ? `?${queryString}` : ""}`;
 
-	return getApiClient()
-		.apiFetch<ProduitWire[]>(path)
-		.then((data) =>
-			trierAlpha(
-				data.map(({ id_produit: id, ...reste }) => ({ id, ...reste })),
-				(p) => p.nom,
-			),
-		);
+	return fetchToutesPages<ProduitWire>(path).then((data) =>
+		trierAlpha(
+			data.map(({ id_produit: id, ...reste }) => ({ id, ...reste })),
+			(p) => p.nom,
+		),
+	);
 }
 
 /** Catégories de produits (GET /market/categories-produits). */
 export function listCategoriesProduits(): Promise<CategorieProduit[]> {
-	return getApiClient()
-		.apiFetch<CategorieProduitWire[]>("/api/v1/market/categories-produits")
-		.then((data) =>
-			trierAlpha(
-				data.map(({ id_categorie_produit: id, ...reste }) => ({
-					id,
-					...reste,
-				})),
-				(c) => c.libelle,
-			),
-		);
+	return fetchToutesPages<CategorieProduitWire>(
+		"/api/v1/market/categories-produits",
+	).then((data) =>
+		trierAlpha(
+			data.map(({ id_categorie_produit: id, ...reste }) => ({
+				id,
+				...reste,
+			})),
+			(c) => c.libelle,
+		),
+	);
 }
 
 /**
@@ -91,14 +89,13 @@ export function creerCategorieProduit(body: {
 
 /** Fournisseurs (GET /market/fournisseurs). */
 export function listFournisseurs(): Promise<Fournisseur[]> {
-	return getApiClient()
-		.apiFetch<FournisseurWire[]>("/api/v1/market/fournisseurs")
-		.then((data) =>
+	return fetchToutesPages<FournisseurWire>("/api/v1/market/fournisseurs").then(
+		(data) =>
 			trierAlpha(
 				data.map(({ id_fournisseur: id, ...reste }) => ({ id, ...reste })),
 				(f) => f.nom,
 			),
-		);
+	);
 }
 
 /**

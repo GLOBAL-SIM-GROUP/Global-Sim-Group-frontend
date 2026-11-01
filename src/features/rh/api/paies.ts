@@ -1,4 +1,4 @@
-import { getApiClient } from "#/core/api";
+import { fetchToutesPages, getApiClient } from "#/core/api";
 import type { components } from "#/core/api/generated/schema";
 import { idCaisseDto } from "#/features/finances/models/caisses";
 
@@ -14,11 +14,9 @@ type ElementPaieWire = Omit<ElementPaie, "id"> & { id_element: string };
 
 /** Appels API du module RH — bulletins de salaire (paies). */
 export function listPaies(): Promise<Paie[]> {
-	return getApiClient()
-		.apiFetch<PaieWire[]>("/api/v1/rh/paies")
-		.then((data) =>
-			data.map(({ id_paie: id, ...reste }) => ({ id, ...reste })),
-		);
+	return fetchToutesPages<PaieWire>("/api/v1/rh/paies").then((data) =>
+		data.map(({ id_paie: id, ...reste }) => ({ id, ...reste })),
+	);
 }
 
 /** Détail d'un bulletin : paie + éléments. */

@@ -1,4 +1,4 @@
-import { getApiClient } from "#/core/api";
+import { fetchToutesPages, getApiClient } from "#/core/api";
 import type { components } from "#/core/api/generated/schema";
 import { trierAlpha } from "#/lib/tri";
 
@@ -23,14 +23,12 @@ const texteOuNull = (valeur: string | null | undefined): string | null =>
 
 /** Appels API du module Restaurant — plats et catégories. */
 export function listPlats(): Promise<Plat[]> {
-	return getApiClient()
-		.apiFetch<PlatWire[]>("/api/v1/restaurant/plats")
-		.then((data) =>
-			trierAlpha(
-				data.map(({ id_plat: id, ...reste }) => ({ id, ...reste })),
-				(p) => p.nom,
-			),
-		);
+	return fetchToutesPages<PlatWire>("/api/v1/restaurant/plats").then((data) =>
+		trierAlpha(
+			data.map(({ id_plat: id, ...reste }) => ({ id, ...reste })),
+			(p) => p.nom,
+		),
+	);
 }
 
 /** Catégories de plats (GET /restaurant/categories). */

@@ -1,4 +1,4 @@
-import { getApiClient } from "#/core/api";
+import { fetchToutesPages, getApiClient } from "#/core/api";
 import { dateLocaleISO } from "#/features/residence/models/format";
 
 /**
@@ -170,24 +170,19 @@ export function getDashboardActivitePath(
 
 /** Récupère les logements disponibles, filtrés directement par le backend. */
 export function getLogementsDispo(): Promise<Logement[]> {
-	return getApiClient()
-		.apiFetch<Logement[]>(
-			"/api/v1/residence/logements?statut=DISPONIBLE&limit=200",
-		)
-		.catch(() => []);
+	return fetchToutesPages<Logement>(
+		"/api/v1/residence/logements?statut=DISPONIBLE",
+	).catch(() => []);
 }
 
 /** Récupère les produits avec stock faible */
 export function getProduitsCritiques(): Promise<Produit[]> {
-	return getApiClient()
-		.apiFetch<
-			Array<{
-				id_produit: string;
-				nom: string;
-				quantite_stock: number | string;
-				seuil_alerte: number | string;
-			}>
-		>("/api/v1/market/produits?limit=200")
+	return fetchToutesPages<{
+		id_produit: string;
+		nom: string;
+		quantite_stock: number | string;
+		seuil_alerte: number | string;
+	}>("/api/v1/market/produits")
 		.then((produits) =>
 			produits.filter(
 				(p) => Number(p.quantite_stock) <= Number(p.seuil_alerte),
@@ -208,15 +203,12 @@ export function getCommandesPressing(
 	const url = qs
 		? `/api/v1/pressing/commandes?${qs}`
 		: "/api/v1/pressing/commandes";
-	return getApiClient()
-		.apiFetch<
-			Array<{
-				id_commande: string;
-				statut: string;
-				date_depot: string;
-				date_retrait?: string;
-			}>
-		>(url)
+	return fetchToutesPages<{
+		id_commande: string;
+		statut: string;
+		date_depot: string;
+		date_retrait?: string;
+	}>(url)
 		.then((commandes) =>
 			// Filtre côté client: exclude les retraitées et annulées
 			commandes.filter((c) => c.statut !== "RETIRE" && c.statut !== "ANNULEE"),
@@ -234,13 +226,12 @@ export function getPointagesAujourdhui(
 	if (au) params.set("au", au);
 	const qs = params.toString();
 	const url = qs ? `/api/v1/rh/pointages?${qs}` : "/api/v1/rh/pointages";
-	return getApiClient()
-		.apiFetch<Pointage[]>(url)
-		.catch(() => []);
+	return fetchToutesPages<Pointage>(url).catch(() => []);
 }
 
 /** Récupère les impayés ; la période est filtrée côté client. */
 export function getImpayes(): Promise<Impaye[]> {
+	// Pas de `limit`/`offset` dans le spec → réponse complète en un appel.
 	return getApiClient()
 		.apiFetch<Impaye[]>("/api/v1/finances/impayes")
 		.catch(() => []);

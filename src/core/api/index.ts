@@ -38,6 +38,7 @@ export {
 export { healthApi } from "./health";
 export type { ApiClient, ApiDeps } from "./http";
 export { createApiClient } from "./http";
+export { fetchToutesPages } from "./pagination";
 export type {
 	ApiErrorEnvelope,
 	AuthLoginResponse,

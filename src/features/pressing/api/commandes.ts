@@ -1,4 +1,4 @@
-import { getApiClient } from "#/core/api";
+import { fetchToutesPages, getApiClient } from "#/core/api";
 import type { components } from "#/core/api/generated/schema";
 import type { ApercuAbonnementPressing } from "#/features/abonnement/models/abonnements";
 import { idCaisseDto } from "#/features/finances/models/caisses";
@@ -49,11 +49,11 @@ export function listCommandes(filtres?: {
 	if (filtres?.au) params.set("au", filtres.au);
 	if (filtres?.recherche) params.set("recherche", filtres.recherche);
 	const qs = params.toString();
-	return getApiClient()
-		.apiFetch<CommandeWire[]>(`/api/v1/pressing/commandes${qs ? `?${qs}` : ""}`)
-		.then((data) =>
-			data.map(({ id_commande: id, ...reste }) => ({ id, ...reste })),
-		);
+	return fetchToutesPages<CommandeWire>(
+		`/api/v1/pressing/commandes${qs ? `?${qs}` : ""}`,
+	).then((data) =>
+		data.map(({ id_commande: id, ...reste }) => ({ id, ...reste })),
+	);
 }
 
 /** Détail d'une commande : embarque les lignes d'articles. */

@@ -1,4 +1,4 @@
-import { getApiClient } from "#/core/api";
+import { fetchToutesPages, getApiClient } from "#/core/api";
 import type { components } from "#/core/api/generated/schema";
 
 import { idCaisseDto } from "#/features/finances/models/caisses";
@@ -42,9 +42,9 @@ const texteOuNull = (valeur: string | null | undefined): string | null =>
  * `activer`, `resilier`, caution (GET + création + restitution).
  */
 export function listContrats(): Promise<Contrat[]> {
-	return getApiClient()
-		.apiFetch<ContratWire[]>("/api/v1/residence/contrats")
-		.then((data) => data.map(toContrat));
+	return fetchToutesPages<ContratWire>("/api/v1/residence/contrats").then(
+		(data) => data.map(toContrat),
+	);
 }
 
 /** Détail d'un contrat : embarque les échéances (avec leurs `id_echeance`). */
