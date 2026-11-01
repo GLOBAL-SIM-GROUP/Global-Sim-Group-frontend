@@ -4,109 +4,87 @@ on:
   push:
     branches:
       - main
+  pull_request:
+  workflow_dispatch:
 
-env:
-  REGISTRY: docker.io
-  IMAGE_NAME: globalsimgroup_frontend
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  build-and-deploy:
+  ci:
+    name: Lint, tests & build
     runs-on: ubuntu-latest
-
     steps:
-      # 1. Checkout code
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
-      # 2. Setup Node.js
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: '22'
+          cache: npm
 
-      # 3. Install dependencies
       - name: Install dependencies
         run: npm ci
 
-      # 4. Run linting & TypeScript checks
       - name: Lint & Type Check
         run: npm run check
-        continue-on-error: true
 
-      # 5. Run tests
       - name: Run tests
-        run: npm run test
-        continue-on-error: true
+        run: npm test
 
-      # 6. Build production bundle
       - name: Build
         run: npm run build
 
-      # 7. Deploy to VPS via SSH
-      - name: Deploy to VPS
-        env:
-          VPS_HOST: ${{ secrets.VPS_HOST }}
-          VPS_USER: ${{ secrets.VPS_USER }}
-          VPS_PORT: ${{ secrets.VPS_PORT }}
-          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
-          VPS_APP_PATH: /opt/apps/GlobalSimGroup
+  deploy:
+    name: Deploy to VPS
+    needs: ci
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    # GSG-Frontend runner, installed on the production VPS (user `deploy`,
+    # member of the `docker` group, no passwordless sudo).
+    runs-on: [self-hosted, linux, x64, gsg-frontend]
+    concurrency:
+      group: deploy-frontend
+      cancel-in-progress: false
+    env:
+      # Compose project `globalsimgroup`: service `frontend` (container
+      # `sim-frontend`, Traefik -> global-sim-group.com), config from ./.env.
+      APP_DIR: /home/deploy/apps/GlobalSimGroup
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Build and restart frontend
+        # The production compose builds from the clone in
+        # $APP_DIR/Global-Sim-Group-frontend, which `deploy` can't update
+        # (root-owned .git objects). Build from this job's checkout instead —
+        # exactly the commit `ci` validated.
         run: |
-          # Install SSH key
-          mkdir -p ~/.ssh
-          echo "$VPS_SSH_KEY" > ~/.ssh/deploy_key
-          chmod 600 ~/.ssh/deploy_key
-          ssh-keyscan -p $VPS_PORT $VPS_HOST >> ~/.ssh/known_hosts 2>/dev/null
-
-          # Execute deployment commands on VPS
-          # NOTE: unquoted EOF on purpose — $VPS_APP_PATH must be expanded locally
-          # (by the runner, which has it from `env:` above) before being sent over
-          # SSH, since the remote shell doesn't have that variable set.
-          ssh -i ~/.ssh/deploy_key -p $VPS_PORT $VPS_USER@$VPS_HOST << EOF
-          set -e
-
-          echo "Starting deployment..."
-
-          # Navigate to frontend directory
-          cd $VPS_APP_PATH/Global-Sim-Group-frontend
-
-          # Ensure git trusts this directory when invoked via sudo (root) or as
-          # the deploy user — otherwise "detected dubious ownership" aborts the
-          # script under set -e before the pull even runs.
-          git config --global --add safe.directory $VPS_APP_PATH/Global-Sim-Group-frontend
-          sudo git config --global --add safe.directory $VPS_APP_PATH/Global-Sim-Group-frontend
-
-          # Pull latest code
-          echo "Pulling latest code..."
-          sudo git fetch origin
-          sudo git reset --hard origin/main
-
-          # Navigate to parent directory for docker-compose
-          cd $VPS_APP_PATH
-
-          # Stop and remove containers
-          echo "Stopping containers..."
-          sudo docker-compose down -v || true
-
-          # Clean docker system
-          echo "Cleaning Docker..."
-          sudo docker system prune -af --volumes || true
-
-          # Rebuild and start containers
-          echo "Building and starting containers..."
-          sudo docker-compose up -d --build
-
-          # Wait for frontend to be ready
-          echo "Waiting for frontend to start..."
-          sleep 10
-
-          # Check health
-          echo "Checking deployment status..."
-          sudo docker-compose ps
-
-          echo "Deployment completed successfully!"
+          cat > "$RUNNER_TEMP/compose.ci.yml" << EOF
+          services:
+            frontend:
+              build:
+                context: $GITHUB_WORKSPACE
           EOF
+          docker compose -p globalsimgroup \
+            -f "$APP_DIR/docker-compose.yml" -f "$RUNNER_TEMP/compose.ci.yml" \
+            up -d --build frontend
 
-      # 8. Cleanup
-      - name: Cleanup SSH key
+      - name: Health check
+        run: |
+          for i in $(seq 1 30); do
+            if docker exec sim-frontend wget -qO /dev/null http://127.0.0.1:3000/; then
+              echo "Frontend is up"
+              exit 0
+            fi
+            echo "Attempt $i/30: waiting for frontend..."
+            sleep 2
+          done
+          echo "::error::Frontend did not answer on :3000 after 60s"
+          docker logs --tail=100 sim-frontend
+          exit 1
+
+      - name: Remove dangling images
         if: always()
-        run: rm -f ~/.ssh/deploy_key
+        run: docker image prune -f
