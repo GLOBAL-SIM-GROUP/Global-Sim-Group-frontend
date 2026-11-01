@@ -222,7 +222,11 @@ async function main() {
 		"16-dashboard-recettes-activite",
 	);
 	await captureSection(dpage, "Services", "17-dashboard-services");
-	await captureSection(dpage, "Market & Inventaire", "18-dashboard-market");
+	await captureSection(
+		dpage,
+		"Super-Marché & Inventaire",
+		"18-dashboard-market",
+	);
 	await captureSection(dpage, "Pressing", "19-dashboard-pressing");
 	await captureSection(
 		dpage,

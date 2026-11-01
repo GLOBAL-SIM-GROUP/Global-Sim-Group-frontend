@@ -18,17 +18,10 @@ const ADMIN_LOGIN = process.env.LOGIN || "admin";
 const ADMIN_PASSWORD = process.env.PASSWORD || "motdepasse";
 const RESIDENT_LOGIN = process.env.RESIDENT_LOGIN || "resident";
 const RESIDENT_PASSWORD = process.env.RESIDENT_PASSWORD || "motdepasse";
-const OUT_DIR = path.join(
-	__dirname,
-	"..",
-	"..",
-	"Documentation",
-	"sim-docs",
-	"guides-utilisation",
-	"supermarche",
-	"screenshots",
-	"supermarche",
-);
+// CWD = racine du dépôt frontend → `Code/` via ../.., puis le dépôt docs.
+const OUT_DIR =
+	process.env.OUT_DIR ||
+	"../../Documentation/sim-docs/guides-utilisation/supermarche/screenshots/supermarche";
 
 const erreurs = [];
 fs.mkdirSync(OUT_DIR, { recursive: true });
@@ -57,7 +50,7 @@ async function masquerDevtools(page) {
 async function main() {
 	const browser = await chromium.launch();
 	const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
-	const page = await ctx.newPage();
+	let page = await ctx.newPage();
 	page.on("console", (m) => {
 		if (m.type() === "error") erreurs.push(`[console] ${m.text().slice(0, 300)}`);
 	});
@@ -69,11 +62,8 @@ async function main() {
 	await page.goto(`${BASE_URL}/residence/portail/supermarche`, {
 		waitUntil: "domcontentloaded",
 	});
-	await page.waitForTimeout(2000);
-	const ajouter = page.locator('button[aria-label*="ajouter"][aria-label*="panier" i], button[aria-label^="Ajouter "][aria-label$="au panier"]').first();
-	if (!(await ajouter.count())) {
-		throw new Error("Aucun bouton « Ajouter au panier » trouvé dans le catalogue");
-	}
+	const ajouter = page.locator('button[aria-label^="Ajouter "][aria-label$="au panier"]').first();
+	await ajouter.waitFor({ state: "visible", timeout: 20000 });
 	await ajouter.scrollIntoViewIfNeeded();
 	await ajouter.click();
 	const qdlg = page.getByRole("dialog");
@@ -94,6 +84,15 @@ async function main() {
 
 	// ── 2. Captures admin de la validation ─────────────────────────────
 	console.log("→ Connexion admin + captures validation…");
+	// Nouveau contexte : la session résident active redirigerait /login.
+	const ctxAdmin = await browser.newContext({
+		viewport: { width: 1440, height: 900 },
+	});
+	page = await ctxAdmin.newPage();
+	page.on("console", (m) => {
+		if (m.type() === "error") erreurs.push(`[console] ${m.text().slice(0, 300)}`);
+	});
+	page.on("pageerror", (e) => erreurs.push(`[page] ${e.message.slice(0, 300)}`));
 	await login(page, ADMIN_LOGIN, ADMIN_PASSWORD);
 	await page.goto(`${BASE_URL}/supermarche/ventes`, {
 		waitUntil: "domcontentloaded",
@@ -108,7 +107,7 @@ async function main() {
 	}
 
 	// Filtre statut ouvert sur « En attente de validation »
-	const statutTrigger = page.locator('button[id*="statut"], [aria-label*="Statut" i]').first();
+	const statutTrigger = page.getByRole("combobox", { name: "Statut" });
 	if (await statutTrigger.count()) {
 		await statutTrigger.click();
 		await page.waitForTimeout(500);
