@@ -9,14 +9,14 @@ jobs:
     env:
       APP_DIR: /home/deploy/apps/GlobalSimGroup
     steps:
+      - uses: actions/checkout@v5
       - run: |
-          set +e
-          cd "$APP_DIR/Global-Sim-Group-frontend"
-          echo "--- status (would be discarded by reset --hard):"; git status --porcelain --untracked-files=no
-          echo "--- branch: $(git rev-parse --abbrev-ref HEAD) head: $(git rev-parse --short HEAD)"
-          git fetch --dry-run origin main; echo "fetch dry-run exit=$?"
-          test -w .git/objects && echo ".git writable"
-          find . -path ./node_modules -prune -o -path ./.git -prune -o ! -user deploy -print | head -20
-          docker compose -f "$APP_DIR/docker-compose.yml" config --quiet; echo "compose config exit=$?"
-          docker exec sim-frontend wget -qO /dev/null http://127.0.0.1:3000/; echo "healthcheck exit=$?"
-          df -h / | tail -1
+          cat > "$RUNNER_TEMP/compose.ci.yml" << EOF
+          services:
+            frontend:
+              build:
+                context: $GITHUB_WORKSPACE
+          EOF
+          docker compose -p globalsimgroup -f "$APP_DIR/docker-compose.yml" -f "$RUNNER_TEMP/compose.ci.yml" config frontend \
+            | sed -E 's/((SECRET|TOKEN|PASSWORD|KEY)[A-Z_]*:).*/\1 <redacted>/I'
+          ls "$GITHUB_WORKSPACE" | head -5; test -f "$GITHUB_WORKSPACE/.npmrc" && echo ".npmrc present"

@@ -49,20 +49,27 @@ jobs:
       cancel-in-progress: false
     env:
       # Compose project `globalsimgroup`: service `frontend` (container
-      # `sim-frontend`, Traefik -> global-sim-group.com), built from the
-      # git clone in ./Global-Sim-Group-frontend, with config from ./.env.
+      # `sim-frontend`, Traefik -> global-sim-group.com), config from ./.env.
       APP_DIR: /home/deploy/apps/GlobalSimGroup
     steps:
-      - name: Update source on the VPS
-        run: |
-          cd "$APP_DIR/Global-Sim-Group-frontend"
-          git fetch --prune origin main
-          # Deploy exactly the commit the `ci` job validated.
-          git reset --hard "$GITHUB_SHA"
-          git log --oneline -1
+      - name: Checkout code
+        uses: actions/checkout@v5
 
       - name: Build and restart frontend
-        run: docker compose -f "$APP_DIR/docker-compose.yml" up -d --build frontend
+        # The production compose builds from the clone in
+        # $APP_DIR/Global-Sim-Group-frontend, which `deploy` can't update
+        # (root-owned .git objects). Build from this job's checkout instead —
+        # exactly the commit `ci` validated.
+        run: |
+          cat > "$RUNNER_TEMP/compose.ci.yml" << EOF
+          services:
+            frontend:
+              build:
+                context: $GITHUB_WORKSPACE
+          EOF
+          docker compose -p globalsimgroup \
+            -f "$APP_DIR/docker-compose.yml" -f "$RUNNER_TEMP/compose.ci.yml" \
+            up -d --build frontend
 
       - name: Health check
         run: |
@@ -75,7 +82,7 @@ jobs:
             sleep 2
           done
           echo "::error::Frontend did not answer on :3000 after 60s"
-          docker compose -f "$APP_DIR/docker-compose.yml" logs --tail=100 frontend
+          docker logs --tail=100 sim-frontend
           exit 1
 
       - name: Remove dangling images

@@ -13,12 +13,13 @@ le VPS de production (`vmi3533714`, utilisateur `deploy`, membre du groupe
 
 ## Ce que fait `deploy`
 
-1. `git fetch` + `git reset --hard <commit validé par ci>` dans
-   `/home/deploy/apps/GlobalSimGroup/Global-Sim-Group-frontend` (clone du dépôt).
-2. `docker compose -f /home/deploy/apps/GlobalSimGroup/docker-compose.yml up -d --build frontend`
-   — projet compose `globalsimgroup`, conteneur `sim-frontend`, exposé par
-   Traefik sur `global-sim-group.com` ; la config (API_URL, DOMAIN) vient de
-   `/home/deploy/apps/GlobalSimGroup/.env`.
+1. `actions/checkout` du commit validé par `ci` dans le workspace du runner.
+2. `docker compose -p globalsimgroup -f /home/deploy/apps/GlobalSimGroup/docker-compose.yml -f <override> up -d --build frontend`
+   — l'override remplace seulement `build.context` par le checkout du runner ;
+   le reste (conteneur `sim-frontend`, labels Traefik `global-sim-group.com`,
+   réseau `traefik-net`, `.env` avec API_URL/DOMAIN) vient du compose de prod.
+   Le clone manuel `GlobalSimGroup/Global-Sim-Group-frontend/` n'est plus
+   utilisé (ses objets git appartiennent à root, `deploy` ne peut pas le mettre à jour).
 3. Health check : `wget http://127.0.0.1:3000/` dans le conteneur (60 s max,
    logs affichés en cas d'échec).
 4. `docker image prune -f` (images orphelines uniquement).
@@ -29,17 +30,14 @@ de production (`sim-postgres-prod`), le backend et Traefik.
 ## Prérequis sur le VPS
 
 - Runner GSG-Frontend en ligne (Settings → Actions → Runners), avec le label `gsg-frontend`.
-- `/home/deploy/apps/GlobalSimGroup/` contient `docker-compose.yml`, `.env` et le
-  clone `Global-Sim-Group-frontend/` (remote `origin` = ce dépôt).
+- `/home/deploy/apps/GlobalSimGroup/` contient `docker-compose.yml` et `.env`.
 - Réseau externe `traefik-net` existant.
 
 ## Dépannage
 
 - **Job `deploy` bloqué en « Queued »** : le runner est hors ligne — sur le VPS,
   `cd ~/actions-runner-frontend && sudo ./svc.sh status` (puis `start`).
-- **`git reset` échoue** : vérifier les droits sur le clone (`ls -la`), il doit
-  appartenir à `deploy`.
 - **Health check en échec** : lire les logs affichés par le job, ou
-  `docker compose -f ~/apps/GlobalSimGroup/docker-compose.yml logs frontend`.
+  `docker logs sim-frontend`.
 - **Rollback** : relancer un ancien run du workflow (« Re-run jobs ») — il
   redéploie son propre commit.
