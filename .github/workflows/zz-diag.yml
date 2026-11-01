@@ -1,0 +1,39 @@
+name: diag (temporary)
+on:
+  push:
+    branches: ['devin/**']
+jobs:
+  ssh-reachability:
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_PORT: ${{ secrets.VPS_PORT }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+        run: |
+          set +e
+          echo "host len=${#VPS_HOST} port len=${#VPS_PORT} user len=${#VPS_USER} key len=${#VPS_SSH_KEY}"
+          [[ "$VPS_HOST" =~ [[:space:]] ]] && echo "host has whitespace" || echo "host no whitespace"
+          [[ "$VPS_HOST" == *@* ]] && echo "host contains @"
+          [[ "$VPS_HOST" =~ ^[0-9.]+$ ]] && echo "host is IPv4" || echo "host is a name"
+          [[ "$VPS_HOST" == *.contabo.com ]] && echo "host ends with contabo.com"
+          [[ "$VPS_PORT" =~ ^[0-9]+$ ]] && echo "port numeric" || echo "port NOT numeric"
+          echo "port value: $VPS_PORT" | sed 's/[0-9]/#/g'
+          getent hosts "$VPS_HOST" >/dev/null; echo "getent exit=$?"
+          timeout 8 bash -c "</dev/tcp/$VPS_HOST/$VPS_PORT"; echo "tcp exit=$?"
+          ssh-keyscan -T 8 -p "$VPS_PORT" "$VPS_HOST" >/dev/null 2>/tmp/ks; echo "keyscan exit=$?"; sed 's/[0-9a-zA-Z.-]*contabo[a-zA-Z.]*/HOST/g' /tmp/ks | head -5
+          head -1 <<<"$VPS_SSH_KEY" | cut -c1-35
+  self-hosted:
+    runs-on: self-hosted
+    timeout-minutes: 5
+    steps:
+      - run: |
+          set +e
+          hostname; whoami
+          ls -la /opt/apps/GlobalSimGroup/ 2>&1 | head -20
+          git -C /opt/apps/GlobalSimGroup/Global-Sim-Group-frontend log --oneline -1 2>&1
+          sudo -n true && echo "sudo nopasswd ok"
+          docker-compose version 2>&1 | head -1; docker compose version 2>&1 | head -1
+          docker ps --format '{{.Names}} {{.Image}} {{.Status}}' 2>&1 | head -20
+          sudo -n docker ps --format '{{.Names}} {{.Image}} {{.Status}}' 2>&1 | head -20
