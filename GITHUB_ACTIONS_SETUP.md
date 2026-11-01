@@ -1,154 +1,45 @@
-# Configuration GitHub Actions - Déploiement VPS
+# Configuration GitHub Actions — déploiement VPS
 
-Ce guide explique comment configurer le workflow GitHub Actions pour automatiser le déploiement sur votre VPS.
+Le workflow [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) a deux jobs :
 
-## 📋 Prérequis
+| Job | Runner | Quand | Rôle |
+| --- | --- | --- | --- |
+| `ci` | `ubuntu-latest` (GitHub) | chaque PR, push sur `main`, lancement manuel | `npm ci`, `npm run check`, `npm test`, `npm run build` |
+| `deploy` | self-hosted **GSG-Frontend** (`[self-hosted, linux, x64, gsg-frontend]`) | push sur `main` / lancement manuel, après un `ci` vert | met à jour le clone sur le VPS et reconstruit le conteneur de production |
 
-- Un compte GitHub avec accès au repository
-- Accès SSH au VPS (`asmodan3110@vmi3018824`)
-- La clé SSH privée pour le VPS
+Aucun SSH ni secret GitHub n'est nécessaire : le runner tourne directement sur
+le VPS de production (`vmi3533714`, utilisateur `deploy`, membre du groupe
+`docker`, pas de sudo sans mot de passe).
 
-## 🔑 Configuration des Secrets GitHub
+## Ce que fait `deploy`
 
-### 1. Accédez aux paramètres du repository
+1. `git fetch` + `git reset --hard <commit validé par ci>` dans
+   `/home/deploy/apps/GlobalSimGroup/Global-Sim-Group-frontend` (clone du dépôt).
+2. `docker compose -f /home/deploy/apps/GlobalSimGroup/docker-compose.yml up -d --build frontend`
+   — projet compose `globalsimgroup`, conteneur `sim-frontend`, exposé par
+   Traefik sur `global-sim-group.com` ; la config (API_URL, DOMAIN) vient de
+   `/home/deploy/apps/GlobalSimGroup/.env`.
+3. Health check : `wget http://127.0.0.1:3000/` dans le conteneur (60 s max,
+   logs affichés en cas d'échec).
+4. `docker image prune -f` (images orphelines uniquement).
 
-1. Allez sur votre repository GitHub
-2. Cliquez sur **Settings** (⚙️)
-3. Allez dans **Secrets and variables** → **Actions**
+Les volumes Docker ne sont **jamais** supprimés : le VPS héberge aussi la base
+de production (`sim-postgres-prod`), le backend et Traefik.
 
-### 2. Créez les secrets suivants
+## Prérequis sur le VPS
 
-#### `VPS_HOST`
-- **Valeur** : l'**adresse IPv4 publique** du VPS (ex. `203.0.113.10`), ou un nom de domaine qui a un enregistrement A
-- **Description** : Adresse du serveur VPS
-- ⚠️ Pas le nom Contabo : `vmiXXXX.contabo.com` n'existe pas dans le DNS, et `vmiXXXX.contaboserver.net` ne résout qu'en IPv6 — les runners GitHub n'ont que l'IPv4. Le workflow échoue dès l'étape « Check deploy secrets » si le nom ne résout pas en IPv4.
+- Runner GSG-Frontend en ligne (Settings → Actions → Runners), avec le label `gsg-frontend`.
+- `/home/deploy/apps/GlobalSimGroup/` contient `docker-compose.yml`, `.env` et le
+  clone `Global-Sim-Group-frontend/` (remote `origin` = ce dépôt).
+- Réseau externe `traefik-net` existant.
 
-#### `VPS_USER`
-- **Valeur** : `asmodan3110`
-- **Description** : Nom d'utilisateur SSH
+## Dépannage
 
-#### `VPS_PORT`
-- **Valeur** : `22` (ou le port SSH personnalisé)
-- **Description** : Port SSH du VPS
-
-#### `VPS_SSH_KEY`
-- **Valeur** : Contenu de votre clé SSH **privée**
-- **Description** : Clé SSH privée pour l'authentification
-
-**Comment obtenir votre clé SSH privée** :
-```bash
-# Sur votre machine locale
-cat ~/.ssh/id_rsa  # ou le chemin vers votre clé privée
-
-# Puis copiez-collez le contenu complet dans GitHub
-```
-
-## 📝 Exemple de configuration
-
-```
-VPS_HOST=203.0.113.10   # IPv4 publique du VPS
-VPS_USER=asmodan3110
-VPS_PORT=22
-VPS_SSH_KEY=-----BEGIN RSA PRIVATE KEY-----
-MIIEowIBAAKCAQEA...
-... (contenu complet de la clé)
-...
------END RSA PRIVATE KEY-----
-```
-
-## ✅ Vérification
-
-### 1. Testez la connexion SSH
-
-```bash
-# Testez la connexion avant GitHub Actions
-ssh -i ~/.ssh/your_key asmodan3110@vmi3018824
-```
-
-### 2. Vérifiez que le répertoire VPS existe
-
-```bash
-# Sur le VPS
-ls -la /opt/apps/GlobalSimGroup/
-# Devrait afficher :
-# - Global-Sim-Group-frontend/
-# - docker-compose.yml
-# - .env
-```
-
-### 3. Lancez un déploiement
-
-1. Faites un commit et un push sur `main` :
-   ```bash
-   git add .
-   git commit -m "test: trigger GitHub Actions deployment"
-   git push origin main
-   ```
-
-2. Allez sur **Actions** dans GitHub pour voir le workflow en cours d'exécution
-3. Vérifiez les logs pour voir la progression
-
-## 🐛 Dépannage
-
-### ❌ "Permission denied (publickey)"
-- Vérifiez que `VPS_SSH_KEY` contient la **clé privée** complète
-- Assurez-vous que les sauts de ligne sont préservés
-- Testez la connexion locale d'abord
-
-### ❌ "docker-compose: not found"
-- Vérifiez que docker-compose est installé sur le VPS
-- Testez : `ssh asmodan3110@vmi3018824 docker-compose --version`
-
-### ❌ "permission denied" sur les commandes Docker
-- Assurez-vous que l'utilisateur peut exécuter `sudo` sans mot de passe
-- Testez : `ssh asmodan3110@vmi3018824 sudo docker ps`
-
-### ❌ Le workflow ne démarre pas
-- Vérifiez que le fichier `.github/workflows/deploy.yml` est sur `main`
-- Allez à **Actions** et vérifiez s'il y a des erreurs de syntaxe
-
-## 📊 Workflow étapes
-
-1. ✅ **Checkout** : Récupère le code source
-2. ✅ **Setup Node** : Installe Node.js 22
-3. ✅ **Install** : Installe les dépendances npm
-4. ✅ **Lint & Type Check** : Valide le TypeScript
-5. ✅ **Tests** : Lance la suite de tests
-6. ✅ **Build** : Compile le bundle production
-7. ✅ **Deploy** : SSH vers le VPS et exécute les commandes de déploiement
-8. ✅ **Cleanup** : Supprime la clé SSH temporaire
-
-## 🚀 Automatisation
-
-Une fois configuré, chaque **push sur `main`** déploiera automatiquement :
-
-1. Git fetch + reset sur `origin/main`
-2. Build et redémarrage des conteneurs (`docker-compose up -d --build`)
-3. Suppression des images orphelines (`docker image prune -f`)
-4. Vérification du statut
-
-Les volumes Docker ne sont **jamais** supprimés (plus de `down -v` ni de
-`system prune --volumes`). Le déploiement ne tourne qu'après le job `ci`
-(lint, types, tests, build), qui tourne aussi sur chaque pull request.
-
-## 📧 Notifications
-
-Pour recevoir des notifications en cas d'erreur :
-
-1. Allez à **Settings** → **Notifications**
-2. Cochez "Email on failed workflow runs"
-3. Ou intégrez avec Slack/Discord via des Actions tierces
-
-## 🔐 Sécurité
-
-- ✅ La clé SSH est supprimée après chaque déploiement
-- ✅ Les secrets ne sont jamais affichés dans les logs
-- ✅ Utilisez une clé SSH dédiée pour les déploiements (pas votre clé personnelle)
-- ✅ Limitez les permissions de l'utilisateur au strict nécessaire
-
-## 📞 Support
-
-Si le workflow échoue :
-1. Vérifiez les logs dans **Actions**
-2. Testez les commandes manuellement sur le VPS
-3. Assurez-vous que tous les secrets sont configurés correctement
+- **Job `deploy` bloqué en « Queued »** : le runner est hors ligne — sur le VPS,
+  `cd ~/actions-runner-frontend && sudo ./svc.sh status` (puis `start`).
+- **`git reset` échoue** : vérifier les droits sur le clone (`ls -la`), il doit
+  appartenir à `deploy`.
+- **Health check en échec** : lire les logs affichés par le job, ou
+  `docker compose -f ~/apps/GlobalSimGroup/docker-compose.yml logs frontend`.
+- **Rollback** : relancer un ancien run du workflow (« Re-run jobs ») — il
+  redéploie son propre commit.

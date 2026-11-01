@@ -5,7 +5,7 @@ on:
 
 jobs:
   test:
-    runs-on: self-hosted
+    runs-on: [self-hosted, linux, x64, gsg-frontend]
     steps:
       - name: Afficher les informations du runner
         run: |

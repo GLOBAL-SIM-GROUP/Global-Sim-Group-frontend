@@ -41,77 +41,43 @@ jobs:
     name: Deploy to VPS
     needs: ci
     if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
-    runs-on: ubuntu-latest
+    # GSG-Frontend runner, installed on the production VPS (user `deploy`,
+    # member of the `docker` group, no passwordless sudo).
+    runs-on: [self-hosted, linux, x64, gsg-frontend]
+    concurrency:
+      group: deploy-frontend
+      cancel-in-progress: false
+    env:
+      # Compose project `globalsimgroup`: service `frontend` (container
+      # `sim-frontend`, Traefik -> global-sim-group.com), built from the
+      # git clone in ./Global-Sim-Group-frontend, with config from ./.env.
+      APP_DIR: /home/deploy/apps/GlobalSimGroup
     steps:
-      - name: Check deploy secrets
-        env:
-          VPS_HOST: ${{ secrets.VPS_HOST }}
-          VPS_USER: ${{ secrets.VPS_USER }}
-          VPS_PORT: ${{ secrets.VPS_PORT }}
-          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+      - name: Update source on the VPS
         run: |
-          for name in VPS_HOST VPS_USER VPS_PORT VPS_SSH_KEY; do
-            if [ -z "${!name}" ]; then
-              echo "::error::Secret $name is empty or missing."
-              exit 1
+          cd "$APP_DIR/Global-Sim-Group-frontend"
+          git fetch --prune origin main
+          # Deploy exactly the commit the `ci` job validated.
+          git reset --hard "$GITHUB_SHA"
+          git log --oneline -1
+
+      - name: Build and restart frontend
+        run: docker compose -f "$APP_DIR/docker-compose.yml" up -d --build frontend
+
+      - name: Health check
+        run: |
+          for i in $(seq 1 30); do
+            if docker exec sim-frontend wget -qO /dev/null http://127.0.0.1:3000/; then
+              echo "Frontend is up"
+              exit 0
             fi
+            echo "Attempt $i/30: waiting for frontend..."
+            sleep 2
           done
-          # GitHub-hosted runners only have IPv4: the host must have an A record
-          # (or be an IPv4 address). `vmiXXXX.contabo.com` does not exist in DNS
-          # and `vmiXXXX.contaboserver.net` only resolves to IPv6.
-          if ! getent ahostsv4 "$VPS_HOST" > /dev/null; then
-            echo "::error::VPS_HOST does not resolve to an IPv4 address from GitHub runners. Set it to the VPS public IPv4 (see GITHUB_ACTIONS_SETUP.md)."
-            exit 1
-          fi
+          echo "::error::Frontend did not answer on :3000 after 60s"
+          docker compose -f "$APP_DIR/docker-compose.yml" logs --tail=100 frontend
+          exit 1
 
-      - name: Deploy to VPS
-        env:
-          VPS_HOST: ${{ secrets.VPS_HOST }}
-          VPS_USER: ${{ secrets.VPS_USER }}
-          VPS_PORT: ${{ secrets.VPS_PORT }}
-          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
-          VPS_APP_PATH: /opt/apps/GlobalSimGroup
-        run: |
-          mkdir -p ~/.ssh
-          printf '%s\n' "$VPS_SSH_KEY" > ~/.ssh/deploy_key
-          chmod 600 ~/.ssh/deploy_key
-          ssh-keyscan -T 15 -p "$VPS_PORT" "$VPS_HOST" >> ~/.ssh/known_hosts
-
-          # Unquoted EOF on purpose: $VPS_APP_PATH is expanded by the runner
-          # before being sent, the remote shell doesn't have it.
-          ssh -i ~/.ssh/deploy_key -p "$VPS_PORT" \
-            -o BatchMode=yes -o ConnectTimeout=20 \
-            "$VPS_USER@$VPS_HOST" bash -s << EOF
-          set -euo pipefail
-
-          echo "Starting deployment..."
-          cd $VPS_APP_PATH/Global-Sim-Group-frontend
-
-          # Without safe.directory, git (run via sudo) aborts with
-          # "detected dubious ownership".
-          git config --global --add safe.directory $VPS_APP_PATH/Global-Sim-Group-frontend
-          sudo git config --global --add safe.directory $VPS_APP_PATH/Global-Sim-Group-frontend
-
-          echo "Pulling latest code..."
-          sudo git fetch origin
-          sudo git reset --hard origin/main
-
-          cd $VPS_APP_PATH
-
-          # No `down -v` / `system prune --volumes`: they delete the data volumes
-          # of every service in this compose project and on the host.
-          echo "Building and starting containers..."
-          sudo docker-compose up -d --build
-
-          echo "Removing dangling images..."
-          sudo docker image prune -f || true
-
-          sleep 10
-          sudo docker-compose ps
-
-          echo "Deployment completed successfully!"
-          EOF
-
-      - name: Cleanup SSH key
+      - name: Remove dangling images
         if: always()
-        run: rm -f ~/.ssh/deploy_key
+        run: docker image prune -f
