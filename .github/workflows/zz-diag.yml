@@ -1,0 +1,28 @@
+name: diag (temporary)
+on:
+  push:
+    branches: ['devin/**']
+jobs:
+  inspect:
+    runs-on: [self-hosted, gsg-frontend]
+    timeout-minutes: 5
+    steps:
+      - run: |
+          set +e
+          id; echo "HOME=$HOME"; ls -la ~ | head -30
+          for c in sim-frontend global-sim-group-frontend-frontend-1; do
+            echo "=== $c"
+            docker inspect $c --format '{{range $k,$v := .Config.Labels}}{{$k}}={{$v}}{{"\n"}}{{end}}' | grep -v '^org.opencontainers'
+            docker inspect $c --format 'networks: {{range $k,$v := .NetworkSettings.Networks}}{{$k}} {{end}}'
+            docker inspect $c --format 'ports: {{json .HostConfig.PortBindings}} restart: {{.HostConfig.RestartPolicy.Name}} created: {{.Created}}'
+            docker inspect $c --format '{{range .Config.Env}}{{println .}}{{end}}' | sed -E 's/^([^=]*(SECRET|TOKEN|PASS|KEY)[^=]*)=.*/\1=<redacted>/I'
+          done
+          for d in $(docker inspect sim-frontend global-sim-group-frontend-frontend-1 --format '{{index .Config.Labels "com.docker.compose.project.working_dir"}}' | sort -u); do
+            echo "=== dir $d"; ls -la "$d" | head -30; git -C "$d" log --oneline -1; git -C "$d" remote -v | head -1
+            for f in $(docker inspect sim-frontend global-sim-group-frontend-frontend-1 --format '{{index .Config.Labels "com.docker.compose.project.config_files"}}' | tr ',' ' ' | sort -u); do
+              [ -f "$f" ] && [[ "$f" == "$d"* ]] && { echo "--- $f"; sed -E 's/((SECRET|TOKEN|PASSWORD|KEY)[A-Z_]*[:=]).*/\1 <redacted>/I' "$f"; }
+            done
+          done
+          docker images --format '{{.Repository}}:{{.Tag}} {{.CreatedSince}}' | grep -i front
+          docker network ls --format '{{.Name}}'
+          docker compose ls
