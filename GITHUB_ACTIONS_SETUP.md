@@ -19,8 +19,9 @@ Ce guide explique comment configurer le workflow GitHub Actions pour automatiser
 ### 2. Créez les secrets suivants
 
 #### `VPS_HOST`
-- **Valeur** : `vmi3018824.contabo.com` (ou votre IP VPS)
+- **Valeur** : l'**adresse IPv4 publique** du VPS (ex. `203.0.113.10`), ou un nom de domaine qui a un enregistrement A
 - **Description** : Adresse du serveur VPS
+- ⚠️ Pas le nom Contabo : `vmiXXXX.contabo.com` n'existe pas dans le DNS, et `vmiXXXX.contaboserver.net` ne résout qu'en IPv6 — les runners GitHub n'ont que l'IPv4. Le workflow échoue dès l'étape « Check deploy secrets » si le nom ne résout pas en IPv4.
 
 #### `VPS_USER`
 - **Valeur** : `asmodan3110`
@@ -45,7 +46,7 @@ cat ~/.ssh/id_rsa  # ou le chemin vers votre clé privée
 ## 📝 Exemple de configuration
 
 ```
-VPS_HOST=vmi3018824.contabo.com
+VPS_HOST=203.0.113.10   # IPv4 publique du VPS
 VPS_USER=asmodan3110
 VPS_PORT=22
 VPS_SSH_KEY=-----BEGIN RSA PRIVATE KEY-----
@@ -121,11 +122,14 @@ ls -la /opt/apps/GlobalSimGroup/
 
 Une fois configuré, chaque **push sur `main`** déploiera automatiquement :
 
-1. Git pull des derniers changements
-2. Arrêt des conteneurs
-3. Nettoyage Docker
-4. Build et redémarrage des conteneurs
-5. Vérification du statut
+1. Git fetch + reset sur `origin/main`
+2. Build et redémarrage des conteneurs (`docker-compose up -d --build`)
+3. Suppression des images orphelines (`docker image prune -f`)
+4. Vérification du statut
+
+Les volumes Docker ne sont **jamais** supprimés (plus de `down -v` ni de
+`system prune --volumes`). Le déploiement ne tourne qu'après le job `ci`
+(lint, types, tests, build), qui tourne aussi sur chaque pull request.
 
 ## 📧 Notifications
 

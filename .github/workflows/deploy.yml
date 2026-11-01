@@ -4,45 +4,66 @@ on:
   push:
     branches:
       - main
+  pull_request:
+  workflow_dispatch:
 
-env:
-  REGISTRY: docker.io
-  IMAGE_NAME: globalsimgroup_frontend
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  build-and-deploy:
+  ci:
+    name: Lint, tests & build
     runs-on: ubuntu-latest
-
     steps:
-      # 1. Checkout code
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
-      # 2. Setup Node.js
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: '22'
+          cache: npm
 
-      # 3. Install dependencies
       - name: Install dependencies
         run: npm ci
 
-      # 4. Run linting & TypeScript checks
       - name: Lint & Type Check
         run: npm run check
-        continue-on-error: true
 
-      # 5. Run tests
       - name: Run tests
-        run: npm run test
-        continue-on-error: true
+        run: npm test
 
-      # 6. Build production bundle
       - name: Build
         run: npm run build
 
-      # 7. Deploy to VPS via SSH
+  deploy:
+    name: Deploy to VPS
+    needs: ci
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check deploy secrets
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+          VPS_PORT: ${{ secrets.VPS_PORT }}
+          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+        run: |
+          for name in VPS_HOST VPS_USER VPS_PORT VPS_SSH_KEY; do
+            if [ -z "${!name}" ]; then
+              echo "::error::Secret $name is empty or missing."
+              exit 1
+            fi
+          done
+          # GitHub-hosted runners only have IPv4: the host must have an A record
+          # (or be an IPv4 address). `vmiXXXX.contabo.com` does not exist in DNS
+          # and `vmiXXXX.contaboserver.net` only resolves to IPv6.
+          if ! getent ahostsv4 "$VPS_HOST" > /dev/null; then
+            echo "::error::VPS_HOST does not resolve to an IPv4 address from GitHub runners. Set it to the VPS public IPv4 (see GITHUB_ACTIONS_SETUP.md)."
+            exit 1
+          fi
+
       - name: Deploy to VPS
         env:
           VPS_HOST: ${{ secrets.VPS_HOST }}
@@ -51,62 +72,46 @@ jobs:
           VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
           VPS_APP_PATH: /opt/apps/GlobalSimGroup
         run: |
-          # Install SSH key
           mkdir -p ~/.ssh
-          echo "$VPS_SSH_KEY" > ~/.ssh/deploy_key
+          printf '%s\n' "$VPS_SSH_KEY" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
-          ssh-keyscan -p $VPS_PORT $VPS_HOST >> ~/.ssh/known_hosts 2>/dev/null
+          ssh-keyscan -T 15 -p "$VPS_PORT" "$VPS_HOST" >> ~/.ssh/known_hosts
 
-          # Execute deployment commands on VPS
-          # NOTE: unquoted EOF on purpose — $VPS_APP_PATH must be expanded locally
-          # (by the runner, which has it from `env:` above) before being sent over
-          # SSH, since the remote shell doesn't have that variable set.
-          ssh -i ~/.ssh/deploy_key -p $VPS_PORT $VPS_USER@$VPS_HOST << EOF
-          set -e
+          # Unquoted EOF on purpose: $VPS_APP_PATH is expanded by the runner
+          # before being sent, the remote shell doesn't have it.
+          ssh -i ~/.ssh/deploy_key -p "$VPS_PORT" \
+            -o BatchMode=yes -o ConnectTimeout=20 \
+            "$VPS_USER@$VPS_HOST" bash -s << EOF
+          set -euo pipefail
 
           echo "Starting deployment..."
-
-          # Navigate to frontend directory
           cd $VPS_APP_PATH/Global-Sim-Group-frontend
 
-          # Ensure git trusts this directory when invoked via sudo (root) or as
-          # the deploy user — otherwise "detected dubious ownership" aborts the
-          # script under set -e before the pull even runs.
+          # Without safe.directory, git (run via sudo) aborts with
+          # "detected dubious ownership".
           git config --global --add safe.directory $VPS_APP_PATH/Global-Sim-Group-frontend
           sudo git config --global --add safe.directory $VPS_APP_PATH/Global-Sim-Group-frontend
 
-          # Pull latest code
           echo "Pulling latest code..."
           sudo git fetch origin
           sudo git reset --hard origin/main
 
-          # Navigate to parent directory for docker-compose
           cd $VPS_APP_PATH
 
-          # Stop and remove containers
-          echo "Stopping containers..."
-          sudo docker-compose down -v || true
-
-          # Clean docker system
-          echo "Cleaning Docker..."
-          sudo docker system prune -af --volumes || true
-
-          # Rebuild and start containers
+          # No `down -v` / `system prune --volumes`: they delete the data volumes
+          # of every service in this compose project and on the host.
           echo "Building and starting containers..."
           sudo docker-compose up -d --build
 
-          # Wait for frontend to be ready
-          echo "Waiting for frontend to start..."
-          sleep 10
+          echo "Removing dangling images..."
+          sudo docker image prune -f || true
 
-          # Check health
-          echo "Checking deployment status..."
+          sleep 10
           sudo docker-compose ps
 
           echo "Deployment completed successfully!"
           EOF
 
-      # 8. Cleanup
       - name: Cleanup SSH key
         if: always()
         run: rm -f ~/.ssh/deploy_key
