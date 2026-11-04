@@ -27,6 +27,31 @@ if (typeof window !== "undefined" && !window.matchMedia) {
 		}) as MediaQueryList;
 }
 
+// jsdom n'implémente ni `ResizeObserver` ni `IntersectionObserver` — stubs
+// no-op pour les composants qui en dépendent (ex. `Carousel`, `AccordionGallery`).
+// Pas besoin de déclencher les callbacks : l'état initial (`visible = true`,
+// largeur par défaut) suffit en environnement de test.
+if (typeof window !== "undefined" && !window.ResizeObserver) {
+	window.ResizeObserver = class {
+		observe() {}
+		unobserve() {}
+		disconnect() {}
+	};
+}
+if (typeof window !== "undefined" && !window.IntersectionObserver) {
+	window.IntersectionObserver = class {
+		root = null;
+		rootMargin = "";
+		thresholds: ReadonlyArray<number> = [];
+		observe() {}
+		unobserve() {}
+		disconnect() {}
+		takeRecords(): IntersectionObserverEntry[] {
+			return [];
+		}
+	} as unknown as typeof IntersectionObserver;
+}
+
 // jsdom n'implémente pas `window.localStorage` dans la config de ce projet
 // (`localStorage` vaut `undefined`, pas juste vide) — stub en mémoire pour
 // les hooks qui en dépendent (ex. `usePanier`).

@@ -3,19 +3,16 @@ import {
 	ArrowRight,
 	BedDouble,
 	Check,
-	ChevronLeft,
-	ChevronRight,
 	type LucideIcon,
 	PartyPopper,
 	Shirt,
 	ShoppingBag,
 	UtensilsCrossed,
 } from "lucide-react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { AccordionGallery } from "#/components/accordion-gallery";
 import { AnimatedContent } from "#/components/animated-content";
 import { BorderGlow } from "#/components/border-glow";
 import { SplitText } from "#/components/split-text";
-import { Button } from "#/components/ui/button";
 import { cn } from "#/lib/utils";
 
 /**
@@ -23,6 +20,8 @@ import { cn } from "#/lib/utils";
  * telle quelle dans le futur espace client (phase 2 : mêmes libellés, mêmes
  * icônes). `to` mène au catalogue public quand il existe, sinon vers
  * l'inscription (compte obligatoire pour commander/réserver).
+ * `imageUrl` : photo de fond (actuellement des photos de stock génériques,
+ * à remplacer par de vraies photos des locaux/prestations).
  */
 export function CarteService({
 	icone: Icone,
@@ -32,6 +31,7 @@ export function CarteService({
 	to,
 	action,
 	hint,
+	imageUrl,
 	className,
 }: {
 	icone: LucideIcon;
@@ -43,6 +43,8 @@ export function CarteService({
 	action: string;
 	/** Mention secondaire (ex. « sur inscription »). */
 	hint?: string;
+	/** Photo de fond de la carte (dégradé sombre superposé pour la lisibilité). */
+	imageUrl?: string;
 	className?: string;
 }) {
 	return (
@@ -53,20 +55,55 @@ export function CarteService({
 			colors={["#E67E22", "#F0954D", "#4A9FD8"]}
 			className={cn("group h-full", className)}
 		>
-			<div className="flex h-full flex-col gap-4 p-6">
-				<div className="flex size-12 items-center justify-center rounded-xl bg-lagoon/10 text-lagoon transition-colors group-hover:bg-lagoon group-hover:text-white">
+			<div className="relative flex h-full flex-col gap-4 p-6">
+				{imageUrl ? (
+					<>
+						<img
+							src={imageUrl}
+							alt=""
+							aria-hidden
+							className="absolute inset-0 -z-10 h-full w-full object-cover"
+						/>
+						<div className="absolute inset-0 -z-10 bg-gradient-to-t from-black/85 via-black/55 to-black/25" />
+					</>
+				) : null}
+				<div
+					className={cn(
+						"flex size-12 items-center justify-center rounded-xl transition-colors",
+						imageUrl
+							? "bg-white/20 text-white backdrop-blur-sm"
+							: "bg-lagoon/10 text-lagoon group-hover:bg-lagoon group-hover:text-white",
+					)}
+				>
 					<Icone className="size-6" aria-hidden />
 				</div>
 				<div className="space-y-1">
-					<h3 className="text-xl font-semibold text-foreground">{titre}</h3>
-					<p className="text-sm text-muted-foreground">{description}</p>
+					<h3
+						className={cn(
+							"text-xl font-semibold",
+							imageUrl ? "text-white" : "text-foreground",
+						)}
+					>
+						{titre}
+					</h3>
+					<p
+						className={cn(
+							"text-sm",
+							imageUrl ? "text-white/80" : "text-muted-foreground",
+						)}
+					>
+						{description}
+					</p>
 				</div>
 				{points && points.length > 0 ? (
 					<ul className="space-y-1.5">
 						{points.map((point) => (
 							<li
 								key={point}
-								className="flex items-start gap-2 text-xs text-muted-foreground"
+								className={cn(
+									"flex items-start gap-2 text-xs",
+									imageUrl ? "text-white/85" : "text-muted-foreground",
+								)}
 							>
 								<Check
 									className="mt-0.5 size-3.5 shrink-0 text-palm"
@@ -80,7 +117,10 @@ export function CarteService({
 				<div className="mt-auto space-y-1 pt-2">
 					<Link
 						to={to}
-						className="inline-flex items-center gap-1 text-sm font-medium text-lagoon transition-colors hover:underline"
+						className={cn(
+							"inline-flex items-center gap-1 text-sm font-medium transition-colors hover:underline",
+							imageUrl ? "text-white" : "text-lagoon",
+						)}
 					>
 						{action}
 						<ArrowRight
@@ -89,7 +129,14 @@ export function CarteService({
 						/>
 					</Link>
 					{hint ? (
-						<p className="text-xs text-muted-foreground">{hint}</p>
+						<p
+							className={cn(
+								"text-xs",
+								imageUrl ? "text-white/70" : "text-muted-foreground",
+							)}
+						>
+							{hint}
+						</p>
 					) : null}
 				</div>
 			</div>
@@ -97,6 +144,10 @@ export function CarteService({
 	);
 }
 
+/**
+ * Photos de stock génériques (picsum.photos, seed stable par service) — en
+ * attendant de vraies photos des locaux/prestations GLOBAL SIM GROUP.
+ */
 const SERVICES = [
 	{
 		icone: UtensilsCrossed,
@@ -110,6 +161,7 @@ const SERVICES = [
 		],
 		to: "/restaurant/plats",
 		action: "Voir la carte",
+		image: "https://picsum.photos/seed/gsg-restaurant/800/1000",
 	},
 	{
 		icone: ShoppingBag,
@@ -123,6 +175,7 @@ const SERVICES = [
 		],
 		to: "/supermarche/produits",
 		action: "Voir les produits",
+		image: "https://picsum.photos/seed/gsg-supermarche/800/1000",
 	},
 	{
 		icone: Shirt,
@@ -137,6 +190,7 @@ const SERVICES = [
 		to: "/inscription",
 		action: "Déposer mon linge",
 		hint: "Nécessite un compte",
+		image: "https://picsum.photos/seed/gsg-pressing/800/1000",
 	},
 	{
 		icone: PartyPopper,
@@ -148,6 +202,7 @@ const SERVICES = [
 			"Mariages, cérémonies, séminaires",
 			"Réponse de nos équipes",
 		],
+		image: "https://picsum.photos/seed/gsg-salle-fete/800/1000",
 		to: "/inscription",
 		action: "Réserver la salle",
 		hint: "Nécessite un compte",
@@ -165,49 +220,11 @@ const SERVICES = [
 		to: "/inscription",
 		action: "Réserver un séjour",
 		hint: "Nécessite un compte",
+		image: "https://picsum.photos/seed/gsg-residence/800/1000",
 	},
 ] as const;
 
 export function LandingServices() {
-	const pisteRef = useRef<HTMLUListElement>(null);
-	const [peutReculer, setPeutReculer] = useState(false);
-	const [peutAvancer, setPeutAvancer] = useState(true);
-	const [carteActive, setCarteActive] = useState(0);
-
-	const majEtat = useCallback(() => {
-		const piste = pisteRef.current;
-		if (!piste) return;
-		const largeurCarte =
-			piste.firstElementChild instanceof HTMLElement
-				? piste.firstElementChild.offsetWidth + 24 // + gap-6
-				: piste.clientWidth;
-		setPeutReculer(piste.scrollLeft > 8);
-		setPeutAvancer(
-			piste.scrollLeft + piste.clientWidth < piste.scrollWidth - 8,
-		);
-		setCarteActive(Math.round(piste.scrollLeft / largeurCarte));
-	}, []);
-
-	useEffect(() => {
-		majEtat();
-		const piste = pisteRef.current;
-		if (!piste || typeof ResizeObserver === "undefined") return;
-		const ro = new ResizeObserver(majEtat);
-		ro.observe(piste);
-		return () => ro.disconnect();
-	}, [majEtat]);
-
-	const defiler = (sens: 1 | -1) => {
-		const piste = pisteRef.current;
-		if (!piste) return;
-		const premiereCarte = piste.firstElementChild;
-		const pas =
-			premiereCarte instanceof HTMLElement
-				? premiereCarte.offsetWidth + 24
-				: piste.clientWidth;
-		piste.scrollBy({ left: sens * pas, behavior: "smooth" });
-	};
-
 	return (
 		<section
 			id="services"
@@ -231,80 +248,19 @@ export function LandingServices() {
 				</div>
 
 				<AnimatedContent distance={60} threshold={0.15}>
-					<div className="relative">
-						<ul
-							ref={pisteRef}
-							onScroll={majEtat}
-							className="flex snap-x snap-mandatory gap-6 overflow-x-auto scroll-smooth pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-							aria-label="Nos services"
-						>
-							{SERVICES.map((service) => (
-								<li
-									key={service.titre}
-									className="w-full shrink-0 snap-start sm:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)]"
-								>
-									<CarteService {...service} />
-								</li>
-							))}
-						</ul>
-
-						<Button
-							variant="outline"
-							size="icon"
-							className="absolute -left-4 top-1/2 hidden -translate-y-1/2 rounded-full bg-background shadow-md lg:inline-flex"
-							disabled={!peutReculer}
-							onClick={() => defiler(-1)}
-							aria-label="Carte précédente"
-						>
-							<ChevronLeft className="size-5" aria-hidden />
-						</Button>
-						<Button
-							variant="outline"
-							size="icon"
-							className="absolute -right-4 top-1/2 hidden -translate-y-1/2 rounded-full bg-background shadow-md lg:inline-flex"
-							disabled={!peutAvancer}
-							onClick={() => defiler(1)}
-							aria-label="Carte suivante"
-						>
-							<ChevronRight className="size-5" aria-hidden />
-						</Button>
-					</div>
-
-					<div className="mt-6 flex items-center justify-center gap-3">
-						<Button
-							variant="ghost"
-							size="icon-sm"
-							className="lg:hidden"
-							disabled={!peutReculer}
-							onClick={() => defiler(-1)}
-							aria-label="Carte précédente"
-						>
-							<ChevronLeft className="size-5" aria-hidden />
-						</Button>
-						<div className="flex gap-1.5" aria-hidden>
-							{SERVICES.map((service, i) => (
-								<span
-									key={service.titre}
-									className={cn(
-										"h-1.5 rounded-full transition-all",
-										i === carteActive
-											? "w-6 bg-lagoon"
-											: "w-1.5 bg-muted-foreground/30",
-									)}
-								/>
-							))}
-						</div>
-						<Button
-							variant="ghost"
-							size="icon-sm"
-							className="lg:hidden"
-							disabled={!peutAvancer}
-							onClick={() => defiler(1)}
-							aria-label="Carte suivante"
-						>
-							<ChevronRight className="size-5" aria-hidden />
-						</Button>
-					</div>
+					<AccordionGallery
+						items={SERVICES.map((service) => ({
+							image: service.image,
+							label: service.titre,
+							link: service.to,
+							alt: service.titre,
+						}))}
+						defaultIndex={0}
+						accentColor="#E67E22"
+						overlayColor="#1A2B4C"
+						height={420}
+						radius={12}
+					/>
 				</AnimatedContent>
 			</div>
 		</section>

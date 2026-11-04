@@ -73,6 +73,8 @@ describe("LandingPage", () => {
 	it("expose les cinq usages transactionnels", () => {
 		render(<LandingPage />);
 
+		// AccordionGallery « Nos services » : chaque panneau est un lien avec
+		// `aria-label` (le libellé du service), peu importe l'état actif/replié.
 		for (const titre of [
 			"Restaurant",
 			"Super-Marché",
@@ -81,7 +83,7 @@ describe("LandingPage", () => {
 			"Résidence",
 		]) {
 			expect(
-				screen.getAllByRole("heading", { name: titre }).length,
+				screen.getAllByRole("link", { name: titre }).length,
 			).toBeGreaterThan(0);
 		}
 	});
