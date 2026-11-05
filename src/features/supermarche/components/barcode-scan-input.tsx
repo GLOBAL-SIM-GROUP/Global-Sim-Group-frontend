@@ -29,8 +29,9 @@ interface BarcodeScanInputProps {
  * `Entrée` sur un champ texte auto-focus, on résout via `GET
  * /market/produits/scan/:code_barre`, et on rend le focus au champ pour
  * enchaîner les scans sans reclic. Le bouton caméra ouvre
- * `CameraScanDialog` (API `BarcodeDetector` — masqué si le navigateur ne
- * l'expose pas) et le code décodé emprunte le même chemin de résolution.
+ * `CameraScanDialog` (`BarcodeDetector` natif ou ZXing en repli — masqué
+ * seulement sans caméra/HTTPS) et le code décodé emprunte le même chemin
+ * de résolution.
  */
 export function BarcodeScanInput({
 	onResolu,
@@ -131,7 +132,7 @@ export function BarcodeScanInput({
 			<CameraScanDialog
 				open={cameraOuverte}
 				onOpenChange={setCameraOuverte}
-				onCode={resoudre}
+				onCode={async (code) => (await resoudre(code))?.nom ?? null}
 			/>
 		</div>
 	);

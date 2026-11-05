@@ -1,4 +1,4 @@
-import { CameraOff, Loader2, ScanLine } from "lucide-react";
+import { CameraOff, Loader2, ScanLine, SwitchCamera } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 import { Button } from "#/components/ui/button";
@@ -11,12 +11,8 @@ import {
 	DialogTitle,
 } from "#/components/ui/dialog";
 
-import type { Produit } from "../models/produits";
-
-/** Cadence d'analyse de la vidéo : ~4 détections/seconde, largement suffisant. */
+/** Cadence d'analyse de la vidéo en mode `BarcodeDetector` : ~4 détections/seconde, largement suffisant. */
 const INTERVALLE_DETECTION_MS = 250;
-/** Délai avant de re-accepter le MÊME code (la caméra relit en continu — sinon chaque image ajouterait une ligne). */
-const DELAI_MEME_CODE_MS = 2000;
 
 /** Formats demandés en priorité ; si un navigateur les refuse tous, on retombe sur la détection par défaut. */
 const FORMATS_PREFERES = [
@@ -33,14 +29,14 @@ const FORMATS_PREFERES = [
 ];
 
 /**
- * Le scan caméra n'est possible que si le navigateur expose `BarcodeDetector`
- * (Chrome, Edge, Android WebView — pas Firefox/Safari) et une caméra en
- * contexte sécurisé (HTTPS ou localhost).
+ * Le bouton caméra n'a de sens que si le navigateur peut ouvrir une caméra
+ * (`getUserMedia` — contexte sécurisé HTTPS/localhost requis). Le décodage
+ * passe par `BarcodeDetector` quand il existe (Chrome, Edge, Android
+ * WebView), sinon par la librairie ZXing chargée à la demande.
  */
 export function cameraDisponible(): boolean {
 	return (
-		typeof window !== "undefined" &&
-		typeof window.BarcodeDetector === "function" &&
+		typeof navigator !== "undefined" &&
 		typeof navigator.mediaDevices?.getUserMedia === "function"
 	);
 }
@@ -48,22 +44,32 @@ export function cameraDisponible(): boolean {
 interface CameraScanDialogProps {
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
-	/** Résout le code décodé (même chemin que la douchette) ; renvoie le produit ajouté pour l'afficher. */
-	onCode: (code: string) => Promise<Produit | null>;
+	/** Traite le code décodé ; renvoie le libellé à afficher sous la vidéo (nom du produit ajouté, code lu…) ou `null`. */
+	onCode: (code: string) => Promise<string | null>;
+	/** Préfixe du message de confirmation (défaut « Ajouté » — ex. « Code lu » pour un champ à remplir). */
+	libelleAjoute?: string;
+	/** Texte d'aide sous le titre (défaut : enchaînement de plusieurs produits). */
+	description?: string;
 }
 
 /**
- * Scan par caméra : flux vidéo (caméra arrière de préférence) analysé par
- * `BarcodeDetector`. Le dialogue reste ouvert pour enchaîner les produits —
- * chaque code décodé suit le même chemin de résolution que la douchette.
+ * Scan par caméra : flux vidéo (caméra arrière de préférence) décodé par
+ * `BarcodeDetector` ou ZXing en repli. Le dialogue reste ouvert pour
+ * enchaîner les produits — chaque code décodé suit le même chemin de
+ * résolution que la douchette.
  */
 export function CameraScanDialog({
 	open,
 	onOpenChange,
 	onCode,
+	libelleAjoute = "Ajouté",
+	description = "Présentez le code-barres devant la caméra. Le dialogue reste ouvert pour enchaîner les produits.",
 }: CameraScanDialogProps) {
 	const videoRef = useRef<HTMLVideoElement>(null);
-	const dernierCode = useRef<{ code: string; ts: number } | null>(null);
+	// Code actuellement en vue : un même code n'ajoute qu'une ligne tant qu'il
+	// reste devant la caméra — il doit disparaître du champ pour être relu
+	// (comme un nouveau passage de douchette).
+	const codeEnVue = useRef<string | null>(null);
 	// `onCode` change d'identité à chaque rendu du parent (chaque produit
 	// ajouté) — on le lira via ref pour ne pas relancer la caméra à chaque scan.
 	const onCodeRef = useRef(onCode);
@@ -71,22 +77,34 @@ export function CameraScanDialog({
 	const [erreur, setErreur] = useState<string | null>(null);
 	const [pret, setPret] = useState(false);
 	const [dernierProduit, setDernierProduit] = useState<string | null>(null);
+	// Caméra arrière de préférence (mode `ideal` — pas un blocage : un PC
+	// fixe sans caméra arrière retombe sur sa seule caméra). Le bouton
+	// « Caméra avant/arrière » permute la valeur.
+	const [facing, setFacing] = useState<"environment" | "user">("environment");
 
 	useEffect(() => {
 		if (!open) return;
 		let flux: MediaStream | null = null;
 		let minuteur: ReturnType<typeof setInterval> | null = null;
+		let controls: { stop(): void } | null = null;
 		let annule = false;
 
-		const demarrer = async () => {
-			const Detecteur = window.BarcodeDetector;
-			if (!Detecteur) {
-				setErreur("Ce navigateur ne peut pas décoder les codes-barres.");
+		const voirCode = (code: string | null) => {
+			if (!code) {
+				codeEnVue.current = null;
 				return;
 			}
+			if (code === codeEnVue.current) return;
+			codeEnVue.current = code;
+			void onCodeRef.current(code).then((libelle) => {
+				if (libelle) setDernierProduit(libelle);
+			});
+		};
+
+		const demarrer = async () => {
 			try {
 				flux = await navigator.mediaDevices.getUserMedia({
-					video: { facingMode: "environment" },
+					video: { facingMode: { ideal: facing } },
 					audio: false,
 				});
 			} catch {
@@ -105,37 +123,34 @@ export function CameraScanDialog({
 			await video.play();
 			setPret(true);
 
-			let detecteur: BarcodeDetector;
-			try {
-				detecteur = new Detecteur({ formats: FORMATS_PREFERES });
-			} catch {
-				detecteur = new Detecteur();
+			const Detecteur = window.BarcodeDetector;
+			if (Detecteur) {
+				let detecteur: BarcodeDetector;
+				try {
+					detecteur = new Detecteur({ formats: FORMATS_PREFERES });
+				} catch {
+					detecteur = new Detecteur();
+				}
+				minuteur = setInterval(() => {
+					void (async () => {
+						if (video.readyState < HTMLMediaElement.HAVE_ENOUGH_DATA) return;
+						try {
+							voirCode(
+								(await detecteur.detect(video))[0]?.rawValue?.trim() ?? null,
+							);
+						} catch {
+							/* image non décodable — l'intervalle suivant réessaiera */
+						}
+					})();
+				}, INTERVALLE_DETECTION_MS);
+			} else {
+				const { BrowserMultiFormatReader } = await import("@zxing/browser");
+				if (annule) return;
+				const lecteur = new BrowserMultiFormatReader();
+				controls = await lecteur.decodeFromVideoElement(video, (resultat) =>
+					voirCode(resultat?.getText()?.trim() ?? null),
+				);
 			}
-
-			minuteur = setInterval(() => {
-				void (async () => {
-					if (video.readyState < HTMLMediaElement.HAVE_ENOUGH_DATA) return;
-					let trouves: DetectedBarcode[];
-					try {
-						trouves = await detecteur.detect(video);
-					} catch {
-						return;
-					}
-					const code = trouves[0]?.rawValue?.trim();
-					if (!code) return;
-					const maintenant = Date.now();
-					if (
-						dernierCode.current &&
-						dernierCode.current.code === code &&
-						maintenant - dernierCode.current.ts < DELAI_MEME_CODE_MS
-					) {
-						return;
-					}
-					dernierCode.current = { code, ts: maintenant };
-					const produit = await onCodeRef.current(code);
-					if (produit) setDernierProduit(produit.nom);
-				})();
-			}, INTERVALLE_DETECTION_MS);
 		};
 
 		void demarrer();
@@ -143,24 +158,22 @@ export function CameraScanDialog({
 		return () => {
 			annule = true;
 			if (minuteur) clearInterval(minuteur);
+			controls?.stop();
 			for (const piste of flux?.getTracks() ?? []) piste.stop();
 			if (videoRef.current) videoRef.current.srcObject = null;
 			setPret(false);
 			setErreur(null);
 			setDernierProduit(null);
-			dernierCode.current = null;
+			codeEnVue.current = null;
 		};
-	}, [open]);
+	}, [open, facing]);
 
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
 			<DialogContent>
 				<DialogHeader>
 					<DialogTitle>Scanner par caméra</DialogTitle>
-					<DialogDescription>
-						Présentez le code-barres devant la caméra. Le dialogue reste ouvert
-						pour enchaîner les produits.
-					</DialogDescription>
+					<DialogDescription>{description}</DialogDescription>
 				</DialogHeader>
 				<div className="relative overflow-hidden rounded-md border bg-black">
 					<video
@@ -184,11 +197,36 @@ export function CameraScanDialog({
 							<p>{erreur}</p>
 						</div>
 					) : null}
+					{pret && !erreur ? (
+						<Button
+							type="button"
+							variant="outline"
+							size="icon"
+							className="absolute top-2 right-2 bg-background/80"
+							aria-label={
+								facing === "environment"
+									? "Passer à la caméra avant"
+									: "Passer à la caméra arrière"
+							}
+							title={
+								facing === "environment"
+									? "Caméra arrière — basculer en caméra avant"
+									: "Caméra avant — basculer en caméra arrière"
+							}
+							onClick={() =>
+								setFacing((valeur) =>
+									valeur === "environment" ? "user" : "environment",
+								)
+							}
+						>
+							<SwitchCamera className="size-4" aria-hidden />
+						</Button>
+					) : null}
 				</div>
 				{dernierProduit ? (
 					<p className="flex items-center gap-2 text-sm text-muted-foreground">
 						<ScanLine className="size-4 text-primary" aria-hidden />
-						Ajouté : {dernierProduit}
+						{libelleAjoute} : {dernierProduit}
 					</p>
 				) : null}
 				<DialogFooter>
