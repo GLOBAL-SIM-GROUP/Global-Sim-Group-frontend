@@ -539,12 +539,9 @@ export function ProduitForm({
 									<CameraScanDialog
 										open={cameraCodeBarre}
 										onOpenChange={setCameraCodeBarre}
-										libelleAjoute="Code lu"
-										description="Présentez le code-barres de l'emballage devant la caméra — il remplira le champ. Rescannez pour le corriger."
+										description="Présentez le code-barres de l'emballage devant la caméra — le dialogue se ferme tout seul et le code remplit le champ."
 										onCode={async (code) => {
-											const lu = code.trim();
-											field.handleChange(lu);
-											return lu;
+											field.handleChange(code.trim());
 										}}
 									/>
 								</>

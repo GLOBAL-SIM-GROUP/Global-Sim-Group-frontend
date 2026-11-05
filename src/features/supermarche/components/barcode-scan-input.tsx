@@ -132,7 +132,9 @@ export function BarcodeScanInput({
 			<CameraScanDialog
 				open={cameraOuverte}
 				onOpenChange={setCameraOuverte}
-				onCode={async (code) => (await resoudre(code))?.nom ?? null}
+				onCode={async (code) => {
+					await resoudre(code);
+				}}
 			/>
 		</div>
 	);

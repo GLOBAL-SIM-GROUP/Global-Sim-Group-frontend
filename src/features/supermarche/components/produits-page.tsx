@@ -186,7 +186,10 @@ export function ProduitsPage({
 						placeholder="Scanner un code-barres…"
 						onResolu={(produit) => {
 							setScanErreur(null);
+							// Produit trouvé → sélection directe : sa fiche s'ouvre
+							// (la liste filtrée sur sa référence reste derrière).
 							changerFiltre({ search: produit.reference });
+							setAModifier(produit);
 						}}
 						onIntrouvable={(code) =>
 							setScanErreur(`Aucun produit pour le code « ${code} ».`)

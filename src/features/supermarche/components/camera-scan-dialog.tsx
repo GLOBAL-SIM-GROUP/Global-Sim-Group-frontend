@@ -1,4 +1,4 @@
-import { CameraOff, Loader2, ScanLine, SwitchCamera } from "lucide-react";
+import { CameraOff, Loader2, SwitchCamera } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 import { Button } from "#/components/ui/button";
@@ -44,39 +44,42 @@ export function cameraDisponible(): boolean {
 interface CameraScanDialogProps {
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
-	/** Traite le code décodé ; renvoie le libellé à afficher sous la vidéo (nom du produit ajouté, code lu…) ou `null`. */
-	onCode: (code: string) => Promise<string | null>;
-	/** Préfixe du message de confirmation (défaut « Ajouté » — ex. « Code lu » pour un champ à remplir). */
-	libelleAjoute?: string;
-	/** Texte d'aide sous le titre (défaut : enchaînement de plusieurs produits). */
+	/**
+	 * Traite le code décodé (résolution produit, remplissage de champ…).
+	 * Le dialogue se ferme dès que le code est traité — la suite
+	 * (sélection, création proposée, message) relève du parent.
+	 */
+	onCode: (code: string) => Promise<void>;
+	/** Texte d'aide sous le titre. */
 	description?: string;
 }
 
 /**
  * Scan par caméra : flux vidéo (caméra arrière de préférence) décodé par
- * `BarcodeDetector` ou ZXing en repli. Le dialogue reste ouvert pour
- * enchaîner les produits — chaque code décodé suit le même chemin de
- * résolution que la douchette.
+ * `BarcodeDetector` ou ZXing en repli. Le dialogue se ferme automatiquement
+ * dès qu'un code est traité — le produit correspondant est sélectionné par
+ * `onCode` côté parent. Pour enchaîner plusieurs articles, utiliser le
+ * champ douchette (`BarcodeScanInput`) qui enchaîne sans pop-up.
  */
 export function CameraScanDialog({
 	open,
 	onOpenChange,
 	onCode,
-	libelleAjoute = "Ajouté",
-	description = "Présentez le code-barres devant la caméra. Le dialogue reste ouvert pour enchaîner les produits.",
+	description = "Présentez le code-barres devant la caméra — le dialogue se ferme tout seul dès qu'il est lu.",
 }: CameraScanDialogProps) {
 	const videoRef = useRef<HTMLVideoElement>(null);
-	// Code actuellement en vue : un même code n'ajoute qu'une ligne tant qu'il
-	// reste devant la caméra — il doit disparaître du champ pour être relu
-	// (comme un nouveau passage de douchette).
+	// Code actuellement en vue : un même code n'est traité qu'une fois tant
+	// qu'il reste devant la caméra — il doit disparaître du champ pour être
+	// relu (comme un nouveau passage de douchette).
 	const codeEnVue = useRef<string | null>(null);
-	// `onCode` change d'identité à chaque rendu du parent (chaque produit
-	// ajouté) — on le lira via ref pour ne pas relancer la caméra à chaque scan.
+	// `onCode`/`onOpenChange` changent d'identité à chaque rendu du parent —
+	// lus via refs pour ne pas relancer la caméra à chaque scan.
 	const onCodeRef = useRef(onCode);
 	onCodeRef.current = onCode;
+	const onOpenChangeRef = useRef(onOpenChange);
+	onOpenChangeRef.current = onOpenChange;
 	const [erreur, setErreur] = useState<string | null>(null);
 	const [pret, setPret] = useState(false);
-	const [dernierProduit, setDernierProduit] = useState<string | null>(null);
 	// Caméra arrière de préférence (mode `ideal` — pas un blocage : un PC
 	// fixe sans caméra arrière retombe sur sa seule caméra). Le bouton
 	// « Caméra avant/arrière » permute la valeur.
@@ -96,8 +99,11 @@ export function CameraScanDialog({
 			}
 			if (code === codeEnVue.current) return;
 			codeEnVue.current = code;
-			void onCodeRef.current(code).then((libelle) => {
-				if (libelle) setDernierProduit(libelle);
+			// Le code est traité → le dialogue a fait son travail : il se ferme
+			// seul, que le produit ait été sélectionné, le champ rempli ou une
+			// création proposée (le parent gère la suite).
+			void onCodeRef.current(code).then(() => {
+				if (!annule) onOpenChangeRef.current(false);
 			});
 		};
 
@@ -163,7 +169,6 @@ export function CameraScanDialog({
 			if (videoRef.current) videoRef.current.srcObject = null;
 			setPret(false);
 			setErreur(null);
-			setDernierProduit(null);
 			codeEnVue.current = null;
 		};
 	}, [open, facing]);
@@ -223,12 +228,6 @@ export function CameraScanDialog({
 						</Button>
 					) : null}
 				</div>
-				{dernierProduit ? (
-					<p className="flex items-center gap-2 text-sm text-muted-foreground">
-						<ScanLine className="size-4 text-primary" aria-hidden />
-						{libelleAjoute} : {dernierProduit}
-					</p>
-				) : null}
 				<DialogFooter>
 					<Button variant="outline" onClick={() => onOpenChange(false)}>
 						Fermer
