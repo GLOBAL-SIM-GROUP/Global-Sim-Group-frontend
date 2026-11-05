@@ -20,6 +20,7 @@ import {
 	paginerProduits,
 } from "../models/produits";
 import { PRODUITS_PAGE_SIZE } from "../permissions";
+import { BarcodeScanInput } from "./barcode-scan-input";
 import { ProduitCardsGrid } from "./produit-cards-grid";
 import { ProduitCodeBarreDialog } from "./produit-code-barre-dialog";
 import { ProduitFilters } from "./produit-filters";
@@ -69,6 +70,7 @@ export function ProduitsPage({
 	const [codeBarreProduit, setCodeBarreProduit] = useState<Produit | null>(
 		null,
 	);
+	const [scanErreur, setScanErreur] = useState<string | null>(null);
 
 	const produitsQuery = useProduits({
 		search,
@@ -170,13 +172,31 @@ export function ProduitsPage({
 				}
 			/>
 
-			<div className="flex gap-2">
+			<div className="flex flex-col gap-2 sm:flex-row">
 				<div className="flex-1">
 					<InputField
 						placeholder="Rechercher par nom, référence…"
 						value={search}
 						onChange={(e) => changerFiltre({ search: e.target.value })}
 					/>
+				</div>
+				<div className="sm:w-80">
+					<BarcodeScanInput
+						label=""
+						placeholder="Scanner un code-barres…"
+						onResolu={(produit) => {
+							setScanErreur(null);
+							changerFiltre({ search: produit.reference });
+						}}
+						onIntrouvable={(code) =>
+							setScanErreur(`Aucun produit pour le code « ${code} ».`)
+						}
+					/>
+					{scanErreur ? (
+						<p role="alert" className="mt-1 text-sm text-destructive">
+							{scanErreur}
+						</p>
+					) : null}
 				</div>
 			</div>
 

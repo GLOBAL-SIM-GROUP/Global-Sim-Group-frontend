@@ -1,5 +1,5 @@
 import { useForm } from "@tanstack/react-form";
-import { Loader2, Plus, Upload, X } from "lucide-react";
+import { Camera, Loader2, Plus, Upload, X } from "lucide-react";
 import { useRef, useState } from "react";
 
 import { BoutonCamera } from "#/components/bouton-camera";
@@ -35,6 +35,7 @@ import type {
 	Fournisseur,
 	Produit,
 } from "../models/produits";
+import { CameraScanDialog, cameraDisponible } from "./camera-scan-dialog";
 
 /** Champs du formulaire (noms cohérents avec le corps API). */
 type ProduitField =
@@ -246,6 +247,7 @@ export function ProduitForm({
 	const creerFournisseurMutation = useCreerFournisseur();
 	const peutCreerCatalogue = useCan("MARCHANDISE.CREER");
 	const [globalError, setGlobalError] = useState<string | null>(null);
+	const [cameraCodeBarre, setCameraCodeBarre] = useState(false);
 	const fileInputRef = useRef<HTMLInputElement>(null);
 
 	const form = useForm({
@@ -502,22 +504,52 @@ export function ProduitForm({
 
 				<form.Field name="codeBarre">
 					{(field) => (
-						<InputField
-							id={field.name}
-							name={field.name}
-							label="Code-barres (optionnel)"
-							placeholder="Scannez le code imprimé sur l'emballage, ou saisissez-le"
-							autoComplete="off"
-							value={field.state.value}
-							onBlur={field.handleBlur}
-							onChange={(event) => field.handleChange(event.target.value)}
-							onKeyDown={(event) => {
-								// Une douchette envoie `Entrée` après avoir tapé le code —
-								// on l'empêche de soumettre le formulaire prématurément.
-								if (event.key === "Enter") event.preventDefault();
-							}}
-							error={field.state.meta.errors[0]}
-						/>
+						<div className="flex items-start gap-2">
+							<div className="flex-1">
+								<InputField
+									id={field.name}
+									name={field.name}
+									label="Code-barres (optionnel)"
+									placeholder="Scannez le code imprimé sur l'emballage, ou saisissez-le"
+									autoComplete="off"
+									value={field.state.value}
+									onBlur={field.handleBlur}
+									onChange={(event) => field.handleChange(event.target.value)}
+									onKeyDown={(event) => {
+										// Une douchette envoie `Entrée` après avoir tapé le code —
+										// on l'empêche de soumettre le formulaire prématurément.
+										if (event.key === "Enter") event.preventDefault();
+									}}
+									error={field.state.meta.errors[0]}
+								/>
+							</div>
+							{cameraDisponible() ? (
+								<>
+									<Button
+										type="button"
+										variant="outline"
+										size="icon"
+										className="mt-6"
+										aria-label="Scanner le code-barres par caméra"
+										title="Scanner le code-barres par caméra"
+										onClick={() => setCameraCodeBarre(true)}
+									>
+										<Camera className="size-4" aria-hidden />
+									</Button>
+									<CameraScanDialog
+										open={cameraCodeBarre}
+										onOpenChange={setCameraCodeBarre}
+										libelleAjoute="Code lu"
+										description="Présentez le code-barres de l'emballage devant la caméra — il remplira le champ. Rescannez pour le corriger."
+										onCode={async (code) => {
+											const lu = code.trim();
+											field.handleChange(lu);
+											return lu;
+										}}
+									/>
+								</>
+							) : null}
+						</div>
 					)}
 				</form.Field>
 			</div>

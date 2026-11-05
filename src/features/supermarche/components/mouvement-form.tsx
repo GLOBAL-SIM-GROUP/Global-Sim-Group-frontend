@@ -24,6 +24,7 @@ import {
 } from "../models/mouvements";
 import type { Produit } from "../models/produits";
 import { mouvementsKeys, produitsKeys, stockKeys } from "../permissions";
+import { BarcodeScanInput } from "./barcode-scan-input";
 
 interface MouvementFormProps {
 	produits: Produit[];
@@ -141,6 +142,26 @@ export function MouvementForm({
 	const retirerLigne = (cle: number) =>
 		setLignes((current) => current.filter((ligne) => ligne.cle !== cle));
 
+	const onScanResolu = (produit: Produit) => {
+		setGlobalError(null);
+		const existante = lignes.find((ligne) => ligne.idProduit === produit.id);
+		if (existante) {
+			const quantiteActuelle = Number(existante.quantite) || 0;
+			majLigne(existante.cle, { quantite: String(quantiteActuelle + 1) });
+			return;
+		}
+		setLignes((current) => [
+			...current,
+			{
+				cle: prochaineCle,
+				idProduit: produit.id,
+				quantite: "1",
+				statut: "idle",
+			},
+		]);
+		setProchaineCle((valeur) => valeur + 1);
+	};
+
 	const valider = (): string | null => {
 		if (lignes.length === 0) return "Ajoutez au moins une ligne de produit.";
 		for (const ligne of lignes) {
@@ -222,6 +243,14 @@ export function MouvementForm({
 					),
 				)}
 			</SelectField>
+
+			<BarcodeScanInput
+				label="Scanner un produit"
+				onResolu={onScanResolu}
+				onIntrouvable={(code) =>
+					setGlobalError(`Aucun produit pour le code « ${code} ».`)
+				}
+			/>
 
 			<div className="space-y-3">
 				<div className="flex items-center justify-between">
