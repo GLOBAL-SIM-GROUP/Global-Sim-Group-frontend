@@ -135,7 +135,7 @@ export function VenteForm({
 					: undefined;
 				return {
 					value: produit.id,
-					label: `${produit.reference} — ${produit.nom} (${formatMontantFCFA(produit.prix_vente)})${fournisseur ? ` · ${fournisseur}` : ""}`,
+					label: `${produit.reference} — ${produit.nom} (${formatMontantFCFA(produit.prix_vente)})${fournisseur ? ` · ${fournisseur}` : ""} · stock : ${Number(produit.quantite_stock)}`,
 					selectedLabel: produit.nom,
 					keywords: `${produit.reference} ${produit.nom} ${fournisseur ?? ""}`,
 				};

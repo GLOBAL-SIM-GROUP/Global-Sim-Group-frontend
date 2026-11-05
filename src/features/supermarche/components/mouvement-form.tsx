@@ -117,7 +117,7 @@ export function MouvementForm({
 					: undefined;
 				return {
 					value: produit.id,
-					label: `${produit.reference} — ${produit.nom}${fournisseur ? ` · ${fournisseur}` : ""}`,
+					label: `${produit.reference} — ${produit.nom}${fournisseur ? ` · ${fournisseur}` : ""} · stock : ${Number(produit.quantite_stock)}`,
 					keywords: `${produit.reference} ${produit.nom} ${fournisseur ?? ""}`,
 				};
 			}),
