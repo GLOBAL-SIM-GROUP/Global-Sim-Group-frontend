@@ -1,4 +1,10 @@
-import { FileDown, Loader2, Printer, Settings } from "lucide-react";
+import {
+	ChevronDown,
+	FileDown,
+	Loader2,
+	Printer,
+	Settings,
+} from "lucide-react";
 import { useState } from "react";
 import { Button } from "#/components/ui/button";
 import type { FactureSourceType } from "#/core/api/facturation";
@@ -18,8 +24,9 @@ interface DownloadReceiptButtonProps {
 
 /**
  * Bouton réutilisable pour télécharger le reçu/facture d'une transaction.
- * Cherche automatiquement la facture PAYEE associée. Propose le PDF complet
- * ou un ticket de caisse (58/80mm, choix de la largeur au moment du clic).
+ * Cherche automatiquement la facture PAYEE associée. « Ticket » imprime en
+ * un clic à la largeur préférée du poste (`ticket-largeur-store`) ; le
+ * chevron garde le choix ponctuel 58/80mm et les paramètres d'impression.
  */
 export function DownloadReceiptButton({
 	sourceType,
@@ -59,7 +66,7 @@ export function DownloadReceiptButton({
 		}
 	};
 
-	const handlePrintTicket = async (largeur: 58 | 80) => {
+	const handlePrintTicket = async (largeur?: 58 | 80) => {
 		setIsDownloadingTicket(true);
 		try {
 			await printFactureTicket(facture.id, largeur);
@@ -94,12 +101,13 @@ export function DownloadReceiptButton({
 				)}
 			</Button>
 
-			<div className="relative">
+			<div className="relative flex items-center">
 				<Button
-					onClick={() => setShowTicketOptions(!showTicketOptions)}
+					onClick={() => void handlePrintTicket()}
 					disabled={isLoading || isDownloadingPdf || isDownloadingTicket}
 					variant={variant}
 					size={size}
+					className="rounded-r-none"
 					title="Imprimer le ticket de caisse"
 				>
 					{isDownloadingTicket ? (
@@ -114,6 +122,19 @@ export function DownloadReceiptButton({
 					) : (
 						<span className="sr-only">Imprimer le ticket de caisse</span>
 					)}
+				</Button>
+				<Button
+					onClick={() => setShowTicketOptions(!showTicketOptions)}
+					disabled={isLoading || isDownloadingPdf || isDownloadingTicket}
+					variant={variant}
+					size={size}
+					className="rounded-l-none border-l-0 px-2"
+					title="Autre largeur ou paramètres d'impression"
+				>
+					<ChevronDown className="size-4" aria-hidden />
+					<span className="sr-only">
+						Autre largeur ou paramètres d'impression
+					</span>
 				</Button>
 
 				{showTicketOptions && (
