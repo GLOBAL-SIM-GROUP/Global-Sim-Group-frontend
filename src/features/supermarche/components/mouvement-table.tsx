@@ -17,14 +17,20 @@ import {
 
 interface MouvementTableProps {
 	mouvements: Mouvement[];
+	/** Nom du fournisseur par référence produit (`null` si sans fournisseur). */
+	fournisseursParReference: ReadonlyMap<string, string | null>;
 }
 
 /**
  * Tableau de l'historique des mouvements de stock (M3). L'historique expose
  * référence, nom, date, type, quantité, delta et stock résultant (pas de
- * motif/document dans la réponse).
+ * motif/document ni de fournisseur dans la réponse — résolu via le
+ * catalogue produits côté page).
  */
-export function MouvementTable({ mouvements }: MouvementTableProps) {
+export function MouvementTable({
+	mouvements,
+	fournisseursParReference,
+}: MouvementTableProps) {
 	if (mouvements.length === 0) {
 		return <EmptyState title="Aucun mouvement trouvé." />;
 	}
@@ -36,6 +42,7 @@ export function MouvementTable({ mouvements }: MouvementTableProps) {
 					<tr>
 						<Th>DATE</Th>
 						<Th>PRODUIT</Th>
+						<Th>FOURNISSEUR</Th>
 						<Th>TYPE</Th>
 						<Th>QUANTITÉ</Th>
 						<Th>STOCK RÉSULTANT</Th>
@@ -52,6 +59,9 @@ export function MouvementTable({ mouvements }: MouvementTableProps) {
 							<Td className="text-foreground">
 								<span className="font-medium">{mouvement.reference}</span> —{" "}
 								{mouvement.nom}
+							</Td>
+							<Td className="text-muted-foreground">
+								{fournisseursParReference.get(mouvement.reference) ?? "—"}
 							</Td>
 							<Td>
 								<Badge variant={MOUVEMENT_TYPE_VARIANT[mouvement.type]}>

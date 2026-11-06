@@ -7,7 +7,7 @@ import { PageHeader } from "#/components/ui/page-header";
 import { useCan } from "#/core/auth";
 
 import { useMouvements } from "../hooks/use-mouvements";
-import { useProduits } from "../hooks/use-produits";
+import { useFournisseurs, useProduits } from "../hooks/use-produits";
 import {
 	filtrerMouvements,
 	type MouvementTypeFiltre,
@@ -47,6 +47,7 @@ export function MouvementsPage({
 
 	const mouvementsQuery = useMouvements();
 	const produitsQuery = useProduits();
+	const fournisseursQuery = useFournisseurs();
 
 	const [type, setType] = useState<MouvementTypeFiltre>(
 		initialSearch.type ?? "tous",
@@ -85,6 +86,19 @@ export function MouvementsPage({
 		produit,
 	});
 	const pagination = paginerMouvements(filtres, page, MOUVEMENTS_PAGE_SIZE);
+
+	// L'historique n'expose que la référence du produit — le nom du
+	// fournisseur se retrouve via le catalogue : référence → produit →
+	// `id_fournisseur` → nom du fournisseur.
+	const fournisseurParId = new Map(
+		(fournisseursQuery.data ?? []).map((f) => [f.id, f.nom]),
+	);
+	const fournisseursParReference = new Map(
+		(produitsQuery.data ?? []).map((p) => [
+			p.reference,
+			(p.id_fournisseur && fournisseurParId.get(p.id_fournisseur)) || null,
+		]),
+	);
 
 	return (
 		<div className="w-full space-y-4 p-3 sm:space-y-6 sm:p-6">
@@ -159,7 +173,10 @@ export function MouvementsPage({
 					</Button>
 				</div>
 			) : (
-				<MouvementTable mouvements={pagination.items} />
+				<MouvementTable
+					mouvements={pagination.items}
+					fournisseursParReference={fournisseursParReference}
+				/>
 			)}
 
 			{pagination.total > 0 ? (
