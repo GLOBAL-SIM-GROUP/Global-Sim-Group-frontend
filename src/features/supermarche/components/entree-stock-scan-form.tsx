@@ -136,7 +136,7 @@ export function EntreeStockScanForm({
 					lignes.map((ligne) => (
 						<div
 							key={ligne.cle}
-							className="grid grid-cols-[1fr_5rem_auto_auto] items-center gap-3 rounded-md border border-border p-2"
+							className="space-y-2 rounded-md border border-border p-2"
 						>
 							<div className="min-w-0">
 								<p className="truncate text-sm font-medium text-foreground">
@@ -146,41 +146,49 @@ export function EntreeStockScanForm({
 									{ligne.produit.reference}
 								</p>
 							</div>
-							<InputField
-								aria-label={`Quantité — ${ligne.produit.nom}`}
-								inputMode="decimal"
-								value={ligne.quantite}
-								disabled={ligne.statut === "envoi" || ligne.statut === "ok"}
-								onChange={(event) =>
-									majLigne(ligne.cle, { quantite: event.target.value })
-								}
-							/>
-							<span
-								className={cn(
-									"flex size-6 items-center justify-center",
-									ligne.statut === "ok" && "text-success",
-									ligne.statut === "erreur" && "text-destructive",
-								)}
-								title={ligne.erreur}
-							>
-								{ligne.statut === "envoi" ? (
-									<Loader2 className="size-4 animate-spin" aria-hidden />
-								) : ligne.statut === "ok" ? (
-									<Check className="size-4" aria-hidden />
-								) : ligne.statut === "erreur" ? (
-									<X className="size-4" aria-hidden />
-								) : null}
-							</span>
-							<Button
-								type="button"
-								variant="ghost"
-								size="icon-sm"
-								aria-label={`Retirer ${ligne.produit.nom}`}
-								disabled={ligne.statut === "envoi" || ligne.statut === "ok"}
-								onClick={() => retirerLigne(ligne.cle)}
-							>
-								<Trash2 className="size-4 text-destructive" aria-hidden />
-							</Button>
+							{/* Quantité + statut + Retirer sous le produit : lisible
+							    jusqu'à 320 px (nom/référence gardent toute la largeur). */}
+							<div className="flex items-end gap-2">
+								<div className="flex-1">
+									<InputField
+										aria-label={`Quantité — ${ligne.produit.nom}`}
+										inputMode="decimal"
+										value={ligne.quantite}
+										disabled={ligne.statut === "envoi" || ligne.statut === "ok"}
+										onChange={(event) =>
+											majLigne(ligne.cle, {
+												quantite: event.target.value,
+											})
+										}
+									/>
+								</div>
+								<span
+									className={cn(
+										"flex size-9 items-center justify-center",
+										ligne.statut === "ok" && "text-success",
+										ligne.statut === "erreur" && "text-destructive",
+									)}
+									title={ligne.erreur}
+								>
+									{ligne.statut === "envoi" ? (
+										<Loader2 className="size-4 animate-spin" aria-hidden />
+									) : ligne.statut === "ok" ? (
+										<Check className="size-4" aria-hidden />
+									) : ligne.statut === "erreur" ? (
+										<X className="size-4" aria-hidden />
+									) : null}
+								</span>
+								<Button
+									type="button"
+									variant="ghost"
+									size="icon-sm"
+									aria-label={`Retirer ${ligne.produit.nom}`}
+									disabled={ligne.statut === "envoi" || ligne.statut === "ok"}
+									onClick={() => retirerLigne(ligne.cle)}
+								>
+									<Trash2 className="size-4 text-destructive" aria-hidden />
+								</Button>
+							</div>
 						</div>
 					))
 				)}
