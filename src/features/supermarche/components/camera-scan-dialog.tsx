@@ -14,6 +14,15 @@ import {
 /** Cadence d'analyse de la vidéo en mode `BarcodeDetector` : ~4 détections/seconde, largement suffisant. */
 const INTERVALLE_DETECTION_MS = 250;
 
+/**
+ * Rafale douchette : elle tape le code en quelques dizaines de ms par
+ * caractère puis envoie `Entrée`. Au-delà de ce délai entre deux touches,
+ * la frappe est humaine — le tampon est remis à zéro.
+ */
+const DELAI_RAFALE_TOUCHE_MS = 100;
+/** Une rafale doit produire au moins 3 caractères pour être un scan. */
+const LONGUEUR_MIN_SCAN = 3;
+
 /** Formats demandés en priorité ; si un navigateur les refuse tous, on retombe sur la détection par défaut. */
 const FORMATS_PREFERES = [
 	"ean_13",
@@ -161,8 +170,41 @@ export function CameraScanDialog({
 
 		void demarrer();
 
+		/**
+		 * La douchette reste utilisable pendant le scan caméra : ses frappes
+		 * (rafale de caractères suivie d'`Entrée`) atterrissent où qu'ait le
+		 * focus, y compris dans cette modale. On capture la rafale sur
+		 * `window` en phase de capture, on la fait passer par le même chemin
+		 * `voirCode` — le dialogue se ferme et le produit est sélectionné
+		 * comme si la caméra l'avait lu.
+		 */
+		let tampon = "";
+		let derniereTouche = 0;
+		const onKeyDown = (event: KeyboardEvent) => {
+			const maintenant = Date.now();
+			if (maintenant - derniereTouche > DELAI_RAFALE_TOUCHE_MS) {
+				tampon = "";
+			}
+			derniereTouche = maintenant;
+			if (event.key === "Enter") {
+				const code = tampon;
+				tampon = "";
+				if (code.length >= LONGUEUR_MIN_SCAN) {
+					// Un `Entrée` de douchette ne doit pas aussi cliquer le bouton
+					// focalisé de la modale (« Fermer »…).
+					event.preventDefault();
+					event.stopPropagation();
+					voirCode(code);
+				}
+				return;
+			}
+			if (event.key.length === 1) tampon += event.key;
+		};
+		window.addEventListener("keydown", onKeyDown, true);
+
 		return () => {
 			annule = true;
+			window.removeEventListener("keydown", onKeyDown, true);
 			if (minuteur) clearInterval(minuteur);
 			controls?.stop();
 			for (const piste of flux?.getTracks() ?? []) piste.stop();
