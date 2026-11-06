@@ -45,19 +45,24 @@ export function BarcodeScanInput({
 	const [erreur, setErreur] = useState<string | null>(null);
 	const inputRef = useRef<HTMLInputElement>(null);
 	const dernierScan = useRef<{ code: string; ts: number } | null>(null);
+	// Codes en cours de résolution : un second évènement pour le même code
+	// pendant la requête (double `Entrée` émis par la douchette, rebond de
+	// gâchette…) ne doit pas repartir — il doublerait la quantité ajoutée.
+	const enCours = useRef(new Set<string>());
 	const mutation = useScannerProduit();
 	const [cameraOuverte, setCameraOuverte] = useState(false);
 
 	const resoudre = async (code: string): Promise<Produit | null> => {
 		const maintenant = Date.now();
 		if (
-			dernierScan.current &&
-			dernierScan.current.code === code &&
-			maintenant - dernierScan.current.ts < DELAI_ANTI_REBOND_MS
+			enCours.current.has(code) ||
+			(dernierScan.current &&
+				dernierScan.current.code === code &&
+				maintenant - dernierScan.current.ts < DELAI_ANTI_REBOND_MS)
 		) {
 			return null;
 		}
-		dernierScan.current = { code, ts: maintenant };
+		enCours.current.add(code);
 		setErreur(null);
 		try {
 			const produit = await mutation.mutateAsync(code);
@@ -74,6 +79,11 @@ export function BarcodeScanInput({
 			}
 			return null;
 		} finally {
+			enCours.current.delete(code);
+			// Horodatage à la résolution (et non à l'appel) : une émission
+			// doublée arrivant juste après une requête lente reste dans la
+			// fenêtre d'anti-rebond au lieu de compter comme un re-scan.
+			dernierScan.current = { code, ts: Date.now() };
 			inputRef.current?.focus();
 		}
 	};

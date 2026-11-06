@@ -101,16 +101,19 @@ export function CameraScanDialog({
 		let controls: { stop(): void } | null = null;
 		let annule = false;
 
+		let enTraitement = false;
 		const voirCode = (code: string | null) => {
 			if (!code) {
 				codeEnVue.current = null;
 				return;
 			}
-			if (code === codeEnVue.current) return;
+			if (enTraitement || code === codeEnVue.current) return;
 			codeEnVue.current = code;
+			enTraitement = true;
 			// Le code est traité → le dialogue a fait son travail : il se ferme
 			// seul, que le produit ait été sélectionné, le champ rempli ou une
-			// création proposée (le parent gère la suite).
+			// création proposée (le parent gère la suite). Toute autre lecture
+			// pendant le traitement est ignorée — un seul code par ouverture.
 			void onCodeRef.current(code).then(() => {
 				if (!annule) onOpenChangeRef.current(false);
 			});
