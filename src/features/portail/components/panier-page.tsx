@@ -583,7 +583,7 @@ export function PanierPage({
 				open={toastOuvert}
 				onOpenChange={setToastOuvert}
 				duration={4000}
-				className="fixed right-6 bottom-6 z-50 rounded-lg border border-border bg-card px-4 py-3 shadow-lg data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:slide-in-from-bottom-2 data-[state=closed]:animate-out data-[state=closed]:fade-out-0"
+				className="fixed inset-x-4 bottom-4 z-50 rounded-lg border border-border bg-card px-4 py-3 shadow-lg data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:slide-in-from-bottom-2 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 sm:inset-x-auto sm:right-6 sm:bottom-6 sm:w-90"
 			>
 				<Toast.Title className="text-sm font-semibold text-foreground">
 					Demande enregistrée

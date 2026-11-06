@@ -159,32 +159,42 @@ export function NotificationsBridge() {
 		]);
 	}, [notifications, queryClient]);
 
+	// File d'attente : un seul toast visible — les suivants attendent leur
+	// tour (montés quand le précédent se ferme) plutôt qu'une colonne.
+	const courant = toasts[0];
+
 	return (
 		<Toast.Provider swipeDirection="right">
-			{toasts.map((toast) => (
+			{courant ? (
 				<Toast.Root
-					key={toast.id}
-					duration={toast.priority === "CRITICAL" ? 10_000 : 6000}
+					key={courant.id}
+					// Affichage bref — la file déroule vite et ne masque pas
+					// l'écran ; le détail reste dans le centre de notifications.
+					duration={3500}
 					onOpenChange={(ouvert) => {
 						if (!ouvert) {
-							setToasts((actuels) => actuels.filter((t) => t.id !== toast.id));
+							setToasts((actuels) =>
+								actuels.filter((t) => t.id !== courant.id),
+							);
 						}
 					}}
 					className={
-						toast.priority === "CRITICAL"
+						courant.priority === "CRITICAL"
 							? "rounded-lg border border-destructive bg-card px-4 py-3 shadow-lg data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:slide-in-from-bottom-2 data-[state=closed]:animate-out data-[state=closed]:fade-out-0"
 							: "rounded-lg border border-amber-500/60 bg-card px-4 py-3 shadow-lg data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:slide-in-from-bottom-2 data-[state=closed]:animate-out data-[state=closed]:fade-out-0"
 					}
 				>
 					<Toast.Title className="text-sm font-semibold text-foreground">
-						{toast.title}
+						{courant.title}
 					</Toast.Title>
 					<Toast.Description className="text-sm text-muted-foreground">
-						{toast.body}
+						{courant.body}
 					</Toast.Description>
 				</Toast.Root>
-			))}
-			<Toast.Viewport className="fixed right-6 bottom-6 z-50 flex w-90 max-w-full flex-col gap-2 outline-none" />
+			) : null}
+			{/* Pleine largeur moins marges en mobile (320 px), coin bas-droit
+			    à partir de `sm`. */}
+			<Toast.Viewport className="fixed inset-x-4 bottom-4 z-50 flex flex-col gap-2 outline-none sm:inset-x-auto sm:right-6 sm:bottom-6 sm:w-90" />
 		</Toast.Provider>
 	);
 }

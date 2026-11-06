@@ -124,7 +124,9 @@ export function PortailNotificationsBridge() {
 			{toasts.map((toast) => (
 				<Toast.Root
 					key={toast.id}
-					duration={6000}
+					// Affichage bref — le détail reste dans le centre de
+					// notifications.
+					duration={3500}
 					onOpenChange={(ouvert) => {
 						if (!ouvert) {
 							setToasts((actuels) => actuels.filter((t) => t.id !== toast.id));
@@ -140,7 +142,9 @@ export function PortailNotificationsBridge() {
 					</Toast.Description>
 				</Toast.Root>
 			))}
-			<Toast.Viewport className="fixed right-6 bottom-6 z-50 flex w-90 max-w-full flex-col gap-2 outline-none" />
+			{/* Pleine largeur moins marges en mobile (320 px), coin bas-droit
+			    à partir de `sm`. */}
+			<Toast.Viewport className="fixed inset-x-4 bottom-4 z-50 flex flex-col gap-2 outline-none sm:inset-x-auto sm:right-6 sm:bottom-6 sm:w-90" />
 		</Toast.Provider>
 	);
 }
