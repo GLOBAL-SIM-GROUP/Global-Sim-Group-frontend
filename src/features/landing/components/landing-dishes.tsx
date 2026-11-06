@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { AlertCircle, Loader2 } from "lucide-react";
+import { useMemo } from "react";
 import { AccordionGallery } from "#/components/accordion-gallery";
 import { AnimatedContent } from "#/components/animated-content";
 import { SplitText } from "#/components/split-text";
@@ -16,7 +17,23 @@ export function LandingDishes() {
 		queryFn: () => listPlats(),
 	});
 
-	const platsDisponibles = plats?.filter((p) => p.disponible) ?? [];
+	/**
+	 * Sélection aléatoire de 6 plats — recalculée à chaque montage du
+	 * composant (donc à chaque chargement de la landing page), même quand
+	 * la liste `plats` vient du cache TanStack Query.
+	 */
+	const { selection, indexActif } = useMemo(() => {
+		const melanges = (plats ?? []).filter((p) => p.disponible);
+		for (let i = melanges.length - 1; i > 0; i--) {
+			const j = Math.floor(Math.random() * (i + 1));
+			[melanges[i], melanges[j]] = [melanges[j], melanges[i]];
+		}
+		const pris = melanges.slice(0, 6);
+		return {
+			selection: pris,
+			indexActif: pris.length > 0 ? Math.floor(Math.random() * pris.length) : 0,
+		};
+	}, [plats]);
 
 	if (isLoading) {
 		return (
@@ -84,7 +101,7 @@ export function LandingDishes() {
 					</p>
 				</div>
 
-				{platsDisponibles.length === 0 ? (
+				{selection.length === 0 ? (
 					<div className="py-12 text-center">
 						<p className="text-muted-foreground">
 							Aucun plat disponible pour le moment.
@@ -93,13 +110,13 @@ export function LandingDishes() {
 				) : (
 					<AnimatedContent distance={60} threshold={0.15}>
 						<AccordionGallery
-							items={platsDisponibles.slice(0, 6).map((plat) => ({
+							items={selection.map((plat) => ({
 								image: plat.image_url ? platImagePublicUrl(plat.id) : null,
 								label: plat.nom,
 								link: "/restaurant/plats",
 								alt: plat.nom,
 							}))}
-							defaultIndex={0}
+							defaultIndex={indexActif}
 							accentColor="#E67E22"
 							overlayColor="#1A2B4C"
 							height={420}

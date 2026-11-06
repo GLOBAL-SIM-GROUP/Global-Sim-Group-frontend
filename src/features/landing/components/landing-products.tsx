@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { AlertCircle, Loader2 } from "lucide-react";
+import { useMemo } from "react";
 import { AccordionGallery } from "#/components/accordion-gallery";
 import { AnimatedContent } from "#/components/animated-content";
 import { SplitText } from "#/components/split-text";
@@ -16,7 +17,23 @@ export function LandingProducts() {
 		queryFn: () => listProduits(),
 	});
 
-	const produitsActifs = produits?.filter((p) => p.actif) ?? [];
+	/**
+	 * Sélection aléatoire de 6 produits — recalculée à chaque montage du
+	 * composant (donc à chaque chargement de la landing page), même quand
+	 * la liste `produits` vient du cache TanStack Query.
+	 */
+	const { selection, indexActif } = useMemo(() => {
+		const melanges = (produits ?? []).filter((p) => p.actif);
+		for (let i = melanges.length - 1; i > 0; i--) {
+			const j = Math.floor(Math.random() * (i + 1));
+			[melanges[i], melanges[j]] = [melanges[j], melanges[i]];
+		}
+		const pris = melanges.slice(0, 6);
+		return {
+			selection: pris,
+			indexActif: pris.length > 0 ? Math.floor(Math.random() * pris.length) : 0,
+		};
+	}, [produits]);
 
 	if (isLoading) {
 		return (
@@ -84,7 +101,7 @@ export function LandingProducts() {
 					</p>
 				</div>
 
-				{produitsActifs.length === 0 ? (
+				{selection.length === 0 ? (
 					<div className="py-12 text-center">
 						<p className="text-muted-foreground">
 							Aucun produit disponible pour le moment.
@@ -93,7 +110,7 @@ export function LandingProducts() {
 				) : (
 					<AnimatedContent distance={60} threshold={0.15}>
 						<AccordionGallery
-							items={produitsActifs.slice(0, 6).map((produit) => ({
+							items={selection.map((produit) => ({
 								image: produit.image_url
 									? produitImagePublicUrl(produit.id)
 									: null,
@@ -101,7 +118,7 @@ export function LandingProducts() {
 								link: "/supermarche/produits",
 								alt: produit.nom,
 							}))}
-							defaultIndex={0}
+							defaultIndex={indexActif}
 							accentColor="#E67E22"
 							overlayColor="#1A2B4C"
 							height={420}
