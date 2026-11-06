@@ -170,7 +170,7 @@ export function NotificationsBridge() {
 					key={courant.id}
 					// Affichage bref — la file déroule vite et ne masque pas
 					// l'écran ; le détail reste dans le centre de notifications.
-					duration={3500}
+					duration={1000}
 					onOpenChange={(ouvert) => {
 						if (!ouvert) {
 							setToasts((actuels) =>
