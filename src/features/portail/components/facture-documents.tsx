@@ -5,6 +5,7 @@ import { Button } from "#/components/ui/button";
 import type { Facture } from "#/features/facturation/models/factures";
 import { telechargerBlob } from "#/lib/download";
 import { imprimerHtml } from "#/lib/print-pdf";
+import { getLargeurTicket } from "#/lib/ticket-largeur-store";
 
 import {
 	getMonTicketFactureHtml,
@@ -18,7 +19,8 @@ type Action = "facture" | "recu" | "ticket";
 /**
  * Documents d'une facture servis par le backend (GET /facturation/portail/
  * factures/{id}/pdf|recu|ticket) : facture PDF, reçu PDF des paiements
- * enregistrés, ticket de caisse HTML imprimé à 80mm.
+ * enregistrés, ticket de caisse HTML imprimé à la largeur préférée du
+ * poste (`ticket-largeur-store`, 58mm par défaut).
  * Reçu et ticket exigent un encaissement (`montant_paye` > 0) — le backend
  * renvoie 409 sinon.
  */
@@ -48,7 +50,11 @@ export function FactureDocuments({
 					`recu-${facture.numero}.pdf`,
 				);
 			} else {
-				await imprimerHtml(await getMonTicketFactureHtml(facture.id), 80);
+				const largeur = getLargeurTicket();
+				await imprimerHtml(
+					await getMonTicketFactureHtml(facture.id, largeur),
+					largeur,
+				);
 			}
 		} catch (error) {
 			setErreur(true);

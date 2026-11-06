@@ -5,6 +5,7 @@ import { idCaisseDto } from "#/features/finances/models/caisses";
 import { getImprimanteThermique } from "#/lib/imprimante-thermique-store";
 import { imprimerHtml } from "#/lib/print-pdf";
 import { imprimerTicketQZ } from "#/lib/qz-tray-client";
+import { getLargeurTicket } from "#/lib/ticket-largeur-store";
 
 import type {
 	CommandePressing,
@@ -333,7 +334,7 @@ export function apercuAbonnementCommande(
  */
 export async function printCommandeRecu(
 	id: string,
-	largeur: 58 | 80 = 58,
+	largeur: 58 | 80 = getLargeurTicket(),
 ): Promise<void> {
 	const blob = await getApiClient().download(
 		`/api/v1/pressing/commandes/${id}/recu?largeur=${largeur}`,

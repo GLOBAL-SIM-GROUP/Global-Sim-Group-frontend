@@ -2,6 +2,7 @@ import { fetchToutesPages, getApiClient } from "#/core/api";
 import { getImprimanteThermique } from "#/lib/imprimante-thermique-store";
 import { imprimerHtml, imprimerPdfBlob } from "#/lib/print-pdf";
 import { imprimerTicketQZ } from "#/lib/qz-tray-client";
+import { getLargeurTicket } from "#/lib/ticket-largeur-store";
 
 export type FactureSourceType =
 	| "VENTE"
@@ -87,7 +88,8 @@ export async function printFacturePdf(factureId: string): Promise<void> {
 }
 
 /**
- * Imprime le ticket de caisse (58mm ou 80mm) d'une facture. Le backend
+ * Imprime le ticket de caisse d'une facture (58/80mm — la préférence du
+ * poste `ticket-largeur-store` si `largeur` n'est pas passée). Le backend
  * renvoie du HTML : si une imprimante QZ Tray est configurée sur ce poste
  * (`imprimante-thermique-store.ts`), on imprime directement dessus — la
  * largeur physique est alors imposée par QZ (niveau pilote), indépendamment
@@ -98,7 +100,7 @@ export async function printFacturePdf(factureId: string): Promise<void> {
  */
 export async function printFactureTicket(
 	factureId: string,
-	largeur: 58 | 80 = 58,
+	largeur: 58 | 80 = getLargeurTicket(),
 ): Promise<void> {
 	const blob = await getApiClient().download(
 		`/api/v1/facturation/factures/${factureId}/ticket?largeur=${largeur}`,

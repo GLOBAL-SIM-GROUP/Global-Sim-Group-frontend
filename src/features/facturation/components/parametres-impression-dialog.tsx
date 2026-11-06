@@ -21,6 +21,11 @@ import {
 	setImprimanteThermique,
 } from "#/lib/imprimante-thermique-store";
 import { imprimerTicketQZ, qzEtatEtImprimantes } from "#/lib/qz-tray-client";
+import {
+	getLargeurTicket,
+	type LargeurTicket,
+	setLargeurTicket,
+} from "#/lib/ticket-largeur-store";
 
 /** Ticket minimal auto-suffisant, pour tester l'impression sans facture réelle. */
 function ticketDeTest(): string {
@@ -48,10 +53,11 @@ interface ParametresImpressionDialogProps {
 
 /**
  * Modale « Paramètres d'impression » : choix de l'imprimante thermique QZ
- * Tray pour CE poste (réglage local, `localStorage` — jamais envoyé au
- * backend). Une fois configurée, `printFactureTicket` l'utilise
- * automatiquement pour tous les tickets, sans repasser par la boîte
- * d'impression du navigateur (voir `docs.global-sim-group.com/frontend/impression/`).
+ * Tray et de la largeur de ticket (58/80mm) pour CE poste (réglages locaux,
+ * `localStorage` — jamais envoyés au backend). Une fois configurée,
+ * `printFactureTicket` les utilise automatiquement pour tous les tickets,
+ * sans repasser par la boîte d'impression du navigateur (voir
+ * `docs.global-sim-group.com/frontend/impression/`).
  */
 export function ParametresImpressionDialog({
 	open,
@@ -60,6 +66,7 @@ export function ParametresImpressionDialog({
 	const [statut, setStatut] = useState<Statut>("verification");
 	const [imprimantes, setImprimantes] = useState<string[]>([]);
 	const [choix, setChoix] = useState<string>("");
+	const [largeurTicket, setLargeurTicketState] = useState<LargeurTicket>(58);
 	const [testEnCours, setTestEnCours] = useState(false);
 	const [messageTest, setMessageTest] = useState<string | null>(null);
 
@@ -76,11 +83,13 @@ export function ParametresImpressionDialog({
 	useEffect(() => {
 		if (!open) return;
 		setChoix(getImprimanteThermique() ?? "");
+		setLargeurTicketState(getLargeurTicket());
 		rafraichir();
 	}, [open]);
 
 	const handleEnregistrer = () => {
 		setImprimanteThermique(choix || null);
+		setLargeurTicket(largeurTicket);
 		onOpenChange(false);
 	};
 
@@ -89,7 +98,7 @@ export function ParametresImpressionDialog({
 		setTestEnCours(true);
 		setMessageTest(null);
 		try {
-			await imprimerTicketQZ(ticketDeTest(), 58, choix);
+			await imprimerTicketQZ(ticketDeTest(), largeurTicket, choix);
 			setMessageTest("Ticket de test envoyé.");
 		} catch (error) {
 			setMessageTest(
@@ -108,7 +117,8 @@ export function ParametresImpressionDialog({
 				<DialogTitle>Paramètres d'impression</DialogTitle>
 				<DialogDescription>
 					Imprime directement sur une imprimante thermique via QZ Tray, sans
-					passer par la boîte d'impression du navigateur.
+					passer par la boîte d'impression du navigateur. La largeur du ticket
+					s'applique dans les deux cas.
 				</DialogDescription>
 
 				<div className="mt-4 space-y-4">
@@ -178,6 +188,32 @@ export function ParametresImpressionDialog({
 							) : null}
 						</div>
 					)}
+
+					<div className="space-y-2">
+						<Label htmlFor="largeur-ticket">Largeur du ticket</Label>
+						<Select
+							value={String(largeurTicket)}
+							onValueChange={(valeur) =>
+								setLargeurTicketState(valeur === "80" ? 80 : 58)
+							}
+						>
+							<SelectTrigger
+								id="largeur-ticket"
+								aria-label="Largeur du ticket"
+								className="w-full"
+							>
+								<SelectValue />
+							</SelectTrigger>
+							<SelectContent>
+								<SelectItem value="58">58 mm</SelectItem>
+								<SelectItem value="80">80 mm</SelectItem>
+							</SelectContent>
+						</Select>
+						<p className="text-xs text-muted-foreground">
+							Largeur de papier de l'imprimante thermique de ce poste — utilisée
+							pour tous les tickets et reçus imprimés ici.
+						</p>
+					</div>
 
 					{statut === "disponible" && choix ? (
 						<div className="flex items-center gap-2">
