@@ -292,14 +292,13 @@ export function ProduitForm({
 					const erreur = validerMontant(value.seuilAlerte, "Le seuil d'alerte");
 					if (erreur) fields.seuilAlerte = erreur;
 				}
-				if (
-					value.codeBarre.trim() &&
-					!/^\d{6,32}$/.test(value.codeBarre.trim())
-				) {
-					// Contrainte backend exacte (vérifiée en direct) : uniquement des
-					// chiffres, 6 à 32 caractères — jamais documentée dans le spec.
+				if (value.codeBarre.trim().length > 64) {
+					// Format libre : chiffres (EAN-13, ITF), alphanumérique + symboles
+					// (Code 39/128), texte de QR… — le seul garde-fou est la longueur ;
+					// une éventuelle contrainte plus fine relève du backend (erreurs
+					// mappées champ par champ à l'envoi).
 					fields.codeBarre =
-						"Le code-barres doit contenir entre 6 et 32 chiffres.";
+						"Le code-barres est trop long (64 caractères maximum).";
 				}
 				return { fields };
 			},
