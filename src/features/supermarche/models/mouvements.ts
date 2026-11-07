@@ -14,7 +14,8 @@ export interface Mouvement {
 	type: MouvementType;
 	quantite_mouvement: string;
 	delta: string;
-	stock_resultant: string;
+	/** `null` observé en direct sur certains AJUSTEMENT (le backend ne le calcule pas toujours). */
+	stock_resultant: string | null;
 }
 
 /** Libellés français du type de mouvement. */
