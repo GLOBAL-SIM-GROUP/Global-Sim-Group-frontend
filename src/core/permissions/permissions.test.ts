@@ -86,7 +86,7 @@ describe("modèle de permissions (réel, pas inventé)", () => {
 		expect(MODULES).not.toContain("MARKET");
 	});
 
-	it("expose les 19 verbes modélisés, dont les 4 verbes réels du cycle de vie pressing (TRAITER/MARQUER_PRET/RETIRER/SUPERVISER, corrigés le 2026-09-27)", () => {
+	it("expose les 20 verbes modélisés, dont les 4 verbes réels du cycle de vie pressing (TRAITER/MARQUER_PRET/RETIRER/SUPERVISER, corrigés le 2026-09-27) et CORRIGER_STOCK (écrasement de stock, 2026-11-07)", () => {
 		expect(PERMISSION_VERBS).toEqual([
 			"VOIR",
 			"CREER",
@@ -107,6 +107,7 @@ describe("modèle de permissions (réel, pas inventé)", () => {
 			"MARQUER_PRET",
 			"RETIRER",
 			"SUPERVISER",
+			"CORRIGER_STOCK",
 		]);
 	});
 });

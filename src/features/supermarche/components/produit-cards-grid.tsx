@@ -17,6 +17,7 @@ interface ProduitCardsGridProps {
 	fournisseurs: Fournisseur[];
 	onEdit: (produit: Produit) => void;
 	onCodeBarre: (produit: Produit) => void;
+	onCorrigerStock: (produit: Produit) => void;
 }
 
 /**
@@ -29,6 +30,7 @@ export function ProduitCardsGrid({
 	fournisseurs,
 	onEdit,
 	onCodeBarre,
+	onCorrigerStock,
 }: ProduitCardsGridProps) {
 	if (produits.length === 0) {
 		return (
@@ -127,6 +129,7 @@ export function ProduitCardsGrid({
 									produit={produit}
 									onEdit={onEdit}
 									onCodeBarre={onCodeBarre}
+									onCorrigerStock={onCorrigerStock}
 								/>
 							</div>
 						</div>

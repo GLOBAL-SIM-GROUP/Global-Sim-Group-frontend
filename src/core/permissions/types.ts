@@ -92,6 +92,12 @@
  * expirée). Le catalogue des offres reste sur les verbes génériques
  * (`VOIR`/`CREER`/`MODIFIER`/`SUPPRIMER`).
  *
+ * `CORRIGER_STOCK` (2026-11-07, endpoint live) : écrasement du stock d'un
+ * produit à une valeur cible — `POST /market/produits/:id/stock/ecraser`.
+ * Propre à MARCHANDISE ; accordé à ADMINISTRATEUR et DIRIGEANT seulement
+ * (le responsable magasin ne l'a pas : il passe par les mouvements
+ * ENTRÉE/SORTIE/AJUSTEMENT ordinaires).
+ *
  * `RAPPORTS` (2026-09-27, vérifié en direct via `GET /admin/permissions` —
  * catalogue complet, 18 modules/94 codes) : module désormais réel et
  * **distinct** d'`ADMIN`, contrairement à ce que supposait tout le code
@@ -147,6 +153,7 @@ export const PERMISSION_VERBS = [
 	"MARQUER_PRET",
 	"RETIRER",
 	"SUPERVISER",
+	"CORRIGER_STOCK",
 ] as const;
 
 export type PermissionVerb = (typeof PERMISSION_VERBS)[number];

@@ -22,6 +22,7 @@ interface ProduitTableProps {
 	fournisseurs: Fournisseur[];
 	onEdit: (produit: Produit) => void;
 	onCodeBarre: (produit: Produit) => void;
+	onCorrigerStock: (produit: Produit) => void;
 }
 
 /** Variante `<Badge>` du stock : rupture, sous le seuil, ou normal. */
@@ -43,6 +44,7 @@ export function ProduitTable({
 	fournisseurs,
 	onEdit,
 	onCodeBarre,
+	onCorrigerStock,
 }: ProduitTableProps) {
 	if (produits.length === 0) {
 		return <EmptyState title="Aucun produit trouvé." />;
@@ -97,6 +99,7 @@ export function ProduitTable({
 									produit={produit}
 									onEdit={onEdit}
 									onCodeBarre={onCodeBarre}
+									onCorrigerStock={onCorrigerStock}
 								/>
 							</Td>
 						</Tr>

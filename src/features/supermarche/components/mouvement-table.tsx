@@ -1,4 +1,7 @@
+import { Scale } from "lucide-react";
+
 import { Badge } from "#/components/ui/badge";
+import { Button } from "#/components/ui/button";
 import { EmptyState } from "#/components/ui/empty-state";
 import {
 	DataTable,
@@ -14,11 +17,20 @@ import {
 	MOUVEMENT_TYPE_VARIANT,
 	type Mouvement,
 } from "../models/mouvements";
+import type { Produit } from "../models/produits";
 
 interface MouvementTableProps {
 	mouvements: Mouvement[];
 	/** Nom du fournisseur par référence produit (`null` si sans fournisseur). */
 	fournisseursParReference: ReadonlyMap<string, string | null>;
+	/**
+	 * Produit courant par référence + callback d'écrasement du stock. Fournir
+	 * les deux ajoute une colonne ACTIONS « Corriger le stock » (réservée
+	 * `MARCHANDISE.CORRIGER_STOCK` — la page ne les passe que si le compte a
+	 * le verbe).
+	 */
+	produitParReference?: ReadonlyMap<string, Produit>;
+	onCorrigerStock?: (produit: Produit) => void;
 }
 
 /**
@@ -30,6 +42,8 @@ interface MouvementTableProps {
 export function MouvementTable({
 	mouvements,
 	fournisseursParReference,
+	produitParReference,
+	onCorrigerStock,
 }: MouvementTableProps) {
 	if (mouvements.length === 0) {
 		return <EmptyState title="Aucun mouvement trouvé." />;
@@ -46,6 +60,7 @@ export function MouvementTable({
 						<Th>TYPE</Th>
 						<Th>QUANTITÉ</Th>
 						<Th>STOCK RÉSULTANT</Th>
+						{onCorrigerStock ? <Th className="text-right">ACTIONS</Th> : null}
 					</tr>
 				</DataTableHead>
 				<tbody>
@@ -71,7 +86,30 @@ export function MouvementTable({
 							<Td className="text-foreground">
 								{mouvement.quantite_mouvement}
 							</Td>
-							<Td className="text-foreground">{mouvement.stock_resultant}</Td>
+							<Td className="text-foreground">
+								{mouvement.stock_resultant ?? "—"}
+							</Td>
+							{onCorrigerStock ? (
+								<Td>
+									<div className="flex justify-end">
+										<Button
+											variant="ghost"
+											size="icon-sm"
+											title="Corriger le stock"
+											disabled={!produitParReference?.has(mouvement.reference)}
+											onClick={() => {
+												const cible = produitParReference?.get(
+													mouvement.reference,
+												);
+												if (cible) onCorrigerStock(cible);
+											}}
+										>
+											<Scale className="size-4" aria-hidden />
+											<span className="sr-only">Corriger le stock</span>
+										</Button>
+									</div>
+								</Td>
+							) : null}
 						</Tr>
 					))}
 				</tbody>

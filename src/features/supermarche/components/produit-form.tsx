@@ -1,5 +1,6 @@
 import { useForm } from "@tanstack/react-form";
-import { Camera, Loader2, Plus, Upload, X } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { Camera, Loader2, Plus, Scale, Upload, X } from "lucide-react";
 import { useRef, useState } from "react";
 
 import { BoutonCamera } from "#/components/bouton-camera";
@@ -24,6 +25,7 @@ import {
 } from "#/core/forms/montant";
 import { cn } from "#/lib/utils";
 
+import { getProduit } from "../api/produits";
 import {
 	useCreerCategorieProduit,
 	useCreerFournisseur,
@@ -35,7 +37,9 @@ import type {
 	Fournisseur,
 	Produit,
 } from "../models/produits";
+import { produitsKeys } from "../permissions";
 import { CameraScanDialog, cameraDisponible } from "./camera-scan-dialog";
+import { CorrigerStockDialog } from "./corriger-stock-dialog";
 
 /** Champs du formulaire (noms cohérents avec le corps API). */
 type ProduitField =
@@ -246,9 +250,22 @@ export function ProduitForm({
 	const creerCategorieMutation = useCreerCategorieProduit();
 	const creerFournisseurMutation = useCreerFournisseur();
 	const peutCreerCatalogue = useCan("MARCHANDISE.CREER");
+	const peutCorrigerStock = useCan("MARCHANDISE.CORRIGER_STOCK");
 	const [globalError, setGlobalError] = useState<string | null>(null);
 	const [cameraCodeBarre, setCameraCodeBarre] = useState(false);
+	const [corrigerStock, setCorrigerStock] = useState(false);
 	const fileInputRef = useRef<HTMLInputElement>(null);
+
+	// Stock frais en édition : la clé `detail` vit sous `produitsKeys.all`,
+	// donc l'invalidation de `useEcraserStock` la recharge après correction.
+	const produitFrais = useQuery({
+		queryKey: produitsKeys.detail(produit?.id ?? null),
+		queryFn: () => getProduit(produit?.id ?? ""),
+		enabled: produit !== null,
+	});
+	const stockAffiche = Number(
+		produitFrais.data?.quantite_stock ?? produit?.quantite_stock ?? 0,
+	);
 
 	const form = useForm({
 		defaultValues: {
@@ -355,125 +372,93 @@ export function ProduitForm({
 	});
 
 	return (
-		<form
-			className="space-y-4"
-			onSubmit={(event) => {
-				event.preventDefault();
-				event.stopPropagation();
-				void form.handleSubmit();
-			}}
-		>
-			<div className="grid gap-4 sm:grid-cols-2">
-				<form.Field name="reference">
-					{(field) => (
-						<InputField
-							id={field.name}
-							name={field.name}
-							label={produit ? "Référence" : "Référence (optionnel)"}
-							placeholder={
-								produit
-									? "ex : SUCRE-01"
-									: "Laissez vide pour générer automatiquement (GSG-REF-xxx)"
-							}
-							autoComplete="off"
-							value={field.state.value}
-							onBlur={field.handleBlur}
-							onChange={(event) => field.handleChange(event.target.value)}
-							error={field.state.meta.errors[0]}
-						/>
-					)}
-				</form.Field>
-
-				<form.Field name="nom">
-					{(field) => (
-						<InputField
-							id={field.name}
-							name={field.name}
-							label="Nom"
-							placeholder="ex : Sucre en poudre 1kg"
-							autoComplete="off"
-							value={field.state.value}
-							onBlur={field.handleBlur}
-							onChange={(event) => field.handleChange(event.target.value)}
-							error={field.state.meta.errors[0]}
-						/>
-					)}
-				</form.Field>
-
-				<form.Field name="idCategorieProduit">
-					{(field) => (
-						<ChampSelectOuCreer
-							id={field.name}
-							label="Catégorie"
-							placeholder="ex : Épicerie"
-							valeur={field.state.value}
-							entrees={categories}
-							peutCreer={peutCreerCatalogue}
-							onChange={field.handleChange}
-							onCreer={(libelle) =>
-								creerCategorieMutation.mutateAsync({ libelle })
-							}
-						/>
-					)}
-				</form.Field>
-
-				<form.Field name="idFournisseur">
-					{(field) => (
-						<ChampSelectOuCreer
-							id={field.name}
-							label="Fournisseur"
-							placeholder="ex : SODEXCO"
-							valeur={field.state.value}
-							entrees={fournisseurs.map((fournisseur) => ({
-								id: fournisseur.id,
-								libelle: fournisseur.nom,
-							}))}
-							peutCreer={peutCreerCatalogue}
-							onChange={field.handleChange}
-							onCreer={(nom) => creerFournisseurMutation.mutateAsync({ nom })}
-						/>
-					)}
-				</form.Field>
-
-				<form.Field name="prixAchat">
-					{(field) => (
-						<InputField
-							id={field.name}
-							name={field.name}
-							label="Prix d'achat (FCFA)"
-							inputMode="numeric"
-							autoComplete="off"
-							value={field.state.value}
-							onBlur={field.handleBlur}
-							onChange={(event) => field.handleChange(event.target.value)}
-							error={field.state.meta.errors[0]}
-						/>
-					)}
-				</form.Field>
-
-				<form.Field name="prixVente">
-					{(field) => (
-						<InputField
-							id={field.name}
-							name={field.name}
-							label="Prix de vente (FCFA)"
-							inputMode="numeric"
-							autoComplete="off"
-							value={field.state.value}
-							onBlur={field.handleBlur}
-							onChange={(event) => field.handleChange(event.target.value)}
-							error={field.state.meta.errors[0]}
-						/>
-					)}
-				</form.Field>
-
-				{!produit ? (
-					<form.Field name="stockInitial">
+		<>
+			<form
+				className="space-y-4"
+				onSubmit={(event) => {
+					event.preventDefault();
+					event.stopPropagation();
+					void form.handleSubmit();
+				}}
+			>
+				<div className="grid gap-4 sm:grid-cols-2">
+					<form.Field name="reference">
 						{(field) => (
 							<InputField
 								id={field.name}
 								name={field.name}
-								label="Stock initial"
+								label={produit ? "Référence" : "Référence (optionnel)"}
+								placeholder={
+									produit
+										? "ex : SUCRE-01"
+										: "Laissez vide pour générer automatiquement (GSG-REF-xxx)"
+								}
+								autoComplete="off"
+								value={field.state.value}
+								onBlur={field.handleBlur}
+								onChange={(event) => field.handleChange(event.target.value)}
+								error={field.state.meta.errors[0]}
+							/>
+						)}
+					</form.Field>
+
+					<form.Field name="nom">
+						{(field) => (
+							<InputField
+								id={field.name}
+								name={field.name}
+								label="Nom"
+								placeholder="ex : Sucre en poudre 1kg"
+								autoComplete="off"
+								value={field.state.value}
+								onBlur={field.handleBlur}
+								onChange={(event) => field.handleChange(event.target.value)}
+								error={field.state.meta.errors[0]}
+							/>
+						)}
+					</form.Field>
+
+					<form.Field name="idCategorieProduit">
+						{(field) => (
+							<ChampSelectOuCreer
+								id={field.name}
+								label="Catégorie"
+								placeholder="ex : Épicerie"
+								valeur={field.state.value}
+								entrees={categories}
+								peutCreer={peutCreerCatalogue}
+								onChange={field.handleChange}
+								onCreer={(libelle) =>
+									creerCategorieMutation.mutateAsync({ libelle })
+								}
+							/>
+						)}
+					</form.Field>
+
+					<form.Field name="idFournisseur">
+						{(field) => (
+							<ChampSelectOuCreer
+								id={field.name}
+								label="Fournisseur"
+								placeholder="ex : SODEXCO"
+								valeur={field.state.value}
+								entrees={fournisseurs.map((fournisseur) => ({
+									id: fournisseur.id,
+									libelle: fournisseur.nom,
+								}))}
+								peutCreer={peutCreerCatalogue}
+								onChange={field.handleChange}
+								onCreer={(nom) => creerFournisseurMutation.mutateAsync({ nom })}
+							/>
+						)}
+					</form.Field>
+
+					<form.Field name="prixAchat">
+						{(field) => (
+							<InputField
+								id={field.name}
+								name={field.name}
+								label="Prix d'achat (FCFA)"
 								inputMode="numeric"
 								autoComplete="off"
 								value={field.state.value}
@@ -483,125 +468,195 @@ export function ProduitForm({
 							/>
 						)}
 					</form.Field>
-				) : null}
 
-				<form.Field name="seuilAlerte">
-					{(field) => (
-						<InputField
-							id={field.name}
-							name={field.name}
-							label="Seuil d'alerte"
-							inputMode="numeric"
-							autoComplete="off"
-							value={field.state.value}
-							onBlur={field.handleBlur}
-							onChange={(event) => field.handleChange(event.target.value)}
-							error={field.state.meta.errors[0]}
-						/>
-					)}
-				</form.Field>
+					<form.Field name="prixVente">
+						{(field) => (
+							<InputField
+								id={field.name}
+								name={field.name}
+								label="Prix de vente (FCFA)"
+								inputMode="numeric"
+								autoComplete="off"
+								value={field.state.value}
+								onBlur={field.handleBlur}
+								onChange={(event) => field.handleChange(event.target.value)}
+								error={field.state.meta.errors[0]}
+							/>
+						)}
+					</form.Field>
 
-				<form.Field name="codeBarre">
-					{(field) => (
-						<div className="flex items-start gap-2">
-							<div className="flex-1">
+					{produit ? (
+						<div className="space-y-2">
+							<Label htmlFor="stockActuel">Stock</Label>
+							<div className="flex items-center gap-2">
+								<span
+									id="stockActuel"
+									className="flex h-9 flex-1 items-center rounded-md border border-input bg-muted/50 px-3 text-sm"
+								>
+									{stockAffiche}
+								</span>
+								{peutCorrigerStock ? (
+									<Button
+										type="button"
+										variant="outline"
+										size="sm"
+										title="Corriger le stock (inventaire)"
+										onClick={() => setCorrigerStock(true)}
+									>
+										<Scale className="size-4" aria-hidden />
+										Corriger
+									</Button>
+								) : null}
+							</div>
+						</div>
+					) : (
+						<form.Field name="stockInitial">
+							{(field) => (
 								<InputField
 									id={field.name}
 									name={field.name}
-									label="Code-barres (optionnel)"
-									placeholder="Scannez le code imprimé sur l'emballage, ou saisissez-le"
+									label="Stock initial"
+									inputMode="numeric"
 									autoComplete="off"
 									value={field.state.value}
 									onBlur={field.handleBlur}
 									onChange={(event) => field.handleChange(event.target.value)}
-									onKeyDown={(event) => {
-										// Une douchette envoie `Entrée` après avoir tapé le code —
-										// on l'empêche de soumettre le formulaire prématurément.
-										if (event.key === "Enter") event.preventDefault();
-									}}
 									error={field.state.meta.errors[0]}
 								/>
-							</div>
-							{cameraDisponible() ? (
-								<>
-									<Button
-										type="button"
-										variant="outline"
-										size="icon"
-										className="mt-6"
-										aria-label="Scanner le code-barres par caméra"
-										title="Scanner le code-barres par caméra"
-										onClick={() => setCameraCodeBarre(true)}
-									>
-										<Camera className="size-4" aria-hidden />
-									</Button>
-									<CameraScanDialog
-										open={cameraCodeBarre}
-										onOpenChange={setCameraCodeBarre}
-										description="Présentez le code-barres de l'emballage devant la caméra — le dialogue se ferme tout seul et le code remplit le champ."
-										onCode={async (code) => {
-											field.handleChange(code.trim());
+							)}
+						</form.Field>
+					)}
+
+					<form.Field name="seuilAlerte">
+						{(field) => (
+							<InputField
+								id={field.name}
+								name={field.name}
+								label="Seuil d'alerte"
+								inputMode="numeric"
+								autoComplete="off"
+								value={field.state.value}
+								onBlur={field.handleBlur}
+								onChange={(event) => field.handleChange(event.target.value)}
+								error={field.state.meta.errors[0]}
+							/>
+						)}
+					</form.Field>
+
+					<form.Field name="codeBarre">
+						{(field) => (
+							<div className="flex items-start gap-2">
+								<div className="flex-1">
+									<InputField
+										id={field.name}
+										name={field.name}
+										label="Code-barres (optionnel)"
+										placeholder="Scannez le code imprimé sur l'emballage, ou saisissez-le"
+										autoComplete="off"
+										value={field.state.value}
+										onBlur={field.handleBlur}
+										onChange={(event) => field.handleChange(event.target.value)}
+										onKeyDown={(event) => {
+											// Une douchette envoie `Entrée` après avoir tapé le code —
+											// on l'empêche de soumettre le formulaire prématurément.
+											if (event.key === "Enter") event.preventDefault();
 										}}
+										error={field.state.meta.errors[0]}
 									/>
-								</>
-							) : null}
+								</div>
+								{cameraDisponible() ? (
+									<>
+										<Button
+											type="button"
+											variant="outline"
+											size="icon"
+											className="mt-6"
+											aria-label="Scanner le code-barres par caméra"
+											title="Scanner le code-barres par caméra"
+											onClick={() => setCameraCodeBarre(true)}
+										>
+											<Camera className="size-4" aria-hidden />
+										</Button>
+										<CameraScanDialog
+											open={cameraCodeBarre}
+											onOpenChange={setCameraCodeBarre}
+											description="Présentez le code-barres de l'emballage devant la caméra — le dialogue se ferme tout seul et le code remplit le champ."
+											onCode={async (code) => {
+												field.handleChange(code.trim());
+											}}
+										/>
+									</>
+								) : null}
+							</div>
+						)}
+					</form.Field>
+				</div>
+
+				<form.Field name="actif">
+					{(field) => (
+						<div className="flex items-center gap-3">
+							<Label htmlFor={field.name}>Actif</Label>
+							<Switch
+								id={field.name}
+								checked={field.state.value}
+								onCheckedChange={field.handleChange}
+							/>
 						</div>
 					)}
 				</form.Field>
-			</div>
 
-			<form.Field name="actif">
-				{(field) => (
-					<div className="flex items-center gap-3">
-						<Label htmlFor={field.name}>Actif</Label>
-						<Switch
-							id={field.name}
-							checked={field.state.value}
-							onCheckedChange={field.handleChange}
+				<form.Field name="imageUrl">
+					{(field) => (
+						<ImageUploadField
+							label="Image du produit"
+							imageKey={field.state.value}
+							onImageKeyChange={field.handleChange}
+							uploadMutation={uploadMutation}
+							fileInputRef={fileInputRef}
 						/>
-					</div>
-				)}
-			</form.Field>
+					)}
+				</form.Field>
 
-			<form.Field name="imageUrl">
-				{(field) => (
-					<ImageUploadField
-						label="Image du produit"
-						imageKey={field.state.value}
-						onImageKeyChange={field.handleChange}
-						uploadMutation={uploadMutation}
-						fileInputRef={fileInputRef}
-					/>
-				)}
-			</form.Field>
+				{globalError ? (
+					<p role="alert" className="text-sm font-medium text-destructive">
+						{globalError}
+					</p>
+				) : null}
 
-			{globalError ? (
-				<p role="alert" className="text-sm font-medium text-destructive">
-					{globalError}
-				</p>
+				<form.Subscribe selector={(state) => state.isSubmitting}>
+					{(isSubmitting) => (
+						<div className="flex items-center justify-end gap-2 pt-2">
+							<Button
+								type="button"
+								variant="ghost"
+								disabled={isSubmitting}
+								onClick={onCancel}
+							>
+								Annuler
+							</Button>
+							<Button type="submit" disabled={isSubmitting}>
+								{isSubmitting ? (
+									<Loader2 className="size-4 animate-spin" aria-hidden />
+								) : null}
+								{isSubmitting ? "Enregistrement…" : "Enregistrer"}
+							</Button>
+						</div>
+					)}
+				</form.Subscribe>
+			</form>
+
+			{produit && corrigerStock ? (
+				// Monté uniquement à l'ouverture : champ pré-rempli sur le stock
+				// frais et résultat de la session précédente effacé.
+				<CorrigerStockDialog
+					open
+					produit={produitFrais.data ?? produit}
+					onOpenChange={(ouvert) => {
+						if (!ouvert) setCorrigerStock(false);
+					}}
+				/>
 			) : null}
-
-			<form.Subscribe selector={(state) => state.isSubmitting}>
-				{(isSubmitting) => (
-					<div className="flex items-center justify-end gap-2 pt-2">
-						<Button
-							type="button"
-							variant="ghost"
-							disabled={isSubmitting}
-							onClick={onCancel}
-						>
-							Annuler
-						</Button>
-						<Button type="submit" disabled={isSubmitting}>
-							{isSubmitting ? (
-								<Loader2 className="size-4 animate-spin" aria-hidden />
-							) : null}
-							{isSubmitting ? "Enregistrement…" : "Enregistrer"}
-						</Button>
-					</div>
-				)}
-			</form.Subscribe>
-		</form>
+		</>
 	);
 }
 

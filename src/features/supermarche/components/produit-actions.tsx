@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Barcode, Boxes, Pencil } from "lucide-react";
+import { Barcode, Boxes, Pencil, Scale } from "lucide-react";
 
 import { Button } from "#/components/ui/button";
 import { useCan } from "#/core/auth";
@@ -12,6 +12,8 @@ interface ProduitActionsProps {
 	onEdit: (produit: Produit) => void;
 	/** Code-barres → ouvre le dialogue générer/afficher/imprimer l'étiquette. */
 	onCodeBarre: (produit: Produit) => void;
+	/** Corriger le stock → ouvre la modale d'écrasement (`CORRIGER_STOCK`). */
+	onCorrigerStock: (produit: Produit) => void;
 }
 
 /**
@@ -19,13 +21,17 @@ interface ProduitActionsProps {
  * (édition). « Voir le stock » mène à la page des mouvements. « Code-barres »
  * reste visible sans la permission modifier (lecture de l'étiquette possible
  * avec VOIR seul) — seule la génération à l'intérieur est gated.
+ * « Corriger le stock » requiert `MARCHANDISE.CORRIGER_STOCK`
+ * (ADMINISTRATEUR/DIRIGEANT — pas le responsable magasin).
  */
 export function ProduitActions({
 	produit,
 	onEdit,
 	onCodeBarre,
+	onCorrigerStock,
 }: ProduitActionsProps) {
 	const canModifier = useCan("MARCHANDISE.MODIFIER");
+	const canCorrigerStock = useCan("MARCHANDISE.CORRIGER_STOCK");
 
 	return (
 		<div className="flex items-center justify-end gap-1">
@@ -45,6 +51,18 @@ export function ProduitActions({
 				<Barcode className="size-4" aria-hidden />
 				<span className="sr-only">Code-barres</span>
 			</Button>
+
+			{canCorrigerStock ? (
+				<Button
+					variant="ghost"
+					size="icon-sm"
+					title="Corriger le stock"
+					onClick={() => onCorrigerStock(produit)}
+				>
+					<Scale className="size-4" aria-hidden />
+					<span className="sr-only">Corriger le stock</span>
+				</Button>
+			) : null}
 
 			{canModifier ? (
 				<Button

@@ -13,8 +13,10 @@ import {
 	type MouvementTypeFiltre,
 	paginerMouvements,
 } from "../models/mouvements";
+import type { Produit } from "../models/produits";
 import { MOUVEMENTS_PAGE_SIZE } from "../permissions";
 import { AlerteStockDialog } from "./alerte-stock-dialog";
+import { CorrigerStockDialog } from "./corriger-stock-dialog";
 import { EntreeStockScanDialog } from "./entree-stock-scan-dialog";
 import { MouvementFilters } from "./mouvement-filters";
 import { MouvementFormDialog } from "./mouvement-form-dialog";
@@ -44,6 +46,7 @@ export function MouvementsPage({
 	onSearchChange,
 }: MouvementsPageProps) {
 	const canCreer = useCan("MARCHANDISE.CREER");
+	const canCorrigerStock = useCan("MARCHANDISE.CORRIGER_STOCK");
 
 	const mouvementsQuery = useMouvements();
 	const produitsQuery = useProduits();
@@ -59,6 +62,7 @@ export function MouvementsPage({
 	const [formOuvert, setFormOuvert] = useState(false);
 	const [alerteOuverte, setAlerteOuverte] = useState(false);
 	const [scanOuvert, setScanOuvert] = useState(false);
+	const [stockACorriger, setStockACorriger] = useState<Produit | null>(null);
 
 	const changerFiltre = (patch: {
 		type?: MouvementTypeFiltre;
@@ -98,6 +102,11 @@ export function MouvementsPage({
 			p.reference,
 			(p.id_fournisseur && fournisseurParId.get(p.id_fournisseur)) || null,
 		]),
+	);
+	// Référence → produit : la colonne « Corriger le stock » du tableau
+	// résout la fiche catalogue (l'historique ne porte pas l'id produit).
+	const produitParReference = new Map(
+		(produitsQuery.data ?? []).map((p) => [p.reference, p]),
 	);
 
 	return (
@@ -176,6 +185,12 @@ export function MouvementsPage({
 				<MouvementTable
 					mouvements={pagination.items}
 					fournisseursParReference={fournisseursParReference}
+					produitParReference={produitParReference}
+					onCorrigerStock={
+						canCorrigerStock
+							? (produit) => setStockACorriger(produit)
+							: undefined
+					}
 				/>
 			)}
 
@@ -238,6 +253,17 @@ export function MouvementsPage({
 				}}
 				onSaved={() => setScanOuvert(false)}
 			/>
+
+			{stockACorriger ? (
+				<CorrigerStockDialog
+					key={stockACorriger.id}
+					open
+					produit={stockACorriger}
+					onOpenChange={(ouvert) => {
+						if (!ouvert) setStockACorriger(null);
+					}}
+				/>
+			) : null}
 		</div>
 	);
 }

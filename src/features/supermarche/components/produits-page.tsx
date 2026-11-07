@@ -21,6 +21,7 @@ import {
 } from "../models/produits";
 import { PRODUITS_PAGE_SIZE } from "../permissions";
 import { BarcodeScanInput } from "./barcode-scan-input";
+import { CorrigerStockDialog } from "./corriger-stock-dialog";
 import { ProduitCardsGrid } from "./produit-cards-grid";
 import { ProduitCodeBarreDialog } from "./produit-code-barre-dialog";
 import { ProduitFilters } from "./produit-filters";
@@ -70,6 +71,7 @@ export function ProduitsPage({
 	const [codeBarreProduit, setCodeBarreProduit] = useState<Produit | null>(
 		null,
 	);
+	const [stockACorriger, setStockACorriger] = useState<Produit | null>(null);
 	const [scanErreur, setScanErreur] = useState<string | null>(null);
 
 	const produitsQuery = useProduits({
@@ -239,6 +241,7 @@ export function ProduitsPage({
 					fournisseurs={fournisseursQuery.data ?? []}
 					onEdit={(produit) => setAModifier(produit)}
 					onCodeBarre={(produit) => setCodeBarreProduit(produit)}
+					onCorrigerStock={(produit) => setStockACorriger(produit)}
 				/>
 			)}
 
@@ -290,6 +293,19 @@ export function ProduitsPage({
 					if (!ouvert) setCodeBarreProduit(null);
 				}}
 			/>
+
+			{stockACorriger ? (
+				// `key` sur l'id : la modale est remontée à chaque produit —
+				// champ pré-rempli sur le stock actuel, résultat précédent effacé.
+				<CorrigerStockDialog
+					key={stockACorriger.id}
+					open
+					produit={stockACorriger}
+					onOpenChange={(ouvert) => {
+						if (!ouvert) setStockACorriger(null);
+					}}
+				/>
+			) : null}
 		</div>
 	);
 }

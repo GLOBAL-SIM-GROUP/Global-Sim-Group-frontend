@@ -5,6 +5,7 @@ import {
 	creerCategorieProduit,
 	creerFournisseur,
 	creerProduit,
+	ecraserStock,
 	genererCodeBarre,
 	getEtiquetteBlobUrl,
 	type ListProduitsParams,
@@ -18,7 +19,9 @@ import {
 import {
 	categoriesProduitsKeys,
 	fournisseursKeys,
+	mouvementsKeys,
 	produitsKeys,
+	stockKeys,
 } from "../permissions";
 
 /** Catalogue des produits avec filtres côté backend. */
@@ -104,6 +107,26 @@ export function useModifierProduit() {
 export function useScannerProduit() {
 	return useMutation({
 		mutationFn: (codeBarre: string) => scannerProduit(codeBarre),
+	});
+}
+
+/**
+ * Écrase le stock d'un produit à une valeur cible
+ * (`POST /market/produits/:id/stock/ecraser` — permission
+ * `MARCHANDISE.CORRIGER_STOCK`). Invalide le catalogue, l'historique et les
+ * alertes : la correction écrit un mouvement et peut faire basculer un
+ * produit hors alerte.
+ */
+export function useEcraserStock() {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: ({ id, quantite }: { id: string; quantite: string }) =>
+			ecraserStock(id, quantite),
+		onSuccess: () => {
+			void queryClient.invalidateQueries({ queryKey: produitsKeys.all });
+			void queryClient.invalidateQueries({ queryKey: mouvementsKeys.all });
+			void queryClient.invalidateQueries({ queryKey: stockKeys.all });
+		},
 	});
 }
 

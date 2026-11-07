@@ -254,6 +254,45 @@ export function genererCodeBarre(id: string): Promise<Produit> {
 		.then(({ id_produit: pid, ...reste }) => ({ id: pid, ...reste }));
 }
 
+/** Un produit par id (GET `/market/produits/:id` — vérifié en direct). */
+export function getProduit(id: string): Promise<Produit> {
+	return getApiClient()
+		.apiFetch<ProduitWire>(`/api/v1/market/produits/${id}`)
+		.then(({ id_produit: pid, ...reste }) => ({ id: pid, ...reste }));
+}
+
+/** Résultat de `POST /market/produits/:id/stock/ecraser` (contrat convenu). */
+export interface EcraserStockResult {
+	stock_avant: number;
+	stock_apres: number;
+	/** `stock_apres - stock_avant` — négatif si la cible est sous le stock actuel. */
+	ecart: number;
+}
+
+/**
+ * Écrase le stock d'un produit à une valeur cible (POST
+ * `/market/produits/:id/stock/ecraser`, permission
+ * `MARCHANDISE.CORRIGER_STOCK` — ADMINISTRATEUR/DIRIGEANT seulement).
+ * `quantite` : nombre ≥ 0, 2 décimales max, envoyé en chaîne (« 42.00 »).
+ * 400 sur quantité négative/absente, 404 produit inconnu.
+ * ⚠️ Vérifié en direct (2026-11-07) : l'endpoint applique le stock mais
+ * n'écrit AUCUN mouvement dans `/market/stock/historique` — seule une trace
+ * `UPDATE market.produit` au journal d'audit. Pour une trace métier, le
+ * dialogue de correction écrit d'abord un AJUSTEMENT via `creerMouvement`.
+ */
+export function ecraserStock(
+	id: string,
+	quantite: string,
+): Promise<EcraserStockResult> {
+	return getApiClient().apiFetch<EcraserStockResult>(
+		`/api/v1/market/produits/${id}/stock/ecraser`,
+		{
+			method: "POST",
+			body: JSON.stringify({ quantite }),
+		},
+	);
+}
+
 /**
  * Image PNG de l'étiquette à imprimer (`GET
  * /market/produits/:id/etiquette`), en URL de blob objet — un `<img src>`
