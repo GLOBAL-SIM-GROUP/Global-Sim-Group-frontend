@@ -8,7 +8,7 @@ import { cn } from "#/lib/utils";
 const NAVIGATION = [
 	{ label: "Services", href: "#services" },
 	{ label: "La carte", href: "#carte" },
-	{ label: "Super-Marché", href: "#supermarche" },
+	{ label: "Supermarché", href: "#supermarche" },
 	{ label: "Comment ça marche", href: "#fonctionnement" },
 	{ label: "Contact", href: "#contact" },
 ] as const;

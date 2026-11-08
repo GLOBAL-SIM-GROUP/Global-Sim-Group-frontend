@@ -1,5 +1,5 @@
 /**
- * Vente du Super-Marché (module M3). Types hand-typed revalidés sur le backend réel
+ * Vente du Supermarché (module M3). Types hand-typed revalidés sur le backend réel
  * (GET /market/ventes, GET /market/ventes/{id}). Clé primaire wire `id_vente`
  * → `id`.
  */
@@ -7,7 +7,7 @@ import { jourLocalInstant } from "#/features/residence/models/format";
 
 export type VenteStatut = "EN_ATTENTE" | "EN_COURS" | "PAYEE" | "ANNULEE";
 
-/** Origine de la vente : POS comptoir ou demande Super-Marché du portail. */
+/** Origine de la vente : POS comptoir ou demande Supermarché du portail. */
 export type VenteOrigine = "COMPTOIR" | "PORTAIL";
 
 export interface Vente {
@@ -18,7 +18,7 @@ export interface Vente {
 	total: string;
 	statut: VenteStatut;
 	id_utilisateur: string | null;
-	/** `PORTAIL` pour les demandes Super-Marché résident (EN_ATTENTE à validation). */
+	/** `PORTAIL` pour les demandes Supermarché résident (EN_ATTENTE à validation). */
 	origine?: VenteOrigine | null;
 	/** Consigne libre du résident (ventes portail). */
 	note?: string | null;

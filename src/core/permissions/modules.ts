@@ -320,7 +320,7 @@ export const MODULE_DEFINITIONS: ModuleDefinition[] = [
 	},
 	{
 		code: "MARCHANDISE",
-		title: "Super-Marché",
+		title: "Supermarché",
 		description: "Gestion des stocks et des inventaires.",
 		icon: Package,
 		path: "/supermarche",

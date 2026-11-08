@@ -43,7 +43,7 @@ function Indicateur({ label, valeur }: { label: string; valeur: string }) {
 }
 
 /**
- * Page « Statistiques — Super-Marché » (module Marchandise, M3) : chiffre d'affaires,
+ * Page « Statistiques — Supermarché » (module Marchandise, M3) : chiffre d'affaires,
  * marge, ventes par statut, top produits et alerte stock — depuis
  * `GET /market/rapports/ventes` + `/market/stock/alerte`. Filtre de période.
  */
@@ -69,11 +69,11 @@ export function StatistiquesPage({
 			<PageHeader
 				breadcrumb={[
 					{ label: "Accueil", to: "/" },
-					{ label: "Produits — Super-Marché", to: "/supermarche/produits" },
-					{ label: "Statistiques — Super-Marché" },
+					{ label: "Produits — Supermarché", to: "/supermarche/produits" },
+					{ label: "Statistiques — Supermarché" },
 				]}
-				title="Statistiques — Super-Marché"
-				description="Indicateurs de performance du Super-Marché."
+				title="Statistiques — Supermarché"
+				description="Indicateurs de performance du Supermarché."
 				actions={
 					<div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
 						<Input

@@ -27,7 +27,7 @@ interface DemanderSuperMarcheDialogProps {
 }
 
 /**
- * Finalisation d'une demande Super-Marché depuis le panier : récapitulatif des
+ * Finalisation d'une demande Supermarché depuis le panier : récapitulatif des
  * lignes + note libre optionnelle. Le total affiché est indicatif — le
  * serveur fige les prix au `prix_vente` catalogue du moment. Pas de
  * paiement en ligne : validation par le personnel puis règlement au
@@ -57,7 +57,7 @@ export function DemanderSuperMarcheDialog({
 				<DialogHeader>
 					<DialogTitle>Envoyer ma demande</DialogTitle>
 					<DialogDescription>
-						Votre demande sera validée par le personnel du Super-Marché —
+						Votre demande sera validée par le personnel du Supermarché —
 						paiement au comptoir au retrait, pas de paiement en ligne.
 					</DialogDescription>
 				</DialogHeader>

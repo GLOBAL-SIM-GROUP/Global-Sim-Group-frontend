@@ -28,7 +28,7 @@ function imageDuProduit(produit: Produit): string | null {
 }
 
 /**
- * Catalogue du Super-Marché — produits actifs et non épuisés avec panier
+ * Catalogue du Supermarché — produits actifs et non épuisés avec panier
  * persisté en `localStorage` (clé dédiée, indépendant du panier
  * restaurant). Partagée entre l'espace client (`/espace-client/supermarche`)
  * et le portail résident (`/residence/portail/supermarche`) : `breadcrumb` et
@@ -146,7 +146,7 @@ export function SuperMarcheCataloguePage({
 			<div className="flex flex-col items-center gap-4 py-24 text-center">
 				<AlertCircle className="size-8 text-destructive" aria-hidden />
 				<p className="text-muted-foreground">
-					Impossible de charger le Super-Marché pour le moment.
+					Impossible de charger le Supermarché pour le moment.
 				</p>
 			</div>
 		);
@@ -165,7 +165,7 @@ export function SuperMarcheCataloguePage({
 			>
 				<PageHeader
 					breadcrumb={breadcrumb}
-					title="Super-Marché"
+					title="Supermarché"
 					description="Parcourez le catalogue et composez votre commande."
 				/>
 

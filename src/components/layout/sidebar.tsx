@@ -208,7 +208,7 @@ const RESIDENT_NAV: readonly NavGroupe[] = [
 			},
 			{
 				to: "/residence/portail/supermarche",
-				label: "Super-Marché",
+				label: "Supermarché",
 				icon: ShoppingBag,
 			},
 			{

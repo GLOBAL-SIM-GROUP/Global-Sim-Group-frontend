@@ -83,7 +83,7 @@ const RESIDENT_ENTRIES: NavigationEntry[] = [
 		group: "Résident",
 	},
 	{
-		label: "Super-Marché",
+		label: "Supermarché",
 		path: "/residence/portail/supermarche",
 		group: "Résident",
 	},

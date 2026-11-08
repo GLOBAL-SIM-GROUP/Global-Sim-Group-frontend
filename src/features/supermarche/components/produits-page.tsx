@@ -43,7 +43,7 @@ interface ProduitsPageProps {
 }
 
 /**
- * Page « Produits — Super-Marché » (module Marchandise, M3) : catalogue des produits
+ * Page « Produits — Supermarché » (module Marchandise, M3) : catalogue des produits
  * avec référence, catégorie, prix, stock, seuil et fournisseur. Filtres et
  * pagination côté client ; modale Ajouter/Modifier. Liens vers les mouvements,
  * les ventes et les statistiques.
@@ -123,10 +123,10 @@ export function ProduitsPage({
 			<PageHeader
 				breadcrumb={[
 					{ label: "Accueil", to: "/" },
-					{ label: "Produits — Super-Marché" },
+					{ label: "Produits — Supermarché" },
 				]}
-				title="Produits — Super-Marché"
-				description="Catalogue des produits du Super-Marché."
+				title="Produits — Supermarché"
+				description="Catalogue des produits du Supermarché."
 				actions={
 					<div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
 						<Button

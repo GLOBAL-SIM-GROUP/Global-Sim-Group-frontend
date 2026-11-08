@@ -31,7 +31,7 @@ const toVente = ({
 });
 
 /**
- * Appels API du portail résident — demandes Super-Marché
+ * Appels API du portail résident — demandes Supermarché
  * (`/market/portail/ventes`). Le client est déduit du JWT : ne jamais
  * envoyer `id_client`, de montant ni de paiement (le serveur fige
  * `prix_unitaire` au `prix_vente` catalogue). La vente naît `EN_ATTENTE`
@@ -39,7 +39,7 @@ const toVente = ({
  * validation staff.
  */
 
-/** Liste des demandes Super-Marché du résident connecté (PORTAIL.VOIR). */
+/** Liste des demandes Supermarché du résident connecté (PORTAIL.VOIR). */
 export async function listMesVentesPortail(): Promise<VentePortail[]> {
 	const response = await getApiClient().apiFetch<VentePortailWire[]>(
 		"/api/v1/market/portail/ventes",
@@ -55,7 +55,7 @@ export async function getVentePortail(id: string): Promise<VentePortail> {
 	return toVente(response);
 }
 
-/** Corps saisi par le panier Super-Marché de l'espace client. */
+/** Corps saisi par le panier Supermarché de l'espace client. */
 export interface VentePortailBody {
 	lignes: { id_produit: string; quantite: string }[];
 	/** Consigne optionnelle (≤500). */

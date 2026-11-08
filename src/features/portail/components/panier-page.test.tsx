@@ -154,7 +154,7 @@ describe("PanierPage", () => {
 		).toBeInTheDocument();
 	});
 
-	it("le panier Super-Marché ouvre le dialogue avant envoi via POST portail", async () => {
+	it("le panier Supermarché ouvre le dialogue avant envoi via POST portail", async () => {
 		localStorage.setItem(
 			CLE_PANIER_SUPERMARCHE,
 			JSON.stringify([
@@ -190,7 +190,7 @@ describe("PanierPage", () => {
 		);
 	});
 
-	it("masque le bouton Super-Marché sans MARCHANDISE.COMMANDER", async () => {
+	it("masque le bouton Supermarché sans MARCHANDISE.COMMANDER", async () => {
 		mocks.useCan.mockReturnValue(false);
 		localStorage.setItem(
 			CLE_PANIER_SUPERMARCHE,
@@ -212,7 +212,7 @@ describe("PanierPage", () => {
 			screen.queryByRole("button", { name: /envoyer ma demande/i }),
 		).not.toBeInTheDocument();
 		expect(
-			screen.getByText(/présentez-vous au Super-Marché/i),
+			screen.getByText(/présentez-vous au Supermarché/i),
 		).toBeInTheDocument();
 	});
 });

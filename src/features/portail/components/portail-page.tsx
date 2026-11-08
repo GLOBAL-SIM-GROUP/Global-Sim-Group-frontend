@@ -130,8 +130,8 @@ export function PortailPage({ variant }: { variant: "client" | "resident" }) {
 		{
 			to: `${base}/supermarche`,
 			icon: ShoppingBag,
-			label: "Super-Marché",
-			description: "Parcourez les articles disponibles au Super-Marché.",
+			label: "Supermarché",
+			description: "Parcourez les articles disponibles au Supermarché.",
 		},
 		{
 			to: `${base}/pressing`,
@@ -317,7 +317,7 @@ export function PortailPage({ variant }: { variant: "client" | "resident" }) {
 					to={`${base}/panier`}
 					icon={ShoppingCart}
 					label="Mon panier"
-					description="Vérifiez vos articles restaurant et Super-Marché puis envoyez votre demande."
+					description="Vérifiez vos articles restaurant et Supermarché puis envoyez votre demande."
 					badge={
 						nombreArticlesPanier > 0
 							? { label: String(nombreArticlesPanier), variant: "neutral" }

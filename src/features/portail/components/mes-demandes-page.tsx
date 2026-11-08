@@ -64,7 +64,7 @@ export interface MesDemandesLiens {
 /**
  * « Mes demandes » — vue agrégée des demandes portail : commandes
  * restaurant, dépôts pressing, réservations de salle de fête, demandes
- * Super-Marché, demandes de séjour court et signalements, issues des vrais
+ * Supermarché, demandes de séjour court et signalements, issues des vrais
  * endpoints portail (`/restaurant/portail`, `/pressing/portail`,
  * `/salle-fete/portail`, `/market/portail`, `/residence/portail`,
  * `/signalements/portail`) avec statuts en direct. Partagée entre l'espace
@@ -110,7 +110,7 @@ export function MesDemandesPage({
 			<PageHeader
 				breadcrumb={breadcrumb}
 				title="Mes demandes"
-				description="Commandes restaurant, dépôts pressing, réservations de salle de fête, demandes Super-Marché, séjours courts et signalements — avec leur statut en temps réel."
+				description="Commandes restaurant, dépôts pressing, réservations de salle de fête, demandes Supermarché, séjours courts et signalements — avec leur statut en temps réel."
 			/>
 
 			<SectionDemande
@@ -230,7 +230,7 @@ export function MesDemandesPage({
 			</SectionDemande>
 
 			<SectionDemande
-				titre="Demandes Super-Marché"
+				titre="Demandes Supermarché"
 				isLoading={ventesQuery.isLoading}
 				isError={ventesQuery.isError}
 				onRetry={() => void ventesQuery.refetch()}

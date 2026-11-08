@@ -58,7 +58,7 @@ describe("LandingPage", () => {
 			screen.getAllByRole("button", { name: /s'inscrire/i }).length,
 		).toBeGreaterThan(0);
 
-		// Sections d'ancrage : services, carte, Super-Marché, fonctionnement.
+		// Sections d'ancrage : services, carte, Supermarché, fonctionnement.
 		// (« Nos services » apparaît aussi dans le footer → getAllByRole.)
 		expect(
 			screen.getAllByRole("heading", { name: /nos services/i }).length,
@@ -77,7 +77,7 @@ describe("LandingPage", () => {
 		// `aria-label` (le libellé du service), peu importe l'état actif/replié.
 		for (const titre of [
 			"Restaurant",
-			"Super-Marché",
+			"Supermarché",
 			"Pressing",
 			"Salle de fête",
 			"Résidence",

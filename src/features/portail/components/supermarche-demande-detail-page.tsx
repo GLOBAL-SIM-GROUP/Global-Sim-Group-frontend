@@ -39,7 +39,7 @@ interface SuperMarcheDemandePortailDetailPageProps {
 }
 
 /**
- * Détail d'une demande Super-Marché : lignes, total, suivi du statut et
+ * Détail d'une demande Supermarché : lignes, total, suivi du statut et
  * annulation tant qu'elle est `EN_ATTENTE` (`MARCHANDISE.COMMANDER`). Aucun
  * paiement en ligne — retrait et règlement au comptoir. Partagée entre le
  * portail résident et l'espace client : les routes passent fil d'Ariane,
@@ -71,7 +71,7 @@ export function SuperMarcheDemandePortailDetailPage({
 		return (
 			<div className={`${className} space-y-3`}>
 				<h1 className="text-2xl font-semibold text-foreground">
-					Demande Super-Marché
+					Demande Supermarché
 				</h1>
 				<div
 					role="alert"
@@ -202,7 +202,7 @@ export function SuperMarcheDemandePortailDetailPage({
 			<AnnulerDemandeDialog
 				open={confirmOuvert}
 				titre="Annuler la demande ?"
-				description="L'annulation est définitive — possible uniquement tant que la demande n'a pas été validée par le Super-Marché."
+				description="L'annulation est définitive — possible uniquement tant que la demande n'a pas été validée par le Supermarché."
 				isPending={annuler.isPending}
 				erreur={
 					annuler.error

@@ -86,7 +86,7 @@ export const SERVICES_GROUPES: readonly {
 			},
 			{
 				id: "supermarche",
-				label: "Super-Marché",
+				label: "Supermarché",
 				icon: ShoppingBag,
 				to: "/espace-client/supermarche",
 			},

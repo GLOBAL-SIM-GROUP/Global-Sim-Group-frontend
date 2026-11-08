@@ -24,7 +24,7 @@ function BoutiquePortailRoutePage() {
 			breadcrumb={[
 				{ label: "Accueil", to: "/" },
 				{ label: "Mon espace résident", to: "/residence/portail" },
-				{ label: "Super-Marché" },
+				{ label: "Supermarché" },
 			]}
 			panierTo="/residence/portail/panier"
 			variant="resident"

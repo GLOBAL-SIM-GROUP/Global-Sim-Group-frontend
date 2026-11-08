@@ -41,7 +41,7 @@ interface PlatFormProps {
  * explicite vers une saisie libre qui crée la catégorie au catalogue
  * (`POST /restaurant/categories`) puis sélectionne automatiquement celle qui
  * vient d'être créée. Même pattern que `ChampSelectOuCreer` du module
- * Super-Marché (`supermarche/produit-form.tsx`) — pas de renommage/suppression
+ * Supermarché (`supermarche/produit-form.tsx`) — pas de renommage/suppression
  * possible, le backend n'expose aucun endpoint `/restaurant/categories/{id}`.
  */
 function ChampCategorieOuCreer({

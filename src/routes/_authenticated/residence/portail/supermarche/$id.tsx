@@ -4,7 +4,7 @@ import { requirePermissions } from "#/core/auth";
 import { SuperMarcheDemandePortailDetailPage } from "#/features/portail/components/supermarche-demande-detail-page";
 
 /**
- * Détail d'une demande Super-Marché du portail résident : lignes, suivi du
+ * Détail d'une demande Supermarché du portail résident : lignes, suivi du
  * statut et annulation tant qu'elle est `EN_ATTENTE`. Page gated par
  * `PORTAIL.VOIR`.
  */
@@ -27,7 +27,7 @@ function BoutiqueDemandeDetailRoutePage() {
 				label: "Mon espace résident",
 				to: "/residence/portail",
 			}}
-			labelListe="Super-Marché"
+			labelListe="Supermarché"
 			lienListe="/residence/portail/supermarche"
 			labelRetour="Retour à la liste"
 		/>

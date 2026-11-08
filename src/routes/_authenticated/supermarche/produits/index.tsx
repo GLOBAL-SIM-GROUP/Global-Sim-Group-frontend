@@ -8,7 +8,7 @@ import {
 } from "#/features/supermarche/components/produits-page";
 
 /**
- * Catalogue des produits — Super-Marché. Filtres et page vivent dans l'URL pour
+ * Catalogue des produits — Supermarché. Filtres et page vivent dans l'URL pour
  * le partage de liens ; appliqués côté client. Page gated par `MARCHANDISE.VOIR`.
  */
 export const Route = createFileRoute("/_authenticated/supermarche/produits/")({

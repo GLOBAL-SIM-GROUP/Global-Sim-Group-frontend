@@ -114,7 +114,7 @@ export function MouvementsPage({
 			<PageHeader
 				breadcrumb={[
 					{ label: "Accueil", to: "/" },
-					{ label: "Produits — Super-Marché", to: "/supermarche/produits" },
+					{ label: "Produits — Supermarché", to: "/supermarche/produits" },
 					{ label: "Mouvements de stock" },
 				]}
 				title="Mouvements de stock"

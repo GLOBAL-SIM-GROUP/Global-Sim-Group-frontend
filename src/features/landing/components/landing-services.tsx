@@ -165,7 +165,7 @@ const SERVICES = [
 	},
 	{
 		icone: ShoppingBag,
-		titre: "Super-Marché",
+		titre: "Supermarché",
 		description:
 			"Parcourez le catalogue et commandez vos articles en quelques clics.",
 		points: [

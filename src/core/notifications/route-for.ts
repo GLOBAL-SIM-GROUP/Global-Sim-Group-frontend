@@ -41,7 +41,7 @@ export function routeFor(
 	// « portail » pointent vers la vue du compte concerné — jamais vers les
 	// pages staff, qui renverraient un 403 ou une redirection.
 	// `portailServices` (PORTAIL.VOIR — migration backend 084) couvre les
-	// pages des portails de service (restaurant/pressing/salle-fête/Super-Marché) ;
+	// pages des portails de service (restaurant/pressing/salle-fête/Supermarché) ;
 	// `portailResident` (RESIDENT.VOIR) les pages du portail résidence
 	// (échéances, caution…). Un compte RESIDENT réel détient les deux.
 	const espaceClient = role === "CLIENT";
@@ -127,7 +127,7 @@ export function routeFor(
 		}
 
 		case "market.vente.statut": {
-			// Statut d'une demande Super-Marché portail — résident ou staff.
+			// Statut d'une demande Supermarché portail — résident ou staff.
 			const id = asId(data.id_vente);
 			if (espaceClient)
 				return id ? { to: `/espace-client/supermarche/${id}` } : null;
@@ -138,7 +138,7 @@ export function routeFor(
 		}
 
 		case "market.demande_creee":
-			// Nouvelle demande Super-Marché — alerte staff uniquement.
+			// Nouvelle demande Supermarché — alerte staff uniquement.
 			return { to: "/supermarche/ventes" };
 
 		case "market.stock_bas":

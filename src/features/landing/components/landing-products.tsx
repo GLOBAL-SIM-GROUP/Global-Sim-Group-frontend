@@ -90,7 +90,7 @@ export function LandingProducts() {
 				<div className="mb-14 space-y-4 text-center">
 					<SplitText
 						tag="h2"
-						text="Le Super-Marché"
+						text="Le Supermarché"
 						className="text-3xl font-bold text-foreground sm:text-4xl lg:text-5xl"
 						splitType="words"
 						delay={60}

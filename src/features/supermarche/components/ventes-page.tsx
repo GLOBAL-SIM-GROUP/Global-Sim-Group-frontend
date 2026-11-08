@@ -51,9 +51,9 @@ interface VentesPageProps {
 }
 
 /**
- * Page « Ventes — Super-Marché » (module Marchandise, M3) : historique des ventes
+ * Page « Ventes — Supermarché » (module Marchandise, M3) : historique des ventes
  * avec total, client (résolu via la base unique) et statut — inclut les
- * demandes Super-Marché du portail (`origine = "PORTAIL"`, `EN_ATTENTE`).
+ * demandes Supermarché du portail (`origine = "PORTAIL"`, `EN_ATTENTE`).
  * Actions : Voir la facture, Valider/Refuser une demande `EN_ATTENTE`,
  * Encaisser une vente `EN_COURS` (`FINANCES.ENCAISSER` — transition
  * `EN_COURS → PAYEE` du workflow portail), Annuler (`MARCHANDISE.ANNULER`,
@@ -63,7 +63,7 @@ interface VentesPageProps {
 export function VentesPage({ initialSearch, onSearchChange }: VentesPageProps) {
 	const canCreer = useCan("MARCHANDISE.CREER");
 
-	// Rafraîchissement live : une demande Super-Marché `EN_ATTENTE` ou un statut
+	// Rafraîchissement live : une demande Supermarché `EN_ATTENTE` ou un statut
 	// de vente portail poussé par socket invalide la liste (même approche que
 	// `PortailNotificationsBridge` — l'historique repoussé au montage est
 	// marqué « vu » sans invalider).
@@ -202,10 +202,10 @@ export function VentesPage({ initialSearch, onSearchChange }: VentesPageProps) {
 			<PageHeader
 				breadcrumb={[
 					{ label: "Accueil", to: "/" },
-					{ label: "Produits — Super-Marché", to: "/supermarche/produits" },
-					{ label: "Ventes — Super-Marché" },
+					{ label: "Produits — Supermarché", to: "/supermarche/produits" },
+					{ label: "Ventes — Supermarché" },
 				]}
-				title="Ventes — Super-Marché"
+				title="Ventes — Supermarché"
 				description="Toutes les ventes enregistrées, avec le total et le client."
 				actions={
 					canCreer ? (

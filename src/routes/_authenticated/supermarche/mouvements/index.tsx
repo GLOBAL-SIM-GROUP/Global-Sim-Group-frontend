@@ -8,7 +8,7 @@ import {
 } from "#/features/supermarche/components/mouvements-page";
 
 /**
- * Mouvements de stock — Super-Marché. Filtres et page vivent dans l'URL pour le
+ * Mouvements de stock — Supermarché. Filtres et page vivent dans l'URL pour le
  * partage de liens ; appliqués côté client. Page gated par `MARCHANDISE.VOIR`.
  */
 export const Route = createFileRoute("/_authenticated/supermarche/mouvements/")(

@@ -29,7 +29,7 @@ import { DemanderSuperMarcheDialog } from "./demander-supermarche-dialog";
 export interface PanierPageLiens {
 	/** Catalogue restaurant (« la carte »). */
 	restaurant: string;
-	/** Catalogue Super-Marché. */
+	/** Catalogue Supermarché. */
 	supermarche: string;
 	/** Vue agrégée des demandes (« Mes demandes »). */
 	mesDemandes: string;
@@ -374,7 +374,7 @@ function SectionPanierRestaurant({
  * Section « Boutique » du panier : envoi réel via
  * `POST /market/portail/ventes` (MARCHANDISE.COMMANDER) — la vente naît
  * `EN_ATTENTE` avec `origine = "PORTAIL"`, visible dans le back-office
- * Super-Marché. Le dialogue collecte une note optionnelle ; le total affiché
+ * Supermarché. Le dialogue collecte une note optionnelle ; le total affiché
  * est indicatif (le serveur fige les prix au `prix_vente` catalogue).
  */
 function SectionPanierBoutique({
@@ -445,7 +445,7 @@ function SectionPanierBoutique({
 		<section className="min-w-0 space-y-3">
 			<div className="flex items-center justify-between">
 				<h2 className="text-base font-semibold text-foreground">
-					Super-Marché
+					Supermarché
 				</h2>
 				{panier.lignes.length > 0 ? (
 					<span className="text-sm text-muted-foreground">
@@ -461,7 +461,7 @@ function SectionPanierBoutique({
 			) : panier.lignes.length === 0 ? (
 				<PanierVide
 					catalogueTo={liens.supermarche}
-					catalogueLabel="le Super-Marché"
+					catalogueLabel="le Supermarché"
 				/>
 			) : (
 				<>
@@ -507,7 +507,7 @@ function SectionPanierBoutique({
 							) : (
 								<p className="text-sm text-muted-foreground">
 									La commande en ligne n'est pas activée sur votre compte —
-									présentez-vous au Super-Marché.
+									présentez-vous au Supermarché.
 								</p>
 							)}
 						</div>
@@ -529,11 +529,11 @@ function SectionPanierBoutique({
 }
 
 /**
- * « Mon panier » — récapitulatif des articles restaurant et Super-Marché
+ * « Mon panier » — récapitulatif des articles restaurant et Supermarché
  * (paniers indépendants par clé de stockage, partagés entre l'espace client
  * et le portail résident), ajustement des quantités puis envoi. Les deux
  * sections créent de vraies demandes portail `EN_ATTENTE` (restaurant
- * `/restaurant/portail/commandes`, Super-Marché `/market/portail/ventes`),
+ * `/restaurant/portail/commandes`, Supermarché `/market/portail/ventes`),
  * suivies dans « Mes demandes ».
  *
  * `variant` : `client` = le shell espace client porte marges et largeur

@@ -1,7 +1,7 @@
 import { SuperMarcheDemandePortailDetailPage } from "#/features/portail/components/supermarche-demande-detail-page";
 
 /**
- * Détail d'une demande Super-Marché de l'espace client
+ * Détail d'une demande Supermarché de l'espace client
  * (`/espace-client/supermarche/$id`) — même page/API que le portail résident ;
  * le retour renvoie vers « Mes demandes ».
  */
@@ -10,7 +10,7 @@ export function SuperMarcheDemandeDetailEspacePage({ id }: { id: string }) {
 		<SuperMarcheDemandePortailDetailPage
 			id={id}
 			breadcrumbAccueil={{ label: "Espace client", to: "/espace-client" }}
-			labelListe="Super-Marché"
+			labelListe="Supermarché"
 			lienListe="/espace-client/supermarche"
 			labelRetour="Retour à mes demandes"
 			lienRetour="/espace-client/mes-demandes"

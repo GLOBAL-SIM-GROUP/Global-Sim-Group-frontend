@@ -25,7 +25,7 @@ const borneQuantite = (valeur: number) =>
 
 /**
  * Modale « choisir la quantité » d'un article de catalogue (restaurant,
- * Super-Marché…) — ouverte au clic sur le bouton panier de la carte pour que
+ * Supermarché…) — ouverte au clic sur le bouton panier de la carte pour que
  * la personne saisisse directement le nombre voulu au lieu de cliquer
  * autant de fois. Partagée entre l'espace client et le portail résident.
  *

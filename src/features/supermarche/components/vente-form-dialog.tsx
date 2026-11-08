@@ -17,7 +17,7 @@ interface VenteFormDialogProps {
 	onSaved: () => void;
 }
 
-/** Modale « Nouvelle vente — Super-Marché » (M3). */
+/** Modale « Nouvelle vente — Supermarché » (M3). */
 export function VenteFormDialog({
 	open,
 	produits,
@@ -28,7 +28,7 @@ export function VenteFormDialog({
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
 			<DialogContent className="max-h-[85dvh] max-w-2xl overflow-y-auto">
-				<DialogTitle>Nouvelle vente — Super-Marché</DialogTitle>
+				<DialogTitle>Nouvelle vente — Supermarché</DialogTitle>
 				<DialogDescription>
 					Sélectionnez les produits, les quantités et le moyen de paiement.
 				</DialogDescription>

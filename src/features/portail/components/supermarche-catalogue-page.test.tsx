@@ -121,7 +121,7 @@ vi.mock("@tanstack/react-router", async (importOriginal) => {
 });
 
 const PROPS = {
-	breadcrumb: [{ label: "Super-Marché" }],
+	breadcrumb: [{ label: "Supermarché" }],
 	panierTo: "/residence/portail/panier",
 	variant: "resident" as const,
 };

@@ -25,11 +25,11 @@ export function CategoriesProduitsPage() {
 			<PageHeader
 				breadcrumb={[
 					{ label: "Accueil", to: "/" },
-					{ label: "Produits — Super-Marché", to: "/supermarche/produits" },
+					{ label: "Produits — Supermarché", to: "/supermarche/produits" },
 					{ label: "Catégories de produits" },
 				]}
 				title="Catégories de produits"
-				description="Catégories du catalogue Super-Marché (alimentation, boissons…)."
+				description="Catégories du catalogue Supermarché (alimentation, boissons…)."
 				actions={
 					canCreer ? (
 						<Button onClick={() => setFormOuvert(true)}>

@@ -9,7 +9,7 @@ import {
 } from "../api/supermarche";
 import { supermarcheVentesKeys } from "../permissions";
 
-/** Liste des demandes Super-Marché du résident connecté. */
+/** Liste des demandes Supermarché du résident connecté. */
 export function useMesVentesPortail() {
 	return useQuery({
 		queryKey: supermarcheVentesKeys.list(),
@@ -27,7 +27,7 @@ export function useVentePortail(id: string) {
 	});
 }
 
-/** Envoie une demande d'achat Super-Marché (POST portail → EN_ATTENTE). */
+/** Envoie une demande d'achat Supermarché (POST portail → EN_ATTENTE). */
 export function useCreerVentePortail() {
 	const queryClient = useQueryClient();
 	return useMutation({

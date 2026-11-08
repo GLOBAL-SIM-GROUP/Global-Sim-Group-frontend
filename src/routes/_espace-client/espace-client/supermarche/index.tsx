@@ -7,7 +7,7 @@ import { SuperMarcheCataloguePage } from "#/features/portail/components/supermar
  * catalogue et composer un panier. Panier frontend (`usePanierArticles`,
  * persisté en `localStorage`) ; l'envoi passe par `POST
  * /market/portail/ventes` depuis la page panier — la demande naît
- * `EN_ATTENTE`, visible côté Super-Marché.
+ * `EN_ATTENTE`, visible côté Supermarché.
  */
 export const Route = createFileRoute(
 	"/_espace-client/espace-client/supermarche/",
@@ -20,7 +20,7 @@ function BoutiqueEspaceRoutePage() {
 		<SuperMarcheCataloguePage
 			breadcrumb={[
 				{ label: "Espace client", to: "/espace-client" },
-				{ label: "Super-Marché" },
+				{ label: "Supermarché" },
 			]}
 			panierTo="/espace-client/panier"
 			variant="client"

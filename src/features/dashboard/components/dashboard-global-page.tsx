@@ -589,10 +589,10 @@ export function DashboardGlobalPage() {
 						)}
 					</div>
 
-					{/* Super-Marché et Stock */}
+					{/* Supermarché et Stock */}
 					<div className="space-y-3">
 						<h2 className="text-lg font-semibold text-foreground">
-							Super-Marché & Inventaire
+							Supermarché & Inventaire
 						</h2>
 						<div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
 							<InfoCard

@@ -7,7 +7,7 @@ import {
 } from "#/features/supermarche/components/produits-page";
 
 /**
- * Catalogue public des produits — Super-Marché.
+ * Catalogue public des produits — Supermarché.
  * Accessible sans authentification.
  */
 export const Route = createFileRoute("/supermarche/produits")({

@@ -8,7 +8,7 @@ import {
 } from "#/features/supermarche/components/statistiques-page";
 
 /**
- * Statistiques — Super-Marché. Filtre de période dans l'URL. Page gated par
+ * Statistiques — Supermarché. Filtre de période dans l'URL. Page gated par
  * `MARCHANDISE.VOIR`.
  */
 export const Route = createFileRoute(
