@@ -298,7 +298,7 @@ describe("MesDemandesPage", () => {
 		);
 	});
 
-	it("liste les demandes super-marché avec leur statut en direct", () => {
+	it("liste les demandes Super-Marché avec leur statut en direct", () => {
 		mockQueries({ ventes });
 
 		render(<MesDemandesPage {...PROPS} />);

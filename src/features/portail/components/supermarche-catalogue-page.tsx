@@ -28,7 +28,7 @@ function imageDuProduit(produit: Produit): string | null {
 }
 
 /**
- * Catalogue du super-marché — produits actifs et non épuisés avec panier
+ * Catalogue du Super-Marché — produits actifs et non épuisés avec panier
  * persisté en `localStorage` (clé dédiée, indépendant du panier
  * restaurant). Partagée entre l'espace client (`/espace-client/supermarche`)
  * et le portail résident (`/residence/portail/supermarche`) : `breadcrumb` et
@@ -46,11 +46,11 @@ export function SuperMarcheCataloguePage({
 	variant: "client" | "resident";
 }) {
 	const produitsQuery = useQuery({
-		queryKey: ["portail", "super-marché", "produits"],
+		queryKey: ["portail", "supermarche", "produits"],
 		queryFn: () => listProduits(),
 	});
 	const categoriesQuery = useQuery({
-		queryKey: ["portail", "super-marché", "categories"],
+		queryKey: ["portail", "supermarche", "categories"],
 		queryFn: () => listCategoriesProduits(),
 	});
 	const [categorieActive, setCategorieActive] = useState(TOUTES_CATEGORIES);
@@ -146,7 +146,7 @@ export function SuperMarcheCataloguePage({
 			<div className="flex flex-col items-center gap-4 py-24 text-center">
 				<AlertCircle className="size-8 text-destructive" aria-hidden />
 				<p className="text-muted-foreground">
-					Impossible de charger le super-marché pour le moment.
+					Impossible de charger le Super-Marché pour le moment.
 				</p>
 			</div>
 		);

@@ -154,7 +154,7 @@ describe("PanierPage", () => {
 		).toBeInTheDocument();
 	});
 
-	it("le panier super-marché ouvre le dialogue avant envoi via POST portail", async () => {
+	it("le panier Super-Marché ouvre le dialogue avant envoi via POST portail", async () => {
 		localStorage.setItem(
 			CLE_PANIER_SUPERMARCHE,
 			JSON.stringify([
@@ -190,7 +190,7 @@ describe("PanierPage", () => {
 		);
 	});
 
-	it("masque le bouton super-marché sans MARCHANDISE.COMMANDER", async () => {
+	it("masque le bouton Super-Marché sans MARCHANDISE.COMMANDER", async () => {
 		mocks.useCan.mockReturnValue(false);
 		localStorage.setItem(
 			CLE_PANIER_SUPERMARCHE,

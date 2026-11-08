@@ -53,7 +53,7 @@ interface VentesPageProps {
 /**
  * Page « Ventes — Super-Marché » (module Marchandise, M3) : historique des ventes
  * avec total, client (résolu via la base unique) et statut — inclut les
- * demandes super-marché du portail (`origine = "PORTAIL"`, `EN_ATTENTE`).
+ * demandes Super-Marché du portail (`origine = "PORTAIL"`, `EN_ATTENTE`).
  * Actions : Voir la facture, Valider/Refuser une demande `EN_ATTENTE`,
  * Encaisser une vente `EN_COURS` (`FINANCES.ENCAISSER` — transition
  * `EN_COURS → PAYEE` du workflow portail), Annuler (`MARCHANDISE.ANNULER`,
@@ -63,7 +63,7 @@ interface VentesPageProps {
 export function VentesPage({ initialSearch, onSearchChange }: VentesPageProps) {
 	const canCreer = useCan("MARCHANDISE.CREER");
 
-	// Rafraîchissement live : une demande super-marché `EN_ATTENTE` ou un statut
+	// Rafraîchissement live : une demande Super-Marché `EN_ATTENTE` ou un statut
 	// de vente portail poussé par socket invalide la liste (même approche que
 	// `PortailNotificationsBridge` — l'historique repoussé au montage est
 	// marqué « vu » sans invalider).

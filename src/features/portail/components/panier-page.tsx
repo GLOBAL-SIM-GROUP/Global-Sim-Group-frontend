@@ -29,7 +29,7 @@ import { DemanderSuperMarcheDialog } from "./demander-supermarche-dialog";
 export interface PanierPageLiens {
 	/** Catalogue restaurant (« la carte »). */
 	restaurant: string;
-	/** Catalogue super-marché. */
+	/** Catalogue Super-Marché. */
 	supermarche: string;
 	/** Vue agrégée des demandes (« Mes demandes »). */
 	mesDemandes: string;
@@ -374,7 +374,7 @@ function SectionPanierRestaurant({
  * Section « Boutique » du panier : envoi réel via
  * `POST /market/portail/ventes` (MARCHANDISE.COMMANDER) — la vente naît
  * `EN_ATTENTE` avec `origine = "PORTAIL"`, visible dans le back-office
- * super-marché. Le dialogue collecte une note optionnelle ; le total affiché
+ * Super-Marché. Le dialogue collecte une note optionnelle ; le total affiché
  * est indicatif (le serveur fige les prix au `prix_vente` catalogue).
  */
 function SectionPanierBoutique({
@@ -529,11 +529,11 @@ function SectionPanierBoutique({
 }
 
 /**
- * « Mon panier » — récapitulatif des articles restaurant et super-marché
+ * « Mon panier » — récapitulatif des articles restaurant et Super-Marché
  * (paniers indépendants par clé de stockage, partagés entre l'espace client
  * et le portail résident), ajustement des quantités puis envoi. Les deux
  * sections créent de vraies demandes portail `EN_ATTENTE` (restaurant
- * `/restaurant/portail/commandes`, super-marché `/market/portail/ventes`),
+ * `/restaurant/portail/commandes`, Super-Marché `/market/portail/ventes`),
  * suivies dans « Mes demandes ».
  *
  * `variant` : `client` = le shell espace client porte marges et largeur

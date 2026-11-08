@@ -4,8 +4,8 @@ import { PanierPage } from "#/features/portail/components/panier-page";
 
 /**
  * Panier de l'espace client (`/espace-client/panier`) : récapitulatif des
- * articles restaurant et super-marché puis envoi des demandes portail —
- * restaurant `POST /restaurant/portail/commandes`, super-marché
+ * articles restaurant et Super-Marché puis envoi des demandes portail —
+ * restaurant `POST /restaurant/portail/commandes`, Super-Marché
  * `POST /market/portail/ventes`.
  */
 export const Route = createFileRoute("/_espace-client/espace-client/panier")({

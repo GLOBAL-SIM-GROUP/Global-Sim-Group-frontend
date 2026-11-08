@@ -58,7 +58,7 @@ describe("LandingPage", () => {
 			screen.getAllByRole("button", { name: /s'inscrire/i }).length,
 		).toBeGreaterThan(0);
 
-		// Sections d'ancrage : services, carte, super-marché, fonctionnement.
+		// Sections d'ancrage : services, carte, Super-Marché, fonctionnement.
 		// (« Nos services » apparaît aussi dans le footer → getAllByRole.)
 		expect(
 			screen.getAllByRole("heading", { name: /nos services/i }).length,

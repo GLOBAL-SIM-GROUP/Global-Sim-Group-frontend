@@ -5,7 +5,7 @@ import { PanierPage } from "#/features/portail/components/panier-page";
 
 /**
  * Panier du portail résident (`/residence/portail/panier`) : récapitulatif
- * des articles restaurant et super-marché puis envoi des demandes portail —
+ * des articles restaurant et Super-Marché puis envoi des demandes portail —
  * mêmes endpoints que l'espace client. Gated par `PORTAIL.VOIR`.
  */
 export const Route = createFileRoute(

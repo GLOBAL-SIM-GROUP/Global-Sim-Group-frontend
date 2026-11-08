@@ -7,7 +7,7 @@ import { useMesVentesPortail } from "./use-supermarche";
 /**
  * Demandes portail encore en cours, tous services confondus (les
  * signalements sont suivis à part dans « Mes demandes ») :
- * restaurant/super-marché tant que ni payée ni annulée, pressing tant que
+ * restaurant/Super-Marché tant que ni payée ni annulée, pressing tant que
  * ni retiré ni annulé, salle de fête tant que ni réalisée ni annulée,
  * séjour tant que ni terminé ni annulé. Partagé par l'accueil de
  * l'espace client et les cartes du portail résident — mêmes filtres

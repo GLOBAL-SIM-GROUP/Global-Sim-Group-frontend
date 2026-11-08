@@ -7,7 +7,7 @@
  */
 /**
  * Clés localStorage des paniers par service — centralisées pour que la page
- * Panier récapitule restaurant et super-marché sans dupliquer les chaînes. Le
+ * Panier récapitule restaurant et Super-Marché sans dupliquer les chaînes. Le
  * préfixe historique `espace-client.` est conservé : résident et client
  * partagent le même stockage du navigateur (un seul panier par personne).
  */

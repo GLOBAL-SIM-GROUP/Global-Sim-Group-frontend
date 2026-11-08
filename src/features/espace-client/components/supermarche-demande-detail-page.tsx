@@ -1,7 +1,7 @@
 import { SuperMarcheDemandePortailDetailPage } from "#/features/portail/components/supermarche-demande-detail-page";
 
 /**
- * Détail d'une demande super-marché de l'espace client
+ * Détail d'une demande Super-Marché de l'espace client
  * (`/espace-client/supermarche/$id`) — même page/API que le portail résident ;
  * le retour renvoie vers « Mes demandes ».
  */

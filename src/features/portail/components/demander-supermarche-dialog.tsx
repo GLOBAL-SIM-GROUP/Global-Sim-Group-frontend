@@ -27,7 +27,7 @@ interface DemanderSuperMarcheDialogProps {
 }
 
 /**
- * Finalisation d'une demande super-marché depuis le panier : récapitulatif des
+ * Finalisation d'une demande Super-Marché depuis le panier : récapitulatif des
  * lignes + note libre optionnelle. Le total affiché est indicatif — le
  * serveur fige les prix au `prix_vente` catalogue du moment. Pas de
  * paiement en ligne : validation par le personnel puis règlement au
@@ -57,7 +57,7 @@ export function DemanderSuperMarcheDialog({
 				<DialogHeader>
 					<DialogTitle>Envoyer ma demande</DialogTitle>
 					<DialogDescription>
-						Votre demande sera validée par le personnel du super-marché —
+						Votre demande sera validée par le personnel du Super-Marché —
 						paiement au comptoir au retrait, pas de paiement en ligne.
 					</DialogDescription>
 				</DialogHeader>
@@ -82,9 +82,9 @@ export function DemanderSuperMarcheDialog({
 				</ul>
 
 				<div className="mt-4 space-y-2">
-					<Label htmlFor="note-super-marché">Note (optionnel)</Label>
+					<Label htmlFor="note-supermarche">Note (optionnel)</Label>
 					<Textarea
-						id="note-super-marché"
+						id="note-supermarche"
 						maxLength={500}
 						placeholder="Ex. : à récupérer ce soir, taille du vêtement…"
 						value={note}

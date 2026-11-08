@@ -82,7 +82,7 @@ describe("routeFor", () => {
 		expect(routeFor(envelope("salle_fete.reservation_creee", {}))).toBeNull();
 	});
 
-	it("market.vente.statut -> détail super-marché pour un compte CLIENT", () => {
+	it("market.vente.statut -> détail Super-Marché pour un compte CLIENT", () => {
 		expect(
 			routeFor(envelope("market.vente.statut", { id_vente: "12" }), "CLIENT", [
 				"PORTAIL.VOIR",
@@ -90,7 +90,7 @@ describe("routeFor", () => {
 		).toEqual({ to: "/espace-client/supermarche/12" });
 	});
 
-	it("market.vente.statut -> détail super-marché portail pour un résident", () => {
+	it("market.vente.statut -> détail Super-Marché portail pour un résident", () => {
 		// Contrat market 085 : PORTAIL.VOIR (RESIDENT.VOIR reste toléré — les
 		// comptes résidents détiennent les deux).
 		expect(

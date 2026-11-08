@@ -23,7 +23,7 @@ interface ClientSimpleFormDialogProps {
 /**
  * Modale « Ajouter un client » (3.1, création rapide, type `PASSAGE`) : le
  * strict nécessaire pour identifier un client de passage et lui associer une
- * commande (pressing, restaurant, super-marché) — nom, prénoms (optionnel),
+ * commande (pressing, restaurant, Super-Marché) — nom, prénoms (optionnel),
  * téléphone. Volontairement sans date de naissance, pièce d'identité,
  * adresse, etc. : ces champs ne servent pas à passer une commande et
  * alourdiraient la saisie au comptoir. Pour un résident locataire (dossier

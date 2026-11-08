@@ -64,7 +64,7 @@ export interface MesDemandesLiens {
 /**
  * « Mes demandes » — vue agrégée des demandes portail : commandes
  * restaurant, dépôts pressing, réservations de salle de fête, demandes
- * super-marché, demandes de séjour court et signalements, issues des vrais
+ * Super-Marché, demandes de séjour court et signalements, issues des vrais
  * endpoints portail (`/restaurant/portail`, `/pressing/portail`,
  * `/salle-fete/portail`, `/market/portail`, `/residence/portail`,
  * `/signalements/portail`) avec statuts en direct. Partagée entre l'espace

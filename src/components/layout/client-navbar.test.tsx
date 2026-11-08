@@ -58,7 +58,7 @@ describe("ClientNavbar", () => {
 		for (const link of screen.getAllByRole("link", { name: /restaurant/i })) {
 			expect(link).toHaveAttribute("href", "/espace-client/restaurant");
 		}
-		for (const link of screen.getAllByRole("link", { name: /super-marché/i })) {
+		for (const link of screen.getAllByRole("link", { name: /Super-Marché/i })) {
 			expect(link).toHaveAttribute("href", "/espace-client/supermarche");
 		}
 		for (const link of screen.getAllByRole("link", { name: /pressing/i })) {

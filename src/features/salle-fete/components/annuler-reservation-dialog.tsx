@@ -23,7 +23,7 @@ interface AnnulerReservationDialogProps {
  * Annulation d'une réservation salle de fête (staff) — sur une demande
  * `EN_ATTENTE` c'est un refus : le motif optionnel (≤255) est conservé dans
  * `motif_annulation` et restitué au résident. Pattern `VenteRefusDialog`
- * (super-marché) / `CommandeRefusDialog` (restaurant).
+ * (Super-Marché) / `CommandeRefusDialog` (restaurant).
  */
 export function AnnulerReservationDialog({
 	reservation,

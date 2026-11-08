@@ -4,7 +4,7 @@ import { requirePermissions } from "#/core/auth";
 import { SuperMarcheDemandePortailDetailPage } from "#/features/portail/components/supermarche-demande-detail-page";
 
 /**
- * Détail d'une demande super-marché du portail résident : lignes, suivi du
+ * Détail d'une demande Super-Marché du portail résident : lignes, suivi du
  * statut et annulation tant qu'elle est `EN_ATTENTE`. Page gated par
  * `PORTAIL.VOIR`.
  */
