@@ -444,9 +444,7 @@ function SectionPanierBoutique({
 	return (
 		<section className="min-w-0 space-y-3">
 			<div className="flex items-center justify-between">
-				<h2 className="text-base font-semibold text-foreground">
-					Supermarché
-				</h2>
+				<h2 className="text-base font-semibold text-foreground">Supermarché</h2>
 				{panier.lignes.length > 0 ? (
 					<span className="text-sm text-muted-foreground">
 						{panier.nombreArticles} article

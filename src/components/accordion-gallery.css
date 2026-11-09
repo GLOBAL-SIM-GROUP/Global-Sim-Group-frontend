@@ -148,10 +148,12 @@
 	.accordion-gallery {
 		flex-direction: column;
 		perspective: none;
+		/* biome-ignore lint/complexity/noImportantStyles: requis — surcharge le `height` inline posé par React sur la <ul>. */
 		height: auto !important;
 	}
 	.ag-panel {
 		min-height: 84px;
+		/* biome-ignore lint/complexity/noImportantStyles: requis — surcharge le `transform` inline écrit par GSAP. */
 		transform: none !important;
 	}
 	.accordion-gallery .ag-panel__media {

@@ -119,9 +119,10 @@ describe("AccueilPage", () => {
 			"href",
 			"/espace-client/restaurant",
 		);
-		expect(
-			screen.getByRole("link", { name: /^Supermarché/i }),
-		).toHaveAttribute("href", "/espace-client/supermarche");
+		expect(screen.getByRole("link", { name: /^Supermarché/i })).toHaveAttribute(
+			"href",
+			"/espace-client/supermarche",
+		);
 		expect(screen.getByRole("link", { name: /^pressing/i })).toHaveAttribute(
 			"href",
 			"/espace-client/pressing",
