@@ -26,6 +26,7 @@ import {
 import { cn } from "#/lib/utils";
 
 import { getProduit } from "../api/produits";
+import { useCreerMouvement } from "../hooks/use-mouvements";
 import {
 	useCreerCategorieProduit,
 	useCreerFournisseur,
@@ -235,6 +236,13 @@ function ChampSelectOuCreer({
  * Formulaire « Ajouter / Modifier un produit » (M3), affiché dans une modale.
  * Référence et nom obligatoires, prix numériques, stock initial (création
  * seule), seuil d'alerte, catégorie/fournisseur optionnels, actif.
+ *
+ * Stock initial : il n'est PAS envoyé via `quantite_initiale` (colonne muette,
+ * écrasée par le recalcul nocturne `stock_base + Σ mouvements` — vérifié en
+ * prod : stocks initiaux effacés). Après la création, on écrit un vrai
+ * mouvement `ENTREE` via `useCreerMouvement` : la valeur devient un delta
+ * tracé dans l'historique et survit au recalcul. En édition, le stock est
+ * affiché en lecture seule avec un accès « Corriger » (`CORRIGER_STOCK`).
  */
 export function ProduitForm({
 	produit,
@@ -246,6 +254,7 @@ export function ProduitForm({
 }: ProduitFormProps) {
 	const createMutation = useCreerProduit();
 	const editMutation = useModifierProduit();
+	const creerMouvementMutation = useCreerMouvement();
 	const uploadMutation = useUploadImage();
 	const creerCategorieMutation = useCreerCategorieProduit();
 	const creerFournisseurMutation = useCreerFournisseur();
@@ -309,6 +318,10 @@ export function ProduitForm({
 					const erreur = validerMontant(value.seuilAlerte, "Le seuil d'alerte");
 					if (erreur) fields.seuilAlerte = erreur;
 				}
+				if (value.stockInitial.trim()) {
+					const erreur = validerMontant(value.stockInitial, "Le stock initial");
+					if (erreur) fields.stockInitial = erreur;
+				}
 				if (value.codeBarre.trim().length > 64) {
 					// Format libre : chiffres (EAN-13, ITF), alphanumérique + symboles
 					// (Code 39/128), texte de QR… — le seul garde-fou est la longueur ;
@@ -329,7 +342,12 @@ export function ProduitForm({
 					idCategorieProduit: value.idCategorieProduit || null,
 					prixAchat: normaliserMontantPourBackend(value.prixAchat),
 					prixVente: normaliserMontantPourBackend(value.prixVente),
-					quantiteInitiale: value.stockInitial.trim() || null,
+					// Jamais envoyé : `quantite_initiale` n'écrit aucun mouvement
+					// en base et le recalcul nocturne du backend l'écrase (vérifié
+					// en prod : stocks initiaux effacés à 03:23 par le job
+					// `system`). Le stock est posé juste après via un vrai
+					// mouvement ENTREE — il entre dans `Σ deltas` et survit.
+					quantiteInitiale: null,
 					seuilAlerte: value.seuilAlerte.trim()
 						? normaliserMontantPourBackend(value.seuilAlerte)
 						: null,
@@ -343,6 +361,30 @@ export function ProduitForm({
 					onSaved(produit);
 				} else {
 					const produitCree = await createMutation.mutateAsync(corps);
+					// Le stock initial devient un vrai mouvement ENTREE — voir la
+					// note sur `quantiteInitiale` ci-dessus : c'est ce qui protège
+					// la valeur saisie du recalcul nocturne du backend.
+					const stockInitial = value.stockInitial.trim();
+					if (
+						stockInitial &&
+						Number(normaliserMontantPourBackend(stockInitial)) > 0
+					) {
+						try {
+							await creerMouvementMutation.mutateAsync({
+								idProduit: produitCree.id,
+								type: "ENTREE",
+								quantite: normaliserMontantPourBackend(stockInitial),
+								motif: "Stock initial à la création du produit",
+							});
+						} catch {
+							// Le produit est déjà créé : message dédié, modale ouverte
+							// (même pattern que la caution du formulaire contrat).
+							setGlobalError(
+								`Produit ${produitCree.reference} créé, mais le stock initial n'a pas pu être enregistré. Ajoutez une entrée depuis la page « Mouvements ».`,
+							);
+							return;
+						}
+					}
 					onSaved(produitCree);
 				}
 			} catch (error) {
