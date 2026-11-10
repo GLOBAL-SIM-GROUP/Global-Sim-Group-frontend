@@ -161,7 +161,7 @@ const SERVICES = [
 		],
 		to: "/restaurant/plats",
 		action: "Voir la carte",
-		image: "https://picsum.photos/seed/gsg-restaurant/800/1000",
+		image: "",
 	},
 	{
 		icone: ShoppingBag,
@@ -175,7 +175,7 @@ const SERVICES = [
 		],
 		to: "/supermarche/produits",
 		action: "Voir les produits",
-		image: "https://picsum.photos/seed/gsg-supermarche/800/1000",
+		image: "/supermarche.jpeg",
 	},
 	{
 		icone: Shirt,
@@ -190,7 +190,7 @@ const SERVICES = [
 		to: "/inscription",
 		action: "Déposer mon linge",
 		hint: "Nécessite un compte",
-		image: "https://picsum.photos/seed/gsg-pressing/800/1000",
+		image: "",
 	},
 	{
 		icone: PartyPopper,
@@ -202,7 +202,7 @@ const SERVICES = [
 			"Mariages, cérémonies, séminaires",
 			"Réponse de nos équipes",
 		],
-		image: "https://picsum.photos/seed/gsg-salle-fete/800/1000",
+		image: "",
 		to: "/inscription",
 		action: "Réserver la salle",
 		hint: "Nécessite un compte",
@@ -220,7 +220,7 @@ const SERVICES = [
 		to: "/inscription",
 		action: "Réserver un séjour",
 		hint: "Nécessite un compte",
-		image: "https://picsum.photos/seed/gsg-residence/800/1000",
+		image: "",
 	},
 ] as const;
 
